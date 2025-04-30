@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listino Climatizzatori - C.A.I.</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body> <!-- Classe 'operator-mode' o 'admin-mode' aggiunta da JS -->
+
+    <header class="app-header">
+        <a href="../../HOME/index.html" title="C.A.I. - Home">
+             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
+        </a>
+        <div class="header-controls">
+            <a href="../../HOME/index.html" class="header-action-button" title="Torna alla Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <button id="admin-trigger" class="header-action-button" title="Accesso Admin Listini">
+                <i class="fas fa-user-shield"></i>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-controls">
+             <h1>Listino Climatizzatori</h1>
+             <div class="filters">
+                 <span>Filtra per marca:</span>
+                 <button class="filter-btn active" data-brand="all">Tutte</button>
+                 <button class="filter-btn" data-brand="DAIKIN">Daikin</button>
+                 <button class="filter-btn" data-brand="HAIER">Haier</button>
+                 <button class="filter-btn" data-brand="HITACHI">Hitachi</button>
+                 <button class="filter-btn" data-brand="IMMERGAS">Immergas</button> <!-- Nuovo -->
+                 <button class="filter-btn" data-brand="INNOVA">Innova</button>     <!-- Nuovo -->
+                 <button class="filter-btn" data-brand="LG">LG</button>
+                 <button class="filter-btn" data-brand="MITSUBISHI">Mitsubishi</button>
+                 <button class="filter-btn" data-brand="SAMSUNG">Samsung</button>   <!-- Nuovo -->
+                 <button class="filter-btn" data-brand="TOSHIBA">Toshiba</button>
+                 <button class="filter-btn" data-brand="VIESSMANN">Viessmann</button> <!-- Nuovo -->
+             </div>
+        </div>
+
+        <main>
+            <!-- NUOVO Contenitore per layout a colonne -->
+            <div class="sections-wrapper">
+
+                <section id="monosplit-section" class="content-section">
+                    <h2>Monosplit</h2>
+                    <div id="monosplit-grid" class="product-grid">
+                        <div class="loading-placeholder">Caricamento prodotti...</div>
+                    </div>
+                </section>
+
+                <!-- Sezione Multisplit (vuota per ora, ma pronta) -->
+                <section id="multisplit-section" class="content-section" style="display: none;">
+                    <h2>Multisplit</h2>
+                     <div id="multisplit-grid" class="product-grid">
+                         <div class="loading-placeholder">Caricamento prodotti...</div>
+                    </div>
+                </section>
+
+            </div> <!-- Fine sections-wrapper -->
+        </main>
+
+        <footer>
+             <p>&copy; 2025 C.A.I - Consorzio Artigiani Idraulici </p>
+        </footer>
+    </div> <!-- Fine .container -->
+
+    <div id="password-panel">
+        <button id="close-panel-btn" title="Chiudi pannello">&times;</button>
+        <h3>Accesso Amministratore</h3>
+        <p>Inserisci la password per abilitare le modifiche.</p>
+        <div class="form-group">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" name="admin-password">
+        </div>
+        <button id="submit-password-btn">Accedi</button>
+        <p id="password-error" class="error-message"></p>
+    </div>
+
+    <!-- Tooltip per le dimensioni -->
+    <div id="dimension-tooltip">
+        <img src="images/dimensioni_blueprint.png" alt="Schema dimensioni UI/UE">
+        <div id="tooltip-ui-dimensions" class="tooltip-dimension-text"></div>
+        <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+/* Reset base e stili generali */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: #f8f9fa; color: #343a40; display: flex; flex-direction: column; min-height: 100vh; position: relative; }
+
+/* Header e Logo */
+.app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: sticky; top: 0; z-index: 1000; }
+.logo { height: 45px; width: auto; flex-shrink: 0; background-color: transparent; }
+
+/* Contenitore pulsanti admin header */
+.header-controls { display: flex; align-items: center; gap: 15px; }
+
+/* Pulsante Admin (Generico) */
+.admin-button { background: none; border: none; color: #0056a8; font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease, opacity 0.3s ease, visibility 0.3s ease; }
+.admin-button:hover { color: #d71920; }
+.admin-button:disabled { color: #adb5bd; cursor: default; }
+
+/* RIMOZIONE Stile per mostrare pulsante aggiungi in admin mode (ora usa solo .hidden) */
+/* .admin-only-visible { ... } */
+/* body.admin-mode .admin-only-visible { ... } */
+
+
+/* Area Contenuto Principale */
+#content-area { padding: 30px 30px 40px; flex-grow: 1; background-color: #ffffff; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); display: flex; flex-direction: column; align-items: center; }
+
+/* Stile Messaggio Benvenuto */
+.welcome-message { text-align: center; margin-bottom: 30px; width: 100%; }
+.welcome-message h2 { color: #0056a8; font-size: 2em; margin-bottom: 5px; }
+.welcome-message p { font-size: 1.1em; color: #6c757d; }
+
+/* Navigazione Principale */
+.main-nav { display: flex; flex-wrap: wrap; gap: 15px 20px; justify-content: center; width: 100%; max-width: 900px; margin-bottom: 20px; }
+
+/* Stile per bottoni e link nella nav principale */
+.nav-button { padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; background-color: #0056a8; color: white; transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.nav-button i { margin-right: 8px; font-size: 1.1em; }
+.nav-button:hover { background-color: #004182; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
+.nav-button:active, .nav-button.active { background-color: #003566; transform: translateY(0px); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+
+/* RIMOZIONE Stili per .admin-hidden */
+/* .admin-hidden { display: none !important; } */
+/* RIMOZIONE body.admin-mode .admin-hidden { display: inline-flex !important; } */
+
+
+/* Sottomenu Listini (invariato) */
+.submenu { background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; max-height: 0; opacity: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; transition: max-height 0.4s ease-out, opacity 0.3s ease-out, padding 0.4s ease-out, margin-bottom 0.4s ease-out; width: auto; max-width: 90%; margin-bottom: 0; border: 1px solid #e0e0e0; }
+.submenu.visible { max-height: 150px; opacity: 1; padding: 15px 15px; margin-bottom: 25px; }
+.submenu-button { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; background-color: #e8f0f7; color: #0056a8; transition: background-color 0.3s ease, color 0.3s ease, transform 0.15s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.submenu-button i { margin-right: 6px; font-size: 1em; }
+.submenu-button:hover { background-color: #d71920; color: white; transform: translateY(-1px); }
+.submenu-button:active { background-color: #b8141a; color: white; transform: translateY(0); }
+
+/* Popup Generico */
+.admin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); z-index: 1060; min-width: 350px; text-align: center; }
+.admin-popup h3 { margin-top: 0; margin-bottom: 20px; color: #0056a8; }
+.admin-popup label { display: block; margin-bottom: 5px; font-weight: 600; color: #495057; text-align: left; font-size: 0.9em;}
+.admin-popup input[type="password"], .admin-popup input[type="text"] { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; }
+.admin-popup .form-group { margin-bottom: 15px; }
+
+/* Stili Bottoni Popup */
+.admin-popup-buttons { display: flex; justify-content: space-between; margin-top: 10px; }
+.admin-popup-buttons.centered { justify-content: center; }
+.admin-popup button { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: 600; transition: background-color 0.3s ease; }
+#admin-login-submit, #add-category-submit { background-color: #28a745; color: white; }
+#admin-login-submit:hover, #add-category-submit:hover { background-color: #218838; }
+#admin-login-cancel { background-color: #6c757d; color: white; }
+#admin-login-cancel:hover { background-color: #5a6268; }
+
+/* Bottone chiusura pannello categoria */
+.close-panel-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; color: #aaa; cursor: pointer; line-height: 1; padding: 0; transition: color 0.3s ease; }
+.close-panel-btn:hover { color: #333; }
+
+/* Messaggi Errore/Feedback */
+.error-message { color: #dc3545; font-size: 0.9em; margin-top: 10px; font-weight: bold; }
+.feedback-message { font-size: 0.9em; margin-top: 10px; font-weight: bold; }
+.feedback-message.success { color: #198754; }
+.feedback-message.error { color: #dc3545; }
+
+/* Overlay */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; }
+
+/* Classe helper per nascondere */
+.hidden { display: none !important; }
+
+/* Responsive */
+@media (max-width: 768px) { .admin-popup { min-width: 300px; } .header-controls { gap: 10px; } }
+@media (max-width: 480px) { .admin-popup { width: 90%; min-width: unset; } .header-controls { gap: 8px; } }
