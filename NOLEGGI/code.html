@@ -5,22 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestione Noleggi Attrezzature Idrauliche</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-  <!-- Aggiorna Font Awesome se necessario per coerenza, anche se 6.0.0 dovrebbe andare bene -->
+  <!-- Aggiorna Font Awesome se necessario per coerenza, anche se 6.4.2 dovrebbe andare bene -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="code.css"/>
 </head>
 <body>
-  <!-- === Nuovo Header Standard === -->
+  <!-- === Nuovo Header Standard (Modificato) === -->
   <header class="app-header">
-      <!-- CORREZIONE QUI -->
-      <a href="../HOME/index.html" title="C.A.I. - Home">
+      <!-- CORREZIONE: Link principale del logo ora punta alla root del sito -->
+      <a href="/" title="C.A.I. - Home">
            <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo"> <!-- Logo standardizzato -->
       </a>
 
       <!-- === Contenitore per Pulsanti Header (Home e Admin) === -->
       <div class="header-controls">
-          <!-- CORREZIONE QUI -->
-          <a href="../HOME/index.html" class="header-action-button" title="Torna alla Home">
+          <!-- CORREZIONE: Link pulsante Home ora punta alla root del sito -->
+          <a href="/" class="header-action-button" title="Torna alla Home">
               <i class="fas fa-home"></i>
           </a>
           <!-- === Pulsante Admin Noleggi (Funzionalità da definire) === -->
@@ -181,6 +181,7 @@
 
   <!-- Scripts -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="code.js"></script>
+  <!-- Assicurati che code.js sia nella stessa cartella (NOLEGGI) o aggiorna il percorso se necessario -->
+  <script src="code.js"></script> 
 </body>
 </html>
