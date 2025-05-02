@@ -1,0 +1,17 @@
+{
+  "name": "ufficiotecnicocai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "il_tuo_comando_di_build_qui" // Assicurati che questo script sia eseguito prima
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "googleapis": "^XYZ" // <-- Aggiungi questa riga. Sostituisci XYZ con il numero di versione corrente (es. ^105.0.0)
+    // Altre dipendenze potrebbero essere già qui
+  }
+  // Altre sezioni come devDependencies, etc.
+} 
