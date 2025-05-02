@@ -1,12 +1,9 @@
 {
-  "name": "ufficiotecnicocai",
+  "name": "nufficiotecnicocai",
   "version": "1.0.0",
   "private": true,
   "description": "Dipendenze per script di build",
-  "scripts": {
-    "build": "il_tuo_comando_di_build_qui"
-  },
   "dependencies": {
     "googleapis": "^109.0.0"
-    }
+  }
 }
