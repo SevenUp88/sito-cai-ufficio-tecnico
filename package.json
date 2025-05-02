@@ -1,0 +1,9 @@
+{
+  "name": "nome-del-tuo-sito-o-progetto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dipendenze per script di build",
+  "dependencies": {
+    "googleapis": "^109.0.0"
+    }
+}
