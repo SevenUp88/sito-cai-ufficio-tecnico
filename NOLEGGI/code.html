@@ -5,12 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gestione Noleggi Attrezzature Idrauliche</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-  <!-- Aggiorna Font Awesome se necessario per coerenza, anche se 6.0.0 dovrebbe andare bene -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="code.css"/>
+  <style>
+    /* --- CSS for Login State --- */
+    /* Hide main content when logged out */
+    body.logged-out #main-content-container {
+      display: none;
+    }
+    /* Hide loading indicator when logged in */
+    body.logged-in #loading-indicator {
+      display: none;
+    }
+     /* Show loading indicator when logged out (and JS hasn't hidden it yet) */
+    body.logged-out #loading-indicator {
+        display: block; /* Or flex, etc., depending on your layout */
+        text-align: center;
+        padding: 40px;
+        font-size: 1.1em;
+        color: #555;
+    }
+    /* Hide logout button in modal initially */
+    #login-modal #logout-button {
+        display: none;
+    }
+    /* Hide login form elements when logged in and showing logout */
+    #login-modal.showing-logout #login-form > div,
+    #login-modal.showing-logout #login-form > button[type=submit] {
+        display: none;
+    }
+    /* Show logout button when logged in and modal is open */
+    #login-modal.showing-logout #logout-button {
+        display: block;
+    }
+    /* Style for auth status in header */
+    #auth-status {
+        margin: 0 10px;
+        color: #eee; /* Adjust color to fit your header */
+        font-size: 0.85em;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    #auth-status .user-email {
+        font-weight: 500;
+    }
+  </style>
 </head>
-<body>
-  <!-- === Nuovo Header Standard === -->
+<body class="logged-out"> <!-- Start in logged-out state -->
+
+  <!-- === Header === -->
   <header class="app-header">
       <a href="../HOME/index.html" title="C.A.I. - Home">
            <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
@@ -19,14 +62,24 @@
           <a href="../HOME/index.html" class="header-action-button" title="Torna alla Home">
               <i class="fas fa-home"></i>
           </a>
-          <button id="noleggi-admin-trigger" class="header-action-button" title="Accesso Admin Noleggi">
+          <!-- Placeholder for Auth Status -->
+          <span id="auth-status"></span>
+          <!-- This button will now trigger the login modal -->
+          <button id="noleggi-admin-trigger" class="header-action-button" title="Accesso Admin / Logout">
               <i class="fas fa-user-shield"></i>
           </button>
       </div>
   </header>
-  <!-- === Fine Nuovo Header === -->
+  <!-- === Fine Header === -->
 
-  <div class="container">
+  <!-- Loading Indicator -->
+  <div id="loading-indicator">
+     <i class="fas fa-spinner fa-spin"></i> Accesso in corso...
+     <p style="font-size: 0.8em; margin-top: 10px;">Se non sei reindirizzato, potrebbe essere necessario effettuare il login.</p>
+  </div>
+
+  <!-- Main Content Container (Hidden initially by CSS via body.logged-out) -->
+  <div class="container" id="main-content-container">
     <h1 class="page-title">Gestione Noleggi Attrezzature Idrauliche</h1>
 
     <div class="dashboard">
@@ -58,6 +111,31 @@
   </div><!-- end container -->
 
   <!-- Modals -->
+
+  <!-- === NEW: Login Modal === -->
+  <div id="login-modal" class="modal" style="display: none;"> <!-- Start hidden -->
+    <div class="modal-content" style="max-width: 400px;"> <!-- Smaller modal for login -->
+        <span class="close-btn">&times;</span> <!-- JS will need to handle closing this -->
+        <h2>Accesso Amministratore</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" required class="form-control" placeholder="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" required class="form-control" placeholder="••••••••">
+            </div>
+            <!-- Error message area -->
+            <div id="login-error-message" style="color: var(--danger); margin-bottom: 1rem; display: none; font-size: 0.9em;"></div>
+            <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+        </form>
+         <!-- Logout Button (shown when logged in) -->
+         <button id="logout-button" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
+    </div>
+  </div>
+  <!-- === End Login Modal === -->
+
 
   <!-- New/Add Rental Modal -->
   <div id="rental-modal" class="modal">
@@ -147,7 +225,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  <!-- <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script> -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script> <!-- Ensure Auth SDK is included -->
 
   <script>
     // --------------- INCOLLA QUI LA TUA CONFIGURAZIONE FIREBASE ---------------
@@ -166,16 +244,89 @@
     try {
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.firestore(); // Rendi db accessibile globalmente
+      window.auth = firebase.auth();   // Rendi auth accessibile globalmente
       console.log("Firebase Initialized Successfully!");
+
+      // --- Authentication Listener ---
+      // This listener will run immediately and whenever the auth state changes
+      auth.onAuthStateChanged(user => {
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const mainContent = document.getElementById('main-content-container');
+        const loginModal = document.getElementById('login-modal');
+        const authStatusEl = document.getElementById('auth-status');
+        const adminTriggerBtn = document.getElementById('noleggi-admin-trigger');
+        const logoutBtnInModal = loginModal.querySelector('#logout-button');
+        const loginFormInModal = loginModal.querySelector('#login-form');
+
+
+        if (user) {
+          // User is signed in.
+          console.log("User logged in:", user.email);
+          document.body.classList.remove('logged-out');
+          document.body.classList.add('logged-in');
+          if (loadingIndicator) loadingIndicator.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'block'; // Or remove the class rule effect
+
+          // Update header status
+          if(authStatusEl) authStatusEl.innerHTML = `Loggato come: <span class="user-email">${user.email}</span>`;
+          if(adminTriggerBtn) adminTriggerBtn.title = "Logout / Info Utente";
+
+          // Configure login modal for logout
+          if (loginModal) loginModal.classList.add('showing-logout');
+          if (logoutBtnInModal) logoutBtnInModal.style.display = 'block';
+          if (loginFormInModal) loginFormInModal.reset(); // Clear sensitive fields
+
+          // *** IMPORTANT: Initialize the rest of your app *here* ***
+          // Since initializeApp depends on Firestore, call it only after login is confirmed.
+          if (typeof initializeApp === 'function' && !window.appInitialized) {
+             initializeApp(); // Defined in code.js
+             window.appInitialized = true; // Prevent multiple initializations
+          } else if (window.appInitialized) {
+            // If already initialized (e.g., page refresh while logged in), maybe just reload data
+            console.log("App already initialized, potentially reload data if needed.");
+            if (typeof loadInventoryData === 'function') loadInventoryData();
+            if (typeof loadRentalData === 'function') loadRentalData();
+
+          }
+
+
+        } else {
+          // User is signed out.
+          console.log("User logged out.");
+          document.body.classList.add('logged-out');
+          document.body.classList.remove('logged-in');
+          if (mainContent) mainContent.style.display = 'none';
+          if (loadingIndicator) loadingIndicator.style.display = 'block'; // Show loader or login prompt
+          if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-sign-in-alt"></i> Accesso richiesto per utilizzare l\'applicazione.';
+
+
+          // Update header status
+          if (authStatusEl) authStatusEl.innerHTML = `<i>Non Loggato</i>`;
+          if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+
+          // Configure login modal for login
+           if (loginModal) loginModal.classList.remove('showing-logout');
+           if (logoutBtnInModal) logoutBtnInModal.style.display = 'none';
+           if (loginFormInModal) loginFormInModal.reset();
+
+          // Ensure app state reflects logout (e.g., clear tables if desired)
+          window.appInitialized = false; // Reset initialization flag
+          // Optionally clear table content or disable buttons further in JS if needed
+        }
+      });
+
     } catch (error) {
         console.error("Firebase Initialization Failed:", error);
+        const loadingIndicator = document.getElementById('loading-indicator');
+        if (loadingIndicator) loadingIndicator.innerHTML = "ERRORE CRITICO: Impossibile caricare Firebase.";
         alert("ERRORE CRITICO: Impossibile inizializzare Firebase.");
     }
   </script>
 
   <!-- Libreria Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Il tuo script -->
+  <!-- Il tuo script (code.js) -->
+  <!-- IMPORTANT: Load code.js AFTER Firebase is initialized and listener is set up -->
   <script src="code.js"></script>
 </body>
 </html>
