@@ -9,39 +9,32 @@
   <link rel="stylesheet" href="code.css"/>
   <style>
     /* --- CSS for Login State --- */
-    /* Hide main content when logged out */
     body.logged-out #main-content-container {
       display: none;
     }
-    /* Hide loading indicator when logged in */
     body.logged-in #loading-indicator {
       display: none;
     }
-     /* Show loading indicator when logged out (and JS hasn't hidden it yet) */
     body.logged-out #loading-indicator {
-        display: block; /* Or flex, etc., depending on your layout */
+        display: block;
         text-align: center;
         padding: 40px;
         font-size: 1.1em;
         color: #555;
     }
-    /* Hide logout button in modal initially */
     #login-modal #logout-button {
         display: none;
     }
-    /* Hide login form elements when logged in and showing logout */
     #login-modal.showing-logout #login-form > div,
     #login-modal.showing-logout #login-form > button[type=submit] {
         display: none;
     }
-    /* Show logout button when logged in and modal is open */
     #login-modal.showing-logout #logout-button {
         display: block;
     }
-    /* Style for auth status in header */
     #auth-status {
         margin: 0 10px;
-        color: #eee; /* Adjust color to fit your header */
+        color: #eee;
         font-size: 0.85em;
         display: inline-block;
         vertical-align: middle;
@@ -112,11 +105,11 @@
 
   <!-- Modals -->
 
-  <!-- === NEW: Login Modal === -->
-  <div id="login-modal" class="modal" style="display: none;"> <!-- Start hidden -->
-    <div class="modal-content" style="max-width: 400px;"> <!-- Smaller modal for login -->
-        <span class="close-btn">&times;</span> <!-- JS will need to handle closing this -->
-        <h2>Accesso Amministratore</h2>
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+        <span class="close-btn">&times;</span>
+        <h2>Accesso Amministratore / Utente</h2>
         <form id="login-form">
             <div class="form-group">
                 <label for="login-email">Email:</label>
@@ -126,16 +119,12 @@
                 <label for="login-password">Password:</label>
                 <input type="password" id="login-password" required class="form-control" placeholder="••••••••">
             </div>
-            <!-- Error message area -->
             <div id="login-error-message" style="color: var(--danger); margin-bottom: 1rem; display: none; font-size: 0.9em;"></div>
             <button type="submit" class="btn btn-primary btn-block">Accedi</button>
         </form>
-         <!-- Logout Button (shown when logged in) -->
          <button id="logout-button" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
     </div>
   </div>
-  <!-- === End Login Modal === -->
-
 
   <!-- New/Add Rental Modal -->
   <div id="rental-modal" class="modal">
@@ -225,11 +214,12 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script> <!-- Ensure Auth SDK is included -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
   <script>
-    // --------------- INCOLLA QUI LA TUA CONFIGURAZIONE FIREBASE ---------------
- const firebaseConfig = {
+    // --------------- FIREBASE CONFIGURATION ---------------
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
   apiKey: "AIzaSyDNDAo1Omgoi3UdPqGWWbEaz1KTx9K0JMU",
   authDomain: "gestione-noleggi-cai.firebaseapp.com",
   projectId: "gestione-noleggi-cai",
@@ -238,80 +228,84 @@
   appId: "1:684932393341:web:d0e74cf826ad1732fa8414",
   measurementId: "G-Y4LM7DCDH0"
 };
-    // -----------------------------------------------------------------------
+    // ------------------------------------------------------
 
-    // Inizializza Firebase
+    // Initialize Firebase
     try {
       firebase.initializeApp(firebaseConfig);
-      window.db = firebase.firestore(); // Rendi db accessibile globalmente
-      window.auth = firebase.auth();   // Rendi auth accessibile globalmente
+      window.db = firebase.firestore();
+      window.auth = firebase.auth();
       console.log("Firebase Initialized Successfully!");
 
       // --- Authentication Listener ---
-      // This listener will run immediately and whenever the auth state changes
       auth.onAuthStateChanged(user => {
         const loadingIndicator = document.getElementById('loading-indicator');
         const mainContent = document.getElementById('main-content-container');
         const loginModal = document.getElementById('login-modal');
         const authStatusEl = document.getElementById('auth-status');
         const adminTriggerBtn = document.getElementById('noleggi-admin-trigger');
-        const logoutBtnInModal = loginModal.querySelector('#logout-button');
-        const loginFormInModal = loginModal.querySelector('#login-form');
-
+        const logoutBtnInModal = loginModal ? loginModal.querySelector('#logout-button') : null;
+        const loginFormInModal = loginModal ? loginModal.querySelector('#login-form') : null;
 
         if (user) {
-          // User is signed in.
-          console.log("User logged in:", user.email);
-          document.body.classList.remove('logged-out');
-          document.body.classList.add('logged-in');
-          if (loadingIndicator) loadingIndicator.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block'; // Or remove the class rule effect
+            // User is signed in.
+            console.log("User logged in:", user.email, user.uid);
+            document.body.classList.remove('logged-out');
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+            if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifica permessi...';
+            if (mainContent) mainContent.style.display = 'none';
 
-          // Update header status
-          if(authStatusEl) authStatusEl.innerHTML = `Loggato come: <span class="user-email">${user.email}</span>`;
-          if(adminTriggerBtn) adminTriggerBtn.title = "Logout / Info Utente";
+            // Fetch User Role from Firestore
+            const userDocRef = db.collection('users').doc(user.uid);
+            userDocRef.get().then(doc => {
+                let userRole = 'user'; // Default to 'user'
+                if (doc.exists && doc.data().role) {
+                    userRole = doc.data().role;
+                } else {
+                    console.warn(`User document or role not found for UID ${user.uid}. Assigning default 'user' role.`);
+                }
+                window.currentUserRole = userRole; // Store role globally
+                console.log("User role:", window.currentUserRole);
 
-          // Configure login modal for logout
-          if (loginModal) loginModal.classList.add('showing-logout');
-          if (logoutBtnInModal) logoutBtnInModal.style.display = 'block';
-          if (loginFormInModal) loginFormInModal.reset(); // Clear sensitive fields
+                // Update UI
+                 document.body.classList.add('logged-in');
+                 if (loadingIndicator) loadingIndicator.style.display = 'none';
+                 if (mainContent) mainContent.style.display = 'block';
+                if(authStatusEl) authStatusEl.innerHTML = `Loggato: <span class="user-email">${user.email}</span> (${userRole})`;
+                if(adminTriggerBtn) adminTriggerBtn.title = "Logout / Info Utente";
+                if (loginModal) loginModal.classList.add('showing-logout');
+                if (logoutBtnInModal) logoutBtnInModal.style.display = 'block';
+                if (loginFormInModal) loginFormInModal.reset();
 
-          // *** IMPORTANT: Initialize the rest of your app *here* ***
-          // Since initializeApp depends on Firestore, call it only after login is confirmed.
-          if (typeof initializeApp === 'function' && !window.appInitialized) {
-             initializeApp(); // Defined in code.js
-             window.appInitialized = true; // Prevent multiple initializations
-          } else if (window.appInitialized) {
-            // If already initialized (e.g., page refresh while logged in), maybe just reload data
-            console.log("App already initialized, potentially reload data if needed.");
-            if (typeof loadInventoryData === 'function') loadInventoryData();
-            if (typeof loadRentalData === 'function') loadRentalData();
+                // Initialize the main application AFTER getting the role
+                if (typeof initializeApp === 'function') {
+                   initializeApp(window.currentUserRole); // Pass role
+                } else {
+                   console.error("initializeApp function not found!");
+                }
 
-          }
-
+            }).catch(error => {
+                console.error("Error fetching user role:", error);
+                alert("ERRORE nel recupero dei permessi utente. Effettua nuovamente il login.");
+                 if (loadingIndicator) loadingIndicator.innerHTML = "Errore permessi.";
+                auth.signOut();
+            });
 
         } else {
-          // User is signed out.
-          console.log("User logged out.");
-          document.body.classList.add('logged-out');
-          document.body.classList.remove('logged-in');
-          if (mainContent) mainContent.style.display = 'none';
-          if (loadingIndicator) loadingIndicator.style.display = 'block'; // Show loader or login prompt
-          if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-sign-in-alt"></i> Accesso richiesto per utilizzare l\'applicazione.';
-
-
-          // Update header status
-          if (authStatusEl) authStatusEl.innerHTML = `<i>Non Loggato</i>`;
-          if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
-
-          // Configure login modal for login
-           if (loginModal) loginModal.classList.remove('showing-logout');
-           if (logoutBtnInModal) logoutBtnInModal.style.display = 'none';
-           if (loginFormInModal) loginFormInModal.reset();
-
-          // Ensure app state reflects logout (e.g., clear tables if desired)
-          window.appInitialized = false; // Reset initialization flag
-          // Optionally clear table content or disable buttons further in JS if needed
+            // User is signed out.
+            console.log("User logged out.");
+            window.currentUserRole = null; // Clear role
+            document.body.classList.add('logged-out');
+            document.body.classList.remove('logged-in');
+            if (mainContent) mainContent.style.display = 'none';
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+            if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-sign-in-alt"></i> Accesso richiesto per utilizzare l\'applicazione.';
+            if (authStatusEl) authStatusEl.innerHTML = `<i>Non Loggato</i>`;
+            if (adminTriggerBtn) adminTriggerBtn.title = "Accesso";
+            if (loginModal) loginModal.classList.remove('showing-logout');
+            if (logoutBtnInModal) logoutBtnInModal.style.display = 'none';
+            if (loginFormInModal) loginFormInModal.reset();
+            window.appInitialized = false; // Reset initialization flag
         }
       });
 
@@ -325,8 +319,7 @@
 
   <!-- Libreria Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Il tuo script (code.js) -->
-  <!-- IMPORTANT: Load code.js AFTER Firebase is initialized and listener is set up -->
+  <!-- Your application script -->
   <script src="code.js"></script>
 </body>
 </html>
