@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
-    const configTypeSelectionDiv = document.getElementById('config-type-selection');
-// NUOVO CONTROLLO
+    // NUOVO CONTROLLO
 if (!configTypeSelectionDiv) {
     console.error("ERRORE CRITICO: Impossibile trovare l'elemento HTML con id='config-type-selection'. Controllare l'index.html.");
     // Potresti anche voler fermare l'esecuzione o mostrare un messaggio all'utente qui
