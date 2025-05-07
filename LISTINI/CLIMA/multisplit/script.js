@@ -68,15 +68,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-            function parseCSV(text, typeForLog = '') {
+    function parseCSV(text, typeForLog = '') {
         console.log(`DEBUG: Parsing CSV text for ${typeForLog}...`);
         const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
         if (lines.length < 2) { console.warn(`DEBUG: parseCSV ${typeForLog}: No data.`); return []; }
         
         const rawHeaders = lines[0].split(',');
         const headers = rawHeaders.map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
-        console.log(`DEBUG: parseCSV ${typeForLog} - Headers (count: ${headers.length}):`, headers);
+        console.log(`DEBUG: parseCSV ${typeForLog} - Headers (count: ${headers.length}):`, headers); // <<< ESPANDI QUESTO IN CONSOLE
         
+        // TROVA L'INDICE ESATTO DELL'HEADER NORMALIZZATO 'unità_collegabili'
+        const unitaCollegabiliHeaderIndex = headers.indexOf('unità_collegabili');
+        if (typeForLog === 'UE') {
+            console.log(`DEBUG: parseCSV UE - Indice rilevato per 'unità_collegabili': ${unitaCollegabiliHeaderIndex}`);
+        }
+
+
         if(headers.length === 0 || (headers.length === 1 && headers[0] === '')) {
             console.error(`DEBUG: parseCSV ${typeForLog}: Nessun header valido!`); return [];
         }
@@ -93,10 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             values.push(currentVal);
             while (values.length < headers.length) values.push('');
-            if (values.length > headers.length) {
-                console.warn(`DEBUG: parseCSV ${typeForLog} - Linea ${lineIndex + 2}: Valori (${values.length}) > Headers (${headers.length}). Tronco.`);
-                values.length = headers.length;
-            }
+            if (values.length > headers.length) values.length = headers.length;
 
             const entry = {};
             headers.forEach((header, i) => {
@@ -104,15 +108,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (value === '') value = "Dati mancanti";
                 if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
                 
-                const numericHeaders = ['prezzo', 'prezzo_ui', 'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui', 'min_connessioni_ue'];
+                const numericHeadersForGeneralParsing = [ // ESCLUDI 'unità_collegabili' da qui se la gestisci a parte
+                    'prezzo', 'prezzo_ui', 
+                    'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui',
+                    'min_connessioni_ue'
+                ];
                 
-                if (header === 'unità_collegabili') { // Trattamento speciale per 'unità_collegabili'
-                    // Logga sempre per questa colonna, non solo le prime 5
-                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}) - Header '${header}', Valore GREZZO per parsing: "${value}" (Tipo: ${typeof value})`);
+                if (header === 'unità_collegabili') { // Gestione SPECIFICA
+                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}, Colonna '${header}') - Valore GREZZO: "${value}"`);
                     const parsedInt = parseInt(value, 10);
                     entry[header] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
-                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}) - Header '${header}', Valore PARSATO con parseInt: ${entry[header]} (Tipo: ${typeof entry[header]})`);
-                } else if (numericHeaders.includes(header)) {
+                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}, Colonna '${header}') - Valore PARSATO: ${entry[header]}`);
+                } else if (numericHeadersForGeneralParsing.includes(header)) {
                     let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
                     numStr = numStr.replace(',', '.');          
                     const num = parseFloat(numStr);
