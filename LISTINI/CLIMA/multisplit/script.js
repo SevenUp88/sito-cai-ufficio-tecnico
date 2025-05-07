@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function initializeApp() {
         console.log("DEBUG: Chiamata a initializeApp");
         document.body.appendChild(loadingOverlay);
-        loadingOverlay.style.display = 'flex'; // Mostra overlay subito
+        loadingOverlay.style.display = 'flex'; 
 
         console.log("DEBUG: initializeApp - Verifying CSV_URLS.outdoorUnits:", CSV_URLS.outdoorUnits);
         console.log("DEBUG: initializeApp - Verifying CSV_URLS.indoorUnits:", CSV_URLS.indoorUnits);
@@ -63,15 +63,65 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; 
         }
 
-        const [loadedOutdoorUnits, loadedIndoorUnits] = await Promise.all([
-            fetchCSVData(CSV_URLS.outdoorUnits),
-            fetchCSVData(CSV_URLS.indoorUnits)
-        ]);
+        let loadedOutdoorUnits, loadedIndoorUnits;
+        try {
+            console.log("DEBUG: initializeApp - Prima di Promise.all");
+            // Aggiungiamo un log per vedere cosa ritorna fetchCSVData
+            const promiseOutdoor = fetchCSVData(CSV_URLS.outdoorUnits);
+            const promiseIndoor = fetchCSVData(CSV_URLS.indoorUnits);
+
+            promiseOutdoor.then(data => console.log("DEBUG: Promise Outdoor risolta con:", data ? data.length + " items" : data));
+            promiseIndoor.then(data => console.log("DEBUG: Promise Indoor risolta con:", data ? data.length + " items" : data));
+            
+            [loadedOutdoorUnits, loadedIndoorUnits] = await Promise.all([
+                promiseOutdoor,
+                promiseIndoor
+            ]);
+            console.log("DEBUG: initializeApp - Dopo Promise.all");
+        } catch (error) {
+            console.error("DEBUG: ERRORE CATTURATO DA Promise.all in initializeApp:", error);
+            loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Errore grave caricando dati CSV.</span>`;
+            loadedOutdoorUnits = []; // Fallback
+            loadedIndoorUnits = [];  // Fallback
+        }
+
+        if (typeof loadedOutdoorUnits === 'undefined') {
+            console.error("DEBUG CRITICO: loadedOutdoorUnits è UNDEFINED dopo Promise.all!");
+            loadedOutdoorUnits = []; 
+        }
+        if (typeof loadedIndoorUnits === 'undefined') {
+            console.error("DEBUG CRITICO: loadedIndoorUnits è UNDEFINED dopo Promise.all!");
+            loadedIndoorUnits = []; 
+        }
         
-        console.log("DEBUG: initializeApp - Dati CSV grezzi caricati. UE:", loadedOutdoorUnits.length, "UI:", loadedIndoorUnits.length);
+        console.log("DEBUG: initializeApp - Dati CSV (post-check undefined). UE:", loadedOutdoorUnits.length, "UI:", loadedIndoorUnits.length);
         if (loadedOutdoorUnits.length > 0) console.log("DEBUG: Esempio primo UE GREZZO:", JSON.parse(JSON.stringify(loadedOutdoorUnits[0])));
-        // ... (resto di initializeApp come l'ultima versione completa, con processLoadedData, populateBrands, ecc.)
+        if (loadedIndoorUnits.length > 0) console.log("DEBUG: Esempio primo UI GREZZO:", JSON.parse(JSON.stringify(loadedIndoorUnits[0])));
+
+
+        processLoadedData(loadedOutdoorUnits, loadedIndoorUnits);
+        
+        const oldModelSerieStepHtmlContainer = document.getElementById('step-2');
+        if (oldModelSerieStepHtmlContainer) oldModelSerieStepHtmlContainer.style.display = 'none';
+        
+        updateStepIndicator(); 
+        
+        populateBrands();
+        if (brandSelectionDiv.innerHTML.includes("Nessuna marca")) {
+             loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Nessuna marca con unità disponibili.</span>`;
+             return; 
+        } else {
+            loadingOverlay.style.display = 'none';
+        }
+        
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT');
+        showStep(1); 
     }
+
+    // Assicurati che TUTTE LE ALTRE FUNZIONI (parseCSV, processLoadedData, i vari populate, create, ecc.)
+    // SIANO PRESENTI nel tuo file script.js, COPIATE DALL'ULTIMA VERSIONE COMPLETA che ti ho dato.
+    // Per brevità, non le ricopio qui, ma sono essenziali.
 
     // --- TUTTE LE ALTRE FUNZIONI (parseCSV, processLoadedData, updateStepIndicator, showStep, clearFutureSelections, ecc.) ---
     // --- DEVONO ESSERE PRESENTI QUI, COPIATE DALL'ULTIMA VERSIONE COMPLETA CHE TI HO DATO ---
