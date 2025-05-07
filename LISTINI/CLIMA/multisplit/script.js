@@ -128,9 +128,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return data;
     }
     
-    function processLoadedData(loadedOutdoorUnits, loadedIndoorUnits) {
+        function processLoadedData(loadedOutdoorUnits, loadedIndoorUnits) {
         console.log("DEBUG: Chiamata a processLoadedData. UE:", loadedOutdoorUnits.length, "UI:", loadedIndoorUnits.length);
-        APP_DATA.outdoorUnits = loadedOutdoorUnits.map(ue_csv => {
+        APP_DATA.outdoorUnits = loadedOutdoorUnits.map((ue_csv, index) => { // Aggiunto index per logging
             const brandId = String(ue_csv.marca).toLowerCase();
             let compatibleIds = [];
             if (ue_csv.unità_collega_compatibili && ue_csv.unità_collega_compatibili !== "Dati mancanti") {
@@ -138,13 +138,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                     .map(name => String(name).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, '') + "_ui")
                     .filter(id => id && id !== "_ui");
             }
-            const connections = parseInt(ue_csv.unità_collegabili) || 0;
+
+            // DIAGNOSTICA CRUCIALE PER 'unità_collegabili'
+            if (index < 5) { // Logga solo per le prime 5 UE per non inondare
+                console.log(`DEBUG: processLoadedData (UE ${index + 1}) - Valore GREZZO di ue_csv.unità_collegabili: "${ue_csv.unità_collegabili}" (Tipo: ${typeof ue_csv.unità_collegabili})`);
+            }
+            
+            const connections = parseInt(ue_csv.unità_collegabili, 10) || 0; // Usiamo base 10 esplicita
+
+            if (index < 5) { // Logga solo per le prime 5 UE
+                console.log(`DEBUG: processLoadedData (UE ${index + 1}) - Valore PARSATO per connections: ${connections} (Tipo: ${typeof connections})`);
+            }
+            
             const minConnectionsFallback = connections > 0 ? (connections < 2 ? 1 : 2) : 1;
+
             return {
                 id: ue_csv.codice_prod || `ue_csv_${Math.random().toString(36).substr(2, 9)}`,
                 brandId: brandId, modelCode: ue_csv.codice_prod || "Dati mancanti",
                 name: ue_csv.nome_modello_ue && ue_csv.nome_modello_ue !== "Dati mancanti" ? `${String(ue_csv.marca).toUpperCase()} ${ue_csv.nome_modello_ue}` : `UE (${brandId} - ${ue_csv.codice_prod || 'N/D'})`,
-                connections: connections,
+                connections: connections, // Questo è il valore che deve essere corretto
                 minConnections: parseInt(ue_csv.min_connessioni_ue) || minConnectionsFallback,
                 capacityCoolingBTU: parseInt(ue_csv.potenza_btu_freddo_ue) || 0,
                 capacityHeatingBTU: parseInt(ue_csv.potenza_btu_caldo_ue) || 0,
@@ -154,6 +166,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 compatibleIndoorSeriesIds: compatibleIds
             };
         });
+
+        // indoorUnits processing come prima
         APP_DATA.indoorUnits = loadedIndoorUnits.map(ui_csv => {
             const brandId = String(ui_csv.marca).toLowerCase();
             const uiModelNameNormalized = String(ui_csv.modello).toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, '');
