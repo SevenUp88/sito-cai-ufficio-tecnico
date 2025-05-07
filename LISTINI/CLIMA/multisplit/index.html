@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listino Climatizzatori Multi-Split</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="configurator-style.css">
+</head>
+<body>
+    <header class="app-header">
+        <a href="#"><img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"></a>
+        <div class="header-title-container">
+        </div>
+        <div class="header-controls">
+            <button id="admin-trigger" class="header-action-button" title="Admin Mode"><i class="fas fa-lock"></i></button>
+            <button id="exit-admin-button" class="header-action-button" title="Esci Admin Mode" style="display:none;"><i class="fas fa-lock-open"></i></button>
+            <button id="print-list" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
+        </div>
+    </header>
+
+    <div class="container configurator-container">
+        <div class="page-controls">
+            <h1>Configuratore Multi-Split</h1>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step-item" data-step="1">
+                <span class="step-dot active">1</span>
+                <span class="step-name">Marca</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step-item" data-step="2">
+                <span class="step-dot">2</span>
+                <span class="step-name">Serie</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step-item" data-step="3">
+                <span class="step-dot">3</span>
+                <span class="step-name">Config.</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step-item" data-step="4">
+                <span class="step-dot">4</span>
+                <span class="step-name">Unità Est.</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step-item" data-step="5">
+                <span class="step-dot">5</span>
+                <span class="step-name">Unità Int.</span>
+            </div>
+            <span class="step-line"></span>
+            <div class="step-item" data-step="6">
+                <span class="step-dot">6</span>
+                <span class="step-name">Riepilogo</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Brand Selection -->
+        <div id="step-1" class="config-step active-step">
+            <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
+            <div id="brand-selection" class="selection-grid">
+                <!-- Brands will be populated by JS -->
+            </div>
+            <div class="step-navigation">
+            </div>
+        </div>
+
+        <!-- Step 2: Model/Serie Selection -->
+        <div id="step-2" class="config-step">
+            <h2><span class="step-number-title">2.</span> Seleziona Modello/Serie</h2>
+            <div id="model-selection" class="selection-grid">
+                <!-- Models will be populated by JS -->
+            </div>
+            <div class="step-navigation">
+                <button class="prev-btn" data-prev="1"><i class="fas fa-arrow-left"></i> Indietro</button>
+            </div>
+        </div>
+
+        <!-- Step 3: Configuration Type Selection -->
+        <div id="step-3" class="config-step">
+            <h2><span class="step-number-title">3.</span> Scegli Configurazione</h2>
+            <div id="config-type-selection" class="selection-grid">
+                <!-- Config types will be populated by JS -->
+            </div>
+            <div class="step-navigation">
+                <button class="prev-btn" data-prev="2"><i class="fas fa-arrow-left"></i> Indietro</button>
+            </div>
+        </div>
+
+        <!-- Step 4: Outdoor Unit Selection -->
+        <div id="step-4" class="config-step">
+            <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2>
+            <div id="outdoor-unit-selection" class="selection-list">
+                <!-- Outdoor units will be populated by JS -->
+            </div>
+            <div class="step-navigation">
+                <button class="prev-btn" data-prev="3"><i class="fas fa-arrow-left"></i> Indietro</button>
+            </div>
+        </div>
+
+        <!-- Step 5: Indoor Units Selection -->
+        <div id="step-5" class="config-step">
+            <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
+            <div id="indoor-units-selection-area">
+                <!-- Indoor unit selectors will be populated by JS -->
+            </div>
+            <div class="step-navigation">
+                <button class="prev-btn" data-prev="4"><i class="fas fa-arrow-left"></i> Indietro</button>
+                <button class="next-btn" id="finalize-btn" data-next="6" disabled>Finalizza <i class="fas fa-check"></i></button>
+            </div>
+        </div>
+
+        <!-- Step 6: Summary -->
+        <div id="step-6" class="config-step">
+            <h2 id="summary-main-title" class="print-main-title">Riepilogo Configurazione</h2>
+            <div id="config-summary" class="summary-section">
+                <!-- Summary will be populated by JS -->
+            </div>
+            <div class="print-instructions">
+                <p><strong>Per la stampa:</strong> utilizzare la funzione "Stampa" del browser (Ctrl+P o Cmd+P).
+                Il layout è ottimizzato per la stampa.</p>
+            </div>
+            <div class="step-navigation summary-actions">
+                <button class="prev-btn" data-prev="5"><i class="fas fa-arrow-left"></i> Modifica</button>
+                <button id="print-summary-btn"><i class="fas fa-print"></i> Stampa Riepilogo</button>
+                <button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova Configurazione</button>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="app-footer">
+        <p>&copy; <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
+        <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
+    </footer>
+
+    <div id="password-panel">
+        <button id="close-panel-btn">&times;</button>
+        <h3>Accesso Amministratore</h3>
+        <p>Inserisci la password per abilitare la modalità amministratore.</p>
+        <div class="form-group">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password">
+        </div>
+        <button id="submit-password-btn">Accedi</button>
+        <div class="error-message" id="password-error-message"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
