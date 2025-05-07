@@ -340,27 +340,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         else if (selections.brand) selections.brand = null;
     }
 
-    function populateConfigTypes(restoring = false) {
+        function populateConfigTypes(restoring = false) {
         configTypeSelectionDiv.innerHTML = '';
-        if (!selections.brand) { configTypeSelectionDiv.innerHTML = '<p>Scegli una marca.</p>'; if(restoring) selections.configType = null; return; }
-        const validConfigs = Object.entries(APP_DATA.configTypes).map(([id, data]) => ({ id, ...data }))
-            .filter(config => APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections >= config.numUnits && ue.minConnections <= config.numUnits));
-        if(validConfigs.length === 0) {
-            configTypeSelectionDiv.innerHTML = `<p>Nessuna config per ${selections.brand.name}.</p>`; if (restoring) selections.configType = null; return;
+        if (!selections.brand) {
+            configTypeSelectionDiv.innerHTML = '<p>Errore: Marca non selezionata per popolare le configurazioni.</p>';
+            if (restoring) selections.configType = null;
+            return;
         }
+        console.log(`DEBUG: populateConfigTypes - Marca selezionata: ${selections.brand.name} (ID: ${selections.brand.id})`);
+        console.log("DEBUG: populateConfigTypes - APP_DATA.configTypes disponibili (statici):", JSON.parse(JSON.stringify(APP_DATA.configTypes)));
+        console.log("DEBUG: populateConfigTypes - Numero totale di UE caricate:", APP_DATA.outdoorUnits.length);
+
+        const outdoorUnitsForSelectedBrand = APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id);
+        console.log(`DEBUG: populateConfigTypes - Unità Esterne trovate per ${selections.brand.name}:`, outdoorUnitsForSelectedBrand.length);
+        if (outdoorUnitsForSelectedBrand.length > 0) {
+             console.log("DEBUG: populateConfigTypes - Esempio prima UE per questa marca:", JSON.parse(JSON.stringify(outdoorUnitsForSelectedBrand[0])));
+        }
+
+
+        const validConfigs = Object.entries(APP_DATA.configTypes).map(([id, data]) => {
+            console.log(`DEBUG: populateConfigTypes - Valutazione per config '${data.name}' (numUnits: ${data.numUnits})`);
+            const matchingUEs = APP_DATA.outdoorUnits.filter(ue => {
+                const brandMatch = ue.brandId === selections.brand.id;
+                const connectionsMatch = ue.connections >= data.numUnits;
+                const minConnectionsMatch = ue.minConnections <= data.numUnits;
+                // Log dettagliato per ogni UE della marca selezionata rispetto alla config corrente
+                if (brandMatch && data.name.includes("Dual")) { // Log solo per Dual per non inondare, puoi cambiare per debug
+                     console.log(`  -> Check UE: ${ue.name} (ID: ${ue.id}), marcaOK: ${brandMatch}, UE conn: ${ue.connections} >= ${data.numUnits} (${connectionsMatch}), UE minConn: ${ue.minConnections} <= ${data.numUnits} (${minConnectionsMatch})`);
+                }
+                return brandMatch && connectionsMatch && minConnectionsMatch;
+            });
+            if (matchingUEs.length > 0) {
+                console.log(`DEBUG: populateConfigTypes - Config '${data.name}' È VALIDA (trovate ${matchingUEs.length} UE compatibili)`);
+                return { id, ...data };
+            } else {
+                console.log(`DEBUG: populateConfigTypes - Config '${data.name}' NON È VALIDA (0 UE compatibili)`);
+                return null;
+            }
+        }).filter(Boolean); // Rimuove i null (config non valide)
+
+        console.log("DEBUG: populateConfigTypes - validConfigs (dopo filtro):", JSON.parse(JSON.stringify(validConfigs)));
+
+        if (validConfigs.length === 0) {
+            configTypeSelectionDiv.innerHTML = `<p>Nessuna configurazione (Dual, Trial, ecc.) compatibile trovata per le unità esterne ${selections.brand.name} caricate.</p>`;
+            if (APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id).length === 0) {
+                 configTypeSelectionDiv.innerHTML += `<p>Nota: Non ci sono unità esterne per la marca ${selections.brand.name} nei dati caricati.</p>`;
+            }
+            if (restoring) selections.configType = null;
+            return;
+        }
+
         validConfigs.forEach(item => {
+            // console.log("DEBUG: populateConfigTypes - Creazione card per config:", item.name);
             configTypeSelectionDiv.appendChild(createSelectionItem(item, 'config', (selectedConfig) => {
                 const configHasChanged = configChanged(selections.configType, selectedConfig);
                 selections.configType = selectedConfig;
                 if (configHasChanged) { clearFutureSelections(1, false); highestLogicalStepCompleted = 1; }
                 populateOutdoorUnits(!configHasChanged && !!selections.outdoorUnit);
-                if (APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections >= selectedConfig.numUnits && ue.minConnections <= selectedConfig.numUnits)) showStep(3); // Vai a UE
+                // Verifica se ci sono UE per questa config specifica prima di andare avanti
+                const UEsForThisConfig = APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections >= selectedConfig.numUnits && ue.minConnections <= selectedConfig.numUnits);
+                if (UEsForThisConfig) {
+                    showStep(3); // Vai a Step 3 Logico: UE
+                } else {
+                     console.warn("Nessuna UE trovata per la configurazione selezionata, non si dovrebbe arrivare qui se il filtro è corretto.")
+                }
             }, selections.configType && selections.configType.id === item.id));
         });
-        if(restoring && selections.configType && validConfigs.some(vc => vc.id === selections.configType.id)) populateOutdoorUnits(true);
-        else if (restoring && selections.configType) selections.configType = null;
-    }
-    
+
+        if (restoring && selections.configType && validConfigs.some(vc => vc.id === selections.configType.id)) {
+            populateOutdoorUnits(true);
+        } else if (restoring && selections.configType) {
+            selections.configType = null;
+        }
+
     function populateOutdoorUnits(restoring = false) {
         outdoorUnitSelectionDiv.innerHTML = '';
         if (!selections.brand || !selections.configType) { outdoorUnitSelectionDiv.innerHTML = '<p>Scegli Marca e Config.</p>'; if(restoring) selections.outdoorUnit = null; return; }
