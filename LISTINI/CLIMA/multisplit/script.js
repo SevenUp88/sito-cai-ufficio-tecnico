@@ -68,72 +68,72 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function parseCSV(text, typeForLog = '') {
-        console.log(`DEBUG: Parsing CSV text for ${typeForLog}...`);
-        const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
-        if (lines.length < 2) { console.warn(`DEBUG: parseCSV ${typeForLog}: No data.`); return []; }
-        
-        const rawHeaders = lines[0].split(',');
-        const headers = rawHeaders.map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
-        console.log(`DEBUG: parseCSV ${typeForLog} - Headers (count: ${headers.length}):`, headers); // <<< ESPANDI QUESTO IN CONSOLE
-        
-        // TROVA L'INDICE ESATTO DELL'HEADER NORMALIZZATO 'unità_collegabili'
-        const unitaCollegabiliHeaderIndex = headers.indexOf('unità_collegabili');
-        if (typeForLog === 'UE') {
-            console.log(`DEBUG: parseCSV UE - Indice rilevato per 'unità_collegabili': ${unitaCollegabiliHeaderIndex}`);
+function parseCSV(text, typeForLog = '') {
+    console.log(`DEBUG: Parsing CSV text for ${typeForLog}...`);
+    const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+    if (lines.length < 2) { console.warn(`DEBUG: parseCSV ${typeForLog}: No data.`); return []; }
+    
+    const rawHeaders = lines[0].split(',');
+    const headers = rawHeaders.map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
+    
+    // LOG DEGLI HEADER NORMALIZZATI - CRUCIALE!
+    console.log(`DEBUG: parseCSV ${typeForLog} - HEADERS NORMALIZZATI (count: ${headers.length}):`, JSON.stringify(headers)); 
+    
+    const unitaCollegabiliHeaderName = 'unità_collegabili'; // Il nome che CI ASPETTIAMO dopo la normalizzazione
+
+    const data = lines.slice(1).map((line, lineIndex) => {
+        const values = []; let currentVal = ''; let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            if (char === '"') {
+                if (inQuotes && i + 1 < line.length && line[i+1] === '"') { currentVal += '"'; i++; continue; }
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) { values.push(currentVal); currentVal = ''; }
+            else { currentVal += char; }
         }
+        values.push(currentVal);
+        while (values.length < headers.length) values.push('');
+        if (values.length > headers.length) values.length = headers.length;
 
-
-        if(headers.length === 0 || (headers.length === 1 && headers[0] === '')) {
-            console.error(`DEBUG: parseCSV ${typeForLog}: Nessun header valido!`); return [];
-        }
-
-        const data = lines.slice(1).map((line, lineIndex) => {
-            const values = []; let currentVal = ''; let inQuotes = false;
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                if (char === '"') {
-                    if (inQuotes && i + 1 < line.length && line[i+1] === '"') { currentVal += '"'; i++; continue; }
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) { values.push(currentVal); currentVal = ''; }
-                else { currentVal += char; }
+        const entry = {};
+        headers.forEach((headerKey, i) => { // headerKey è l'header normalizzato corrente
+            let value = values[i] ? values[i].trim() : '';
+            if (value === '') value = "Dati mancanti";
+            if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
+            
+            const numericHeadersForGeneralParsing = [
+                'prezzo', 'prezzo_ui', 
+                'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui',
+                'min_connessioni_ue'
+                // NON METTERE 'unità_collegabili' qui se lo gestiamo a parte
+            ];
+            
+            // Tentativo di loggare specificamente il valore della colonna "unità_collegabili" (o come è stata normalizzata)
+            if (typeForLog === 'UE' && headerKey === unitaCollegabiliHeaderName && lineIndex < 5) {
+                console.log(`DEBUG: parseCSV UE (Riga ${lineIndex + 2}, Colonna MATCHATA '${headerKey}') - Valore GREZZO: "${value}"`);
             }
-            values.push(currentVal);
-            while (values.length < headers.length) values.push('');
-            if (values.length > headers.length) values.length = headers.length;
 
-            const entry = {};
-            headers.forEach((header, i) => {
-                let value = values[i] ? values[i].trim() : '';
-                if (value === '') value = "Dati mancanti";
-                if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
-                
-                const numericHeadersForGeneralParsing = [ // ESCLUDI 'unità_collegabili' da qui se la gestisci a parte
-                    'prezzo', 'prezzo_ui', 
-                    'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui',
-                    'min_connessioni_ue'
-                ];
-                
-                if (header === 'unità_collegabili') { // Gestione SPECIFICA
-                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}, Colonna '${header}') - Valore GREZZO: "${value}"`);
-                    const parsedInt = parseInt(value, 10);
-                    entry[header] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
-                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}, Colonna '${header}') - Valore PARSATO: ${entry[header]}`);
-                } else if (numericHeadersForGeneralParsing.includes(header)) {
-                    let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
-                    numStr = numStr.replace(',', '.');          
-                    const num = parseFloat(numStr);
-                    entry[header] = (value === "Dati mancanti" && isNaN(num)) ? "Dati mancanti" : (isNaN(num) ? 0 : num);
-                } else {
-                    entry[header] = value;
+            if (headerKey === unitaCollegabiliHeaderName) { // Gestione SPECIFICA per il nome header che ci aspettiamo
+                const parsedInt = parseInt(value, 10);
+                entry[headerKey] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
+                if (typeForLog === 'UE' && lineIndex < 5) {
+                     console.log(`DEBUG: parseCSV UE (Riga ${lineIndex + 2}, Colonna MATCHATA '${headerKey}') - Valore PARSATO: ${entry[headerKey]}`);
                 }
-            });
-            if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry completa:`, JSON.parse(JSON.stringify(entry)));
-            return entry;
+            } else if (numericHeadersForGeneralParsing.includes(headerKey)) {
+                let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
+                numStr = numStr.replace(',', '.');          
+                const num = parseFloat(numStr);
+                entry[headerKey] = (value === "Dati mancanti" && isNaN(num)) ? "Dati mancanti" : (isNaN(num) ? 0 : num);
+            } else {
+                entry[headerKey] = value;
+            }
         });
-        console.log(`DEBUG: parseCSV ${typeForLog} - Totale entries: ${data.length}`);
-        return data;
-    }
+        if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry completa:`, JSON.parse(JSON.stringify(entry)));
+        return entry;
+    });
+    console.log(`DEBUG: parseCSV ${typeForLog} - Totale entries: ${data.length}`);
+    return data;
+}
     
         function processLoadedData(loadedOutdoorUnits, loadedIndoorUnits) {
         console.log("DEBUG: Chiamata a processLoadedData. UE:", loadedOutdoorUnits.length, "UI:", loadedIndoorUnits.length);
