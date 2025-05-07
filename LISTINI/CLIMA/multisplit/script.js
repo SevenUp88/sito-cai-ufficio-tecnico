@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         else if (selections.brand) selections.brand = null;
     }
 
-        function populateConfigTypes(restoring = false) {
+            function populateConfigTypes(restoring = false) {
         configTypeSelectionDiv.innerHTML = '';
         if (!selections.brand) {
             configTypeSelectionDiv.innerHTML = '<p>Errore: Marca non selezionata per popolare le configurazioni.</p>';
@@ -357,27 +357,27 @@ document.addEventListener('DOMContentLoaded', async () => {
              console.log("DEBUG: populateConfigTypes - Esempio prima UE per questa marca:", JSON.parse(JSON.stringify(outdoorUnitsForSelectedBrand[0])));
         }
 
-
         const validConfigs = Object.entries(APP_DATA.configTypes).map(([id, data]) => {
             console.log(`DEBUG: populateConfigTypes - Valutazione per config '${data.name}' (numUnits: ${data.numUnits})`);
-            const matchingUEs = APP_DATA.outdoorUnits.filter(ue => {
+            const matchingUEs = APP_DATA.outdoorUnits.filter(ue => { // ERRORE ERA QUI: PARENTESI MANCANTE PER .filter(...)
                 const brandMatch = ue.brandId === selections.brand.id;
                 const connectionsMatch = ue.connections >= data.numUnits;
                 const minConnectionsMatch = ue.minConnections <= data.numUnits;
-                // Log dettagliato per ogni UE della marca selezionata rispetto alla config corrente
-                if (brandMatch && data.name.includes("Dual")) { // Log solo per Dual per non inondare, puoi cambiare per debug
-                     console.log(`  -> Check UE: ${ue.name} (ID: ${ue.id}), marcaOK: ${brandMatch}, UE conn: ${ue.connections} >= ${data.numUnits} (${connectionsMatch}), UE minConn: ${ue.minConnections} <= ${data.numUnits} (${minConnectionsMatch})`);
+                
+                if (brandMatch) { // Log per ogni UE della marca giusta
+                     console.log(`  -> Check UE: ${ue.name || ue.id}, marcaOK: ${brandMatch}, UE conn: ${ue.connections} (req: >=${data.numUnits} -> ${connectionsMatch}), UE minConn: ${ue.minConnections} (req: <=${data.numUnits} -> ${minConnectionsMatch})`);
                 }
                 return brandMatch && connectionsMatch && minConnectionsMatch;
-            });
+            }); // PARENTESI CHIUSA PER .filter
+
             if (matchingUEs.length > 0) {
                 console.log(`DEBUG: populateConfigTypes - Config '${data.name}' È VALIDA (trovate ${matchingUEs.length} UE compatibili)`);
-                return { id, ...data };
+                return { id, ...data }; // Ritornare l'oggetto config completo
             } else {
                 console.log(`DEBUG: populateConfigTypes - Config '${data.name}' NON È VALIDA (0 UE compatibili)`);
-                return null;
+                return null; // Ritornare null se non valida
             }
-        }).filter(Boolean); // Rimuove i null (config non valide)
+        }).filter(Boolean); // Rimuove i null
 
         console.log("DEBUG: populateConfigTypes - validConfigs (dopo filtro):", JSON.parse(JSON.stringify(validConfigs)));
 
@@ -391,18 +391,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         validConfigs.forEach(item => {
-            // console.log("DEBUG: populateConfigTypes - Creazione card per config:", item.name);
             configTypeSelectionDiv.appendChild(createSelectionItem(item, 'config', (selectedConfig) => {
                 const configHasChanged = configChanged(selections.configType, selectedConfig);
                 selections.configType = selectedConfig;
                 if (configHasChanged) { clearFutureSelections(1, false); highestLogicalStepCompleted = 1; }
                 populateOutdoorUnits(!configHasChanged && !!selections.outdoorUnit);
-                // Verifica se ci sono UE per questa config specifica prima di andare avanti
                 const UEsForThisConfig = APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections >= selectedConfig.numUnits && ue.minConnections <= selectedConfig.numUnits);
                 if (UEsForThisConfig) {
-                    showStep(3); // Vai a Step 3 Logico: UE
+                    showStep(3); 
                 } else {
-                     console.warn("Nessuna UE trovata per la configurazione selezionata, non si dovrebbe arrivare qui se il filtro è corretto.")
+                     console.warn("Nessuna UE trovata per la config selezionata, non si dovrebbe arrivare qui.")
                 }
             }, selections.configType && selections.configType.id === item.id));
         });
@@ -412,6 +410,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else if (restoring && selections.configType) {
             selections.configType = null;
         }
+    }
 
     function populateOutdoorUnits(restoring = false) {
         outdoorUnitSelectionDiv.innerHTML = '';
