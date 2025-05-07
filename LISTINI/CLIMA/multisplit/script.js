@@ -68,46 +68,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function parseCSV(text, typeForLog = '') {
-    // ... (inizio come prima)
-    const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
-    // ...
-    const data = lines.slice(1).map((line, lineIndex) => {
-        // ... (splitting values come prima)
-        const entry = {};
-        headers.forEach((header, i) => {
-            let value = values[i] ? values[i].trim() : '';
-            if (value === '') value = "Dati mancanti";
-            if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
-            
-            // LOG VALORE ORIGINALE per 'unità_collegabili'
-            if (typeForLog === 'UE' && header === 'unità_collegabili' && lineIndex < 5) {
-                console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore GREZZO per parsing: "${value}"`);
+        function parseCSV(text, typeForLog = '') {
+        console.log(`DEBUG: Parsing CSV text for ${typeForLog}...`);
+        
+        // Definizione di 'lines' PRIMA del suo uso
+        const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
+
+        if (lines.length < 2) { // Ora 'lines' è definita
+            console.warn(`DEBUG: parseCSV ${typeForLog}: No data lines found (or only header). Lines count: ${lines.length}`);
+            return [];
+        }
+
+        const rawHeaders = lines[0].split(',');
+        const headers = rawHeaders.map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
+        console.log(`DEBUG: parseCSV ${typeForLog} - Headers (count: ${headers.length}):`, headers);
+        if(headers.length === 0 || (headers.length === 1 && headers[0] === '')) {
+            console.error(`DEBUG: parseCSV ${typeForLog}: Nessun header valido rilevato! Controlla il formato CSV.`);
+            return [];
+        }
+
+        const data = lines.slice(1).map((line, lineIndex) => {
+            const values = []; let currentVal = ''; let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    if (inQuotes && i + 1 < line.length && line[i+1] === '"') { currentVal += '"'; i++; continue; }
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) { values.push(currentVal); currentVal = ''; }
+                else { currentVal += char; }
+            }
+            values.push(currentVal);
+            while (values.length < headers.length) values.push('');
+            if (values.length > headers.length) {
+                console.warn(`DEBUG: parseCSV ${typeForLog} - Linea ${lineIndex + 2}: Valori (${values.length}) > Headers (${headers.length}). Tronco.`);
+                values.length = headers.length;
             }
 
-            const numericHeaders = ['prezzo', 'prezzo_ui', 'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui', 'min_connessioni_ue'];
-            
-            if (header === 'unità_collegabili') { // Trattamento speciale per questa colonna
-                const parsedInt = parseInt(value, 10); // Usa parseInt con base 10
-                entry[header] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
-                 if (typeForLog === 'UE' && lineIndex < 5) {
-                     console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore PARSATO (con parseInt): ${entry[header]}`);
+            const entry = {};
+            headers.forEach((header, i) => {
+                let value = values[i] ? values[i].trim() : '';
+                if (value === '') value = "Dati mancanti";
+                if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
+                
+                if (typeForLog === 'UE' && header === 'unità_collegabili' && lineIndex < 5) {
+                    console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore GREZZO per parsing: "${value}"`);
                 }
-            } else if (numericHeaders.includes(header)) { // Per gli altri numeri (prezzi, BTU) che potrebbero avere decimali
-                let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
-                numStr = numStr.replace(',', '.');          
-                const num = parseFloat(numStr);
-                entry[header] = (value === "Dati mancanti" && isNaN(num)) ? "Dati mancanti" : (isNaN(num) ? 0 : num);
-            } else {
-                entry[header] = value;
-            }
+
+                const numericHeaders = [
+                    'prezzo', 'prezzo_ui', 'unità_collegabili',
+                    'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui',
+                    'min_connessioni_ue'
+                ];
+                
+                if (header === 'unità_collegabili') {
+                    const parsedInt = parseInt(value, 10);
+                    entry[header] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
+                     if (typeForLog === 'UE' && lineIndex < 5) {
+                         console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore PARSATO (con parseInt): ${entry[header]}`);
+                    }
+                } else if (numericHeaders.includes(header)) {
+                    let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
+                    numStr = numStr.replace(',', '.');          
+                    const num = parseFloat(numStr);
+                    entry[header] = (value === "Dati mancanti" && isNaN(num)) ? "Dati mancanti" : (isNaN(num) ? 0 : num);
+                } else {
+                    entry[header] = value;
+                }
+            });
+            if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry (oggetto completo dopo tutti i parsing):`, JSON.parse(JSON.stringify(entry)));
+            return entry;
         });
-        if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry (oggetto completo dopo tutti i parsing):`, JSON.parse(JSON.stringify(entry)));
-        return entry;
-    });
-    // ... (resto come prima)
-    return data;
-}
+        console.log(`DEBUG: parseCSV ${typeForLog} - Totale entries: ${data.length}`);
+        return data;
+    }
     
     function processLoadedData(loadedOutdoorUnits, loadedIndoorUnits) {
         console.log("DEBUG: Chiamata a processLoadedData. UE:", loadedOutdoorUnits.length, "UI:", loadedIndoorUnits.length);
