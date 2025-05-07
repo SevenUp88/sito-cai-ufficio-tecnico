@@ -68,23 +68,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-        function parseCSV(text, typeForLog = '') {
+            function parseCSV(text, typeForLog = '') {
         console.log(`DEBUG: Parsing CSV text for ${typeForLog}...`);
-        
-        // Definizione di 'lines' PRIMA del suo uso
         const lines = text.split(/\r\n|\n/).filter(line => line.trim() !== '');
-
-        if (lines.length < 2) { // Ora 'lines' è definita
-            console.warn(`DEBUG: parseCSV ${typeForLog}: No data lines found (or only header). Lines count: ${lines.length}`);
-            return [];
-        }
-
+        if (lines.length < 2) { console.warn(`DEBUG: parseCSV ${typeForLog}: No data.`); return []; }
+        
         const rawHeaders = lines[0].split(',');
         const headers = rawHeaders.map(h => h.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''));
         console.log(`DEBUG: parseCSV ${typeForLog} - Headers (count: ${headers.length}):`, headers);
+        
         if(headers.length === 0 || (headers.length === 1 && headers[0] === '')) {
-            console.error(`DEBUG: parseCSV ${typeForLog}: Nessun header valido rilevato! Controlla il formato CSV.`);
-            return [];
+            console.error(`DEBUG: parseCSV ${typeForLog}: Nessun header valido!`); return [];
         }
 
         const data = lines.slice(1).map((line, lineIndex) => {
@@ -110,22 +104,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (value === '') value = "Dati mancanti";
                 if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
                 
-                if (typeForLog === 'UE' && header === 'unità_collegabili' && lineIndex < 5) {
-                    console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore GREZZO per parsing: "${value}"`);
-                }
-
-                const numericHeaders = [
-                    'prezzo', 'prezzo_ui', 'unità_collegabili',
-                    'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui',
-                    'min_connessioni_ue'
-                ];
+                const numericHeaders = ['prezzo', 'prezzo_ui', 'potenza_btu_freddo_ue', 'potenza_btu_caldo_ue', 'potenza_btu_ui', 'min_connessioni_ue'];
                 
-                if (header === 'unità_collegabili') {
+                if (header === 'unità_collegabili') { // Trattamento speciale per 'unità_collegabili'
+                    // Logga sempre per questa colonna, non solo le prime 5
+                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}) - Header '${header}', Valore GREZZO per parsing: "${value}" (Tipo: ${typeof value})`);
                     const parsedInt = parseInt(value, 10);
                     entry[header] = isNaN(parsedInt) ? (value === "Dati mancanti" ? "Dati mancanti" : 0) : parsedInt;
-                     if (typeForLog === 'UE' && lineIndex < 5) {
-                         console.log(`DEBUG: parseCSV UE - Riga ${lineIndex + 2}, Header '${header}', Valore PARSATO (con parseInt): ${entry[header]}`);
-                    }
+                    console.log(`DEBUG: parseCSV ${typeForLog} (Riga ${lineIndex + 2}) - Header '${header}', Valore PARSATO con parseInt: ${entry[header]} (Tipo: ${typeof entry[header]})`);
                 } else if (numericHeaders.includes(header)) {
                     let numStr = String(value).replace(/\.(?=.*\.)/g, ''); 
                     numStr = numStr.replace(',', '.');          
@@ -135,7 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     entry[header] = value;
                 }
             });
-            if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry (oggetto completo dopo tutti i parsing):`, JSON.parse(JSON.stringify(entry)));
+            if (lineIndex < 1 && typeForLog) console.log(`DEBUG: parseCSV ${typeForLog} - Prima entry completa:`, JSON.parse(JSON.stringify(entry)));
             return entry;
         });
         console.log(`DEBUG: parseCSV ${typeForLog} - Totale entries: ${data.length}`);
