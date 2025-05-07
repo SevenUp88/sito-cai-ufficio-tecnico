@@ -29,6 +29,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
+    const configTypeSelectionDiv = document.getElementById('config-type-selection');
+// NUOVO CONTROLLO
+if (!configTypeSelectionDiv) {
+    console.error("ERRORE CRITICO: Impossibile trovare l'elemento HTML con id='config-type-selection'. Controllare l'index.html.");
+    // Potresti anche voler fermare l'esecuzione o mostrare un messaggio all'utente qui
+    // loadingOverlay.innerHTML += '<br/><span style="color:red; font-size:0.8em">Errore interno: Elemento necessario mancante!</span>'; // Esempio
+}
     const outdoorUnitSelectionDiv = document.getElementById('outdoor-unit-selection');
     const indoorUnitsSelectionArea = document.getElementById('indoor-units-selection-area');
     const summaryDiv = document.getElementById('config-summary');
