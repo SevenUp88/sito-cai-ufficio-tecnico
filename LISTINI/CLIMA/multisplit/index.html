@@ -26,111 +26,114 @@
             <h1>Configuratore Multi-Split</h1>
         </div>
 
+        <!-- STEP INDICATOR UPDATED FOR 6 STEPS -->
         <div class="step-indicator">
             <div class="step-item" data-step="1">
                 <span class="step-dot active">1</span>
-                <span class="step-name">Marca</span>
+                <span class="step-name">Marca</span> <!-- Step 1: Marca -->
             </div>
             <span class="step-line"></span>
             <div class="step-item" data-step="2">
                 <span class="step-dot">2</span>
-                <span class="step-name">Serie</span>
+                <span class="step-name">Config.</span> <!-- Step 2: Configurazione -->
             </div>
             <span class="step-line"></span>
             <div class="step-item" data-step="3">
                 <span class="step-dot">3</span>
-                <span class="step-name">Config.</span>
+                <span class="step-name">Serie UI</span> <!-- Step 3: Serie UI -->
             </div>
             <span class="step-line"></span>
             <div class="step-item" data-step="4">
                 <span class="step-dot">4</span>
-                <span class="step-name">Unità Est.</span>
+                <span class="step-name">Unità Est.</span> <!-- Step 4: Unità Esterna -->
             </div>
             <span class="step-line"></span>
             <div class="step-item" data-step="5">
                 <span class="step-dot">5</span>
-                <span class="step-name">Unità Int.</span>
+                <span class="step-name">Unità Int.</span> <!-- Step 5: Unità Interne (Taglie) -->
             </div>
             <span class="step-line"></span>
             <div class="step-item" data-step="6">
                 <span class="step-dot">6</span>
-                <span class="step-name">Riepilogo</span>
+                <span class="step-name">Riepilogo</span> <!-- Step 6: Riepilogo -->
             </div>
         </div>
+        <!-- END OF STEP INDICATOR UPDATE -->
 
-        <!-- Step 1: Brand Selection -->
+        <!-- Step 1: Brand Selection (id="step-1", Logical Step 1) -->
         <div id="step-1" class="config-step active-step">
             <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
             <div id="brand-selection" class="selection-grid">
-                <!-- Brands will be populated by JS -->
+                <!-- Content Populated by JS -->
             </div>
             <div class="step-navigation">
+                 <!-- No 'prev' button here -->
             </div>
         </div>
 
-        <!-- Step 2: Model/Serie Selection -->
+        <!-- Step 2 (HTML Div): Serie/Modello Selection (id="step-2", Logical Step 3) - REPURPOSED -->
         <div id="step-2" class="config-step">
-            <h2><span class="step-number-title">2.</span> Seleziona Modello/Serie</h2>
+            <h2><span class="step-number-title">3.</span> Seleziona Serie Unità Interna</h2> <!-- Updated Title & Number -->
             <div id="model-selection" class="selection-grid">
-                <!-- Models will be populated by JS -->
+                <!-- Content Populated by JS (populateIndoorSeries) -->
             </div>
             <div class="step-navigation">
-                <button class="prev-btn" data-prev="1"><i class="fas fa-arrow-left"></i> Indietro</button>
+                <button class="prev-btn" data-prev="1"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Marca (Logical 1 -> Visual 1) -->
             </div>
         </div>
 
-        <!-- Step 3: Configuration Type Selection -->
+        <!-- Step 3 (HTML Div): Configuration Type Selection (id="step-3", Logical Step 2) -->
         <div id="step-3" class="config-step">
-            <h2><span class="step-number-title">3.</span> Scegli Configurazione</h2>
+            <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2> <!-- Updated Number -->
             <div id="config-type-selection" class="selection-grid">
-                <!-- Config types will be populated by JS -->
+                 <!-- Content Populated by JS (populateConfigTypes) -->
             </div>
             <div class="step-navigation">
-                <button class="prev-btn" data-prev="2"><i class="fas fa-arrow-left"></i> Indietro</button>
+                 <button class="prev-btn" data-prev="2"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Serie (Logical 3 -> Visual 3 represented by HTML div#step-2?) Needs JS check-->
             </div>
         </div>
 
-        <!-- Step 4: Outdoor Unit Selection -->
+        <!-- Step 4 (HTML Div): Outdoor Unit Selection (id="step-4", Logical Step 4) -->
         <div id="step-4" class="config-step">
-            <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2>
+            <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2> <!-- Updated Number -->
             <div id="outdoor-unit-selection" class="selection-list">
-                <!-- Outdoor units will be populated by JS -->
+                 <!-- Content Populated by JS (populateOutdoorUnits) -->
             </div>
             <div class="step-navigation">
-                <button class="prev-btn" data-prev="3"><i class="fas fa-arrow-left"></i> Indietro</button>
+                 <button class="prev-btn" data-prev="3"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Config (Logical 2 -> Visual 2) -->
             </div>
         </div>
 
-        <!-- Step 5: Indoor Units Selection -->
+        <!-- Step 5 (HTML Div): Indoor Units Selection (id="step-5", Logical Step 5) -->
         <div id="step-5" class="config-step">
-            <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
+            <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2> <!-- Updated Number -->
             <div id="indoor-units-selection-area">
-                <!-- Indoor unit selectors will be populated by JS -->
+                 <!-- Content Populated by JS (populateIndoorUnitSelectors) -->
             </div>
             <div class="step-navigation">
-                <button class="prev-btn" data-prev="4"><i class="fas fa-arrow-left"></i> Indietro</button>
-                <button class="next-btn" id="finalize-btn" data-next="6" disabled>Finalizza <i class="fas fa-check"></i></button>
+                 <button class="prev-btn" data-prev="4"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to UE (Logical 4 -> Visual 4) -->
+                <button class="next-btn" id="finalize-btn" data-next="6" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button> <!-- Text changed, data-next still targets Summary -->
             </div>
         </div>
 
-        <!-- Step 6: Summary -->
+        <!-- Step 6 (HTML Div): Summary (id="step-6", Logical Step 6) -->
         <div id="step-6" class="config-step">
-            <h2 id="summary-main-title" class="print-main-title">Riepilogo Configurazione</h2>
+            <h2 id="summary-main-title"><span class="step-number-title">6.</span> Riepilogo Configurazione</h2> <!-- Updated Number -->
             <div id="config-summary" class="summary-section">
-                <!-- Summary will be populated by JS -->
+                <!-- Content Populated by JS (generateSummary) -->
             </div>
             <div class="print-instructions">
                 <p><strong>Per la stampa:</strong> utilizzare la funzione "Stampa" del browser (Ctrl+P o Cmd+P).
                 Il layout è ottimizzato per la stampa.</p>
             </div>
             <div class="step-navigation summary-actions">
-                <button class="prev-btn" data-prev="5"><i class="fas fa-arrow-left"></i> Modifica</button>
+                 <button class="prev-btn" data-prev="5"><i class="fas fa-arrow-left"></i> Modifica</button> <!-- Prev points back to UI (Logical 5 -> Visual 5) -->
                 <button id="print-summary-btn"><i class="fas fa-print"></i> Stampa Riepilogo</button>
                 <button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova Configurazione</button>
             </div>
         </div>
 
-    </div>
+    </div> <!-- END of .container -->
 
     <footer class="app-footer">
         <p>&copy; <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
@@ -149,15 +152,11 @@
         <div class="error-message" id="password-error-message"></div>
     </div>
 
-    <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+    <!-- Firebase SDKs FIRST -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-
-    <!-- Add Firebase products that you want to use -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- (Optional) If you later add Firebase Auth -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> -->
-
-    <!-- YOUR script.js MUST be loaded AFTER the Firebase SDKs -->
+    
+    <!-- Your application script LAST -->
     <script src="script.js"></script>
 
 </body>
