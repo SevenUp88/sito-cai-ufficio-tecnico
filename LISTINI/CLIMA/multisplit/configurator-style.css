@@ -133,9 +133,9 @@
     transform: translateY(0); /* Resetta transform per evitare doppio effetto */
 }
 .selection-item img.brand-logo, .selection-item img.series-logo {
-    max-height: 40px;
-    max-width: 100px;
-    margin-bottom: 8px;
+    max-height: 60px;
+    max-width: 150px;
+    margin-bottom: 5px;
     object-fit: contain;
 }
 
