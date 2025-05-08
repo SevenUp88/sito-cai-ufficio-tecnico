@@ -1,4 +1,4 @@
-// --- START OF SCRIPT.JS (FIREBASE VERSION FOR clima-multisplit) ---
+// --- START OF SCRIPT.JS (FIREBASE VERSION FOR clima-multisplit - CORRECTED) ---
 // COPIA E INCOLLA TUTTO QUESTO CONTENUTO NEL TUO script.js, SOSTITUENDO TUTTO.
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -9,17 +9,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         apiKey: "AIzaSyCWHMshTGoiZbRj_nK0uoZjHCv8fe2UnaU", // YOURS
         authDomain: "clima-multisplit.firebaseapp.com",   // YOURS
         projectId: "clima-multisplit",                    // YOURS
-        storageBucket: "clima-multisplit.appspot.com", // Standard format, or clima-multisplit.firebasestorage.app if that's what console shows specifically for Storage and it works
+        storageBucket: "clima-multisplit.appspot.com", 
         messagingSenderId: "314966609042",            // YOURS
         appId: "1:314966609042:web:694658c76e56579b12ea4b", // YOURS
-        measurementId: "G-MWFX55K8CH"                     // YOURS (Optional for Firestore, used by Analytics)
+        measurementId: "G-MWFX55K8CH"                     // YOURS
     };
 
     // Initialize Firebase (using v8 SDK loaded via <script> tags)
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Original APP_DATA structure (will be populated from Firestore)
     const APP_DATA = {
         brands: [], 
         uiSeriesImageMapping: {}, 
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingOverlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:var(--primary-color);z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
     loadingOverlay.innerHTML = '<div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px;"></div><p>Caricamento dati...</p><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
 
-
     const LOGICAL_TO_HTML_STEP_MAP = { 1: "step-1", 2: "step-3", 3: "step-4", 4: "step-5", 5: "step-6" };
     const HTML_TO_LOGICAL_STEP_MAP = { "step-1": 1, "step-3": 2, "step-4": 3, "step-5": 4, "step-6": 5 };
     const TOTAL_LOGICAL_STEPS = 5;
@@ -64,6 +62,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
+    function parsePowerString(powerStr) {
+        let btu = 0;
+        let kw = "N/A";
+
+        if (typeof powerStr === 'string' && powerStr !== "Dati mancanti") {
+            // Try to extract BTU (e.g., "9000BTU" or "9.000 BTU" or "9,000BTU")
+            const btuMatch = powerStr.match(/([\d.,]+)\s*BTU/i);
+            if (btuMatch && btuMatch[1]) {
+                btu = parseInt(btuMatch[1].replace(/[.,]/g, ''), 10) || 0;
+            }
+
+            // Try to extract kW (e.g., "2,5kW" or "2.5 kW")
+            const kwMatch = powerStr.match(/([\d.,]+)\s*kW/i);
+            if (kwMatch && kwMatch[1]) {
+                kw = kwMatch[1].replace(',', '.'); // Normalize to use dot as decimal
+            } else if (btu > 0 && kw === "N/A") { // Estimate kW from BTU if not found
+                 // 1 kW ≈ 3412.14 BTU
+                 kw = (btu / 3412.14).toFixed(1);
+            }
+        }
+        return { btu, kw };
+    }
+
     function processLoadedData(loadedOutdoorUnitsDocs, loadedIndoorUnitsDocs) {
         console.log("DEBUG: Processing Firestore data. UE docs:", loadedOutdoorUnitsDocs.length, "UI docs:", loadedIndoorUnitsDocs.length);
         
@@ -84,18 +105,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             const connections = Number(ue_doc.unit_collegabili) || 0; 
             const minConnectionsFallback = connections > 0 ? (connections < 2 ? 1 : 2) : 1;
             
+            // Power for Outdoor Units: ue_doc.potenza seems to be a simple number (e.g., "4")
+            // This needs clear definition: Is it kW? Nominal size? Needs specific parsing for BTU.
+            // Placeholder: Assume ue_doc.potenza is nominal kW and convert to BTU.
+            // IMPORTANT: You MUST adjust this logic if ue_doc.potenza is not kW for outdoor units.
+            // It's better if your CSV for outdoor units explicitly has potenza_btu_freddo_ue and potenza_btu_caldo_ue
+            let coolingBTU_UE = 0;
+            let heatingBTU_UE = 0;
+            if (ue_doc.potenza && ue_doc.potenza !== "Dati mancanti") {
+                const uePotenzaVal = parseFloat(String(ue_doc.potenza).replace(',', '.'));
+                if (!isNaN(uePotenzaVal)) {
+                    coolingBTU_UE = Math.round(uePotenzaVal * 3412.14); // Example: kW to BTU
+                    heatingBTU_UE = coolingBTU_UE; // Assuming same for heating, often different
+                }
+            }
+            // If your CSV provides direct BTU values for UE cooling/heating, use those ue_doc.your_btu_cooling_field_name
+
             return {
-                id: ue_doc.firestore_id || ue_doc.codice_prod || ue_doc.id || `ue_${index}`, 
+                id: ue_doc.id || ue_doc.codice_prodotto || `ue_${index}`, // Prefer Firestore doc ID
                 brandId: brandId,
-                modelCode: ue_doc.codice_prod || "N/A",
-                name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE (${brandId})`,
+                modelCode: ue_doc.codice_prodotto || "N/A", // Use codice_prodotto from UE sheet
+                name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE ${String(ue_doc.marca || '').toUpperCase()} (${ue_doc.codice_prodotto || 'ID: ' + (ue_doc.id || index)})`,
                 connections: connections,
-                minConnections: Number(ue_doc.min_connessioni_ue) || minConnectionsFallback,
-                capacityCoolingBTU: Number(ue_doc.potenza_btu_freddo_ue) || 0,
-                capacityHeatingBTU: Number(ue_doc.potenza_btu_caldo_ue) || 0,
+                minConnections: Number(ue_doc.min_connessioni_ue) || minConnectionsFallback, // CSV should have min_connessioni_ue
+                capacityCoolingBTU: coolingBTU_UE, // Placeholder based on ue_doc.potenza
+                capacityHeatingBTU: heatingBTU_UE, // Placeholder
                 price: Number(ue_doc.prezzo) || 0,
                 dimensions: ue_doc.dimensioni_ue || "N/A",
-                weight: (ue_doc.peso_ue !== "Dati mancanti" && ue_doc.peso_ue !== undefined && ue_doc.peso_ue !== null && ue_doc.peso_ue !== '') ? ue_doc.peso_ue : "N/D", 
+                weight: (ue_doc.peso_ue !== "Dati mancanti" && ue_doc.peso_ue !== undefined && ue_doc.peso_ue !== null && String(ue_doc.peso_ue).trim() !== '') ? ue_doc.peso_ue : "N/D", 
                 energyClassCooling: ue_doc.classe_energetica_raffrescamento || "N/D",
                 energyClassHeating: ue_doc.classe_energetica_riscaldamento || "N/D",
                 compatibleIndoorSeriesIds: compatibleIds
@@ -107,18 +144,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             const uiModelNameNormalized = String(ui_doc.modello || '').toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, '');
             const seriesIdUI = `${uiModelNameNormalized}_ui`;
             
-            let btu = Number(ui_doc.potenza_btu_ui) || 0; 
-            let kw_ui = ui_doc.kw_ui || "N/A"; // Assuming a kw_ui field might exist
-
-            let imageName = APP_DATA.uiSeriesImageMapping[seriesIdUI] || uiModelNameNormalized; 
-            let imagePath = `img/${imageName}.png`;
+            const { btu, kw } = parsePowerString(ui_doc.potenza); // ui_doc.potenza is like "2,5kW - 9000BTU"
+            
+            let imagePath = "";
+            if (ui_doc.percorso_immagine_ui && ui_doc.percorso_immagine_ui !== "Dati mancanti") {
+                imagePath = ui_doc.percorso_immagine_ui; // Use direct path if provided
+            } else {
+                let imageNameMapped = APP_DATA.uiSeriesImageMapping[seriesIdUI] || uiModelNameNormalized; 
+                imagePath = `img/${imageNameMapped}.png`; // Fallback to mapping
+            }
             
             return {
-                id: ui_doc.firestore_id || ui_doc.codice_prodotto || ui_doc.id || `ui_${index}`,
+                id: ui_doc.id || ui_doc.codice_prodotto || `ui_${index}`, // Prefer Firestore doc ID
                 brandId: brandId,
                 seriesId: seriesIdUI,
                 modelCode: ui_doc.codice_prodotto || "N/A",
-                name: `${String(ui_doc.marca || '').toUpperCase()} ${ui_doc.modello || ''} ${kw_ui} (${btu} BTU)`,
+                name: `${String(ui_doc.marca || '').toUpperCase()} ${ui_doc.modello || ''} ${kw}kW (${btu} BTU)`,
                 type: String(ui_doc.tipo_unit || 'Parete') === "Interna" ? "Parete" : ui_doc.tipo_unit,
                 capacityBTU: btu,
                 price: Number(ui_doc.prezzo_ui) || 0,
@@ -130,28 +171,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("DEBUG: Processing Firestore data finished. First UE:", APP_DATA.outdoorUnits.length > 0 ? JSON.stringify(APP_DATA.outdoorUnits[0]) : "ND", "First UI:", APP_DATA.indoorUnits.length > 0 ? JSON.stringify(APP_DATA.indoorUnits[0]) : "ND");
     }
     
+    // --- Start of functions that were previously copy-pasted ---
+    // updateStepIndicator, showStep, clearFutureSelections, createSelectionItem, createUnitSelectionCard, 
+    // populateBrands, populateConfigTypes, populateOutdoorUnits, populateIndoorUnitSelectors, 
+    // checkAllIndoorUnitsSelected, generateSummary, and event listeners
+    // Ensure these functions correctly use the processed APP_DATA
+
     function updateStepIndicator() {
         const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line');
         const stepNamesNewFlow = ["Marca", "Config.", "Unità Est.", "Unità Int.", "Riepilogo"];
         stepIndicatorItems.forEach((item, htmlIndex) => {
             let itemLogicalStep;
-            if (stepIndicatorItems.length === 6) { // If HTML has 6 step items (one is hidden)
-                if (htmlIndex === 1) { // This is the "Serie" step which is hidden
+            if (stepIndicatorItems.length === 6) { 
+                if (htmlIndex === 1) { 
                     item.style.display = 'none'; 
-                    if (stepLinesHTML[0]) stepLinesHTML[0].style.display = 'none'; // Hide line before it
+                    if (stepLinesHTML[0]) stepLinesHTML[0].style.display = 'none'; 
                     return; 
                 }
-                // Adjust logical step for items after the hidden one
-                itemLogicalStep = (htmlIndex > 1) ? htmlIndex : (htmlIndex + 1); // Step 1 (HTML 0) is 1, Step 3 (HTML 2) is 2, etc.
-            } else { // If HTML has 5 items (no hidden "Serie" step)
+                itemLogicalStep = (htmlIndex > 1) ? htmlIndex : (htmlIndex + 1); 
+            } else { 
                 itemLogicalStep = htmlIndex + 1; 
             }
             
             if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { 
                 item.style.display = 'none'; 
-                // Hide the line before this now-hidden item if it exists
-                // The index for stepLinesHTML is usually htmlIndex-1 for the line *before* item at htmlIndex
-                // but care is needed if items are skipped.
                 if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none';
                 return;
             }
@@ -172,30 +215,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 dot?.classList.add('active'); 
             }
             
-            // Disable future steps that haven't been reached yet and are not the current active step or the first step
             if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) {
                 item.classList.add('disabled');
             }
         });
 
-        // Update step lines based on the state of the *preceding visible* step item
         stepLinesHTML.forEach((line, htmlLineIndex) => {
             line.classList.remove('active');
-            if (stepIndicatorItems.length === 6 && htmlLineIndex === 0) { // Line before hidden "Serie"
+            if (stepIndicatorItems.length === 6 && htmlLineIndex === 0) { 
                 line.style.display = 'none'; 
                 return; 
             }
 
             let prevItemIndexForLine;
-            if (stepIndicatorItems.length === 6) { // HTML with 6 items
-                if (htmlLineIndex === 1) { // Line between hidden "Serie" and "Config." -> check "Marca"
-                     prevItemIndexForLine = 0; // "Marca" is HTML index 0
-                } else if (htmlLineIndex > 1) { // Other lines
-                    prevItemIndexForLine = htmlLineIndex; // Item before line (e.g., line 2 is after item 2)
-                } else { // Should be covered by htmlLineIndex === 0 case
+            if (stepIndicatorItems.length === 6) { 
+                if (htmlLineIndex === 1) { 
+                     prevItemIndexForLine = 0; 
+                } else if (htmlLineIndex > 1) { 
+                    prevItemIndexForLine = htmlLineIndex; 
+                } else { 
                     prevItemIndexForLine = htmlLineIndex;
                 }
-            } else { // HTML with 5 items
+            } else { 
                  prevItemIndexForLine = htmlLineIndex;
             }
             
@@ -223,16 +264,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; 
         }
         
-        // Update highest logical step completed if moving forward sequentially
         if (!fromDirectNavigation) {
             highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep - 1);
         } 
-        // Handle direct navigation (clicking on step indicator)
         else if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) {
-            // Allow jumping to summary only if all prior steps up to UI selection are done or not applicable
             const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && 
                                    (highestLogicalStepCompleted >= TOTAL_LOGICAL_STEPS - 1 || (selections.configType && selections.configType.numUnits === 0 && highestLogicalStepCompleted >= TOTAL_LOGICAL_STEPS - 2));
-            if (!canJumpToSummary && logicalStepNumber !== TOTAL_LOGICAL_STEPS) { // Don't allow jumping far ahead unless to summary
+            if (!canJumpToSummary && logicalStepNumber !== TOTAL_LOGICAL_STEPS) { 
                 console.log(`Navigation to step ${logicalStepNumber} blocked. Highest completed: ${highestLogicalStepCompleted}.`);
                 return;
             }
@@ -248,36 +286,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         currentLogicalStep = logicalStepNumber;
         
-        // If navigating back or to an already completed step, clear selections for subsequent steps
-        if (fromDirectNavigation && logicalStepNumber <= highestLogicalStepCompleted +1) { // allow navigation to next step
-             // Clear selections of steps *after* the one we are navigating TO
-            clearFutureSelections(logicalStepNumber - 1, true); // preserveCurrentLevelSelections if navigating to that level
+        if (fromDirectNavigation && logicalStepNumber <= highestLogicalStepCompleted +1) { 
+            clearFutureSelections(logicalStepNumber - 1, true); 
         }
         updateStepIndicator(); 
         window.scrollTo(0, 0);
     }
 
     function clearFutureSelections(stepJustCompletedLogical, preserveCurrentLevelSelections = false) {
-        // stepJustCompletedLogical is the LOGICAL step number that was just finished OR the target step's preceding step on direct nav
         console.log(`clearFutureSelections called. Logical step completed/navigating to: ${stepJustCompletedLogical+1}, Preserve current: ${preserveCurrentLevelSelections}`);
 
         if (preserveCurrentLevelSelections) {
-            // Clear data for steps AFTER the one being preserved
-            if (stepJustCompletedLogical < 1) { selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } // After Brand
-            else if (stepJustCompletedLogical < 2) { selections.outdoorUnit = null; selections.indoorUnits = []; } // After Config Type
-            else if (stepJustCompletedLogical < 3) { selections.indoorUnits = []; } // After Outdoor Unit
-            // else if (stepJustCompletedLogical < 4) {} // After Indoor Units (nothing further to clear before summary)
+            if (stepJustCompletedLogical < 1) { selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } 
+            else if (stepJustCompletedLogical < 2) { selections.outdoorUnit = null; selections.indoorUnits = []; } 
+            else if (stepJustCompletedLogical < 3) { selections.indoorUnits = []; } 
         } else {
-            // Clear data for the current step AND subsequent steps
-            if (stepJustCompletedLogical < 0) { selections.brand = null; selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } // Before Brand (full reset)
-            else if (stepJustCompletedLogical < 1) { selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } // After Brand selection changed
-            else if (stepJustCompletedLogical < 2) { selections.outdoorUnit = null; selections.indoorUnits = []; } // After Config Type selection changed
-            else if (stepJustCompletedLogical < 3) { selections.indoorUnits = []; } // After Outdoor Unit selection changed
+            if (stepJustCompletedLogical < 0) { selections.brand = null; selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } 
+            else if (stepJustCompletedLogical < 1) { selections.configType = null; selections.outdoorUnit = null; selections.indoorUnits = []; } 
+            else if (stepJustCompletedLogical < 2) { selections.outdoorUnit = null; selections.indoorUnits = []; } 
+            else if (stepJustCompletedLogical < 3) { selections.indoorUnits = []; } 
         }
 
-        // Repopulate or clear UI sections based on cleared data
         if (selections.brand) {
-            populateConfigTypes(preserveCurrentLevelSelections && stepJustCompletedLogical === 0); // Repopulate if brand still selected and it was the preserved level
+            populateConfigTypes(preserveCurrentLevelSelections && stepJustCompletedLogical === 0); 
         } else {
             brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));
             configTypeSelectionDiv.innerHTML = '<p>Seleziona una marca per continuare.</p>';
@@ -287,7 +318,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (selections.configType && selections.brand) {
             populateOutdoorUnits(preserveCurrentLevelSelections && stepJustCompletedLogical === 1);
-        } else if (selections.brand) { // Config type was cleared
+        } else if (selections.brand) { 
             configTypeSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));
             outdoorUnitSelectionDiv.innerHTML = '<p>Seleziona una configurazione per continuare.</p>';
             indoorUnitsSelectionArea.innerHTML = '<p>Completa i passaggi precedenti.</p>';
@@ -295,26 +326,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (selections.outdoorUnit && selections.configType && selections.brand) {
             populateIndoorUnitSelectors(preserveCurrentLevelSelections && stepJustCompletedLogical === 2);
-        } else if (selections.configType) { // Outdoor unit was cleared
+        } else if (selections.configType) { 
             outdoorUnitSelectionDiv.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
             indoorUnitsSelectionArea.innerHTML = '<p>Seleziona un\'unità esterna per continuare.</p>';
         }
         
-        // Always clear summary if changes happen before the summary step
-        if (stepJustCompletedLogical < TOTAL_LOGICAL_STEPS - 1) { // If changes before summary step (5th logical step)
+        if (stepJustCompletedLogical < TOTAL_LOGICAL_STEPS - 1) { 
             summaryDiv.innerHTML = '';
              if(document.getElementById('summary-main-title')) document.getElementById('summary-main-title').classList.remove('print-main-title');
-
         }
         
-        // Adjust highestLogicalStepCompleted downwards if we've cleared future selections
-        // (unless we are preserving the current level and just clearing beyond it for navigation)
         if (!preserveCurrentLevelSelections) {
             highestLogicalStepCompleted = Math.min(highestLogicalStepCompleted, stepJustCompletedLogical);
         }
 
-        checkAllIndoorUnitsSelected(); // Update finalize button state
-        updateStepIndicator(); // Reflect changes in step indicator
+        checkAllIndoorUnitsSelected(); 
+        updateStepIndicator(); 
     }
     
     const brandChanged = (prev, current) => (!prev && current) || (prev && current && prev.id !== current.id);
@@ -324,36 +351,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     function createSelectionItem(item, type, clickHandler, isSelected = false) {
         const itemDiv = document.createElement('div'); itemDiv.classList.add('selection-item');
         if (isSelected) itemDiv.classList.add('selected'); 
-        itemDiv.dataset[type + 'Id'] = item.id; // item.id comes from Firestore document ID or a field you designated
+        itemDiv.dataset[type + 'Id'] = item.id; 
         
         let logoSrc = ''; if (type === 'brand' && item.logo) logoSrc = item.logo;
-        const nameSpan = document.createElement('span'); nameSpan.textContent = item.name; // item.name from Firestore
+        const nameSpan = document.createElement('span'); nameSpan.textContent = item.name; 
         
         if (logoSrc) {
             const logoImg = document.createElement('img'); logoImg.src = logoSrc; logoImg.alt = `${item.name} Logo`;
             logoImg.classList.add('brand-logo');
-            // Handle image load/error to show name as fallback
-            logoImg.onload = () => { nameSpan.style.display = 'none'; }; // Hide text if logo loads
+            logoImg.onload = () => { nameSpan.style.display = 'none'; }; 
             logoImg.onerror = () => { 
                 console.warn(`DEBUG: Errore caricamento logo ${logoSrc}`); 
                 logoImg.style.display = 'none'; 
-                nameSpan.style.display = 'block'; // Show text if logo fails
+                nameSpan.style.display = 'block'; 
             };
             itemDiv.appendChild(logoImg);
-            nameSpan.style.display = 'none'; // Initially hide text if logo is attempted
+            nameSpan.style.display = 'none'; 
         } else {
-             nameSpan.style.display = 'block'; // Show text if no logo URL
+             nameSpan.style.display = 'block'; 
         }
         itemDiv.appendChild(nameSpan);
 
         itemDiv.addEventListener('click', () => {
-            // Visually deselect others, select this one
             const siblings = itemDiv.parentElement.querySelectorAll('.selection-item.selected');
             siblings.forEach(el => el.classList.remove('selected'));
             itemDiv.classList.add('selected');
-            
-            // highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); // This should be set based on moving FORWARD or VALID selection. Not just any click.
-            clickHandler(item); // Pass the full item object
+            clickHandler(item); 
         }); 
         return itemDiv;
     }
@@ -362,10 +385,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const card = document.createElement('div'); 
         card.classList.add('unit-selection-card');
         if (isSelected) card.classList.add('selected'); 
-        card.dataset.unitId = unit.id; // unit.id from Firestore (or your processed object's id)
+        card.dataset.unitId = unit.id; 
         
         card.style.flexDirection = "column"; 
-        card.style.alignItems = 'flex-start'; // Align items to the start for a cleaner look
+        card.style.alignItems = 'flex-start'; 
 
         const infoDiv = document.createElement('div'); 
         infoDiv.classList.add('unit-info'); 
@@ -389,7 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const dimensionsP = document.createElement('p');
         let dimText = unit.dimensions && unit.dimensions !== "N/A" ? `Dimensioni (LxAxP): ${unit.dimensions}` : "Dimensioni: N/A";
-        if (unit.weight && unit.weight !== "N/D") { // N/D is a string, check for number or valid string
+        if (unit.weight && unit.weight !== "N/D") { 
             dimText += ` | Peso: ${unit.weight} kg`; 
         } else if (unit.weight === "N/D") {
             dimText += ` | Peso: N/D`;
@@ -409,8 +432,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         card.addEventListener('click', () => { 
             card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected')); 
             card.classList.add('selected'); 
-            // highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); // Set by handler logic
-            clickHandler(unit); // Pass the full unit object
+            clickHandler(unit); 
         });
         return card;
     }
@@ -425,10 +447,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; 
         }
         
-        const uniqueBrandIdsFromUEs = [...new Set(APP_DATA.outdoorUnits.map(ue => ue.brandId).filter(id => id))]; // Filter out undefined/null brandIds
+        const uniqueBrandIdsFromUEs = [...new Set(APP_DATA.outdoorUnits.map(ue => ue.brandId).filter(id => id))]; 
         console.log("DEBUG: populateBrands - brandId UNICI in outdoorUnits:", uniqueBrandIdsFromUEs);
         
-        // Filter APP_DATA.brands to only include those for which we have UEs
         const brandsToShow = APP_DATA.brands.filter(b_static => uniqueBrandIdsFromUEs.includes(b_static.id));
         console.log("DEBUG: populateBrands - brandsToShow (dopo filtro):", JSON.parse(JSON.stringify(brandsToShow)));
         
@@ -448,26 +469,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log("DEBUG: populateBrands - Creo card per marca:", brand.id, brand.name);
             brandSelectionDiv.appendChild(createSelectionItem(brand, 'brand', (selectedBrand) => {
                 const brandHasChanged = brandChanged(selections.brand, selectedBrand); 
-                selections.brand = selectedBrand; // selectedBrand is {id:"haier", name:"Haier", logo:"..."}
+                selections.brand = selectedBrand; 
                 
                 if (brandHasChanged) { 
-                    clearFutureSelections(0, false); // Clear from step configType onwards
-                    highestLogicalStepCompleted = 0; // Reset completion since brand changed
+                    clearFutureSelections(0, false); 
+                    highestLogicalStepCompleted = 0; 
                 }
                 populateConfigTypes(!brandHasChanged && !!selections.configType); 
-                showStep(2); // Move to logical step 2 (Config Type)
-                highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 1); // Mark Brand selection as complete
+                showStep(2); 
+                highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 1); 
                 updateStepIndicator();
 
             }, selections.brand && selections.brand.id === brand.id));
         });
         console.log("DEBUG: populateBrands - Fine.");
 
-        // If restoring state and a brand was already selected & is still valid
         if(selections.brand && brandsToShow.some(b => b.id === selections.brand.id)) {
-            populateConfigTypes(true); // Attempt to restore config type selection
-        } else if (selections.brand) { // If previously selected brand is no longer valid (e.g. UEs changed)
-            selections.brand = null; // Clear invalid selection
+            populateConfigTypes(true); 
+        } else if (selections.brand) { 
+            selections.brand = null; 
         }
     }
 
@@ -480,16 +500,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         console.log(`DEBUG: populateConfigTypes - Marca selezionata: ${selections.brand.name} (ID: ${selections.brand.id})`);
         
-        const configTypeList = Object.values(APP_DATA.configTypes); // APP_DATA.configTypes is an object {id: data}
+        const configTypeList = Object.values(APP_DATA.configTypes); 
 
-        const validConfigs = configTypeList.map(ct => { // ct is like { id: "dual", name: "...", numUnits: 2 }
+        const validConfigs = configTypeList.map(ct => { 
             const hasMatchingUE = APP_DATA.outdoorUnits.some(ue => 
                 ue.brandId === selections.brand.id && 
                 ue.connections >= ct.numUnits && 
                 ue.minConnections <= ct.numUnits
             );
             return hasMatchingUE ? ct : null;
-        }).filter(Boolean); // Remove nulls
+        }).filter(Boolean); 
 
         console.log("DEBUG: populateConfigTypes - Configurazioni valide per marca:", JSON.parse(JSON.stringify(validConfigs)));
         
@@ -499,18 +519,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             return; 
         }
         
-        validConfigs.forEach(item => { // item is { id: "dual", name: "Dual Split...", numUnits: 2 }
+        validConfigs.forEach(item => { 
             configTypeSelectionDiv.appendChild(createSelectionItem(item, 'config', (selectedConfig) => {
                 const configHasChanged = configChanged(selections.configType, selectedConfig); 
-                selections.configType = selectedConfig; // selectedConfig is {id:"dual", name:"...", numUnits:2}
+                selections.configType = selectedConfig; 
                 
                 if (configHasChanged) { 
-                    clearFutureSelections(1, false); // Clear from outdoorUnit onwards
-                    highestLogicalStepCompleted = 1; // Reset completion to after brand, as config changed
+                    clearFutureSelections(1, false); 
+                    highestLogicalStepCompleted = 1; 
                 }
                 populateOutdoorUnits(!configHasChanged && !!selections.outdoorUnit);
-                showStep(3); // Move to logical step 3 (Outdoor Unit)
-                highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 2); // Mark Config Type selection as complete
+                showStep(3); 
+                highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 2); 
                 updateStepIndicator();
 
             }, selections.configType && selections.configType.id === item.id));
@@ -553,21 +573,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 selections.outdoorUnit = selectedUE;
                 
                 if (ueHasChanged) { 
-                    clearFutureSelections(2, false); // Clear from indoorUnits onwards
-                    highestLogicalStepCompleted = 2; // Reset completion
+                    clearFutureSelections(2, false); 
+                    highestLogicalStepCompleted = 2; 
                 }
                 
-                if (selections.configType.numUnits === 0) { // Should not happen for standard multi-split
+                if (selections.configType.numUnits === 0) { 
                     console.log("Configurazione non richiede unità interne. Finalizzo.");
                     generateSummary(); 
-                    showStep(TOTAL_LOGICAL_STEPS); // Skip to summary (logical step 5)
-                    highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); // effectively completes UI selection step too
+                    showStep(TOTAL_LOGICAL_STEPS); 
+                    highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); 
                 } else {
                     populateIndoorUnitSelectors(!ueHasChanged && selections.indoorUnits.length > 0 && selections.indoorUnits.some(ui => ui !== null));
-                    showStep(4); // Move to logical step 4 (Indoor Units)
-                    highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 3); // Mark UE selection as complete
+                    showStep(4); 
+                    highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 3); 
                 }
-                checkAllIndoorUnitsSelected(); // Enable/disable finalize btn
+                checkAllIndoorUnitsSelected(); 
                 updateStepIndicator();
             }, selections.outdoorUnit && selections.outdoorUnit.id === ue.id));
         });
@@ -575,8 +595,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(restoring && selections.outdoorUnit && compatibleUEs.some(ue => ue.id === selections.outdoorUnit.id)) {
             if (selections.configType.numUnits > 0) {
                 populateIndoorUnitSelectors(true);
-            } else {
-                 // If 0 UI, summary might need to be triggered if this was the last step of restore
             }
         } else if (restoring && selections.outdoorUnit) {
             selections.outdoorUnit = null;
@@ -600,24 +618,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         let validRestore = restoring && 
                            selections.indoorUnits.length === selections.configType.numUnits && 
-                           selections.indoorUnits.every(ui => ui === null || (ui && ui.brandId === selections.brand.id)); // Check if all slots have a UI or are null
+                           selections.indoorUnits.every(ui => ui === null || (ui && ui.brandId === selections.brand.id)); 
         
         if (!validRestore) {
             console.log("DEBUG: populateIndoorUnitSelectors - Resettando array unità interne.");
             selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
         }
 
-        // Get compatible series IDs from the selected Outdoor Unit
         const compatibleSeriesForUE = selections.outdoorUnit.compatibleIndoorSeriesIds || [];
-        if (compatibleSeriesForUE.length === 0 && APP_DATA.indoorUnits.some(ui => ui.brandId === selections.brand.id)) { // Only warn if UIs for brand exist
+        if (compatibleSeriesForUE.length === 0 && APP_DATA.indoorUnits.some(ui => ui.brandId === selections.brand.id)) { 
             console.warn(`Nessuna serie di Unità Interne compatibile specificata per l'Unità Esterna ${selections.outdoorUnit.id} (${selections.outdoorUnit.name}). Saranno mostrate tutte le UI della marca ${selections.brand.name}, ma la compatibilità effettiva non è garantita senza specifiche. Aggiungere 'compatibleIndoorSeriesIds' all'UE.`);
         }
         
-        // Filter available Indoor Units based on brand and (if available) compatible series
         const availableIndoorUnits = APP_DATA.indoorUnits.filter(ui => {
             const brandMatch = ui.brandId === selections.brand.id;
-            // If UE has no compatible series specified, show all UIs of that brand (with a warning).
-            // Otherwise, filter by the specified compatible series.
             const seriesMatch = compatibleSeriesForUE.length > 0 ? compatibleSeriesForUE.includes(ui.seriesId) : true; 
             return brandMatch && seriesMatch;
         });
@@ -632,7 +646,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (let i = 0; i < selections.configType.numUnits; i++) {
             const slotDiv = document.createElement('div'); 
             slotDiv.classList.add('indoor-unit-slot');
-            slotDiv.style.marginBottom = '20px'; // Add some spacing
+            slotDiv.style.marginBottom = '20px'; 
             slotDiv.style.paddingBottom = '15px';
             slotDiv.style.borderBottom = '1px dashed #eee';
             
@@ -659,9 +673,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             availableIndoorUnits.forEach(ui => {
                 const option = document.createElement('option');
                 option.value = ui.id;
-                // Provide more details in the option text if helpful
                 option.textContent = `${ui.name} (Mod: ${ui.modelCode}, BTU: ${ui.capacityBTU}, Prezzo: ${ui.price.toFixed(2)}€)`;
-                // If restoring and this UI was selected for this slot
                 if (validRestore && selections.indoorUnits[i] && selections.indoorUnits[i].id === ui.id) {
                     option.selected = true;
                 }
@@ -673,7 +685,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             detailsDiv.style.fontSize = '0.9em';
             detailsDiv.style.paddingLeft = '10px';
             
-            // If restoring, and a valid UI was selected, populate its details
             if (validRestore && selections.indoorUnits[i] && availableIndoorUnits.some(avail => avail.id === selections.indoorUnits[i].id)) {
                 const currentSelectedUI = selections.indoorUnits[i];
                  detailsDiv.innerHTML = `
@@ -681,9 +692,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p style="margin: 3px 0;"><strong>BTU:</strong> ${currentSelectedUI.capacityBTU} - <strong>Prezzo:</strong> ${currentSelectedUI.price.toFixed(2)}€</p>
                     ${currentSelectedUI.image ? `<img src="${currentSelectedUI.image}" alt="${currentSelectedUI.name}" class="ui-details-img" style="max-width: 150px; max-height: 100px; object-fit: contain; margin-top: 5px;">` : ''}`;
             } else if (validRestore && selections.indoorUnits[i]) {
-                // Selected UI from restore is not in available list (e.g., due to UE change or data update), invalidate it
                 console.warn(`DEBUG: UI ${selections.indoorUnits[i].id} precedentemente selezionata per lo slot ${i+1} non è più disponibile/compatibile con la UE attuale. Slot resettato.`);
-                selections.indoorUnits[i] = null; // Clear the invalid restored selection
+                selections.indoorUnits[i] = null; 
             }
             
             select.addEventListener('change', (e) => {
@@ -691,7 +701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const unitIndex = parseInt(e.target.dataset.index);
                 const selectedUI = availableIndoorUnits.find(u => u.id === selectedId);
                 
-                selections.indoorUnits[unitIndex] = selectedUI || null; // Update the global selections
+                selections.indoorUnits[unitIndex] = selectedUI || null; 
                 
                 if (selectedUI) {
                     detailsDiv.innerHTML = `
@@ -699,25 +709,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p style="margin: 3px 0;"><strong>BTU:</strong> ${selectedUI.capacityBTU} - <strong>Prezzo:</strong> ${selectedUI.price.toFixed(2)}€</p>
                         ${selectedUI.image ? `<img src="${selectedUI.image}" alt="${selectedUI.name}" class="ui-details-img" style="max-width: 150px; max-height: 100px; object-fit: contain; margin-top: 5px;">` : ''}`;
                 } else {
-                    detailsDiv.innerHTML = ''; // Clear details if placeholder selected
+                    detailsDiv.innerHTML = ''; 
                 }
-                checkAllIndoorUnitsSelected(); // Update finalize button
-                // highestLogicalStepCompleted is managed by checkAllIndoorUnitsSelected or next button
+                checkAllIndoorUnitsSelected(); 
             });
             
             slotDiv.appendChild(select); 
             slotDiv.appendChild(detailsDiv); 
             indoorUnitsSelectionArea.appendChild(slotDiv);
         }
-        checkAllIndoorUnitsSelected(); // Initial check after populating
+        checkAllIndoorUnitsSelected(); 
     }
 
     function checkAllIndoorUnitsSelected() { 
         let allSelected = false;
-        if (selections.configType?.numUnits === 0) { // Edge case: config requires 0 UI
-            allSelected = true; // No UI selection needed
+        if (selections.configType?.numUnits === 0) { 
+            allSelected = true; 
         } else if (selections.configType && selections.indoorUnits.length === selections.configType.numUnits) {
-            // All slots must have a non-null UI object selected
             allSelected = selections.indoorUnits.every(ui => ui !== null && ui !== undefined);
         }
         
@@ -725,27 +733,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             finalizeBtn.disabled = !allSelected;
         }
 
-        // If all UIs are selected (or not needed), this step is considered complete or ready for completion
         if(allSelected) {
              if (selections.configType && selections.configType.numUnits > 0) {
-                 highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); // UI selection (step 4) complete
+                 highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); 
              } else if (selections.configType && selections.configType.numUnits === 0) {
-                 // If 0 UIs needed, then after UE selection (step 3), this stage (step 4 conceptually) is also complete
                  highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 3);
              }
         }
-        updateStepIndicator(); // Update indicator based on new completion status
+        updateStepIndicator(); 
     }
 
     function generateSummary() {
         console.log("DEBUG: generateSummary called. Current Selections:", JSON.parse(JSON.stringify(selections)));
-        summaryDiv.innerHTML = ''; // Clear previous summary
+        summaryDiv.innerHTML = ''; 
         
         if (!selections.brand || !selections.configType || !selections.outdoorUnit ) {
             summaryDiv.innerHTML = "<p>Configurazione incompleta. Torna indietro e completa tutti i passaggi richiesti.</p>";
             return;
         }
-        // Check if indoor units selection is complete IF configType requires them
         if (selections.configType.numUnits > 0 && 
             (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
              summaryDiv.innerHTML = "<p>Selezione delle unità interne incompleta. Torna indietro e completa la selezione per tutte le unità richieste.</p>";
@@ -755,7 +760,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         let totalNominalBTU_UI = 0;
         let totalPrice = selections.outdoorUnit.price || 0;
 
-        // Helper to format optional values
         const valOrNA = (val, suffix = '') => (val !== undefined && val !== null && val !== '' && val !== "Dati mancanti") ? `${val}${suffix}` : 'N/A';
         const priceOrND = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : 'N/D';
 
@@ -783,7 +787,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <h3>Unità Interne Selezionate</h3>
                 ${selections.indoorUnits.map((ui, index) => {
                     if (!ui) return `<div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;"><p>Unità interna ${index + 1} non selezionata correttamente.</p></div>`;
-                    totalNominalBTU_UI += ui.capacityBTU || 0; // Summing nominal BTU of selected UIs
+                    totalNominalBTU_UI += ui.capacityBTU || 0; 
                     totalPrice += ui.price || 0;
                     return `
                         <div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;">
@@ -813,7 +817,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("DEBUG: Riepilogo generato. Prezzo Totale Calcolato:", totalPrice);
     }
 
-    // Event Listeners (Prev/Next buttons, Step indicators, Reset, Print)
     stepIndicatorItems.forEach(item => { 
         item.addEventListener('click', () => {
             if (item.classList.contains('disabled')) {
@@ -828,8 +831,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             console.log(`Step indicator clicked. Target logical step: ${targetLogicalStep}. Current highest completed: ${highestLogicalStepCompleted}`);
 
-            if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { // Attempting to go to Summary
-                 // Check if prerequisite steps are met before generating summary
+            if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { 
                  const uisNeeded = selections.configType && selections.configType.numUnits > 0;
                  const uisNotFullySelected = uisNeeded && (!selections.indoorUnits.every(ui => ui !== null));
 
@@ -839,18 +841,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                  }
                  generateSummary(); 
             }
-            showStep(targetLogicalStep, true); // fromDirectNavigation = true
+            showStep(targetLogicalStep, true); 
         });
     });
 
     if(finalizeBtn) { 
         finalizeBtn.addEventListener('click', () => { 
             console.log("Finalize button clicked.");
-            // This button should only be enabled if all UIs are selected.
-            // So, at this point, logical step 4 (UI selection) is complete.
             highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); 
             generateSummary(); 
-            showStep(TOTAL_LOGICAL_STEPS); // Show summary step (logical step 5)
+            showStep(TOTAL_LOGICAL_STEPS); 
         });
     }
 
@@ -871,10 +871,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(prevLogicalStep >= 1) {
             button.addEventListener('click', () => { 
                 console.log(`Prev button clicked. From logical step ${currentLogical} to ${prevLogicalStep}`);
-                showStep(prevLogicalStep, true); // fromDirectNavigation = true
+                showStep(prevLogicalStep, true); 
             });
         } else {
-            button.style.display = 'none'; // Hide prev button on the first logical step
+            button.style.display = 'none'; 
         }
      });
 
@@ -883,20 +883,19 @@ document.addEventListener('DOMContentLoaded', async () => {
          if (!confirm("Sei sicuro di voler resettare l'intera configurazione?")) return;
 
          highestLogicalStepCompleted = 0; 
-         // Clear all selections
          selections.brand = null; 
          selections.configType = null; 
          selections.outdoorUnit = null; 
          selections.indoorUnits = [];
          
-         clearFutureSelections(-1, false); // Special value to clear all, not preserving any level
+         clearFutureSelections(-1, false); 
          
          const summaryTitleEl = document.getElementById('summary-main-title');
          if (summaryTitleEl) summaryTitleEl.classList.remove('print-main-title'); 
          summaryDiv.innerHTML = ''; 
          if (finalizeBtn) finalizeBtn.disabled = true;
          
-         showStep(1); // Go back to the first step
+         showStep(1); 
     });
 
     document.getElementById('print-summary-btn')?.addEventListener('click', () => {
@@ -907,8 +906,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
     
-    // This button is in the main app header, usually for printing a general price list.
-    // For the configurator context, it should also check if a summary is ready.
     document.getElementById('print-list')?.addEventListener('click', () => { 
          if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("Configurazione incompleta")) {
             window.print();
@@ -917,29 +914,30 @@ document.addEventListener('DOMContentLoaded', async () => {
          }
     });
 
-
-    // --- MODIFIED initializeApp function ---
     async function initializeApp() {
         console.log("DEBUG: Chiamata a initializeApp (Firebase Version for clima-multisplit)");
         document.body.appendChild(loadingOverlay);
         loadingOverlay.style.display = 'flex';
 
+        let brandsData, configTypesData, uiSeriesMapData, outdoorUnitsDocs, indoorUnitsDocs, metadataDoc;
+
         try {
             console.log("DEBUG: Inizio caricamento dati da Firestore...");
-            const [
+            // Use destructuring correctly here
+            [
                 brandsData,
                 configTypesData,
                 uiSeriesMapData,
                 outdoorUnitsDocs,
                 indoorUnitsDocs,
-                metadataDoc // Fetch metadata for last update
+                metadataDoc 
             ] = await Promise.all([
                 fetchFirestoreCollection('brands'),
                 fetchFirestoreCollection('configTypes'),
                 fetchFirestoreCollection('uiSeriesImageMapping'),
                 fetchFirestoreCollection('outdoorUnits'),
                 fetchFirestoreCollection('indoorUnits'),
-                db.collection('metadata').doc('appInfo').get() // Specific doc
+                db.collection('metadata').doc('appInfo').get() 
             ]);
 
             APP_DATA.brands = brandsData;
@@ -968,7 +966,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                  loadingOverlay.innerHTML += `<br><span style="color:orange;font-size:0.8em;">Dati tipi configurazione mancanti.</span>`;
             }
 
-
         } catch (error) {
             console.error("ERRORE CRITICO durante il caricamento dati da Firestore:", error);
             loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Errore grave nel caricamento dei dati. Controlla la console per dettagli e verifica le regole di sicurezza di Firestore e la connessione.</span>`;
@@ -984,13 +981,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         
         updateStepIndicator(); 
-        
         populateBrands(); 
 
         const brandSelectionContent = brandSelectionDiv.innerHTML.trim();
         if (brandSelectionContent.includes("Nessuna marca") || 
            (brandSelectionDiv.children.length === 0 && !brandSelectionDiv.querySelector('p')) ||
-            brandSelectionContent === "" || brandSelectionContent === "<p>...</p>") { // Added check for placeholder
+            brandSelectionContent === "" || brandSelectionContent === "<p>...</p>") { 
              console.warn("DEBUG: Nessuna marca popolata nell'interfaccia dopo populateBrands().");
              let errorMsg = "Possibile problema con i dati delle marche o delle unità esterne. Controlla:";
              errorMsg += "<ul>";
@@ -1002,17 +998,15 @@ document.addEventListener('DOMContentLoaded', async () => {
              errorMsg += "<li>Regole di sicurezza di Firestore.</li>";
              errorMsg += "<li>Output della console per errori specifici.</li></ul>";
 
-            // Keep overlay or show a more detailed error in place of the loading overlay
-             if (loadingOverlay.style.display !== 'none') { // Only update if still visible
+             if (loadingOverlay.style.display !== 'none') { 
                 loadingOverlay.innerHTML = `<p style="color:orange; font-weight:bold; font-size:1.1em;">Errore nel Caricamento Dati Iniziali</p><div style="font-size:0.9em; text-align:left; max-width: 500px; margin: 0 auto;">${errorMsg}</div>`;
-             } else { // If overlay was hidden too fast, show error in brand section
+             } else { 
                 brandSelectionDiv.innerHTML = `<div style="color:orange; padding:10px; border:1px solid orange;">${errorMsg}</div>`;
              }
 
         } else if (brandSelectionDiv.children.length > 0) {
             loadingOverlay.style.display = 'none'; 
         } else {
-             // Fallback for unexpected empty brandSelectionDiv
              if (loadingOverlay.style.display !== 'none') {
                  loadingOverlay.innerHTML += `<br><span style="color:orange;font-size:0.8em;">Configurazione iniziale UI inattesa dopo il caricamento dei dati.</span>`;
              }
@@ -1020,27 +1014,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         document.getElementById('currentYear').textContent = new Date().getFullYear();
         try {
-            const metadata = arguments[0][5]; // arguments is de-structured promise array from Promise.all
-                                        // index 5 was db.collection('metadata').doc('appInfo').get()
-            if (metadata && metadata.exists && metadata.data().lastDataUpdate) {
-                // Firestore Timestamps need to be converted
-                const timestamp = metadata.data().lastDataUpdate;
+            // Use the metadataDoc variable that was de-structured from Promise.all
+            if (metadataDoc && metadataDoc.exists && metadataDoc.data().lastDataUpdate) {
+                const timestamp = metadataDoc.data().lastDataUpdate;
                 document.getElementById('lastUpdated').textContent = new Date(timestamp.seconds * 1000).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
             } else {
                  console.log("DEBUG: Documento metadata/appInfo non trovato o campo lastDataUpdate mancante.");
                 document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT');
             }
         } catch(err) {
-             console.warn("Impossibile caricare metadata.lastDataUpdate:", err);
+             console.warn("Errore durante il recupero di metadata.lastDataUpdate:", err);
              document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT');
         }
 
-
-        showStep(1); // Show the first logical step
+        showStep(1); 
     }
 
     console.log("DEBUG: Prima di chiamare initializeApp (Firebase Version for clima-multisplit)");
     initializeApp();
     console.log("DEBUG: Dopo aver chiamato initializeApp (Firebase Version for clima-multisplit)");
 });
-// --- END OF SCRIPT.JS (FIREBASE VERSION FOR clima-multisplit) ---
+// --- END OF SCRIPT.JS (FIREBASE VERSION FOR clima-multisplit - CORRECTED) ---
