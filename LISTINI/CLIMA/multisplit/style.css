@@ -1,4 +1,4 @@
-/* File: LISTINI/CLIMA/style.css */
+/* File: style.css (per l'intera CAI WEB APP o stili generali) */
 
 :root {
     --primary-color: #0056a8;
@@ -14,132 +14,125 @@
     --sticky-offset: calc(var(--header-height) + 10px);
 }
 
-/* Print specific variables */
-@media print {
-    :root {
-        --primary-color: #000000; /* Nero per stampa */
-        --secondary-color: #555555;
-        --dark-color: #000000;
-        --background-color: #ffffff;
-        --card-shadow: none;
-        --danger-color: #555555;
-    }
+/* Le variabili print ora sono definite in configurator-style.css 
+   per mantenere specificità, ma se hai altri elementi che necessitano
+   colori print diversi qui, puoi duplicare il blocco @media print :root {}
+*/
+
+body { 
+    font-family: 'Roboto', sans-serif; 
+    margin: 0; 
+    padding-top: var(--header-height); 
+    background-color: var(--light-color); 
+    color: var(--dark-color); 
+    line-height: 1.6; 
+    position: relative; 
+    min-height: 100vh; 
 }
 
-
-body { font-family: 'Roboto', sans-serif; margin: 0; padding-top: var(--header-height); background-color: var(--light-color); color: var(--dark-color); line-height: 1.6; position: relative; min-height: 100vh; }
-
 /* === Header Standard Styles === */
-.app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
-.app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
-.app-header a { line-height: 0; }
-.header-controls { display: flex; align-items: center; gap: 15px; }
-.header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease, opacity 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-.header-action-button:hover { color: var(--danger-color); }
-body.operator-mode #admin-trigger { display: inline-flex; }
-body.operator-mode #exit-admin-button { display: none; }
-body.admin-mode #admin-trigger { display: none; }
-body.admin-mode #exit-admin-button { display: inline-flex; color: var(--danger-color); }
-body.admin-mode #exit-admin-button:hover { color: #a51826; }
+.app-header { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 10px 30px; 
+    background-color: var(--background-color); 
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    z-index: 1000; 
+    height: var(--header-height); 
+    box-sizing: border-box; 
+}
+.app-header .logo { 
+    height: 45px; 
+    width: auto; 
+    flex-shrink: 0; 
+    display: block; 
+}
+.app-header a { 
+    line-height: 0; 
+}
+.header-controls { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+}
+.header-action-button { 
+    background: none; 
+    border: none; 
+    color: var(--primary-color); 
+    font-size: 1.8em; 
+    cursor: pointer; 
+    padding: 5px; 
+    transition: color 0.3s ease, opacity 0.3s ease; 
+    display: inline-flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-decoration: none; 
+}
+.header-action-button:hover { 
+    color: var(--danger-color); 
+}
+/* Rimossi i body.operator-mode e body.admin-mode da qui, 
+   presumendo che siano gestiti più specificamente dal JS 
+   o in file CSS dedicati se necessario per altre pagine. */
 /* === END Header Standard Styles === */
 
-.container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: var(--background-color); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); border-radius: var(--border-radius); }
+.container { 
+    max-width: 1200px; 
+    margin: 20px auto; 
+    padding: 20px; 
+    background-color: var(--background-color); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
+    border-radius: var(--border-radius); 
+}
 
-/* === Styles per Controlli Pagina e Filtri Sticky === */
-.page-controls { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; position: sticky; top: var(--header-height); background-color: var(--background-color); z-index: 990; padding-top: 15px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.page-controls h1 { color: var(--primary-color); margin: 0 0 15px 0; font-weight: 700; font-size: 2em; line-height: 1.2; }
-.filters { margin-top: 0; margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.filters span { margin-right: 10px; font-weight: 500; color: var(--secondary-color); align-self: center; margin-bottom: 5px; }
-.filter-btn { background-color: #e9ecef; border: 1px solid #ced4da; color: var(--dark-color); padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-size: 0.85em; white-space: nowrap; }
-.filter-btn:hover { background-color: #d1d5db; border-color: #adb5bd; }
-.filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: bold; }
-.filter-btn[data-filter-type="economic"] { background-color: var(--warning-color); border-color: #e6a007; color: #333; }
-.filter-btn[data-filter-type="economic"].active { background-color: #c68b00; border-color: #a06d00; color: white; }
-/* === Fine Stili Filtri === */
+/* === Styles per Controlli Pagina (Es. titolo "Configuratore Multi-Split") === */
+/* Questi stili erano duplicati, sono ora consolidati o rimossi se specifici del configuratore */
+.page-controls { 
+    text-align: center; 
+    margin-bottom: 30px; 
+    /* Se vuoi che sia sticky anche in altre pagine, tienilo. Altrimenti, potrebbe andare in configurator-style.css */
+    /* 
+    border-bottom: 1px solid #eee; 
+    position: sticky; 
+    top: var(--header-height); 
+    background-color: var(--background-color); 
+    z-index: 990; 
+    padding-top: 15px; 
+    margin-left: -20px; 
+    margin-right: -20px; 
+    padding-left: 20px; 
+    padding-right: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+    */
+}
+.page-controls h1 { 
+    color: var(--primary-color); 
+    margin: 0 0 15px 0; 
+    font-weight: 700; 
+    font-size: 2em; 
+    line-height: 1.2; 
+}
 
-/* === Stili Tabs Sezioni === */
-.section-tabs { display: flex; justify-content: center; margin-top: 10px; padding-bottom: 15px; border-top: 1px solid #eee; padding-top: 15px; }
-.tab-btn { padding: 8px 25px; margin: 0 5px; font-size: 1em; font-weight: 500; color: var(--secondary-color); background-color: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: color 0.3s ease, border-bottom-color 0.3s ease; }
-.tab-btn:hover { color: var(--dark-color); }
-.tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 700; }
-/* === Fine Stili Tabs === */
+/* Rimosse sezioni .filters, .section-tabs, main, .sections-wrapper, .content-section, 
+   .product-grid, .product-card, ecc., poiché erano molto specifiche
+   per un'altra applicazione (listino prodotti) e non per il configuratore.
+   Se ti servono stili generici per questi elementi *in altre parti della tua app*, 
+   puoi reintrodurli.
+*/
 
-/* === Stili Contenuto Principale === */
-main { padding-top: 10px; }
-.sections-wrapper { display: flex; flex-wrap: wrap; gap: 30px; align-items: stretch; }
-.content-section { flex: 1; min-width: 300px; display: none; }
-.content-section.active-section { display: block; }
-@media (max-width: 992px) { .sections-wrapper { flex-direction: column; gap: 40px; align-items: stretch; } .content-section { min-width: 100%; } }
-/* === Fine Stili Layout Colonne === */
-
-/* Griglia Prodotti */
-.product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 25px; margin-bottom: 40px; }
-
-/* Card Prodotto */
-.product-card { background-color: var(--background-color); border: 1px solid #e0e0e0; border-radius: var(--border-radius); padding: 20px; box-shadow: var(--card-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-.product-card.error-card { background-color: #f8d7da; border-color: var(--danger-color); color: #842029; padding: 20px; text-align: center; }
-
-.card-top-right-elements { position: absolute; top: 10px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 5; }
-.economic-badge { display: inline-block; background-color: var(--warning-color); color: #333; font-size: 0.7em; padding: 2px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
-.wifi-icon { font-size: 1.1em; color: var(--primary-color); }
-
-.product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 60px; }
-.product-logo { max-height: 50px; max-width: 140px; width: auto; object-fit: contain; flex-shrink: 0; }
-.product-title-brand { flex-grow: 1; min-width: 0; }
-.product-title-brand h3 { margin: 0 0 2px 0; font-size: 1.15em; color: var(--dark-color); font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: calc(1.35em * 2); }
-.product-title-brand .product-brand-text { font-size: 0.9em; color: var(--secondary-color); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
-
-.product-image { display: block; width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; }
-
-.product-info { display: flex; flex-direction: column; flex-grow: 1; }
-.product-details { margin-bottom: 15px; flex-grow: 1; }
-
-.product-info-text { margin: 6px 0; line-height: 1.5; font-size: 0.95em; color: #495057; }
-.product-info-text strong { color: var(--dark-color); margin-right: 5px; display: inline-block; }
-
-.product-power { font-weight: 700; }
-
-.energy-class span { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-weight: bold; color: white; margin-right: 5px; line-height: 1.2; }
-.energy-class .cooling { background-color: #0d6efd; }
-.energy-class .heating { background-color: var(--danger-color); }
-
-.product-codes strong { display: block; margin-bottom: 3px; }
-.product-codes .code-value { color: var(--dark-color); font-family: inherit; font-size: inherit; line-height: 1.4; display: block; }
-.product-codes .code-value span { color: var(--secondary-color); font-size: 0.9em; margin-left: 4px; }
-
-/* Stile per Paragrafo Dimensioni (visibile solo in stampa per default) */
-.product-dimensions { display: none; }
-.product-dimensions strong { display: block; margin-bottom: 3px; }
-.product-dimensions span { display: inline; } /* Span per UI/UE */
-.product-dimensions span + span::before { content: " / "; font-weight: normal; color: var(--secondary-color); } /* Separatore UI/UE */
-
-.product-datasheet { margin-top: 12px; }
-.product-datasheet a { color: var(--primary-color); text-decoration: none; font-weight: 500; transition: color 0.2s ease; font-size: 0.95em; }
-.product-datasheet a:hover { color: var(--dark-color); text-decoration: underline; }
-.product-datasheet i { margin-right: 5px; }
-
-.product-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; }
-.product-price-value { font-size: 1.3em; font-weight: 700; color: var(--primary-color); white-space: nowrap; }
-.action-buttons-container { display: flex; align-items: center; gap: 5px; }
-.action-buttons-container button { padding: 5px 8px; font-size: 1.1em; line-height: 1; cursor: pointer; border: 1px solid var(--secondary-color); background-color: var(--light-color); color: var(--secondary-color); border-radius: 4px; transition: all 0.2s ease; white-space: nowrap; }
-.action-buttons-container button i { margin-right: 0; }
-.action-buttons-container button:hover { background-color: #e2e6ea; border-color: #adb5bd; }
-.action-buttons-container .edit-btn:hover { background-color: #ddeeff; color: var(--primary-color); border-color: var(--primary-color); }
-.action-buttons-container .save-btn { border-color: #198754; background-color: #d1e7dd; color: #0f5132; }
-.action-buttons-container .save-btn:hover { background-color: #a3cfbb; border-color: #146c43; color: #0a3622; }
-.action-buttons-container .cancel-btn { border-color: var(--danger-color); background-color: #f8d7da; color: #842029; }
-.action-buttons-container .cancel-btn:hover { background-color: #f1aeb5; border-color: #b02a37; color:#58151c; }
-
-.edit-price-input, .edit-model-input { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-family: 'Roboto', sans-serif; }
-.edit-price-input { width: 90px; text-align: right; }
-.edit-model-input { width: calc(100% - 18px); font-weight: bold; }
-body.operator-mode .action-buttons-container button { display: none; }
-body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { display: none !important; }
-
-.loading-placeholder, .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--secondary-color); font-size: 1.1em; }
-
-#password-panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%; background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); padding: 25px; padding-top: 50px; z-index: 1010; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
+/* Password Panel (potrebbe essere un componente condiviso) */
+#password-panel { 
+    position: fixed; top: 0; right: 0; width: 300px; height: 100%; 
+    background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); 
+    padding: 25px; padding-top: 50px; z-index: 1010; 
+    transform: translateX(100%); transition: transform 0.3s ease-in-out; 
+    box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; 
+}
 #password-panel.visible { transform: translateX(0); }
 #password-panel h3 { margin-top: 0; margin-bottom: 10px; color: var(--primary-color); text-align: center; }
 #password-panel p { font-size: 0.9em; color: var(--secondary-color); margin-bottom: 15px; text-align: center; }
@@ -154,80 +147,52 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
 #close-panel-btn:hover { color: var(--dark-color); }
 .error-message { color: var(--danger-color); font-size: 0.85em; text-align: center; min-height: 1.2em; margin-top: 10px; }
 
-.app-footer { text-align: center; margin-top: 40px; padding: 20px 0; border-top: 1px solid #eee; font-size: 0.9em; color: var(--secondary-color); }
-.app-footer .data-info { font-style: italic; font-size: 0.85em; margin-top: 5px; }
-
-#dimension-tooltip { position: absolute; display: none; background-color: rgba(255, 255, 255, 0.98); border: 1px solid #aaa; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25); padding: 0; z-index: 1001; width: 300px; border-radius: 4px; pointer-events: none; overflow: hidden; transition: padding 0.2s ease; }
-#dimension-tooltip img { display: block; width: 100%; height: auto; transition: display 0.2s ease; }
-.tooltip-dimension-text { position: absolute; background-color: rgba(240, 240, 240, 0.85); padding: 3px 6px; border-radius: 3px; font-size: 0.9em; line-height: 1.3; color: #000; font-family: 'Courier New', Courier, monospace; white-space: nowrap; font-weight: bold; }
-#dimension-tooltip.no-blueprint img { display: none; }
-#dimension-tooltip.no-blueprint { padding: 10px; }
-#dimension-tooltip.no-blueprint #tooltip-ue-dimensions { display: none; }
-#dimension-tooltip.no-blueprint #tooltip-ui-dimensions { position: static; margin-bottom: 0; bottom: auto; left: auto; top: auto; right: auto; background: none; }
-#dimension-tooltip:not(.no-blueprint) img { display: block; }
-#dimension-tooltip:not(.no-blueprint) { padding: 0; }
-#dimension-tooltip:not(.no-blueprint) #tooltip-ue-dimensions { display: block; position: absolute; top: 10%; left: 15%; }
-#dimension-tooltip:not(.no-blueprint) #tooltip-ui-dimensions { display: block; position: absolute; bottom: 8%; left: 15%; background-color: rgba(240, 240, 240, 0.85); }
-
-/* === Print Styles (V4 - CON IMMAGINE e 2 Colonne) === */
-@media print {
-    @page { margin: 1cm; size: A4; }
-    body { padding-top: 0; font-size: 8.5pt; color: #000; background-color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .app-header, .page-controls, .app-footer, #password-panel, #dimension-tooltip, .action-buttons-container, .product-datasheet { display: none !important; }
-    .container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; border: none; }
-    main { padding-top: 0; }
-    .sections-wrapper { display: block; }
-    .content-section { display: block !important; page-break-inside: avoid; margin-bottom: 10px; }
-    .content-section::before { content: attr(id) == 'monosplit-section' ? 'Listino Monosplit' : (attr(id) == 'multisplit-section' ? 'Listino Multisplit' : ''); display: block; font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #999; color: #000; page-break-after: avoid; text-align: left; }
-
-    .product-grid { display: block; column-count: 2; /* Layout a 2 colonne */ column-gap: 1cm; }
-
-    .product-card {
-        display: flex; /* Flex per layout interno */
-        flex-direction: column; /* Elementi in colonna */
-        width: 100%; box-shadow: none; border: 1px solid #ccc; margin-bottom: 0.7cm; padding: 8px;
-        page-break-inside: avoid; -webkit-column-break-inside: avoid; break-inside: avoid;
-    }
-
-    /* Header della card */
-    .product-header { order: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; width: 100%; min-height: auto; padding: 0; margin: 0 0 5px 0; }
-    .product-logo { order: 1; max-height: 20px; max-width: 70px; flex-shrink: 0; margin-right: 5px;}
-    .product-title-brand { order: 2; flex-grow: 1; text-align: left; }
-    .product-title-brand h3 { font-size: 9pt; font-weight: bold; line-height: 1.1; -webkit-line-clamp: unset; min-height: auto; margin:0; display: inline;}
-    .product-title-brand .product-brand-text { font-size: 7.5pt; margin-right: 4px; display: inline;}
-    .card-top-right-elements { order: 3; /* Dopo logo/titolo */ position: static; display: flex; flex-direction: row; gap: 6px; margin-left: auto; align-items: center; padding-left: 10px; }
-    .economic-badge { display: none !important; /* Nascondi badge economico in stampa */}
-    .wifi-icon { font-size: 0.8em; color: #000; display: inline-block;}
-    .wifi-icon::before { content: " (WiFi)"; font-size: 0.85em; font-family: sans-serif; vertical-align: baseline;}
-
-    /* Immagine */
-    .product-image { order: 2; /* Sotto l'header completo */ display: block !important; /* Mostra immagine */ width: auto; /* Larghezza auto */ max-width: 60%; /* Limita larghezza relativa alla card */ height: auto; max-height: 70px; /* Limita altezza */ margin: 5px auto 8px auto; /* Centra orizzontalmente */ object-fit: contain; }
-
-    /* Info e Footer */
-    .product-info { order: 3; width: 100%; }
-    .product-details { margin-bottom: 3px; }
-    .product-info-text { font-size: 8pt; line-height: 1.25; margin: 1px 0; }
-    .energy-class span { font-size: 0.7em; padding: 1px 3px; color: #000 !important; border: 1px solid #555; background-color: #fff !important; }
-    .energy-class .cooling::before { content:"Raffr.: "; font-weight: normal;}
-    .energy-class .heating::before { content:"Risc.: "; font-weight: normal;}
-    .product-dimensions { display: block !important; font-size: 8pt; line-height: 1.25; margin: 1px 0;}
-    .product-dimensions strong { display: inline; margin-bottom: 0; margin-right: 3px;}
-    .product-dimensions br { display: none; }
-    .product-dimensions span + span::before { content: " / "; font-weight: normal; color: #555; }
-    .product-codes { font-size: 7.5pt; }
-    .product-codes strong { margin-bottom: 0; display: inline;}
-    .product-codes .code-value { display: block; }
-    .product-codes .code-value span { font-size: 0.9em; }
-    .product-footer { display: block; border-top: none; padding-top: 3px; margin-top: 3px; text-align: left; }
-    .product-price-value { font-size: 9.5pt; color: #000; font-weight: bold; }
-    .action-buttons-container { display: none; }
+.app-footer { 
+    text-align: center; margin-top: 40px; padding: 20px 0; 
+    border-top: 1px solid #eee; font-size: 0.9em; color: var(--secondary-color); 
 }
-/* === Fine Print Styles === */
+.app-footer .data-info { 
+    font-style: italic; font-size: 0.85em; margin-top: 5px; 
+}
 
-/* === Responsive Design === */
-@media (max-width: 992px) { /* ... */ }
-@media (max-width: 768px) { /* ... */ }
-@media (max-width: 480px) { /* ... */ }
-.product-card[data-brand="HAIER"] .product-logo { max-height: 40px; max-width: 110px; }
-.product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
-@media (max-width: 768px) { .product-card[data-brand="HAIER"] .product-header { min-height: auto; } }
+/* Stili per il modal di login se vuoi renderli più globali 
+   Altrimenti, possono stare in configurator-style.css o code.css
+*/
+.modal { /* Stile base se non già presente in configurator-style.css */
+    display: none; position: fixed; z-index: 1050; 
+    left: 0; top: 0; width: 100%; height: 100%; 
+    overflow: auto; background-color: rgba(0,0,0,0.4);
+}
+.modal-content { /* Stile base se non già presente */
+    background-color: #fefefe; margin: 10% auto; padding: 20px;
+    border: 1px solid #888; width: 80%; max-width: 500px;
+    border-radius: var(--border-radius); position: relative;
+}
+.modal-content .close-btn { /* Stile base */
+    color: #aaa; float: right; font-size: 28px; 
+    font-weight: bold; cursor:pointer; 
+}
+.modal-content .close-btn:hover, .modal-content .close-btn:focus {
+    color: black; text-decoration: none; 
+}
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: .5rem; font-weight:500; }
+.form-control { display: block; width: calc(100% - 1.5rem); padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+.btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+.btn-primary { color: #fff; background-color: var(--primary-color); border-color: var(--primary-color); }
+.btn-primary:hover { background-color: #004182; border-color: #00376d; }
+.btn-secondary { color: #fff; background-color: var(--secondary-color); border-color: var(--secondary-color); }
+.btn-secondary:hover { background-color: #5a6268; border-color: #545b62; }
+.btn-danger { color: #fff; background-color: var(--danger-color); border-color: var(--danger-color); }
+.btn-danger:hover { background-color: #c82333; border-color: #bd2130; }
+.btn-block { display: block; width: 100%; }
+
+/* Punto 9 da richiesta precedente: Nascondi il logo di stampa sullo schermo */
+.print-only-logo {
+    display: none;
+}
+
+/* Rimosse tutte le regole @media print da qui. 
+   Le regole di stampa specifiche per il configuratore sono ora in configurator-style.css.
+   Se hai bisogno di regole di stampa GLOBALI per elementi non-configuratore, puoi aggiungerle qui.
+*/
