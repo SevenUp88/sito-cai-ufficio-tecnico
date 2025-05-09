@@ -4,18 +4,27 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (6-Step Flow - V2.1 Complete)");
 
-    // --- Firebase Configuration ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyCWHMshTGoiZbRj_nK0uoZjHCv8fe2UnaU", 
-        authDomain: "clima-multisplit.firebaseapp.com",   
-        projectId: "clima-multisplit",                    
-        storageBucket: "clima-multisplit.appspot.com", 
-        messagingSenderId: "314966609042",            
-        appId: "1:314966609042:web:694658c76e56579b12ea4b", 
-        measurementId: "G-MWFX55K8CH"                     
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+  authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+  projectId: "consorzio-artigiani-idraulici",
+  storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
+  messagingSenderId: "136848104008",
+  appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+  measurementId: "G-NNPV2607G7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
     // --- App Data & State ---
     const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] };
