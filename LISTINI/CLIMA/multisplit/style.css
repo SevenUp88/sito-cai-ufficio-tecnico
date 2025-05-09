@@ -14,11 +14,6 @@
     --sticky-offset: calc(var(--header-height) + 10px);
 }
 
-/* Le variabili print ora sono definite in configurator-style.css 
-   per mantenere specificità, ma se hai altri elementi che necessitano
-   colori print diversi qui, puoi duplicare il blocco @media print :root {}
-*/
-
 body { 
     font-family: 'Roboto', sans-serif; 
     margin: 0; 
@@ -76,9 +71,6 @@ body {
 .header-action-button:hover { 
     color: var(--danger-color); 
 }
-/* Rimossi i body.operator-mode e body.admin-mode da qui, 
-   presumendo che siano gestiti più specificamente dal JS 
-   o in file CSS dedicati se necessario per altre pagine. */
 /* === END Header Standard Styles === */
 
 .container { 
@@ -90,25 +82,9 @@ body {
     border-radius: var(--border-radius); 
 }
 
-/* === Styles per Controlli Pagina (Es. titolo "Configuratore Multi-Split") === */
-/* Questi stili erano duplicati, sono ora consolidati o rimossi se specifici del configuratore */
 .page-controls { 
     text-align: center; 
     margin-bottom: 30px; 
-    /* Se vuoi che sia sticky anche in altre pagine, tienilo. Altrimenti, potrebbe andare in configurator-style.css */
-    /* 
-    border-bottom: 1px solid #eee; 
-    position: sticky; 
-    top: var(--header-height); 
-    background-color: var(--background-color); 
-    z-index: 990; 
-    padding-top: 15px; 
-    margin-left: -20px; 
-    margin-right: -20px; 
-    padding-left: 20px; 
-    padding-right: 20px; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-    */
 }
 .page-controls h1 { 
     color: var(--primary-color); 
@@ -118,14 +94,7 @@ body {
     line-height: 1.2; 
 }
 
-/* Rimosse sezioni .filters, .section-tabs, main, .sections-wrapper, .content-section, 
-   .product-grid, .product-card, ecc., poiché erano molto specifiche
-   per un'altra applicazione (listino prodotti) e non per il configuratore.
-   Se ti servono stili generici per questi elementi *in altre parti della tua app*, 
-   puoi reintrodurli.
-*/
-
-/* Password Panel (potrebbe essere un componente condiviso) */
+/* Password Panel (se riutilizzato globalmente) */
 #password-panel { 
     position: fixed; top: 0; right: 0; width: 300px; height: 100%; 
     background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); 
@@ -155,26 +124,11 @@ body {
     font-style: italic; font-size: 0.85em; margin-top: 5px; 
 }
 
-/* Stili per il modal di login se vuoi renderli più globali 
-   Altrimenti, possono stare in configurator-style.css o code.css
-*/
-.modal { /* Stile base se non già presente in configurator-style.css */
-    display: none; position: fixed; z-index: 1050; 
-    left: 0; top: 0; width: 100%; height: 100%; 
-    overflow: auto; background-color: rgba(0,0,0,0.4);
-}
-.modal-content { /* Stile base se non già presente */
-    background-color: #fefefe; margin: 10% auto; padding: 20px;
-    border: 1px solid #888; width: 80%; max-width: 500px;
-    border-radius: var(--border-radius); position: relative;
-}
-.modal-content .close-btn { /* Stile base */
-    color: #aaa; float: right; font-size: 28px; 
-    font-weight: bold; cursor:pointer; 
-}
-.modal-content .close-btn:hover, .modal-content .close-btn:focus {
-    color: black; text-decoration: none; 
-}
+/* Stili per il modal di login - se non sono già in configurator-style o code.css */
+.modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);}
+.modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: var(--border-radius); position: relative;}
+.modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor:pointer; }
+.modal-content .close-btn:hover, .modal-content .close-btn:focus { color: black; text-decoration: none; }
 .form-group { margin-bottom: 1rem; }
 .form-group label { display: block; margin-bottom: .5rem; font-weight:500; }
 .form-control { display: block; width: calc(100% - 1.5rem); padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
@@ -187,12 +141,7 @@ body {
 .btn-danger:hover { background-color: #c82333; border-color: #bd2130; }
 .btn-block { display: block; width: 100%; }
 
-/* Punto 9 da richiesta precedente: Nascondi il logo di stampa sullo schermo */
+/* Nascondi il logo di stampa sullo schermo */
 .print-only-logo {
     display: none;
 }
-
-/* Rimosse tutte le regole @media print da qui. 
-   Le regole di stampa specifiche per il configuratore sono ora in configurator-style.css.
-   Se hai bisogno di regole di stampa GLOBALI per elementi non-configuratore, puoi aggiungerle qui.
-*/
