@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const TOTAL_LOGICAL_STEPS = 6;
     const LOGICAL_TO_HTML_STEP_MAP = { 1: "step-1", 2: "step-3", 3: "step-2", 4: "step-4", 5: "step-5", 6: "step-6" };
     const HTML_TO_LOGICAL_STEP_MAP = { "step-1": 1, "step-3": 2, "step-2": 3, "step-4": 4, "step-5": 5, "step-6": 6 };
-    const LOGICAL_STEP_NAMES = [ "Marca", "Config.", "Serie UI", "Unità Est.", "Unità Int.", "Riepilogo" ];
+    const LOGICAL_STEP_NAMES = [ "Marca", "Config.", "Modello", "Unità Est.", "Unità Int.", "Riepilogo" ];
 
     // --- Utility & Data Fetching / Processing ---
     async function fetchFirestoreCollection(collectionName) {
