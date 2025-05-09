@@ -3,157 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Climatizzatori Multi-Split</title>
+    <title>Configuratore Multi-Split (con Admin)</title> <!-- Title updated -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="configurator-style.css">
+    <!-- Add styles for admin section and login modal if not already covered -->
+    <style>
+        /* Basic styles for new admin elements - adapt from your rentals CSS or expand */
+        .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: var(--border-radius); position: relative; }
+        .modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor:pointer; }
+        .modal-content .close-btn:hover, .modal-content .close-btn:focus { color: black; text-decoration: none; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: .5rem; font-weight:500; }
+        .form-control { display: block; width: 95%; /* Adjust for padding */ padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+        .btn-primary { color: #fff; background-color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary:hover { background-color: #004182; border-color: #00376d; }
+        .btn-secondary { color: #fff; background-color: var(--secondary-color); border-color: var(--secondary-color); }
+        .btn-secondary:hover { background-color: #5a6268; border-color: #545b62; }
+        .btn-danger { color: #fff; background-color: var(--danger-color); border-color: var(--danger-color); }
+        .btn-danger:hover { background-color: #c82333; border-color: #bd2130; }
+        .btn-block { display: block; width: 100%; }
+        #admin-section ul { list-style: none; padding-left: 0;}
+        #admin-section li { border-bottom: 1px dotted #eee; padding: 8px 0; }
+        #admin-section li button { font-size: 0.8em; padding: 3px 6px; margin-left: 8px; }
+    </style>
 </head>
 <body>
     <header class="app-header">
         <a href="#"><img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"></a>
         <div class="header-title-container">
+            <!-- Optional: Space for logged-in user info if you move #auth-status-configurator here -->
         </div>
         <div class="header-controls">
-            <button id="admin-trigger" class="header-action-button" title="Admin Mode"><i class="fas fa-lock"></i></button>
-            <button id="exit-admin-button" class="header-action-button" title="Esci Admin Mode" style="display:none;"><i class="fas fa-lock-open"></i></button>
+            <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Info Utente">
+                <i class="fas fa-user-shield"></i> <!-- Icon updated -->
+            </button>
+            <span id="auth-status-configurator" style="color: var(--secondary-color); margin-left: 10px; font-size: 0.8em; vertical-align: middle;"></span>
+            <!-- Removed #exit-admin-button as #admin-trigger will handle both login/logout popups -->
             <button id="print-list" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
         </div>
     </header>
 
+    <!-- Login Modal for Configurator Admin -->
+    <div id="login-modal-configurator" class="modal"> <!-- Default display: none handled by inline style -->
+      <div class="modal-content">
+          <span class="close-btn">&times;</span>
+          <h2 id="login-modal-title-configurator">Accesso Amministratore</h2>
+          <form id="login-form-configurator">
+              <div class="form-group">
+                  <label for="login-email-configurator">Email:</label>
+                  <input type="email" id="login-email-configurator" required class="form-control">
+              </div>
+              <div class="form-group">
+                  <label for="login-password-configurator">Password:</label>
+                  <input type="password" id="login-password-configurator" required class="form-control">
+              </div>
+              <div id="login-error-configurator" style="color: var(--danger-color); margin-bottom: 1rem; display: none; font-size:0.9em;"></div>
+              <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+          </form>
+          <button id="logout-button-configurator" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
+      </div>
+    </div>
+    <!-- End Login Modal -->
+
     <div class="container configurator-container">
         <div class="page-controls">
+            <img src="img/logos/cai.png" alt="CAI Logo" class="logo print-only-logo"> <!-- Print Logo -->
             <h1>Configuratore Multi-Split</h1>
         </div>
 
-        <!-- STEP INDICATOR UPDATED FOR 6 STEPS -->
+        <!-- STEP INDICATOR (Assumed already updated for 6 steps with correct labels) -->
         <div class="step-indicator">
-            <div class="step-item" data-step="1">
-                <span class="step-dot active">1</span>
-                <span class="step-name">Marca</span> <!-- Step 1: Marca -->
-            </div>
+            <div class="step-item" data-step="1"><span class="step-dot active">1</span><span class="step-name">Marca</span></div>
             <span class="step-line"></span>
-            <div class="step-item" data-step="2">
-                <span class="step-dot">2</span>
-                <span class="step-name">Config.</span> <!-- Step 2: Configurazione -->
-            </div>
+            <div class="step-item" data-step="2"><span class="step-dot">2</span><span class="step-name">Config.</span></div>
             <span class="step-line"></span>
-            <div class="step-item" data-step="3">
-                <span class="step-dot">3</span>
-                <span class="step-name">Modello</span> <!-- Step 3: Modello -->
-            </div>
+            <div class="step-item" data-step="3"><span class="step-dot">3</span><span class="step-name">Modello</span></div>
             <span class="step-line"></span>
-            <div class="step-item" data-step="4">
-                <span class="step-dot">4</span>
-                <span class="step-name">Unità Est.</span> <!-- Step 4: Unità Esterna -->
-            </div>
+            <div class="step-item" data-step="4"><span class="step-dot">4</span><span class="step-name">Unità Est.</span></div>
             <span class="step-line"></span>
-            <div class="step-item" data-step="5">
-                <span class="step-dot">5</span>
-                <span class="step-name">Unità Int.</span> <!-- Step 5: Unità Interne (Taglie) -->
-            </div>
+            <div class="step-item" data-step="5"><span class="step-dot">5</span><span class="step-name">Unità Int.</span></div>
             <span class="step-line"></span>
-            <div class="step-item" data-step="6">
-                <span class="step-dot">6</span>
-                <span class="step-name">Riepilogo</span> <!-- Step 6: Riepilogo -->
-            </div>
+            <div class="step-item" data-step="6"><span class="step-dot">6</span><span class="step-name">Riepilogo</span></div>
         </div>
-        <!-- END OF STEP INDICATOR UPDATE -->
 
         <!-- Step 1: Brand Selection (id="step-1", Logical Step 1) -->
         <div id="step-1" class="config-step active-step">
             <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
-            <div id="brand-selection" class="selection-grid">
-                <!-- Content Populated by JS -->
-            </div>
-            <div class="step-navigation">
-                 <!-- No 'prev' button here -->
-            </div>
+            <div id="brand-selection" class="selection-grid"></div>
+            <div class="step-navigation"></div>
         </div>
 
-        <!-- Step 2 (HTML Div): Serie/Modello Selection (id="step-2", Logical Step 3) - REPURPOSED -->
-        <div id="step-2" class="config-step">
-            <h2><span class="step-number-title">3.</span> Seleziona Modello</h2> <!-- Updated Title & Number -->
-            <div id="model-selection" class="selection-grid">
-                <!-- Content Populated by JS (populateIndoorSeries) -->
-            </div>
-            <div class="step-navigation">
-                <button class="prev-btn" data-prev="1"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Marca (Logical 1 -> Visual 1) -->
-            </div>
-        </div>
-
-        <!-- Step 3 (HTML Div): Configuration Type Selection (id="step-3", Logical Step 2) -->
+        <!-- Step 3 (HTML Div used for Logical Step 2): Configuration Type Selection -->
         <div id="step-3" class="config-step">
-            <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2> <!-- Updated Number -->
-            <div id="config-type-selection" class="selection-grid">
-                 <!-- Content Populated by JS (populateConfigTypes) -->
-            </div>
-            <div class="step-navigation">
-                 <button class="prev-btn" data-prev="2"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Serie (Logical 3 -> Visual 3 represented by HTML div#step-2?) Needs JS check-->
-            </div>
+            <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2>
+            <div id="config-type-selection" class="selection-grid"></div>
+            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
+        </div>
+        
+        <!-- Step 2 (HTML Div used for Logical Step 3): Modello Selection -->
+        <div id="step-2" class="config-step">
+            <h2><span class="step-number-title">3.</span> Seleziona Modello</h2>
+            <div id="model-selection" class="selection-grid"></div>
+            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
         </div>
 
-        <!-- Step 4 (HTML Div): Outdoor Unit Selection (id="step-4", Logical Step 4) -->
+        <!-- Step 4 (HTML Div used for Logical Step 4): Outdoor Unit Selection -->
         <div id="step-4" class="config-step">
-            <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2> <!-- Updated Number -->
-            <div id="outdoor-unit-selection" class="selection-list">
-                 <!-- Content Populated by JS (populateOutdoorUnits) -->
-            </div>
-            <div class="step-navigation">
-                 <button class="prev-btn" data-prev="3"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to Config (Logical 2 -> Visual 2) -->
-            </div>
+            <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2>
+            <div id="outdoor-unit-selection" class="selection-list"></div>
+            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
         </div>
 
-        <!-- Step 5 (HTML Div): Indoor Units Selection (id="step-5", Logical Step 5) -->
+        <!-- Step 5 (HTML Div used for Logical Step 5): Indoor Units Selection -->
         <div id="step-5" class="config-step">
-            <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2> <!-- Updated Number -->
-            <div id="indoor-units-selection-area">
-                 <!-- Content Populated by JS (populateIndoorUnitSelectors) -->
-            </div>
-            <div class="step-navigation">
-                 <button class="prev-btn" data-prev="4"><i class="fas fa-arrow-left"></i> Indietro</button> <!-- Prev points back to UE (Logical 4 -> Visual 4) -->
-                <button class="next-btn" id="finalize-btn" data-next="6" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button> <!-- Text changed, data-next still targets Summary -->
-            </div>
+            <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
+            <div id="indoor-units-selection-area"></div>
+            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button><button class="next-btn" id="finalize-btn" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button></div>
         </div>
 
-        <!-- Step 6 (HTML Div): Summary (id="step-6", Logical Step 6) -->
+        <!-- Step 6 (HTML Div used for Logical Step 6): Summary -->
         <div id="step-6" class="config-step">
-            <h2 id="summary-main-title"><span class="step-number-title">6.</span> Riepilogo Configurazione</h2> <!-- Updated Number -->
-            <div id="config-summary" class="summary-section">
-                <!-- Content Populated by JS (generateSummary) -->
-            </div>
-            <div class="print-instructions">
-                <p><strong>Per la stampa:</strong> utilizzare la funzione "Stampa" del browser (Ctrl+P o Cmd+P).
-                Il layout è ottimizzato per la stampa.</p>
-            </div>
-            <div class="step-navigation summary-actions">
-                 <button class="prev-btn" data-prev="5"><i class="fas fa-arrow-left"></i> Modifica</button> <!-- Prev points back to UI (Logical 5 -> Visual 5) -->
-                <button id="print-summary-btn"><i class="fas fa-print"></i> Stampa Riepilogo</button>
-                <button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova Configurazione</button>
-            </div>
+            <h2 id="summary-main-title"><span class="step-number-title">6.</span> Riepilogo Configurazione</h2>
+            <div id="config-summary" class="summary-section"></div>
+            <div class="print-instructions"><p><strong>Per la stampa:</strong> usare Ctrl+P o Cmd+P.</p></div>
+            <div class="step-navigation summary-actions"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Modifica</button><button id="print-summary-btn"><i class="fas fa-print"></i> Stampa</button><button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova</button></div>
         </div>
 
-    </div> <!-- END of .container -->
+        <!-- Admin Section (Initially Hidden) -->
+        <div id="admin-section" class="config-step" style="display: none; border-color: var(--warning-color); margin-top: 20px;">
+            <h2><span class="step-number-title">Admin:</span> Gestione Dati</h2>
+            
+            <div class="admin-subsection" style="margin-bottom: 20px; padding:15px; border: 1px solid #ddd; border-radius: var(--border-radius);">
+                <h3>Gestione Marche</h3>
+                <div id="admin-brands-list">
+                    <p>Caricamento marche...</p>
+                </div>
+                <hr style="margin: 15px 0;">
+                <h4>Aggiungi/Modifica Marca</h4>
+                <form id="admin-brand-form">
+                    <input type="hidden" id="brand-doc-id">
+                    <div class="form-group">
+                        <label for="brand-id">ID Unico Marca (es. 'haier'):</label>
+                        <input type="text" id="brand-id" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="brand-name">Nome Visualizzato:</label>
+                        <input type="text" id="brand-name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="brand-logo-path">Percorso Logo (es. 'img/logos/haier.png'):</label>
+                        <input type="text" id="brand-logo-path" required class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Salva Marca</button>
+                    <button type="button" id="admin-brand-form-clear" class="btn btn-secondary" style="margin-left:10px;">Nuova / Pulisci</button>
+                </form>
+            </div>
+            <!-- Placeholder for future admin subsections (Outdoor Units, Indoor Units, etc.) -->
+        </div>
+        <!-- End Admin Section -->
+
+    </div> <!-- END of .container.configurator-container -->
 
     <footer class="app-footer">
         <p>&copy; <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
         <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
     </footer>
 
-    <div id="password-panel">
-        <button id="close-panel-btn">&times;</button>
-        <h3>Accesso Amministratore</h3>
-        <p>Inserisci la password per abilitare la modalità amministratore.</p>
-        <div class="form-group">
-            <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password">
-        </div>
-        <button id="submit-password-btn">Accedi</button>
-        <div class="error-message" id="password-error-message"></div>
-    </div>
+    <!-- REMOVED original #password-panel, it's replaced by #login-modal-configurator -->
 
     <!-- Firebase SDKs FIRST -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <!-- AUTH SDK Added -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
     <!-- Your application script LAST -->
