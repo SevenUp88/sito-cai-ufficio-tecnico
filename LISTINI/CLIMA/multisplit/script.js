@@ -69,7 +69,111 @@ document.addEventListener('DOMContentLoaded', async () => {
     function resetSelectionsAndUIFrom(stepToClearFrom) { /* ...corpo dal tuo file... */ console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('<select'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); /*clearAndResetUIForStep(1);*/ console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
     function populateBrands() { /* ...corpo dal tuo file... */ brandSelectionDiv.innerHTML = ''; console.log("DEBUG: populateBrands called..."); if (!APP_DATA.outdoorUnits?.length) { brandSelectionDiv.innerHTML = '<p>Dati unità esterne non disponibili.</p>'; return; } const uniqueBrandIdsFromUEs = [...new Set(APP_DATA.outdoorUnits.map(ue => ue.brandId).filter(id => id && id !== 'sconosciuta'))]; const brandsToShow = APP_DATA.brands.filter(b => uniqueBrandIdsFromUEs.includes(b.id)); if (!brandsToShow.length) { brandSelectionDiv.innerHTML = '<p>Nessuna marca con UEs.</p>'; return; } brandsToShow.forEach(brand => { brandSelectionDiv.appendChild(createSelectionItem(brand, 'brand', (selectedBrand) => { if (selections.brand?.id !== selectedBrand.id) { resetSelectionsAndUIFrom(2); selections.brand = selectedBrand; highestLogicalStepCompleted = 1; } populateConfigTypes(); showStep(2); }, selections.brand?.id === brand.id)); }); if (selections.brand && !brandsToShow.some(b => b.id === selections.brand.id)) selections.brand = null; }
     function populateConfigTypes() { /* ...corpo dal tuo file... */ configTypeSelectionDiv.innerHTML = ''; if (!selections.brand) { configTypeSelectionDiv.innerHTML = '<p>Scegli marca.</p>'; return; } const validConfigs = Object.values(APP_DATA.configTypes).filter(ct => APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections >= ct.numUnits && ue.minConnections <= ct.numUnits)).sort((a, b) => a.numUnits - b.numUnits); if (!validConfigs.length) { configTypeSelectionDiv.innerHTML = `<p>Nessuna config. per ${selections.brand.name}.</p>`; return; } validConfigs.forEach(config => { configTypeSelectionDiv.appendChild(createSelectionItem(config, 'config', (selectedConfig) => { if (selections.configType?.id !== selectedConfig.id) { resetSelectionsAndUIFrom(3); selections.configType = selectedConfig; highestLogicalStepCompleted = 2; } populateIndoorSeries(); showStep(3); }, selections.configType?.id === config.id)); }); if (selections.configType && !validConfigs.some(vc => vc.id === selections.configType.id)) selections.configType = null;}
-    function populateIndoorSeries() { /* ...corpo dal tuo file (con logica per immagine modello)... */ indoorSeriesSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType) { indoorSeriesSelectionDiv.innerHTML = '<p>Scegli Marca & Config.</p>'; if (selections.indoorSeries) selections.indoorSeries = null; return; } const brandId = selections.brand.id; const numUnitsRequired = selections.configType.numUnits; const candidateUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === brandId && ue.minConnections <= numUnitsRequired && ue.connections >= numUnitsRequired); if (!candidateUEs.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessuna UE ${selections.brand.name} compatibile con config. ${selections.configType.name}.</p>`; if (selections.indoorSeries) selections.indoorSeries = null; return; } const compatibleSeriesIdsSet = new Set(candidateUEs.flatMap(ue => ue.compatibleIndoorSeriesIds || [])); const validIndoorUnitsForSeries = APP_DATA.indoorUnits.filter(ui => ui.brandId === brandId && compatibleSeriesIdsSet.has(ui.seriesId)); const uniqueSeries = []; const seenSeriesIds = new Set(); validIndoorUnitsForSeries.forEach(ui => { if (!seenSeriesIds.has(ui.seriesId)) { let repImg = APP_DATA.uiSeriesImageMapping[ui.seriesId] ? `img/${APP_DATA.uiSeriesImageMapping[ui.seriesId]}.png` : (ui.image || null); uniqueSeries.push({ name: ui.seriesName, id: ui.seriesId, image: repImg }); seenSeriesIds.add(ui.seriesId); } }); if (!uniqueSeries.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun Modello UI ${selections.brand.name} compatibile.</p>`; if (selections.indoorSeries) selections.indoorSeries = null; return; } uniqueSeries.sort((a,b) => a.name.localeCompare(b.name)); if(uniqueSeries.length === 1 && !selections.indoorSeries) { selections.indoorSeries = uniqueSeries[0]; highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted,3); populateOutdoorUnits(); showStep(4); return; } uniqueSeries.forEach(series => { indoorSeriesSelectionDiv.appendChild(createSelectionItem(series,'series', (selSeries) => { if(selections.indoorSeries?.id !== selSeries.id) { resetSelectionsAndUIFrom(4); selections.indoorSeries = selSeries; highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted,3); } populateOutdoorUnits(); showStep(4); }, selections.indoorSeries?.id === series.id)); }); if (selections.indoorSeries && !uniqueSeries.some(s => s.id === selections.indoorSeries.id)) { selections.indoorSeries = null; }}
+        function populateIndoorSeries() {
+        indoorSeriesSelectionDiv.innerHTML = ''; // HTML div#step-2 (#model-selection)
+        if (!selections.brand || !selections.configType) {
+            indoorSeriesSelectionDiv.innerHTML = '<p>Scegli Marca e Configurazione prima.</p>';
+            if (selections.indoorSeries) selections.indoorSeries = null;
+            return;
+        }
+        console.log(`DEBUG: populateIndoorSeries - Brand: ${selections.brand.id}, Config: ${selections.configType.name} (${selections.configType.numUnits} UIs)`);
+
+        const brandId = selections.brand.id;
+        const numUnitsRequired = selections.configType.numUnits;
+
+        // 1. Find candidate Outdoor Units matching Brand & Config Type requirements
+        const candidateUEs = APP_DATA.outdoorUnits.filter(ue => 
+            ue.brandId === brandId &&
+            ue.minConnections <= numUnitsRequired && // UE può iniziare con meno o uguale a numUnitsRequired
+            ue.connections >= numUnitsRequired    // UE può gestire ALMENO numUnitsRequired
+        );
+
+        if (candidateUEs.length === 0) {
+             indoorSeriesSelectionDiv.innerHTML = `<p>Nessuna Unità Esterna ${selections.brand.name} trovata per ${selections.configType.name}. Impossibile determinare Modelli UI.</p>`;
+             if (selections.indoorSeries) selections.indoorSeries = null;
+            return;
+        }
+        console.log(`DEBUG: populateIndoorSeries - Candidate UEs for ${brandId} & ${numUnitsRequired}-split: ${candidateUEs.length}`);
+
+        // 2. Collect all unique indoor series IDs supported by these candidate UEs
+        const compatibleSeriesIdsSet = new Set();
+        candidateUEs.forEach(ue => {
+            if (Array.isArray(ue.compatibleIndoorSeriesIds)) {
+                ue.compatibleIndoorSeriesIds.forEach(id => compatibleSeriesIdsSet.add(id));
+            }
+        });
+        console.log(`DEBUG: populateIndoorSeries - All compatible UI Series IDs from these UEs:`, [...compatibleSeriesIdsSet]);
+
+        if (compatibleSeriesIdsSet.size === 0) {
+            indoorSeriesSelectionDiv.innerHTML = `<p>Le Unità Esterne ${selections.brand.name} per ${selections.configType.name} non specificano modelli UI compatibili.</p>`;
+            if (selections.indoorSeries) selections.indoorSeries = null;
+            return;
+        }
+
+        // 3. Find Indoor Units of the selected Brand whose seriesId is in the compatible set
+        const validIndoorUnitsForSeriesSelection = APP_DATA.indoorUnits.filter(ui =>
+            ui.brandId === brandId &&
+            compatibleSeriesIdsSet.has(ui.seriesId)
+        );
+        console.log(`DEBUG: populateIndoorSeries - Indoor Units matching brand & compatible series IDs: ${validIndoorUnitsForSeriesSelection.length}`);
+        
+        // 4. Extract unique Series (Name and ID) from these valid Indoor Units
+        const uniqueSeries = [];
+        const seenSeriesIdsInThisStep = new Set(); // Changed variable name for clarity
+        validIndoorUnitsForSeriesSelection.forEach(ui => {
+            if (!seenSeriesIdsInThisStep.has(ui.seriesId)) {
+                let representativeImage = APP_DATA.uiSeriesImageMapping[ui.seriesId] 
+                                        ? `img/${APP_DATA.uiSeriesImageMapping[ui.seriesId]}.png` 
+                                        : (ui.image || null) ;
+                uniqueSeries.push({ 
+                    name: ui.seriesName, // e.g., "REVIVE"
+                    id: ui.seriesId,     // e.g., "revive_ui"
+                    image: representativeImage 
+                });
+                seenSeriesIdsInThisStep.add(ui.seriesId);
+            }
+        });
+        console.log(`DEBUG: populateIndoorSeries - Unique Series (Models) to show:`, uniqueSeries);
+
+        if (uniqueSeries.length === 0) {
+            indoorSeriesSelectionDiv.innerHTML = `<p>Nessun Modello di Unità Interna ${selections.brand.name} trovato che sia compatibile con Unità Esterne adatte alla configurazione ${selections.configType.name}.</p>`;
+            if (selections.indoorSeries) selections.indoorSeries = null;
+            return;
+        }
+
+        uniqueSeries.sort((a, b) => a.name.localeCompare(b.name));
+
+        // Logic for point 5. "Mostra Solo 1 scelta..." (if it means auto-select)
+        if (uniqueSeries.length === 1 && !selections.indoorSeries && currentLogicalStep === 3 && !fromDirectNavigation /* Avoid auto-select when navigating back */) { 
+            console.log(`DEBUG: Auto-selecting single valid series: ${uniqueSeries[0].name}`);
+            selections.indoorSeries = uniqueSeries[0]; 
+            highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 3);
+            populateOutdoorUnits();
+            showStep(4); 
+            return; 
+        }
+
+        validSeriesToShow.forEach(series => { // `validSeriesToShow` non era definita, ho usato `uniqueSeries`
+             indoorSeriesSelectionDiv.appendChild(createSelectionItem(
+                 series, 
+                 'series', 
+                 (selectedSeries) => {
+                     if (selections.indoorSeries?.id !== selectedSeries.id) {
+                         resetSelectionsAndUIFrom(4); 
+                         selections.indoorSeries = selectedSeries; 
+                         highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 3); 
+                     }
+                     populateOutdoorUnits(); 
+                     showStep(4); 
+                 }, 
+                 selections.indoorSeries?.id === series.id
+             ));
+         });
+        
+        if (selections.indoorSeries && !uniqueSeries.some(s => s.id === selections.indoorSeries.id)) {
+            selections.indoorSeries = null;
+        }
+    }
     function populateOutdoorUnits() { /* ...corpo dal tuo file... */ outdoorUnitSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries) { outdoorUnitSelectionDiv.innerHTML = '<p>Scegli Marca, Config., Modello.</p>'; return; } const numRequired = selections.configType.numUnits; const requiredSeriesId = selections.indoorSeries.id; const compatibleUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id && ue.connections >= numRequired && ue.minConnections <= numRequired && ue.compatibleIndoorSeriesIds?.includes(requiredSeriesId)); if (!compatibleUEs.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE ${selections.brand.name} compatibile con Modello "${selections.indoorSeries.name}".</p>`; return; } compatibleUEs.forEach(ue => { outdoorUnitSelectionDiv.appendChild(createUnitSelectionCard(ue, (selectedUE) => { if (selections.outdoorUnit?.id !== selectedUE.id) { resetSelectionsAndUIFrom(5); selections.outdoorUnit = selectedUE; highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted,4); } populateIndoorUnitSelectors(); showStep(5); }, selections.outdoorUnit?.id === ue.id)); }); if (selections.outdoorUnit && !compatibleUEs.some(ue => ue.id === selections.outdoorUnit.id)) selections.outdoorUnit = null; }
     function populateIndoorUnitSelectors() { /* ...corpo dal tuo file... */ indoorUnitsSelectionArea.innerHTML = ''; if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) { indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`; checkAllIndoorUnitsSelected(); return; } const availableIndoorUnitsForSeries = APP_DATA.indoorUnits.filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id).sort((a,b) => a.capacityBTU - b.capacityBTU); if (!availableIndoorUnitsForSeries.length) { indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`; checkAllIndoorUnitsSelected(); return; } if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) { selections.indoorUnits = new Array(selections.configType.numUnits).fill(null); } for (let i = 0; i < selections.configType.numUnits; i++) { const slotDiv = document.createElement('div'); slotDiv.classList.add('indoor-unit-slot'); slotDiv.style.marginBottom = '20px'; slotDiv.style.paddingBottom = '15px'; slotDiv.style.borderBottom = '1px dashed #eee'; const label = document.createElement('label'); label.htmlFor = `indoor-unit-select-${i}`; label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`; label.style.cssText = 'display:block;margin-bottom:5px;font-weight:500;'; slotDiv.appendChild(label); const select = document.createElement('select'); select.id = `indoor-unit-select-${i}`; select.dataset.index = i; select.style.cssText = 'width:100%;padding:8px;margin-bottom:10px;'; const placeholder = document.createElement('option'); placeholder.value = ""; placeholder.textContent = "-- Seleziona Taglia/Potenza --"; select.appendChild(placeholder); availableIndoorUnitsForSeries.forEach(uiVariant => { const option = document.createElement('option'); option.value = uiVariant.id; option.innerHTML = `${uiVariant.modelCode} - <strong>${uiVariant.kw}kW (${uiVariant.capacityBTU} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`; if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true; select.appendChild(option); }); const detailsDiv = document.createElement('div'); detailsDiv.classList.add('unit-details'); detailsDiv.style.cssText = 'font-size:0.9em;padding-left:10px;'; if (selections.indoorUnits[i]) { const cui = selections.indoorUnits[i]; detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`; } select.addEventListener('change', (e) => { const selId = e.target.value; const idx = parseInt(e.target.dataset.index); const selUI = availableIndoorUnitsForSeries.find(u => u.id === selId); selections.indoorUnits[idx] = selUI || null; if (selUI) { detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`; } else { detailsDiv.innerHTML = ''; } checkAllIndoorUnitsSelected(); }); slotDiv.appendChild(select); slotDiv.appendChild(detailsDiv); indoorUnitsSelectionArea.appendChild(slotDiv); } checkAllIndoorUnitsSelected(); }
     function generateSummary() { /* ...corpo dal tuo file... */ console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections))); summaryDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit ) { summaryDiv.innerHTML = "<p>Configurazione incompleta.</p>"; return; } if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) { summaryDiv.innerHTML = "<p>Selezione UI incomplete.</p>"; return; } let totalNominalBTU_UI = 0; let totalPrice = selections.outdoorUnit.price || 0; const valOrNA = (val, suffix = '') => (val !== undefined && val !== null && val !== '' && val !== "Dati mancanti") ? `${val}${suffix}` : 'N/A'; const priceOrND = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : 'N/D'; const summaryHTML = ` <div class="summary-block"> <h3>Selezione Utente</h3> <p><strong>Marca:</strong> ${selections.brand.name}</p> <p><strong>Configurazione:</strong> ${selections.configType.name} (${selections.configType.numUnits} UI)</p> <p><strong>Modello UI:</strong> ${selections.indoorSeries.name}</p> </div> <div class="summary-block"> <h3>Unità Esterna</h3> <h4>UNITA' ESTERNA ${selections.outdoorUnit.kw && selections.outdoorUnit.kw !== "N/A" && selections.outdoorUnit.kw !== 0 ? selections.outdoorUnit.kw + 'kW' : ''}</h4> <p><em>(${selections.outdoorUnit.name})</em></p> <p><strong>Codice:</strong> ${valOrNA(selections.outdoorUnit.modelCode)}</p> <p><strong>Potenza (F/C BTU):</strong> ${valOrNA(selections.outdoorUnit.capacityCoolingBTU, ' BTU')} / ${valOrNA(selections.outdoorUnit.capacityHeatingBTU, ' BTU')}</p> <p><strong>Classe Energetica (F/C):</strong> ${valOrNA(selections.outdoorUnit.energyClassCooling)} / ${valOrNA(selections.outdoorUnit.energyClassHeating)}</p> <p><strong>Dimensioni:</strong> ${valOrNA(selections.outdoorUnit.dimensions)}</p> <p><strong>Peso:</strong> ${valOrNA(selections.outdoorUnit.weight, ' kg')}</p> <p class="price-highlight"><strong>Prezzo UE:</strong> ${priceOrND(selections.outdoorUnit.price)} (IVA Escl.)</p> </div> ${selections.configType.numUnits > 0 ? ` <div class="summary-block"> <h3>Unità Interne (Modello ${selections.indoorSeries.name})</h3> ${selections.indoorUnits.map((ui, index) => { if (!ui) return `<div class="summary-indoor-unit error">UI ${index + 1} non selezionata.</div>`; totalNominalBTU_UI += ui.capacityBTU || 0; totalPrice += ui.price || 0; return ` <div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;"> <h4>Unità ${index + 1}: <strong>${ui.seriesName}</strong></h4> ${ui.image ? `<img src="${ui.image}" alt="${ui.name}" class="summary-ui-img" style="float:right; margin-left:10px; object-fit:contain;">` : ''} <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p> <p><strong>Potenza: ${valOrNA(ui.kw, 'kW')} (${valOrNA(ui.capacityBTU, ' BTU')})</strong></p> <p><strong>Tipo:</strong> ${valOrNA(ui.type)}</p> <p><strong>Dimensioni:</strong> ${valOrNA(ui.dimensions)}</p> <p><strong>WiFi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p> <p class="price-highlight"><strong>Prezzo UI:</strong> ${priceOrND(ui.price)} (IVA Escl.)</p> <div style="clear:both;"></div> </div> `; }).join('')} </div> ` : '<div class="summary-block"><p>Nessuna UI richiesta.</p></div>'} <div class="summary-total" style="margin-top:20px; padding-top:15px; border-top: 2px solid var(--primary-color);"> ${selections.configType.numUnits > 0 ? `<p><strong>Somma Potenza Nominale UI:</strong> ${totalNominalBTU_UI} BTU</p>` : ''} <p style="font-size: 1.2em; font-weight: bold;"><strong>Prezzo Totale Config.:</strong> <span class="total-price-value">${priceOrND(totalPrice)}</span> (IVA Escl.)</p> </div> `; summaryDiv.innerHTML = summaryHTML; document.getElementById('summary-main-title')?.classList.add('print-main-title'); console.log("DEBUG: Riepilogo generato. Prezzo Totale:", totalPrice); }
