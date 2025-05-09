@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 // --- END OF SCRIPT.JS ---
 
-rispetto all'ultimo js che mi hai dato, quello (definito v 2.1 complete )e questo hanno dimensioni identiche ( 38kb). il mio errore è stato mettere questo pezzo :// Your web app's Firebase configuration
+// Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // TUA CONFIG CORRETTA per consorzio-artigiani-idraulici
