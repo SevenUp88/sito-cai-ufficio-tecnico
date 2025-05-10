@@ -7,52 +7,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- STATO FILTRI E SEZIONI ---
     let currentBrandFilter = 'all';
     let showOnlyEconomic = false;
-    // La sezione attiva è SEMPRE monosplit in questa pagina specifica
     const activeSection = 'monosplit';
-    // --- FINE STATO ---
+
+    // +++ STATO PER IL CONFRONTO +++
+    let itemsToCompare = []; // Array di ID prodotto
+    const MAX_COMPARE_ITEMS = 3;
+    // +++ FINE STATO PER IL CONFRONTO +++
 
     document.body.classList.add('operator-mode');
 
     // Selezione elementi DOM principali
     const monosplitGrid = document.getElementById('monosplit-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const sectionTabs = document.querySelectorAll('.tab-btn');
-    const monosplitSection = document.getElementById('monosplit-section');
-    const sections = { monosplit: monosplitSection }; // Manteniamo solo monosplit
+    // ... (altri selettori esistenti)
 
-    // Selettori Header
-    const adminTrigger = document.getElementById('admin-trigger');
-    const exitAdminButton = document.getElementById('exit-admin-button');
-    const printButton = document.getElementById('print-button');
+    // +++ SELETTORI DOM PER IL CONFRONTO +++
+    const comparePopupOverlayEl = document.getElementById('compare-popup-overlay');
+    const comparePopupContentEl = document.getElementById('compare-popup-content');
+    const closeComparePopupBtnEl = document.getElementById('close-compare-popup-btn');
+    const clearCompareSelectionBtnEl = document.getElementById('clear-compare-selection-btn');
+    const compareBarEl = document.getElementById('compare-bar');
+    const compareBarCountEl = document.getElementById('compare-bar-count');
+    const compareBarShowBtnEl = document.getElementById('compare-bar-show-btn');
+    // +++ FINE SELETTORI DOM PER IL CONFRONTO +++
 
-    // Elementi Pannello Password
-    const passwordPanel = document.getElementById('password-panel');
-    const closePanelButton = document.getElementById('close-panel-btn');
-    const passwordInput = document.getElementById('admin-password');
-    const submitPasswordButton = document.getElementById('submit-password-btn');
-    const passwordError = document.getElementById('password-error');
 
-    // Elementi Tooltip
-    const tooltipElement = document.getElementById('dimension-tooltip');
-    const tooltipUiDimElement = document.getElementById('tooltip-ui-dimensions');
-    const tooltipUeDimElement = document.getElementById('tooltip-ue-dimensions');
+    // ... (tutte le tue funzioni esistenti: handleFatalError, formatPrice, economicModels) ...
 
-    // --- VERIFICHE INIZIALI ---
-    if (typeof products === 'undefined' || !Array.isArray(products)) { console.error("CRITICAL ERROR: 'products' array not found or invalid."); handleFatalError("Errore critico: impossibile caricare i dati dei prodotti."); return; }
-    if (!tooltipElement || !tooltipUiDimElement || !tooltipUeDimElement) { console.warn("Tooltip elements missing. Tooltip functionality disabled."); window.addTooltipListeners = () => {}; }
-    if (!monosplitGrid || !monosplitSection) { console.error("CRITICAL ERROR: Monosplit grid or section elements missing."); handleFatalError("Errore critico: elementi della pagina mancanti."); return; }
-    // --- FINE VERIFICHE ---
-
-    // --- FUNZIONI UTILITY ---
-    function handleFatalError(message) { document.body.innerHTML = `<div style="padding: 20px; text-align: center; color: red; font-size: 1.2em;">${message}</div>`; }
-    function formatPrice(price) { if (price === null || price === undefined || price === '') { return 'N/D'; } let numericPrice = NaN; if (typeof price === 'number') { numericPrice = price; } else if (typeof price === 'string') { try { const cleanedPrice = price.replace(/[^0-9,.-]/g, ''); const normalizedPrice = cleanedPrice.replace(/\./g, '').replace(',', '.'); numericPrice = parseFloat(normalizedPrice); } catch (e) { /* Ignora */ } } if (!isNaN(numericPrice)) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice); } else { return 'N/D'; } }
-    const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
-    // --- FINE FUNZIONI UTILITY ---
-
-    // --- CREAZIONE CARD ---
+    // --- CREAZIONE CARD (MODIFICATA) ---
     function createProductCard(product) {
         if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
         try {
+            // ... (tutto il codice per recuperare i dati del prodotto: imageUrl, brand, model, ecc.)
             const imageUrl = product.image_url || '../images/placeholder.png';
             const brand = product.marca || 'N/D';
             const model = product.modello || 'N/D';
@@ -93,38 +79,50 @@ document.addEventListener('DOMContentLoaded', () => {
              if (uiDimensions !== "N/D") { dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; }
              if (!isMonobloc && ueDimensions !== "N/D") { if (dimensionsHTML !== '') dimensionsHTML += ''; dimensionsHTML += `<span>UE: ${ueDimensions}</span>`; }
              if (dimensionsHTML !== '') { dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`; }
+
+
             let actionButtonsHTML = '';
-            if (isAdmin) actionButtonsHTML = `<button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button><button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button><button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
+            if (isAdmin) {
+                 actionButtonsHTML = `<button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button><button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button><button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
+            }
+
+            // +++ AGGIUNTA PULSANTE CONFRONTA +++
+            const isSelectedForCompare = itemsToCompare.includes(String(product.id));
+            const compareBtnClass = isSelectedForCompare ? 'btn-compare selected' : 'btn-compare';
+            const compareBtnText = isSelectedForCompare ? 'Rimuovi da Confronto' : 'Confronta';
+            const compareBtnHTML = `<button class="${compareBtnClass}" data-product-id="${product.id}" title="${compareBtnText}">${compareBtnText}</button>`;
+            // +++ FINE AGGIUNTA PULSANTE CONFRONTA +++
+
             return `
                <div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
                    <div class="card-top-right-elements">${economicBadgeHTML}${wifiIconHTML}</div>
                    <div class="product-header"> <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';"> <div class="product-title-brand"> <span class="product-brand-text">${brand}</span> <h3 class="product-model">${model}</h3> </div> </div>
                    <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
-                   <div class="product-info"> <div class="product-details"> <p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p> <p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> / <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p> ${productCodeHTML} ${dimensionsHTML} ${datasheetLink} </div> <div class="product-footer"> <div class="product-price-value">${formatPrice(product.prezzo)}</div> <div class="action-buttons-container">${actionButtonsHTML}</div> </div> </div>
+                   <div class="product-info"> 
+                       <div class="product-details"> 
+                           <p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p> 
+                           <p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> / <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p> 
+                           ${productCodeHTML} 
+                           ${dimensionsHTML} 
+                           ${datasheetLink} 
+                       </div> 
+                       <div class="product-footer"> 
+                           <div class="product-price-value">${formatPrice(product.prezzo)}</div> 
+                           <div class="action-buttons-container">
+                               ${actionButtonsHTML}
+                               ${compareBtnHTML} {/* Pulsante Confronta aggiunto qui */}
+                           </div> 
+                       </div> 
+                   </div>
                </div>`;
         } catch (error) { console.error(`Error creating card ID ${product?.id}`, error); return `<div class="product-card error-card">Err card ID ${product?.id}.</div>`; }
     }
     // --- FINE CREAZIONE CARD ---
 
-    // --- FILTRAGGIO, ORDINAMENTO E VISUALIZZAZIONE (Solo Monosplit) ---
-    function applyFiltersAndSort() {
-        if (!Array.isArray(products)) { console.error("Cannot filter, 'products' invalid."); currentFilteredProducts = []; displayProducts(currentFilteredProducts); return; }
-        let filtered = [];
-        try {
-            filtered = [...products];
-            // Filtra SOLO per tipo MONOSPLIT (o default se tipo manca)
-            filtered = filtered.filter(p => !p.tipo || p.tipo.toLowerCase() === 'monosplit');
-
-            if (currentBrandFilter !== 'all') { filtered = filtered.filter(p => p && p.marca && p.marca.toUpperCase() === currentBrandFilter); }
-            if (showOnlyEconomic) { filtered = filtered.filter(p => p && p.modello && economicModels.includes(p.modello.toUpperCase())); }
-            if (!Array.isArray(filtered)) { throw new Error("Filtering resulted in invalid data type."); }
-            filtered.sort((a, b) => { const priceA = (a && typeof a.prezzo === 'number' && !isNaN(a.prezzo)) ? a.prezzo : Infinity; const priceB = (b && typeof b.prezzo === 'number' && !isNaN(b.prezzo)) ? b.prezzo : Infinity; return priceA - priceB; });
-        } catch (error) { console.error("Error filtering/sorting:", error); filtered = []; handleFatalError("Errore applicazione filtri."); }
-        currentFilteredProducts = filtered;
-        displayProducts(currentFilteredProducts);
-    }
-
+    // --- FILTRAGGIO, ORDINAMENTO E VISUALIZZAZIONE (MODIFICATA) ---
     function displayProducts(productsToDisplay) {
+        // ... (codice esistente per popolare monosplitGrid.innerHTML)
+        // Mostra solo in monosplitGrid
         if (!monosplitGrid) { console.error("CRITICAL ERROR: Monosplit grid not found."); return; }
         if (!Array.isArray(productsToDisplay)) { console.error("ERROR: productsToDisplay invalid!", productsToDisplay); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati.</p>'; return; }
 
@@ -148,68 +146,134 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isAdmin) addEditListeners();
         if (typeof addTooltipListeners === 'function') addTooltipListeners();
+
+        // +++ AGGIUNGI LISTENER AI PULSANTI CONFRONTA DOPO AVER CREATO LE CARD +++
+        addCompareButtonListenersToCards();
+        updateCompareBar(); // Aggiorna la barra di confronto
+        // +++ FINE AGGIUNTA LISTENER +++
     }
     // --- FINE FILTRAGGIO E VISUALIZZAZIONE ---
 
-    // --- GESTIONE ADMIN ---
-    function enterAdminMode() { isAdmin = true; document.body.classList.remove('operator-mode'); document.body.classList.add('admin-mode'); if (adminTrigger) adminTrigger.style.display = 'none'; if (exitAdminButton) exitAdminButton.style.display = 'inline-flex'; applyFiltersAndSort(); }
-    function exitAdminMode() { isAdmin = false; document.body.classList.remove('admin-mode'); document.body.classList.add('operator-mode'); if (adminTrigger) adminTrigger.style.display = 'inline-flex'; if (exitAdminButton) exitAdminButton.style.display = 'none'; document.querySelectorAll('.edit-price-input, .edit-model-input').forEach(input => { const card = input.closest('.product-card'); if (card) { const productId = card.dataset.productId; toggleEditMode(productId, false); } }); applyFiltersAndSort(); }
-    let originalProductData = {};
-    function toggleEditMode(productId, isEditing) { /* ... (Codice toggleEditMode invariato - presumo sia corretto) ... */ }
-    function handleEditClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, true); } }
-    function handleCancelClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, false); } }
-    function handleSaveClick(event) { if (isAdmin) { /* ... (Codice save invariato - presumo sia corretto) ... */ applyFiltersAndSort(); } }
-    function addEditListeners() { /* ... (Codice addEditListeners invariato - presumo sia corretto) ... */ }
-    // --- FINE GESTIONE ADMIN ---
 
-    // --- GESTIONE TOOLTIP ---
-    function positionTooltip(event) { /* ... (Codice positionTooltip invariato - presumo sia corretto) ... */ }
-    if (typeof window.addTooltipListeners === 'undefined') { window.addTooltipListeners = () => {}; }
-    window.addTooltipListeners = function() { /* ... (Codice addTooltipListeners invariato - presumo sia corretto) ... */ }
-    function handleTooltipMouseEnter(event) { /* ... (Codice handleTooltipMouseEnter invariato - presumo sia corretto) ... */ }
-    function handleTooltipMouseLeave() { /* ... (Codice handleTooltipMouseLeave invariato - presumo sia corretto) ... */ }
-    // --- FINE GESTIONE TOOLTIP ---
+    // +++ FUNZIONI PER LA LOGICA DI CONFRONTO +++
+    function toggleCompareItem(productIdStr) {
+        const productId = String(productIdStr); // Assicura sia stringa per coerenza
+        const index = itemsToCompare.indexOf(productId);
+
+        if (index > -1) { // Se già presente, rimuovi
+            itemsToCompare.splice(index, 1);
+        } else { // Altrimenti, aggiungi se c'è spazio
+            if (itemsToCompare.length < MAX_COMPARE_ITEMS) {
+                itemsToCompare.push(productId);
+            } else {
+                alert(`Puoi confrontare al massimo ${MAX_COMPARE_ITEMS} articoli.`);
+            }
+        }
+        updateCompareButtonsState();
+        updateCompareBar();
+    }
+
+    function updateCompareButtonsState() {
+        document.querySelectorAll('.btn-compare').forEach(button => {
+            const productId = String(button.dataset.productId);
+            if (itemsToCompare.includes(productId)) {
+                button.classList.add('selected');
+                button.textContent = 'Rimuovi da Confronto';
+                button.title = 'Rimuovi da Confronto';
+            } else {
+                button.classList.remove('selected');
+                button.textContent = 'Confronta';
+                button.title = 'Confronta';
+            }
+        });
+    }
+
+    function addCompareButtonListenersToCards() {
+        const compareCardBtns = document.querySelectorAll('.product-card .btn-compare');
+        compareCardBtns.forEach(btn => {
+            btn.removeEventListener('click', handleCompareCardBtnClick); // Rimuovi vecchi listener
+            btn.addEventListener('click', handleCompareCardBtnClick);
+        });
+    }
+
+    function handleCompareCardBtnClick(event) {
+        const productId = event.target.dataset.productId;
+        toggleCompareItem(productId);
+    }
+
+    function updateCompareBar() {
+        if (!compareBarEl || !compareBarCountEl || !compareBarShowBtnEl) return;
+        compareBarCountEl.textContent = itemsToCompare.length;
+        compareBarShowBtnEl.disabled = itemsToCompare.length === 0;
+        if (itemsToCompare.length > 0) {
+            compareBarEl.classList.add('visible');
+        } else {
+            compareBarEl.classList.remove('visible');
+        }
+    }
+
+    function openComparePopup() {
+        if (!comparePopupOverlayEl || !comparePopupContentEl || itemsToCompare.length === 0) return;
+
+        comparePopupContentEl.innerHTML = ''; // Pulisci
+        itemsToCompare.forEach(productId => {
+            const product = products.find(p => String(p.id) === productId);
+            if (product) {
+                const cardHTML = createProductCard(product); // Ricrea la card
+                // Per evitare problemi con ID duplicati se cloni, è meglio inserire l'HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHTML;
+                comparePopupContentEl.appendChild(tempDiv.firstChild);
+            }
+        });
+        comparePopupOverlayEl.classList.add('visible');
+        document.body.style.overflow = 'hidden'; // Impedisce scroll della pagina sotto
+    }
+
+    function closeComparePopup() {
+        if (!comparePopupOverlayEl) return;
+        comparePopupOverlayEl.classList.remove('visible');
+        document.body.style.overflow = ''; // Ripristina scroll
+    }
+
+    function clearCompareSelection() {
+        itemsToCompare = [];
+        updateCompareButtonsState();
+        updateCompareBar();
+        // Se il popup è aperto, potresti volerlo chiudere o svuotare il contenuto
+        if (comparePopupOverlayEl.classList.contains('visible')) {
+            comparePopupContentEl.innerHTML = '<p style="text-align:center; color: var(--secondary-color);">Seleziona articoli da confrontare.</p>';
+        }
+    }
+    // +++ FINE FUNZIONI PER CONFRONTO +++
 
 
-    // --- EVENT LISTENERS ---
+    // --- EVENT LISTENERS (MODIFICATI/AGGIUNTI) ---
+    // ... (tutti i tuoi listener esistenti per filtri, tabs, admin, ecc.)
     // Filtri (MODIFICATO)
     if (filterButtons.length > 0) {
         filterButtons.forEach(button => {
             button.addEventListener('click', (event) => {
                 const clickedButton = event.currentTarget;
-                const filterType = clickedButton.dataset.filterType; // Es. 'economic'
-                const brandToFilter = clickedButton.dataset.brand;   // Es. 'DAIKIN', 'SAMSUNG', 'all'
-
-                // console.log('Clicked filter button:', { filterType, brandToFilter, buttonElement: clickedButton }); // Per debug
+                const filterType = clickedButton.dataset.filterType;
+                const brandToFilter = clickedButton.dataset.brand;
 
                 if (filterType === 'economic') {
-                    // Gestione del bottone "Economico"
-                    showOnlyEconomic = !showOnlyEconomic; // Toggle dello stato
-                    clickedButton.classList.toggle('active', showOnlyEconomic); // Aggiorna classe CSS
-                    // console.log('showOnlyEconomic Toggled:', showOnlyEconomic); // Per debug
+                    showOnlyEconomic = !showOnlyEconomic;
+                    clickedButton.classList.toggle('active', showOnlyEconomic);
                 } else if (brandToFilter) {
-                    // Gestione dei bottoni filtro per marca
-                    // (include "TUTTI MARCHI" che ha data-brand="all")
-
-                    // 1. Rimuovi 'active' da tutti i bottoni di marca
                     filterButtons.forEach(btn => {
-                        if (btn.dataset.brand) { // Solo quelli con data-brand
+                        if (btn.dataset.brand) {
                             btn.classList.remove('active');
                         }
                     });
-
-                    // 2. Aggiungi 'active' al bottone marca cliccato
                     clickedButton.classList.add('active');
-
-                    // 3. Aggiorna currentBrandFilter.
                     if (brandToFilter.toLowerCase() === 'all') {
                         currentBrandFilter = 'all';
                     } else {
                         currentBrandFilter = brandToFilter.toUpperCase();
                     }
-                    // console.log('currentBrandFilter set to:', currentBrandFilter); // Per debug
                 }
-                // Applica i filtri e ridisegna i prodotti
                 applyFiltersAndSort();
             });
         });
@@ -217,66 +281,41 @@ document.addEventListener('DOMContentLoaded', () => {
         console.warn("Filter buttons not found.");
     }
 
-    // Tabs Sezioni (MODIFICATO)
-    if (sectionTabs.length > 0) {
-        sectionTabs.forEach(tab => {
-            tab.addEventListener('click', (event) => {
-                const targetSection = tab.dataset.section;
-                event.preventDefault();
-                if (targetSection === 'multisplit') {
-                    window.location.href = '../multisplit/index.html';
-                } else if (targetSection === 'monosplit') {
-                    sectionTabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                }
-            });
-        });
-    } else { console.warn("Section tab buttons not found."); }
 
-    // Pannello Password (logica invariata - presumo sia corretta)
-    if (adminTrigger && passwordPanel && closePanelButton && passwordInput && submitPasswordButton && passwordError) {
-        adminTrigger.addEventListener('click', () => passwordPanel.classList.add('visible'));
-        closePanelButton.addEventListener('click', () => {
-            passwordPanel.classList.remove('visible');
-            passwordInput.value = '';
-            passwordError.textContent = '';
-            passwordInput.classList.remove('input-error');
-        });
-        submitPasswordButton.addEventListener('click', () => {
-            if (passwordInput.value === ADMIN_PASSWORD) {
-                enterAdminMode();
-                passwordPanel.classList.remove('visible');
-                passwordInput.value = '';
-                passwordError.textContent = '';
-                passwordInput.classList.remove('input-error');
-            } else {
-                passwordError.textContent = 'Password errata.';
-                passwordInput.classList.add('input-error');
-                passwordInput.focus();
+    // +++ EVENT LISTENER PER IL CONFRONTO +++
+    if (compareBarShowBtnEl) {
+        compareBarShowBtnEl.addEventListener('click', openComparePopup);
+    }
+    if (closeComparePopupBtnEl) {
+        closeComparePopupBtnEl.addEventListener('click', closeComparePopup);
+    }
+    if (comparePopupOverlayEl) { // Chiudi cliccando sull'overlay
+        comparePopupOverlayEl.addEventListener('click', (event) => {
+            if (event.target === comparePopupOverlayEl) {
+                closeComparePopup();
             }
         });
-        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitPasswordButton.click(); });
-    } else { console.warn("Password panel elements missing or incomplete."); }
-
-    // Bottone Uscita Admin (logica invariata)
-    if (exitAdminButton) { exitAdminButton.addEventListener('click', exitAdminMode); } else { console.warn("Exit admin button not found."); }
-    // Bottone Stampa (logica invariata)
-    if (printButton) { printButton.addEventListener('click', () => { window.print(); }); } else { console.warn("Print button not found."); }
-    // --- FINE EVENT LISTENERS ---
+    }
+    if (clearCompareSelectionBtnEl) {
+        clearCompareSelectionBtnEl.addEventListener('click', clearCompareSelection);
+    }
+    // +++ FINE EVENT LISTENER PER IL CONFRONTO +++
 
 
     // --- INIZIALIZZAZIONE APP ---
     function initializeApp() {
+        // ... (codice di inizializzazione esistente)
         if (products && products.length > 0) {
             currentBrandFilter = 'all';
             showOnlyEconomic = false;
             document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
             document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
-            applyFiltersAndSort();
+            applyFiltersAndSort(); // Questo chiamerà displayProducts che aggiungerà i listener ai bottoni confronta
         } else {
             if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto disponibile.</p>';
             if (monosplitSection) monosplitSection.style.display = 'block';
         }
+        updateCompareBar(); // Stato iniziale della barra di confronto
     }
     initializeApp();
     // --- FINE INIZIALIZZAZIONE ---
