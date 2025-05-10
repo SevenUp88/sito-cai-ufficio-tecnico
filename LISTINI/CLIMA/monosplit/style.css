@@ -84,11 +84,45 @@ main { padding-top: 10px; }
 .economic-badge { display: inline-block; background-color: var(--warning-color); color: #333; font-size: 0.7em; padding: 2px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .wifi-icon { font-size: 1.1em; color: var(--primary-color); }
 
-.product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 60px; }
-.product-logo { max-height: 50px; max-width: 140px; width: auto; object-fit: contain; flex-shrink: 0; }
-.product-title-brand { flex-grow: 1; min-width: 0; }
-.product-title-brand h3 { margin: 0 0 2px 0; font-size: 1.15em; color: var(--dark-color); font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: calc(1.35em * 2); }
-.product-title-brand .product-brand-text { font-size: 0.9em; color: var(--secondary-color); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+.product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 60px; /* Spazio per .card-top-right-elements */ }
+
+.product-logo {
+    max-height: 50px;
+    max-width: 140px; /* Larghezza massima desiderata */
+    width: auto;      /* Mantiene l'aspect ratio se l'altezza è il limite */
+    object-fit: contain;
+    flex-shrink: 1;   /* << MODIFICA: Permette al logo di restringersi */
+    min-width: 60px;  /* << MODIFICA: Impedisce al logo di diventare troppo piccolo. Aggiusta se necessario. */
+}
+
+.product-title-brand { flex-grow: 1; min-width: 0; /* Necessario per flex-grow in contesti ristretti */ }
+
+.product-title-brand h3 {
+    margin: 0 0 2px 0;
+    font-size: 1.15em;
+    color: var(--dark-color);
+    font-weight: 700;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: calc(1.35em * 2); /* Mantiene spazio per due righe */
+    overflow-wrap: break-word;    /* << MODIFICA: Permette alle parole lunghe di andare a capo */
+    word-break: break-word;       /* << MODIFICA: Aiuta con la rottura delle parole */
+}
+
+.product-title-brand .product-brand-text {
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+    overflow-wrap: break-word;    /* << MODIFICA (Opzionale, ma buona pratica) */
+    word-break: break-word;       /* << MODIFICA (Opzionale, ma buona pratica) */
+}
 
 .product-image { display: block; width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; }
 
@@ -191,7 +225,7 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
 
     /* Header della card */
     .product-header { order: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; width: 100%; min-height: auto; padding: 0; margin: 0 0 5px 0; }
-    .product-logo { order: 1; max-height: 20px; max-width: 70px; flex-shrink: 0; margin-right: 5px;}
+    .product-logo { order: 1; max-height: 20px; max-width: 70px; flex-shrink: 0; margin-right: 5px;} /* flex-shrink:0 in print per mantenere un aspetto più controllato */
     .product-title-brand { order: 2; flex-grow: 1; text-align: left; }
     .product-title-brand h3 { font-size: 9pt; font-weight: bold; line-height: 1.1; -webkit-line-clamp: unset; min-height: auto; margin:0; display: inline;}
     .product-title-brand .product-brand-text { font-size: 7.5pt; margin-right: 4px; display: inline;}
@@ -225,9 +259,22 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
 /* === Fine Print Styles === */
 
 /* === Responsive Design === */
-@media (max-width: 992px) { /* ... */ }
-@media (max-width: 768px) { /* ... */ }
-@media (max-width: 480px) { /* ... */ }
-.product-card[data-brand="HAIER"] .product-logo { max-height: 40px; max-width: 110px; }
-.product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
-@media (max-width: 768px) { .product-card[data-brand="HAIER"] .product-header { min-height: auto; } }
+@media (max-width: 992px) { /* ... Potresti aggiungere qui regole specifiche se necessario ... */ }
+@media (max-width: 768px) { /* ... Potresti aggiungere qui regole specifiche se necessario ... */ }
+@media (max-width: 480px) { /* ... Potresti aggiungere qui regole specifiche se necessario ... */ }
+
+/* Specifiche per brand se necessario, dopo le regole generali */
+.product-card[data-brand="HAIER"] .product-logo {
+    max-height: 40px; /* Altezza specifica per Haier */
+    max-width: 110px; /* Larghezza massima specifica per Haier */
+    /* Eredita flex-shrink:1 e min-width dalle regole generali di .product-logo,
+       ma puoi sovrascrivere min-width se necessario: min-width: 50px; */
+}
+.product-card[data-brand="HAIER"] .product-header {
+    min-height: 65px; /* Mantiene l'altezza minima anche per Haier */
+}
+@media (max-width: 768px) {
+    .product-card[data-brand="HAIER"] .product-header {
+        min-height: auto; /* Permette un'altezza più dinamica su schermi piccoli per Haier */
+    }
+}
