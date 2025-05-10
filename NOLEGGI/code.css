@@ -178,6 +178,7 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 @media (max-width: 1200px) { .container { max-width: 1140px; } }
 @media (max-width: 992px) {
     .container { max-width: 960px; }
+    /* .header-logo { max-height: 70px; } */ /* Vecchio stile logo */
     :root { --header-height: 60px; } /* Adatta altezza header */
     .app-header { padding: 5px 15px; }
     .logo { height: 40px; }
@@ -186,6 +187,9 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 }
 @media (max-width: 768px) {
     .container { max-width: 720px; width: 100%; padding: 0 0.5rem; margin-top: 1.5rem;}
+    /* header { padding: 0.2rem 1rem; gap: 1rem; } */ /* Vecchio stile header */
+    /* .header-logo { max-height: 60px; } */ /* Vecchio stile logo */
+    /* header h1 { font-size: 1.5rem; } */ /* Vecchio stile titolo */
     .page-title { font-size: 1.5rem; margin-bottom: 1rem;} /* Adatta titolo spostato */
     h2 { font-size: 1.3rem; }
     .card { padding: 1rem; }
@@ -198,6 +202,9 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
     .print-filters { width: 100%; margin-left: 0; }
 }
 @media (max-width: 480px) {
+    /* header { flex-direction: column; align-items: flex-start; gap: 0.3rem; text-align: left; padding: 0.2rem 1rem;} */ /* Vecchio stile header */
+    /* .header-logo { max-height: 50px; align-self: center; margin-bottom: 0.2rem;} */ /* Vecchio stile logo */
+    /* header h1 { font-size: 1.3rem; text-align: center; width: 100%; } */ /* Vecchio stile titolo */
     :root { --header-height: 55px; } /* Header ancora più basso */
     .app-header { padding: 5px 10px; }
     .logo { height: 35px; }
@@ -259,92 +266,5 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 #oldest-rentals-list li .rental-date span { font-weight: bold; color: var(--danger); }
 #oldest-rentals-list li:last-child { margin-bottom: 0; }
 #oldest-rentals-list li:only-child { background-color: #f8f9fa; border-left-color: var(--gray); color: var(--gray); font-style: italic; box-shadow: none; }
-
-
-/* === INIZIO MODIFICHE SOLO PER STAMPA === */
-@media print {
-    /* Forza la stampa dei colori di sfondo per le intestazioni delle tabelle */
-    th {
-        background-color: var(--light) !important; /* Il tuo grigio chiaro da --light */
-        color: var(--dark) !important;       /* Testo scuro per leggibilità */
-        -webkit-print-color-adjust: exact !important; /* Per Chrome, Safari, Edge */
-        print-color-adjust: exact !important;       /* Standard */
-        position: static !important; /* Rimuove lo sticky che non serve in stampa */
-        border-top: 1px solid #aaaaaa !important; /* Bordo superiore più visibile */
-        border-bottom: 1px solid #aaaaaa !important; /* Bordo inferiore più visibile */
-    }
-
-    /* Assicura che l'intestazione della tabella (thead) sia ripetuta su ogni pagina stampata, se la tabella si estende su più pagine. */
-    thead {
-        display: table-header-group !important;
-    }
-
-    /* Strisce chiare per le righe pari (tbody) anche in stampa (opzionale) */
-    tbody tr:nth-child(odd) {
-        background-color: rgba(0, 0, 0, 0.03) !important; /* Un grigio molto leggero per le righe dispari */
-         -webkit-print-color-adjust: exact !important;
-         print-color-adjust: exact !important;
-    }
-
-    /* Rimuovi l'hover che non ha senso in stampa */
-    tbody tr:hover {
-        background-color: transparent !important; /* Rimuove l'effetto hover delle righe in stampa */
-    }
-
-    /*
-       OTTIMIZZAZIONI DI STAMPA OPZIONALI (PUOI SCOMMENTARLE E ADATTARLE SE NECESSARIO):
-       Queste regole aggiuntive aiutano a migliorare la leggibilità e a risparmiare inchiostro,
-       nascondendo elementi non necessari alla stampa.
-    */
-    /*
-    body {
-        padding-top: 0 !important; // Rimuove lo spazio per l'header fisso
-        background-color: #ffffff !important; // Sfondo bianco di default per risparmiare inchiostro
-        color: #000000 !important; // Testo nero per massima leggibilità
-        font-size: 10pt; // Dimensione font leggibile per stampa
-    }
-
-    .app-header,
-    .header-controls,
-    .actions .btn, // Nasconde i bottoni di azione generici
-    .btn-danger, .btn-warning, .btn-secondary, // E altri bottoni non primari
-    .search-filter,
-    .card:hover, // Rimuove effetti hover
-    .stats,
-    .print-filters,
-    .attention-rentals,
-    .modal // Nascondi le modali
-    {
-        display: none !important;
-    }
-
-    .card, .btn {
-        box-shadow: none !important;
-        transform: none !important;
-    }
-
-    .container {
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 10mm !important; // Margini di pagina per la stampa
-    }
-
-    table, th, td {
-        border: 1px solid #cccccc !important; // Bordi più chiari ma visibili per tabelle
-    }
-
-    td {
-        border-bottom: 1px solid #cccccc !important; // Mantieni bordi per celle
-    }
-
-    .inventory-container {
-        max-height: none !important;
-        overflow-y: visible !important;
-        border: none !important;
-    }
-    */
-}
-/* === FINE MODIFICHE SOLO PER STAMPA === */
 
 --- END OF FILE code.css ---
