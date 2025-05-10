@@ -3,107 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Climatizzatori Monosplit</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Listino Climatizzatori - C.A.I.</title>
+    <!-- Il CSS è nella stessa cartella, quindi il path è corretto -->
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
-<body>
+<body> <!-- Classe 'operator-mode' o 'admin-mode' aggiunta da JS -->
 
     <header class="app-header">
-        <a href="/"><img src="../images/logo_tecnoimpianti.png" alt="Tecnoimpianti Logo" class="logo"></a>
+        <!-- AGGIORNATO percorso HOME: Punta alla root del sito -->
+        <a href="/" title="C.A.I. - Home">
+             <!-- Mantenuto link esterno Postimg per logo header -->
+             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
+        </a>
         <div class="header-controls">
-            <button id="print-button" class="header-action-button" title="Stampa Pagina"><i class="fas fa-print"></i></button>
-            <button id="admin-trigger" class="header-action-button" title="Modalità Admin"><i class="fas fa-user-shield"></i></button>
-            <button id="exit-admin-button" class="header-action-button" title="Esci da Modalità Admin" style="display:none;"><i class="fas fa-times-circle"></i></button>
+            <button id="print-button" class="header-action-button" title="Stampa Listino">
+                <i class="fas fa-print"></i>
+            </button>
+            <!-- AGGIORNATO percorso HOME: Punta alla root del sito -->
+            <a href="/" class="header-action-button" title="Torna alla Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <button id="admin-trigger" class="header-action-button" title="Accesso Admin Listini">
+                <i class="fas fa-user-shield"></i>
+            </button>
+            <button id="exit-admin-button" class="header-action-button" title="Esci Modalità Admin" style="display: none;">
+                 <i class="fas fa-user-slash"></i>
+            </button>
         </div>
     </header>
 
     <div class="container">
-        <div class="page-controls">
-            <h1>Listino Climatizzatori Monosplit</h1>
-            <div class="filters">
-                <span>Filtra per marchio:</span>
-                <button class="filter-btn active" data-brand="all">TUTTI MARCHI</button>
-                <button class="filter-btn" data-brand="DAIKIN">DAIKIN</button>
-                <button class="filter-btn" data-brand="SAMSUNG">SAMSUNG</button>
-                <button class="filter-btn" data-brand="MITSUBISHI">MITSUBISHI</button>
-                <!-- Aggiungi altri bottoni marca qui -->
-                <button class="filter-btn" data-brand="HAIER">HAIER</button> 
-                <button class="filter-btn" data-brand="HISENSE">HISENSE</button>
-
-
-                <button class="filter-btn" data-filter-type="economic">ECONOMICO</button>
-                <button id="toggle-compare-mode-btn" class="filter-btn btn-compare-mode">Avvia Confronto</button>
-            </div>
-
-            <div id="compare-selection-info" class="compare-selection-info" style="display: none;">
-                <p>Seleziona fino a 2 articoli da confrontare (<span id="compare-selected-count">0</span>/2).</p>
-                <button id="confirm-comparison-btn" class="btn-confirm-compare" disabled>Confronta Selezionati</button>
-                <button id="cancel-compare-mode-btn" class="btn-cancel-compare-mode">Annulla Confronto</button>
-            </div>
-
-            <div class="section-tabs">
-                <button class="tab-btn active" data-section="monosplit">Monosplit</button>
-                <button class="tab-btn" data-section="multisplit">Multisplit</button>
-                <!-- Aggiungi altri tabs se necessario -->
-            </div>
+        <div class="page-controls"> <!-- Sticky -->
+             <h1>Listino Climatizzatori</h1>
+             <div class="filters">
+                 <span>Filtra per:</span>
+                 <button class="filter-btn active" data-filter-type="brand" data-brand="all">Tutte le Marche</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="DAIKIN">Daikin</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="HAIER">Haier</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="HITACHI">Hitachi</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="IMMERGAS">Immergas</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="INNOVA">Innova</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="LG">LG</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="MITSUBISHI">Mitsubishi</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="SAMSUNG">Samsung</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="TOSHIBA">Toshiba</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="VIESSMANN">Viessmann</button>
+                 <button class="filter-btn" data-filter-type="economic">Economici</button>
+             </div>
+             <div class="section-tabs">
+                 <button class="tab-btn active" data-section="monosplit">Monosplit</button>
+                 <button class="tab-btn" data-section="multisplit">Multisplit</button>
+             </div>
         </div>
 
         <main>
             <div class="sections-wrapper">
                 <section id="monosplit-section" class="content-section active-section">
                     <div id="monosplit-grid" class="product-grid">
-                        <!-- Le card dei prodotti verranno inserite qui da JavaScript -->
                         <div class="loading-placeholder">Caricamento prodotti...</div>
                     </div>
                 </section>
-                <!-- Altre sezioni (es. multisplit) possono essere qui se necessario, ma la logica JS corrente si concentra su monosplit -->
+                <section id="multisplit-section" class="content-section">
+                     <div id="multisplit-grid" class="product-grid">
+                         <div class="loading-placeholder">Caricamento prodotti...</div>
+                    </div>
+                </section>
             </div>
         </main>
+
+        <footer class="app-footer">
+             <p>© 2025 C.A.I - Consorzio Artigiani Idraulici </p>
+        </footer>
     </div>
 
-    <footer class="app-footer">
-        <p>© <span id="current-year"></span> Tecnoimpianti Service S.R.L.S. - Tutti i diritti riservati.</p>
-        <p class="data-info">Prezzi IVA esclusa. Dati e prezzi validi salvo errori ed omissioni.</p>
-    </footer>
-
-    <!-- Pannello Password -->
     <div id="password-panel">
-        <button id="close-panel-btn" title="Chiudi">×</button>
-        <h3>Accesso Area Riservata</h3>
-        <p>Inserisci la password per abilitare la modalità modifica.</p>
+        <button id="close-panel-btn" title="Chiudi pannello">×</button>
+        <h3>Accesso Amministratore</h3>
+        <p>Inserisci la password per abilitare le modifiche.</p>
         <div class="form-group">
             <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password">
+            <input type="password" id="admin-password" name="admin-password">
         </div>
         <button id="submit-password-btn">Accedi</button>
-        <div id="password-error" class="error-message"></div>
+        <p id="password-error" class="error-message"></p>
     </div>
 
-    <!-- Tooltip per Dimensioni -->
+    <!-- Tooltip per le dimensioni -->
     <div id="dimension-tooltip">
-        <img src="../images/schema_dimensioni.png" alt="Schema dimensioni unità interna ed esterna">
-        <span id="tooltip-ui-dimensions" class="tooltip-dimension-text"></span>
-        <span id="tooltip-ue-dimensions" class="tooltip-dimension-text"></span>
+        <!-- AGGIORNATO percorso immagine: ../images/ per salire da monosplit a CLIMA -->
+        <img src="../images/dimensioni_blueprint.png" alt="Schema dimensioni UI/UE">
+        <div id="tooltip-ui-dimensions" class="tooltip-dimension-text"></div>
+        <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
     </div>
 
-    <!-- Popup di Confronto Prodotti -->
-    <div id="compare-popup-overlay" class="compare-popup-overlay">
-        <div id="compare-popup" class="compare-popup">
-            <button id="close-compare-popup-btn" class="close-compare-popup-btn" title="Chiudi">×</button>
-            <h2>Confronto Prodotti</h2>
-            <div id="compare-popup-content" class="compare-popup-content">
-                <!-- Le card dei prodotti selezionati verranno inserite qui -->
-            </div>
-        </div>
-    </div>
-
-    <!-- ASSICURATI CHE products-data.js SIA CARICATO PRIMA DI script.js -->
-    <script src="products-data.js"></script> <!-- Esempio: contiene la variabile 'products' -->
+    <!-- Script nella stessa cartella, percorsi corretti -->
+    <script src="data.js"></script>
     <script src="script.js"></script>
-    <script>
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-    </script>
 </body>
 </html>
