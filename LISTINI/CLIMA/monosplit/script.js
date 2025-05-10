@@ -15,15 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Selezione elementi DOM principali
     const monosplitGrid = document.getElementById('monosplit-grid');
-    // Rimuovi riferimenti a multisplit-grid e multisplit-section se non più usati qui
-    // const multisplitGrid = document.getElementById('multisplit-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const sectionTabs = document.querySelectorAll('.tab-btn');
     const monosplitSection = document.getElementById('monosplit-section');
-    // const multisplitSection = document.getElementById('multisplit-section');
-    // Rimuovi sections object se multisplit non è gestito qui
-    // const sections = { monosplit: monosplitSection, multisplit: multisplitSection };
-     const sections = { monosplit: monosplitSection }; // Manteniamo solo monosplit
+    const sections = { monosplit: monosplitSection }; // Manteniamo solo monosplit
 
     // Selettori Header
     const adminTrigger = document.getElementById('admin-trigger');
@@ -45,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- VERIFICHE INIZIALI ---
     if (typeof products === 'undefined' || !Array.isArray(products)) { console.error("CRITICAL ERROR: 'products' array not found or invalid."); handleFatalError("Errore critico: impossibile caricare i dati dei prodotti."); return; }
     if (!tooltipElement || !tooltipUiDimElement || !tooltipUeDimElement) { console.warn("Tooltip elements missing. Tooltip functionality disabled."); window.addTooltipListeners = () => {}; }
-    // Modificato: Verifica solo monosplit grid/section
     if (!monosplitGrid || !monosplitSection) { console.error("CRITICAL ERROR: Monosplit grid or section elements missing."); handleFatalError("Errore critico: elementi della pagina mancanti."); return; }
     // --- FINE VERIFICHE ---
 
@@ -57,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CREAZIONE CARD ---
     function createProductCard(product) {
-        // (Codice createProductCard invariato - mostra ancora le info di stampa anche se non servono qui)
         if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
         try {
             const imageUrl = product.image_url || '../images/placeholder.png';
@@ -91,8 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) {
                     const uiMatch = productCode.match(/UI:\s*([^/]+)/); const ueMatch = productCode.match(/UE:\s*([^/]+)/);
                     const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D'; const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D';
-                    codeContent = `UI: ${uiCode}`; if (hasComponentPrices) codeContent += `&nbsp;<span>(${formatPrice(product.prezzo_ui)})</span>`;
-                    codeContent += `<br>UE: ${ueCode}`; if (hasComponentPrices) codeContent += `&nbsp;<span>(${formatPrice(product.prezzo_ue)})</span>`;
+                    codeContent = `UI: ${uiCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`;
+                    codeContent += `<br>UE: ${ueCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`;
                 } else { codeContent = productCode; }
                 productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><br><span class="code-value">${codeContent}</span></p>`;
             }
@@ -132,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayProducts(productsToDisplay) {
-        // Mostra solo in monosplitGrid
         if (!monosplitGrid) { console.error("CRITICAL ERROR: Monosplit grid not found."); return; }
         if (!Array.isArray(productsToDisplay)) { console.error("ERROR: productsToDisplay invalid!", productsToDisplay); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati.</p>'; return; }
 
@@ -140,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let monosplitCount = 0;
         try {
             productsToDisplay.forEach((product) => {
-                // Verifica aggiuntiva che sia Monosplit (anche se applyFilters dovrebbe già farlo)
                 if (!product || typeof product.id === 'undefined' || (product.tipo && product.tipo.toLowerCase() !== 'monosplit')) return;
                 const cardHTML = createProductCard(product);
                 monosplitHTML += cardHTML;
@@ -153,68 +144,120 @@ document.addEventListener('DOMContentLoaded', () => {
             monosplitGrid.innerHTML = monosplitCount > 0 ? monosplitHTML : noMonoMsg;
         } catch (domError) { console.error("Error setting innerHTML for monosplitGrid:", domError); monosplitGrid.textContent = 'Errore aggiornamento visualizzazione.'; }
 
-        // Non serve più showActiveSection, monosplit è sempre visibile qui
         if (monosplitSection) monosplitSection.style.display = 'block';
 
         if (isAdmin) addEditListeners();
         if (typeof addTooltipListeners === 'function') addTooltipListeners();
     }
-
-    // Rimuovi showActiveSection se non più necessaria
-    // function showActiveSection(...) { ... }
-
     // --- FINE FILTRAGGIO E VISUALIZZAZIONE ---
 
     // --- GESTIONE ADMIN ---
     function enterAdminMode() { isAdmin = true; document.body.classList.remove('operator-mode'); document.body.classList.add('admin-mode'); if (adminTrigger) adminTrigger.style.display = 'none'; if (exitAdminButton) exitAdminButton.style.display = 'inline-flex'; applyFiltersAndSort(); }
     function exitAdminMode() { isAdmin = false; document.body.classList.remove('admin-mode'); document.body.classList.add('operator-mode'); if (adminTrigger) adminTrigger.style.display = 'inline-flex'; if (exitAdminButton) exitAdminButton.style.display = 'none'; document.querySelectorAll('.edit-price-input, .edit-model-input').forEach(input => { const card = input.closest('.product-card'); if (card) { const productId = card.dataset.productId; toggleEditMode(productId, false); } }); applyFiltersAndSort(); }
     let originalProductData = {};
-    function toggleEditMode(productId, isEditing) { /* ... (Codice toggleEditMode invariato) ... */ }
+    function toggleEditMode(productId, isEditing) { /* ... (Codice toggleEditMode invariato - presumo sia corretto) ... */ }
     function handleEditClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, true); } }
     function handleCancelClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, false); } }
-    function handleSaveClick(event) { if (isAdmin) { /* ... (Codice save invariato) ... */ applyFiltersAndSort(); } }
-    function addEditListeners() { /* ... (Codice addEditListeners invariato) ... */ }
+    function handleSaveClick(event) { if (isAdmin) { /* ... (Codice save invariato - presumo sia corretto) ... */ applyFiltersAndSort(); } }
+    function addEditListeners() { /* ... (Codice addEditListeners invariato - presumo sia corretto) ... */ }
     // --- FINE GESTIONE ADMIN ---
 
     // --- GESTIONE TOOLTIP ---
-    function positionTooltip(event) { /* ... */ }
+    function positionTooltip(event) { /* ... (Codice positionTooltip invariato - presumo sia corretto) ... */ }
     if (typeof window.addTooltipListeners === 'undefined') { window.addTooltipListeners = () => {}; }
-    window.addTooltipListeners = function() { /* ... (Codice addTooltipListeners invariato) ... */ }
-    function handleTooltipMouseEnter(event) { /* ... (Codice handleTooltipMouseEnter con label AxLxP invariato) ... */ }
-    function handleTooltipMouseLeave() { /* ... (Codice handleTooltipMouseLeave invariato) ... */ }
+    window.addTooltipListeners = function() { /* ... (Codice addTooltipListeners invariato - presumo sia corretto) ... */ }
+    function handleTooltipMouseEnter(event) { /* ... (Codice handleTooltipMouseEnter invariato - presumo sia corretto) ... */ }
+    function handleTooltipMouseLeave() { /* ... (Codice handleTooltipMouseLeave invariato - presumo sia corretto) ... */ }
     // --- FINE GESTIONE TOOLTIP ---
 
 
     // --- EVENT LISTENERS ---
-    // Filtri (logica invariata)
-    if (filterButtons.length > 0) { filterButtons.forEach(button => { button.addEventListener('click', (event) => { /* ... (logica filtri invariata) ... */ applyFiltersAndSort(); }); }); } else { console.warn("Filter buttons not found."); }
+    // Filtri (MODIFICATO)
+    if (filterButtons.length > 0) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+                const clickedButton = event.currentTarget;
+                const filterType = clickedButton.dataset.filterType; // Es. 'economic'
+                const brandToFilter = clickedButton.dataset.brand;   // Es. 'DAIKIN', 'SAMSUNG', 'all'
+
+                // console.log('Clicked filter button:', { filterType, brandToFilter, buttonElement: clickedButton }); // Per debug
+
+                if (filterType === 'economic') {
+                    // Gestione del bottone "Economico"
+                    showOnlyEconomic = !showOnlyEconomic; // Toggle dello stato
+                    clickedButton.classList.toggle('active', showOnlyEconomic); // Aggiorna classe CSS
+                    // console.log('showOnlyEconomic Toggled:', showOnlyEconomic); // Per debug
+                } else if (brandToFilter) {
+                    // Gestione dei bottoni filtro per marca
+                    // (include "TUTTI MARCHI" che ha data-brand="all")
+
+                    // 1. Rimuovi 'active' da tutti i bottoni di marca
+                    filterButtons.forEach(btn => {
+                        if (btn.dataset.brand) { // Solo quelli con data-brand
+                            btn.classList.remove('active');
+                        }
+                    });
+
+                    // 2. Aggiungi 'active' al bottone marca cliccato
+                    clickedButton.classList.add('active');
+
+                    // 3. Aggiorna currentBrandFilter.
+                    if (brandToFilter.toLowerCase() === 'all') {
+                        currentBrandFilter = 'all';
+                    } else {
+                        currentBrandFilter = brandToFilter.toUpperCase();
+                    }
+                    // console.log('currentBrandFilter set to:', currentBrandFilter); // Per debug
+                }
+                // Applica i filtri e ridisegna i prodotti
+                applyFiltersAndSort();
+            });
+        });
+    } else {
+        console.warn("Filter buttons not found.");
+    }
 
     // Tabs Sezioni (MODIFICATO)
     if (sectionTabs.length > 0) {
         sectionTabs.forEach(tab => {
             tab.addEventListener('click', (event) => {
                 const targetSection = tab.dataset.section;
-
-                // Impedisci azione default se è un link (anche se qui sono button)
                 event.preventDefault();
-
                 if (targetSection === 'multisplit') {
-                    // Naviga alla pagina multisplit
-                    // Il percorso relativo da monosplit/index.html a multisplit/index.html è ../multisplit/index.html
                     window.location.href = '../multisplit/index.html';
                 } else if (targetSection === 'monosplit') {
-                    // Rimane su questa pagina, assicurati che sia attiva la tab (già fatto dal loop)
-                    // Potresti voler ri-applicare i filtri se necessario, ma non dovrebbe cambiare nulla
                     sectionTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
-                    // Non serve chiamare showActiveSection perché monosplit è sempre visibile qui
                 }
             });
         });
     } else { console.warn("Section tab buttons not found."); }
 
-    // Pannello Password (logica invariata)
-    if (adminTrigger && passwordPanel && closePanelButton && passwordInput && submitPasswordButton && passwordError) { /* ... */ } else { /* ... */ }
+    // Pannello Password (logica invariata - presumo sia corretta)
+    if (adminTrigger && passwordPanel && closePanelButton && passwordInput && submitPasswordButton && passwordError) {
+        adminTrigger.addEventListener('click', () => passwordPanel.classList.add('visible'));
+        closePanelButton.addEventListener('click', () => {
+            passwordPanel.classList.remove('visible');
+            passwordInput.value = '';
+            passwordError.textContent = '';
+            passwordInput.classList.remove('input-error');
+        });
+        submitPasswordButton.addEventListener('click', () => {
+            if (passwordInput.value === ADMIN_PASSWORD) {
+                enterAdminMode();
+                passwordPanel.classList.remove('visible');
+                passwordInput.value = '';
+                passwordError.textContent = '';
+                passwordInput.classList.remove('input-error');
+            } else {
+                passwordError.textContent = 'Password errata.';
+                passwordInput.classList.add('input-error');
+                passwordInput.focus();
+            }
+        });
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitPasswordButton.click(); });
+    } else { console.warn("Password panel elements missing or incomplete."); }
+
     // Bottone Uscita Admin (logica invariata)
     if (exitAdminButton) { exitAdminButton.addEventListener('click', exitAdminMode); } else { console.warn("Exit admin button not found."); }
     // Bottone Stampa (logica invariata)
@@ -225,17 +268,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INIZIALIZZAZIONE APP ---
     function initializeApp() {
         if (products && products.length > 0) {
-            // activeSection è sempre 'monosplit' per questa pagina
             currentBrandFilter = 'all';
             showOnlyEconomic = false;
-            // Attiva tab e filtro iniziali
             document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
             document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
-            applyFiltersAndSort(); // Visualizza stato iniziale (solo monosplit)
+            applyFiltersAndSort();
         } else {
             if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto disponibile.</p>';
-            // Non serve gestire multisplit grid qui
-             if (monosplitSection) monosplitSection.style.display = 'block'; // Mostra sezione vuota
+            if (monosplitSection) monosplitSection.style.display = 'block';
         }
     }
     initializeApp();
