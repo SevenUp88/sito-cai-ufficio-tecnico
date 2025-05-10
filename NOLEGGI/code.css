@@ -1,3 +1,5 @@
+--- START OF FILE code.css ---
+
 :root {
     --primary: #4361ee; /* Colore primario originale Noleggi */
     --primary-dark: #3a56d4;
@@ -176,7 +178,6 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 @media (max-width: 1200px) { .container { max-width: 1140px; } }
 @media (max-width: 992px) {
     .container { max-width: 960px; }
-    /* .header-logo { max-height: 70px; } */ /* Vecchio stile logo */
     :root { --header-height: 60px; } /* Adatta altezza header */
     .app-header { padding: 5px 15px; }
     .logo { height: 40px; }
@@ -185,9 +186,6 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 }
 @media (max-width: 768px) {
     .container { max-width: 720px; width: 100%; padding: 0 0.5rem; margin-top: 1.5rem;}
-    /* header { padding: 0.2rem 1rem; gap: 1rem; } */ /* Vecchio stile header */
-    /* .header-logo { max-height: 60px; } */ /* Vecchio stile logo */
-    /* header h1 { font-size: 1.5rem; } */ /* Vecchio stile titolo */
     .page-title { font-size: 1.5rem; margin-bottom: 1rem;} /* Adatta titolo spostato */
     h2 { font-size: 1.3rem; }
     .card { padding: 1rem; }
@@ -200,9 +198,6 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
     .print-filters { width: 100%; margin-left: 0; }
 }
 @media (max-width: 480px) {
-    /* header { flex-direction: column; align-items: flex-start; gap: 0.3rem; text-align: left; padding: 0.2rem 1rem;} */ /* Vecchio stile header */
-    /* .header-logo { max-height: 50px; align-self: center; margin-bottom: 0.2rem;} */ /* Vecchio stile logo */
-    /* header h1 { font-size: 1.3rem; text-align: center; width: 100%; } */ /* Vecchio stile titolo */
     :root { --header-height: 55px; } /* Header ancora più basso */
     .app-header { padding: 5px 10px; }
     .logo { height: 35px; }
@@ -264,3 +259,170 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 #oldest-rentals-list li .rental-date span { font-weight: bold; color: var(--danger); }
 #oldest-rentals-list li:last-child { margin-bottom: 0; }
 #oldest-rentals-list li:only-child { background-color: #f8f9fa; border-left-color: var(--gray); color: var(--gray); font-style: italic; box-shadow: none; }
+
+
+/* === Stili specifici per la stampa === */
+@media print {
+    body {
+        font-family: 'Helvetica', 'Arial', sans-serif; /* Font sans-serif standard per stampa */
+        font-size: 10pt;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding-top: 0 !important; /* Rimuove spazio header */
+        margin: 0; /* Rimuove margini default body */
+    }
+
+    /* Nascondi elementi non necessari */
+    .app-header,
+    .header-controls,
+    .search-filter,
+    .stats,
+    .modal,
+    .close-btn,
+    .actions .btn:not(.btn-print), /* Nascondi bottoni azione tranne quelli marcati per la stampa */
+    .btn-danger, .btn-warning, .btn-secondary, /* Nascondi bottoni non primari */
+    .card-header .actions,
+    .print-filters,
+    .attention-rentals,
+    .no-print /* Aggiungi questa classe agli elementi da nascondere */
+    {
+        display: none !important;
+    }
+
+    .page-title {
+        font-size: 16pt !important;
+        text-align: center !important;
+        margin-bottom: 15pt !important;
+        border-bottom: 1px solid #000000;
+        padding-bottom: 5pt;
+    }
+
+    h2 {
+        font-size: 13pt !important;
+        color: #000000 !important;
+        border-bottom: 1px solid #000000 !important;
+        margin-top: 20pt; /* Spazio prima dei titoli di sezione */
+    }
+    h3 {
+        font-size: 11pt !important;
+        color: #000000 !important;
+    }
+
+
+    .container {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 10mm 10mm !important; /* Margini di stampa */
+    }
+
+    .dashboard {
+        grid-template-columns: 1fr !important;
+        gap: 10pt !important;
+    }
+
+    .card {
+        background: #ffffff !important;
+        border: 1px solid #dddddd !important;
+        box-shadow: none !important;
+        transform: none !important;
+        padding: 10pt !important;
+        margin-bottom: 10pt !important;
+        page-break-inside: avoid; /* Evita di spezzare le card tra le pagine */
+    }
+    .card-header {
+        margin-bottom: 10pt !important;
+    }
+    .card-header h2 {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+        font-size: 12pt !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 5pt !important;
+        font-size: 9pt; /* Font più piccolo per tabelle in stampa */
+        page-break-inside: auto; /* Permetti alla tabella di spezzarsi se necessario */
+    }
+
+    thead {
+        display: table-header-group !important; /* Importante: Ripete l'header su ogni pagina */
+    }
+
+    th, td {
+        padding: 4pt 6pt !important;
+        border: 1px solid #999999 !important; /* Bordi più scuri per la stampa */
+        vertical-align: top;
+    }
+
+    th {
+        background-color: var(--light) !important; /* Usa il grigio chiaro definito */
+        color: var(--dark) !important; /* Assicura testo scuro per leggibilità */
+        font-weight: bold !important;
+        text-align: left !important;
+        position: static !important; /* Sticky non serve in stampa */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    tbody tr:nth-child(odd) {
+        background-color: #f0f0f0 !important; /* Strisce chiare anche in stampa, leggermente più scuro */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    tbody tr:hover {
+        background-color: transparent !important; /* Rimuovi hover */
+    }
+    tbody tr {
+        page-break-inside: avoid; /* Evita che le righe vengano spezzate */
+    }
+
+    .inventory-container {
+        max-height: none !important;
+        overflow-y: visible !important;
+        border: none !important; /* Lascia che sia la tabella ad avere i bordi */
+        margin-top: 0 !important;
+    }
+
+    .badge {
+        border: 1px solid #666666; /* Aggiungi bordo ai badge */
+        color: #000000 !important; /* Colore testo badge in stampa */
+        background-color: #eeeeee !important; /* Sfondo badge chiaro */
+        padding: 2pt 4pt;
+        font-size: 8pt;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    .badge-success { background-color: #d4edda !important; color: #155724 !important; border-color: #c3e6cb !important; }
+    .badge-warning { background-color: #fff3cd !important; color: #856404 !important; border-color: #ffeeba !important; }
+    .badge-danger  { background-color: #f8d7da !important; color: #721c24 !important; border-color: #f5c6cb !important; }
+
+
+    .form-control,
+    .search-filter input[type="text"], .search-filter select /* se decidi di mostrarli */
+    {
+        border: 1px solid #bbbbbb !important;
+        background-color: #ffffff !important;
+        font-size: 9pt;
+    }
+
+    /* Rimuovi link non cliccabili e colori da link, tranne dove esplicitamente definito */
+    a, a:visited {
+        color: #000000 !important;
+        text-decoration: none !important; /* Rimuovi sottolineature a meno che non sia importante */
+    }
+
+    /* Eventuali loghi specifici per la stampa o formattazione aggiuntiva */
+    /*
+    .logo-print {
+        display: block !important;
+        width: 150px;
+        margin-bottom: 10pt;
+    }
+    .logo { display: none !important; }
+    */
+}
+
+--- END OF FILE code.css ---
