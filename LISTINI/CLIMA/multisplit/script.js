@@ -170,7 +170,109 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (selections.outdoorUnit && !compatibleUEs.some(ue => ue.id === selections.outdoorUnit.id)) selections.outdoorUnit = null;
     }
     
-    function populateIndoorUnitSelectors() { /* ...stessa logica di prima... */ indoorUnitsSelectionArea.innerHTML = ''; if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) { indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`; checkAllIndoorUnitsSelected(); return; } const availableIndoorUnitsForSeries = APP_DATA.indoorUnits.filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id).sort((a,b) => a.capacityBTU - b.capacityBTU); if (!availableIndoorUnitsForSeries.length) { indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`; checkAllIndoorUnitsSelected(); return; } if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) { selections.indoorUnits = new Array(selections.configType.numUnits).fill(null); } for (let i = 0; i < selections.configType.numUnits; i++) { const slotDiv = document.createElement('div'); slotDiv.classList.add('indoor-unit-slot'); slotDiv.style.marginBottom = '20px'; slotDiv.style.paddingBottom = '15px'; slotDiv.style.borderBottom = '1px dashed #eee'; const label = document.createElement('label'); label.htmlFor = `indoor-unit-select-${i}`; label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`; label.style.cssText = 'display:block;margin-bottom:5px;font-weight:500;'; slotDiv.appendChild(label); const select = document.createElement('select'); select.id = `indoor-unit-select-${i}`; select.dataset.index = i; select.style.cssText = 'width:100%;padding:8px;margin-bottom:10px;'; const placeholder = document.createElement('option'); placeholder.value = ""; placeholder.textContent = "-- Seleziona Taglia/Potenza --"; select.appendChild(placeholder); availableIndoorUnitsForSeries.forEach(uiVariant => { const option = document.createElement('option'); option.value = uiVariant.id; option.innerHTML = `${uiVariant.modelCode} - <strong>${uiVariant.kw}kW (${uiVariant.capacityBTU} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`; if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true; select.appendChild(option); }); const detailsDiv = document.createElement('div'); detailsDiv.classList.add('unit-details'); detailsDiv.style.cssText = 'font-size:0.9em;padding-left:10px;'; if (selections.indoorUnits[i]) { const cui = selections.indoorUnits[i]; detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`; } select.addEventListener('change', (e) => { const selId = e.target.value; const idx = parseInt(e.target.dataset.index); const selUI = availableIndoorUnitsForSeries.find(u => u.id === selId); selections.indoorUnits[idx] = selUI || null; if (selUI) { detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`; } else { detailsDiv.innerHTML = ''; } checkAllIndoorUnitsSelected(); }); slotDiv.appendChild(select); slotDiv.appendChild(detailsDiv); indoorUnitsSelectionArea.appendChild(slotDiv); } checkAllIndoorUnitsSelected(); }
+    function populateIndoorUnitSelectors() {
+    indoorUnitsSelectionArea.innerHTML = '';
+    if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
+        indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`;
+        checkAllIndoorUnitsSelected();
+        return;
+    }
+
+    const availableIndoorUnitsForSeries = APP_DATA.indoorUnits
+        .filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id)
+        .sort((a, b) => a.capacityBTU - b.capacityBTU);
+
+    if (!availableIndoorUnitsForSeries.length) {
+        indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`;
+        checkAllIndoorUnitsSelected();
+        return;
+    }
+
+    // --- INIZIO MODIFICA PER DE-DUPLICAZIONE ---
+    const uniqueUnitsToDisplay = [];
+    const seenKeys = new Set(); // Per tenere traccia delle combinazioni già aggiunte
+
+    for (const uiVariant of availableIndoorUnitsForSeries) {
+        // Creiamo una chiave univoca basata sulle proprietà visualizzate nel dropdown
+        const key = `${uiVariant.modelCode}-${uiVariant.kw}-${uiVariant.capacityBTU}-${uiVariant.price.toFixed(2)}`;
+        if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueUnitsToDisplay.push(uiVariant); // Aggiungiamo solo la prima occorrenza di questa combinazione
+        }
+    }
+    // --- FINE MODIFICA PER DE-DUPLICAZIONE ---
+
+
+    if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) {
+        selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
+    }
+
+    for (let i = 0; i < selections.configType.numUnits; i++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.classList.add('indoor-unit-slot');
+        slotDiv.style.marginBottom = '20px';
+        slotDiv.style.paddingBottom = '15px';
+        slotDiv.style.borderBottom = '1px dashed #eee';
+
+        const label = document.createElement('label');
+        label.htmlFor = `indoor-unit-select-${i}`;
+        label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`;
+        label.style.cssText = 'display:block;margin-bottom:5px;font-weight:500;';
+        slotDiv.appendChild(label);
+
+        const select = document.createElement('select');
+        select.id = `indoor-unit-select-${i}`;
+        select.dataset.index = i;
+        select.style.cssText = 'width:100%;padding:8px;margin-bottom:10px;';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = "";
+        placeholder.textContent = "-- Seleziona Taglia/Potenza --";
+        select.appendChild(placeholder);
+
+        // Iteriamo su uniqueUnitsToDisplay invece di availableIndoorUnitsForSeries
+        uniqueUnitsToDisplay.forEach(uiVariant => { // <--- MODIFICA QUI
+            const option = document.createElement('option');
+            option.value = uiVariant.id; // Usiamo l'ID del primo documento Firestore che corrisponde a questa combinazione unica
+            option.innerHTML = `${uiVariant.modelCode} - <strong>${uiVariant.kw}kW (${uiVariant.capacityBTU} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`;
+            if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true;
+            select.appendChild(option);
+        });
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('unit-details');
+        detailsDiv.style.cssText = 'font-size:0.9em;padding-left:10px;';
+
+        if (selections.indoorUnits[i]) {
+            const cui = selections.indoorUnits[i];
+            detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`;
+        }
+
+        select.addEventListener('change', (e) => {
+            const selId = e.target.value;
+            const idx = parseInt(e.target.dataset.index);
+            // Importante: cerchiamo l'unità in availableIndoorUnitsForSeries originale
+            // perché uniqueUnitsToDisplay potrebbe non contenere tutte le varianti ID
+            // sebbene la logica di selezione userà l'ID del primo duplicato trovato.
+            // Oppure, più semplicemente, cerchiamo in uniqueUnitsToDisplay se il valore dell'opzione
+            // è stato preso dall'ID di un elemento in uniqueUnitsToDisplay.
+            const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
+            selections.indoorUnits[idx] = selUI || null;
+
+            if (selUI) {
+                detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`;
+            } else {
+                detailsDiv.innerHTML = '';
+            }
+            checkAllIndoorUnitsSelected();
+        });
+
+        slotDiv.appendChild(select);
+        slotDiv.appendChild(detailsDiv);
+        indoorUnitsSelectionArea.appendChild(slotDiv);
+    }
+    checkAllIndoorUnitsSelected();
+}
     function generateSummary() { /* ...stessa logica di prima... */ console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections))); summaryDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit ) { summaryDiv.innerHTML = "<p>Configurazione incompleta.</p>"; return; } if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) { summaryDiv.innerHTML = "<p>Selezione UI incomplete.</p>"; return; } let totalNominalBTU_UI = 0; let totalPrice = selections.outdoorUnit.price || 0; const valOrNA = (val, suffix = '') => (val !== undefined && val !== null && val !== '' && val !== "Dati mancanti") ? `${val}${suffix}` : 'N/A'; const priceOrND = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : 'N/D'; const summaryHTML = ` <div class="summary-block"> <h3>Selezione Utente</h3> <p><strong>Marca:</strong> ${selections.brand.name}</p> <p><strong>Configurazione:</strong> ${selections.configType.name} (${selections.configType.numUnits} UI)</p> <p><strong>Modello UI:</strong> ${selections.indoorSeries.name}</p> </div> <div class="summary-block"> <h3>Unità Esterna</h3> <h4>UNITA' ESTERNA ${selections.outdoorUnit.kw && selections.outdoorUnit.kw !== "N/A" && selections.outdoorUnit.kw !== 0 ? selections.outdoorUnit.kw + 'kW' : ''}</h4> <p><em>(${selections.outdoorUnit.name})</em></p> <p><strong>Codice:</strong> ${valOrNA(selections.outdoorUnit.modelCode)}</p> <p><strong>Potenza (F/C BTU):</strong> ${valOrNA(selections.outdoorUnit.capacityCoolingBTU, ' BTU')} / ${valOrNA(selections.outdoorUnit.capacityHeatingBTU, ' BTU')}</p> <p><strong>Classe Energetica (F/C):</strong> ${valOrNA(selections.outdoorUnit.energyClassCooling)} / ${valOrNA(selections.outdoorUnit.energyClassHeating)}</p> <p><strong>Dimensioni:</strong> ${valOrNA(selections.outdoorUnit.dimensions)}</p> <p><strong>Peso:</strong> ${valOrNA(selections.outdoorUnit.weight, ' kg')}</p> <p class="price-highlight"><strong>Prezzo UE:</strong> ${priceOrND(selections.outdoorUnit.price)} (IVA Escl.)</p> </div> ${selections.configType.numUnits > 0 ? ` <div class="summary-block"> <h3>Unità Interne (Modello ${selections.indoorSeries.name})</h3> ${selections.indoorUnits.map((ui, index) => { if (!ui) return `<div class="summary-indoor-unit error">UI ${index + 1} non selezionata.</div>`; totalNominalBTU_UI += ui.capacityBTU || 0; totalPrice += ui.price || 0; return ` <div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;"> <h4>Unità ${index + 1}: <strong>${ui.seriesName}</strong></h4> ${ui.image ? `<img src="${ui.image}" alt="${ui.name}" class="summary-ui-img" style="float:right; margin-left:10px; object-fit:contain;">` : ''} <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p> <p><strong>Potenza: ${valOrNA(ui.kw, 'kW')} (${valOrNA(ui.capacityBTU, ' BTU')})</strong></p> <p><strong>Tipo:</strong> ${valOrNA(ui.type)}</p> <p><strong>Dimensioni:</strong> ${valOrNA(ui.dimensions)}</p> <p><strong>WiFi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p> <p class="price-highlight"><strong>Prezzo UI:</strong> ${priceOrND(ui.price)} (IVA Escl.)</p> <div style="clear:both;"></div> </div> `; }).join('')} </div> ` : '<div class="summary-block"><p>Nessuna UI richiesta.</p></div>'} <div class="summary-total" style="margin-top:20px; padding-top:15px; border-top: 2px solid var(--primary-color);"> ${selections.configType.numUnits > 0 ? `<p><strong>Somma Potenza Nominale UI:</strong> ${totalNominalBTU_UI} BTU</p>` : ''} <p style="font-size: 1.2em; font-weight: bold;"><strong>Prezzo Totale Config.:</strong> <span class="total-price-value">${priceOrND(totalPrice)}</span> (IVA Escl.)</p> </div> `; summaryDiv.innerHTML = summaryHTML; document.getElementById('summary-main-title')?.classList.add('print-main-title'); console.log("DEBUG: Riepilogo generato. Prezzo Totale:", totalPrice); }
     
     // --- Navigation Logic ---
