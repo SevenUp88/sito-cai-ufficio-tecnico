@@ -10,6 +10,7 @@
     --border-radius: 8px;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
+    --info-color: #17a2b8; /* Aggiunto per il bottone confronto */
     --header-height: 65px;
     --sticky-offset: calc(var(--header-height) + 10px);
 }
@@ -17,7 +18,7 @@
 /* Print specific variables */
 @media print {
     :root {
-        --primary-color: #000000; /* Nero per stampa */
+        --primary-color: #000000;
         --secondary-color: #555555;
         --dark-color: #000000;
         --background-color: #ffffff;
@@ -41,108 +42,64 @@ body.operator-mode #exit-admin-button { display: none; }
 body.admin-mode #admin-trigger { display: none; }
 body.admin-mode #exit-admin-button { display: inline-flex; color: var(--danger-color); }
 body.admin-mode #exit-admin-button:hover { color: #a51826; }
-/* === END Header Standard Styles === */
 
 .container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: var(--background-color); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); border-radius: var(--border-radius); }
 
-/* === Styles per Controlli Pagina e Filtri Sticky === */
 .page-controls { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; position: sticky; top: var(--header-height); background-color: var(--background-color); z-index: 990; padding-top: 15px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .page-controls h1 { color: var(--primary-color); margin: 0 0 15px 0; font-weight: 700; font-size: 2em; line-height: 1.2; }
-.filters { margin-top: 0; margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.filters { margin-top: 0; margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; align-items: center;}
 .filters span { margin-right: 10px; font-weight: 500; color: var(--secondary-color); align-self: center; margin-bottom: 5px; }
 .filter-btn { background-color: #e9ecef; border: 1px solid #ced4da; color: var(--dark-color); padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-size: 0.85em; white-space: nowrap; }
-.filter-btn:hover { background-color: #d1d5db; border-color: #adb5bd; }
+.filter-btn:hover:not(:disabled) { background-color: #d1d5db; border-color: #adb5bd; }
 .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: bold; }
 .filter-btn[data-filter-type="economic"] { background-color: var(--warning-color); border-color: #e6a007; color: #333; }
 .filter-btn[data-filter-type="economic"].active { background-color: #c68b00; border-color: #a06d00; color: white; }
-/* === Fine Stili Filtri === */
+.filter-btn:disabled { background-color: #e9ecef; border-color: #ced4da; color: #6c757d; opacity: 0.65; cursor: not-allowed; }
 
-/* === Stili Tabs Sezioni === */
+
 .section-tabs { display: flex; justify-content: center; margin-top: 10px; padding-bottom: 15px; border-top: 1px solid #eee; padding-top: 15px; }
 .tab-btn { padding: 8px 25px; margin: 0 5px; font-size: 1em; font-weight: 500; color: var(--secondary-color); background-color: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: color 0.3s ease, border-bottom-color 0.3s ease; }
 .tab-btn:hover { color: var(--dark-color); }
 .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 700; }
-/* === Fine Stili Tabs === */
 
-/* === Stili Contenuto Principale === */
 main { padding-top: 10px; }
 .sections-wrapper { display: flex; flex-wrap: wrap; gap: 30px; align-items: stretch; }
 .content-section { flex: 1; min-width: 300px; display: none; }
 .content-section.active-section { display: block; }
 @media (max-width: 992px) { .sections-wrapper { flex-direction: column; gap: 40px; align-items: stretch; } .content-section { min-width: 100%; } }
-/* === Fine Stili Layout Colonne === */
 
-/* Griglia Prodotti */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 25px; margin-bottom: 40px; }
 
-/* Card Prodotto */
-.product-card { background-color: var(--background-color); border: 1px solid #e0e0e0; border-radius: var(--border-radius); padding: 20px; box-shadow: var(--card-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-.product-card.error-card { background-color: #f8d7da; border-color: var(--danger-color); color: #842029; padding: 20px; text-align: center; }
+.product-card { background-color: var(--background-color); border: 1px solid #e0e0e0; border-radius: var(--border-radius); padding: 20px; box-shadow: var(--card-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.2s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+.product-card:hover:not(.max-selected) { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.product-card.error-card { background-color: #f8d7da; border-color: var(--danger-color); color: #842029; }
 
 .card-top-right-elements { position: absolute; top: 10px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 5; }
 .economic-badge { display: inline-block; background-color: var(--warning-color); color: #333; font-size: 0.7em; padding: 2px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
 .wifi-icon { font-size: 1.1em; color: var(--primary-color); }
 
 .product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 60px; }
-.product-logo {
-    max-height: 50px;
-    max-width: 140px;
-    width: auto;
-    object-fit: contain;
-    flex-shrink: 1;
-    min-width: 60px;
-}
+.product-logo { max-height: 50px; max-width: 140px; width: auto; object-fit: contain; flex-shrink: 1; min-width: 60px; }
 .product-title-brand { flex-grow: 1; min-width: 0; }
-.product-title-brand h3 {
-    margin: 0 0 2px 0;
-    font-size: 1.15em;
-    color: var(--dark-color);
-    font-weight: 700;
-    line-height: 1.35;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: calc(1.35em * 2);
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-.product-title-brand .product-brand-text {
-    font-size: 0.9em;
-    color: var(--secondary-color);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    display: block;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
+.product-title-brand h3 { margin: 0 0 2px 0; font-size: 1.15em; color: var(--dark-color); font-weight: 700; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; min-height: calc(1.35em * 2); overflow-wrap: break-word; word-break: break-word; }
+.product-title-brand .product-brand-text { font-size: 0.9em; color: var(--secondary-color); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; display: block; overflow-wrap: break-word; word-break: break-word; }
 
 .product-image { display: block; width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; }
-
 .product-info { display: flex; flex-direction: column; flex-grow: 1; }
 .product-details { margin-bottom: 15px; flex-grow: 1; }
-
 .product-info-text { margin: 6px 0; line-height: 1.5; font-size: 0.95em; color: #495057; }
 .product-info-text strong { color: var(--dark-color); margin-right: 5px; display: inline-block; }
-
 .product-power { font-weight: 700; }
-
 .energy-class span { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-weight: bold; color: white; margin-right: 5px; line-height: 1.2; }
 .energy-class .cooling { background-color: #0d6efd; }
 .energy-class .heating { background-color: var(--danger-color); }
-
 .product-codes strong { display: block; margin-bottom: 3px; }
 .product-codes .code-value { color: var(--dark-color); font-family: inherit; font-size: inherit; line-height: 1.4; display: block; }
 .product-codes .code-value span { color: var(--secondary-color); font-size: 0.9em; margin-left: 4px; }
-
-.product-dimensions { display: none; }
+.product-dimensions { display: none; } /* Visibile solo in stampa di default o con tooltip JS */
 .product-dimensions strong { display: block; margin-bottom: 3px; }
 .product-dimensions span { display: inline; }
 .product-dimensions span + span::before { content: " / "; font-weight: normal; color: var(--secondary-color); }
-
 .product-datasheet { margin-top: 12px; }
 .product-datasheet a { color: var(--primary-color); text-decoration: none; font-weight: 500; transition: color 0.2s ease; font-size: 0.95em; }
 .product-datasheet a:hover { color: var(--dark-color); text-decoration: underline; }
@@ -163,19 +120,19 @@ main { padding-top: 10px; }
 .edit-price-input, .edit-model-input { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-family: 'Roboto', sans-serif; }
 .edit-price-input { width: 90px; text-align: right; }
 .edit-model-input { width: calc(100% - 18px); font-weight: bold; }
-body.operator-mode .action-buttons-container button:not(.btn-compare) { display: none; } /* Nascondi solo i bottoni admin */
+body.operator-mode .action-buttons-container button { display: none; }
 body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { display: none !important; }
 
 .loading-placeholder, .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--secondary-color); font-size: 1.1em; }
 
-#password-panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%; background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); padding: 25px; padding-top: 50px; z-index: 1010; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
+#password-panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%; background-color: #ffffff; box-shadow: -5px 0 15px rgba(0,0,0,0.15); padding: 25px; padding-top: 50px; z-index: 1010; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
 #password-panel.visible { transform: translateX(0); }
 #password-panel h3 { margin-top: 0; margin-bottom: 10px; color: var(--primary-color); text-align: center; }
 #password-panel p { font-size: 0.9em; color: var(--secondary-color); margin-bottom: 15px; text-align: center; }
 #password-panel .form-group { margin-bottom: 15px; }
 #password-panel label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9em; }
 #password-panel input[type="password"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-#password-panel input[type="password"]:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
+#password-panel input[type="password"]:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(0,123,255,0.25); }
 #password-panel input[type="password"].input-error { border-color: var(--danger-color); }
 #submit-password-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; }
 #submit-password-btn:hover { background-color: #004182; }
@@ -186,38 +143,223 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
 .app-footer { text-align: center; margin-top: 40px; padding: 20px 0; border-top: 1px solid #eee; font-size: 0.9em; color: var(--secondary-color); }
 .app-footer .data-info { font-style: italic; font-size: 0.85em; margin-top: 5px; }
 
-#dimension-tooltip { position: absolute; display: none; background-color: rgba(255, 255, 255, 0.98); border: 1px solid #aaa; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25); padding: 0; z-index: 1001; width: 300px; border-radius: 4px; pointer-events: none; overflow: hidden; transition: padding 0.2s ease; }
+#dimension-tooltip { position: absolute; display: none; background-color: rgba(255,255,255,0.98); border: 1px solid #aaa; box-shadow: 3px 3px 8px rgba(0,0,0,0.25); padding: 0; z-index: 1001; width: 300px; border-radius: 4px; pointer-events: none; overflow: hidden; transition: padding 0.2s ease; }
 #dimension-tooltip img { display: block; width: 100%; height: auto; transition: display 0.2s ease; }
-.tooltip-dimension-text { position: absolute; background-color: rgba(240, 240, 240, 0.85); padding: 3px 6px; border-radius: 3px; font-size: 0.9em; line-height: 1.3; color: #000; font-family: 'Courier New', Courier, monospace; white-space: nowrap; font-weight: bold; }
+.tooltip-dimension-text { position: absolute; background-color: rgba(240,240,240,0.85); padding: 3px 6px; border-radius: 3px; font-size: 0.9em; line-height: 1.3; color: #000; font-family: 'Courier New', Courier, monospace; white-space: nowrap; font-weight: bold; }
 #dimension-tooltip.no-blueprint img { display: none; }
 #dimension-tooltip.no-blueprint { padding: 10px; }
 #dimension-tooltip.no-blueprint #tooltip-ue-dimensions { display: none; }
-#dimension-tooltip.no-blueprint #tooltip-ui-dimensions { position: static; margin-bottom: 0; bottom: auto; left: auto; top: auto; right: auto; background: none; }
+#dimension-tooltip.no-blueprint #tooltip-ui-dimensions { position: static; margin-bottom: 0; background: none; }
 #dimension-tooltip:not(.no-blueprint) img { display: block; }
 #dimension-tooltip:not(.no-blueprint) { padding: 0; }
 #dimension-tooltip:not(.no-blueprint) #tooltip-ue-dimensions { display: block; position: absolute; top: 10%; left: 15%; }
-#dimension-tooltip:not(.no-blueprint) #tooltip-ui-dimensions { display: block; position: absolute; bottom: 8%; left: 15%; background-color: rgba(240, 240, 240, 0.85); }
+#dimension-tooltip:not(.no-blueprint) #tooltip-ui-dimensions { display: block; position: absolute; bottom: 8%; left: 15%; }
 
-/* === Print Styles (V4 - CON IMMAGINE e 2 Colonne) === */
+
+/* === Stili per NUOVA Modalità di Confronto === */
+.filters .btn-compare-mode {
+    background-color: var(--info-color);
+    color: white;
+    border-color: var(--info-color);
+}
+.filters .btn-compare-mode:hover:not(:disabled) {
+    background-color: #138496;
+    border-color: #117a8b;
+}
+.filters .btn-compare-mode.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+.compare-selection-info {
+    background-color: #e7f3fe; /* Colore di sfondo più leggero per la barra info */
+    padding: 12px 20px;
+    margin-top: 15px;
+    border-radius: var(--border-radius);
+    border: 1px solid #b8d6f3;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.compare-selection-info p {
+    margin: 0 0 10px 0;
+    font-size: 0.95em;
+    color: var(--dark-color);
+    font-weight: 500;
+}
+.compare-selection-info button {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    margin: 0 5px;
+    border: none;
+    transition: background-color 0.2s ease;
+}
+.compare-selection-info .btn-confirm-compare {
+    background-color: var(--primary-color);
+    color: white;
+}
+.compare-selection-info .btn-confirm-compare:hover:not(:disabled) {
+    background-color: #004182;
+}
+.compare-selection-info .btn-confirm-compare:disabled {
+    background-color: #adb5bd;
+    cursor: not-allowed;
+}
+.compare-selection-info .btn-cancel-compare-mode {
+    background-color: var(--secondary-color);
+    color: white;
+}
+.compare-selection-info .btn-cancel-compare-mode:hover {
+    background-color: #545b62;
+}
+
+
+body.compare-mode-active .product-card {
+    cursor: pointer;
+}
+
+body.compare-mode-active .product-card:hover:not(.max-selected) {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 86, 168, 0.15);
+}
+
+body.compare-mode-active .product-card.selected-for-compare {
+    border: 2px solid var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 86, 168, 0.2);
+}
+
+body.compare-mode-active .product-card.max-selected:not(.selected-for-compare) { /* Solo quelle non selezionate */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+
+/* Popup di Confronto */
+.compare-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1050;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    padding: 20px; /* Aggiunge padding per non far toccare i bordi su schermi piccoli */
+    box-sizing: border-box;
+}
+
+.compare-popup-overlay.visible {
+    display: flex;
+    opacity: 1;
+}
+
+.compare-popup {
+    background-color: var(--background-color);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+    width: 100%; /* Prende tutta la larghezza possibile dall'overlay con padding */
+    max-width: 900px; /* Max larghezza per il popup con 2 card */
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+    position: relative;
+    overflow: hidden; /* Per contenere lo scroll interno */
+}
+
+.compare-popup-overlay.visible .compare-popup {
+    transform: scale(1);
+}
+
+.compare-popup h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 1.8em;
+    padding-right: 40px; /* Spazio per bottone chiudi */
+}
+
+.close-compare-popup-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px; /* Coerente con altri pannelli */
+    background: none;
+    border: none;
+    font-size: 2.2em;
+    color: var(--secondary-color);
+    cursor: pointer;
+    line-height: 1;
+    padding: 5px;
+}
+.close-compare-popup-btn:hover {
+    color: var(--danger-color);
+}
+
+.compare-popup-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Adattivo, ma punterà a 2 colonne su large */
+    gap: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 10px 5px;
+    margin-bottom: 0; /* Tolto il margine inferiore per massimizzare altezza */
+}
+@media (min-width: 650px) { /* Forza 2 colonne quando c'è abbastanza spazio */
+    .compare-popup-content {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+
+.compare-popup-content .product-card {
+    border: 1px solid #ddd;
+    box-shadow: none; /* Rimuovi ombra per pulizia */
+}
+.compare-popup-content .product-card .product-image {
+    height: 150px;
+}
+.compare-popup-content .product-card .product-info-text {
+    font-size: 0.9em;
+    margin: 6px 0;
+}
+.compare-popup-content .product-card .product-info-text strong {
+    min-width: 90px; /* Allinea un po' le label */
+}
+/* Nascondi action buttons e footer dentro le card del popup */
+.compare-popup-content .product-card .action-buttons-container,
+.compare-popup-content .product-card .product-footer .product-price-value { /* Nascondi anche il prezzo nel footer */
+    display: none !important;
+}
+.compare-popup-content .product-card .product-footer {
+    border-top: none;
+    padding-top: 0;
+    min-height: 10px; /* Solo per evitare collasso se vuoto */
+}
+
+
+/* === Print Styles === */
 @media print {
     @page { margin: 1cm; size: A4; }
     body { padding-top: 0; font-size: 8.5pt; color: #000; background-color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .app-header, .page-controls, .app-footer, #password-panel, #dimension-tooltip, .action-buttons-container, .product-datasheet, .compare-bar, .compare-popup-overlay { display: none !important; } /* Aggiunto .compare-bar e .compare-popup-overlay */
+    .app-header, .page-controls, .app-footer, #password-panel, #dimension-tooltip, .action-buttons-container, .product-datasheet,
+    .filters .btn-compare-mode, .compare-selection-info, .compare-popup-overlay /* Elementi confronto */
+    { display: none !important; }
     .container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; border: none; }
     main { padding-top: 0; }
     .sections-wrapper { display: block; }
     .content-section { display: block !important; page-break-inside: avoid; margin-bottom: 10px; }
     .content-section::before { content: attr(id) == 'monosplit-section' ? 'Listino Monosplit' : (attr(id) == 'multisplit-section' ? 'Listino Multisplit' : ''); display: block; font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #999; color: #000; page-break-after: avoid; text-align: left; }
-
     .product-grid { display: block; column-count: 2; column-gap: 1cm; }
-
-    .product-card {
-        display: flex;
-        flex-direction: column;
-        width: 100%; box-shadow: none; border: 1px solid #ccc; margin-bottom: 0.7cm; padding: 8px;
-        page-break-inside: avoid; -webkit-column-break-inside: avoid; break-inside: avoid;
-    }
-
+    .product-card { display: flex; flex-direction: column; width: 100%; box-shadow: none; border: 1px solid #ccc; margin-bottom: 0.7cm; padding: 8px; page-break-inside: avoid; -webkit-column-break-inside: avoid; break-inside: avoid; }
     .product-header { order: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; width: 100%; min-height: auto; padding: 0; margin: 0 0 5px 0; }
     .product-logo { order: 1; max-height: 20px; max-width: 70px; flex-shrink: 0; margin-right: 5px;}
     .product-title-brand { order: 2; flex-grow: 1; text-align: left; }
@@ -227,9 +369,7 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
     .economic-badge { display: none !important; }
     .wifi-icon { font-size: 0.8em; color: #000; display: inline-block;}
     .wifi-icon::before { content: " (WiFi)"; font-size: 0.85em; font-family: sans-serif; vertical-align: baseline;}
-
     .product-image { order: 2; display: block !important; width: auto; max-width: 60%; height: auto; max-height: 70px; margin: 5px auto 8px auto; object-fit: contain; }
-
     .product-info { order: 3; width: 100%; }
     .product-details { margin-bottom: 3px; }
     .product-info-text { font-size: 8pt; line-height: 1.25; margin: 1px 0; }
@@ -246,223 +386,13 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
     .product-codes .code-value span { font-size: 0.9em; }
     .product-footer { display: block; border-top: none; padding-top: 3px; margin-top: 3px; text-align: left; }
     .product-price-value { font-size: 9.5pt; color: #000; font-weight: bold; }
-    /* .action-buttons-container { display: none; } Già presente, ma per chiarezza */
-}
-/* === Fine Print Styles === */
-
-/* === Stili per Funzionalità di Confronto === */
-
-/* Pulsante "Confronta" sulla card */
-.product-card .btn-compare {
-    background-color: #6c757d; /* Grigio secondario */
-    color: white;
-    border: none;
-    padding: 5px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85em;
-    transition: background-color 0.2s ease;
-    margin-left: 5px; /* Spazio dagli altri bottoni */
 }
 
-.product-card .btn-compare:hover {
-    background-color: #5a6268;
-}
-
-.product-card .btn-compare.selected {
-    background-color: #28a745; /* Verde successo */
-}
-.product-card .btn-compare.selected:hover {
-    background-color: #218838;
-}
-
-/* Barra di Confronto */
-.compare-bar {
-    position: fixed;
-    bottom: -100px; /* Nascosto inizialmente */
-    left: 0;
-    width: 100%;
-    background-color: var(--dark-color);
-    color: var(--light-color);
-    padding: 12px 20px;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
-    z-index: 999; /* Sotto i filtri ma sopra il contenuto */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: bottom 0.3s ease-in-out;
-}
-
-.compare-bar.visible {
-    bottom: 0;
-}
-
-.compare-bar span {
-    font-size: 0.9em;
-}
-
-.compare-bar .btn-show-compare {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.compare-bar .btn-show-compare:disabled {
-    background-color: #adb5bd; /* Grigio chiaro */
-    cursor: not-allowed;
-}
-
-
-/* Popup di Confronto */
-.compare-popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 1050;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-
-.compare-popup-overlay.visible {
-    display: flex;
-    opacity: 1;
-}
-
-.compare-popup {
-    background-color: var(--background-color);
-    padding: 25px; /* Aumentato padding */
-    border-radius: var(--border-radius);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 1100px; /* Leggermente più largo per 3 card */
-    max-height: 90vh; /* Più altezza per il popup */
-    display: flex;
-    flex-direction: column;
-    transform: scale(0.95);
-    transition: transform 0.3s ease-in-out;
-    position: relative; /* Per il posizionamento del bottone chiudi */
-}
-
-.compare-popup-overlay.visible .compare-popup {
-    transform: scale(1);
-}
-
-
-.compare-popup h2 {
-    margin-top: 0;
-    margin-bottom: 20px; /* Aumentato margine */
-    color: var(--primary-color);
-    text-align: center;
-    font-size: 1.8em; /* Più grande */
-}
-
-.close-compare-popup-btn {
-    position: absolute;
-    top: 15px; /* Aggiustato per padding popup */
-    right: 20px; /* Aggiustato per padding popup */
-    background: none;
-    border: none;
-    font-size: 2.2em;
-    color: var(--secondary-color);
-    cursor: pointer;
-    line-height: 1;
-    padding: 5px; /* Area cliccabile più grande */
-}
-.close-compare-popup-btn:hover {
-    color: var(--danger-color);
-}
-
-.compare-popup-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Leggermente più largo per le card */
-    gap: 20px; /* Aumentato gap */
-    overflow-y: auto;
-    flex-grow: 1;
-    padding: 10px 5px; /* Aggiunto padding laterale per lo scroll */
-    margin-bottom: 20px; /* Aumentato margine */
-}
-
-/* Stili per le card dentro il popup (potrebbero essere leggermente diversi se necessario) */
-.compare-popup-content .product-card {
-    padding: 15px; /* Padding leggermente ridotto se serve più spazio */
-    border: 1px solid #ddd; /* Bordo più leggero */
-}
-.compare-popup-content .product-card .product-image {
-    height: 150px; /* Immagine leggermente più piccola nel popup */
-}
-.compare-popup-content .product-card .product-footer {
-    padding-top: 10px;
-}
-/* Nascondi il pulsante "Confronta" e i bottoni admin dentro le card del popup */
-.compare-popup-content .product-card .btn-compare,
-.compare-popup-content .product-card .edit-btn,
-.compare-popup-content .product-card .save-btn,
-.compare-popup-content .product-card .cancel-btn {
-    display: none !important;
-}
-
-
-.compare-popup-actions {
-    text-align: center;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-}
-
-.compare-popup-actions .btn-clear-compare {
-    background-color: var(--danger-color);
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-}
-.compare-popup-actions .btn-clear-compare:hover {
-    background-color: #c82333;
-}
-
-/* === Fine Stili per Funzionalità di Confronto === */
-
-
-/* === Responsive Design (esistente) === */
-@media (max-width: 992px) { /* ... */ }
+/* Specifiche per brand se necessario */
+.product-card[data-brand="HAIER"] .product-logo { max-height: 40px; max-width: 110px; }
+.product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
 @media (max-width: 768px) {
-    .product-card[data-brand="HAIER"] .product-header {
-        min-height: auto;
-    }
-    /* Responsive per il popup */
-    .compare-popup {
-        width: 95%;
-        padding: 15px;
-    }
-    .compare-popup h2 {
-        font-size: 1.5em;
-    }
-    .close-compare-popup-btn {
-        top: 10px;
-        right: 10px;
-    }
-    .compare-popup-content {
-        grid-template-columns: 1fr; /* Una card per riga su schermi piccoli */
-        gap: 15px;
-    }
-}
-@media (max-width: 480px) { /* ... */ }
-
-.product-card[data-brand="HAIER"] .product-logo {
-    max-height: 40px;
-    max-width: 110px;
-}
-.product-card[data-brand="HAIER"] .product-header {
-    min-height: 65px;
+    .product-card[data-brand="HAIER"] .product-header { min-height: auto; }
+    /* Responsive per il popup già gestito in parte sopra */
+    .compare-popup-content { grid-template-columns: 1fr; } /* Forza 1 colonna per popup */
 }
