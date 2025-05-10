@@ -102,6 +102,24 @@
 
     <!-- Script nella stessa cartella, percorsi corretti -->
     <script src="data.js"></script>
-    <script src="script.js"></script>
+    <script src="script.js"></script> <!-- Popup di Confronto -->
+<div id="compare-popup-overlay" class="compare-popup-overlay">
+    <div id="compare-popup" class="compare-popup">
+        <button id="close-compare-popup-btn" class="close-compare-popup-btn" title="Chiudi">×</button>
+        <h2>Confronta Prodotti</h2>
+        <div id="compare-popup-content" class="compare-popup-content">
+            <!-- Le card dei prodotti selezionati verranno inserite qui da JS -->
+        </div>
+        <div class="compare-popup-actions">
+            <button id="clear-compare-selection-btn" class="btn-clear-compare">Pulisci Selezione</button>
+        </div>
+    </div>
+</div>
+
+<!-- Barra di notifica/controllo Confronto (Opzionale ma consigliata) -->
+<div id="compare-bar" class="compare-bar">
+    <span>Prodotti selezionati per il confronto: <span id="compare-bar-count">0</span>/3</span>
+    <button id="compare-bar-show-btn" class="btn-show-compare" disabled>Mostra Confronto</button>
+</div>
 </body>
 </html>
