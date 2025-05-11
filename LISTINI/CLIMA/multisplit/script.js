@@ -179,8 +179,106 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- UI Element Creation Helper Functions ---
     function createSelectionItem(item, type, clickHandler, isSelected = false) { const itemDiv = document.createElement('div'); itemDiv.classList.add('selection-item'); if (isSelected) itemDiv.classList.add('selected'); itemDiv.dataset[type + 'Id'] = item.id; let logoSrc = ''; if (type === 'brand' && item.logo) { logoSrc = item.logo; } else if (type === 'series' && item.image) { logoSrc = item.image; itemDiv.classList.add('series-selection-item'); } const nameSpan = document.createElement('span'); nameSpan.textContent = item.name; if (logoSrc) { const logoImg = document.createElement('img'); logoImg.src = logoSrc; logoImg.alt = `${item.name} Immagine`; if (type === 'brand') logoImg.classList.add('brand-logo'); if (type === 'series') logoImg.classList.add('series-logo'); logoImg.onload = () => { if (type === 'brand') nameSpan.style.display = 'none'; }; logoImg.onerror = () => { console.warn(`DEBUG: Errore caricamento ${type} immagine ${logoSrc}`); logoImg.style.display = 'none'; nameSpan.style.display = 'block'; }; itemDiv.appendChild(logoImg); if (type === 'brand') nameSpan.style.display = 'none'; } else { nameSpan.style.display = 'block'; } itemDiv.appendChild(nameSpan); itemDiv.addEventListener('click', () => { itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); itemDiv.classList.add('selected'); clickHandler(item); }); return itemDiv; }
-    function createUnitSelectionCard(unit, clickHandler, isSelected = false) { const card = document.createElement('div'); card.classList.add('unit-selection-card'); if (isSelected) card.classList.add('selected'); card.dataset.unitId = unit.id; card.style.flexDirection = "column"; card.style.alignItems = 'flex-start'; const infoDiv = document.createElement('div'); infoDiv.classList.add('unit-info'); infoDiv.style.width = '100%'; const nameH4 = document.createElement('h4'); let unitTitle = "UNITA' ESTERNA"; if (unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") { unitTitle += ` ${unit.kw}kW`; } nameH4.textContent = unitTitle; infoDiv.appendChild(nameH4);  const modelP = document.createElement('p'); modelP.innerHTML = `Codice: <strong>${unit.modelCode || 'N/A'}</strong> | Max UI: ${unit.connections === undefined ? '?' : unit.connections}`; infoDiv.appendChild(modelP);  const energyClassP = document.createElement('p'); energyClassP.innerHTML = `Classe (F/C): <strong>${unit.energyClassCooling || '?'}</strong> / <strong>${unit.energyClassHeating || '?'}</strong>`; infoDiv.appendChild(energyClassP); const dimensionsP = document.createElement('p'); let dimText = unit.dimensions && unit.dimensions !== "N/A" ? `Dimensioni: ${unit.dimensions}` : "Dimensioni: N/A"; if (unit.weight && unit.weight !== "N/D") { dimText += ` | Peso: ${unit.weight} kg`; } else if (unit.weight === "N/D") { dimText += ` | Peso: N/D`; } else { dimText += ` | Peso: ?`; } dimensionsP.textContent = dimText; infoDiv.appendChild(dimensionsP); const priceP = document.createElement('p'); priceP.classList.add('unit-price'); priceP.textContent = `Prezzo: ${typeof unit.price === 'number' ? unit.price.toFixed(2) : (unit.price || 'N/D')} € (IVA escl.)`; infoDiv.appendChild(priceP); card.appendChild(infoDiv); card.addEventListener('click', () => { card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected')); card.classList.add('selected'); clickHandler(unit); }); return card; }
+function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
+    const card = document.createElement('div');
+    card.classList.add('unit-selection-card');
+    if (isSelected) card.classList.add('selected');
+    card.dataset.unitId = unit.id;
+    card.style.flexDirection = "column"; // Queste due righe potrebbero non essere più necessarie
+    card.style.alignItems = 'flex-start'; // se .unit-selection-card nel CSS già gestisce il layout
+    
+    const infoDiv = document.createElement('div');
+    infoDiv.classList.add('unit-info');
+    infoDiv.style.width = '100%'; // Assicura che infoDiv prenda tutta la larghezza della card
 
+    const nameH4 = document.createElement('h4');
+    let unitTitle = "UNITA' ESTERNA";
+    if (unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
+        unitTitle += ` ${unit.kw}kW`;
+    }
+    nameH4.textContent = unitTitle;
+    infoDiv.appendChild(nameH4);
+
+    // Rimosso modelNameP come da precedenti modifiche (se era stato rimosso)
+    // Se vuoi rimetterlo, il codice era:
+    // const modelNameP = document.createElement('p');
+    // modelNameP.style.cssText = 'font-size: 0.9em; color: var(--secondary-color); margin-top: -2px; margin-bottom: 5px;';
+    // modelNameP.textContent = `(${unit.name || "Dettagli non disponibili"})`;
+    // infoDiv.appendChild(modelNameP);
+
+    const modelP = document.createElement('p');
+    modelP.innerHTML = `Codice: <strong>${unit.modelCode || 'N/A'}</strong> | Max UI: ${unit.connections === undefined ? '?' : unit.connections}`;
+    infoDiv.appendChild(modelP);
+
+    // Rimosso capacityP (Potenza F/C BTU) come da precedenti modifiche (se era stato rimosso)
+    // Se vuoi rimetterlo, il codice era:
+    // const capacityP = document.createElement('p');
+    // capacityP.textContent = `Potenza (F/C BTU): ${unit.capacityCoolingBTU || '?'} / ${unit.capacityHeatingBTU || '?'}`;
+    // infoDiv.appendChild(capacityP);
+
+    // --- INIZIO NUOVA SEZIONE PER CLASSE ENERGETICA ---
+    const energyClassContainerP = document.createElement('p'); 
+
+    const energyLabelSpan = document.createElement('span');
+    energyLabelSpan.classList.add('energy-class-label');
+    energyLabelSpan.textContent = "Classe Energetica (F/C):"; 
+    energyClassContainerP.appendChild(energyLabelSpan);
+
+    const coolingClass = unit.energyClassCooling || 'N/D';
+    const coolingSpan = document.createElement('span');
+    coolingSpan.classList.add('energy-rating'); 
+    if (coolingClass === 'N/D' || coolingClass === '?') {
+        coolingSpan.classList.add('unknown');
+    } else {
+        coolingSpan.classList.add('cooling');
+    }
+    coolingSpan.textContent = coolingClass;
+    energyClassContainerP.appendChild(coolingSpan);
+
+    const separatorSpan = document.createElement('span');
+    separatorSpan.classList.add('energy-separator'); 
+    separatorSpan.textContent = "/";
+    energyClassContainerP.appendChild(separatorSpan);
+
+    const heatingClass = unit.energyClassHeating || 'N/D';
+    const heatingSpan = document.createElement('span');
+    heatingSpan.classList.add('energy-rating'); 
+    if (heatingClass === 'N/D' || heatingClass === '?') {
+        heatingSpan.classList.add('unknown');
+    } else {
+        heatingSpan.classList.add('heating');
+    }
+    heatingSpan.textContent = heatingClass;
+    energyClassContainerP.appendChild(heatingSpan);
+    
+    infoDiv.appendChild(energyClassContainerP);
+    // --- FINE NUOVA SEZIONE PER CLASSE ENERGETICA ---
+
+    const dimensionsP = document.createElement('p');
+    let dimText = unit.dimensions && unit.dimensions !== "N/A" ? `Dimensioni: ${unit.dimensions}` : "Dimensioni: N/A";
+    if (unit.weight && unit.weight !== "N/D") {
+        dimText += ` | Peso: ${unit.weight} kg`;
+    } else if (unit.weight === "N/D") {
+        dimText += ` | Peso: N/D`;
+    } else {
+        dimText += ` | Peso: ?`;
+    }
+    dimensionsP.textContent = dimText;
+    infoDiv.appendChild(dimensionsP);
+
+    const priceP = document.createElement('p');
+    priceP.classList.add('unit-price');
+    priceP.textContent = `Prezzo: ${typeof unit.price === 'number' ? unit.price.toFixed(2) : (unit.price || 'N/D')} € (IVA escl.)`;
+    infoDiv.appendChild(priceP);
+
+    card.appendChild(infoDiv);
+    card.addEventListener('click', () => {
+        card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
+        card.classList.add('selected');
+        clickHandler(unit);
+    });
+    return card;
+}
     // --- State Management for Clearing UI ---
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
     function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('<select'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
