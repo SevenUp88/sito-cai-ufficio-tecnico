@@ -419,7 +419,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <h3>Unità Esterna</h3>
                 <h4>UNITA' ESTERNA ${selections.outdoorUnit.kw && selections.outdoorUnit.kw !== "N/A" && selections.outdoorUnit.kw !== 0 ? selections.outdoorUnit.kw + 'kW' : ''}</h4>
                 <p><strong>Codice:</strong> ${valOrNA(selections.outdoorUnit.modelCode)}</p>
-                <p><strong>Potenza (F/C BTU):</strong> ${valOrNA(selections.outdoorUnit.capacityCoolingBTU, ' BTU')} / ${valOrNA(selections.outdoorUnit.capacityHeatingBTU, ' BTU')}</p>
                 <p><strong>Classe Energetica (F/C):</strong> ${valOrNA(selections.outdoorUnit.energyClassCooling)} / ${valOrNA(selections.outdoorUnit.energyClassHeating)}</p>
                 <p><strong>Dimensioni:</strong> ${valOrNA(selections.outdoorUnit.dimensions)}</p>
                 <p><strong>Peso:</strong> ${valOrNA(selections.outdoorUnit.weight, ' kg')}</p>
