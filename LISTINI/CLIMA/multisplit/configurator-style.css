@@ -238,4 +238,51 @@
     .summary-total { margin-top: 0.5cm; padding-top: 0.3cm; font-size: 11pt !important; border-top: 1.5px solid #000 !important; }
     .summary-total p { margin: 4px 0; }
     .summary-total strong { color: #000 !important; font-weight: bold;}
+    /* === Stili per Classe Energetica nelle Card del Configuratore === */
+/* Aggiungi questo blocco in configurator-style.css */
+
+.unit-selection-card .unit-info .energy-class-container p { /* Assicuriamoci che il paragrafo non abbia margini strani */
+    margin-top: 4px; /* Aggiusta se necessario */
+    margin-bottom: 4px; /* Aggiusta se necessario */
+    line-height: 1.5; /* Per un buon allineamento verticale dei box */
+}
+
+.unit-selection-card .unit-info .energy-class-label {
+    font-weight: normal; /* Rimuove il bold se il <p> genitore lo avesse */
+    color: var(--secondary-color); /* Usa il colore secondario per l'etichetta */
+    margin-right: 5px;
+    font-size: 0.9em; /* Stessa dimensione degli altri <p> nella card */
+}
+
+.unit-selection-card .unit-info .energy-rating {
+    display: inline-block;
+    padding: 2px 8px; /* Aumentato leggermente il padding laterale per estetica */
+    border-radius: var(--border-radius); /* Usa il border-radius globale */
+    color: white;
+    font-size: 0.85em; /* Leggermente più piccolo per adattarsi meglio */
+    font-weight: bold;
+    margin: 0 2px;
+    min-width: 30px; 
+    text-align: center;
+    line-height: 1.4; 
+    vertical-align: middle; /* Aiuta con l'allineamento se il testo ha altezze diverse */
+}
+
+.unit-selection-card .unit-info .energy-rating.cooling {
+    background-color: #007bff; /* Blu standard per raffrescamento (puoi cambiarlo con var(--primary-color) se preferisci) */
+}
+
+.unit-selection-card .unit-info .energy-rating.heating {
+    background-color: var(--danger-color); /* Rosso standard per riscaldamento */
+}
+
+.unit-selection-card .unit-info .energy-rating.unknown {
+    background-color: var(--secondary-color); /* Grigio per N/D */
+}
+
+.unit-selection-card .unit-info .energy-separator {
+    margin: 0 3px;
+    color: var(--secondary-color);
+    font-size: 0.9em;
+}
 }
