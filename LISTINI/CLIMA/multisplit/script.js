@@ -525,6 +525,37 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     }
     checkAllIndoorUnitsSelected();
 }
+const detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('unit-details');
+
+        // Funzione helper per generare l'HTML dei dettagli
+        const generateDetailsHtml = (unit) => {
+            if (!unit) return '';
+            let html = `<p>Cod: <strong>${unit.modelCode || 'N/A'}</strong></p>`;
+            html += `<p>Pwr: <strong>${unit.kw || 'N/A'}kW (${unit.capacityBTU || 'N/A'} BTU)</strong> - €<strong>${(unit.price || 0).toFixed(2)}</strong></p>`;
+            if (unit.dimensions && unit.dimensions !== "N/A") {
+                html += `<p>Dimensioni: <strong>${unit.dimensions}</strong></p>`;
+            }
+            if (unit.weight && unit.weight !== "N/A" && unit.weight !== "N/D") {
+                html += `<p>Peso: <strong>${unit.weight} kg</strong></p>`;
+            }
+            html += `${unit.image ? `<img src="${unit.image}" alt="Immagine ${unit.modelCode || 'UI'}" class="ui-details-img">` : ''}`;
+            return html;
+        };
+
+        if (selections.indoorUnits[i]) {
+            detailsDiv.innerHTML = generateDetailsHtml(selections.indoorUnits[i]);
+        }
+
+        select.addEventListener('change', (e) => {
+            const selId = e.target.value;
+            const idx = parseInt(e.target.dataset.index);
+            const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
+            selections.indoorUnits[idx] = selUI || null;
+
+            detailsDiv.innerHTML = generateDetailsHtml(selUI);
+            checkAllIndoorUnitsSelected();
+        });
     // MODIFICATA PER RIMUOVERE "Somma Potenza Nominale UI" E CAMBIARE TESTO PREZZO TOTALE
     function generateSummary() {
         console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
