@@ -150,21 +150,21 @@
 #reset-config-btn:hover { background-color: #c82333; }
 
 
-/* === INIZIO NUOVI STILI PER STEP 5 - SELEZIONE UNITA' INTERNE === */
+/* === STILI PER STEP 5 - SELEZIONE UNITA' INTERNE (con ultime modifiche) === */
 #indoor-units-selection-area {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Crea colonne flessibili con larghezza minima 300px */
-    gap: 20px; /* Spazio tra le card di selezione */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 #indoor-units-selection-area .indoor-unit-slot {
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
-    background-color: var(--background-color); /* Sfondo bianco, come altre card */
-    box-shadow: var(--card-shadow); /* Ombra standard per le card */
+    background-color: var(--background-color);
+    box-shadow: var(--card-shadow);
     display: flex;
-    flex-direction: column; /* Organizza il contenuto interno verticalmente */
+    flex-direction: column;
 }
 
 #indoor-units-selection-area .indoor-unit-slot label {
@@ -172,74 +172,83 @@
     margin-bottom: 10px;
     font-weight: 500;
     color: var(--dark-color);
-    font-size: 1.05em; /* Leggermente più grande per il titolo della card */
+    font-size: 1.05em;
 }
 
 #indoor-units-selection-area .indoor-unit-slot label strong {
-    color: var(--primary-color); /* Evidenzia il nome del modello UI */
+    color: var(--primary-color);
 }
 
 #indoor-units-selection-area .indoor-unit-slot select {
     width: 100%;
     padding: 12px;
-    border-radius: var(--border-radius); /* Usa il border-radius globale */
+    border-radius: var(--border-radius);
     border: 1px solid #ccc;
     font-size: 1em;
     box-sizing: border-box;
-    margin-bottom: 15px; /* Spazio sotto il menu a tendina */
+    margin-bottom: 15px;
 }
 
 #indoor-units-selection-area .indoor-unit-slot select:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2); /* Stile per il focus */
+    box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2);
 }
 
 #indoor-units-selection-area .indoor-unit-slot .unit-details {
-    font-size: 0.9em;
+    font-size: 0.88em;
     color: var(--secondary-color);
-    margin-top: auto; /* Spinge i dettagli in basso se lo slot ha spazio extra */
-    min-height: 60px; /* Altezza minima per l'area dettagli (testo e/o immagine) */
+    margin-top: 10px; /* Spazio tra select e dettagli */
+    min-height: 110px; /* Aumentato per fare spazio a più info e immagine */
 }
 
 #indoor-units-selection-area .indoor-unit-slot .unit-details p {
-    margin: 5px 0; /* Margine per i paragrafi nei dettagli */
-    line-height: 1.4;
+    margin-top: 3px;
+    margin-bottom: 9px; /* Aumentato lo spazio sotto ogni paragrafo di dettaglio */
+    line-height: 1.35;
+    word-break: break-word;
 }
 
 #indoor-units-selection-area .indoor-unit-slot .unit-details p strong {
-    color: var(--dark-color); /* Testo in grassetto più scuro per i dettagli */
+    color: var(--dark-color);
+}
+
+/* Rimuove il margine inferiore dall'ultimo elemento dentro .unit-details */
+#indoor-units-selection-area .indoor-unit-slot .unit-details > *:last-child {
+    margin-bottom: 0;
 }
 
 #indoor-units-selection-area .ui-details-img {
     background: transparent !important;
-    display: block; /* Permette di usare margin: auto per centrare */
-    margin: 10px auto 5px auto; /* Centra l'immagine orizzontalmente */
+    display: block;
+    margin: 10px auto 0 auto; /* Rimosso margine inferiore se è l'ultimo elemento */
     max-width: 120px;
-    max-height: 100px;
+    max-height: 80px; /* Altezza per l'immagine nei dettagli UI */
     object-fit: contain;
     border: 1px solid #eee;
     border-radius: var(--border-radius);
 }
-/* === FINE NUOVI STILI PER STEP 5 === */
+/* === FINE STILI PER STEP 5 === */
 
 
-.selection-list .unit-selection-card {
+.selection-list .unit-selection-card { /* Usato per UE Step 4 se layout è riga */
     flex-direction: row; justify-content: flex-start; text-align: left;
     padding: 12px; margin-bottom: 10px; min-height: auto;
 }
-.unit-selection-card img.unit-image { /* Usato per le UE nello Step 4 se lo stile è colonna */
+.unit-selection-card img.unit-image { /* Immagine per UE Step 4 se layout è riga */
     width: 60px; height: 60px; object-fit: contain; margin-right: 15px;
     border: 1px solid #eee; border-radius: 4px;
 }
 /* Se le UE nello Step 4 usano .unit-selection-card con layout a colonna, questo si applica */
-.unit-selection-card.column-layout img.unit-image { /* Aggiungi classe 'column-layout' via JS se serve */
-    width: 100px; /* O la dimensione che preferisci per le immagini UE */
+/*
+.unit-selection-card.column-layout img.unit-image {
+    width: 100px;
     height: auto;
     max-height: 100px;
     margin-bottom: 10px;
     margin-right: 0;
 }
+*/
 
 .unit-selection-card .unit-info h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--dark-color); }
 .unit-selection-card .unit-info p { margin: 2px 0; font-size: 0.9em; color: var(--secondary-color); }
