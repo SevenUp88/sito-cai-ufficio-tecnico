@@ -615,8 +615,10 @@ function updateStepSelectionInfo() {
 
         const S = (str) => str != null ? String(str).replace(/`/g, "'") : '';
 
-        const generateDetailsHtml = (unit) => {
+       const generateDetailsHtml = (unit) => {
             if (!unit) return '';
+            const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
+
             let html = `<p>Cod: <strong>${S(unit.modelCode) || 'N/A'}</strong></p>`;
             html += `<p>Pwr: <strong>${S(unit.kw) || 'N/A'}kW (${S(unit.capacityBTU) || 'N/A'} BTU)</strong> - €<strong>${(unit.price || 0).toFixed(2)}</strong></p>`;
             if (unit.dimensions && unit.dimensions !== "N/A") {
@@ -625,9 +627,10 @@ function updateStepSelectionInfo() {
             if (unit.weight && unit.weight !== "N/A" && unit.weight !== "N/D") {
                 html += `<p>Peso: <strong>${S(unit.weight)} kg</strong></p>`;
             }
-            if (unit.image) {
-                 html += `<img src="${S(unit.image)}" alt="Immagine ${S(unit.modelCode) || 'UI'}" class="ui-details-img">`;
-            }
+            // LA RIGA DELL'IMMAGINE È STATA CORRETTAMENTE RIMOSSA QUI SOTTO
+            // if (unit.image) {
+            //      html += `<img src="${S(unit.image)}" alt="Immagine ${S(unit.modelCode) || 'UI'}" class="ui-details-img">`;
+            // }
             return html;
         };
 
