@@ -76,6 +76,7 @@
 }
 .step-line.active { background-color: var(--primary-color); }
 
+/* Griglia per selezione brand e modelli */
 .selection-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -83,7 +84,8 @@
     margin-bottom: 20px;
 }
 
-.selection-item, .unit-selection-card {
+/* Stili per gli item nella .selection-grid (brand, modelli UI) */
+.selection-item {
     padding: 15px; border: 2px solid #e0e0e0; border-radius: var(--border-radius);
     text-align: center; cursor: pointer; transition: all 0.3s ease;
     background-color: #fff; display: flex; flex-direction: column;
@@ -108,12 +110,12 @@
     object-fit: contain;
 }
 
-#model-selection .selection-item {
+#model-selection .selection-item { /* Per card selezione modello UI */
     min-height: 180px;
     justify-content: space-around;
 }
 
-.selection-item img.series-logo {
+.selection-item img.series-logo { /* Per immagine modello UI */
     max-height: 120px;
     max-width: 100%;
     object-fit: contain;
@@ -122,7 +124,7 @@
 }
 
 .selection-item.series-selection-item span,
-#model-selection .selection-item span {
+#model-selection .selection-item span { /* Testo per modello UI */
     font-size: 1.1em;
     font-weight: bold;
     line-height: 1.3;
@@ -150,14 +152,18 @@
 #reset-config-btn:hover { background-color: #c82333; }
 
 
-/* === STILI PER STEP 5 - SELEZIONE UNITA' INTERNE (con ultime modifiche) === */
-#indoor-units-selection-area {
+/* === STILI GENERICI PER GRIGLIA DI CARD DI SELEZIONE (UE e UI) === */
+#indoor-units-selection-area,
+#outdoor-unit-selection { /* Applicato a entrambi i contenitori */
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
+    margin-bottom: 20px;
 }
 
-#indoor-units-selection-area .indoor-unit-slot {
+/* Card specifica per selezione unità (sia interne che esterne) */
+#outdoor-unit-selection .unit-selection-card, /* Card per Unità Esterne */
+#indoor-units-selection-area .indoor-unit-slot { /* Card per Unità Interne */
     padding: 20px;
     border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
@@ -165,8 +171,56 @@
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
+    text-align: left;
+    justify-content: flex-start;
+    min-height: auto; /* Sovrascrive min-height se ereditato da .selection-item o .unit-selection-card generico */
+    cursor: pointer; /* Aggiunto per coerenza, se non già presente da .unit-selection-card */
+    transition: all 0.3s ease; /* Aggiunto per coerenza */
 }
 
+#outdoor-unit-selection .unit-selection-card:hover:not(.selected),
+#indoor-units-selection-area .indoor-unit-slot:hover { /* .indoor-unit-slot non ha .selected, ma l'hover è utile */
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15);
+    transform: translateY(-2px);
+}
+#outdoor-unit-selection .unit-selection-card.selected { /* Solo per card UE se usano .selected */
+    border-color: var(--primary-color);
+    background-color: #e6f0fa;
+    box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1);
+    transform: translateY(0);
+}
+
+/* Contenuto interno delle CARD PER UNITÀ ESTERNE */
+#outdoor-unit-selection .unit-selection-card .unit-info { /* Assumendo che createUnitSelectionCard usi .unit-info */
+    width: 100%;
+}
+#outdoor-unit-selection .unit-selection-card .unit-info h4 {
+    margin: 0 0 10px 0; /* Aumentato margine inferiore */
+    font-size: 1.15em;
+    color: var(--dark-color);
+}
+#outdoor-unit-selection .unit-selection-card .unit-info p {
+    margin: 5px 0 10px 0; /* Aumentato spazio tra i paragrafi */
+    font-size: 0.9em;
+    color: var(--secondary-color);
+    line-height: 1.45; /* Aumentata per più respiro */
+    word-break: break-word;
+}
+#outdoor-unit-selection .unit-selection-card .unit-info p strong {
+    color: var(--dark-color);
+}
+#outdoor-unit-selection .unit-selection-card .unit-info .unit-price {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.05em;
+    margin-top: 12px; /* Spazio sopra il prezzo */
+}
+/* Stili per Classe Energetica specifici per le card UE se necessario (ereditati da quelli globali) */
+#outdoor-unit-selection .unit-selection-card .unit-info .energy-class-container p { margin-bottom: 10px; }
+
+
+/* Contenuto interno delle CARD PER UNITÀ INTERNE (Step 5) */
 #indoor-units-selection-area .indoor-unit-slot label {
     display: block;
     margin-bottom: 10px;
@@ -174,11 +228,9 @@
     color: var(--dark-color);
     font-size: 1.05em;
 }
-
 #indoor-units-selection-area .indoor-unit-slot label strong {
     color: var(--primary-color);
 }
-
 #indoor-units-selection-area .indoor-unit-slot select {
     width: 100%;
     padding: 12px;
@@ -188,71 +240,61 @@
     box-sizing: border-box;
     margin-bottom: 15px;
 }
-
 #indoor-units-selection-area .indoor-unit-slot select:focus {
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2);
 }
-
 #indoor-units-selection-area .indoor-unit-slot .unit-details {
     font-size: 0.88em;
     color: var(--secondary-color);
-    margin-top: 10px; /* Spazio tra select e dettagli */
-    min-height: 110px; /* Aumentato per fare spazio a più info e immagine */
+    margin-top: 10px;
+    min-height: 110px;
 }
-
 #indoor-units-selection-area .indoor-unit-slot .unit-details p {
     margin-top: 3px;
-    margin-bottom: 9px; /* Aumentato lo spazio sotto ogni paragrafo di dettaglio */
+    margin-bottom: 9px;
     line-height: 1.35;
     word-break: break-word;
 }
-
 #indoor-units-selection-area .indoor-unit-slot .unit-details p strong {
     color: var(--dark-color);
 }
-
-/* Rimuove il margine inferiore dall'ultimo elemento dentro .unit-details */
 #indoor-units-selection-area .indoor-unit-slot .unit-details > *:last-child {
     margin-bottom: 0;
 }
-
-#indoor-units-selection-area .ui-details-img {
+#indoor-units-selection-area .ui-details-img { /* Immagine nei dettagli UI */
     background: transparent !important;
     display: block;
-    margin: 10px auto 0 auto; /* Rimosso margine inferiore se è l'ultimo elemento */
+    margin: 10px auto 0 auto;
     max-width: 120px;
-    max-height: 80px; /* Altezza per l'immagine nei dettagli UI */
+    max-height: 80px;
     object-fit: contain;
     border: 1px solid #eee;
     border-radius: var(--border-radius);
 }
-/* === FINE STILI PER STEP 5 === */
 
 
-.selection-list .unit-selection-card { /* Usato per UE Step 4 se layout è riga */
-    flex-direction: row; justify-content: flex-start; text-align: left;
-    padding: 12px; margin-bottom: 10px; min-height: auto;
+/* Classe generica per .unit-selection-card se usata altrove o per sovrascrivere .selection-item */
+/* Potrebbe non essere più necessaria se gli stili specifici sopra coprono tutto */
+.unit-selection-card {
+    /* padding: 15px; (già presente da #outdoor-unit-selection .unit-selection-card) */
+    /* border: 2px solid #e0e0e0; (sovrascritto da 1px sopra) */
+    /* ... altri stili di base se .unit-selection-card è una classe standalone */
 }
-.unit-selection-card img.unit-image { /* Immagine per UE Step 4 se layout è riga */
-    width: 60px; height: 60px; object-fit: contain; margin-right: 15px;
-    border: 1px solid #eee; border-radius: 4px;
-}
-/* Se le UE nello Step 4 usano .unit-selection-card con layout a colonna, questo si applica */
-/*
-.unit-selection-card.column-layout img.unit-image {
-    width: 100px;
-    height: auto;
-    max-height: 100px;
-    margin-bottom: 10px;
-    margin-right: 0;
-}
-*/
 
-.unit-selection-card .unit-info h4 { margin: 0 0 5px 0; font-size: 1.1em; color: var(--dark-color); }
-.unit-selection-card .unit-info p { margin: 2px 0; font-size: 0.9em; color: var(--secondary-color); }
-.unit-selection-card .unit-info .unit-price { font-weight: bold; color: var(--primary-color); font-size: 1.05em; }
+/* Immagine principale per .unit-selection-card (es. UE), se non è .ui-details-img */
+/* Se le UE hanno un'immagine principale diversa da quella nei dettagli UI */
+#outdoor-unit-selection .unit-selection-card img.main-unit-image { /* Usa questa classe se hai un'img principale */
+    display: block;
+    max-width: 150px; /* Adatta secondo necessità */
+    max-height: 120px; /* Adatta secondo necessità */
+    object-fit: contain;
+    margin: 0 auto 15px auto; /* Centra e dà spazio sotto */
+    border: 1px solid #f0f0f0;
+    border-radius: var(--border-radius);
+}
+
 
 .summary-section { background-color: #fff; padding: 20px; border-radius: var(--border-radius); border: 1px solid #e0e0e0; }
 .summary-section h3 { color: var(--primary-color); margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; font-size: 1.2em; }
@@ -289,18 +331,18 @@
 #admin-brand-form .form-control { width: calc(100% - 16px); padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 #admin-brand-form button { margin-top:10px; }
 
-/* === Stili per Classe Energetica nelle Card === */
-.unit-selection-card .unit-info .energy-class-container p {
-    margin-top: 4px;
-    margin-bottom: 4px;
-    line-height: 1.5;
+/* === Stili per Classe Energetica nelle Card (globali per .unit-selection-card .unit-info) === */
+.unit-selection-card .unit-info .energy-class-container p { /* Contenitore del testo "Classe Energetica" e dei badge */
+    margin-top: 4px;    /* Spazio sopra */
+    margin-bottom: 8px; /* Spazio sotto, prima del prossimo paragrafo */
+    line-height: 1.5;   /* Allineamento verticale dei badge */
 }
 
 .unit-selection-card .unit-info .energy-class-label {
     font-weight: normal;
     color: var(--secondary-color);
     margin-right: 5px;
-    font-size: 0.9em;
+    font-size: 0.9em; /* Coerente con gli altri p */
 }
 
 .unit-selection-card .unit-info .energy-rating {
@@ -318,15 +360,15 @@
 }
 
 .unit-selection-card .unit-info .energy-rating.cooling {
-    background-color: #007bff; /* Blu standard per raffrescamento */
+    background-color: #007bff;
 }
 
 .unit-selection-card .unit-info .energy-rating.heating {
-    background-color: var(--danger-color); /* Rosso standard per riscaldamento */
+    background-color: var(--danger-color);
 }
 
 .unit-selection-card .unit-info .energy-rating.unknown {
-    background-color: var(--secondary-color); /* Grigio per N/D */
+    background-color: var(--secondary-color);
 }
 
 .unit-selection-card .unit-info .energy-separator {
