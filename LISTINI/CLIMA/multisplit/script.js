@@ -176,6 +176,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log("DEBUG: First Processed UE:", APP_DATA.outdoorUnits.length > 0 ? JSON.stringify(APP_DATA.outdoorUnits[0]) : "ND");
         console.log("DEBUG: First Processed UI:", APP_DATA.indoorUnits.length > 0 ? JSON.stringify(APP_DATA.indoorUnits[0]) : "ND");
     }
+    APP_DATA.indoorUnits = indoorUnitsDocs.map((ui_doc, index) => {
+        const brandId = String(ui_doc.marca || 'sconosciuta').toLowerCase();
+        const seriesName = String(ui_doc.modello || `serie_${index}`).trim();
+        const seriesId = sanitizeForId(seriesName) + "_ui";
+        const { btu, kw } = parsePowerString(ui_doc.potenza);
+        let imagePath = "";
+        if (ui_doc.percorso_immagine_ui && ui_doc.percorso_immagine_ui !== "Dati mancanti") {
+            imagePath = ui_doc.percorso_immagine_ui;
+        } else {
+            let imageNameMapped = APP_DATA.uiSeriesImageMapping[seriesId];
+            if (!imageNameMapped) {
+                imageNameMapped = sanitizeForId(seriesName);
+            }
+            imagePath = `img/${imageNameMapped}.png`;
+        }
+        return {
+            id: ui_doc.id || `ui_${index}`,
+            brandId: brandId,
+            seriesId: seriesId,
+            seriesName: seriesName,
+            modelCode: ui_doc.codice_prodotto || "N/A",
+            name: `${String(ui_doc.marca || '').toUpperCase()} ${seriesName} ${kw}kW (${btu} BTU)`,
+            type: String(ui_doc.tipo_unit || 'Parete').toLowerCase() === "interna" ? "Parete" : ui_doc.tipo_unit,
+            capacityBTU: btu,
+            kw: kw,
+            price: Number(ui_doc.prezzo_ui) || 0,
+            image: imagePath,
+            dimensions: ui_doc.dimensioni_ui || "N/A",
+            // Aggiungi il peso, simile a come fai per le unità esterne
+            weight: (ui_doc.peso_ui !== "Dati mancanti" && ui_doc.peso_ui !== undefined) ? ui_doc.peso_ui : "N/D",
+            wifi: ui_doc.wifi === true
+        };
+    });
+    console.log("DEBUG: Processing Firestore data finished.");
+    console.log("DEBUG: First Processed UE:", APP_DATA.outdoorUnits.length > 0 ? JSON.stringify(APP_DATA.outdoorUnits[0]) : "ND");
+    console.log("DEBUG: First Processed UI:", APP_DATA.indoorUnits.length > 0 ? JSON.stringify(APP_DATA.indoorUnits[0]) : "ND");
+}
 
     // --- UI Element Creation Helper Functions ---
     function createSelectionItem(item, type, clickHandler, isSelected = false) { const itemDiv = document.createElement('div'); itemDiv.classList.add('selection-item'); if (isSelected) itemDiv.classList.add('selected'); itemDiv.dataset[type + 'Id'] = item.id; let logoSrc = ''; if (type === 'brand' && item.logo) { logoSrc = item.logo; } else if (type === 'series' && item.image) { logoSrc = item.image; itemDiv.classList.add('series-selection-item'); } const nameSpan = document.createElement('span'); nameSpan.textContent = item.name; if (logoSrc) { const logoImg = document.createElement('img'); logoImg.src = logoSrc; logoImg.alt = `${item.name} Immagine`; if (type === 'brand') logoImg.classList.add('brand-logo'); if (type === 'series') logoImg.classList.add('series-logo'); logoImg.onload = () => { if (type === 'brand') nameSpan.style.display = 'none'; }; logoImg.onerror = () => { console.warn(`DEBUG: Errore caricamento ${type} immagine ${logoSrc}`); logoImg.style.display = 'none'; nameSpan.style.display = 'block'; }; itemDiv.appendChild(logoImg); if (type === 'brand') nameSpan.style.display = 'none'; } else { nameSpan.style.display = 'block'; } itemDiv.appendChild(nameSpan); itemDiv.addEventListener('click', () => { itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); itemDiv.classList.add('selected'); clickHandler(item); }); return itemDiv; }
