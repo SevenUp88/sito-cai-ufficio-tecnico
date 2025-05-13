@@ -77,18 +77,42 @@
 
         <!-- STEP INDICATOR (Assumed already updated for 6 steps with correct labels) -->
         <div class="step-indicator">
-            <div class="step-item" data-step="1"><span class="step-dot active">1</span><span class="step-name">Marca</span></div>
-            <span class="step-line"></span>
-            <div class="step-item" data-step="2"><span class="step-dot">2</span><span class="step-name">Config.</span></div>
-            <span class="step-line"></span>
-            <div class="step-item" data-step="3"><span class="step-dot">3</span><span class="step-name">Modello</span></div>
-            <span class="step-line"></span>
-            <div class="step-item" data-step="4"><span class="step-dot">4</span><span class="step-name">Unità Est.</span></div>
-            <span class="step-line"></span>
-            <div class="step-item" data-step="5"><span class="step-dot">5</span><span class="step-name">Unità Int.</span></div>
-            <span class="step-line"></span>
-            <div class="step-item" data-step="6"><span class="step-dot">6</span><span class="step-name">Riepilogo</span></div>
+        <div class="step-item" data-step="1">
+            <span class="step-dot active">1</span>
+            <span class="step-name">Marca</span>
+            <span class="step-selection-info" id="step-info-1"></span> {/* NUOVO */}
         </div>
+        <span class="step-line"></span>
+        <div class="step-item" data-step="2">
+            <span class="step-dot">2</span>
+            <span class="step-name">Config.</span>
+            <span class="step-selection-info" id="step-info-2"></span> {/* NUOVO */}
+        </div>
+        <span class="step-line"></span>
+        <div class="step-item" data-step="3">
+            <span class="step-dot">3</span>
+            <span class="step-name">Modello</span>
+            <span class="step-selection-info" id="step-info-3"></span> {/* NUOVO */}
+        </div>
+        <span class="step-line"></span>
+        <div class="step-item" data-step="4">
+            <span class="step-dot">4</span>
+            <span class="step-name">Unità Est.</span>
+            <span class="step-selection-info" id="step-info-4"></span> {/* NUOVO */}
+        </div>
+        <span class="step-line"></span>
+        <div class="step-item" data-step="5">
+            <span class="step-dot">5</span>
+            <span class="step-name">Unità Int.</span>
+            <span class="step-selection-info" id="step-info-5"></span> {/* NUOVO (mostrerà "Selezionate" o simile) */}
+        </div>
+        <span class="step-line"></span>
+        <div class="step-item" data-step="6">
+            <span class="step-dot">6</span>
+            <span class="step-name">Riepilogo</span>
+            <span class="step-selection-info" id="step-info-6"></span> {/* NUOVO (non mostrerà nulla o "Completo") */}
+        </div>
+    </div>
 
         <!-- Step 1: Brand Selection (id="step-1", Logical Step 1) -->
         <div id="step-1" class="config-step active-step">
