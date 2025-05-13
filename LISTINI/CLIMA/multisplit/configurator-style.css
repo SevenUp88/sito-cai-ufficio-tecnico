@@ -248,103 +248,65 @@
     font-size: 1.05em;
 }
 
+
 /* Summary Section */
 .summary-section {
     background-color: #fff;
-    padding: 15px; 
+    padding: 20px;
     border-radius: var(--border-radius);
     border: 1px solid #e0e0e0;
 }
 .summary-section h3 {
-    /* color: var(--primary-color); MODIFIED - Ora usa un grigio scuro per look più Apple */
-    color: #333; /* MODIFIED */
-    margin-top: 10px; /* MODIFIED */
-    border-bottom: none; /* MODIFIED - Rimosso bordo per pulizia */
-    padding-bottom: 4px; 
-    margin-bottom: 14px; /* MODIFIED */
-    font-size: 1.2em; 
-    font-weight: 600; /* MODIFIED */
-    letter-spacing: 0.2px; /* MODIFIED */
-}
-.summary-section h3:first-of-type { /* MODIFIED - Per il primo h3 nella sezione */
+    color: var(--primary-color);
     margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.2em; /* Slightly smaller for sub-sections */
 }
-
 .summary-item {
-    margin-bottom: 6px; 
-    font-size: 0.9em; 
-    line-height: 1.4; 
+    margin-bottom: 10px;
+    font-size: 1em;
+    line-height: 1.5;
 }
 .summary-item strong {
     color: var(--dark-color);
     display: inline-block;
-    width: 170px; 
-    vertical-align: top; 
-    font-weight: 500; 
+    width: 180px; 
 }
 .summary-total {
-    margin-top: 15px; 
-    padding-top: 12px; 
-    border-top: 1px solid #ddd; 
-    font-size: 1.25em; 
-    font-weight: 600; 
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 2px solid var(--primary-color);
+    font-size: 1.3em;
+    font-weight: bold;
 }
-
+.summary-total strong {
+    color: var(--primary-color);
+}
 .summary-indoor-unit-list {
     padding-left: 0;
     list-style: none;
-    margin-top: 0; /* MODIFIED */
 }
-
 .summary-indoor-unit-list li {
-    background-color: #ffffff; 
-    border: 1px solid #eaeaea; /* MODIFIED - Bordo più leggero */
-    border-radius: 12px;       /* MODIFIED - Angoli più arrotondati */
-    padding: 18px 20px;        /* MODIFIED - Più padding interno */
-    margin-bottom: 16px;       /* MODIFIED - Più spazio tra le card */
-    box-shadow: 0 3px 8px rgba(0,0,0,0.05); /* MODIFIED - Ombra più sottile e diffusa */
+    margin-bottom: 12px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border: 1px solid #eee;
+    overflow: auto; /* To contain floated image */
+}
+.summary-indoor-unit-list li img {
+    max-width: 60px;
+    max-height: 50px;
+    float: left;
+    margin-right: 10px;
+    border: 1px solid #eee;
+    object-fit: contain;
+}
+.summary-indoor-unit-list li .ui-details-container {
     overflow: hidden; 
 }
-
-.summary-indoor-unit-list li img {
-    display: none !important; /* IMMAGINI CONFERMATE NASCOSTE */
-}
-
-.summary-indoor-unit-list li .ui-details-container {
-    /* Questo container ora occupa tutto lo spazio */
-}
-
-/* Titolo dell'unità interna (es. "Unità 1: PEARL") */
-.summary-indoor-unit-list li .ui-details-container p:first-child { 
-    font-weight: 600; /* MODIFIED */
-    color: #2c2c2c; /* MODIFIED - Nero leggermente più morbido */
-    font-size: 1.05em; /* MODIFIED */
-    margin-top: 0; /* ADDED */
-    margin-bottom: 12px; /* MODIFIED */
-    padding-bottom: 8px; /* MODIFIED */
-    border-bottom: 1px solid #f0f0f0; /* MODIFIED - Linea separatrice molto sottile */
-}
-
-/* Dettagli successivi (Codice, Potenza, ecc.) */
-.summary-indoor-unit-list li .ui-details-container p:not(:first-child) { /* MODIFIED SELECTOR */
-    margin: 0 0 6px 0; /* MODIFIED */
-    font-size: 0.88em; /* MODIFIED */
-    line-height: 1.5; /* MODIFIED */
-    color: #4a4a4a; /* MODIFIED - Colore per i valori */
-}
-.summary-indoor-unit-list li .ui-details-container p:not(:first-child):last-child { /* MODIFIED SELECTOR */
-    margin-bottom: 0; 
-}
-
-.summary-indoor-unit-list li .ui-details-container p:not(:first-child) strong { /* MODIFIED SELECTOR */
-    font-weight: 400; /* MODIFIED - Normale, non bold */
-    color: #888888;     /* MODIFIED - Grigio più chiaro per le etichette */
-    margin-right: 8px; /* MODIFIED */
-    display: inline-block; 
-    min-width: 80px; /* ADDED - Larghezza minima per allineamento etichette */
-}
-
-
 .summary-actions {
     justify-content: flex-end; 
     gap: 10px;
@@ -356,7 +318,6 @@
     margin-bottom: 15px;
     object-fit: contain;
 }
-
 
 .print-instructions {
     margin-top: 20px;
@@ -370,7 +331,7 @@
 @media print {
     body {
         padding-top: 0;
-        font-size: 9pt; 
+        font-size: 9pt; /* Baseline font size for print */
         color: #000;
     }
     .app-header,
@@ -383,7 +344,7 @@
 
     #summary-main-title.print-main-title { 
         display: block !important;
-        font-size: 16pt !important; 
+        font-size: 16pt !important; /* Titolo principale del riepilogo */
         text-align: center !important;
         margin-top: 0 !important;
         margin-bottom: 0.8cm !important;
@@ -392,7 +353,7 @@
         color: #000 !important; 
     }
      
-    .page-controls > h1.print-main-title { 
+    .page-controls > h1.print-main-title { /* Fallback se usato h1 del container */
         display: block !important;
         font-size: 18pt !important;
         color: #000 !important; 
@@ -426,23 +387,22 @@
         border: none;
         padding: 0;
         box-shadow: none;
-        font-size: 9pt; 
+        font-size: 9pt; /* Eredita da body ma può essere specificato */
     }
     .summary-section h3 { 
         font-size: 11pt; 
-        color: #000 !important; /* Assicura nero in stampa */
-        border-bottom: 1px solid #555 !important; /* Ripristina bordo per stampa se desiderato */
+        color: #000;
+        border-bottom: 1px solid #555;
         margin-top: 0.5cm;
         margin-bottom: 0.3cm;
         padding-bottom: 3px;
-        letter-spacing: normal !important; /* Rimuovi letter-spacing per stampa se dà problemi */
     }
     .summary-section .brand-logo-print { 
         display: block !important;
-        margin: 0 auto 0.5cm auto; 
+        margin: 0 auto 0.5cm auto; /* Centra il logo */
     }
     .summary-item {
-        margin-bottom: 5px; 
+        margin-bottom: 5px; /* Spazio ridotto per print */
         line-height: 1.3;
     }
     .summary-item strong { width: 140px; color: #000; display: inline-block;}
@@ -454,35 +414,32 @@
     .summary-total strong { color: #000;}
 
     .summary-indoor-unit-list li {
-        background-color: #f8f8f8 !important; 
+        background-color: #f0f0f0 !important; /* Importante per sovrascrivere */
         border: 1px solid #ccc !important;
         font-size: 8.5pt !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        margin-bottom: 8px !important; /* Aumentato leggermente per stampa */
-        padding: 8px 10px !important; 
-        box-shadow: none !important; 
-        border-radius: 6px !important; 
+        margin-bottom: 5px !important; 
+        padding: 5px !important;
     }
-    
-    .summary-indoor-unit-list li .ui-details-container p {
-        font-size: 8.5pt !important; 
-        margin-bottom: 3px !important;
-        color: #000 !important; /* Testo nero per leggibilità stampa */
+    .summary-indoor-unit-list li img {
+        display: block !important; 
+        max-width: 45px !important; 
+        max-height: 35px !important;
+        border: 1px solid #ccc !important;
+        margin-bottom: 3px; /* Se sopra testo */
     }
-    .summary-indoor-unit-list li .ui-details-container p:first-child {
-        font-size: 9pt !important; 
-        margin-bottom: 6px !important; /* Più spazio sotto titolo UI in stampa */
-        padding-bottom: 4px !important;
-        border-bottom-color: #ddd !important; /* Bordo più visibile in stampa */
-        color: #000 !important;
-    }
-    .summary-indoor-unit-list li .ui-details-container p:not(:first-child) strong {
-        color: #333 !important; /* Etichette più scure per stampa */
-        min-width: 70px !important; /* Leggermente ridotto per stampa se necessario */
-    }
-
      .summary-indoor-unit-list li .ui-details-container {
-        line-height: 1.3; /* Leggermente aumentato per leggibilità stampa */
+        line-height: 1.25; /* Leggermente più compatto */
     }
+}
+
+* {
+  transition: all 0.2s ease-in-out;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  letter-spacing: -0.01em;
 }
