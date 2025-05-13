@@ -1,19 +1,24 @@
+/* START OF FILE configurator-style.css */
+
 /* File: configurator-style.css */
+/* Questo file si aspetta che style.css (con le variabili --primary-color Apple, ecc.) sia caricato prima. */
 
 .configurator-container {
-    background-color: var(--light-color);
+    /* background-color: var(--light-color); -- Ereditato da style.css se body ha quel colore o se .container ha uno sfondo definito lì */
     padding: 25px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: var(--border-radius); /* Dovrebbe usare il --border-radius: 16px; da style.css */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07); /* Ombra più morbida stile Apple */
+    background-color: var(--background-color); /* Usa lo sfondo bianco definito in style.css */
+    border: 1px solid #e5e5ea; /* Bordo sottile per il container, tipico Apple */
 }
 
 .config-step {
     display: none;
-    padding: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    background-color: var(--background-color);
-    margin-bottom: 25px;
+    padding: 20px 25px; /* Più padding laterale */
+    /* border: 1px solid #e0e0e0; -- Rimosso, il container ha già un bordo */
+    border-radius: var(--border-radius); /* Usa il border-radius da style.css */
+    /* background-color: var(--background-color); -- Ereditato o il container può gestirlo */
+    margin-bottom: 30px; /* Più spazio tra gli step */
 }
 
 .config-step.active-step {
@@ -21,78 +26,92 @@
 }
 
 .config-step h2 {
-    color: var(--primary-color);
+    color: var(--dark-color); /* Testo scuro per i titoli */
     margin-top: 0;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color);
-    font-size: 1.6em;
+    margin-bottom: 30px; /* Più spazio sotto i titoli h2 */
+    padding-bottom: 12px;
+    border-bottom: 1px solid #d1d1d6; /* Linea separatrice più sottile e grigia */
+    font-size: 1.75em; /* Leggermente più grande */
+    font-weight: 600; /* Semibold */
+    letter-spacing: -0.015em;
 }
 .config-step h2 .step-number-title {
-    color: var(--primary-color);
-    margin-right: 8px;
-    font-weight: bold;
+    color: var(--secondary-color); /* Numero dello step in grigio */
+    margin-right: 10px;
+    font-weight: 500;
 }
 
 
 /* Step Indicator */
 .step-indicator {
     display: flex;
-    align-items: flex-start; 
+    align-items: center; /* Allineato verticalmente meglio */
     justify-content: center;
-    margin-bottom: 35px;
+    margin-bottom: 40px; /* Più spazio */
 }
 .step-item { 
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    cursor: pointer; 
+    cursor: pointer;
+    padding: 0 5px; /* Spazio per evitare che i nomi si tocchino */
 }
 .step-item.disabled { 
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 .step-dot {
-    width: 30px;
-    height: 30px;
+    width: 28px; /* Leggermente più piccolo */
+    height: 28px;
     border-radius: 50%;
-    background-color: #ccc;
-    color: white;
+    background-color: #e5e5ea; /* Grigio chiaro per default */
+    color: var(--secondary-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin-bottom: 5px; 
+    font-weight: 500; /* Medio */
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+    margin-bottom: 6px; 
+    font-size: 0.9em;
 }
 .step-name { 
-    font-size: 0.75em;
+    font-size: 0.7em; /* Più piccolo per minimalismo */
     color: var(--secondary-color);
-    font-weight: 500;
-    max-width: 70px; 
-    line-height: 1.2;
+    font-weight: 400; /* Più leggero */
+    max-width: 75px; 
+    line-height: 1.3;
+    text-transform: uppercase; /* Stile Apple per piccoli label */
+    letter-spacing: 0.05em;
 }
 .step-item.active .step-dot, .step-dot.active { 
     background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
 }
 .step-item.active .step-name {
     color: var(--primary-color);
-    font-weight: bold;
+    font-weight: 500;
 }
 .step-item.completed .step-dot, .step-dot.completed {
-    background-color: #28a745;
+    background-color: var(--primary-color); /* Usa primary color per completato per coerenza con active */
+    color: white;
+    /* Optional: se vuoi un checkmark
+    content: '\2713';
+    font-size: 1.2em; */
 }
 .step-item.completed .step-name {
-    color: #1f7532; 
+    color: var(--secondary-color); 
 }
 .step-line {
     flex-grow: 1;
-    max-width: 70px; 
-    height: 2px;
-    background-color: #ccc;
-    margin: 14px 5px 0 5px; 
-    transition: background-color 0.3s ease;
+    max-width: 60px; 
+    height: 1.5px; /* Più sottile */
+    background-color: #e5e5ea; /* Grigio chiaro */
+    margin: 0 8px; /* Più spazio */
+    align-self: center; /* Per centrarlo con il dot */
+    position: relative;
+    top: -10px; /* Per allinearlo con la parte alta dei dot names */
 }
 .step-line.active {
      background-color: var(--primary-color);
@@ -101,73 +120,83 @@
 
 .selection-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); /* Card più piccole */
+    gap: 16px;
     margin-bottom: 20px;
 }
 
 .selection-item, .unit-selection-card {
-    padding: 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: var(--border-radius);
+    padding: 18px 15px;
+    border: 1px solid #d1d1d6; /* Bordo più sottile */
+    border-radius: 12px; /* Più arrotondato */
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
     background-color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100px;
+    min-height: 90px;
+    /* transition: all 0.2s ease-in-out; -- Ereditato da * in style.css */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
-.selection-item:hover:not(.selected) { /* Evita l'effetto hover sull'elemento già selezionato se non necessario */
+.selection-item:hover:not(.selected) {
     border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15);
-    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.1); /* Ombra blu tenue su hover */
+    transform: translateY(-2px);
 }
 .selection-item.selected {
     border-color: var(--primary-color);
-    background-color: #e6f0fa; 
-    font-weight: bold;
-    box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1); /* Ombra più leggera per selezionato */
-    transform: translateY(0); /* Resetta transform per evitare doppio effetto */
+    background-color: var(--primary-color); 
+    color: white;
+    font-weight: 500;
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.2);
+    transform: translateY(0);
+}
+.selection-item.selected img.brand-logo { /* Per rendere il logo visibile su sfondo scuro */
+   filter: brightness(0) invert(1);
 }
 .selection-item img.brand-logo, .selection-item img.series-logo {
-    max-height: 40px;
-    max-width: 100px;
+    max-height: 35px;
+    max-width: 90px;
     margin-bottom: 8px;
     object-fit: contain;
+}
+.selection-item.selected span { /* Il testo dentro l'item selezionato */
+    color: white;
 }
 
 
 .step-navigation {
     display: flex;
     justify-content: space-between;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    min-height: 42px; /* Per evitare salti di layout quando i bottoni appaiono/scompaiono */
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid #e5e5ea; /* Bordo più sottile */
+    min-height: 42px;
 }
 .step-navigation button {
-    padding: 10px 20px;
-    font-size: 1em;
-    border-radius: var(--border-radius);
+    padding: 10px 22px; /* Più padding orizzontale */
+    font-size: 0.95em;
+    border-radius: 10px; /* Bordi più arrotondati per bottoni */
     cursor: pointer;
     border: 1px solid transparent;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    font-weight: 500;
+    /* transition: all 0.2s ease-in-out; -- Ereditato da * in style.css */
 }
 .step-navigation button:disabled {
-    background-color: #e9ecef;
-    color: #6c757d;
+    background-color: #e5e5ea;
+    color: var(--secondary-color);
     cursor: not-allowed;
-    border-color: #ced4da;
+    border-color: #e5e5ea;
 }
 .step-navigation .prev-btn {
-    background-color: var(--secondary-color);
-    color: white;
+    background-color: #e5e5ea; /* Sfondo grigio chiaro */
+    color: var(--dark-color); /* Testo scuro */
+    border: 1px solid #d1d1d6; /* Bordo sottile */
 }
 .step-navigation .prev-btn:hover:not(:disabled) {
-    background-color: #5a6268;
+    background-color: #dcdce0;
 }
 .step-navigation .next-btn, #print-summary-btn, #reset-config-btn {
     background-color: var(--primary-color);
@@ -175,41 +204,49 @@
 }
 .step-navigation .next-btn:hover:not(:disabled),
 #print-summary-btn:hover, #reset-config-btn:hover {
-    background-color: #004182;
+    background-color: #0062cc; /* Blu leggermente più scuro su hover */
 }
 #reset-config-btn {
     background-color: var(--danger-color);
 }
 #reset-config-btn:hover {
-    background-color: #c82333;
+    background-color: #ff281c; /* Rosso più scuro su hover */
 }
 
 
 #indoor-units-selection-area .indoor-unit-slot {
     margin-bottom: 20px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    background-color: #f9f9f9;
+    padding: 18px;
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    background-color: #f9f9f9; /* Leggermente diverso da sfondo pagina */
 }
 #indoor-units-selection-area .indoor-unit-slot label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 500;
     color: var(--dark-color);
+    font-size: 0.95em;
 }
 #indoor-units-selection-area .indoor-unit-slot select {
     width: 100%;
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 1em;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border: 1px solid #d1d1d6;
+    font-size: 0.95em;
     box-sizing: border-box;
+    background-color: white;
+    color: var(--dark-color);
+    appearance: none; /* Per stilizzare la freccia se si vuole */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238e8e93' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px; /* Spazio per la freccia custom */
 }
 #indoor-units-selection-area .indoor-unit-slot .unit-details {
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: var(--secondary-color);
-    margin-top: 8px;
+    margin-top: 10px;
     min-height: 20px;
 }
 
@@ -217,122 +254,193 @@
     flex-direction: row;
     justify-content: flex-start; 
     text-align: left;
-    padding: 12px;
-    margin-bottom: 10px;
+    padding: 15px;
+    margin-bottom: 12px;
     min-height: auto; 
+    border-radius: 12px;
+    border: 1px solid #d1d1d6;
 }
 .unit-selection-card img.unit-image {
-    width: 60px;
-    height: 60px;
+    width: 50px; /* Più piccola */
+    height: 50px;
     object-fit: contain;
     margin-right: 15px;
-    border: 1px solid #eee;
-    border-radius: 4px;
+    border: 1px solid #e5e5ea;
+    border-radius: 8px; /* Leggermente arrotondata */
 }
 .unit-selection-card .unit-info {
     flex-grow: 1;
 }
 .unit-selection-card .unit-info h4 {
-    margin: 0 0 5px 0;
-    font-size: 1.1em;
+    margin: 0 0 4px 0;
+    font-size: 1em;
+    font-weight: 500;
     color: var(--dark-color);
 }
 .unit-selection-card .unit-info p {
     margin: 2px 0;
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: var(--secondary-color);
 }
 .unit-selection-card .unit-info .unit-price {
-    font-weight: bold;
-    color: var(--primary-color);
-    font-size: 1.05em;
-}
-
-
-/* Summary Section */
-.summary-section {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: var(--border-radius);
-    border: 1px solid #e0e0e0;
-}
-.summary-section h3 {
-    color: var(--primary-color);
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    font-size: 1.2em; /* Slightly smaller for sub-sections */
-}
-.summary-item {
-    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--dark-color); /* Prezzo in colore scuro, non primario per meno enfasi qui */
     font-size: 1em;
+    margin-top: 5px;
+}
+.selection-list .unit-selection-card.selected {
+    border-color: var(--primary-color);
+    background-color: #eef7ff; /* Blu molto chiaro per selezionato */
+    box-shadow: 0 2px 6px rgba(0, 122, 255, 0.15);
+}
+.selection-list .unit-selection-card.selected .unit-info .unit-price {
+    color: var(--primary-color); /* Prezzo in blu quando selezionato */
+}
+
+
+/* === Summary Section - Stile Apple === */
+.summary-section {
+    background-color: var(--background-color); /* Bianco */
+    padding: 25px 30px; /* Più padding */
+    border-radius: var(--border-radius); /* Usa 16px da style.css */
+    border: 1px solid #e5e5ea; /* Bordo grigio chiaro Apple */
+    /* box-shadow: 0 5px 15px rgba(0,0,0,0.05); Rimosso, il container principale ha già un'ombra */
+}
+
+.summary-section h3 {
+    color: var(--dark-color); /* Nero/grigio scuro testo */
+    font-size: 1.1em; /* Dimensione tipica per sottotitoli Apple */
+    font-weight: 600; /* Semibold */
+    letter-spacing: -0.01em;
+    margin-top: 0;
+    margin-bottom: 8px; /* Spazio sotto il titolo della sezione (es. "Selezione Utente") */
+    padding-bottom: 8px;
+    border-bottom: 1px solid #ebebed; /* Linea separatrice molto sottile */
+}
+.summary-section h3:not(:first-of-type) { /* Per i titoli h3 successivi al primo */
+    margin-top: 25px; /* Più spazio tra le sezioni del riepilogo */
+}
+
+.summary-item {
+    margin-bottom: 8px; /* Spazio tra le righe */
+    font-size: 0.95em; /* Dimensione base testo */
     line-height: 1.5;
+    display: flex; /* Per allineare etichetta e valore */
+    justify-content: space-between;
 }
-.summary-item strong {
+.summary-item strong { /* Etichetta es. "Marca:" */
+    color: var(--secondary-color); /* Grigio per le etichette */
+    font-weight: 400; /* Normale, non bold */
+    margin-right: 10px;
+    /* width: auto; -- Lascia che prenda la sua larghezza */
+    flex-shrink: 0; /* Evita che l'etichetta si restringa */
+}
+.summary-item span { /* Valore es. "Haier" */
     color: var(--dark-color);
-    display: inline-block;
-    width: 180px; 
+    font-weight: 500; /* Medio per i valori */
+    text-align: right;
 }
-.summary-total {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 2px solid var(--primary-color);
-    font-size: 1.3em;
-    font-weight: bold;
-}
-.summary-total strong {
-    color: var(--primary-color);
-}
+
+
 .summary-indoor-unit-list {
     padding-left: 0;
     list-style: none;
+    margin-top: 10px; 
 }
+
 .summary-indoor-unit-list li {
-    margin-bottom: 12px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: var(--border-radius);
-    border: 1px solid #eee;
-    overflow: auto; /* To contain floated image */
+    background-color: #f9f9f9; /* Sfondo leggermente off-white per le card UI */
+    border: 1px solid #ededf0; 
+    border-radius: 12px;       
+    padding: 16px 18px;        
+    margin-bottom: 14px;       
+    /* box-shadow: 0 2px 5px rgba(0,0,0,0.04); Ombra molto leggera e diffusa */
 }
+
 .summary-indoor-unit-list li img {
-    max-width: 60px;
-    max-height: 50px;
-    float: left;
-    margin-right: 10px;
-    border: 1px solid #eee;
-    object-fit: contain;
+    display: none !important; /* Confermato: IMMAGINI NASCOSTE */
 }
-.summary-indoor-unit-list li .ui-details-container {
-    overflow: hidden; 
+
+/* Titolo dell'unità interna (es. "Unità 1: PEARL") */
+.summary-indoor-unit-list li .ui-details-container p:first-child { 
+    font-weight: 500; 
+    color: var(--dark-color); 
+    font-size: 1em; 
+    margin-top: 0;
+    margin-bottom: 10px; 
+    padding-bottom: 6px; 
+    border-bottom: 1px solid #e5e5ea; 
 }
+
+/* Dettagli successivi (Codice, Potenza, ecc.) */
+.summary-indoor-unit-list li .ui-details-container p:not(:first-child) {
+    margin: 0 0 6px 0; 
+    font-size: 0.9em; 
+    line-height: 1.4;
+    display: flex;
+    justify-content: space-between;
+}
+.summary-indoor-unit-list li .ui-details-container p:not(:first-child):last-child {
+    margin-bottom: 0; 
+}
+
+.summary-indoor-unit-list li .ui-details-container p:not(:first-child) strong {
+    font-weight: 400; 
+    color: var(--secondary-color); /* Grigio etichette */
+    margin-right: 8px;
+    /* min-width: 90px; -- Rimosso per layout flex */
+    flex-shrink: 0;
+}
+.summary-indoor-unit-list li .ui-details-container p:not(:first-child) span { /* Contenitore per il valore */
+    color: var(--dark-color); /* Valore in colore scuro */
+    text-align: right;
+    font-weight: 400;
+}
+
+
+.summary-total {
+    margin-top: 25px; 
+    padding-top: 15px; 
+    border-top: 1px solid #d1d1d6; 
+    font-size: 1.2em; 
+    font-weight: 600; 
+    display: flex;
+    justify-content: space-between;
+    color: var(--dark-color);
+}
+.summary-total strong { /* Etichetta "Totale:" */
+    color: var(--dark-color); /* Stesso colore del valore per il totale */
+    font-weight: 600;
+}
+/* Span per il valore del prezzo totale è già gestito dal colore del .summary-total */
+
+
 .summary-actions {
     justify-content: flex-end; 
-    gap: 10px;
+    gap: 12px; /* Più spazio tra i bottoni */
+    margin-top: 30px;
 }
 .summary-section .brand-logo-print { 
     display: none; 
-    max-height: 40px;
-    max-width: 120px;
-    margin-bottom: 15px;
-    object-fit: contain;
 }
 
 .print-instructions {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #e9ecef;
-    border-radius: var(--border-radius);
-    font-size: 0.9em;
+    margin-top: 30px;
+    padding: 12px 15px;
+    background-color: #f2f2f7; /* Grigio chiaro Apple */
+    border-radius: 10px;
+    font-size: 0.85em;
     text-align: center;
+    color: var(--secondary-color);
+    border: 1px solid #e5e5ea;
 }
 
 @media print {
     body {
         padding-top: 0;
-        font-size: 9pt; /* Baseline font size for print */
+        font-size: 9pt; 
         color: #000;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Font sans-serif comune per stampa */
     }
     .app-header,
     .page-controls > h1:not(.print-main-title),
@@ -344,7 +452,7 @@
 
     #summary-main-title.print-main-title { 
         display: block !important;
-        font-size: 16pt !important; /* Titolo principale del riepilogo */
+        font-size: 16pt !important; 
         text-align: center !important;
         margin-top: 0 !important;
         margin-bottom: 0.8cm !important;
@@ -353,7 +461,7 @@
         color: #000 !important; 
     }
      
-    .page-controls > h1.print-main-title { /* Fallback se usato h1 del container */
+    .page-controls > h1.print-main-title { 
         display: block !important;
         font-size: 18pt !important;
         color: #000 !important; 
@@ -366,80 +474,79 @@
     }
 
 
-    .container.configurator-container {
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
-        max-width: 100%;
-        background-color: transparent;
-    }
-    .config-step {
-        display: none !important;
-        border: none;
-        padding: 0;
-        margin:0;
+    .container.configurator-container, .config-step {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin:0 !important;
+        max-width: 100% !important;
+        background-color: transparent !important;
+        border: none !important;
     }
     .config-step#step-6 { 
         display: block !important;
-        page-break-before: auto;
     }
     .summary-section {
-        border: none;
-        padding: 0;
-        box-shadow: none;
-        font-size: 9pt; /* Eredita da body ma può essere specificato */
+        font-size: 9pt; 
     }
     .summary-section h3 { 
         font-size: 11pt; 
-        color: #000;
-        border-bottom: 1px solid #555;
+        color: #000 !important; 
+        border-bottom: 1px solid #555 !important; 
         margin-top: 0.5cm;
         margin-bottom: 0.3cm;
         padding-bottom: 3px;
     }
-    .summary-section .brand-logo-print { 
-        display: block !important;
-        margin: 0 auto 0.5cm auto; /* Centra il logo */
-    }
+    
     .summary-item {
-        margin-bottom: 5px; /* Spazio ridotto per print */
+        margin-bottom: 4px; 
         line-height: 1.3;
+        font-size: 8.5pt;
     }
-    .summary-item strong { width: 140px; color: #000; display: inline-block;}
+    .summary-item strong { width: 120px; color: #000; font-weight: 500;}
+    .summary-item span { font-weight: normal; }
+
     .summary-total { 
-        font-size: 11pt;
+        font-size: 10pt;
         margin-top: 0.5cm;
         padding-top: 0.3cm;
+        color: #000 !important;
      }
-    .summary-total strong { color: #000;}
+    .summary-total strong { color: #000 !important;}
 
     .summary-indoor-unit-list li {
-        background-color: #f0f0f0 !important; /* Importante per sovrascrivere */
+        background-color: #f8f8f8 !important; 
         border: 1px solid #ccc !important;
         font-size: 8.5pt !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        margin-bottom: 5px !important; 
-        padding: 5px !important;
+        margin-bottom: 6px !important; 
+        padding: 6px 8px !important; 
+        border-radius: 4px !important; 
     }
-    .summary-indoor-unit-list li img {
-        display: block !important; 
-        max-width: 45px !important; 
-        max-height: 35px !important;
-        border: 1px solid #ccc !important;
-        margin-bottom: 3px; /* Se sopra testo */
+    
+    .summary-indoor-unit-list li .ui-details-container p {
+        font-size: 8pt !important; 
+        margin-bottom: 2px !important;
+        color: #000 !important; 
     }
+    .summary-indoor-unit-list li .ui-details-container p:first-child {
+        font-size: 8.5pt !important; 
+        margin-bottom: 4px !important; 
+        padding-bottom: 2px !important;
+        border-bottom-color: #ddd !important; 
+        color: #000 !important;
+        font-weight: 500 !important;
+    }
+    .summary-indoor-unit-list li .ui-details-container p:not(:first-child) strong {
+        color: #333 !important; 
+        font-weight: 500 !important;
+    }
+    .summary-indoor-unit-list li .ui-details-container p:not(:first-child) span {
+        font-weight: normal !important;
+    }
+
      .summary-indoor-unit-list li .ui-details-container {
-        line-height: 1.25; /* Leggermente più compatto */
+        line-height: 1.25; 
     }
 }
-
-* {
-  transition: all 0.2s ease-in-out;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  letter-spacing: -0.01em;
-}
+/* END OF FILE configurator-style.css */
