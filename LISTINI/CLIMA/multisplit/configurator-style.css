@@ -252,7 +252,7 @@
 /* Summary Section */
 .summary-section {
     background-color: #fff;
-    padding: 15px; /* MODIFIED */
+    padding: 15px; 
     border-radius: var(--border-radius);
     border: 1px solid #e0e0e0;
 }
@@ -260,26 +260,26 @@
     color: var(--primary-color);
     margin-top: 0;
     border-bottom: 1px solid #eee;
-    padding-bottom: 6px; /* MODIFIED */
-    margin-bottom: 8px; /* MODIFIED */
-    font-size: 1.1em; /* MODIFIED */
+    padding-bottom: 6px; 
+    margin-bottom: 8px; 
+    font-size: 1.1em; 
 }
 .summary-item {
-    margin-bottom: 5px; /* MODIFIED */
-    font-size: 0.9em; /* MODIFIED */
-    line-height: 1.3; /* MODIFIED */
+    margin-bottom: 5px; 
+    font-size: 0.9em; 
+    line-height: 1.3; 
 }
 .summary-item strong {
     color: var(--dark-color);
     display: inline-block;
     width: 180px; 
-    vertical-align: top; /* ADDED */
+    vertical-align: top; 
 }
 .summary-total {
-    margin-top: 12px; /* MODIFIED */
-    padding-top: 10px; /* MODIFIED */
+    margin-top: 12px; 
+    padding-top: 10px; 
     border-top: 2px solid var(--primary-color);
-    font-size: 1.2em; /* MODIFIED */
+    font-size: 1.2em; 
     font-weight: bold;
 }
 .summary-indoor-unit-list {
@@ -287,20 +287,20 @@
     list-style: none;
 }
 .summary-indoor-unit-list li {
-    margin-bottom: 6px; /* MODIFIED */
-    padding: 8px; /* MODIFIED */
+    margin-bottom: 6px; 
+    padding: 8px; 
     background-color: #f8f9fa;
     border-radius: var(--border-radius);
     border: 1px solid #eee;
-    overflow: auto; /* To contain floated image */
-    font-size: 0.9em; /* ADDED */
-    line-height: 1.3; /* ADDED */
+    overflow: auto; 
+    font-size: 0.9em; 
+    line-height: 1.3; 
 }
 .summary-indoor-unit-list li img {
-    max-width: 50px; /* MODIFIED */
-    max-height: 40px; /* MODIFIED */
+    max-width: 40px; /* MODIFIED */
+    max-height: 30px; /* MODIFIED */
     float: left;
-    margin-right: 8px; /* MODIFIED */
+    margin-right: 6px; /* MODIFIED */
     border: 1px solid #eee;
     object-fit: contain;
 }
@@ -331,7 +331,7 @@
 @media print {
     body {
         padding-top: 0;
-        font-size: 9pt; /* Baseline font size for print */
+        font-size: 9pt; 
         color: #000;
     }
     .app-header,
@@ -344,7 +344,7 @@
 
     #summary-main-title.print-main-title { 
         display: block !important;
-        font-size: 16pt !important; /* Titolo principale del riepilogo */
+        font-size: 16pt !important; 
         text-align: center !important;
         margin-top: 0 !important;
         margin-bottom: 0.8cm !important;
@@ -353,7 +353,7 @@
         color: #000 !important; 
     }
      
-    .page-controls > h1.print-main-title { /* Fallback se usato h1 del container */
+    .page-controls > h1.print-main-title { 
         display: block !important;
         font-size: 18pt !important;
         color: #000 !important; 
@@ -387,7 +387,7 @@
         border: none;
         padding: 0;
         box-shadow: none;
-        font-size: 9pt; /* Eredita da body ma può essere specificato */
+        font-size: 9pt; 
     }
     .summary-section h3 { 
         font-size: 11pt; 
@@ -399,10 +399,10 @@
     }
     .summary-section .brand-logo-print { 
         display: block !important;
-        margin: 0 auto 0.5cm auto; /* Centra il logo */
+        margin: 0 auto 0.5cm auto; 
     }
     .summary-item {
-        margin-bottom: 5px; /* Spazio ridotto per print */
+        margin-bottom: 5px; 
         line-height: 1.3;
     }
     .summary-item strong { width: 140px; color: #000; display: inline-block;}
@@ -414,7 +414,7 @@
     .summary-total strong { color: #000;}
 
     .summary-indoor-unit-list li {
-        background-color: #f0f0f0 !important; /* Importante per sovrascrivere */
+        background-color: #f0f0f0 !important; 
         border: 1px solid #ccc !important;
         font-size: 8.5pt !important;
         -webkit-print-color-adjust: exact !important;
@@ -427,9 +427,9 @@
         max-width: 45px !important; 
         max-height: 35px !important;
         border: 1px solid #ccc !important;
-        margin-bottom: 3px; /* Se sopra testo */
+        margin-bottom: 3px; 
     }
      .summary-indoor-unit-list li .ui-details-container {
-        line-height: 1.25; /* Leggermente più compatto */
+        line-height: 1.25; 
     }
 }
