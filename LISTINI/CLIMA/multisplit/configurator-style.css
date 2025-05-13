@@ -10,9 +10,9 @@
     --border-radius: 8px;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
-    --header-height: 65px; /* Assicurati che sia definito se usato altrove */
-    --sticky-offset: calc(var(--header-height) + 10px); /* Assicurati che sia definito se usato altrove */
-    --summary-gap: 20px; /* Gap per le card del riepilogo */
+    --header-height: 65px;
+    --sticky-offset: calc(var(--header-height) + 10px);
+    --summary-gap: 15px; /* Gap ridotto per le card del riepilogo */
 }
 
 .configurator-container {
@@ -31,7 +31,7 @@
     margin-bottom: 25px;
 }
 
-#step-6.config-step { /* Rimuove lo stile card dal contenitore principale dello step riepilogo */
+#step-6.config-step {
     border: none;
     background-color: transparent;
     box-shadow: none;
@@ -59,7 +59,7 @@
 /* Step Indicator */
 .step-indicator {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-start; /* Mantiene i dot in alto */
     justify-content: space-between;
     margin-bottom: 35px;
     padding: 0 10px;
@@ -73,6 +73,8 @@
     flex-basis: 0;
     flex-grow: 1;
     max-width: 15%;
+    position: relative;
+    padding-bottom: 30px; /* Spazio per info sotto, aumentato leggermente */
 }
 .step-item.disabled {
     cursor: not-allowed; opacity: 0.6;
@@ -86,7 +88,40 @@
     font-size: 0.75em; color: var(--secondary-color); font-weight: 500;
     line-height: 1.2; overflow-wrap: break-word;
     word-break: break-word;
+    margin-bottom: 5px; /* Spazio tra nome step e info selezione */
 }
+
+/* Stili per le informazioni di selezione sotto gli step */
+.step-selection-info {
+    display: block;
+    font-size: 0.68em; /* Ancora più piccolo */
+    color: var(--secondary-color);
+    margin-top: 3px;
+    line-height: 1.15;
+    height: 2.5em; /* Altezza per 2 righe di testo piccolo, aggiusta se necessario */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Non sempre efficace con overflow y */
+    /* white-space: nowrap; Se vuoi forzare una singola riga con ellipsis */
+    font-weight: 500;
+    width: 100%; /* Occupa tutta la larghezza dell'item per centrare meglio il testo */
+}
+.step-item.active .step-selection-info,
+.step-item.completed .step-selection-info {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+.step-item.completed .step-selection-info {
+    color: #1f7532;
+}
+.step-selection-info img.step-info-logo {
+    max-height: 22px; /* Leggermente aumentata */
+    max-width: 90%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+
 .step-item.active .step-dot, .step-dot.active { background-color: var(--primary-color); }
 .step-item.active .step-name { color: var(--primary-color); font-weight: bold; }
 .step-item.completed .step-dot, .step-dot.completed { background-color: #28a745; }
@@ -98,7 +133,6 @@
 }
 .step-line.active { background-color: var(--primary-color); }
 
-/* Griglia per selezione brand e modelli */
 .selection-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -106,7 +140,6 @@
     margin-bottom: 20px;
 }
 
-/* Stili per gli item nella .selection-grid (brand, modelli UI) */
 .selection-item {
     padding: 15px; border: 2px solid #e0e0e0; border-radius: var(--border-radius);
     text-align: center; cursor: pointer; transition: all 0.3s ease;
@@ -124,48 +157,15 @@
     font-weight: bold; box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1);
     transform: translateY(0);
 }
-
-.selection-item img.brand-logo {
-    max-height: 80px;
-    max-width: 170px;
-    margin-bottom: 10px;
-    object-fit: contain;
-}
-
-#model-selection .selection-item { /* Per card selezione modello UI */
-    min-height: 180px;
-    justify-content: space-around;
-}
-
-.selection-item img.series-logo { /* Per immagine modello UI */
-    max-height: 120px;
-    max-width: 100%;
-    object-fit: contain;
-    margin-bottom: 10px;
-    border-radius: 4px;
-}
-
+.selection-item img.brand-logo { max-height: 80px; max-width: 170px; margin-bottom: 10px; object-fit: contain; }
+#model-selection .selection-item { min-height: 180px; justify-content: space-around; }
+.selection-item img.series-logo { max-height: 120px; max-width: 100%; object-fit: contain; margin-bottom: 10px; border-radius: 4px; }
 .selection-item.series-selection-item span,
-#model-selection .selection-item span { /* Testo per modello UI */
-    font-size: 1.1em;
-    font-weight: bold;
-    line-height: 1.3;
-    color: var(--dark-color);
-    margin-top: 5px;
-}
+#model-selection .selection-item span { font-size: 1.1em; font-weight: bold; line-height: 1.3; color: var(--dark-color); margin-top: 5px; }
 
-.step-navigation {
-    display: flex; justify-content: space-between; margin-top: 30px;
-    padding-top: 20px; border-top: 1px solid #eee; min-height: 42px;
-}
-.step-navigation button {
-    padding: 10px 20px; font-size: 1em; border-radius: var(--border-radius);
-    cursor: pointer; border: 1px solid transparent;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-.step-navigation button:disabled {
-    background-color: #e9ecef; color: #6c757d; cursor: not-allowed; border-color: #ced4da;
-}
+.step-navigation { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; min-height: 42px; }
+.step-navigation button { padding: 10px 20px; font-size: 1em; border-radius: var(--border-radius); cursor: pointer; border: 1px solid transparent; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+.step-navigation button:disabled { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; border-color: #ced4da; }
 .step-navigation .prev-btn { background-color: var(--secondary-color); color: white; }
 .step-navigation .prev-btn:hover:not(:disabled) { background-color: #5a6268; }
 .step-navigation .next-btn, #print-summary-btn, #reset-config-btn { background-color: var(--primary-color); color: white; }
@@ -173,8 +173,6 @@
 #reset-config-btn { background-color: var(--danger-color); }
 #reset-config-btn:hover { background-color: #c82333; }
 
-
-/* === STILI GENERICI PER GRIGLIA DI CARD DI SELEZIONE (UE e UI) === */
 #indoor-units-selection-area,
 #outdoor-unit-selection {
     display: grid;
@@ -185,127 +183,43 @@
 
 #outdoor-unit-selection .unit-selection-card,
 #indoor-units-selection-area .indoor-unit-slot {
-    padding: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    background-color: var(--background-color);
-    box-shadow: var(--card-shadow);
-    display: flex;
-    flex-direction: column;
-    text-align: left;
-    justify-content: flex-start;
-    min-height: auto;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    padding: 20px; border: 1px solid #e0e0e0; border-radius: var(--border-radius);
+    background-color: var(--background-color); box-shadow: var(--card-shadow);
+    display: flex; flex-direction: column; text-align: left;
+    justify-content: flex-start; min-height: auto; cursor: pointer; transition: all 0.3s ease;
 }
-
 #outdoor-unit-selection .unit-selection-card:hover:not(.selected),
 #indoor-units-selection-area .indoor-unit-slot:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15);
-    transform: translateY(-2px);
+    border-color: var(--primary-color); box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15); transform: translateY(-2px);
 }
 #outdoor-unit-selection .unit-selection-card.selected {
-    border-color: var(--primary-color);
-    background-color: #e6f0fa;
-    box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1);
-    transform: translateY(0);
+    border-color: var(--primary-color); background-color: #e6f0fa;
+    box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1); transform: translateY(0);
 }
 
-/* Contenuto interno delle CARD PER UNITÀ ESTERNE */
-#outdoor-unit-selection .unit-selection-card .unit-info {
-    width: 100%;
-}
-#outdoor-unit-selection .unit-selection-card .unit-info h4 {
-    margin: 0 0 10px 0;
-    font-size: 1.15em;
-    color: var(--dark-color);
-}
-#outdoor-unit-selection .unit-selection-card .unit-info p {
-    margin: 5px 0 10px 0;
-    font-size: 0.9em;
-    color: var(--secondary-color);
-    line-height: 1.45;
-    word-break: break-word;
-}
-#outdoor-unit-selection .unit-selection-card .unit-info p strong {
-    color: var(--dark-color);
-}
-#outdoor-unit-selection .unit-selection-card .unit-info .unit-price {
-    font-weight: bold;
-    color: var(--primary-color);
-    font-size: 1.05em;
-    margin-top: 12px;
-}
+#outdoor-unit-selection .unit-selection-card .unit-info { width: 100%; }
+#outdoor-unit-selection .unit-selection-card .unit-info h4 { margin: 0 0 10px 0; font-size: 1.15em; color: var(--dark-color); }
+#outdoor-unit-selection .unit-selection-card .unit-info p { margin: 5px 0 10px 0; font-size: 0.9em; color: var(--secondary-color); line-height: 1.45; word-break: break-word; }
+#outdoor-unit-selection .unit-selection-card .unit-info p strong { color: var(--dark-color); }
+#outdoor-unit-selection .unit-selection-card .unit-info .unit-price { font-weight: bold; color: var(--primary-color); font-size: 1.05em; margin-top: 12px; }
 #outdoor-unit-selection .unit-selection-card .unit-info .energy-class-container p { margin-bottom: 10px; }
 
-
-/* Contenuto interno delle CARD PER UNITÀ INTERNE (Step 5) */
-#indoor-units-selection-area .indoor-unit-slot label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: 500;
-    color: var(--dark-color);
-    font-size: 1.05em;
-}
-#indoor-units-selection-area .indoor-unit-slot label strong {
-    color: var(--primary-color);
-}
-#indoor-units-selection-area .indoor-unit-slot select {
-    width: 100%;
-    padding: 12px;
-    border-radius: var(--border-radius);
-    border: 1px solid #ccc;
-    font-size: 1em;
-    box-sizing: border-box;
-    margin-bottom: 15px;
-}
-#indoor-units-selection-area .indoor-unit-slot select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2);
-}
-#indoor-units-selection-area .indoor-unit-slot .unit-details {
-    font-size: 0.88em;
-    color: var(--secondary-color);
-    margin-top: 10px;
-    min-height: 110px;
-}
-#indoor-units-selection-area .indoor-unit-slot .unit-details p {
-    margin-top: 3px;
-    margin-bottom: 9px;
-    line-height: 1.35;
-    word-break: break-word;
-}
-#indoor-units-selection-area .indoor-unit-slot .unit-details p strong {
-    color: var(--dark-color);
-}
-#indoor-units-selection-area .indoor-unit-slot .unit-details > *:last-child {
-    margin-bottom: 0;
-}
+#indoor-units-selection-area .indoor-unit-slot label { display: block; margin-bottom: 10px; font-weight: 500; color: var(--dark-color); font-size: 1.05em; }
+#indoor-units-selection-area .indoor-unit-slot label strong { color: var(--primary-color); }
+#indoor-units-selection-area .indoor-unit-slot select { width: 100%; padding: 12px; border-radius: var(--border-radius); border: 1px solid #ccc; font-size: 1em; box-sizing: border-box; margin-bottom: 15px; }
+#indoor-units-selection-area .indoor-unit-slot select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2); }
+#indoor-units-selection-area .indoor-unit-slot .unit-details { font-size: 0.88em; color: var(--secondary-color); margin-top: 10px; min-height: 80px; /* Ridotta min-height dato che non c'è più l'immagine */}
+#indoor-units-selection-area .indoor-unit-slot .unit-details p { margin-top: 3px; margin-bottom: 8px; line-height: 1.35; word-break: break-word; } /* Margine p ridotto */
+#indoor-units-selection-area .indoor-unit-slot .unit-details p strong { color: var(--dark-color); }
+#indoor-units-selection-area .indoor-unit-slot .unit-details > *:last-child { margin-bottom: 0; }
+/* Immagine rimossa, quindi questo selettore non è più necessario o può essere nascosto */
 #indoor-units-selection-area .ui-details-img {
-    background: transparent !important;
-    display: block;
-    margin: 10px auto 0 auto;
-    max-width: 120px;
-    max-height: 80px;
-    object-fit: contain;
-    border: 1px solid #eee;
-    border-radius: var(--border-radius);
+    display: none !important;
 }
+#outdoor-unit-selection .unit-selection-card img.main-unit-image { display: block; max-width: 150px; max-height: 120px; object-fit: contain; margin: 0 auto 15px auto; border: 1px solid #f0f0f0; border-radius: var(--border-radius); }
 
-#outdoor-unit-selection .unit-selection-card img.main-unit-image { /* Immagine principale UE se diversa da dettagli */
-    display: block;
-    max-width: 150px;
-    max-height: 120px;
-    object-fit: contain;
-    margin: 0 auto 15px auto;
-    border: 1px solid #f0f0f0;
-    border-radius: var(--border-radius);
-}
-
-/* === STILI PER IL RIEPILOGO (STEP 6) A CARD AFFIANCATE === */
-.summary-section { /* Contenitore principale del riepilogo */
+/* === STILI PER IL RIEPILOGO (STEP 6) A CARD AFFIANCATE - SPAZI RIDOTTI === */
+.summary-section {
     display: flex;
     flex-wrap: wrap;
     gap: var(--summary-gap);
@@ -318,45 +232,65 @@
 .summary-block,
 .summary-total {
     background-color: var(--background-color);
-    padding: 20px;
+    padding: 15px; /* Padding ridotto */
     border-radius: var(--border-radius);
     border: 1px solid #e0e0e0;
     box-shadow: var(--card-shadow);
-    margin-bottom: 0; /* Gestito da gap */
+    margin-bottom: 0;
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: calc(50% - (var(--summary-gap) / 2));
-    min-width: 300px;
+    min-width: 280px;
     box-sizing: border-box;
 }
 
-.summary-block.full-width-summary { /* Classe opzionale per blocco UI a larghezza piena */
+.summary-block.full-width-summary {
     flex-basis: 100%;
     min-width: 100%;
 }
 
 .summary-block h3 {
-    color: var(--primary-color); margin-top: 0; border-bottom: 1px solid #eee;
-    padding-bottom: 10px; margin-bottom: 15px; font-size: 1.2em;
+    padding-bottom: 8px;
+    margin-bottom: 12px; /* Leggermente aumentato per stacco */
+    font-size: 1.1em; /* Ridotto */
 }
-.summary-block h4 { font-size: 1.1em; margin-top: 0; margin-bottom: 8px; color: var(--dark-color); }
-.summary-item { margin-bottom: 10px; font-size: 1em; line-height: 1.5; }
-.summary-item strong { color: var(--dark-color); display: inline-block; width: auto; margin-right: 8px; font-weight: 500; }
+.summary-block h4 {
+    font-size: 1em; /* Ridotto */
+    margin-bottom: 6px;
+}
+.summary-item {
+    margin-bottom: 6px;
+    font-size: 0.9em; /* Ridotto */
+    line-height: 1.35;
+}
+.summary-item strong {
+    margin-right: 5px;
+    font-weight: 500; /* Leggermente meno bold */
+}
 
-.summary-indoor-unit { padding: 15px 0; border-bottom: 1px dashed #ddd; margin-bottom: 15px; }
+.summary-indoor-unit {
+    padding: 10px 0 8px 0; /* Padding ridotto */
+    border-bottom: 1px dashed #e0e0e0; /* Bordo più leggero */
+    margin-bottom: 8px; /* Margine ridotto */
+}
 .summary-indoor-unit:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-.summary-indoor-unit h4 { margin-bottom: 10px; }
+.summary-indoor-unit h4 {
+    font-size: 0.95em; /* Ridotto */
+    margin-bottom: 6px;
+}
+/* Immagine rimossa, quindi questo selettore non è più necessario o può essere nascosto */
 .summary-indoor-unit img.summary-ui-img {
-    max-width: 100px; max-height: 80px; float: right; margin-left: 15px;
-    object-fit: contain; border: 1px solid #eee; background: transparent !important; border-radius: 4px;
+    display: none !important;
 }
 
 .summary-total {
     border-top: 2px solid var(--primary-color);
-    /* flex-basis: 100%; se si vuole sempre a larghezza piena */
+    padding-top: 15px; /* Padding per il totale */
 }
-.summary-total p { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
-.summary-total p:last-child { margin-bottom: 0; }
+.summary-total p {
+    font-size: 1.1em; /* Ridotto */
+    margin-bottom: 4px;
+}
 .summary-total strong { color: var(--primary-color); width: auto; margin-right: 8px; }
 /* === FINE STILI PER IL RIEPILOGO === */
 
@@ -380,7 +314,7 @@
 #admin-brand-form .form-control { width: calc(100% - 16px); padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 #admin-brand-form button { margin-top:10px; }
 
-/* === Stili per Classe Energetica nelle Card (globali per .unit-selection-card .unit-info) === */
+/* === Stili per Classe Energetica nelle Card === */
 .unit-selection-card .unit-info .energy-class-container p { margin-top: 4px; margin-bottom: 8px; line-height: 1.5; }
 .unit-selection-card .unit-info .energy-class-label { font-weight: normal; color: var(--secondary-color); margin-right: 5px; font-size: 0.9em; }
 .unit-selection-card .unit-info .energy-rating { display: inline-block; padding: 2px 8px; border-radius: var(--border-radius); color: white; font-size: 0.85em; font-weight: bold; margin: 0 2px; min-width: 30px; text-align: center; line-height: 1.4; vertical-align: middle; }
@@ -402,31 +336,32 @@
     .config-step#step-6 { display: block !important; }
 
     .summary-section {
-        display: block !important; /* Layout a blocchi impilati per stampa */
+        display: block !important;
         border: none; padding: 0; box-shadow: none; font-size: 9pt !important;
-        gap: 0 !important; /* Rimuovi gap per stampa se non desiderato */
+        gap: 0 !important;
     }
     .summary-block, .summary-total {
         border: 1px solid #ccc !important;
-        padding: 0.3cm !important;
+        padding: 0.25cm !important; /* Padding ridotto per stampa */
         box-shadow: none !important;
         background-color: #fff !important;
-        margin-bottom: 0.4cm !important;
+        margin-bottom: 0.3cm !important; /* Margine ridotto tra card in stampa */
         page-break-inside: avoid !important;
-        width: 100% !important; /* Occupa tutta la larghezza in stampa */
-        flex-basis: auto !important; /* Resetta flex per stampa */
-        min-width: 0 !important; /* Resetta min-width per stampa */
+        width: 100% !important;
+        flex-basis: auto !important;
+        min-width: 0 !important;
         box-sizing: border-box !important;
     }
-    .summary-block h3 { font-size: 11pt !important; color: #000 !important; border-bottom: 1px solid #666 !important; margin-top: 0; margin-bottom: 0.2cm; padding-bottom: 2px; font-weight: bold; }
-    .summary-block p { margin: 3px 0; line-height: 1.35; }
-    .summary-block p strong { font-weight: bold !important; color: #000 !important; width: auto; display: inline; margin-right: 5px; }
+    .summary-block h3 { font-size: 10pt !important; margin-bottom: 0.15cm; padding-bottom: 1.5px;} /* Ridotto font e spazi h3 riepilogo stampa */
+    .summary-block h4 { font-size: 9.5pt !important; margin-bottom: 0.1cm; } /* Ridotto font e spazi h4 riepilogo stampa */
+    .summary-block p { margin: 2px 0; line-height: 1.3; font-size: 8.5pt;} /* Ridotto font e spazi p riepilogo stampa */
+    .summary-block p strong { font-weight: bold !important; color: #000 !important; width: auto; display: inline; margin-right: 4px; }
 
-    .summary-indoor-unit { page-break-inside: avoid !important; border-bottom-color: #ddd !important; }
-    .summary-indoor-unit h4 { font-size: 10pt; margin-bottom: 3px; font-weight: bold;}
-    .summary-indoor-unit img.summary-ui-img { max-width: 80px !important; max-height: 70px !important; border: 1px solid #ccc !important; margin-left: 8px !important; background: transparent !important;}
+    .summary-indoor-unit { page-break-inside: avoid !important; border-bottom-color: #ddd !important; padding: 0.15cm 0 !important; margin-bottom: 0.15cm !important;}
+    .summary-indoor-unit h4 { font-size: 9pt; margin-bottom: 2px; }
+    .summary-indoor-unit img.summary-ui-img { display: none !important; } /* Nascoste esplicitamente in stampa */
 
-    .summary-total { margin-top: 0.2cm; padding-top: 0.3cm; font-size: 11pt !important; border-top: 1.5px solid #000 !important; }
-    .summary-total p { margin: 4px 0; }
+    .summary-total { margin-top: 0.2cm; padding-top: 0.2cm; font-size: 10pt !important; } /* Ridotto font e spazi totali stampa */
+    .summary-total p { margin: 3px 0; }
     .summary-total strong { color: #000 !important; font-weight: bold;}
 }
