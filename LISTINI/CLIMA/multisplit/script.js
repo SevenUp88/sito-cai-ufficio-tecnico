@@ -467,18 +467,15 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     for (let i = 0; i < selections.configType.numUnits; i++) {
         const slotDiv = document.createElement('div');
         slotDiv.classList.add('indoor-unit-slot');
-        // Stili inline rimossi: slotDiv.style.marginBottom, paddingBottom, borderBottom
 
         const label = document.createElement('label');
         label.htmlFor = `indoor-unit-select-${i}`;
         label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`;
-        // Stile inline rimosso: label.style.cssText
         slotDiv.appendChild(label);
 
         const select = document.createElement('select');
         select.id = `indoor-unit-select-${i}`;
         select.dataset.index = i;
-        // Stile inline rimosso: select.style.cssText
 
         const placeholder = document.createElement('option');
         placeholder.value = "";
@@ -495,37 +492,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
 
         const detailsDiv = document.createElement('div');
         detailsDiv.classList.add('unit-details');
-        // Stile inline rimosso: detailsDiv.style.cssText
-
-        if (selections.indoorUnits[i]) {
-            const cui = selections.indoorUnits[i];
-            // Stile inline rimosso dall'immagine, ora gestito da .ui-details-img nel CSS
-            detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" alt="Immagine ${cui.modelCode}" class="ui-details-img">` : ''}`;
-        }
-
-        select.addEventListener('change', (e) => {
-            const selId = e.target.value;
-            const idx = parseInt(e.target.dataset.index);
-            const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
-            selections.indoorUnits[idx] = selUI || null;
-
-            if (selUI) {
-                // Stile inline rimosso dall'immagine
-                detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" alt="Immagine ${selUI.modelCode}" class="ui-details-img">` : ''}`;
-            } else {
-                detailsDiv.innerHTML = '';
-            }
-            checkAllIndoorUnitsSelected();
-        });
-
-        slotDiv.appendChild(select);
-        slotDiv.appendChild(detailsDiv);
-        indoorUnitsSelectionArea.appendChild(slotDiv);
-    }
-    checkAllIndoorUnitsSelected();
-}
-const detailsDiv = document.createElement('div');
-        detailsDiv.classList.add('unit-details');
 
         // Funzione helper per generare l'HTML dei dettagli
         const generateDetailsHtml = (unit) => {
@@ -538,7 +504,10 @@ const detailsDiv = document.createElement('div');
             if (unit.weight && unit.weight !== "N/A" && unit.weight !== "N/D") {
                 html += `<p>Peso: <strong>${unit.weight} kg</strong></p>`;
             }
-            html += `${unit.image ? `<img src="${unit.image}" alt="Immagine ${unit.modelCode || 'UI'}" class="ui-details-img">` : ''}`;
+            // CORREZIONE QUI: Assicurarsi che le virgolette per alt e src siano corrette
+            if (unit.image) {
+                 html += `<img src="${unit.image}" alt="Immagine ${unit.modelCode || 'UI'}" class="ui-details-img">`;
+            }
             return html;
         };
 
@@ -555,6 +524,13 @@ const detailsDiv = document.createElement('div');
             detailsDiv.innerHTML = generateDetailsHtml(selUI);
             checkAllIndoorUnitsSelected();
         });
+
+        slotDiv.appendChild(select);
+        slotDiv.appendChild(detailsDiv);
+        indoorUnitsSelectionArea.appendChild(slotDiv);
+    }
+    checkAllIndoorUnitsSelected();
+}
     // MODIFICATA PER RIMUOVERE "Somma Potenza Nominale UI" E CAMBIARE TESTO PREZZO TOTALE
     function generateSummary() {
         console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
