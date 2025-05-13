@@ -498,7 +498,54 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
             selections.outdoorUnit = null;
         }
     }
+function updateStepSelectionInfo() {
+        const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
 
+        const stepInfo1 = document.getElementById('step-info-1');
+        if (stepInfo1) {
+            if (selections.brand && selections.brand.logo) {
+                stepInfo1.innerHTML = `<img src="${S(selections.brand.logo)}" alt="${S(selections.brand.name)}" class="step-info-logo">`;
+            } else if (selections.brand && selections.brand.name) {
+                stepInfo1.textContent = S(selections.brand.name);
+            } else {
+                stepInfo1.innerHTML = ' '; // Placeholder se nulla è selezionato
+            }
+        }
+
+        const stepInfo2 = document.getElementById('step-info-2');
+        if (stepInfo2) {
+            stepInfo2.textContent = selections.configType ? S(selections.configType.name) : '';
+            if (stepInfo2.textContent === '') stepInfo2.innerHTML = ' ';
+        }
+
+        const stepInfo3 = document.getElementById('step-info-3');
+        if (stepInfo3) {
+            stepInfo3.textContent = selections.indoorSeries ? S(selections.indoorSeries.name) : '';
+            if (stepInfo3.textContent === '') stepInfo3.innerHTML = ' ';
+        }
+
+        const stepInfo4 = document.getElementById('step-info-4');
+        if (stepInfo4) {
+            stepInfo4.textContent = selections.outdoorUnit ? `${S(selections.outdoorUnit.kw)}kW` : '';
+            if (stepInfo4.textContent === '') stepInfo4.innerHTML = ' ';
+        }
+        
+        const stepInfo5 = document.getElementById('step-info-5');
+         if (stepInfo5) {
+            if (selections.configType && selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null)) {
+                stepInfo5.textContent = 'Selezionate';
+            } else if (selections.outdoorUnit) { // Mostra "Da selez." solo se lo step precedente è completo
+                stepInfo5.textContent = 'Da selez.';
+            } else {
+                stepInfo5.innerHTML = ' ';
+            }
+        }
+
+        const stepInfo6 = document.getElementById('step-info-6');
+        if (stepInfo6) { // Per lo step riepilogo, potresti non voler mostrare nulla o "Pronto"
+             stepInfo6.innerHTML = ' '; // O ''
+        }
+    }
     function populateIndoorUnitSelectors() {
     indoorUnitsSelectionArea.innerHTML = '';
     if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
