@@ -213,72 +213,104 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- UI Element Creation Helper Functions ---
     function createSelectionItem(item, type, clickHandler, isSelected = false) {
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('selection-item');
-        if (isSelected) itemDiv.classList.add('selected');
-        itemDiv.dataset[type + 'Id'] = item.id;
-        let logoSrc = '';
-        if (type === 'brand' && item.logo) {
-            logoSrc = item.logo;
-        } else if (type === 'series' && item.image) {
-            logoSrc = item.image;
-            itemDiv.classList.add('series-selection-item');
-        }
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = item.name;
+    const itemDiv = document.createElement('div');
+    itemDiv.classList.add('selection-item');
+    if (isSelected) itemDiv.classList.add('selected');
 
-        if (logoSrc) {
-            const logoImg = document.createElement('img');
-            logoImg.src = logoSrc;
-            // Sanificazione per attributo alt
-            const safeItemNameForAlt = String(item.name || type || '').replace(/`/g, "'");
-            logoImg.alt = `${safeItemNameForAlt} Immagine`;
-            if (type === 'brand') logoImg.classList.add('brand-logo');
-            if (type === 'series') logoImg.classList.add('series-logo');
-            logoImg.onload = () => { if (type === 'brand') nameSpan.style.display = 'none'; };
-            logoImg.onerror = () => {
-                console.warn(`DEBUG: Errore caricamento ${type} immagine ${logoSrc} per '${safeItemNameForAlt}'`);
-                logoImg.style.display = 'none';
-                nameSpan.style.display = 'block';
-            };
-            itemDiv.appendChild(logoImg);
-            if (type === 'brand') nameSpan.style.display = 'none';
-        } else {
-            nameSpan.style.display = 'block';
-        }
-        itemDiv.appendChild(nameSpan);
-        itemDiv.addEventListener('click', () => {
-            if (itemDiv.parentElement) {
-                itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));
-            }
-            itemDiv.classList.add('selected');
-            clickHandler(item);
-        });
-        return itemDiv;
+    // Usare setAttribute per maggiore sicurezza con gli ID
+    if (item && item.id != null) { // Controlla che item e item.id esistano
+        itemDiv.setAttribute('data-' + type + '-id', String(item.id));
     }
+
+
+    let logoSrc = '';
+    if (type === 'brand' && item && item.logo) { // Controlla che item esista
+        logoSrc = item.logo;
+    } else if (type === 'series' && item && item.image) { // Controlla che item esista
+        logoSrc = item.image;
+        itemDiv.classList.add('series-selection-item');
+    }
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = (item && item.name) ? String(item.name) : ''; // Usa textContent e controlla esistenza
+
+    if (logoSrc) {
+        const logoImg = document.createElement('img');
+        logoImg.src = String(logoSrc); // Assicura sia stringa
+
+        // Impostare alt in modo sicuro
+        let altText = "Immagine";
+        if (item && item.name) {
+            altText = String(item.name) + " Immagine";
+        } else if (type) {
+            altText = String(type) + " Immagine";
+        }
+        logoImg.alt = altText;
+
+
+        if (type === 'brand') logoImg.classList.add('brand-logo');
+        if (type === 'series') logoImg.classList.add('series-logo');
+
+        logoImg.onload = () => {
+            if (type === 'brand' && nameSpan) nameSpan.style.display = 'none';
+        };
+        logoImg.onerror = () => {
+            console.warn(`DEBUG: Errore caricamento ${type} immagine ${logoSrc} per '${altText}'`);
+            if (logoImg) logoImg.style.display = 'none';
+            if (nameSpan) nameSpan.style.display = 'block';
+        };
+        itemDiv.appendChild(logoImg);
+        if (type === 'brand' && nameSpan) nameSpan.style.display = 'none';
+    } else {
+        if (nameSpan) nameSpan.style.display = 'block';
+    }
+    itemDiv.appendChild(nameSpan);
+
+    itemDiv.addEventListener('click', () => {
+        if (itemDiv.parentElement) {
+            itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));
+        }
+        itemDiv.classList.add('selected');
+        if (item) { // Assicurati che item sia definito prima di passarlo
+            clickHandler(item);
+        } else {
+            console.error("Tentativo di click handler con item non definito per tipo:", type);
+        }
+    });
+    return itemDiv;
+}
 
 function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     const card = document.createElement('div');
     card.classList.add('unit-selection-card');
     if (isSelected) card.classList.add('selected');
-    card.dataset.unitId = unit.id;
-    card.style.flexDirection = "column";
-    card.style.alignItems = 'flex-start';
-    
+
+    if (unit && unit.id != null) { // Controlla che unit e unit.id esistano
+        card.setAttribute('data-unit-id', String(unit.id));
+    }
+
+    // Non impostare stili inline qui se sono già nel CSS
+    // card.style.flexDirection = "column";
+    // card.style.alignItems = 'flex-start';
+
     const infoDiv = document.createElement('div');
     infoDiv.classList.add('unit-info');
-    infoDiv.style.width = '100%';
+    // infoDiv.style.width = '100%'; // Preferibilmente gestito da CSS
 
     const nameH4 = document.createElement('h4');
     let unitTitle = "UNITA' ESTERNA";
-    if (unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
-        unitTitle += ` ${unit.kw}kW`;
+    if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
+        unitTitle += ` ${String(unit.kw)}kW`;
     }
     nameH4.textContent = unitTitle;
     infoDiv.appendChild(nameH4);
 
     const modelP = document.createElement('p');
-    modelP.innerHTML = `Codice: <strong>${unit.modelCode || 'N/A'}</strong> | Max UI: ${unit.connections === undefined ? '?' : unit.connections}`;
+    // Usare textContent per le parti fisse e appendere <strong> se necessario, o innerHTML con cautela
+    let modelP_html = "Codice: ";
+    modelP_html += `<strong>${(unit && unit.modelCode) ? String(unit.modelCode) : 'N/A'}</strong>`;
+    modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
+    modelP.innerHTML = modelP_html;
     infoDiv.appendChild(modelP);
 
     const energyClassContainerP = document.createElement('p');
@@ -287,7 +319,7 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     energyLabelSpan.textContent = "Classe Energetica (F/C):";
     energyClassContainerP.appendChild(energyLabelSpan);
 
-    const coolingClass = unit.energyClassCooling || 'N/D';
+    const coolingClass = (unit && unit.energyClassCooling) ? String(unit.energyClassCooling) : 'N/D';
     const coolingSpan = document.createElement('span');
     coolingSpan.classList.add('energy-rating');
     if (coolingClass === 'N/D' || coolingClass === '?') {
@@ -303,7 +335,7 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     separatorSpan.textContent = "/";
     energyClassContainerP.appendChild(separatorSpan);
 
-    const heatingClass = unit.energyClassHeating || 'N/D';
+    const heatingClass = (unit && unit.energyClassHeating) ? String(unit.energyClassHeating) : 'N/D';
     const heatingSpan = document.createElement('span');
     heatingSpan.classList.add('energy-rating');
     if (heatingClass === 'N/D' || heatingClass === '?') {
@@ -316,10 +348,10 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     infoDiv.appendChild(energyClassContainerP);
 
     const dimensionsP = document.createElement('p');
-    let dimText = unit.dimensions && unit.dimensions !== "N/A" ? `Dimensioni: ${unit.dimensions}` : "Dimensioni: N/A";
-    if (unit.weight && unit.weight !== "N/D") {
-        dimText += ` | Peso: ${unit.weight} kg`;
-    } else if (unit.weight === "N/D") {
+    let dimText = (unit && unit.dimensions && unit.dimensions !== "N/A") ? `Dimensioni: ${String(unit.dimensions)}` : "Dimensioni: N/A";
+    if (unit && unit.weight && unit.weight !== "N/D") {
+        dimText += ` | Peso: ${String(unit.weight)} kg`;
+    } else if (unit && unit.weight === "N/D") {
         dimText += ` | Peso: N/D`;
     } else {
         dimText += ` | Peso: ?`;
@@ -329,7 +361,14 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
 
     const priceP = document.createElement('p');
     priceP.classList.add('unit-price');
-    priceP.textContent = `Prezzo: ${typeof unit.price === 'number' ? unit.price.toFixed(2) : (unit.price || 'N/D')} € (IVA escl.)`;
+    let priceText = "Prezzo: ";
+    if (unit && typeof unit.price === 'number') {
+        priceText += unit.price.toFixed(2);
+    } else {
+        priceText += (unit && unit.price) ? String(unit.price) : 'N/D';
+    }
+    priceText += " € (IVA escl.)";
+    priceP.textContent = priceText;
     infoDiv.appendChild(priceP);
 
     card.appendChild(infoDiv);
@@ -338,7 +377,11 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
             card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
         }
         card.classList.add('selected');
-        clickHandler(unit);
+        if (unit) { // Assicurati che unit sia definito
+            clickHandler(unit);
+        } else {
+            console.error("Tentativo di click handler con unit non definito.");
+        }
     });
     return card;
 }
