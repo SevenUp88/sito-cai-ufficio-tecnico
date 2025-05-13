@@ -397,98 +397,97 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     }
 
     function populateIndoorUnitSelectors() {
-        indoorUnitsSelectionArea.innerHTML = '';
-        if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
-            indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`;
-            checkAllIndoorUnitsSelected();
-            return;
-        }
-
-        const availableIndoorUnitsForSeries = APP_DATA.indoorUnits
-            .filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id)
-            .sort((a, b) => a.capacityBTU - b.capacityBTU);
-
-        if (!availableIndoorUnitsForSeries.length) {
-            indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`;
-            checkAllIndoorUnitsSelected();
-            return;
-        }
-
-        const uniqueUnitsToDisplay = [];
-        const seenKeys = new Set();
-        for (const uiVariant of availableIndoorUnitsForSeries) {
-            const key = `${uiVariant.modelCode}-${uiVariant.kw}-${uiVariant.capacityBTU}-${uiVariant.price.toFixed(2)}`;
-            if (!seenKeys.has(key)) {
-                seenKeys.add(key);
-                uniqueUnitsToDisplay.push(uiVariant);
-            }
-        }
-
-        if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) {
-            selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
-        }
-
-        for (let i = 0; i < selections.configType.numUnits; i++) {
-            const slotDiv = document.createElement('div');
-            slotDiv.classList.add('indoor-unit-slot');
-            slotDiv.style.marginBottom = '20px';
-            slotDiv.style.paddingBottom = '15px';
-            slotDiv.style.borderBottom = '1px dashed #eee';
-
-            const label = document.createElement('label');
-            label.htmlFor = `indoor-unit-select-${i}`;
-            label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`;
-            label.style.cssText = 'display:block;margin-bottom:5px;font-weight:500;';
-            slotDiv.appendChild(label);
-
-            const select = document.createElement('select');
-            select.id = `indoor-unit-select-${i}`;
-            select.dataset.index = i;
-            select.style.cssText = 'width:100%;padding:8px;margin-bottom:10px;';
-
-            const placeholder = document.createElement('option');
-            placeholder.value = "";
-            placeholder.textContent = "-- Seleziona Taglia/Potenza --";
-            select.appendChild(placeholder);
-
-            uniqueUnitsToDisplay.forEach(uiVariant => {
-                const option = document.createElement('option');
-                option.value = uiVariant.id;
-                option.innerHTML = `${uiVariant.modelCode} - <strong>${uiVariant.kw}kW (${uiVariant.capacityBTU} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`;
-                if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true;
-                select.appendChild(option);
-            });
-
-            const detailsDiv = document.createElement('div');
-            detailsDiv.classList.add('unit-details');
-            detailsDiv.style.cssText = 'font-size:0.9em;padding-left:10px;';
-
-            if (selections.indoorUnits[i]) {
-                const cui = selections.indoorUnits[i];
-                detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`;
-            }
-
-            select.addEventListener('change', (e) => {
-                const selId = e.target.value;
-                const idx = parseInt(e.target.dataset.index);
-                const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
-                selections.indoorUnits[idx] = selUI || null;
-
-                if (selUI) {
-                    detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" class="ui-details-img" style="max-width:100px;max-height:80px;object-fit:contain;background:transparent;">` : ''}`;
-                } else {
-                    detailsDiv.innerHTML = '';
-                }
-                checkAllIndoorUnitsSelected();
-            });
-
-            slotDiv.appendChild(select);
-            slotDiv.appendChild(detailsDiv);
-            indoorUnitsSelectionArea.appendChild(slotDiv);
-        }
+    indoorUnitsSelectionArea.innerHTML = '';
+    if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
+        indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`;
         checkAllIndoorUnitsSelected();
+        return;
     }
 
+    const availableIndoorUnitsForSeries = APP_DATA.indoorUnits
+        .filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id)
+        .sort((a, b) => a.capacityBTU - b.capacityBTU);
+
+    if (!availableIndoorUnitsForSeries.length) {
+        indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`;
+        checkAllIndoorUnitsSelected();
+        return;
+    }
+
+    const uniqueUnitsToDisplay = [];
+    const seenKeys = new Set();
+    for (const uiVariant of availableIndoorUnitsForSeries) {
+        const key = `${uiVariant.modelCode}-${uiVariant.kw}-${uiVariant.capacityBTU}-${uiVariant.price.toFixed(2)}`;
+        if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            uniqueUnitsToDisplay.push(uiVariant);
+        }
+    }
+
+    if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) {
+        selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
+    }
+
+    for (let i = 0; i < selections.configType.numUnits; i++) {
+        const slotDiv = document.createElement('div');
+        slotDiv.classList.add('indoor-unit-slot');
+        // Stili inline rimossi: slotDiv.style.marginBottom, paddingBottom, borderBottom
+
+        const label = document.createElement('label');
+        label.htmlFor = `indoor-unit-select-${i}`;
+        label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${selections.indoorSeries.name}</strong>):`;
+        // Stile inline rimosso: label.style.cssText
+        slotDiv.appendChild(label);
+
+        const select = document.createElement('select');
+        select.id = `indoor-unit-select-${i}`;
+        select.dataset.index = i;
+        // Stile inline rimosso: select.style.cssText
+
+        const placeholder = document.createElement('option');
+        placeholder.value = "";
+        placeholder.textContent = "-- Seleziona Taglia/Potenza --";
+        select.appendChild(placeholder);
+
+        uniqueUnitsToDisplay.forEach(uiVariant => {
+            const option = document.createElement('option');
+            option.value = uiVariant.id;
+            option.innerHTML = `${uiVariant.modelCode} - <strong>${uiVariant.kw}kW (${uiVariant.capacityBTU} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`;
+            if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true;
+            select.appendChild(option);
+        });
+
+        const detailsDiv = document.createElement('div');
+        detailsDiv.classList.add('unit-details');
+        // Stile inline rimosso: detailsDiv.style.cssText
+
+        if (selections.indoorUnits[i]) {
+            const cui = selections.indoorUnits[i];
+            // Stile inline rimosso dall'immagine, ora gestito da .ui-details-img nel CSS
+            detailsDiv.innerHTML = `<p>Cod:<strong>${cui.modelCode}</strong></p><p>Pwr:<strong>${cui.kw}kW(${cui.capacityBTU}BTU)</strong>-€<strong>${cui.price.toFixed(2)}</strong></p>${cui.image ? `<img src="${cui.image}" alt="Immagine ${cui.modelCode}" class="ui-details-img">` : ''}`;
+        }
+
+        select.addEventListener('change', (e) => {
+            const selId = e.target.value;
+            const idx = parseInt(e.target.dataset.index);
+            const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
+            selections.indoorUnits[idx] = selUI || null;
+
+            if (selUI) {
+                // Stile inline rimosso dall'immagine
+                detailsDiv.innerHTML = `<p>Cod:<strong>${selUI.modelCode}</strong></p><p>Pwr:<strong>${selUI.kw}kW(${selUI.capacityBTU}BTU)</strong>-€<strong>${selUI.price.toFixed(2)}</strong></p>${selUI.image ? `<img src="${selUI.image}" alt="Immagine ${selUI.modelCode}" class="ui-details-img">` : ''}`;
+            } else {
+                detailsDiv.innerHTML = '';
+            }
+            checkAllIndoorUnitsSelected();
+        });
+
+        slotDiv.appendChild(select);
+        slotDiv.appendChild(detailsDiv);
+        indoorUnitsSelectionArea.appendChild(slotDiv);
+    }
+    checkAllIndoorUnitsSelected();
+}
     // MODIFICATA PER RIMUOVERE "Somma Potenza Nominale UI" E CAMBIARE TESTO PREZZO TOTALE
     function generateSummary() {
         console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
