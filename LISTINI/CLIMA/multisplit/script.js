@@ -649,8 +649,8 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
                     return `
                     <div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;">
                         <h4>Unità ${index + 1}: <strong>${S_SUMMARY(ui.seriesName)}</strong></h4>
-                        ${ui.image ? `<img src="${S_SUMMARY(ui.image)}" alt="${S_SUMMARY(ui.name)}" class="summary-ui-img" style="float:right; margin-left:10px; object-fit:contain;">` : ''}
-                        <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p>
+            {/* RIMOSSA LA RIGA DELL'IMMAGINE QUI */}
+            {/* ${ui.image ? `<img src="${S_SUMMARY(ui.image)}" alt="${S_SUMMARY(ui.name)}" class="summary-ui-img">` : ''} */}  <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p>
                         <p><strong>Potenza: ${valOrNA(ui.kw, 'kW')} (${valOrNA(ui.capacityBTU, ' BTU')})</strong></p>
                         <p><strong>Tipo:</strong> ${valOrNA(ui.type)}</p>
                         <p><strong>Dimensioni:</strong> ${valOrNA(ui.dimensions)}</p>
