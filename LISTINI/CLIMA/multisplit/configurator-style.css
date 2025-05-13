@@ -1,5 +1,20 @@
 /* File: configurator-style.css */
 
+:root {
+    --primary-color: #0056a8;
+    --secondary-color: #6c757d;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --background-color: #ffffff;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --border-radius: 8px;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --header-height: 65px; /* Assicurati che sia definito se usato altrove */
+    --sticky-offset: calc(var(--header-height) + 10px); /* Assicurati che sia definito se usato altrove */
+    --summary-gap: 20px; /* Gap per le card del riepilogo */
+}
+
 .configurator-container {
     background-color: var(--light-color);
     padding: 25px;
@@ -10,27 +25,18 @@
 .config-step {
     display: none;
     padding: 20px;
-    border: 1px solid #e0e0e0; /* Bordo del contenitore dello step */
+    border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
-    background-color: var(--background-color); /* Sfondo del contenitore dello step */
+    background-color: var(--background-color);
     margin-bottom: 25px;
 }
 
-/* Se #step-6 è il contenitore principale del riepilogo, e .summary-section è figlio,
-   allora .summary-section potrebbe non aver bisogno di un suo bordo/sfondo separato
-   se lo step stesso già funge da contenitore principale.
-   Oppure, se .summary-section è L'UNICO contenuto di #step-6, allora #step-6
-   potrebbe non aver bisogno di padding/bordo/sfondo, e li applichiamo a .summary-section.
-   Per ora, assumo che .summary-section sia il contenitore a cui applichiamo lo stile "no-card"
-   e i .summary-block diventano le card. */
-
-#step-6.config-step { /* Rimuoviamo lo stile card dal contenitore dello step riepilogo */
+#step-6.config-step { /* Rimuove lo stile card dal contenitore principale dello step riepilogo */
     border: none;
     background-color: transparent;
     box-shadow: none;
-    padding: 0; /* Il padding sarà gestito dai blocchi interni o da .summary-section */
+    padding: 0;
 }
-
 
 .config-step.active-step {
     display: block;
@@ -288,7 +294,7 @@
     border-radius: var(--border-radius);
 }
 
-#outdoor-unit-selection .unit-selection-card img.main-unit-image {
+#outdoor-unit-selection .unit-selection-card img.main-unit-image { /* Immagine principale UE se diversa da dettagli */
     display: block;
     max-width: 150px;
     max-height: 120px;
@@ -298,104 +304,64 @@
     border-radius: var(--border-radius);
 }
 
-/* === STILI PER IL RIEPILOGO (STEP 6) A CARD === */
-.summary-section {
-    background-color: transparent; /* Rimuoviamo lo sfondo dal contenitore principale del riepilogo */
-    padding: 0; /* Rimuoviamo il padding dal contenitore principale */
-    border: none; /* Rimuoviamo il bordo dal contenitore principale */
-    box-shadow: none; /* Rimuoviamo l'ombra dal contenitore principale */
+/* === STILI PER IL RIEPILOGO (STEP 6) A CARD AFFIANCATE === */
+.summary-section { /* Contenitore principale del riepilogo */
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--summary-gap);
+    background-color: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
 }
 
 .summary-block,
-.summary-total { /* Applichiamo lo stile card a ogni blocco e al totale */
-    background-color: var(--background-color); /* Sfondo bianco per la card */
+.summary-total {
+    background-color: var(--background-color);
     padding: 20px;
     border-radius: var(--border-radius);
     border: 1px solid #e0e0e0;
     box-shadow: var(--card-shadow);
-    margin-bottom: 25px; /* Spazio tra le card del riepilogo */
+    margin-bottom: 0; /* Gestito da gap */
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: calc(50% - (var(--summary-gap) / 2));
+    min-width: 300px;
+    box-sizing: border-box;
 }
 
-.summary-block:last-of-type { /* Per l'ultimo .summary-block prima del .summary-total */
-    margin-bottom: 25px; /* Manteniamo spazio se .summary-total è separato */
+.summary-block.full-width-summary { /* Classe opzionale per blocco UI a larghezza piena */
+    flex-basis: 100%;
+    min-width: 100%;
 }
 
-.summary-block h3 { /* Titolo all'interno di una card-block */
-    color: var(--primary-color);
-    margin-top: 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    font-size: 1.2em;
+.summary-block h3 {
+    color: var(--primary-color); margin-top: 0; border-bottom: 1px solid #eee;
+    padding-bottom: 10px; margin-bottom: 15px; font-size: 1.2em;
 }
-.summary-block h4 { /* Sottotitolo all'interno di una card-block */
-    font-size: 1.1em;
-    margin-top: 0;
-    margin-bottom: 8px;
-    color: var(--dark-color);
-}
-/* .summary-item è già definito, ma possiamo assicurarci che stia bene nella card */
-.summary-item {
-    margin-bottom: 10px;
-    font-size: 1em;
-    line-height: 1.5;
-}
-.summary-item strong {
-    color: var(--dark-color);
-    display: inline-block;
-    width: auto; /* Rimuoviamo larghezza fissa se non più necessaria nel layout card */
-    margin-right: 8px; /* Spazio tra etichetta e valore */
-    font-weight: 500;
-}
+.summary-block h4 { font-size: 1.1em; margin-top: 0; margin-bottom: 8px; color: var(--dark-color); }
+.summary-item { margin-bottom: 10px; font-size: 1em; line-height: 1.5; }
+.summary-item strong { color: var(--dark-color); display: inline-block; width: auto; margin-right: 8px; font-weight: 500; }
 
-.summary-indoor-unit { /* Questo è un elemento dentro un .summary-block */
-    padding: 15px 0; /* Padding verticale per separare le UI */
-    border-bottom: 1px dashed #ddd; /* Separatore tra le UI */
-    margin-bottom: 15px; /* Spazio sotto ogni UI */
-}
-.summary-indoor-unit:last-child {
-    border-bottom: none; /* Nessun bordo per l'ultima UI nel blocco */
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-.summary-indoor-unit h4 { /* Titolo di una singola UI */
-    margin-bottom: 10px;
-}
-
+.summary-indoor-unit { padding: 15px 0; border-bottom: 1px dashed #ddd; margin-bottom: 15px; }
+.summary-indoor-unit:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.summary-indoor-unit h4 { margin-bottom: 10px; }
 .summary-indoor-unit img.summary-ui-img {
-    max-width: 100px; /* Leggermente ridotta se necessario */
-    max-height: 80px;
-    float: right;
-    margin-left: 15px;
-    object-fit: contain;
-    border: 1px solid #eee;
-    background: transparent !important;
-    border-radius: 4px;
+    max-width: 100px; max-height: 80px; float: right; margin-left: 15px;
+    object-fit: contain; border: 1px solid #eee; background: transparent !important; border-radius: 4px;
 }
 
-.summary-total { /* Card per il totale */
-    margin-top: 0; /* Sovrascrive il margin-top precedente se .summary-block:last-of-type ha già mb */
-    border-top: 2px solid var(--primary-color); /* Manteniamo il bordo superiore distintivo */
-    /* Gli altri stili card sono già applicati sopra */
+.summary-total {
+    border-top: 2px solid var(--primary-color);
+    /* flex-basis: 100%; se si vuole sempre a larghezza piena */
 }
-.summary-total p { /* Testo del totale */
-    font-size: 1.2em; /* Leggermente ridotto se il genitore è 1.3em */
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-.summary-total p:last-child {
-    margin-bottom: 0;
-}
-.summary-total strong { /* Etichetta "Prezzo Totale:" */
-    color: var(--primary-color);
-    width: auto; /* Come per .summary-item strong */
-    margin-right: 8px;
-}
+.summary-total p { font-size: 1.2em; font-weight: bold; margin-bottom: 5px; }
+.summary-total p:last-child { margin-bottom: 0; }
+.summary-total strong { color: var(--primary-color); width: auto; margin-right: 8px; }
 /* === FINE STILI PER IL RIEPILOGO === */
 
-
 .print-instructions { margin-top: 20px; padding: 10px; background-color: #e9ecef; border-radius: var(--border-radius); font-size: 0.9em; text-align: center; }
-.summary-actions { justify-content: flex-end; gap: 10px; } /* Già presente */
+.summary-actions { justify-content: flex-end; gap: 10px; }
 
 #admin-section h3 { font-size: 1.3em; margin-bottom: 15px; color: var(--warning-color); border-bottom-color: var(--warning-color);}
 .admin-subsection { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
@@ -415,30 +381,9 @@
 #admin-brand-form button { margin-top:10px; }
 
 /* === Stili per Classe Energetica nelle Card (globali per .unit-selection-card .unit-info) === */
-.unit-selection-card .unit-info .energy-class-container p {
-    margin-top: 4px;
-    margin-bottom: 8px;
-    line-height: 1.5;
-}
-.unit-selection-card .unit-info .energy-class-label {
-    font-weight: normal;
-    color: var(--secondary-color);
-    margin-right: 5px;
-    font-size: 0.9em;
-}
-.unit-selection-card .unit-info .energy-rating {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: var(--border-radius);
-    color: white;
-    font-size: 0.85em;
-    font-weight: bold;
-    margin: 0 2px;
-    min-width: 30px;
-    text-align: center;
-    line-height: 1.4;
-    vertical-align: middle;
-}
+.unit-selection-card .unit-info .energy-class-container p { margin-top: 4px; margin-bottom: 8px; line-height: 1.5; }
+.unit-selection-card .unit-info .energy-class-label { font-weight: normal; color: var(--secondary-color); margin-right: 5px; font-size: 0.9em; }
+.unit-selection-card .unit-info .energy-rating { display: inline-block; padding: 2px 8px; border-radius: var(--border-radius); color: white; font-size: 0.85em; font-weight: bold; margin: 0 2px; min-width: 30px; text-align: center; line-height: 1.4; vertical-align: middle; }
 .unit-selection-card .unit-info .energy-rating.cooling { background-color: #007bff; }
 .unit-selection-card .unit-info .energy-rating.heating { background-color: var(--danger-color); }
 .unit-selection-card .unit-info .energy-rating.unknown { background-color: var(--secondary-color); }
@@ -453,26 +398,31 @@
     .print-only-logo { display: block !important; max-height: 50px; width: auto; margin: 0 auto 10px auto; object-fit: contain; }
     #summary-main-title.print-main-title, h1.print-main-title { display: block !important; font-size: 14pt !important; text-align: center !important; margin: 0 auto 0.5cm auto !important; padding-bottom: 6px !important; border-bottom: 1.5px solid #333 !important; color: #000 !important; font-weight: bold; }
     .container.configurator-container { box-shadow: none; padding: 0; margin: 0; max-width: 100%; background-color: transparent !important; }
-    .config-step { display: none !important; border: none; padding: 0; margin:0; background-color: transparent !important; box-shadow: none !important; } /* Stile trasparente per lo step in stampa */
+    .config-step { display: none !important; border: none; padding: 0; margin:0; background-color: transparent !important; box-shadow: none !important; }
     .config-step#step-6 { display: block !important; }
 
-    /* Stili di stampa per il riepilogo a card */
-    .summary-section { /* Il contenitore .summary-section non ha più stile card */
+    .summary-section {
+        display: block !important; /* Layout a blocchi impilati per stampa */
         border: none; padding: 0; box-shadow: none; font-size: 9pt !important;
+        gap: 0 !important; /* Rimuovi gap per stampa se non desiderato */
     }
-    .summary-block, .summary-total { /* Le card interne del riepilogo */
-        border: 1px solid #ccc !important; /* Bordo per le card in stampa */
+    .summary-block, .summary-total {
+        border: 1px solid #ccc !important;
         padding: 0.3cm !important;
         box-shadow: none !important;
-        background-color: #fff !important; /* Sfondo bianco per le card in stampa */
+        background-color: #fff !important;
         margin-bottom: 0.4cm !important;
-        page-break-inside: avoid;
+        page-break-inside: avoid !important;
+        width: 100% !important; /* Occupa tutta la larghezza in stampa */
+        flex-basis: auto !important; /* Resetta flex per stampa */
+        min-width: 0 !important; /* Resetta min-width per stampa */
+        box-sizing: border-box !important;
     }
     .summary-block h3 { font-size: 11pt !important; color: #000 !important; border-bottom: 1px solid #666 !important; margin-top: 0; margin-bottom: 0.2cm; padding-bottom: 2px; font-weight: bold; }
     .summary-block p { margin: 3px 0; line-height: 1.35; }
-    .summary-block p strong { font-weight: bold !important; color: #000 !important; width: auto; display: inline; margin-right: 5px; } /* Ajustato strong per stampa */
+    .summary-block p strong { font-weight: bold !important; color: #000 !important; width: auto; display: inline; margin-right: 5px; }
 
-    .summary-indoor-unit { page-break-inside: avoid; border-bottom-color: #ddd !important; }
+    .summary-indoor-unit { page-break-inside: avoid !important; border-bottom-color: #ddd !important; }
     .summary-indoor-unit h4 { font-size: 10pt; margin-bottom: 3px; font-weight: bold;}
     .summary-indoor-unit img.summary-ui-img { max-width: 80px !important; max-height: 70px !important; border: 1px solid #ccc !important; margin-left: 8px !important; background: transparent !important;}
 
