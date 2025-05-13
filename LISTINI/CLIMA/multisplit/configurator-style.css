@@ -2,7 +2,10 @@
 
 /* File: configurator-style.css */
 /* Questo file si aspetta che style.css (con le variabili --primary-color Apple, ecc.) sia caricato prima. */
-
+body {
+    background-color: lime !important; /* Un colore orribile e ovvio */
+    zoom: 0.8; /* Rimpicciolisci tutto per vedere se cambia qualcosa */
+}
 .configurator-container {
     /* background-color: var(--light-color); -- Ereditato da style.css se body ha quel colore o se .container ha uno sfondo definito lì */
     padding: 25px;
