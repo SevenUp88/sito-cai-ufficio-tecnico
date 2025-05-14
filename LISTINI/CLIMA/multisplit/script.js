@@ -662,7 +662,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     handleDeleteBrand(event.target.dataset.id);
                 });
             });
-        }, error => { 
+        }, 
+        (error) => { // Explicitly define error parameter for the error callback
             console.error("Errore admin marche: ", error);
             listDiv.innerHTML = '<p>Errore caricamento marche.</p>';
         });
@@ -694,9 +695,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const brandData = { id: brandId, name: brandName, logo: brandLogoPath }; 
             try {
-                console.warn("Editing brand ID is typically done by deleting and re-adding. Current operation will update/create doc with new ID if different from loaded one.");
+                if (docIdForEdit && docIdForEdit !== brandId && !document.getElementById('brand-id').disabled) {
+                    // This condition might need refinement. If brand-id is disabled, it means we are editing THAT doc.
+                    // If it's NOT disabled, we are potentially creating new or overwriting based on new ID.
+                     console.warn("Brand ID changed during edit form submission. This will result in a new document or overwrite an existing one with the new ID.");
+                }
                 await db.collection("brands").doc(brandId).set(brandData, { merge: true }); 
-                alert(`Marca ${docIdForEdit ? 'modificata (o ricreata se ID cambiato)' : 'aggiunta'}!`);
+                alert(`Marca ${docIdForEdit && brandId === document.getElementById('brand-doc-id').value ? 'modificata' : 'aggiunta/aggiornata'}!`);
                 clearAdminBrandForm();
             } catch (error) {
                 console.error("Errore salvataggio marca: ", error);
@@ -714,7 +719,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (brandDoc.exists) {
                 const brand = brandDoc.data();
                 document.getElementById('brand-doc-id').value = brandDoc.id; 
-                document.getElementById('brand-id').value = brand.id;     
+                document.getElementById('brand-id').value = brand.id || brandDoc.id; // Fallback to doc.id if brand.id isn't in data 
                 document.getElementById('brand-id').disabled = true;      
                 document.getElementById('brand-name').value = brand.name;
                 document.getElementById('brand-logo-path').value = brand.logo;
