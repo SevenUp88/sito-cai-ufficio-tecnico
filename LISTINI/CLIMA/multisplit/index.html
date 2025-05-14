@@ -50,7 +50,7 @@
     <!-- Login Modal for Configurator Admin -->
     <div id="login-modal-configurator" class="modal"> <!-- Default display: none handled by inline style -->
       <div class="modal-content">
-          <span class="close-btn">&times;</span>
+          <span class="close-btn">×</span>
           <h2 id="login-modal-title-configurator">Accesso Amministratore</h2>
           <form id="login-form-configurator">
               <div class="form-group">
@@ -77,45 +77,45 @@
 
         <!-- STEP INDICATOR (Assumed already updated for 6 steps with correct labels) -->
         <div class="step-indicator">
-        <div class="step-item" data-step="1">
-            <span class="step-dot active">1</span>
+        <div class="step-item completed" data-step="1">
+            <span class="step-dot">1</span>
             <span class="step-name">Marca</span>
-            <span class="step-selection-info" id="step-info-1"></span> {/* NUOVO */}
+            <span class="step-selection-info" id="step-info-1"></span>
         </div>
-        <span class="step-line"></span>
-        <div class="step-item" data-step="2">
+        <span class="step-line active"></span>
+        <div class="step-item completed" data-step="2">
             <span class="step-dot">2</span>
             <span class="step-name">Config.</span>
-            <span class="step-selection-info" id="step-info-2"></span> {/* NUOVO */}
+            <span class="step-selection-info" id="step-info-2"></span>
         </div>
-        <span class="step-line"></span>
-        <div class="step-item" data-step="3">
+        <span class="step-line active"></span>
+        <div class="step-item completed" data-step="3">
             <span class="step-dot">3</span>
             <span class="step-name">Modello</span>
-            <span class="step-selection-info" id="step-info-3"></span> {/* NUOVO */}
+            <span class="step-selection-info" id="step-info-3"></span>
         </div>
-        <span class="step-line"></span>
-        <div class="step-item" data-step="4">
+        <span class="step-line active"></span>
+        <div class="step-item completed" data-step="4">
             <span class="step-dot">4</span>
             <span class="step-name">Unità Est.</span>
-            <span class="step-selection-info" id="step-info-4"></span> {/* NUOVO */}
+            <span class="step-selection-info" id="step-info-4"></span>
         </div>
-        <span class="step-line"></span>
-        <div class="step-item" data-step="5">
+        <span class="step-line active"></span>
+        <div class="step-item active" data-step="5">
             <span class="step-dot">5</span>
             <span class="step-name">Unità Int.</span>
-            <span class="step-selection-info" id="step-info-5"></span> {/* NUOVO (mostrerà "Selezionate" o simile) */}
+            <span class="step-selection-info" id="step-info-5"></span> {/* (mostrerà "Selezionate" o simile) */}
         </div>
         <span class="step-line"></span>
         <div class="step-item" data-step="6">
             <span class="step-dot">6</span>
             <span class="step-name">Riepilogo</span>
-            <span class="step-selection-info" id="step-info-6"></span> {/* NUOVO (non mostrerà nulla o "Completo") */}
+            <span class="step-selection-info" id="step-info-6"></span> {/* (non mostrerà nulla o "Completo") */}
         </div>
     </div>
 
         <!-- Step 1: Brand Selection (id="step-1", Logical Step 1) -->
-        <div id="step-1" class="config-step active-step">
+        <div id="step-1" class="config-step active-step"> {/* This 'active-step' class determines visibility, not the indicator's 'active' visual style */}
             <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
             <div id="brand-selection" class="selection-grid"></div>
             <div class="step-navigation"></div>
@@ -193,7 +193,7 @@
     </div> <!-- END of .container.configurator-container -->
 
     <footer class="app-footer">
-        <p>&copy; <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
+        <p>© <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
         <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
     </footer>
 
