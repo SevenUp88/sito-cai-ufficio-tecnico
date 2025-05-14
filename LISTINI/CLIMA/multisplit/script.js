@@ -171,7 +171,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : []
             };
         });
-        // QUESTA È LA SEZIONE CORRETTA PER PROCESSARE APP_DATA.indoorUnits
         APP_DATA.indoorUnits = indoorUnitsDocs.map((ui_doc, index) => {
             const brandId = String(ui_doc.marca || 'sconosciuta').toLowerCase();
             const seriesName = String(ui_doc.modello || `serie_${index}`).trim();
@@ -200,45 +199,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                 price: Number(ui_doc.prezzo_ui) || 0,
                 image: imagePath,
                 dimensions: ui_doc.dimensioni_ui || "N/A",
-                weight: (ui_doc.peso_ui !== "Dati mancanti" && ui_doc.peso_ui !== undefined) ? ui_doc.peso_ui : "N/D", // Assicurati che peso_ui sia nei dati
+                weight: (ui_doc.peso_ui !== "Dati mancanti" && ui_doc.peso_ui !== undefined) ? ui_doc.peso_ui : "N/D", 
                 wifi: ui_doc.wifi === true
             };
         });
-        // FINE SEZIONE CORRETTA PER PROCESSARE APP_DATA.indoorUnits
-
         console.log("DEBUG: Processing Firestore data finished.");
         console.log("DEBUG: First Processed UE:", APP_DATA.outdoorUnits.length > 0 ? JSON.stringify(APP_DATA.outdoorUnits[0]) : "ND");
         console.log("DEBUG: First Processed UI:", APP_DATA.indoorUnits.length > 0 ? JSON.stringify(APP_DATA.indoorUnits[0]) : "ND");
-    } // <<< CORRETTA CHIUSURA DI processLoadedData
+    } 
 
     // --- UI Element Creation Helper Functions ---
     function createSelectionItem(item, type, clickHandler, isSelected = false) {
     const itemDiv = document.createElement('div');
     itemDiv.classList.add('selection-item');
     if (isSelected) itemDiv.classList.add('selected');
-
-    // Usare setAttribute per maggiore sicurezza con gli ID
-    if (item && item.id != null) { // Controlla che item e item.id esistano
+    if (item && item.id != null) { 
         itemDiv.setAttribute('data-' + type + '-id', String(item.id));
     }
 
-
     let logoSrc = '';
-    if (type === 'brand' && item && item.logo) { // Controlla che item esista
+    if (type === 'brand' && item && item.logo) { 
         logoSrc = item.logo;
-    } else if (type === 'series' && item && item.image) { // Controlla che item esista
+    } else if (type === 'series' && item && item.image) { 
         logoSrc = item.image;
         itemDiv.classList.add('series-selection-item');
     }
 
     const nameSpan = document.createElement('span');
-    nameSpan.textContent = (item && item.name) ? String(item.name) : ''; // Usa textContent e controlla esistenza
+    nameSpan.textContent = (item && item.name) ? String(item.name) : ''; 
 
     if (logoSrc) {
         const logoImg = document.createElement('img');
-        logoImg.src = String(logoSrc); // Assicura sia stringa
-
-        // Impostare alt in modo sicuro
+        logoImg.src = String(logoSrc); 
         let altText = "Immagine";
         if (item && item.name) {
             altText = String(item.name) + " Immagine";
@@ -246,7 +238,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             altText = String(type) + " Immagine";
         }
         logoImg.alt = altText;
-
 
         if (type === 'brand') logoImg.classList.add('brand-logo');
         if (type === 'series') logoImg.classList.add('series-logo');
@@ -271,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));
         }
         itemDiv.classList.add('selected');
-        if (item) { // Assicurati che item sia definito prima di passarlo
+        if (item) { 
             clickHandler(item);
         } else {
             console.error("Tentativo di click handler con item non definito per tipo:", type);
@@ -284,14 +275,11 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     const card = document.createElement('div');
     card.classList.add('unit-selection-card');
     if (isSelected) card.classList.add('selected');
-
-    if (unit && unit.id != null) { // Controlla che unit e unit.id esistano
+    if (unit && unit.id != null) { 
         card.setAttribute('data-unit-id', String(unit.id));
     }
-
     const infoDiv = document.createElement('div');
     infoDiv.classList.add('unit-info');
-
     const nameH4 = document.createElement('h4');
     let unitTitle = "UNITA' ESTERNA";
     if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
@@ -299,20 +287,17 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     }
     nameH4.textContent = unitTitle;
     infoDiv.appendChild(nameH4);
-
     const modelP = document.createElement('p');
     let modelP_html = "Codice: ";
     modelP_html += `<strong>${(unit && unit.modelCode) ? String(unit.modelCode) : 'N/A'}</strong>`;
     modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
     modelP.innerHTML = modelP_html;
     infoDiv.appendChild(modelP);
-
     const energyClassContainerP = document.createElement('p');
     const energyLabelSpan = document.createElement('span');
     energyLabelSpan.classList.add('energy-class-label');
     energyLabelSpan.textContent = "Classe Energetica (F/C):";
     energyClassContainerP.appendChild(energyLabelSpan);
-
     const coolingClass = (unit && unit.energyClassCooling) ? String(unit.energyClassCooling) : 'N/D';
     const coolingSpan = document.createElement('span');
     coolingSpan.classList.add('energy-rating');
@@ -323,12 +308,10 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     }
     coolingSpan.textContent = coolingClass;
     energyClassContainerP.appendChild(coolingSpan);
-
     const separatorSpan = document.createElement('span');
     separatorSpan.classList.add('energy-separator');
     separatorSpan.textContent = "/";
     energyClassContainerP.appendChild(separatorSpan);
-
     const heatingClass = (unit && unit.energyClassHeating) ? String(unit.energyClassHeating) : 'N/D';
     const heatingSpan = document.createElement('span');
     heatingSpan.classList.add('energy-rating');
@@ -340,7 +323,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     heatingSpan.textContent = heatingClass;
     energyClassContainerP.appendChild(heatingSpan);
     infoDiv.appendChild(energyClassContainerP);
-
     const dimensionsP = document.createElement('p');
     let dimText = (unit && unit.dimensions && unit.dimensions !== "N/A") ? `Dimensioni: ${String(unit.dimensions)}` : "Dimensioni: N/A";
     if (unit && unit.weight && unit.weight !== "N/D") {
@@ -352,7 +334,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     }
     dimensionsP.textContent = dimText;
     infoDiv.appendChild(dimensionsP);
-
     const priceP = document.createElement('p');
     priceP.classList.add('unit-price');
     let priceText = "Prezzo: ";
@@ -364,7 +345,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     priceText += " € (IVA escl.)";
     priceP.textContent = priceText;
     infoDiv.appendChild(priceP);
-
     card.appendChild(infoDiv);
     card.addEventListener('click', () => {
         if (card.parentElement) {
@@ -495,41 +475,33 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
 
     // THIS IS THE MODIFIED updateStepSelectionInfo FUNCTION
     function updateStepSelectionInfo() {
-        const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
-
+        const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; 
+        const formatText = (text, isNumericOrSpecial = false) => {
+            if (!text) return ' ';
+            const processedText = isNumericOrSpecial ? S(text) : S(text).toUpperCase();
+            return `<strong>${processedText}</strong>`;
+        };
+    
         const stepInfo1 = document.getElementById('step-info-1');
         if (stepInfo1) {
-            if (selections.brand && selections.brand.name) {
-                stepInfo1.innerHTML = `<strong>${S(selections.brand.name).toUpperCase()}</strong>`;
-            } else {
-                stepInfo1.innerHTML = ' '; 
-            }
+            stepInfo1.innerHTML = selections.brand && selections.brand.name ? formatText(selections.brand.name) : ' ';
         }
-
+    
         const stepInfo2 = document.getElementById('step-info-2');
         if (stepInfo2) {
-            if (selections.configType && selections.configType.name) {
-                stepInfo2.innerHTML = `<strong>${S(selections.configType.name).toUpperCase()}</strong>`;
-            } else {
-                stepInfo2.innerHTML = ' ';
-            }
+            stepInfo2.innerHTML = selections.configType && selections.configType.name ? formatText(selections.configType.name) : ' ';
         }
-
+    
         const stepInfo3 = document.getElementById('step-info-3');
         if (stepInfo3) {
-            if (selections.indoorSeries && selections.indoorSeries.name) {
-                stepInfo3.innerHTML = `<strong>${S(selections.indoorSeries.name).toUpperCase()}</strong>`;
-            } else {
-                stepInfo3.innerHTML = ' ';
-            }
+            stepInfo3.innerHTML = selections.indoorSeries && selections.indoorSeries.name ? formatText(selections.indoorSeries.name) : ' ';
         }
-
+    
         const stepInfo4 = document.getElementById('step-info-4');
         if (stepInfo4) {
-            if (selections.outdoorUnit && (selections.outdoorUnit.kw || selections.outdoorUnit.kw === 0)) {
-                 // Ensure "KW" is part of the string and uppercase
-                let kwText = `${S(selections.outdoorUnit.kw)}KW`;
-                stepInfo4.innerHTML = `<strong>${kwText.toUpperCase()}</strong>`;
+            if (selections.outdoorUnit && (selections.outdoorUnit.kw != null)) {
+                let kwText = `${S(selections.outdoorUnit.kw)}KW`; // KW is already uppercase
+                stepInfo4.innerHTML = formatText(kwText, true); // true because it contains number and "KW"
             } else {
                 stepInfo4.innerHTML = ' ';
             }
@@ -537,38 +509,35 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         
         const stepInfo5 = document.getElementById('step-info-5');
         if (stepInfo5) {
-            if (selections.outdoorUnit && selections.configType) { // Only show if previous steps are done enough to select UIs
+            if (selections.outdoorUnit && selections.configType) {
                 const numSlots = selections.configType.numUnits;
-                let btuParts = [];
-                let allSelected = true;
                 if (numSlots > 0) {
+                    let btuParts = [];
                     for (let i = 0; i < numSlots; i++) {
-                        if (selections.indoorUnits[i] && selections.indoorUnits[i].capacityBTU) {
+                        if (selections.indoorUnits[i] && selections.indoorUnits[i].capacityBTU != null) {
                             btuParts.push(String(selections.indoorUnits[i].capacityBTU));
                         } else {
-                            btuParts.push("..."); // Placeholder for unselected slot
-                            allSelected = false;
+                            btuParts.push("..."); 
                         }
                     }
                     if (btuParts.length > 0) {
-                         stepInfo5.innerHTML = `<strong>${btuParts.join(' + ').toUpperCase()}</strong>`;
-                    } else { // No slots for UI (e.g. mono-ue selection if logic allows, though current flow implies multi)
-                        stepInfo5.innerHTML = '<strong>N/A</strong>';
+                         stepInfo5.innerHTML = formatText(btuParts.join(' + '), true); // true: treat as special numeric string
+                    } else { 
+                        stepInfo5.innerHTML = formatText('DA SELEZIONARE'); 
                     }
-                } else { // numSlots is 0
-                     stepInfo5.innerHTML = '<strong>N/A</strong>'; // No indoor units for this config
+                } else { 
+                     stepInfo5.innerHTML = formatText('N/A'); 
                 }
-            } else if (currentLogicalStep === 5) { // On step 5 but previous selections not made yet
-                 stepInfo5.innerHTML = '<strong>DA SELEZIONARE</strong>';
-            }
-             else {
-                stepInfo5.innerHTML = ' '; // Default empty
+            } else if (currentLogicalStep === 5 && selections.brand && selections.configType && selections.indoorSeries) { 
+                 stepInfo5.innerHTML = formatText('DA SELEZIONARE');
+            } else {
+                stepInfo5.innerHTML = ' '; 
             }
         }
-
+    
         const stepInfo6 = document.getElementById('step-info-6');
         if (stepInfo6) {
-            stepInfo6.innerHTML = ' '; // Step 6 should show nothing as per request
+            stepInfo6.innerHTML = ' '; 
         }
     }
     
@@ -789,7 +758,7 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
                 }
             }
         });
-        updateStepSelectionInfo(); // CALL TO UPDATE THE SUMMARY INFO UNDER STEPS
+        updateStepSelectionInfo(); 
     }
 
     function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
@@ -810,8 +779,8 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     async function initializeConfiguratorApp() { console.log("DEBUG: initializeConfiguratorApp called"); document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs, metadataDoc; try { console.log("DEBUG: Fetching all Firestore data for configurator..."); [ brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs, metadataDoc ] = await Promise.all([ fetchFirestoreCollection('brands'), fetchFirestoreCollection('configTypes'), fetchFirestoreCollection('uiSeriesImageMapping'), fetchFirestoreCollection('outdoorUnits'), fetchFirestoreCollection('indoorUnits'), db.collection('metadata').doc('appInfo').get() ]); console.log("DEBUG: Configurator Firestore data fetching complete."); processLoadedData(brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR fetching/processing configurator data:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore caricamento dati configuratore.</p>`; return; } stepsHtmlContainers.forEach(el => el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep = 1; highestLogicalStepCompleted = 0; updateStepIndicator(); populateBrands(); const brandSelectionContent = brandSelectionDiv.innerHTML.trim(); if (brandSelectionContent.includes("Nessuna marca") || (brandSelectionDiv.children.length === 0 && !brandSelectionDiv.querySelector('p'))) { console.warn("INIT WARNING: No brands populated for configurator."); if (loadingOverlay.style.display !== 'none') { loadingOverlay.innerHTML = `<p style="color:orange;">Errore: Nessuna marca configuratore disponibile.</p>`; } } else { if(loadingOverlay.isConnected && loadingOverlay.style.display !== 'none') loadingOverlay.style.display = 'none'; } document.getElementById('currentYear').textContent = new Date().getFullYear(); try { if (metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate) { const timestamp = metadataDoc.data().lastDataUpdate; document.getElementById('lastUpdated').textContent = new Date(timestamp.seconds * 1000).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }); } else { console.log("DEBUG: metadata/appInfo (configurator) missing."); document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT'); } } catch(err) { console.warn("Error retrieving configurator metadata:", err); document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT'); } initializeNavigation(); console.log("DEBUG: Configurator app part initialized."); }
 
     // --- Run Application ---
-    setupAuthUI(); // Sets up login modal listeners and onAuthStateChanged
-    initializeConfiguratorApp(); // Loads configurator data and sets up its UI
+    setupAuthUI(); 
+    initializeConfiguratorApp(); 
 
 });
 // --- END OF SCRIPT.JS ---
