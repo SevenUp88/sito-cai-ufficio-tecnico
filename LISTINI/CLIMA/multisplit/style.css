@@ -145,3 +145,47 @@ body {
 .print-only-logo {
     display: none;
 }
+
+/* Generic Print Styles (if not already covered by browser defaults or other print CSS) */
+@media print {
+    @page { 
+      size: A4;
+      margin: 1cm; /* Default page margin if configurator doesn't override for its specific page */
+    }
+    body {
+        padding-top: 0 !important; /* Override screen padding */
+        font-size: 10pt !important; /* A general base font for print */
+        color: #000 !important;
+        background-color: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Hide common non-printable elements if they exist outside configurator scope */
+    .app-header, 
+    .app-footer, 
+    #password-panel, 
+    .modal, /* Hides all modals */
+    .step-navigation:not(.summary-actions), /* Hides step navigation buttons except summary ones */
+    .step-indicator,
+    .print-instructions,
+    #admin-trigger, #print-list,
+    .page-controls > h1:not(.print-main-title), /* Hides general page H1s */
+    #admin-section {
+        display: none !important;
+    }
+    
+    /* Display print-specific logos if you have them outside the configurator */
+    .print-only-logo { /* This rule was in your style.css, ensuring it's active for print */
+        display: block !important;
+        max-height: 50px; /* Adjust as needed */
+        width: auto;
+        margin: 0 auto 10px auto;
+        object-fit: contain;
+    }
+
+    /* Avoid breaking elements inside if possible - apply to specific containers if needed */
+    .summary-block, .summary-total, .summary-indoor-unit { /* Example generic classes for summary parts if used elsewhere */
+        page-break-inside: avoid !important;
+    }
+}
