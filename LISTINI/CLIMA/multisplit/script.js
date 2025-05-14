@@ -603,7 +603,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newString = newString.replace(/&/g, "&");
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/"/g, "'");
         newString = newString.replace(/"/g, """);
         return newString;
     }
