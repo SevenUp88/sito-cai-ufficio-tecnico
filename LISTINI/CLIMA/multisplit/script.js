@@ -596,24 +596,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.currentUserRole = null; 
     let adminBrandsListener = null; 
     
-    function escapeHtml(unsafe) {
-        if (typeof unsafe !== 'string') {
-            unsafe = String(unsafe);
+    function escapeHtml(unsafeString) {
+        if (typeof unsafeString !== 'string') {
+            unsafeString = String(unsafeString);
         }
-        return unsafe.replace(/[&<>"']/g, function(match) { // Line ~608 (example)
-            if (match === '&') {
-                return '&';
-            } else if (match === '<') {
-                return '<';
-            } else if (match === '>') { // <<<< Line 613 would be HERE if the previous version was 5 lines for switch + default
-                return '>';
-            } else if (match === '"') {
-                return '"';
-            } else if (match === "'") {
-                return '''; 
-            }
-            return match; // Should not be reached if regex is correct
-        });
+        let newString = unsafeString;
+        newString = newString.replace(/&/g, "&");
+        newString = newString.replace(/</g, "<");
+        newString = newString.replace(/>/g, ">");
+        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/'/g, "'");
+        return newString;
     }
     function toggleAdminSectionVisibility() {
         const adminSection = document.getElementById('admin-section');
