@@ -289,13 +289,8 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         card.setAttribute('data-unit-id', String(unit.id));
     }
 
-    // Non impostare stili inline qui se sono già nel CSS
-    // card.style.flexDirection = "column";
-    // card.style.alignItems = 'flex-start';
-
     const infoDiv = document.createElement('div');
     infoDiv.classList.add('unit-info');
-    // infoDiv.style.width = '100%'; // Preferibilmente gestito da CSS
 
     const nameH4 = document.createElement('h4');
     let unitTitle = "UNITA' ESTERNA";
@@ -306,7 +301,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     infoDiv.appendChild(nameH4);
 
     const modelP = document.createElement('p');
-    // Usare textContent per le parti fisse e appendere <strong> se necessario, o innerHTML con cautela
     let modelP_html = "Codice: ";
     modelP_html += `<strong>${(unit && unit.modelCode) ? String(unit.modelCode) : 'N/A'}</strong>`;
     modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
@@ -377,7 +371,7 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
             card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
         }
         card.classList.add('selected');
-        if (unit) { // Assicurati che unit sia definito
+        if (unit) { 
             clickHandler(unit);
         } else {
             console.error("Tentativo di click handler con unit non definito.");
@@ -499,33 +493,32 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         }
     }
 
-    // THIS IS THE MODIFIED/INTEGRATED updateStepSelectionInfo FUNCTION
+    // THIS IS THE MODIFIED updateStepSelectionInfo FUNCTION
     function updateStepSelectionInfo() {
         const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
 
         const stepInfo1 = document.getElementById('step-info-1');
         if (stepInfo1) {
-            if (selections.brand && selections.brand.logo) {
-                stepInfo1.innerHTML = `<img src="${S(selections.brand.logo)}" alt="${S(selections.brand.name)}" class="step-info-logo">`;
-            } else if (selections.brand && selections.brand.name) {
-                stepInfo1.textContent = S(selections.brand.name);
+            if (selections.brand && selections.brand.name) {
+                stepInfo1.innerHTML = `<strong>${S(selections.brand.name).toUpperCase()}</strong>`;
             } else {
-                stepInfo1.innerHTML = ' '; // Placeholder for unselected step
+                stepInfo1.innerHTML = ' '; 
             }
         }
 
         const stepInfo2 = document.getElementById('step-info-2');
         if (stepInfo2) {
-            stepInfo2.textContent = selections.configType ? S(selections.configType.name) : '';
-            if (stepInfo2.textContent === '') stepInfo2.innerHTML = ' ';
+            if (selections.configType && selections.configType.name) {
+                stepInfo2.innerHTML = `<strong>${S(selections.configType.name).toUpperCase()}</strong>`;
+            } else {
+                stepInfo2.innerHTML = ' ';
+            }
         }
 
         const stepInfo3 = document.getElementById('step-info-3');
         if (stepInfo3) {
-            if (selections.indoorSeries && selections.indoorSeries.image) {
-                 stepInfo3.innerHTML = `<img src="${S(selections.indoorSeries.image)}" alt="${S(selections.indoorSeries.name)}" class="step-info-logo" style="max-height: 20px;">`;
-            } else if (selections.indoorSeries && selections.indoorSeries.name) {
-                stepInfo3.textContent = S(selections.indoorSeries.name);
+            if (selections.indoorSeries && selections.indoorSeries.name) {
+                stepInfo3.innerHTML = `<strong>${S(selections.indoorSeries.name).toUpperCase()}</strong>`;
             } else {
                 stepInfo3.innerHTML = ' ';
             }
@@ -533,37 +526,49 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
 
         const stepInfo4 = document.getElementById('step-info-4');
         if (stepInfo4) {
-            if (selections.outdoorUnit && selections.outdoorUnit.kw) {
-                let ueText = `${S(selections.outdoorUnit.kw)}kW`;
-                // Optional: Truncate if too long
-                if (ueText.length > 15) ueText = ueText.substring(0, 12) + "...";
-                stepInfo4.textContent = ueText;
+            if (selections.outdoorUnit && (selections.outdoorUnit.kw || selections.outdoorUnit.kw === 0)) {
+                 // Ensure "KW" is part of the string and uppercase
+                let kwText = `${S(selections.outdoorUnit.kw)}KW`;
+                stepInfo4.innerHTML = `<strong>${kwText.toUpperCase()}</strong>`;
             } else {
-                 stepInfo4.textContent = '';
+                stepInfo4.innerHTML = ' ';
             }
-            if (stepInfo4.textContent === '') stepInfo4.innerHTML = ' ';
         }
         
         const stepInfo5 = document.getElementById('step-info-5');
-         if (stepInfo5) {
-            if (currentLogicalStep > 5 || (currentLogicalStep === 5 && selections.configType && selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))) {
-                stepInfo5.textContent = 'Selezionate';
-            } else if (currentLogicalStep === 5 && selections.outdoorUnit) {
-                const requiredSlots = selections.configType ? selections.configType.numUnits : 0;
-                const selectedCount = selections.indoorUnits.filter(ui => ui !== null).length;
-                stepInfo5.textContent = `${selectedCount}/${requiredSlots} sel.`;
-            } else {
-                stepInfo5.innerHTML = ' ';
+        if (stepInfo5) {
+            if (selections.outdoorUnit && selections.configType) { // Only show if previous steps are done enough to select UIs
+                const numSlots = selections.configType.numUnits;
+                let btuParts = [];
+                let allSelected = true;
+                if (numSlots > 0) {
+                    for (let i = 0; i < numSlots; i++) {
+                        if (selections.indoorUnits[i] && selections.indoorUnits[i].capacityBTU) {
+                            btuParts.push(String(selections.indoorUnits[i].capacityBTU));
+                        } else {
+                            btuParts.push("..."); // Placeholder for unselected slot
+                            allSelected = false;
+                        }
+                    }
+                    if (btuParts.length > 0) {
+                         stepInfo5.innerHTML = `<strong>${btuParts.join(' + ').toUpperCase()}</strong>`;
+                    } else { // No slots for UI (e.g. mono-ue selection if logic allows, though current flow implies multi)
+                        stepInfo5.innerHTML = '<strong>N/A</strong>';
+                    }
+                } else { // numSlots is 0
+                     stepInfo5.innerHTML = '<strong>N/A</strong>'; // No indoor units for this config
+                }
+            } else if (currentLogicalStep === 5) { // On step 5 but previous selections not made yet
+                 stepInfo5.innerHTML = '<strong>DA SELEZIONARE</strong>';
+            }
+             else {
+                stepInfo5.innerHTML = ' '; // Default empty
             }
         }
 
         const stepInfo6 = document.getElementById('step-info-6');
         if (stepInfo6) {
-            if (currentLogicalStep === TOTAL_LOGICAL_STEPS) {
-                stepInfo6.textContent = 'Completo';
-            } else {
-                stepInfo6.innerHTML = ' ';
-            }
+            stepInfo6.innerHTML = ' '; // Step 6 should show nothing as per request
         }
     }
     
@@ -605,7 +610,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
 
         const label = document.createElement('label');
         label.htmlFor = `indoor-unit-select-${i}`;
-        // Sanificazione per label.innerHTML
         const safeIndoorSeriesName = String(selections.indoorSeries.name || '').replace(/`/g, "'");
         label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${safeIndoorSeriesName}</strong>):`;
         slotDiv.appendChild(label);
@@ -622,7 +626,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         uniqueUnitsToDisplay.forEach(uiVariant => {
             const option = document.createElement('option');
             option.value = uiVariant.id;
-            // Sanificazione per option.innerHTML
             const safeModelCodeOpt = String(uiVariant.modelCode || '').replace(/`/g, "'");
             const safeKwOpt = String(uiVariant.kw || '').replace(/`/g, "'");
             const safeBtuOpt = String(uiVariant.capacityBTU || '').replace(/`/g, "'");
@@ -634,11 +637,9 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         const detailsDiv = document.createElement('div');
         detailsDiv.classList.add('unit-details');
 
-        // const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // S is already defined globally or in parent scope
-
        const generateDetailsHtml = (unit) => {
             if (!unit) return '';
-            const S_local = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper, local if S is not guaranteed
+            const S_local = (str) => str != null ? String(str).replace(/`/g, "'") : ''; 
 
             let html = `<p>Cod: <strong>${S_local(unit.modelCode) || 'N/A'}</strong></p>`;
             html += `<p>Pwr: <strong>${S_local(unit.kw) || 'N/A'}kW (${S_local(unit.capacityBTU) || 'N/A'} BTU)</strong> - €<strong>${(unit.price || 0).toFixed(2)}</strong></p>`;
@@ -684,10 +685,8 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         }
 
         let totalPrice = selections.outdoorUnit.price || 0;
-        const valOrNA = (val, suffix = '') => (val !== undefined && val !== null && val !== '' && val !== "Dati mancanti") ? `${String(val).replace(/`/g, "'")}${suffix}` : 'N/A'; // Sanificato
+        const valOrNA = (val, suffix = '') => (val !== undefined && val !== null && val !== '' && val !== "Dati mancanti") ? `${String(val).replace(/`/g, "'")}${suffix}` : 'N/A'; 
         const priceOrND = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : 'N/D';
-
-        // Sanificazione per i nomi nel riepilogo
         const S_SUMMARY = (str) => str != null ? String(str).replace(/`/g, "'") : '';
 
 
@@ -716,8 +715,7 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
                     return `
                     <div class="summary-indoor-unit" style="border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:10px;">
                         <h4>Unità ${index + 1}: <strong>${S_SUMMARY(ui.seriesName)}</strong></h4>
-            {/* RIMOSSA LA RIGA DELL'IMMAGINE QUI */}
-            {/* ${ui.image ? `<img src="${S_SUMMARY(ui.image)}" alt="${S_SUMMARY(ui.name)}" class="summary-ui-img">` : ''} */}  <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p>
+                        <p><strong>Codice:</strong> ${valOrNA(ui.modelCode)}</p>
                         <p><strong>Potenza: ${valOrNA(ui.kw, 'kW')} (${valOrNA(ui.capacityBTU, ' BTU')})</strong></p>
                         <p><strong>Tipo:</strong> ${valOrNA(ui.type)}</p>
                         <p><strong>Dimensioni:</strong> ${valOrNA(ui.dimensions)}</p>
@@ -741,7 +739,6 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
     // --- Navigation Logic ---
     function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid logical step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return; } console.log(`ShowStep: Target=${logicalStepNumber}, DirectNav=${fromDirectNavigation}, Prev CurrHighest=${highestLogicalStepCompleted}, Prev CurrStep=${currentLogicalStep}`); if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) { console.log(`Navigation to step ${logicalStepNumber} blocked by completion rules.`); showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return; } } if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; } } stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`); } currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0); console.log(`ShowStep END: Now currentStep=${currentLogicalStep}, CurrHighest=${highestLogicalStepCompleted}`); }
     
-    // THIS IS THE MODIFIED updateStepIndicator FUNCTION
     function updateStepIndicator() {
         const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line');
         stepIndicatorItems.forEach((item, htmlIndex) => {
