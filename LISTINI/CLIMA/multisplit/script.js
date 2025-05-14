@@ -243,79 +243,116 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
-        const card = document.createElement('div');
-        card.classList.add('unit-selection-card');
-        if (isSelected) card.classList.add('selected');
-        if (unit && unit.id != null) { card.setAttribute('data-unit-id', String(unit.id));}
-        const infoDiv = document.createElement('div');
-        infoDiv.classList.add('unit-info');
-        const nameH4 = document.createElement('h4');
-        let unitTitle = "UNITA' ESTERNA";
-        if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") { unitTitle += ` ${String(unit.kw)}kW`;}
-        nameH4.textContent = unitTitle;
-        infoDiv.appendChild(nameH4);
-        const modelP = document.createElement('p');
-        let modelP_html = "Codice: ";
-        modelP_html += `<strong>${(unit && unit.modelCode && unit.modelCode.toUpperCase() !== 'N/A') ? String(unit.modelCode) : '-'}</strong>`;
-        modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
-        modelP.innerHTML = modelP_html;
-        infoDiv.appendChild(modelP);
-        const energyClassContainerP = document.createElement('p');
-        const energyLabelSpan = document.createElement('span');
-        energyLabelSpan.classList.add('energy-class-label');
-        energyLabelSpan.textContent = "Classe Energetica (F/C):";
-        energyClassContainerP.appendChild(energyLabelSpan);
-        const coolingSpan = document.createElement('span');
-        coolingSpan.classList.add('energy-rating');
-        const coolingVal = (unit && unit.energyClassCooling) ? String(unit.energyClassCooling) : "";
-        let coolingDisplay = "-";
-        coolingSpan.classList.remove('cooling', 'heating', 'unknown'); 
-        if (coolingVal && coolingVal.toUpperCase() !== "DATI MANCANTI" && coolingVal.toUpperCase() !== "N/D" && coolingVal.toUpperCase() !== "N.D." && coolingVal.toUpperCase() !== "NA" && coolingVal.toUpperCase() !== "N.A." && coolingVal.trim() !== "") { coolingDisplay = coolingVal; coolingSpan.classList.add('cooling');}
-        else { coolingSpan.classList.add('unknown');}
-        coolingSpan.textContent = coolingDisplay;
-        energyClassContainerP.appendChild(coolingSpan);
-        const separatorSpan = document.createElement('span');
-        separatorSpan.classList.add('energy-separator');
-        separatorSpan.textContent = "/";
-        energyClassContainerP.appendChild(separatorSpan);
-        const heatingSpan = document.createElement('span');
-        heatingSpan.classList.add('energy-rating');
-        const heatingVal = (unit && unit.energyClassHeating) ? String(unit.energyClassHeating) : "";
-        let heatingDisplay = "-";
-        heatingSpan.classList.remove('cooling', 'heating', 'unknown');
-        if (heatingVal && heatingVal.toUpperCase() !== "DATI MANCANTI" && heatingVal.toUpperCase() !== "N/D" && heatingVal.toUpperCase() !== "N.D." && heatingVal.toUpperCase() !== "NA" && heatingVal.toUpperCase() !== "N.A." && heatingVal.trim() !== "") { heatingDisplay = heatingVal; heatingSpan.classList.add('heating');}
-        else { heatingSpan.classList.add('unknown');}
-        heatingSpan.textContent = heatingDisplay;
-        energyClassContainerP.appendChild(heatingSpan);
-        infoDiv.appendChild(energyClassContainerP);
-        const dimensionsP = document.createElement('p');
-        const dimRawVal = (unit && unit.dimensions) ? String(unit.dimensions) : "";
-        let dimDisplay = "-";
-        if (dimRawVal && dimRawVal.toUpperCase() !== "DATI MANCANTI" && dimRawVal.toUpperCase() !== "N/A" && dimRawVal.toUpperCase() !== "N.D." && dimRawVal.toUpperCase() !== "NA" && dimRawVal.toUpperCase() !== "N.A." && dimRawVal.trim() !== "") { dimDisplay = dimRawVal;}
-        const weightRawVal = (unit && typeof unit.weight !== 'undefined' && unit.weight !== null) ? String(unit.weight) : "";
-        let weightDisplay = "-";
-        if (weightRawVal && weightRawVal.toUpperCase() !== "DATI MANCANTI" && weightRawVal.toUpperCase() !== "N/D" && weightRawVal.toUpperCase() !== "N.D." && weightRawVal.toUpperCase() !== "NA" && weightRawVal.toUpperCase() !== "N.A." && weightRawVal.trim() !== "") {
-            if (!isNaN(parseFloat(weightRawVal)) && isFinite(weightRawVal)) { weightDisplay = `${weightRawVal} kg`;}
-            else { weightDisplay = weightRawVal; }}
-        dimensionsP.textContent = `Dimensioni: ${dimDisplay} | Peso: ${weightDisplay}`;
-        infoDiv.appendChild(dimensionsP);
-        const priceP = document.createElement('p');
-        priceP.classList.add('unit-price');
-        let priceText = "Prezzo: ";
-        if (unit && typeof unit.price === 'number') { priceText += unit.price.toFixed(2);}
-        else { priceText += (unit && unit.price && String(unit.price).toUpperCase() !== 'N/D') ? String(unit.price) : '-';}
-        priceText += " € (IVA escl.)";
-        priceP.textContent = priceText;
-        infoDiv.appendChild(priceP);
-        card.appendChild(infoDiv);
-        card.addEventListener('click', () => {
-            if (card.parentElement) {card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));}
-            card.classList.add('selected');
-            if (unit) { clickHandler(unit);} else { console.error("Tentativo di click handler con unit non definito.");}
-        });
-        return card;
+    const card = document.createElement('div');
+    card.classList.add('unit-selection-card');
+    if (isSelected) card.classList.add('selected');
+
+    if (unit && unit.id != null) {
+        card.setAttribute('data-unit-id', String(unit.id));
     }
 
+    const infoDiv = document.createElement('div');
+    infoDiv.classList.add('unit-info');
+
+    const nameH4 = document.createElement('h4');
+    let unitTitle = "UNITA' ESTERNA";
+    if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
+        unitTitle += ` ${String(unit.kw)}kW`;
+    }
+    nameH4.textContent = unitTitle;
+    infoDiv.appendChild(nameH4);
+
+    const modelP = document.createElement('p');
+    let modelP_html = "Codice: ";
+    // Use a helper for consistency with valOrDash logic for '-' display
+    const modelCodeDisplay = (unit && unit.modelCode && String(unit.modelCode).toUpperCase() !== 'N/A' && String(unit.modelCode).toUpperCase() !== 'DATI MANCANTI'  && String(unit.modelCode).trim() !== '') ? String(unit.modelCode) : '-';
+    modelP_html += `<strong>${modelCodeDisplay}</strong>`;
+    modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
+    modelP.innerHTML = modelP_html;
+    infoDiv.appendChild(modelP);
+
+    const energyClassContainerP = document.createElement('p');
+    const energyLabelSpan = document.createElement('span');
+    energyLabelSpan.classList.add('energy-class-label');
+    energyLabelSpan.textContent = "Classe Energetica (F/C):";
+    energyClassContainerP.appendChild(energyLabelSpan);
+
+    const valOrDashForEnergy = (val) => {
+        const strVal = (val) ? String(val) : "";
+        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/D" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "NA" && strVal.toUpperCase() !== "N.A." && strVal.trim() !== "") {
+            return { display: strVal, isData: true };
+        }
+        return { display: "-", isData: false };
+    };
+    
+    const coolingInfo = valOrDashForEnergy(unit?.energyClassCooling);
+    const coolingSpan = document.createElement('span');
+    coolingSpan.classList.add('energy-rating');
+    coolingSpan.classList.toggle('cooling', coolingInfo.isData);
+    coolingSpan.classList.toggle('unknown', !coolingInfo.isData);
+    coolingSpan.textContent = coolingInfo.display;
+    energyClassContainerP.appendChild(coolingSpan);
+
+    const separatorSpan = document.createElement('span');
+    separatorSpan.classList.add('energy-separator');
+    separatorSpan.textContent = "/";
+    energyClassContainerP.appendChild(separatorSpan);
+
+    const heatingInfo = valOrDashForEnergy(unit?.energyClassHeating);
+    const heatingSpan = document.createElement('span');
+    heatingSpan.classList.add('energy-rating');
+    heatingSpan.classList.toggle('heating', heatingInfo.isData);
+    heatingSpan.classList.toggle('unknown', !heatingInfo.isData);
+    heatingSpan.textContent = heatingInfo.display;
+    energyClassContainerP.appendChild(heatingSpan);
+    infoDiv.appendChild(energyClassContainerP);
+
+    const dimensionsP = document.createElement('p');
+    const dimInfo = valOrDashForEnergy(unit?.dimensions);
+    
+    const weightVal = (unit && typeof unit.weight !== 'undefined' && unit.weight !== null) ? String(unit.weight) : "";
+    let weightDisplay = "-";
+     if (weightVal && weightVal.toUpperCase() !== "DATI MANCANTI" && weightVal.toUpperCase() !== "N/D" && weightVal.toUpperCase() !== "N.D." && weightVal.toUpperCase() !== "NA" && weightVal.toUpperCase() !== "N.A." && weightVal.trim() !== "") {
+        if (!isNaN(parseFloat(weightVal)) && isFinite(weightVal)) {
+             weightDisplay = `${weightVal} kg`; // Corrected template literal
+        } else {
+             weightDisplay = weightVal; 
+        }
+    }
+    dimensionsP.textContent = `Dimensioni: ${dimInfo.display} | Peso: ${weightDisplay}`;
+    infoDiv.appendChild(dimensionsP);
+
+    const priceP = document.createElement('p');
+    priceP.classList.add('unit-price');
+    let priceText = "Prezzo: ";
+    if (unit && typeof unit.price === 'number') {
+        priceText += unit.price.toFixed(2);
+    } else {
+        const priceStr = (unit && unit.price) ? String(unit.price) : "";
+        if (priceStr && priceStr.toUpperCase() !== 'N/D' && priceStr.toUpperCase() !== 'DATI MANCANTI') {
+            priceText += priceStr;
+        } else {
+            priceText += '-';
+        }
+    }
+    priceText += " € (IVA escl.)";
+    priceP.textContent = priceText;
+    infoDiv.appendChild(priceP);
+
+    card.appendChild(infoDiv);
+    card.addEventListener('click', () => {
+        if (card.parentElement) {
+            card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
+        }
+        card.classList.add('selected');
+        if (unit) { 
+            clickHandler(unit);
+        } else {
+            console.error("Tentativo di click handler con unit non definito.");
+        }
+    });
+    return card;
+}
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
     function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('<select'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
 
