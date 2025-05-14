@@ -598,12 +598,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     function escapeHtml(unsafe) {
         if (typeof unsafe !== 'string') unsafe = String(unsafe);
-        return unsafe
-            .replace(/&/g, "&")
-            .replace(/</g, "<")
-            .replace(/>/g, ">")
-            .replace(/"/g, """) // CORRECTED THIS LINE
-            .replace(/'/g, "'"); // Or use '
+        return unsafe.replace(/[&<>"']/g, function (match) {
+            switch (match) {
+                case '&':
+                    return '&';
+                case '<':
+                    return '<';
+                case '>':
+                    return '>';
+                case '"':
+                    return '"';
+                case "'":
+                    return '''; // or '''
+                default:
+                    return match;
+            }
+        });
     }
 
     function toggleAdminSectionVisibility() {
