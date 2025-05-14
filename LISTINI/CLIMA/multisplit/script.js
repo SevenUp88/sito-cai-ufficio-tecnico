@@ -5,128 +5,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (6-Step Flow - Scenario 1)");
 
     // --- START: Stili CSS per la stampa ---
-    const printStyles = `
-    @media print {
-      body, html {
-        margin: 0 !important;
-        padding: 0 !important;
-        background-color: white !important;
-      }
-      body * { /* Nasconde tutto di default */
-        visibility: hidden !important;
-        background-image: none !important;
-        box-shadow: none !important;
-        border-style: none !important;
-        color: black !important; /* Assicura testo nero su sfondo bianco */
-      }
-
-      /* Elementi da rendere visibili */
-      #summary-main-title, #summary-main-title *,
-      #config-summary, #config-summary * {
-        visibility: visible !important;
-      }
-
-      #summary-main-title {
-        display: block !important;
-        text-align: center !important;
-        font-size: 16pt !important;
-        margin: 20px auto 15px auto !important;
-        width: auto !important;
-      }
-
-      #config-summary {
-        font-size: 10pt !important;
-        width: calc(100% - 40px) !important; /* Larghezza con margini di 20px per lato */
-        max-width: 100% !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-        position: static !important;
-        box-sizing: border-box !important;
-      }
-
-      /* --- NEW PRINT STYLES FOR THE REVAMPED SUMMARY --- */
-      #config-summary .summary-layout-container { page-break-inside: auto !important; }
-
-      #config-summary .summary-header-info,
-      #config-summary .summary-detail-block,
-      #config-summary .summary-indoor-units-container,
-      #config-summary .summary-indoor-unit-detail-card {
-        background-color: #ffffff !important; 
-        border: 1px solid #ccc !important; 
-        box-shadow: none !important;
-        font-size: 9pt !important; 
-        padding: 0.2cm !important;
-        margin-bottom: 0.3cm !important;
-        page-break-inside: avoid !important;
-      }
-
-      #config-summary .summary-header-info {
-        display: flex !important; /* Changed to flex for potentially better wrapping */
-        flex-wrap: wrap !important;
-        justify-content: space-between !important;
-        gap: 5px 10px !important;
-        font-size: 8.5pt !important;
-      }
-      #config-summary .summary-header-info .info-group {
-          flex-basis: 48%; /* Aim for two columns if space allows */
-          min-width: 250px; /* Ensure readability */
-      }
-     #config-summary .summary-header-info strong {
-        min-width: 90px !important; 
-     }
-
-    #config-summary .summary-details-title {
-        font-size: 12pt !important;
-        margin-top: 0.5cm !important;
-        margin-bottom: 0.3cm !important;
-        border-bottom: 1px solid #000 !important;
-        text-align: center !important; /* Explicitly center for print */
-    }
-    
-    #config-summary .summary-detail-block h3 { /* For "UNITA' ESTERNA" / "UNITA' INTERNE" titles within blocks */
-        font-size: 10pt !important;
-        text-align: center; /* Center sub-section titles */
-        background-color: #f0f0f0 !important; /* Light grey bg for titles */
-        padding: 5px !important;
-        margin-bottom: 5px !important;
-    }
-
-    #config-summary .outdoor-unit-details-content p,
-    #config-summary .summary-indoor-unit-detail-card p {
-        font-size: 8pt !important;
-        line-height: 1.3 !important; /* Slightly more space */
-        margin: 2px 0 2px 5px !important; /* Small indent */
-    }
-     #config-summary .outdoor-unit-details-content strong,
-    #config-summary .summary-indoor-unit-detail-card strong {
-        min-width: 75px !important; /* Adjust label width */
-        font-weight: bold !important; /* Ensure bold */
-    }
-
-    #config-summary .summary-indoor-units-container {
-        display: block !important; /* Stack UI cards vertically for print */
-        padding-left: 0 !important;
-    }
-     #config-summary .summary-indoor-unit-detail-card {
-         margin-bottom: 0.3cm !important; /* Space between stacked UI cards */
-     }
-     #config-summary .summary-indoor-unit-detail-card h4 {
-        font-size: 9.5pt !important;
-     }
-
-    #config-summary .total-price-iva { /* In header */
-        font-size: 10pt !important;
-        font-weight: bold !important; /* Ensure bold */
-    }
-    /* --- END OF NEW PRINT STYLES --- */
-    }
-    `;
-    const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
-    styleSheet.innerText = printStyles;
-    document.head.appendChild(styleSheet);
+    // Print styles are handled by the CSS files.
+    // --- END: Stili CSS per la stampa ---
 
 
+    // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
       authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
@@ -141,11 +24,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // --- App Data & State ---
     const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] };
     let currentLogicalStep = 1;
     let highestLogicalStepCompleted = 0;
     const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] };
 
+    // --- DOM Element References ---
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
     const indoorSeriesSelectionDiv = document.getElementById('model-selection');
@@ -160,11 +45,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingOverlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:var(--primary-color);z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
     loadingOverlay.innerHTML = '<div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px;"></div><p>Caricamento dati...</p><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
 
+    // --- Step Mapping & Names ---
     const TOTAL_LOGICAL_STEPS = 6;
     const LOGICAL_TO_HTML_STEP_MAP = { 1: "step-1", 2: "step-3", 3: "step-2", 4: "step-4", 5: "step-5", 6: "step-6" };
     const HTML_TO_LOGICAL_STEP_MAP = { "step-1": 1, "step-3": 2, "step-2": 3, "step-4": 4, "step-5": 5, "step-6": 6 };
     const LOGICAL_STEP_NAMES = [ "Marca", "Config.", "Modello", "Unità Est.", "Unità Int.", "Riepilogo" ];
 
+    // --- Utility & Data Fetching / Processing ---
     async function fetchFirestoreCollection(collectionName) { console.log(`DEBUG: Fetching Firestore collection: ${collectionName}`); try { const snapshot = await db.collection(collectionName).get(); const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); console.log(`DEBUG: Fetched ${data.length} items from ${collectionName}.`); return data; } catch (error) { console.error(`DEBUG: Error fetching collection ${collectionName}:`, error); loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Errore caricamento ${collectionName}.</span>`; return []; } }
     function parsePowerString(powerStr) { let btu = 0; let kw = "N/A"; if (typeof powerStr === 'string' && powerStr !== "Dati mancanti") { const btuMatch = powerStr.match(/([\d.,]+)\s*BTU/i); if (btuMatch && btuMatch[1]) btu = parseInt(btuMatch[1].replace(/[.,]/g, ''), 10) || 0; const kwMatch = powerStr.match(/([\d.,]+)\s*kW/i); if (kwMatch && kwMatch[1]) kw = kwMatch[1].replace(',', '.'); else if (btu > 0 && kw === "N/A") kw = (btu / 3412.14).toFixed(1); } return { btu, kw }; }
     function sanitizeForId(str) { if (!str) return ''; return String(str).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''); }
@@ -354,13 +241,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
-    function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('<select'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
+    function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('indoor-unit-choice-card'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
 
     function populateBrands() { brandSelectionDiv.innerHTML = ''; if (!APP_DATA.outdoorUnits?.length) { brandSelectionDiv.innerHTML = '<p>Dati unità esterne non disponibili.</p>'; return; } const uniqueBrandIdsFromUEs = [...new Set(APP_DATA.outdoorUnits.map(ue => ue.brandId).filter(id => id && id !== 'sconosciuta'))]; const brandsToShow = APP_DATA.brands.filter(b => uniqueBrandIdsFromUEs.includes(b.id)); if (!brandsToShow.length) { brandSelectionDiv.innerHTML = '<p>Nessuna marca con UEs.</p>'; return; } brandsToShow.forEach(brand => { brandSelectionDiv.appendChild(createSelectionItem(brand, 'brand', (selectedBrand) => { if (selections.brand?.id !== selectedBrand.id) { resetSelectionsAndUIFrom(2); selections.brand = selectedBrand; highestLogicalStepCompleted = 1; } populateConfigTypes(); showStep(2); }, selections.brand?.id === brand.id)); }); if (selections.brand && !brandsToShow.some(b => b.id === selections.brand.id)) selections.brand = null; }
     function populateConfigTypes() { configTypeSelectionDiv.innerHTML = ''; if (!selections.brand) { configTypeSelectionDiv.innerHTML = '<p>Scegli marca.</p>'; return; } const validConfigs = Object.values(APP_DATA.configTypes).filter(ct => APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections === ct.numUnits)).sort((a,b) => a.numUnits - b.numUnits); if (!validConfigs.length) { configTypeSelectionDiv.innerHTML = `<p>Nessuna config. per ${selections.brand.name}.</p>`; return; } validConfigs.forEach(config => { configTypeSelectionDiv.appendChild(createSelectionItem(config, 'config', (selectedConfig) => { if (selections.configType?.id !== selectedConfig.id) { resetSelectionsAndUIFrom(3); selections.configType = selectedConfig; highestLogicalStepCompleted = 2; } populateIndoorSeries(); showStep(3); }, selections.configType?.id === config.id)); }); if (selections.configType && !validConfigs.some(vc => vc.id === selections.configType.id)) selections.configType = null;}
     function populateIndoorSeries() { indoorSeriesSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType) { indoorSeriesSelectionDiv.innerHTML = '<p>Scegli Marca & Config.</p>'; return; } const brandId = selections.brand.id; const numUnitsRequired = selections.configType.numUnits; const candidateUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === brandId && ue.connections === numUnitsRequired); if (!candidateUEs.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessuna UE ${brandId} per ${numUnitsRequired} UI.</p>`; return; } const compatibleSeriesIdsSet = new Set(candidateUEs.flatMap(ue => ue.compatibleIndoorSeriesIds || [])); if (compatibleSeriesIdsSet.size === 0) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun modello UI compatibile per UE ${brandId}/${numUnitsRequired}-split.</p>`; return; } const validIndoorUnitsForSeriesSelection = APP_DATA.indoorUnits.filter(ui => ui.brandId === brandId && compatibleSeriesIdsSet.has(ui.seriesId)); const uniqueSeries = []; const seenSeriesIds = new Set(); validIndoorUnitsForSeriesSelection.forEach(ui => { if (!seenSeriesIds.has(ui.seriesId)) { let img = APP_DATA.uiSeriesImageMapping[ui.seriesId] ? `img/${APP_DATA.uiSeriesImageMapping[ui.seriesId]}.png` : (ui.image || null); uniqueSeries.push({ name: ui.seriesName, id: ui.seriesId, image: img }); seenSeriesIds.add(ui.seriesId); } }); if (!uniqueSeries.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun Modello UI ${brandId} compatibile trovato.</p>`; return; } uniqueSeries.sort((a,b) => a.name.localeCompare(b.name)); uniqueSeries.forEach(series => { indoorSeriesSelectionDiv.appendChild(createSelectionItem(series, 'series', (selectedSeries) => { if (selections.indoorSeries?.id !== selectedSeries.id) { resetSelectionsAndUIFrom(4); selections.indoorSeries = selectedSeries; highestLogicalStepCompleted = 3; } populateOutdoorUnits(); showStep(4); }, selections.indoorSeries?.id === series.id));}); if (selections.indoorSeries && !uniqueSeries.some(s => s.id === selections.indoorSeries.id)) selections.indoorSeries = null;}
     function populateOutdoorUnits() { outdoorUnitSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries) { outdoorUnitSelectionDiv.innerHTML = '<p>Scegli Marca, Config., Modello.</p>'; return;} const numRequired = selections.configType.numUnits; const requiredSeriesId = selections.indoorSeries.id; const compatibleUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id && ue.connections === numRequired && Array.isArray(ue.compatibleIndoorSeriesIds) && ue.compatibleIndoorSeriesIds.includes(requiredSeriesId)); if (!compatibleUEs.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE ${selections.brand.name} per ${numRequired} UI compatibile con "${selections.indoorSeries.name}".</p>`; return; } const uniqueUEsToDisplay = []; const seenUEKeys = new Set(); for (const ue of compatibleUEs) { const ueKey = `${ue.modelCode}-${ue.kw}-${ue.connections}-${ue.price.toFixed(2)}`; if (!seenUEKeys.has(ueKey)) { seenUEKeys.add(ueKey); uniqueUEsToDisplay.push(ue);}} if (!uniqueUEsToDisplay.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE unica trovata per ${selections.brand.name}.</p>`; return; } uniqueUEsToDisplay.forEach(ue => { outdoorUnitSelectionDiv.appendChild(createUnitSelectionCard(ue, (selectedUE) => { if (selections.outdoorUnit?.id !== selectedUE.id) { resetSelectionsAndUIFrom(5); selections.outdoorUnit = selectedUE; highestLogicalStepCompleted = 4; } populateIndoorUnitSelectors(); showStep(5); }, selections.outdoorUnit?.id === ue.id));}); if (selections.outdoorUnit && !uniqueUEsToDisplay.some(ue => ue.id === selections.outdoorUnit.id)) { selections.outdoorUnit = null;}}
     
+    const valOrDash = (val, suffix = '') => { // Moved to be accessible by populateIndoorUnitSelectors too
+        const S = (str) => str != null ? String(str).replace(/`/g, "'") : '';
+        const strVal = S(val);
+        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D" && strVal.toUpperCase() !== "N.D." && strVal.trim() !== "" && strVal.trim() !== "-") {
+            return `${strVal}${suffix}`;
+        }
+        return '-';
+    };
+
     function updateStepSelectionInfo() {
         const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; 
         const formatText = (text, isNumericOrSpecial = false) => {
@@ -393,93 +289,128 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (stepInfo6) { stepInfo6.innerHTML = ' '; }
     }
     
+    function generateIndoorUnitDetailsHtml(unit) {
+        if (!unit) return '<p>Seleziona una taglia/potenza.</p>';
+        // valOrDash is now globally available
+        let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
+        html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`;
+        html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
+        html += `<p>Peso: <strong>${valOrDash(unit.weight, ' kg')}</strong></p>`;
+        html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`;
+        return html;
+    }
+
+    function handleIndoorUnitChoiceClick(event) {
+        const clickedCard = event.currentTarget;
+        const unitId = clickedCard.dataset.unitId;
+        const choicesContainer = clickedCard.parentElement;
+        const slotIndex = parseInt(choicesContainer.dataset.slotIndex);
+
+        choicesContainer.querySelectorAll('.indoor-unit-choice-card.selected').forEach(card => {
+            card.classList.remove('selected');
+        });
+        clickedCard.classList.add('selected');
+        
+        const selectedUnitData = APP_DATA.indoorUnits.find(ui => ui.id === unitId);
+        selections.indoorUnits[slotIndex] = selectedUnitData || null;
+
+        const slotDiv = choicesContainer.closest('.indoor-unit-slot');
+        if (slotDiv) {
+            const detailsDiv = slotDiv.querySelector('.unit-details');
+            if (detailsDiv) {
+                detailsDiv.innerHTML = generateIndoorUnitDetailsHtml(selectedUnitData);
+            }
+        }
+        checkAllIndoorUnitsSelected();
+    }
+
     function populateIndoorUnitSelectors() {
         indoorUnitsSelectionArea.innerHTML = '';
         if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
-            indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi.</p>`;
+            indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi precedenti per visualizzare le Unità Interne.</p>`;
             checkAllIndoorUnitsSelected();
             return;
         }
 
         const availableIndoorUnitsForSeries = APP_DATA.indoorUnits
             .filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id)
-            .sort((a, b) => a.capacityBTU - b.capacityBTU);
+            .sort((a, b) => (a.capacityBTU || 0) - (b.capacityBTU || 0));
 
         if (!availableIndoorUnitsForSeries.length) {
-            indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante per ${selections.indoorSeries.name}.</p>`;
+            indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante disponibile per il modello UI "${selections.indoorSeries.name}".</p>`;
             checkAllIndoorUnitsSelected();
             return;
         }
 
-        const uniqueUnitsToDisplay = [];
-        const seenKeys = new Set();
-        for (const uiVariant of availableIndoorUnitsForSeries) {
-            const key = `${uiVariant.modelCode}-${uiVariant.kw}-${uiVariant.capacityBTU}-${uiVariant.price.toFixed(2)}`;
-            if (!seenKeys.has(key)) { seenKeys.add(key); uniqueUnitsToDisplay.push(uiVariant);}
-        }
-
-        if (selections.indoorUnits.length !== selections.configType.numUnits || !selections.indoorUnits.every(ui => ui === null || (ui && ui.seriesId === selections.indoorSeries.id))) {
+        // Create a set of unique display cards based on kW and BTU for the buttons
+        const uniqueDisplayOptionsMap = new Map();
+        availableIndoorUnitsForSeries.forEach(uiVariant => {
+            const displayKey = `${uiVariant.kw}-${uiVariant.capacityBTU}`;
+            if (!uniqueDisplayOptionsMap.has(displayKey)) {
+                // Store the first unit encountered for this displayKey to represent the choice card
+                // The actual unit ID will be used for selection logic.
+                uniqueDisplayOptionsMap.set(displayKey, uiVariant);
+            }
+        });
+        const uniqueDisplayOptions = Array.from(uniqueDisplayOptionsMap.values());
+        
+        if (!Array.isArray(selections.indoorUnits) || selections.indoorUnits.length !== selections.configType.numUnits) {
             selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
         }
 
         for (let i = 0; i < selections.configType.numUnits; i++) {
             const slotDiv = document.createElement('div');
             slotDiv.classList.add('indoor-unit-slot');
+
             const label = document.createElement('label');
-            label.htmlFor = `indoor-unit-select-${i}`;
+            label.htmlFor = `indoor-unit-choices-${i}`;
             const safeIndoorSeriesName = String(selections.indoorSeries.name || '').replace(/`/g, "'");
-            label.innerHTML = `Unità ${i + 1} (<strong>Modello: ${safeIndoorSeriesName}</strong>):`;
+            label.innerHTML = `Unità ${i + 1} (Modello: <strong>${safeIndoorSeriesName}</strong>):`;
             slotDiv.appendChild(label);
-            const select = document.createElement('select');
-            select.id = `indoor-unit-select-${i}`;
-            select.dataset.index = i;
-            const placeholder = document.createElement('option');
-            placeholder.value = "";
-            placeholder.textContent = "-- Seleziona Taglia/Potenza --";
-            select.appendChild(placeholder);
-            uniqueUnitsToDisplay.forEach(uiVariant => {
-                const option = document.createElement('option');
-                option.value = uiVariant.id;
-                const safeModelCodeOpt = String(uiVariant.modelCode || '').replace(/`/g, "'");
-                const safeKwOpt = String(uiVariant.kw || '').replace(/`/g, "'");
-                const safeBtuOpt = String(uiVariant.capacityBTU || '').replace(/`/g, "'");
-                option.innerHTML = `${safeModelCodeOpt} - <strong>${safeKwOpt}kW (${safeBtuOpt} BTU)</strong> - Prezzo: ${uiVariant.price.toFixed(2)}€`;
-                if (selections.indoorUnits[i]?.id === uiVariant.id) option.selected = true;
-                select.appendChild(option);
-            });
+
+            const choicesContainer = document.createElement('div');
+            choicesContainer.id = `indoor-unit-choices-${i}`;
+            choicesContainer.classList.add('indoor-unit-choices-container');
+            choicesContainer.dataset.slotIndex = i;
+
+            if (uniqueDisplayOptions.length === 0) { // Fallback if all units are identical beyond displayKey (unlikely)
+                 choicesContainer.innerHTML = `<p>Opzioni UI non chiaramente distinguibili.</p>`;
+            } else {
+                uniqueDisplayOptions.forEach(displayUnit => {
+                    // Find ALL actual units that match this displayUnit's kW and BTU.
+                    // This is if you want the user to pick, e.g. "2.5kW / 9000 BTU", and then you have logic
+                    // to decide WHICH actual "2.5kW / 9000 BTU" unit to pick if there are multiple with different IDs/codes.
+                    // For now, we'll assume each card represents the ID of the first uniqueDisplayOption encountered.
+                    // If multiple underlying products map to one card, the click handler will use the ID of that one representative.
+                    
+                    const choiceCard = document.createElement('div');
+                    choiceCard.classList.add('indoor-unit-choice-card');
+                    choiceCard.dataset.unitId = displayUnit.id; // This specific unit will be selected on click.
+                    
+                    choiceCard.innerHTML = `
+                        <span class="unit-kw">${valOrDash(displayUnit.kw, 'Kw')}</span>
+                        <span class="unit-btu">${valOrDash(displayUnit.capacityBTU, ' BTU')}</span>
+                    `;
+
+                    if (selections.indoorUnits[i] && selections.indoorUnits[i].id === displayUnit.id) {
+                        choiceCard.classList.add('selected');
+                    }
+
+                    choiceCard.addEventListener('click', handleIndoorUnitChoiceClick);
+                    choicesContainer.appendChild(choiceCard);
+                });
+            }
+            slotDiv.appendChild(choicesContainer);
+
             const detailsDiv = document.createElement('div');
             detailsDiv.classList.add('unit-details');
-
-            const generateDetailsHtml = (unit) => {
-                if (!unit) return '';
-                const S_local = (str) => str != null ? String(str).replace(/`/g, "'") : '';
-                const valOrDash = (val, suffix = '') => {
-                    const strVal = S_local(val);
-                    if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D" && strVal.toUpperCase() !== "N.D." && strVal.trim() !== "") {
-                        return `${strVal}${suffix}`;
-                    }
-                    return '-';
-                };
-            
-                let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
-                html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`; 
-                html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
-                html += `<p>Peso: <strong>${valOrDash(unit.weight, ' kg')}</strong></p>`;
-                html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`; 
-                return html;
-            };
-
-            if (selections.indoorUnits[i]) { detailsDiv.innerHTML = generateDetailsHtml(selections.indoorUnits[i]); }
-            select.addEventListener('change', (e) => {
-                const selId = e.target.value;
-                const idx = parseInt(e.target.dataset.index);
-                const selUI = uniqueUnitsToDisplay.find(u => u.id === selId);
-                selections.indoorUnits[idx] = selUI || null;
-                detailsDiv.innerHTML = generateDetailsHtml(selUI);
-                checkAllIndoorUnitsSelected();
-            });
-            slotDiv.appendChild(select);
+            if (selections.indoorUnits[i]) {
+                detailsDiv.innerHTML = generateIndoorUnitDetailsHtml(selections.indoorUnits[i]);
+            } else {
+                 detailsDiv.innerHTML = '<p>Seleziona una taglia/potenza dalle opzioni sopra.</p>';
+            }
             slotDiv.appendChild(detailsDiv);
+            
             indoorUnitsSelectionArea.appendChild(slotDiv);
         }
         checkAllIndoorUnitsSelected();
@@ -507,13 +438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
 
         const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
-        const valOrDash = (val, suffix = '') => {
-            const strVal = S_SUMMARY(val);
-            if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "N.D" && strVal.trim() !== "" && strVal.trim() !== "-") {
-                return `${strVal}${suffix}`;
-            }
-            return '-';
-        };
+        // valOrDash is already globally defined
         const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
 
         let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
@@ -595,7 +520,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     window.currentUserRole = null; 
     let adminBrandsListener = null; 
-           function escapeHtml(unsafeString) {
+    
+    function escapeHtml(unsafeString) {
         if (typeof unsafeString !== 'string') {
             unsafeString = String(unsafeString);
         }
@@ -603,10 +529,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         newString = newString.replace(/&/g, "&");
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, "'");
-        newString = newString.replace(/"/g, "'");
+        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/'/g, "'");
         return newString;
     }
+
     function toggleAdminSectionVisibility() {
         const adminSection = document.getElementById('admin-section');
         const isAdminUser = window.currentUserRole === 'admin';
@@ -664,7 +591,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             });
         }, 
-        (error) => { // Explicitly define error parameter for the error callback
+        (error) => { 
             console.error("Errore admin marche: ", error);
             listDiv.innerHTML = '<p>Errore caricamento marche.</p>';
         });
@@ -697,8 +624,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const brandData = { id: brandId, name: brandName, logo: brandLogoPath }; 
             try {
                 if (docIdForEdit && docIdForEdit !== brandId && !document.getElementById('brand-id').disabled) {
-                    // This condition might need refinement. If brand-id is disabled, it means we are editing THAT doc.
-                    // If it's NOT disabled, we are potentially creating new or overwriting based on new ID.
                      console.warn("Brand ID changed during edit form submission. This will result in a new document or overwrite an existing one with the new ID.");
                 }
                 await db.collection("brands").doc(brandId).set(brandData, { merge: true }); 
@@ -720,7 +645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (brandDoc.exists) {
                 const brand = brandDoc.data();
                 document.getElementById('brand-doc-id').value = brandDoc.id; 
-                document.getElementById('brand-id').value = brand.id || brandDoc.id; // Fallback to doc.id if brand.id isn't in data 
+                document.getElementById('brand-id').value = brand.id || brandDoc.id;  
                 document.getElementById('brand-id').disabled = true;      
                 document.getElementById('brand-name').value = brand.name;
                 document.getElementById('brand-logo-path').value = brand.logo;
