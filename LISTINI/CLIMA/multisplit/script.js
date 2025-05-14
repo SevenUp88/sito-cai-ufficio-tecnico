@@ -595,7 +595,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     window.currentUserRole = null; 
     let adminBrandsListener = null; 
-    // CORRECTED escapeHtml function
+    
     function escapeHtml(unsafe) {
         if (typeof unsafe !== 'string') unsafe = String(unsafe);
         return unsafe
@@ -605,13 +605,217 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/"/g, """)
             .replace(/'/g, "'");
     }
-    function toggleAdminSectionVisibility(){const adminSection=document.getElementById('admin-section');const isAdminUser=window.currentUserRole==='admin';if(adminSection){adminSection.style.display=isAdminUser?'block':'none';if(isAdminUser&&!adminBrandsListener){loadAndDisplayAdminBrands();setupAdminBrandFormListener();}else if(!isAdminUser&&adminBrandsListener){if(typeof adminBrandsListener==='function')adminBrandsListener();adminBrandsListener=null;const listDiv=document.getElementById('admin-brands-list');if(listDiv)listDiv.innerHTML='<p>Accesso admin.</p>';}}}
-    async function loadAndDisplayAdminBrands(){const listDiv=document.getElementById('admin-brands-list');if(!listDiv)return;listDiv.innerHTML='<p>Caricamento...</p>';if(adminBrandsListener&&typeof adminBrandsListener==='function')adminBrandsListener();adminBrandsListener=db.collection("brands").orderBy("name").onSnapshot(snapshot=>{if(snapshot.empty){listDiv.innerHTML='<p>Nessuna marca.</p>';return;}let html='<ul>';snapshot.forEach(doc=>{const brand={id:doc.id,...doc.data()};html+=`<li data-id="${brand.id}" style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dotted #eee;"><span style="flex-grow:1;"><img src="${brand.logo||'img/placeholder.png'}" alt="${escapeHtml(brand.name)}" style="height:20px;vertical-align:middle;margin-right:8px;">${escapeHtml(brand.name)} <small>(ID: ${brand.id})</small></span><div><button class="btn-admin-edit-brand" data-id="${brand.id}" style="margin-left:5px;padding:3px 6px;font-size:0.8em;">Mod</button><button class="btn-admin-delete-brand" data-id="${brand.id}" style="padding:3px 6px;font-size:0.8em;">Elim</button></div></li>`;});html+='</ul>';listDiv.innerHTML=html;listDiv.querySelectorAll('.btn-admin-edit-brand').forEach(b=>b.addEventListener('click',(e)=>handleEditBrand(e.target.dataset.id)));listDiv.querySelectorAll('.btn-admin-delete-brand').forEach(b=>b.addEventListener('click',(e)=>handleDeleteBrand(e.target.dataset.id)));},error=>{console.error("Err admin brands:",error);listDiv.innerHTML='<p>Errore.</p>';});}
-    function clearAdminBrandForm(){document.getElementById('brand-doc-id').value='';document.getElementById('brand-id').value='';document.getElementById('brand-id').disabled=false;document.getElementById('brand-name').value='';document.getElementById('brand-logo-path').value='';document.getElementById('brand-id').focus();}
-    function setupAdminBrandFormListener(){const form=document.getElementById('admin-brand-form');const clearBtn=document.getElementById('admin-brand-form-clear');if(!form)return;form.addEventListener('submit',async(e)=>{e.preventDefault();const docIdForEdit=document.getElementById('brand-doc-id').value;const brandId=document.getElementById('brand-id').value.trim().toLowerCase();const brandName=document.getElementById('brand-name').value.trim();const brandLogoPath=document.getElementById('brand-logo-path').value.trim();if(!brandId||!brandName||!brandLogoPath){alert("Campi obbligatori.");return;}const brandData={id:brandId,name:brandName,logo:brandLogoPath};try{if(docIdForEdit&&docIdForEdit!==brandId){alert("Modifica ID non permessa.");return;}await db.collection("brands").doc(brandId).set(brandData,{merge:true});alert(`Marca ${docIdForEdit?'modificata':'aggiunta'}!`);clearAdminBrandForm();initializeConfiguratorApp();}catch(error){console.error("Err salvataggio:",error);alert("Errore:"+error.message);}});if(clearBtn)clearBtn.addEventListener('click',clearAdminBrandForm);}
-    async function handleEditBrand(brandIdToEdit){try{const brandDoc=await db.collection("brands").doc(brandIdToEdit).get();if(brandDoc.exists){const brand=brandDoc.data();document.getElementById('brand-doc-id').value=brandDoc.id;document.getElementById('brand-id').value=brand.id;document.getElementById('brand-id').disabled=true;document.getElementById('brand-name').value=brand.name;document.getElementById('brand-logo-path').value=brand.logo;document.getElementById('brand-name').focus();}else{alert("Marca non trovata.");}}catch(error){alert("Errore caricamento.");}}
-    async function handleDeleteBrand(brandIdToDelete){if(!confirm(`Eliminare '${brandIdToDelete}'?`))return;try{await db.collection("brands").doc(brandIdToDelete).delete();alert("Eliminata!");initializeConfiguratorApp();}catch(error){alert("Errore eliminazione.");}}
-    function setupAuthUI(){const loginModal=document.getElementById('login-modal-configurator');const loginForm=document.getElementById('login-form-configurator');const logoutButton=document.getElementById('logout-button-configurator');const adminTriggerBtn=document.getElementById('admin-trigger');const authStatusEl=document.getElementById('auth-status-configurator');const loginEmailInput=document.getElementById('login-email-configurator');const loginPasswordInput=document.getElementById('login-password-configurator');const loginErrorEl=document.getElementById('login-error-configurator');const closeModalBtn=loginModal?loginModal.querySelector('.close-btn'):null;const loginModalTitle=document.getElementById('login-modal-title-configurator');if(adminTriggerBtn){adminTriggerBtn.addEventListener('click',()=>{if(!loginModal){console.error("Login modal not found");return;}if(auth.currentUser){if(logoutButton)logoutButton.style.display='block';if(loginForm)loginForm.style.display='none';if(loginErrorEl)loginErrorEl.style.display='none';if(loginModalTitle)loginModalTitle.textContent=`Loggato: ${auth.currentUser.email}`; }else{if(logoutButton)logoutButton.style.display='none';if(loginForm)loginForm.style.display='block';if(loginModalTitle)loginModalTitle.textContent='Accesso Amministratore';} loginModal.style.display='block';});}if(closeModalBtn){closeModalBtn.addEventListener('click',()=>{if(loginModal)loginModal.style.display='none'});}if(loginModal){loginModal.addEventListener('click',(e)=>{if(e.target===loginModal)loginModal.style.display='none';});}if(loginForm){loginForm.addEventListener('submit',(e)=>{e.preventDefault();const email=loginEmailInput.value;const password=loginPasswordInput.value;if(!email||!password){if(loginErrorEl){loginErrorEl.textContent='Email/Pass obbligatori.';loginErrorEl.style.display='block';}return;}if(loginErrorEl)loginErrorEl.style.display='none';auth.signInWithEmailAndPassword(email,password).then(userCredential=>{if(loginModal)loginModal.style.display='none';if(loginPasswordInput)loginPasswordInput.value='';}).catch(error=>{if(loginErrorEl){loginErrorEl.textContent=`Errore: ${error.message}`;loginErrorEl.style.display='block';}});});}if(logoutButton){logoutButton.addEventListener('click',()=>{auth.signOut().then(()=>{if(loginModal)loginModal.style.display='none';});});}auth.onAuthStateChanged(user=>{if(user){db.collection('users').doc(user.uid).get().then(doc=>{window.currentUserRole=doc.exists&&doc.data().role?doc.data().role:'user';if(authStatusEl)authStatusEl.textContent=` (${window.currentUserRole})`;if(adminTriggerBtn)adminTriggerBtn.title=(window.currentUserRole==='admin'?`Admin Logout (${user.email.split('@')[0]})`:`Logout (${user.email.split('@')[0]})`);toggleAdminSectionVisibility();}).catch(()=>{window.currentUserRole=null;toggleAdminSectionVisibility();});}else{window.currentUserRole=null;if(authStatusEl)authStatusEl.textContent='';if(adminTriggerBtn)adminTriggerBtn.title="Accesso Admin";toggleAdminSectionVisibility();}}); }
+
+    function toggleAdminSectionVisibility() {
+        const adminSection = document.getElementById('admin-section');
+        const isAdminUser = window.currentUserRole === 'admin';
+        if (adminSection) {
+            adminSection.style.display = isAdminUser ? 'block' : 'none';
+            if (isAdminUser && !adminBrandsListener) {
+                loadAndDisplayAdminBrands();
+                setupAdminBrandFormListener();
+            } else if (!isAdminUser && adminBrandsListener) {
+                if (typeof adminBrandsListener === 'function') adminBrandsListener(); 
+                adminBrandsListener = null;
+                const listDiv = document.getElementById('admin-brands-list');
+                if (listDiv) listDiv.innerHTML = '<p>Accesso admin richiesto.</p>';
+            }
+        }
+    }
+
+    async function loadAndDisplayAdminBrands() {
+        const listDiv = document.getElementById('admin-brands-list');
+        if (!listDiv) return;
+        listDiv.innerHTML = '<p>Caricamento marche admin...</p>';
+        if (adminBrandsListener && typeof adminBrandsListener === 'function') {
+            adminBrandsListener(); 
+        }
+        adminBrandsListener = db.collection("brands").orderBy("name").onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<p>Nessuna marca trovata.</p>';
+                return;
+            }
+            let html = '<ul>';
+            snapshot.forEach(doc => {
+                const brand = { id: doc.id, ...doc.data() };
+                html += `<li data-id="${brand.id}" style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dotted #eee;">
+                            <span style="flex-grow:1;">
+                                <img src="${brand.logo || 'img/placeholder.png'}" alt="${escapeHtml(brand.name)}" style="height:20px; vertical-align:middle; margin-right:8px;">
+                                ${escapeHtml(brand.name)} <small>(ID: ${brand.id})</small>
+                            </span>
+                            <div>
+                                <button class="btn-admin-edit-brand" data-id="${brand.id}" style="margin-left:5px; padding:3px 6px; font-size:0.8em;">Mod</button>
+                                <button class="btn-admin-delete-brand" data-id="${brand.id}" style="padding:3px 6px; font-size:0.8em;">Elim</button>
+                            </div>
+                         </li>`;
+            });
+            html += '</ul>';
+            listDiv.innerHTML = html;
+
+            listDiv.querySelectorAll('.btn-admin-edit-brand').forEach(button => { 
+                button.addEventListener('click', (event) => { 
+                    handleEditBrand(event.target.dataset.id);
+                });
+            });
+            listDiv.querySelectorAll('.btn-admin-delete-brand').forEach(button => { 
+                button.addEventListener('click', (event) => { 
+                    handleDeleteBrand(event.target.dataset.id);
+                });
+            });
+        }, error => { 
+            console.error("Errore admin marche: ", error);
+            listDiv.innerHTML = '<p>Errore caricamento marche.</p>';
+        });
+    }
+
+    function clearAdminBrandForm() {
+        document.getElementById('brand-doc-id').value = '';
+        document.getElementById('brand-id').value = '';
+        document.getElementById('brand-id').disabled = false;
+        document.getElementById('brand-name').value = '';
+        document.getElementById('brand-logo-path').value = '';
+        document.getElementById('brand-id').focus();
+    }
+
+    function setupAdminBrandFormListener() {
+        const form = document.getElementById('admin-brand-form');
+        const clearBtn = document.getElementById('admin-brand-form-clear');
+        if (!form) return;
+
+        form.addEventListener('submit', async (event) => { 
+            event.preventDefault();
+            const docIdForEdit = document.getElementById('brand-doc-id').value;
+            const brandId = document.getElementById('brand-id').value.trim().toLowerCase();
+            const brandName = document.getElementById('brand-name').value.trim();
+            const brandLogoPath = document.getElementById('brand-logo-path').value.trim();
+            if (!brandId || !brandName || !brandLogoPath) {
+                alert("Tutti i campi sono obbligatori.");
+                return;
+            }
+            const brandData = { id: brandId, name: brandName, logo: brandLogoPath }; 
+            try {
+                console.warn("Editing brand ID is typically done by deleting and re-adding. Current operation will update/create doc with new ID if different from loaded one.");
+                await db.collection("brands").doc(brandId).set(brandData, { merge: true }); 
+                alert(`Marca ${docIdForEdit ? 'modificata (o ricreata se ID cambiato)' : 'aggiunta'}!`);
+                clearAdminBrandForm();
+            } catch (error) {
+                console.error("Errore salvataggio marca: ", error);
+                alert("Errore salvataggio marca: " + error.message);
+            }
+        });
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearAdminBrandForm);
+        }
+    }
+    
+    async function handleEditBrand(brandIdToEdit) {
+        try {
+            const brandDoc = await db.collection("brands").doc(brandIdToEdit).get();
+            if (brandDoc.exists) {
+                const brand = brandDoc.data();
+                document.getElementById('brand-doc-id').value = brandDoc.id; 
+                document.getElementById('brand-id').value = brand.id;     
+                document.getElementById('brand-id').disabled = true;      
+                document.getElementById('brand-name').value = brand.name;
+                document.getElementById('brand-logo-path').value = brand.logo;
+                document.getElementById('brand-name').focus();
+            } else {
+                alert("Marca non trovata.");
+            }
+        } catch (error) {
+            console.error("Errore caricamento marca per modifica:", error);
+            alert("Errore caricamento marca.");
+        }
+    }
+
+    async function handleDeleteBrand(brandIdToDelete) {
+        if (!confirm(`Sei sicuro di voler eliminare la marca '${brandIdToDelete}'?`)) return;
+        try {
+            await db.collection("brands").doc(brandIdToDelete).delete();
+            alert("Marca eliminata!");
+        } catch (error) {
+            console.error("Errore eliminazione marca:", error);
+            alert("Errore eliminazione marca.");
+        }
+    }
+
+    function setupAuthUI() {
+        const loginModal = document.getElementById('login-modal-configurator');
+        const loginForm = document.getElementById('login-form-configurator');
+        const logoutButton = document.getElementById('logout-button-configurator');
+        const adminTriggerBtn = document.getElementById('admin-trigger');
+        const authStatusEl = document.getElementById('auth-status-configurator');
+        const loginEmailInput = document.getElementById('login-email-configurator');
+        const loginPasswordInput = document.getElementById('login-password-configurator');
+        const loginErrorEl = document.getElementById('login-error-configurator');
+        const closeModalBtn = loginModal ? loginModal.querySelector('.close-btn') : null;
+        const loginModalTitle = document.getElementById('login-modal-title-configurator');
+
+        if (adminTriggerBtn) {
+            adminTriggerBtn.addEventListener('click', () => {
+                if (!loginModal) { console.error("Login modal not found"); return; }
+                if (auth.currentUser) {
+                    if (logoutButton) logoutButton.style.display = 'block';
+                    if (loginForm) loginForm.style.display = 'none';
+                    if (loginErrorEl) loginErrorEl.style.display = 'none';
+                    if (loginModalTitle) loginModalTitle.textContent = `Loggato: ${auth.currentUser.email}`;
+                } else {
+                    if (logoutButton) logoutButton.style.display = 'none';
+                    if (loginForm) loginForm.style.display = 'block';
+                    if (loginModalTitle) loginModalTitle.textContent = 'Accesso Amministratore';
+                }
+                loginModal.style.display = 'block';
+            });
+        }
+        if (closeModalBtn) { closeModalBtn.addEventListener('click', () => { if (loginModal) loginModal.style.display = 'none'; }); }
+        if (loginModal) { loginModal.addEventListener('click', (event) => { if (event.target === loginModal) loginModal.style.display = 'none'; }); } 
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', (event) => { 
+                event.preventDefault();
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+                if (!email || !password) {
+                    if (loginErrorEl) { loginErrorEl.textContent = 'Email e Password obbligatori.'; loginErrorEl.style.display = 'block'; }
+                    return;
+                }
+                if (loginErrorEl) loginErrorEl.style.display = 'none';
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(userCredential => { 
+                        if (loginModal) loginModal.style.display = 'none';
+                        if (loginPasswordInput) loginPasswordInput.value = '';
+                    })
+                    .catch(error => { 
+                        if (loginErrorEl) { loginErrorEl.textContent = `Errore: ${error.message}`; loginErrorEl.style.display = 'block'; }
+                    });
+            });
+        }
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => { 
+                auth.signOut().then(() => { 
+                    if (loginModal) loginModal.style.display = 'none';
+                });
+            });
+        }
+        auth.onAuthStateChanged(user => { 
+            if (user) {
+                db.collection('users').doc(user.uid).get().then(doc => { 
+                    window.currentUserRole = doc.exists && doc.data().role ? doc.data().role : 'user';
+                    if (authStatusEl) authStatusEl.textContent = ` (${window.currentUserRole})`;
+                    if (adminTriggerBtn) adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Admin Logout (${user.email.split('@')[0]})` : `Logout (${user.email.split('@')[0]})`);
+                    toggleAdminSectionVisibility();
+                }).catch(() => { 
+                    window.currentUserRole = null;
+                    toggleAdminSectionVisibility();
+                });
+            } else {
+                window.currentUserRole = null;
+                if (authStatusEl) authStatusEl.textContent = '';
+                if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+                toggleAdminSectionVisibility();
+            }
+        });
+    }
     async function initializeConfiguratorApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR config init:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore config.</p>`; return;} stepsHtmlContainers.forEach(el=>el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep=1; highestLogicalStepCompleted=0; updateStepIndicator(); populateBrands(); const brandSelCont=brandSelectionDiv.innerHTML.trim(); if (brandSelCont.includes("Nessuna marca")||(brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Errore config.</p>`;}} else {if(loadingOverlay.isConnected && loadingOverlay.style.display !== 'none') loadingOverlay.style.display = 'none';} document.getElementById('currentYear').textContent=new Date().getFullYear(); try{if(metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate){const ts=metadataDoc.data().lastDataUpdate;document.getElementById('lastUpdated').textContent=new Date(ts.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});}else{document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err meta config:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
 
     setupAuthUI(); 
