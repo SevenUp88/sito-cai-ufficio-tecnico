@@ -597,22 +597,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     let adminBrandsListener = null; 
     
     function escapeHtml(unsafe) {
-        if (typeof unsafe !== 'string') unsafe = String(unsafe);
-        return unsafe.replace(/[&<>"']/g, function (match) {
-            switch (match) {
-                case '&':
-                    return '&';
-                case '<':
-                    return '<';
-                case '>':
-                    return '>';
-                case '"':
-                    return '"';
-                case "'":
-                    return '''; // THIS IS THE CORRECTED LINE for single quote
-                default:
-                    return match;
+        if (typeof unsafe !== 'string') {
+            unsafe = String(unsafe);
+        }
+        return unsafe.replace(/[&<>"']/g, function(match) {
+            if (match === '&') {
+                return '&';
+            } else if (match === '<') {
+                return '<';
+            } else if (match === '>') {
+                return '>';
+            } else if (match === '"') {
+                return '"';
+            } else if (match === "'") {
+                return '''; // Using numeric entity for single quote
             }
+            return match; // Should not be reached if regex is correct
         });
     }
 
