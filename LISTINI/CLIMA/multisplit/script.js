@@ -242,117 +242,120 @@ document.addEventListener('DOMContentLoaded', async () => {
     return itemDiv;
     }
 
+    // --- START OF CORRECTED createUnitSelectionCard function ---
     function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
-    const card = document.createElement('div');
-    card.classList.add('unit-selection-card');
-    if (isSelected) card.classList.add('selected');
+        const card = document.createElement('div');
+        card.classList.add('unit-selection-card');
+        if (isSelected) card.classList.add('selected');
 
-    if (unit && unit.id != null) {
-        card.setAttribute('data-unit-id', String(unit.id));
-    }
-
-    const infoDiv = document.createElement('div');
-    infoDiv.classList.add('unit-info');
-
-    const nameH4 = document.createElement('h4');
-    let unitTitle = "UNITA' ESTERNA";
-    if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
-        unitTitle += ` ${String(unit.kw)}kW`;
-    }
-    nameH4.textContent = unitTitle;
-    infoDiv.appendChild(nameH4);
-
-    const modelP = document.createElement('p');
-    let modelP_html = "Codice: ";
-    // Use a helper for consistency with valOrDash logic for '-' display
-    const modelCodeDisplay = (unit && unit.modelCode && String(unit.modelCode).toUpperCase() !== 'N/A' && String(unit.modelCode).toUpperCase() !== 'DATI MANCANTI'  && String(unit.modelCode).trim() !== '') ? String(unit.modelCode) : '-';
-    modelP_html += `<strong>${modelCodeDisplay}</strong>`;
-    modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
-    modelP.innerHTML = modelP_html;
-    infoDiv.appendChild(modelP);
-
-    const energyClassContainerP = document.createElement('p');
-    const energyLabelSpan = document.createElement('span');
-    energyLabelSpan.classList.add('energy-class-label');
-    energyLabelSpan.textContent = "Classe Energetica (F/C):";
-    energyClassContainerP.appendChild(energyLabelSpan);
-
-    const valOrDashForEnergy = (val) => {
-        const strVal = (val) ? String(val) : "";
-        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/D" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "NA" && strVal.toUpperCase() !== "N.A." && strVal.trim() !== "") {
-            return { display: strVal, isData: true };
+        if (unit && unit.id != null) {
+            card.setAttribute('data-unit-id', String(unit.id));
         }
-        return { display: "-", isData: false };
-    };
-    
-    const coolingInfo = valOrDashForEnergy(unit?.energyClassCooling);
-    const coolingSpan = document.createElement('span');
-    coolingSpan.classList.add('energy-rating');
-    coolingSpan.classList.toggle('cooling', coolingInfo.isData);
-    coolingSpan.classList.toggle('unknown', !coolingInfo.isData);
-    coolingSpan.textContent = coolingInfo.display;
-    energyClassContainerP.appendChild(coolingSpan);
 
-    const separatorSpan = document.createElement('span');
-    separatorSpan.classList.add('energy-separator');
-    separatorSpan.textContent = "/";
-    energyClassContainerP.appendChild(separatorSpan);
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('unit-info');
 
-    const heatingInfo = valOrDashForEnergy(unit?.energyClassHeating);
-    const heatingSpan = document.createElement('span');
-    heatingSpan.classList.add('energy-rating');
-    heatingSpan.classList.toggle('heating', heatingInfo.isData);
-    heatingSpan.classList.toggle('unknown', !heatingInfo.isData);
-    heatingSpan.textContent = heatingInfo.display;
-    energyClassContainerP.appendChild(heatingSpan);
-    infoDiv.appendChild(energyClassContainerP);
+        const nameH4 = document.createElement('h4');
+        let unitTitle = "UNITA' ESTERNA";
+        if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
+            unitTitle += ` ${String(unit.kw)}kW`;
+        }
+        nameH4.textContent = unitTitle;
+        infoDiv.appendChild(nameH4);
 
-    const dimensionsP = document.createElement('p');
-    const dimInfo = valOrDashForEnergy(unit?.dimensions);
-    
-    const weightVal = (unit && typeof unit.weight !== 'undefined' && unit.weight !== null) ? String(unit.weight) : "";
-    let weightDisplay = "-";
-     if (weightVal && weightVal.toUpperCase() !== "DATI MANCANTI" && weightVal.toUpperCase() !== "N/D" && weightVal.toUpperCase() !== "N.D." && weightVal.toUpperCase() !== "NA" && weightVal.toUpperCase() !== "N.A." && weightVal.trim() !== "") {
-        if (!isNaN(parseFloat(weightVal)) && isFinite(weightVal)) {
-             weightDisplay = `${weightVal} kg`; // Corrected template literal
+        const modelP = document.createElement('p');
+        let modelP_html = "Codice: ";
+        const modelCodeDisplay = (unit && unit.modelCode && String(unit.modelCode).toUpperCase() !== 'N/A' && String(unit.modelCode).toUpperCase() !== 'DATI MANCANTI'  && String(unit.modelCode).trim() !== '') ? String(unit.modelCode) : '-';
+        modelP_html += `<strong>${modelCodeDisplay}</strong>`;
+        modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
+        modelP.innerHTML = modelP_html;
+        infoDiv.appendChild(modelP);
+
+        const energyClassContainerP = document.createElement('p');
+        const energyLabelSpan = document.createElement('span');
+        energyLabelSpan.classList.add('energy-class-label');
+        energyLabelSpan.textContent = "Classe Energetica (F/C):";
+        energyClassContainerP.appendChild(energyLabelSpan);
+
+        const valOrDashForEnergy = (val) => {
+            const strVal = (val) ? String(val) : "";
+            if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/D" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "NA" && strVal.toUpperCase() !== "N.A." && strVal.trim() !== "") {
+                return { display: strVal, isData: true };
+            }
+            return { display: "-", isData: false };
+        };
+        
+        const coolingInfo = valOrDashForEnergy(unit?.energyClassCooling);
+        const coolingSpan = document.createElement('span');
+        coolingSpan.classList.add('energy-rating');
+        coolingSpan.classList.toggle('cooling', coolingInfo.isData);
+        coolingSpan.classList.toggle('unknown', !coolingInfo.isData);
+        coolingSpan.textContent = coolingInfo.display;
+        energyClassContainerP.appendChild(coolingSpan);
+
+        const separatorSpan = document.createElement('span');
+        separatorSpan.classList.add('energy-separator');
+        separatorSpan.textContent = "/";
+        energyClassContainerP.appendChild(separatorSpan);
+
+        const heatingInfo = valOrDashForEnergy(unit?.energyClassHeating);
+        const heatingSpan = document.createElement('span');
+        heatingSpan.classList.add('energy-rating');
+        heatingSpan.classList.toggle('heating', heatingInfo.isData);
+        heatingSpan.classList.toggle('unknown', !heatingInfo.isData);
+        heatingSpan.textContent = heatingInfo.display;
+        energyClassContainerP.appendChild(heatingSpan);
+        infoDiv.appendChild(energyClassContainerP);
+
+        const dimensionsP = document.createElement('p');
+        const dimInfo = valOrDashForEnergy(unit?.dimensions);
+        
+        const weightVal = (unit && typeof unit.weight !== 'undefined' && unit.weight !== null) ? String(unit.weight) : "";
+        let weightDisplay = "-";
+        if (weightVal && weightVal.toUpperCase() !== "DATI MANCANTI" && weightVal.toUpperCase() !== "N/D" && weightVal.toUpperCase() !== "N.D." && weightVal.toUpperCase() !== "NA" && weightVal.toUpperCase() !== "N.A." && weightVal.trim() !== "") {
+            if (!isNaN(parseFloat(weightVal)) && isFinite(Number(weightVal))) { // Ensure isFinite checks Number
+                weightDisplay = `${weightVal} kg`; 
+            } else {
+                weightDisplay = weightVal; 
+            }
+        }
+        dimensionsP.textContent = `Dimensioni: ${dimInfo.display} | Peso: ${weightDisplay}`;
+        infoDiv.appendChild(dimensionsP);
+
+        const priceP = document.createElement('p');
+        priceP.classList.add('unit-price');
+        let priceText = "Prezzo: ";
+        if (unit && typeof unit.price === 'number') {
+            priceText += unit.price.toFixed(2);
         } else {
-             weightDisplay = weightVal; 
+            const priceStr = (unit && unit.price) ? String(unit.price) : "";
+            if (priceStr && priceStr.toUpperCase() !== 'N/D' && priceStr.toUpperCase() !== 'DATI MANCANTI' && priceStr.trim() !== "") {
+                priceText += priceStr;
+            } else {
+                priceText += '-';
+            }
         }
-    }
-    dimensionsP.textContent = `Dimensioni: ${dimInfo.display} | Peso: ${weightDisplay}`;
-    infoDiv.appendChild(dimensionsP);
+        priceText += " € (IVA escl.)";
+        priceP.textContent = priceText;
+        infoDiv.appendChild(priceP);
 
-    const priceP = document.createElement('p');
-    priceP.classList.add('unit-price');
-    let priceText = "Prezzo: ";
-    if (unit && typeof unit.price === 'number') {
-        priceText += unit.price.toFixed(2);
-    } else {
-        const priceStr = (unit && unit.price) ? String(unit.price) : "";
-        if (priceStr && priceStr.toUpperCase() !== 'N/D' && priceStr.toUpperCase() !== 'DATI MANCANTI') {
-            priceText += priceStr;
-        } else {
-            priceText += '-';
-        }
+        card.appendChild(infoDiv);
+        card.addEventListener('click', () => {
+            if (card.parentElement) {
+                card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
+            }
+            card.classList.add('selected');
+            if (unit) { 
+                clickHandler(unit);
+            } else {
+                console.error("Tentativo di click handler con unit non definito.");
+            }
+        });
+        return card;
     }
-    priceText += " € (IVA escl.)";
-    priceP.textContent = priceText;
-    infoDiv.appendChild(priceP);
+    // --- END OF CORRECTED createUnitSelectionCard function ---
 
-    card.appendChild(infoDiv);
-    card.addEventListener('click', () => {
-        if (card.parentElement) {
-            card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
-        }
-        card.classList.add('selected');
-        if (unit) { 
-            clickHandler(unit);
-        } else {
-            console.error("Tentativo di click handler con unit non definito.");
-        }
-    });
-    return card;
-}
+
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
     function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('<select'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
 
@@ -455,7 +458,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const S_local = (str) => str != null ? String(str).replace(/`/g, "'") : '';
                 const valOrDash = (val, suffix = '') => {
                     const strVal = S_local(val);
-                    // Updated condition to better check for empty/placeholder values before showing "-"
                     if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D" && strVal.toUpperCase() !== "N.D." && strVal.trim() !== "") {
                         return `${strVal}${suffix}`;
                     }
@@ -463,12 +465,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
             
                 let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
-                // Changed "Pwr" to "Potenza"
-                html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`;
+                html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`; // Label changed
                 html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
                 html += `<p>Peso: <strong>${valOrDash(unit.weight, ' kg')}</strong></p>`;
-                // Price moved to the end and styled with class 'details-price'
-                html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`;
+                html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`; // Price moved and styled
                 return html;
             };
 
@@ -490,7 +490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function generateSummary() {
         console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
-        summaryDiv.innerHTML = ''; // Clear previous summary
+        summaryDiv.innerHTML = ''; 
         const mainSummaryTitleEl = document.getElementById('summary-main-title');
         if (mainSummaryTitleEl) {
             mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
@@ -594,7 +594,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
     function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
     function initializeNavigation() { stepIndicatorItems.forEach(item => { item.addEventListener('click', () => { if (item.classList.contains('disabled') || item.style.display === 'none') return; const targetLogicalStep = parseInt(item.dataset.step); if (isNaN(targetLogicalStep) || targetLogicalStep < 1 || targetLogicalStep > TOTAL_LOGICAL_STEPS) return; if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { const canShowSummary = selections.brand && selections.configType && selections.indoorSeries && selections.outdoorUnit && (!selections.configType.numUnits > 0 || (selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))); if (!canShowSummary) { alert("Completa passaggi precedenti."); return;} generateSummary(); } showStep(targetLogicalStep, true); }); }); if(finalizeBtn) { finalizeBtn.addEventListener('click', () => { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); generateSummary(); showStep(TOTAL_LOGICAL_STEPS); }); } document.querySelectorAll('.prev-btn').forEach(button => { const currentStepElement = button.closest('.config-step'); if (!currentStepElement) return; const currentHtmlId = currentStepElement.id; const currentLogical = HTML_TO_LOGICAL_STEP_MAP[currentHtmlId]; if (currentLogical === undefined || currentLogical === 1) { button.style.display = 'none'; return;} let prevLogicalStep = currentLogical - 1; button.style.display = ''; button.addEventListener('click', () => {showStep(prevLogicalStep, true); }); }); document.getElementById('reset-config-btn')?.addEventListener('click', () => { if (!confirm("Sei sicuro?")) return; selections.brand = null; selections.configType = null; selections.indoorSeries = null; selections.outdoorUnit = null; selections.indoorUnits = []; resetSelectionsAndUIFrom(1); populateBrands(); highestLogicalStepCompleted = 0; showStep(1); }); document.getElementById('print-summary-btn')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Vai al Riepilogo (Passaggio 6) prima di stampare."); }); document.getElementById('print-list')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Completa fino al Riepilogo (Passaggio 6)."); }); }
-    async function initializeApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore caricamento.</p>`; return;} stepsHtmlContainers.forEach(el => el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep = 1; highestLogicalStepCompleted = 0; updateStepIndicator(); populateBrands(); const brandSelContent = brandSelectionDiv.innerHTML.trim(); if (brandSelContent.includes("Nessuna marca") || (brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Nessuna marca.</p>`;}} else {loadingOverlay.style.display='none';} document.getElementById('currentYear').textContent = new Date().getFullYear(); try { if (metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate) { const timestamp = metadataDoc.data().lastDataUpdate; document.getElementById('lastUpdated').textContent = new Date(timestamp.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});} else {document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err metadata:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
+    async function initializeApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore caricamento.</p>`; return;} stepsHtmlContainers.forEach(el => el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep=1; highestLogicalStepCompleted=0; updateStepIndicator(); populateBrands(); const brandSelContent = brandSelectionDiv.innerHTML.trim(); if (brandSelContent.includes("Nessuna marca")||(brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Nessuna marca.</p>`;}} else {loadingOverlay.style.display='none';} document.getElementById('currentYear').textContent = new Date().getFullYear(); try { if (metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate) { const ts=metadataDoc.data().lastDataUpdate;document.getElementById('lastUpdated').textContent=new Date(ts.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});} else {document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err metadata:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
     window.currentUserRole = null; let adminBrandsListener = null; function escapeHtml(unsafe){if(typeof unsafe !=='string')unsafe=String(unsafe);return unsafe.replace(/&/g,"&").replace(/</g,"<").replace(/>/g,">").replace(/"/g,""").replace(/'/g,"'");}
     function toggleAdminSectionVisibility(){const adminSection=document.getElementById('admin-section');const isAdminUser=window.currentUserRole==='admin';if(adminSection){adminSection.style.display=isAdminUser?'block':'none';if(isAdminUser&&!adminBrandsListener){loadAndDisplayAdminBrands();setupAdminBrandFormListener();}else if(!isAdminUser&&adminBrandsListener){if(typeof adminBrandsListener==='function')adminBrandsListener();adminBrandsListener=null;const listDiv=document.getElementById('admin-brands-list');if(listDiv)listDiv.innerHTML='<p>Accesso admin.</p>';}}}
     async function loadAndDisplayAdminBrands(){const listDiv=document.getElementById('admin-brands-list');if(!listDiv)return;listDiv.innerHTML='<p>Caricamento...</p>';if(adminBrandsListener&&typeof adminBrandsListener==='function')adminBrandsListener();adminBrandsListener=db.collection("brands").orderBy("name").onSnapshot(snapshot=>{if(snapshot.empty){listDiv.innerHTML='<p>Nessuna marca.</p>';return;}let html='<ul>';snapshot.forEach(doc=>{const brand={id:doc.id,...doc.data()};html+=`<li data-id="${brand.id}" style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px dotted #eee;"><span style="flex-grow:1;"><img src="${brand.logo||'img/placeholder.png'}" alt="${escapeHtml(brand.name)}" style="height:20px;vertical-align:middle;margin-right:8px;">${escapeHtml(brand.name)} <small>(ID: ${brand.id})</small></span><div><button class="btn-admin-edit-brand" data-id="${brand.id}" style="margin-left:5px;padding:3px 6px;font-size:0.8em;">Mod</button><button class="btn-admin-delete-brand" data-id="${brand.id}" style="padding:3px 6px;font-size:0.8em;">Elim</button></div></li>`;});html+='</ul>';listDiv.innerHTML=html;listDiv.querySelectorAll('.btn-admin-edit-brand').forEach(b=>b.addEventListener('click',(e)=>handleEditBrand(e.target.dataset.id)));listDiv.querySelectorAll('.btn-admin-delete-brand').forEach(b=>b.addEventListener('click',(e)=>handleDeleteBrand(e.target.dataset.id)));},error=>{console.error("Err admin brands:",error);listDiv.innerHTML='<p>Errore.</p>';});}
