@@ -600,22 +600,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (typeof unsafe !== 'string') {
             unsafe = String(unsafe);
         }
-        return unsafe.replace(/[&<>"']/g, function(match) {
+        return unsafe.replace(/[&<>"']/g, function(match) { // Line ~608 (example)
             if (match === '&') {
                 return '&';
             } else if (match === '<') {
                 return '<';
-            } else if (match === '>') {
+            } else if (match === '>') { // <<<< Line 613 would be HERE if the previous version was 5 lines for switch + default
                 return '>';
             } else if (match === '"') {
                 return '"';
             } else if (match === "'") {
-                return '''; // Using numeric entity for single quote
+                return '''; 
             }
             return match; // Should not be reached if regex is correct
         });
     }
-
     function toggleAdminSectionVisibility() {
         const adminSection = document.getElementById('admin-section');
         const isAdminUser = window.currentUserRole === 'admin';
