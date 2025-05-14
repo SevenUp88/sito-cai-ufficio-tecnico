@@ -602,8 +602,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/&/g, "&")
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, """)
-            .replace(/'/g, "'");
+            .replace(/"/g, """) // CORRECTED THIS LINE
+            .replace(/'/g, "'"); // Or use '
     }
 
     function toggleAdminSectionVisibility() {
