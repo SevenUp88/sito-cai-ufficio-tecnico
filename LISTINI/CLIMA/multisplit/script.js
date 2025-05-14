@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 case '"':
                     return '"';
                 case "'":
-                    return '''; // THIS LINE WAS CORRECTED
+                    return '''; // THIS IS THE CORRECTED LINE for single quote
                 default:
                     return match;
             }
