@@ -609,7 +609,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 case '"':
                     return '"';
                 case "'":
-                    return '''; // or '''
+                    return '''; // THIS LINE WAS CORRECTED
                 default:
                     return match;
             }
