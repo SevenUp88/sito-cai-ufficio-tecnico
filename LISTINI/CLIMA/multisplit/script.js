@@ -595,8 +595,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     window.currentUserRole = null; 
     let adminBrandsListener = null; 
-    
-    function escapeHtml(unsafeString) {
+           function escapeHtml(unsafeString) {
         if (typeof unsafeString !== 'string') {
             unsafeString = String(unsafeString);
         }
@@ -605,7 +604,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
         newString = newString.replace(/"/g, """);
-        newString = newString.replace(/'/g, "'");
+        newString = newString.replace(/"/g, """);
         return newString;
     }
     function toggleAdminSectionVisibility() {
