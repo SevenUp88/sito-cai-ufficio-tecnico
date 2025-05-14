@@ -75,47 +75,47 @@
             <h1>Configuratore Multi-Split</h1>
         </div>
 
-        <!-- STEP INDICATOR (Assumed already updated for 6 steps with correct labels) -->
+        <!-- STEP INDICATOR -->
         <div class="step-indicator">
         <div class="step-item completed" data-step="1">
             <span class="step-dot">1</span>
             <span class="step-name">Marca</span>
-            <span class="step-selection-info" id="step-info-1"></span>
+            <span class="step-selection-info" id="step-info-1"></span> {/* Populated by JS with brand logo or name */}
         </div>
         <span class="step-line active"></span>
         <div class="step-item completed" data-step="2">
             <span class="step-dot">2</span>
             <span class="step-name">Config.</span>
-            <span class="step-selection-info" id="step-info-2"></span>
+            <span class="step-selection-info" id="step-info-2"></span> {/* Populated by JS with config type */}
         </div>
         <span class="step-line active"></span>
         <div class="step-item completed" data-step="3">
             <span class="step-dot">3</span>
             <span class="step-name">Modello</span>
-            <span class="step-selection-info" id="step-info-3"></span>
+            <span class="step-selection-info" id="step-info-3"></span> {/* Populated by JS with model name */}
         </div>
         <span class="step-line active"></span>
         <div class="step-item completed" data-step="4">
             <span class="step-dot">4</span>
             <span class="step-name">Unità Est.</span>
-            <span class="step-selection-info" id="step-info-4"></span>
+            <span class="step-selection-info" id="step-info-4"></span> {/* Populated by JS with outdoor unit info */}
         </div>
         <span class="step-line active"></span>
-        <div class="step-item active" data-step="5">
+        <div class="step-item completed" data-step="5">
             <span class="step-dot">5</span>
             <span class="step-name">Unità Int.</span>
-            <span class="step-selection-info" id="step-info-5"></span> {/* (mostrerà "Selezionate" o simile) */}
+            <span class="step-selection-info" id="step-info-5">(mostrerà "Selezionate" o simile)</span> {/* As per mockup */}
         </div>
-        <span class="step-line"></span>
-        <div class="step-item" data-step="6">
+        <span class="step-line active"></span>
+        <div class="step-item active" data-step="6">
             <span class="step-dot">6</span>
             <span class="step-name">Riepilogo</span>
-            <span class="step-selection-info" id="step-info-6"></span> {/* (non mostrerà nulla o "Completo") */}
+            <span class="step-selection-info" id="step-info-6">(non mostrerà nulla o "Completo")</span> {/* As per mockup */}
         </div>
     </div>
 
         <!-- Step 1: Brand Selection (id="step-1", Logical Step 1) -->
-        <div id="step-1" class="config-step active-step"> {/* This 'active-step' class determines visibility, not the indicator's 'active' visual style */}
+        <div id="step-1" class="config-step"> {/* Not active-step if on step 6 */}
             <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
             <div id="brand-selection" class="selection-grid"></div>
             <div class="step-navigation"></div>
@@ -146,11 +146,11 @@
         <div id="step-5" class="config-step">
             <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
             <div id="indoor-units-selection-area"></div>
-            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button><button class="next-btn" id="finalize-btn" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button></div>
+            <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button><button class="next-.btn" id="finalize-btn" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button></div>
         </div>
 
         <!-- Step 6 (HTML Div used for Logical Step 6): Summary -->
-        <div id="step-6" class="config-step">
+        <div id="step-6" class="config-step active-step"> {/* This is the active step content based on the image */}
             <h2 id="summary-main-title"><span class="step-number-title">6.</span> Riepilogo Configurazione</h2>
             <div id="config-summary" class="summary-section"></div>
             <div class="print-instructions"><p><strong>Per la stampa:</strong> usare Ctrl+P o Cmd+P.</p></div>
