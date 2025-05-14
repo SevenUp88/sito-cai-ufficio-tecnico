@@ -498,7 +498,9 @@ function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
             selections.outdoorUnit = null;
         }
     }
-function updateStepSelectionInfo() {
+
+    // THIS IS THE MODIFIED/INTEGRATED updateStepSelectionInfo FUNCTION
+    function updateStepSelectionInfo() {
         const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
 
         const stepInfo1 = document.getElementById('step-info-1');
@@ -508,7 +510,7 @@ function updateStepSelectionInfo() {
             } else if (selections.brand && selections.brand.name) {
                 stepInfo1.textContent = S(selections.brand.name);
             } else {
-                stepInfo1.innerHTML = ' '; // Placeholder se nulla è selezionato
+                stepInfo1.innerHTML = ' '; // Placeholder for unselected step
             }
         }
 
@@ -520,32 +522,51 @@ function updateStepSelectionInfo() {
 
         const stepInfo3 = document.getElementById('step-info-3');
         if (stepInfo3) {
-            stepInfo3.textContent = selections.indoorSeries ? S(selections.indoorSeries.name) : '';
-            if (stepInfo3.textContent === '') stepInfo3.innerHTML = ' ';
+            if (selections.indoorSeries && selections.indoorSeries.image) {
+                 stepInfo3.innerHTML = `<img src="${S(selections.indoorSeries.image)}" alt="${S(selections.indoorSeries.name)}" class="step-info-logo" style="max-height: 20px;">`;
+            } else if (selections.indoorSeries && selections.indoorSeries.name) {
+                stepInfo3.textContent = S(selections.indoorSeries.name);
+            } else {
+                stepInfo3.innerHTML = ' ';
+            }
         }
 
         const stepInfo4 = document.getElementById('step-info-4');
         if (stepInfo4) {
-            stepInfo4.textContent = selections.outdoorUnit ? `${S(selections.outdoorUnit.kw)}kW` : '';
+            if (selections.outdoorUnit && selections.outdoorUnit.kw) {
+                let ueText = `${S(selections.outdoorUnit.kw)}kW`;
+                // Optional: Truncate if too long
+                if (ueText.length > 15) ueText = ueText.substring(0, 12) + "...";
+                stepInfo4.textContent = ueText;
+            } else {
+                 stepInfo4.textContent = '';
+            }
             if (stepInfo4.textContent === '') stepInfo4.innerHTML = ' ';
         }
         
         const stepInfo5 = document.getElementById('step-info-5');
          if (stepInfo5) {
-            if (selections.configType && selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null)) {
+            if (currentLogicalStep > 5 || (currentLogicalStep === 5 && selections.configType && selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))) {
                 stepInfo5.textContent = 'Selezionate';
-            } else if (selections.outdoorUnit) { // Mostra "Da selez." solo se lo step precedente è completo
-                stepInfo5.textContent = 'Da selez.';
+            } else if (currentLogicalStep === 5 && selections.outdoorUnit) {
+                const requiredSlots = selections.configType ? selections.configType.numUnits : 0;
+                const selectedCount = selections.indoorUnits.filter(ui => ui !== null).length;
+                stepInfo5.textContent = `${selectedCount}/${requiredSlots} sel.`;
             } else {
                 stepInfo5.innerHTML = ' ';
             }
         }
 
         const stepInfo6 = document.getElementById('step-info-6');
-        if (stepInfo6) { // Per lo step riepilogo, potresti non voler mostrare nulla o "Pronto"
-             stepInfo6.innerHTML = ' '; // O ''
+        if (stepInfo6) {
+            if (currentLogicalStep === TOTAL_LOGICAL_STEPS) {
+                stepInfo6.textContent = 'Completo';
+            } else {
+                stepInfo6.innerHTML = ' ';
+            }
         }
     }
+    
     function populateIndoorUnitSelectors() {
     indoorUnitsSelectionArea.innerHTML = '';
     if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
@@ -613,24 +634,20 @@ function updateStepSelectionInfo() {
         const detailsDiv = document.createElement('div');
         detailsDiv.classList.add('unit-details');
 
-        const S = (str) => str != null ? String(str).replace(/`/g, "'") : '';
+        // const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // S is already defined globally or in parent scope
 
        const generateDetailsHtml = (unit) => {
             if (!unit) return '';
-            const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper
+            const S_local = (str) => str != null ? String(str).replace(/`/g, "'") : ''; // Sanitize helper, local if S is not guaranteed
 
-            let html = `<p>Cod: <strong>${S(unit.modelCode) || 'N/A'}</strong></p>`;
-            html += `<p>Pwr: <strong>${S(unit.kw) || 'N/A'}kW (${S(unit.capacityBTU) || 'N/A'} BTU)</strong> - €<strong>${(unit.price || 0).toFixed(2)}</strong></p>`;
+            let html = `<p>Cod: <strong>${S_local(unit.modelCode) || 'N/A'}</strong></p>`;
+            html += `<p>Pwr: <strong>${S_local(unit.kw) || 'N/A'}kW (${S_local(unit.capacityBTU) || 'N/A'} BTU)</strong> - €<strong>${(unit.price || 0).toFixed(2)}</strong></p>`;
             if (unit.dimensions && unit.dimensions !== "N/A") {
-                html += `<p>Dimensioni: <strong>${S(unit.dimensions)}</strong></p>`;
+                html += `<p>Dimensioni: <strong>${S_local(unit.dimensions)}</strong></p>`;
             }
             if (unit.weight && unit.weight !== "N/A" && unit.weight !== "N/D") {
-                html += `<p>Peso: <strong>${S(unit.weight)} kg</strong></p>`;
+                html += `<p>Peso: <strong>${S_local(unit.weight)} kg</strong></p>`;
             }
-            // LA RIGA DELL'IMMAGINE È STATA CORRETTAMENTE RIMOSSA QUI SOTTO
-            // if (unit.image) {
-            //      html += `<img src="${S(unit.image)}" alt="Immagine ${S(unit.modelCode) || 'UI'}" class="ui-details-img">`;
-            // }
             return html;
         };
 
@@ -723,7 +740,61 @@ function updateStepSelectionInfo() {
 
     // --- Navigation Logic ---
     function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid logical step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return; } console.log(`ShowStep: Target=${logicalStepNumber}, DirectNav=${fromDirectNavigation}, Prev CurrHighest=${highestLogicalStepCompleted}, Prev CurrStep=${currentLogicalStep}`); if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) { console.log(`Navigation to step ${logicalStepNumber} blocked by completion rules.`); showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return; } } if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; } } stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`); } currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0); console.log(`ShowStep END: Now currentStep=${currentLogicalStep}, CurrHighest=${highestLogicalStepCompleted}`); }
-    function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return; } item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep; } if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed'); }  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active'); } if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); } }); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return; } line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex];  const prevItemLogicalStep = parseInt(prevItem?.dataset?.step); if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active'); } else if (currentLogicalStep > prevItemLogicalStep) { line.classList.add('active'); } } }); }
+    
+    // THIS IS THE MODIFIED updateStepIndicator FUNCTION
+    function updateStepIndicator() {
+        const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line');
+        stepIndicatorItems.forEach((item, htmlIndex) => {
+            const itemLogicalStep = htmlIndex + 1;
+            if (itemLogicalStep > TOTAL_LOGICAL_STEPS) {
+                item.style.display = 'none';
+                if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none';
+                return;
+            }
+            item.style.display = '';
+            item.dataset.step = itemLogicalStep;
+            const nameEl = item.querySelector('.step-name');
+            if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`;
+            
+            item.classList.remove('active', 'completed', 'disabled');
+            const dot = item.querySelector('.step-dot');
+            if(dot) {
+                dot.classList.remove('active', 'completed');
+                dot.textContent = itemLogicalStep;
+            }
+
+            if (itemLogicalStep < currentLogicalStep) {
+                item.classList.add('completed');
+                dot?.classList.add('completed');
+            }  else if (itemLogicalStep === currentLogicalStep) {
+                item.classList.add('active');
+                dot?.classList.add('active');
+            }
+ 
+            if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) {
+                item.classList.add('disabled');
+            }
+        });
+
+        stepLinesHTML.forEach((line, htmlLineIndex) => {
+            if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) {
+                line.style.display = 'none';
+                return;
+            }
+            line.style.display = '';
+            line.classList.remove('active');
+            const prevItem = stepIndicatorItems[htmlLineIndex]; 
+            if (prevItem && prevItem.style.display !== 'none') {
+                if (prevItem.classList.contains('completed')) {
+                    line.classList.add('active');
+                } else if (currentLogicalStep > parseInt(prevItem.dataset.step)) {
+                    line.classList.add('active');
+                }
+            }
+        });
+        updateStepSelectionInfo(); // CALL TO UPDATE THE SUMMARY INFO UNDER STEPS
+    }
+
     function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
     function initializeNavigation() {  stepIndicatorItems.forEach(item => { item.addEventListener('click', () => { if (item.classList.contains('disabled') || item.style.display === 'none') return; const targetLogicalStep = parseInt(item.dataset.step); if (isNaN(targetLogicalStep) || targetLogicalStep < 1 || targetLogicalStep > TOTAL_LOGICAL_STEPS) return; console.log(`Indicator click -> Step ${targetLogicalStep}`); if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { const canShowSummary = selections.brand && selections.configType && selections.indoorSeries && selections.outdoorUnit && (!selections.configType.numUnits > 0 || (selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))); if (!canShowSummary) { alert("Completa passaggi precedenti."); return; } generateSummary(); } showStep(targetLogicalStep, true); }); }); if(finalizeBtn) { finalizeBtn.addEventListener('click', () => { console.log("Finalize button clicked."); highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); generateSummary(); showStep(TOTAL_LOGICAL_STEPS); }); } document.querySelectorAll('.prev-btn').forEach(button => { const currentStepElement = button.closest('.config-step'); if (!currentStepElement) return; const currentHtmlId = currentStepElement.id; const currentLogical = HTML_TO_LOGICAL_STEP_MAP[currentHtmlId]; if (currentLogical === undefined || currentLogical === 1) { button.style.display = 'none'; return; } let prevLogicalStep = currentLogical - 1; button.style.display = ''; button.addEventListener('click', () => { console.log(`Prev clicked from ${currentLogical} to ${prevLogicalStep}`); showStep(prevLogicalStep, true); }); }); document.getElementById('reset-config-btn')?.addEventListener('click', () => { console.log("Reset config clicked."); if (!confirm("Sei sicuro?")) return; selections.brand = null; selections.configType = null; selections.indoorSeries = null; selections.outdoorUnit = null; selections.indoorUnits = []; resetSelectionsAndUIFrom(1); populateBrands(); highestLogicalStepCompleted = 0; showStep(1); }); document.getElementById('print-summary-btn')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Vai al Riepilogo (Passaggio 6) prima di stampare."); }); document.getElementById('print-list')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Completa fino al Riepilogo (Passaggio 6)."); }); }
     async function initializeApp() { console.log("DEBUG: initializeApp started (6-Step Flow V2.1)"); document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs, metadataDoc; try { console.log("DEBUG: Fetching all Firestore data..."); [ brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs, metadataDoc ] = await Promise.all([ fetchFirestoreCollection('brands'), fetchFirestoreCollection('configTypes'), fetchFirestoreCollection('uiSeriesImageMapping'), fetchFirestoreCollection('outdoorUnits'), fetchFirestoreCollection('indoorUnits'), db.collection('metadata').doc('appInfo').get() ]); console.log("DEBUG: Firestore data fetching complete."); processLoadedData(brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR fetching/processing Firestore data:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore grave caricamento dati.</p>`; return; } stepsHtmlContainers.forEach(el => el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep = 1; highestLogicalStepCompleted = 0; updateStepIndicator(); populateBrands(); const brandSelectionContent = brandSelectionDiv.innerHTML.trim(); if (brandSelectionContent.includes("Nessuna marca") || (brandSelectionDiv.children.length === 0 && !brandSelectionDiv.querySelector('p'))) { console.warn("INIT WARNING: No brands populated."); if (loadingOverlay.style.display !== 'none') { loadingOverlay.innerHTML = `<p style="color:orange;">Errore: Nessuna marca disponibile.</p>`; } } else { loadingOverlay.style.display = 'none'; } document.getElementById('currentYear').textContent = new Date().getFullYear(); try { if (metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate) { const timestamp = metadataDoc.data().lastDataUpdate; document.getElementById('lastUpdated').textContent = new Date(timestamp.seconds * 1000).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }); } else { console.log("DEBUG: metadata/appInfo missing."); document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT'); } } catch(err) { console.warn("Error retrieving metadata:", err); document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('it-IT'); } initializeNavigation(); console.log("DEBUG: initializeApp finished."); }
