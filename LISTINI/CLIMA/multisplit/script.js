@@ -56,25 +56,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     function parsePowerString(powerStr) { let btu = 0; let kw = "N/A"; if (typeof powerStr === 'string' && powerStr !== "Dati mancanti") { const btuMatch = powerStr.match(/([\d.,]+)\s*BTU/i); if (btuMatch && btuMatch[1]) btu = parseInt(btuMatch[1].replace(/[.,]/g, ''), 10) || 0; const kwMatch = powerStr.match(/([\d.,]+)\s*kW/i); if (kwMatch && kwMatch[1]) kw = kwMatch[1].replace(',', '.'); else if (btu > 0 && kw === "N/A") kw = (btu / 3412.14).toFixed(1); } return { btu, kw }; }
     function sanitizeForId(str) { if (!str) return ''; return String(str).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''); }
 
+    // MODIFIED processLoadedData
     function processLoadedData(brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs) {
         APP_DATA.brands = brandsDocs;
         APP_DATA.configTypes = configTypesDocs.reduce((acc, ct) => { acc[ct.id] = { id: ct.id, name: ct.name, numUnits: ct.numUnits }; return acc; }, {});
         APP_DATA.uiSeriesImageMapping = seriesMapDocs.reduce((acc, mapping) => { if(mapping.seriesKey) acc[mapping.seriesKey] = mapping.imageName; return acc; }, {});
+
+        const getFieldOrPlaceholder = (fieldValue, placeholder = "N/D") => {
+            if (fieldValue !== undefined && fieldValue !== null && String(fieldValue).trim() !== "" && String(fieldValue).toUpperCase() !== "DATI MANCANTI") {
+                return String(fieldValue);
+            }
+            return placeholder;
+        };
+
         APP_DATA.outdoorUnits = outdoorUnitsDocs.map((ue_doc, index) => {
             const brandId = String(ue_doc.marca || 'sconosciuta').toLowerCase();
             const connections = Number(ue_doc.unit_collegabili) || 0;
             const uePotenzaKw = Number(ue_doc.potenza) || 0;
+            
             return {
                 id: ue_doc.id || `ue_${index}`, brandId: brandId,
-                modelCode: ue_doc.codice_prodotto || "N/A",
-                name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE ${String(ue_doc.marca || '').toUpperCase()} (${ue_doc.codice_prodotto || 'ID: ' + ue_doc.id})`,
+                modelCode: getFieldOrPlaceholder(ue_doc.codice_prodotto, "N/A"),
+                name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE ${String(ue_doc.marca || '').toUpperCase()} (${getFieldOrPlaceholder(ue_doc.codice_prodotto, 'ID: ' + ue_doc.id)})`,
                 kw: uePotenzaKw,
                 connections: connections,
                 price: Number(ue_doc.prezzo) || 0,
-                dimensions: ue_doc.dimensioni_ue || "N/A", 
-                weight: (ue_doc.peso_ue !== "Dati mancanti" && ue_doc.peso_ue !== undefined) ? ue_doc.peso_ue : "N/D", 
-                energyClassCooling: ue_doc.classe_energetica_raffrescamento || "N/D", 
-                energyClassHeating: ue_doc.classe_energetica_riscaldamento || "N/D", 
+                dimensions: getFieldOrPlaceholder(ue_doc.dimensioni_ue),
+                weight: getFieldOrPlaceholder(ue_doc.peso_ue),
+                energyClassCooling: getFieldOrPlaceholder(ue_doc.classe_energetica_raffrescamento),
+                energyClassHeating: getFieldOrPlaceholder(ue_doc.classe_energetica_riscaldamento),
                 compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : []
             };
         });
@@ -88,10 +98,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             else { let imageNameMapped = APP_DATA.uiSeriesImageMapping[seriesId]; if (!imageNameMapped) { imageNameMapped = sanitizeForId(seriesName);} imagePath = `img/${imageNameMapped}.png`;}
             return {
                 id: ui_doc.id || `ui_${index}`, brandId: brandId, seriesId: seriesId, seriesName: seriesName,
-                modelCode: ui_doc.codice_prodotto || "N/A", name: `${String(ui_doc.marca || '').toUpperCase()} ${seriesName} ${kw}kW (${btu} BTU)`,
+                modelCode: getFieldOrPlaceholder(ui_doc.codice_prodotto, "N/A"), 
+                name: `${String(ui_doc.marca || '').toUpperCase()} ${seriesName} ${kw}kW (${btu} BTU)`,
                 type: String(ui_doc.tipo_unit || 'Parete').toLowerCase() === "interna" ? "Parete" : ui_doc.tipo_unit,
                 capacityBTU: btu, kw: kw, price: Number(ui_doc.prezzo_ui) || 0, image: imagePath,
-                dimensions: ui_doc.dimensioni_ui || "N/A", weight: (ui_doc.peso_ui !== "Dati mancanti" && ui_doc.peso_ui !== undefined) ? ui_doc.peso_ui : "N/D", 
+                dimensions: getFieldOrPlaceholder(ui_doc.dimensioni_ui), 
+                weight: getFieldOrPlaceholder(ui_doc.peso_ui), 
                 wifi: ui_doc.wifi === true
             };
         });
@@ -129,6 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return itemDiv;
     }
 
+    // MODIFIED createUnitSelectionCard
     function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
         const card = document.createElement('div');
         card.classList.add('unit-selection-card');
@@ -143,15 +156,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const nameH4 = document.createElement('h4');
         let unitTitle = "UNITA' ESTERNA";
-        if (unit && unit.kw && unit.kw !== "Dati mancanti" && unit.kw !== 0 && unit.kw !== "N/A") {
+        if (unit && unit.kw && String(unit.kw).toUpperCase() !== "DATI MANCANTI" && unit.kw !== 0 && String(unit.kw).toUpperCase() !== "N/A") {
             unitTitle += ` ${String(unit.kw)}kW`;
         }
         nameH4.textContent = unitTitle;
         infoDiv.appendChild(nameH4);
 
+        const valOrDashDisplay = (val, suffix = '', placeholder = '-') => {
+            const strVal = val ? String(val).trim() : "";
+            if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N/D" && strVal.toUpperCase() !== "N.D.") {
+                return `${strVal}${suffix}`;
+            }
+            return placeholder;
+        };
+        
         const modelP = document.createElement('p');
         let modelP_html = "Codice: ";
-        const modelCodeDisplay = (unit && unit.modelCode && String(unit.modelCode).toUpperCase() !== 'N/A' && String(unit.modelCode).toUpperCase() !== 'DATI MANCANTI'  && String(unit.modelCode).trim() !== '') ? String(unit.modelCode) : '-';
+        const modelCodeDisplay = valOrDashDisplay(unit?.modelCode);
         modelP_html += `<strong>${modelCodeDisplay}</strong>`;
         modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
         modelP.innerHTML = modelP_html;
@@ -162,21 +183,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         energyLabelSpan.classList.add('energy-class-label');
         energyLabelSpan.textContent = "Classe Energetica (F/C):";
         energyClassContainerP.appendChild(energyLabelSpan);
-
-        const valOrDashForEnergy = (val) => {
-            const strVal = (val) ? String(val) : "";
-            if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/D" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "NA" && strVal.toUpperCase() !== "N.A." && strVal.trim() !== "") {
-                return { display: strVal, isData: true };
-            }
-            return { display: "-", isData: false };
-        };
         
-        const coolingInfo = valOrDashForEnergy(unit?.energyClassCooling);
+        const coolingVal = unit?.energyClassCooling;
+        let coolingDisplayText = valOrDashDisplay(coolingVal);
+        let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
+
         const coolingSpan = document.createElement('span');
         coolingSpan.classList.add('energy-rating');
-        coolingSpan.classList.toggle('cooling', coolingInfo.isData);
-        coolingSpan.classList.toggle('unknown', !coolingInfo.isData);
-        coolingSpan.textContent = coolingInfo.display;
+        coolingSpan.classList.toggle('cooling', isCoolingDataValid);
+        coolingSpan.classList.toggle('unknown', !isCoolingDataValid);
+        coolingSpan.textContent = coolingDisplayText;
         energyClassContainerP.appendChild(coolingSpan);
 
         const separatorSpan = document.createElement('span');
@@ -184,28 +200,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         separatorSpan.textContent = "/";
         energyClassContainerP.appendChild(separatorSpan);
 
-        const heatingInfo = valOrDashForEnergy(unit?.energyClassHeating);
+        const heatingVal = unit?.energyClassHeating;
+        let heatingDisplayText = valOrDashDisplay(heatingVal);
+        let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
+        
         const heatingSpan = document.createElement('span');
         heatingSpan.classList.add('energy-rating');
-        heatingSpan.classList.toggle('heating', heatingInfo.isData);
-        heatingSpan.classList.toggle('unknown', !heatingInfo.isData);
-        heatingSpan.textContent = heatingInfo.display;
+        heatingSpan.classList.toggle('heating', isHeatingDataValid);
+        heatingSpan.classList.toggle('unknown', !isHeatingDataValid);
+        heatingSpan.textContent = heatingDisplayText;
         energyClassContainerP.appendChild(heatingSpan);
         infoDiv.appendChild(energyClassContainerP);
 
         const dimensionsP = document.createElement('p');
-        const dimInfo = valOrDashForEnergy(unit?.dimensions);
+        const dimDisplay = valOrDashDisplay(unit?.dimensions);
         
-        const weightVal = (unit && typeof unit.weight !== 'undefined' && unit.weight !== null) ? String(unit.weight) : "";
-        let weightDisplay = "-";
-        if (weightVal && weightVal.toUpperCase() !== "DATI MANCANTI" && weightVal.toUpperCase() !== "N/D" && weightVal.toUpperCase() !== "N.D." && weightVal.toUpperCase() !== "NA" && weightVal.toUpperCase() !== "N.A." && weightVal.trim() !== "") {
-            if (!isNaN(parseFloat(weightVal)) && isFinite(Number(weightVal))) { 
-                weightDisplay = `${weightVal} kg`; 
-            } else {
-                weightDisplay = weightVal; 
-            }
+        let weightSuffix = '';
+        const weightRaw = unit?.weight;
+        if (weightRaw && String(weightRaw).trim() !== "" && String(weightRaw).toUpperCase() !== "N/D" && String(weightRaw).toUpperCase() !== "DATI MANCANTI" && !isNaN(parseFloat(String(weightRaw))) && isFinite(Number(weightRaw))) {
+             weightSuffix = ' kg';
         }
-        dimensionsP.textContent = `Dimensioni: ${dimInfo.display} | Peso: ${weightDisplay}`;
+        const weightDisplay = valOrDashDisplay(weightRaw, weightSuffix);
+        
+        dimensionsP.textContent = `Dimensioni: ${dimDisplay} | Peso: ${weightDisplay}`;
         infoDiv.appendChild(dimensionsP);
 
         const priceP = document.createElement('p');
@@ -214,12 +231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (unit && typeof unit.price === 'number') {
             priceText += unit.price.toFixed(2);
         } else {
-            const priceStr = (unit && unit.price) ? String(unit.price) : "";
-            if (priceStr && priceStr.toUpperCase() !== 'N/D' && priceStr.toUpperCase() !== 'DATI MANCANTI' && priceStr.trim() !== "") {
-                priceText += priceStr;
-            } else {
-                priceText += '-';
-            }
+            priceText += valOrDashDisplay(unit?.price, '', '-'); // Ensure '-' if price is not valid
         }
         priceText += " € (IVA escl.)";
         priceP.textContent = priceText;
@@ -240,6 +252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return card;
     }
 
+
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
     function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('indoor-unit-choice-card'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
 
@@ -248,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function populateIndoorSeries() { indoorSeriesSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType) { indoorSeriesSelectionDiv.innerHTML = '<p>Scegli Marca & Config.</p>'; return; } const brandId = selections.brand.id; const numUnitsRequired = selections.configType.numUnits; const candidateUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === brandId && ue.connections === numUnitsRequired); if (!candidateUEs.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessuna UE ${brandId} per ${numUnitsRequired} UI.</p>`; return; } const compatibleSeriesIdsSet = new Set(candidateUEs.flatMap(ue => ue.compatibleIndoorSeriesIds || [])); if (compatibleSeriesIdsSet.size === 0) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun modello UI compatibile per UE ${brandId}/${numUnitsRequired}-split.</p>`; return; } const validIndoorUnitsForSeriesSelection = APP_DATA.indoorUnits.filter(ui => ui.brandId === brandId && compatibleSeriesIdsSet.has(ui.seriesId)); const uniqueSeries = []; const seenSeriesIds = new Set(); validIndoorUnitsForSeriesSelection.forEach(ui => { if (!seenSeriesIds.has(ui.seriesId)) { let img = APP_DATA.uiSeriesImageMapping[ui.seriesId] ? `img/${APP_DATA.uiSeriesImageMapping[ui.seriesId]}.png` : (ui.image || null); uniqueSeries.push({ name: ui.seriesName, id: ui.seriesId, image: img }); seenSeriesIds.add(ui.seriesId); } }); if (!uniqueSeries.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun Modello UI ${brandId} compatibile trovato.</p>`; return; } uniqueSeries.sort((a,b) => a.name.localeCompare(b.name)); uniqueSeries.forEach(series => { indoorSeriesSelectionDiv.appendChild(createSelectionItem(series, 'series', (selectedSeries) => { if (selections.indoorSeries?.id !== selectedSeries.id) { resetSelectionsAndUIFrom(4); selections.indoorSeries = selectedSeries; highestLogicalStepCompleted = 3; } populateOutdoorUnits(); showStep(4); }, selections.indoorSeries?.id === series.id));}); if (selections.indoorSeries && !uniqueSeries.some(s => s.id === selections.indoorSeries.id)) selections.indoorSeries = null;}
     function populateOutdoorUnits() { outdoorUnitSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries) { outdoorUnitSelectionDiv.innerHTML = '<p>Scegli Marca, Config., Modello.</p>'; return;} const numRequired = selections.configType.numUnits; const requiredSeriesId = selections.indoorSeries.id; const compatibleUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id && ue.connections === numRequired && Array.isArray(ue.compatibleIndoorSeriesIds) && ue.compatibleIndoorSeriesIds.includes(requiredSeriesId)); if (!compatibleUEs.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE ${selections.brand.name} per ${numRequired} UI compatibile con "${selections.indoorSeries.name}".</p>`; return; } const uniqueUEsToDisplay = []; const seenUEKeys = new Set(); for (const ue of compatibleUEs) { const ueKey = `${ue.modelCode}-${ue.kw}-${ue.connections}-${ue.price.toFixed(2)}`; if (!seenUEKeys.has(ueKey)) { seenUEKeys.add(ueKey); uniqueUEsToDisplay.push(ue);}} if (!uniqueUEsToDisplay.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE unica trovata per ${selections.brand.name}.</p>`; return; } uniqueUEsToDisplay.forEach(ue => { outdoorUnitSelectionDiv.appendChild(createUnitSelectionCard(ue, (selectedUE) => { if (selections.outdoorUnit?.id !== selectedUE.id) { resetSelectionsAndUIFrom(5); selections.outdoorUnit = selectedUE; highestLogicalStepCompleted = 4; } populateIndoorUnitSelectors(); showStep(5); }, selections.outdoorUnit?.id === ue.id));}); if (selections.outdoorUnit && !uniqueUEsToDisplay.some(ue => ue.id === selections.outdoorUnit.id)) { selections.outdoorUnit = null;}}
     
-    const valOrDash = (val, suffix = '') => { // Moved to be accessible by populateIndoorUnitSelectors too
+    const valOrDash = (val, suffix = '') => { // Global helper for consistency
         const S = (str) => str != null ? String(str).replace(/`/g, "'") : '';
         const strVal = S(val);
         if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D" && strVal.toUpperCase() !== "N.D." && strVal.trim() !== "" && strVal.trim() !== "-") {
@@ -291,7 +304,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     function generateIndoorUnitDetailsHtml(unit) {
         if (!unit) return '<p>Seleziona una taglia/potenza.</p>';
-        // valOrDash is now globally available
         let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
         html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`;
         html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
@@ -341,14 +353,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             checkAllIndoorUnitsSelected();
             return;
         }
-
-        // Create a set of unique display cards based on kW and BTU for the buttons
         const uniqueDisplayOptionsMap = new Map();
         availableIndoorUnitsForSeries.forEach(uiVariant => {
             const displayKey = `${uiVariant.kw}-${uiVariant.capacityBTU}`;
             if (!uniqueDisplayOptionsMap.has(displayKey)) {
-                // Store the first unit encountered for this displayKey to represent the choice card
-                // The actual unit ID will be used for selection logic.
                 uniqueDisplayOptionsMap.set(displayKey, uiVariant);
             }
         });
@@ -373,19 +381,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             choicesContainer.classList.add('indoor-unit-choices-container');
             choicesContainer.dataset.slotIndex = i;
 
-            if (uniqueDisplayOptions.length === 0) { // Fallback if all units are identical beyond displayKey (unlikely)
+            if (uniqueDisplayOptions.length === 0) {
                  choicesContainer.innerHTML = `<p>Opzioni UI non chiaramente distinguibili.</p>`;
             } else {
                 uniqueDisplayOptions.forEach(displayUnit => {
-                    // Find ALL actual units that match this displayUnit's kW and BTU.
-                    // This is if you want the user to pick, e.g. "2.5kW / 9000 BTU", and then you have logic
-                    // to decide WHICH actual "2.5kW / 9000 BTU" unit to pick if there are multiple with different IDs/codes.
-                    // For now, we'll assume each card represents the ID of the first uniqueDisplayOption encountered.
-                    // If multiple underlying products map to one card, the click handler will use the ID of that one representative.
-                    
                     const choiceCard = document.createElement('div');
                     choiceCard.classList.add('indoor-unit-choice-card');
-                    choiceCard.dataset.unitId = displayUnit.id; // This specific unit will be selected on click.
+                    choiceCard.dataset.unitId = displayUnit.id; 
                     
                     choiceCard.innerHTML = `
                         <span class="unit-kw">${valOrDash(displayUnit.kw, 'Kw')}</span>
@@ -417,132 +419,125 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function generateSummary() {
-    console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
-    summaryDiv.innerHTML = ''; 
-    
-    const mainSummaryTitleEl = document.getElementById('summary-main-title');
-    if (mainSummaryTitleEl) {
-        mainSummaryTitleEl.textContent = "Riepilogo Configurazione"; 
-        // No need to add .print-main-title here; CSS will handle specific print styling for #summary-main-title
-        // or the new .summary-print-page-header
-    }
-
-    // Reference input and value reading REMOVED
-    // const referenceInput = document.getElementById('config-reference');
-    // const referenceValue = referenceInput ? referenceInput.value.trim() : "";
-
-    if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
-        summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
-        return;
-    }
-    if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
-        summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
-        return;
-    }
-
-    let totalPrice = 0;
-    if (selections.outdoorUnit) totalPrice += selections.outdoorUnit.price || 0;
-    selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
-
-    const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
-    const valOrDash = (val, suffix = '') => {
-        const strVal = S_SUMMARY(val);
-        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "N.D" && strVal.trim() !== "" && strVal.trim() !== "-") {
-            return `${strVal}${suffix}`;
-        }
-        return '-';
-    };
-    const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
-
-    let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
-    if (selections.configType && selections.configType.numUnits === 0) {
-        indoorUnitsBtuList = "Nessuna";
-    } else if (!selections.configType) {
-        indoorUnitsBtuList = "N/D";
-    }
-
-    const layoutContainer = document.createElement('div');
-    layoutContainer.classList.add('summary-layout-container');
-
-    // Print-only header with ONLY the title now (reference removed)
-    const printHeaderContainer = document.createElement('div');
-    printHeaderContainer.classList.add('summary-print-page-header'); 
-
-    const printTitleSpan = document.createElement('span');
-    printTitleSpan.classList.add('print-page-title');
-    printTitleSpan.textContent = "RIEPILOGO CONFIGURAZIONE";
-    printHeaderContainer.appendChild(printTitleSpan);
-    
-    // If you still want the flexbox structure to align the title to the left,
-    // you can add an empty span as the second child for justification.
-    const emptyFlexSpacer = document.createElement('span');
-    printHeaderContainer.appendChild(emptyFlexSpacer); 
-
-    summaryDiv.appendChild(printHeaderContainer); 
-    
-    const headerInfoDiv = document.createElement('div');
-    headerInfoDiv.classList.add('summary-header-info');
-    // Reference HTML removed from here
-    headerInfoDiv.innerHTML = ` 
-        <div class="info-group">
-            <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand?.name)}</p>
-            <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries?.name)}</p>
-            <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType?.name)}</p>
-        </div>
-        <div class="info-group">
-            <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit?.kw, 'kW')}</p>
-            <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
-            <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
-        </div>
-    `;
-    layoutContainer.appendChild(headerInfoDiv);
-
-    const detailsTitle = document.createElement('h2');
-    detailsTitle.classList.add('summary-details-title');
-    detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
-    layoutContainer.appendChild(detailsTitle);
-
-    const outdoorUnitBlock = document.createElement('div');
-    outdoorUnitBlock.classList.add('summary-detail-block');
-    outdoorUnitBlock.innerHTML = `
-        <h3>UNITA' ESTERNA</h3>
-        <div class="outdoor-unit-details-content">
-            <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
-            <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
-            <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
-            <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
-            <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
-        </div>
-    `;
-    layoutContainer.appendChild(outdoorUnitBlock);
-
-    if (selections.configType?.numUnits > 0) {
-        const indoorUnitsSectionBlock = document.createElement('div');
-        indoorUnitsSectionBlock.classList.add('summary-detail-block');
-        indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
+        console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
+        summaryDiv.innerHTML = ''; 
         
-        const indoorUnitsContainer = document.createElement('div');
-        indoorUnitsContainer.classList.add('summary-indoor-units-container');
+        const mainSummaryTitleEl = document.getElementById('summary-main-title');
+        if (mainSummaryTitleEl) {
+            mainSummaryTitleEl.textContent = "Riepilogo Configurazione"; 
+        }
 
-        selections.indoorUnits.forEach((ui, index) => {
-            if (!ui) return; 
-            const uiCard = document.createElement('div');
-            uiCard.classList.add('summary-indoor-unit-detail-card');
-            uiCard.innerHTML = `
-                <h4>UNITA' ${index + 1}:</h4>
-                <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
-                <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
-                <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
-                <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
-                <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
-            `;
-            indoorUnitsContainer.appendChild(uiCard);
-        });
-        indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
-        layoutContainer.appendChild(indoorUnitsSectionBlock);
+        const referenceInput = document.getElementById('config-reference'); // Assumes HTML for input is present
+        const referenceValue = referenceInput ? referenceInput.value.trim() : "";
+
+        if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
+            summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
+            return;
+        }
+        if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
+            summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
+            return;
+        }
+
+        let totalPrice = 0;
+        if (selections.outdoorUnit) totalPrice += selections.outdoorUnit.price || 0;
+        selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+
+        const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
+        const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
+
+        let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
+        if (selections.configType && selections.configType.numUnits === 0) {
+            indoorUnitsBtuList = "Nessuna";
+        } else if (!selections.configType) {
+            indoorUnitsBtuList = "N/D";
+        }
+
+        const layoutContainer = document.createElement('div');
+        layoutContainer.classList.add('summary-layout-container');
+
+        const printHeaderContainer = document.createElement('div');
+        printHeaderContainer.classList.add('summary-print-page-header'); 
+
+        const printTitleSpan = document.createElement('span');
+        printTitleSpan.classList.add('print-page-title');
+        printTitleSpan.textContent = "RIEPILOGO CONFIGURAZIONE";
+        printHeaderContainer.appendChild(printTitleSpan);
+
+        if (referenceValue) {
+            const printReferenceSpan = document.createElement('span');
+            printReferenceSpan.classList.add('print-page-reference');
+            printReferenceSpan.innerHTML = `<strong>Rif:</strong> ${escapeHtml(referenceValue)}`;
+            printHeaderContainer.appendChild(printReferenceSpan);
+        } else {
+            const emptyReferenceSpan = document.createElement('span');
+            emptyReferenceSpan.classList.add('print-page-reference');
+            printHeaderContainer.appendChild(emptyReferenceSpan); 
+        }
+        summaryDiv.appendChild(printHeaderContainer); 
+        
+        const headerInfoDiv = document.createElement('div');
+        headerInfoDiv.classList.add('summary-header-info');
+        headerInfoDiv.innerHTML = ` 
+            <div class="info-group">
+                <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand?.name)}</p>
+                <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries?.name)}</p>
+                <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType?.name)}</p>
+            </div>
+            <div class="info-group">
+                <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit?.kw, 'kW')}</p>
+                <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
+                <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
+            </div>
+        `;
+        layoutContainer.appendChild(headerInfoDiv);
+
+        const detailsTitle = document.createElement('h2');
+        detailsTitle.classList.add('summary-details-title');
+        detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
+        layoutContainer.appendChild(detailsTitle);
+
+        const outdoorUnitBlock = document.createElement('div');
+        outdoorUnitBlock.classList.add('summary-detail-block');
+        outdoorUnitBlock.innerHTML = `
+            <h3>UNITA' ESTERNA</h3>
+            <div class="outdoor-unit-details-content">
+                <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
+                <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
+                <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
+                <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
+                <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
+            </div>
+        `;
+        layoutContainer.appendChild(outdoorUnitBlock);
+
+        if (selections.configType?.numUnits > 0) {
+            const indoorUnitsSectionBlock = document.createElement('div');
+            indoorUnitsSectionBlock.classList.add('summary-detail-block');
+            indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
+            
+            const indoorUnitsContainer = document.createElement('div');
+            indoorUnitsContainer.classList.add('summary-indoor-units-container');
+
+            selections.indoorUnits.forEach((ui, index) => {
+                if (!ui) return; 
+                const uiCard = document.createElement('div');
+                uiCard.classList.add('summary-indoor-unit-detail-card');
+                uiCard.innerHTML = `
+                    <h4>UNITA' ${index + 1}:</h4>
+                    <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
+                    <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
+                    <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
+                    <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
+                    <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
+                `;
+                indoorUnitsContainer.appendChild(uiCard);
+            });
+            indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
+            layoutContainer.appendChild(indoorUnitsSectionBlock);
+        }
+        summaryDiv.appendChild(layoutContainer); 
     }
-    summaryDiv.appendChild(layoutContainer);
-}
 
     function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return;} if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) {showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return;}} if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; }} stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`);} currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0);}
     function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
@@ -561,7 +556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newString = newString.replace(/&/g, "&");
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, "'");
+        newString = newString.replace(/"/g, """);
         newString = newString.replace(/'/g, "'");
         return newString;
     }
