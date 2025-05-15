@@ -422,10 +422,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const mainSummaryTitleEl = document.getElementById('summary-main-title');
     if (mainSummaryTitleEl) {
         mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
-        // mainSummaryTitleEl.classList.add('print-main-title'); // JS no longer adds print-main-title here, CSS handles it
+        // La classe 'print-main-title' viene gestita dal CSS per la stampa
     }
 
-    // NEW: Get the reference input value
     const referenceInput = document.getElementById('config-reference');
     const referenceValue = referenceInput ? referenceInput.value.trim() : "";
 
@@ -459,23 +458,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     const layoutContainer = document.createElement('div');
     layoutContainer.classList.add('summary-layout-container');
 
-    // NEW: Create a print-only reference display element
-    let referenceHtml = '';
+    // --- NUOVO: Logica per il riferimento sulla stampa ---
+    // L'elemento #print-only-reference-display sarà visibile solo in stampa grazie al CSS
+    // e verrà anteposto a tutto il contenuto del riepilogo.
+    // Si può anche inserire direttamente nel logo se è più opportuno per il layout.
     if (referenceValue) {
-        // This div will be styled to only show on print media via CSS
-        referenceHtml = `<div class="print-only-reference" style="text-align: left; margin-bottom: 0.3cm; font-size: 10pt;"><strong>Riferimento:</strong> ${escapeHtml(referenceValue)}</div>`;
+        const referenceDisplayDiv = document.createElement('div');
+        referenceDisplayDiv.id = 'print-only-reference-display'; // ID per CSS specifico
+        referenceDisplayDiv.innerHTML = `<strong>Riferimento:</strong> ${escapeHtml(referenceValue)}`;
+        // Questo elemento verrà stilizzato dal CSS @media print per apparire sopra tutto.
+        // Alternativamente, per integrarlo come nella tua immagine sopra "Marca", etc.
+        // lo inseriremo direttamente nell'headerInfoDiv più avanti, ma con una classe
+        // che lo rende visibile solo in stampa.
+        layoutContainer.appendChild(referenceDisplayDiv); // Aggiunto per CSS separato.
     }
-    
-    // Inject referenceHtml at the top of the summary content for printing later if CSS handles its print-only display
-    // For now, we'll prepend it to the header info.
-    
+    // --- FINE NUOVO ---
+
+
     const headerInfoDiv = document.createElement('div');
     headerInfoDiv.classList.add('summary-header-info');
-
-    // Prepend reference if it exists. Will be styled by print CSS to only show in print
-    // An alternative is to have a dedicated placeholder in summaryHTML only visible in print.
-    let headerContent = `
-        ${referenceValue ? `<div class="print-only-reference-header" style="grid-column: 1 / -1; margin-bottom: 8px; font-weight: bold; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">Riferimento: ${escapeHtml(referenceValue)}</div>` : ''}
+    
+    // Includi il riferimento qui se vuoi che sia parte del blocco header (per la stampa)
+    let referenceHeaderHtml = '';
+    if (referenceValue) {
+        // Questa riga sarà mostrata SOLO IN STAMPA grazie alla classe print-only-reference-header
+        referenceHeaderHtml = `<div class="print-only-reference-header" style="grid-column: 1 / -1; margin-bottom: 8px; font-weight: normal; border-bottom: 1px dashed #ccc; padding-bottom: 5px;"><strong>Riferimento:</strong> ${escapeHtml(referenceValue)}</div>`;
+    }
+    
+    headerInfoDiv.innerHTML = `
+        ${referenceHeaderHtml} 
         <div class="info-group">
             <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand.name)}</p>
             <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries.name)}</p>
@@ -487,58 +498,54 @@ document.addEventListener('DOMContentLoaded', async () => {
             <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
         </div>
     `;
-    headerInfoDiv.innerHTML = headerContent;
-
     layoutContainer.appendChild(headerInfoDiv);
 
-    // ... (rest of your generateSummary function: detailsTitle, outdoorUnitBlock, indoorUnitsSectionBlock) ...
-    // (Make sure it's identical to the last correct version from here on)
-        const detailsTitle = document.createElement('h2');
-        detailsTitle.classList.add('summary-details-title');
-        detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
-        layoutContainer.appendChild(detailsTitle);
+    const detailsTitle = document.createElement('h2');
+    detailsTitle.classList.add('summary-details-title');
+    detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
+    layoutContainer.appendChild(detailsTitle);
 
-        const outdoorUnitBlock = document.createElement('div');
-        outdoorUnitBlock.classList.add('summary-detail-block');
-        outdoorUnitBlock.innerHTML = `
-            <h3>UNITA' ESTERNA</h3>
-            <div class="outdoor-unit-details-content">
-                <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit.modelCode)}</p>
-                <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit.dimensions)}</p>
-                <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit.weight, ' kg')}</p>
-                <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit.energyClassCooling)} / ${valOrDash(selections.outdoorUnit.energyClassHeating)}</p>
-                <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit.price)}</p>
-            </div>
-        `;
-        layoutContainer.appendChild(outdoorUnitBlock);
+    const outdoorUnitBlock = document.createElement('div');
+    outdoorUnitBlock.classList.add('summary-detail-block');
+    outdoorUnitBlock.innerHTML = `
+        <h3>UNITA' ESTERNA</h3>
+        <div class="outdoor-unit-details-content">
+            <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit.modelCode)}</p>
+            <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit.dimensions)}</p>
+            <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit.weight, ' kg')}</p>
+            <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit.energyClassCooling)} / ${valOrDash(selections.outdoorUnit.energyClassHeating)}</p>
+            <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit.price)}</p>
+        </div>
+    `;
+    layoutContainer.appendChild(outdoorUnitBlock);
 
-        if (selections.configType.numUnits > 0) {
-            const indoorUnitsSectionBlock = document.createElement('div');
-            indoorUnitsSectionBlock.classList.add('summary-detail-block');
-            indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
-            
-            const indoorUnitsContainer = document.createElement('div');
-            indoorUnitsContainer.classList.add('summary-indoor-units-container');
+    if (selections.configType.numUnits > 0) {
+        const indoorUnitsSectionBlock = document.createElement('div');
+        indoorUnitsSectionBlock.classList.add('summary-detail-block');
+        indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
+        
+        const indoorUnitsContainer = document.createElement('div');
+        indoorUnitsContainer.classList.add('summary-indoor-units-container');
 
-            selections.indoorUnits.forEach((ui, index) => {
-                if (!ui) return; 
-                const uiCard = document.createElement('div');
-                uiCard.classList.add('summary-indoor-unit-detail-card');
-                uiCard.innerHTML = `
-                    <h4>UNITA' ${index + 1}:</h4>
-                    <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
-                    <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
-                    <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
-                    <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
-                    <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
-                `;
-                indoorUnitsContainer.appendChild(uiCard);
-            });
-            indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
-            layoutContainer.appendChild(indoorUnitsSectionBlock);
-        }
-        summaryDiv.appendChild(layoutContainer);
+        selections.indoorUnits.forEach((ui, index) => {
+            if (!ui) return; 
+            const uiCard = document.createElement('div');
+            uiCard.classList.add('summary-indoor-unit-detail-card');
+            uiCard.innerHTML = `
+                <h4>UNITA' ${index + 1}:</h4>
+                <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
+                <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
+                <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
+                <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
+                <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
+            `;
+            indoorUnitsContainer.appendChild(uiCard);
+        });
+        indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
+        layoutContainer.appendChild(indoorUnitsSectionBlock);
     }
+    summaryDiv.appendChild(layoutContainer);
+}
 
     function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return;} if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) {showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return;}} if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; }} stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`);} currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0);}
     function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
