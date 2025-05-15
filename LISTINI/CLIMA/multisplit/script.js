@@ -68,13 +68,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             return placeholder;
         };
-
-        APP_DATA.outdoorUnits = outdoorUnitsDocs.map((ue_doc, index) => {
+APP_DATA.outdoorUnits = outdoorUnitsDocs.map((ue_doc, index) => {
             const brandId = String(ue_doc.marca || 'sconosciuta').toLowerCase();
             const connections = Number(ue_doc.unit_collegabili) || 0;
             const uePotenzaKw = Number(ue_doc.potenza) || 0;
             
-            return {
+            // Construct the processedUnit object first to make logging easier
+            const processedUnit = {
                 id: ue_doc.id || `ue_${index}`, brandId: brandId,
                 modelCode: getFieldOrPlaceholder(ue_doc.codice_prodotto, "N/A"),
                 name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE ${String(ue_doc.marca || '').toUpperCase()} (${getFieldOrPlaceholder(ue_doc.codice_prodotto, 'ID: ' + ue_doc.id)})`,
@@ -87,6 +87,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 energyClassHeating: getFieldOrPlaceholder(ue_doc.classe_energetica_riscaldamento),
                 compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : []
             };
+
+            // <<< --- DIAGNOSTIC CONSOLE LOGS --- >>>
+            if (ue_doc.codice_prodotto === "730440" || ue_doc.codice_prodotto === "765278" /* Add other codes if needed */) {
+                console.log("RAW Firestore Doc (ue_doc) for modelCode " + ue_doc.codice_prodotto + ":", JSON.parse(JSON.stringify(ue_doc)));
+                console.log("Processed APP_DATA unit for modelCode " + ue_doc.codice_prodotto + ":", JSON.parse(JSON.stringify(processedUnit)));
+            }
+            
+            return processedUnit;
         });
         APP_DATA.indoorUnits = indoorUnitsDocs.map((ui_doc, index) => {
             const brandId = String(ui_doc.marca || 'sconosciuta').toLowerCase();
