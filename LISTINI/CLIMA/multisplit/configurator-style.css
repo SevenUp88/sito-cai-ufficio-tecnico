@@ -42,7 +42,6 @@
     display: block;
 }
 
-/* This applies to h2 in step 1-5 content */
 .config-step h2:not(#summary-main-title) { 
     color: var(--primary-color);
     margin-top: 0;
@@ -209,7 +208,6 @@
 }
 #indoor-units-selection-area .indoor-unit-slot label strong { color: var(--primary-color); }
 
-/* Styles for new choice cards */
 .indoor-unit-choices-container {
     display: flex;
     flex-wrap: wrap; 
@@ -288,7 +286,8 @@
 }
 #outdoor-unit-selection .unit-selection-card img.main-unit-image { display: block; max-width: 150px; max-height: 120px; object-fit: contain; margin: 0 auto 15px auto; border: 1px solid #f0f0f0; border-radius: var(--border-radius); }
 
-/* === START: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
+/* === STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
+/* Main H2 title for the summary page */
 #summary-main-title { 
     text-align: center;
     font-size: 1.8em; 
@@ -299,11 +298,13 @@
     border-bottom: 2px solid var(--primary-color);
 }
 
+/* Overall container for the new summary layout (within #config-summary) */
 #config-summary .summary-layout-container {
     font-family: Arial, sans-serif; 
     color: #333; 
 }
 
+/* Top header section of the summary (Marca, Modello, Totals, etc.) */
 #config-summary .summary-header-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -317,7 +318,7 @@
 }
 
 #config-summary .summary-header-info .info-group {
-    /* No specific styles needed here unless for finer grid control */
+    /* For grouping items like Marca, Modello UI, Config. */
 }
 
 #config-summary .summary-header-info p {
@@ -332,17 +333,18 @@
     margin-right: 8px; 
     color: var(--dark-color); 
 }
-#config-summary .summary-header-info .total-price-iva strong {
+#config-summary .summary-header-info .total-price-iva strong { /* Specific for "Prezzo totale:" label */
      min-width: auto; 
 }
 
-#config-summary .total-price-iva { 
+#config-summary .total-price-iva { /* P tag containing total price */
     font-size: 1.15em; 
     font-weight: bold;
     color: var(--primary-color); 
     margin-top: 10px; 
 }
 
+/* "DETTAGLI CONFIGURAZIONE" Title */
 #config-summary .summary-details-title {
     text-align: center;
     font-size: 1.5em; 
@@ -355,6 +357,7 @@
     text-transform: uppercase;
 }
 
+/* Block for "UNITA' ESTERNA" and "UNITA' INTERNE" sections */
 #config-summary .summary-detail-block {
     background-color: #e9ecef; 
     padding: 15px 20px; 
@@ -362,6 +365,7 @@
     border-radius: var(--border-radius);
 }
 
+/* Titles like "UNITA' ESTERNA", "UNITA' INTERNE" */
 #config-summary .summary-detail-block h3 { 
     margin: 0 0 15px 0; 
     font-size: 1.2em; 
@@ -373,8 +377,9 @@
     border-bottom: 1px dashed var(--secondary-color);
 }
 
+/* Paragraphs within the outdoor unit details block */
 #config-summary .outdoor-unit-details-content p,
-#config-summary .summary-indoor-unit-detail-card p {
+#config-summary .summary-indoor-unit-detail-card p { /* Also for p within indoor unit cards */
     margin: 4px 0 4px 10px; 
     font-size: 0.9em;
     line-height: 1.6; 
@@ -387,6 +392,7 @@
     margin-right: 5px;
 }
 
+/* Container for Indoor Unit Cards */
 #config-summary .summary-indoor-units-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
@@ -394,6 +400,7 @@
     margin-top: 15px;
 }
 
+/* Individual Indoor Unit Card */
 #config-summary .summary-indoor-unit-detail-card {
     background-color: #f8f9fa; 
     padding: 15px;
@@ -402,6 +409,7 @@
     box-shadow: var(--card-shadow);
 }
 
+/* Title "UNITA' X:" inside an indoor unit card */
 #config-summary .summary-indoor-unit-detail-card h4 { 
     margin: 0 0 10px 0; 
     font-size: 1.05em; 
@@ -410,23 +418,20 @@
     border-bottom: 1px solid #eee;
     padding-bottom: 8px; 
 }
-/* Input field for reference on summary page */
+/* === END: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
+
+
+/* Screen only styles for the reference input field */
 .summary-reference-input-container {
     max-width: 600px; 
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 20px; 
-    padding: 10px; 
-    background-color: #f9f9f9; 
-    border: 1px solid #eee; 
-    border-radius: var(--border-radius);
 }
-/* === END: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
-
 
 .print-instructions { margin-top: 20px; padding: 10px; background-color: #e9ecef; border-radius: var(--border-radius); font-size: 0.9em; text-align: center; }
 .summary-actions { justify-content: flex-end; gap: 10px; }
 
+/* Admin Section styles (assuming they are correct from before) */
 #admin-section h3 { font-size: 1.3em; margin-bottom: 15px; color: var(--warning-color); border-bottom-color: var(--warning-color);}
 .admin-subsection { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
 .admin-subsection:last-child { border-bottom: none; }
@@ -444,6 +449,7 @@
 #admin-brand-form .form-control { width: calc(100% - 16px); padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
 #admin-brand-form button { margin-top:10px; }
 
+/* Energy Class Rating Styles */
 .unit-selection-card .unit-info .energy-class-container p { margin-top: 4px; margin-bottom: 8px; line-height: 1.5; }
 .unit-selection-card .unit-info .energy-class-label { font-weight: normal; color: var(--secondary-color); margin-right: 5px; font-size: 0.9em; }
 .unit-selection-card .unit-info .energy-rating { display: inline-block; padding: 2px 8px; border-radius: var(--border-radius); color: white; font-size: 0.85em; font-weight: bold; margin: 0 2px; min-width: 30px; text-align: center; line-height: 1.4; vertical-align: middle; }
@@ -453,34 +459,35 @@
 .unit-selection-card .unit-info .energy-separator { margin: 0 3px; color: var(--secondary-color); font-size: 0.9em; }
 
 
+/* Print Specific Styles for Configurator */
 @media print {
-    /* Generic configurator element print visibility */
-    .config-step:not(#step-6) {
+    /* Ensure only step-6 (summary) is visible */
+     .config-step:not(#step-6) {
         display: none !important;
     }
-    .config-step#step-6 {
+    .config-step#step-6 { /* Contains the main summary title and #config-summary */
         display: block !important;
-        border: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        background-color: transparent !important;
+        border: none !important; 
+        padding: 0 !important; 
+        margin:0 !important; 
+        box-shadow: none !important; 
+        background-color: transparent !important; 
     }
     
-    /* Summary main title for print */
-    h2#summary-main-title { /* Targets the specific H2 for summary, removes screen styling like color, uses general print settings */
+    /* Main title "RIEPILOGO CONFIGURAZIONE" for the summary page (h2#summary-main-title) */
+    h2#summary-main-title { 
         display: block !important;
-        visibility: visible !important;
+        visibility: visible !important; 
         font-size: 14pt !important; 
         text-align: center !important;
         margin: 0 auto 0.3cm auto !important; 
         padding-bottom: 3px !important; 
-        border-bottom: 1.5px solid #000 !important; /* Black border for print */
-        color: #000 !important; /* Black color for print */
+        border-bottom: 1.5px solid #000 !important; 
+        color: #000 !important;
         font-weight: bold;
     }
     
-    /* Print Styles for the New Summary Layout */
+    /* Container for all the summary content that JavaScript builds */
     #config-summary .summary-layout-container { 
         page-break-inside: avoid !important; 
         color: #000 !important;
@@ -488,6 +495,7 @@
         margin: 0 !important;
     }
 
+    /* Header info block in summary (Marca, Modello, Prezzo Totale etc.) */
     #config-summary .summary-header-info {
         display: flex !important; 
         flex-wrap: wrap !important;
@@ -502,7 +510,7 @@
     }
     #config-summary .summary-header-info .info-group {
         flex-basis: 48%; 
-        min-width: 0; 
+        min-width: 0; /* Allow shrinking */
     }
     #config-summary .summary-header-info p {
         margin: 1px 0 !important; 
@@ -519,34 +527,39 @@
         color: #000 !important;
         margin-top: 3px !important;
     }
-     #config-summary .total-price-iva strong {
+     #config-summary .total-price-iva strong { /* The "Prezzo totale:" label */
         color: #000 !important;
-        min-width: auto !important;
+        min-width: auto !important; /* Let it size naturally */
     }
 
-    /* Print-only Reference in Summary Header */
+    /* Reference Text in Summary Header (Print Only) */
     #config-summary .summary-header-info .print-only-reference-header {
         display: block !important; 
         visibility: visible !important; 
-        grid-column: 1 / -1; /* Make it span all columns if its parent is grid */
-        flex-basis: 100%; /* Make it span all columns if its parent is flex */
-        margin-bottom: 0.2cm !important;
-        padding-bottom: 0.15cm !important;
-        border-bottom: 1px dashed #666 !important;
+        grid-column: 1 / -1; 
+        flex-basis: 100%;    
+        text-align: left;    
         font-size: 8.5pt !important; 
         font-weight: normal !important; 
+        color: #000 !important;
+        padding-bottom: 0.15cm !important;
+        margin-bottom: 0.2cm !important;
+        border-bottom: 1px dotted #888 !important;
     }
-    #config-summary .summary-header-info .print-only-reference-header strong {
+    #config-summary .summary-header-info .print-only-reference-header strong { /* "Riferimento:" label */
         font-weight: bold !important;
         color: #000 !important;
         min-width: auto !important; 
         margin-right: 5px !important;
     }
-     /* Hide the input field for reference on print */
+    
+    /* Input field for reference should be hidden on print */
     .summary-reference-input-container {
         display: none !important;
     }
 
+
+    /* "DETTAGLI CONFIGURAZIONE" Title */
     #config-summary .summary-details-title {
         font-size: 11pt !important; 
         margin-top: 0.3cm !important; 
@@ -557,6 +570,7 @@
         padding-bottom: 2px !important;
     }
     
+    /* Detail blocks for Outdoor and Indoor Units */
     #config-summary .summary-detail-block {
         background-color: #ffffff !important; 
         border: 1px solid #ddd !important; 
@@ -566,6 +580,7 @@
         margin-bottom: 0.2cm !important; 
         page-break-inside: avoid !important;
     }
+    /* Titles like "UNITA' ESTERNA", "UNITA' INTERNE" within detail blocks */
     #config-summary .summary-detail-block h3 { 
         font-size: 9.5pt !important; 
         text-align: center; 
@@ -573,8 +588,10 @@
         padding: 3px !important; 
         margin: 0 0 3px 0 !important; 
         color: #000 !important;
+        border-bottom: none !important; /* Remove screen's dashed border for cleaner print */
     }
 
+    /* Paragraphs and labels within detail blocks */
     #config-summary .outdoor-unit-details-content p,
     #config-summary .summary-indoor-unit-detail-card p {
         font-size: 8pt !important;
@@ -589,6 +606,7 @@
         margin-right: 2px !important;
     }
 
+    /* Indoor Unit Cards container */
     #config-summary .summary-indoor-units-container {
         display: grid !important; 
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
@@ -599,12 +617,15 @@
      #config-summary .summary-indoor-unit-detail-card {
          margin-bottom: 0.15cm !important; 
          padding: 0.1cm 0.15cm !important; 
+         border: 1px solid #ccc !important; /* Add border to cards for print */
      }
+     /* Title "UNITA' X:" within indoor unit cards */
      #config-summary .summary-indoor-unit-detail-card h4 {
         font-size: 9pt !important; 
         color: #000 !important;
         margin: 0 0 2px 0 !important;
         padding-bottom: 1px !important;
+        border-bottom: 1px solid #eee !important;
      }
 
      /* Hide summary action buttons during print */
