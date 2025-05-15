@@ -466,7 +466,7 @@ function generateSummary() {
 
     // --- START: NEW PRINT-ONLY HEADER (Title + Reference) ---
     const printHeaderContainer = document.createElement('div');
-    printHeaderContainer.classList.add('summary-print-page-header'); // New class for this specific header
+    printHeaderContainer.classList.add('summary-print-page-header'); // Class for styling this specific header
 
     const printTitleSpan = document.createElement('span');
     printTitleSpan.classList.add('print-page-title');
@@ -476,14 +476,18 @@ function generateSummary() {
     if (referenceValue) {
         const printReferenceSpan = document.createElement('span');
         printReferenceSpan.classList.add('print-page-reference');
+        // Example: "Rif: Preventivo #123"
         printReferenceSpan.innerHTML = `<strong>Rif:</strong> ${escapeHtml(referenceValue)}`;
         printHeaderContainer.appendChild(printReferenceSpan);
+    } else {
+        // Optionally add an empty span to maintain structure if reference is always expected for layout
+        const emptyReferenceSpan = document.createElement('span');
+        emptyReferenceSpan.classList.add('print-page-reference');
+        printHeaderContainer.appendChild(emptyReferenceSpan); // Ensures flexbox has two items
     }
-    // Prepend this entire new header to the main summary container (summaryDiv)
-    // so it sits above the #config-summary content which will hold the layoutContainer.
-    // OR prepend to layoutContainer if summaryDiv (#config-summary) is the direct target.
-    // For now, prepending to where it will be most effective relative to #config-summary div.
-    // Let's ensure #config-summary IS summaryDiv for this.
+    
+    // Prepend this print-specific header to the main summary content div
+    // This summaryDiv is likely your #config-summary element
     summaryDiv.appendChild(printHeaderContainer); 
     // --- END: NEW PRINT-ONLY HEADER ---
 
