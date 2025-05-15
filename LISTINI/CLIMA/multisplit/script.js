@@ -416,24 +416,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         checkAllIndoorUnitsSelected();
     }
 
-    function generateSummary() {
+    // Inside script.js
+
+function generateSummary() {
     console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
-    summaryDiv.innerHTML = '';
+    summaryDiv.innerHTML = ''; 
+    
+    // Screen title (will be hidden on print if new header is used)
     const mainSummaryTitleEl = document.getElementById('summary-main-title');
     if (mainSummaryTitleEl) {
-        mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
+        mainSummaryTitleEl.textContent = "Riepilogo Configurazione"; 
     }
 
     const referenceInput = document.getElementById('config-reference');
     const referenceValue = referenceInput ? referenceInput.value.trim() : "";
 
-    // ... (your existing validation and totalPrice calculation code) ...
-    let totalPrice = 0; // Initialize
-    if (selections.outdoorUnit) {
-        totalPrice += selections.outdoorUnit.price || 0;
+    if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
+        summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
+        return;
     }
-    selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+    if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
+        summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
+        return;
+    }
 
+    let totalPrice = 0;
+    if (selections.outdoorUnit) totalPrice += selections.outdoorUnit.price || 0;
+    selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
 
     const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
     const valOrDash = (val, suffix = '') => {
@@ -446,33 +455,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
 
     let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
-    if (selections.configType && selections.configType.numUnits === 0) { // Check configType exists
+    if (selections.configType && selections.configType.numUnits === 0) {
         indoorUnitsBtuList = "Nessuna";
-    } else if (!selections.configType) { // If configType is somehow null
+    } else if (!selections.configType) {
         indoorUnitsBtuList = "N/D";
     }
-
 
     const layoutContainer = document.createElement('div');
     layoutContainer.classList.add('summary-layout-container');
 
+    // --- START: NEW PRINT-ONLY HEADER (Title + Reference) ---
+    const printHeaderContainer = document.createElement('div');
+    printHeaderContainer.classList.add('summary-print-page-header'); // New class for this specific header
+
+    const printTitleSpan = document.createElement('span');
+    printTitleSpan.classList.add('print-page-title');
+    printTitleSpan.textContent = "RIEPILOGO CONFIGURAZIONE";
+    printHeaderContainer.appendChild(printTitleSpan);
+
+    if (referenceValue) {
+        const printReferenceSpan = document.createElement('span');
+        printReferenceSpan.classList.add('print-page-reference');
+        printReferenceSpan.innerHTML = `<strong>Rif:</strong> ${escapeHtml(referenceValue)}`;
+        printHeaderContainer.appendChild(printReferenceSpan);
+    }
+    // Prepend this entire new header to the main summary container (summaryDiv)
+    // so it sits above the #config-summary content which will hold the layoutContainer.
+    // OR prepend to layoutContainer if summaryDiv (#config-summary) is the direct target.
+    // For now, prepending to where it will be most effective relative to #config-summary div.
+    // Let's ensure #config-summary IS summaryDiv for this.
+    summaryDiv.appendChild(printHeaderContainer); 
+    // --- END: NEW PRINT-ONLY HEADER ---
+
+
     const headerInfoDiv = document.createElement('div');
     headerInfoDiv.classList.add('summary-header-info');
-
-    // --- MODIFIED REFERENCE HANDLING ---
-    // Create the div for the reference, it will be styled by CSS to only show in print.
-    const referenceDisplayForPrintDiv = document.createElement('div');
-    referenceDisplayForPrintDiv.classList.add('summary-print-reference-display'); // New distinct class
-    if (referenceValue) {
-        referenceDisplayForPrintDiv.innerHTML = `<strong>Riferimento:</strong> ${escapeHtml(referenceValue)}`;
-    } else {
-        referenceDisplayForPrintDiv.innerHTML = ''; // Empty if no reference, but div is still there for consistent structure if needed
-    }
-    // Prepend this to the layoutContainer so it's at the very top of the printed summary content block
-    layoutContainer.appendChild(referenceDisplayForPrintDiv);
-    // --- END MODIFIED REFERENCE HANDLING ---
-    
-    // The rest of the header info
+    // The .print-only-reference-header previously here is removed, as reference is now in .summary-print-page-header
     headerInfoDiv.innerHTML = `
         <div class="info-group">
             <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand?.name)}</p>
@@ -492,48 +510,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
     layoutContainer.appendChild(detailsTitle);
 
-    const outdoorUnitBlock = document.createElement('div');
-    outdoorUnitBlock.classList.add('summary-detail-block');
-    outdoorUnitBlock.innerHTML = `
-        <h3>UNITA' ESTERNA</h3>
-        <div class="outdoor-unit-details-content">
-            <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
-            <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
-            <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
-            <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
-            <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
-        </div>
-    `;
-    layoutContainer.appendChild(outdoorUnitBlock);
+    // ... (Rest of Outdoor Unit Block and Indoor Units Block as before) ...
+        const outdoorUnitBlock = document.createElement('div');
+        outdoorUnitBlock.classList.add('summary-detail-block');
+        outdoorUnitBlock.innerHTML = `
+            <h3>UNITA' ESTERNA</h3>
+            <div class="outdoor-unit-details-content">
+                <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
+                <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
+                <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
+                <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
+                <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
+            </div>
+        `;
+        layoutContainer.appendChild(outdoorUnitBlock);
 
-    if (selections.configType?.numUnits > 0) {
-        const indoorUnitsSectionBlock = document.createElement('div');
-        indoorUnitsSectionBlock.classList.add('summary-detail-block');
-        indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
-        
-        const indoorUnitsContainer = document.createElement('div');
-        indoorUnitsContainer.classList.add('summary-indoor-units-container');
+        if (selections.configType?.numUnits > 0) {
+            const indoorUnitsSectionBlock = document.createElement('div');
+            indoorUnitsSectionBlock.classList.add('summary-detail-block');
+            indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
+            
+            const indoorUnitsContainer = document.createElement('div');
+            indoorUnitsContainer.classList.add('summary-indoor-units-container');
 
-        selections.indoorUnits.forEach((ui, index) => {
-            if (!ui) return; 
-            const uiCard = document.createElement('div');
-            uiCard.classList.add('summary-indoor-unit-detail-card');
-            uiCard.innerHTML = `
-                <h4>UNITA' ${index + 1}:</h4>
-                <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
-                <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
-                <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
-                <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
-                <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
-            `;
-            indoorUnitsContainer.appendChild(uiCard);
-        });
-        indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
-        layoutContainer.appendChild(indoorUnitsSectionBlock);
-    }
-    summaryDiv.appendChild(layoutContainer);
+            selections.indoorUnits.forEach((ui, index) => {
+                if (!ui) return; 
+                const uiCard = document.createElement('div');
+                uiCard.classList.add('summary-indoor-unit-detail-card');
+                uiCard.innerHTML = `
+                    <h4>UNITA' ${index + 1}:</h4>
+                    <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
+                    <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
+                    <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
+                    <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
+                    <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
+                `;
+                indoorUnitsContainer.appendChild(uiCard);
+            });
+            indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
+            layoutContainer.appendChild(indoorUnitsSectionBlock);
+        }
+
+    summaryDiv.appendChild(layoutContainer); // This now appends the main content block
 }
-
     function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return;} if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) {showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return;}} if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; }} stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`);} currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0);}
     function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
     function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
