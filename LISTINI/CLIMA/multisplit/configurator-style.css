@@ -42,7 +42,7 @@
     display: block;
 }
 
-/* This applies to h2 in step 1-5 content and initial h2 in step 6 before JS might replace it or target it by ID */
+/* This applies to h2 in step 1-5 content */
 .config-step h2:not(#summary-main-title) { 
     color: var(--primary-color);
     margin-top: 0;
@@ -177,16 +177,14 @@
     padding: 20px; border: 1px solid #e0e0e0; border-radius: var(--border-radius);
     background-color: var(--background-color); box-shadow: var(--card-shadow);
     display: flex; flex-direction: column; text-align: left;
-    justify-content: flex-start; /* Align items to the start */
-    /* min-height: auto; -- remove if indoor-unit-slot needs fixed height */
-    transition: all 0.3s ease; /* Apply transition to indoor-unit-slot too */
+    justify-content: flex-start; 
+    transition: all 0.3s ease; 
 }
-/* Make .indoor-unit-slot itself non-clickable unless it's a card-like element */
 #indoor-units-selection-area .indoor-unit-slot {
-    cursor: default; /* Slots are containers, not clickable items themselves */
+    cursor: default; 
 }
 
-#outdoor-unit-selection .unit-selection-card:hover:not(.selected){ /* :not(.selected) removed for .indoor-unit-slot */
+#outdoor-unit-selection .unit-selection-card:hover:not(.selected){
     border-color: var(--primary-color); box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15); transform: translateY(-2px);
 }
 #outdoor-unit-selection .unit-selection-card.selected {
@@ -211,7 +209,7 @@
 }
 #indoor-units-selection-area .indoor-unit-slot label strong { color: var(--primary-color); }
 
-/* New styles for choice cards container */
+/* Styles for new choice cards */
 .indoor-unit-choices-container {
     display: flex;
     flex-wrap: wrap; 
@@ -226,9 +224,9 @@
     padding: 10px 15px;
     cursor: pointer;
     text-align: center;
-    min-width: 90px; /* Adjusted min-width for cards */
+    min-width: 90px; 
     transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-    display: flex; /* For centering content if needed */
+    display: flex; 
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -243,7 +241,6 @@
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    /* font-weight: bold; -- Handled by spans inside */
     transform: scale(1.03); 
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -267,14 +264,13 @@
     font-weight: 500;
 }
 
-
 #indoor-units-selection-area .indoor-unit-slot .unit-details { 
     font-size: 0.88em; 
     color: var(--secondary-color); 
     margin-top: 10px; 
-    min-height: 100px; /* Keep some space for details, adjust if needed */
+    min-height: 100px; 
     padding-top: 10px;
-    border-top: 1px dashed #eee; /* Separator if choice cards are above */
+    border-top: 1px dashed #eee; 
 }
 #indoor-units-selection-area .indoor-unit-slot .unit-details p { margin-top: 3px; margin-bottom: 8px; line-height: 1.35; word-break: break-word; } 
 #indoor-units-selection-area .indoor-unit-slot .unit-details p strong { color: var(--dark-color); }
@@ -347,7 +343,6 @@
     margin-top: 10px; 
 }
 
-
 #config-summary .summary-details-title {
     text-align: center;
     font-size: 1.5em; 
@@ -415,6 +410,17 @@
     border-bottom: 1px solid #eee;
     padding-bottom: 8px; 
 }
+/* Input field for reference on summary page */
+.summary-reference-input-container {
+    max-width: 600px; 
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px; 
+    padding: 10px; 
+    background-color: #f9f9f9; 
+    border: 1px solid #eee; 
+    border-radius: var(--border-radius);
+}
 /* === END: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
 
 
@@ -448,14 +454,12 @@
 
 
 @media print {
-    /* configurator-container and specific step display handled by global style.css print rules */
-    /* This ensures only step-6 with summary is visible */
-     .config-step:not(#step-6) {
+    /* Generic configurator element print visibility */
+    .config-step:not(#step-6) {
         display: none !important;
     }
     .config-step#step-6 {
         display: block !important;
-         /* Reset any specific screen borders/padding for #step-6 that might interfere */
         border: none !important;
         padding: 0 !important;
         margin: 0 !important;
@@ -463,18 +467,20 @@
         background-color: transparent !important;
     }
     
-    h2#summary-main-title { /* This is the "RIEPILOGO CONFIGURAZIONE" page title */
+    /* Summary main title for print */
+    h2#summary-main-title { /* Targets the specific H2 for summary, removes screen styling like color, uses general print settings */
         display: block !important;
-        visibility: visible !important; /* Explicitly ensure visibility */
+        visibility: visible !important;
         font-size: 14pt !important; 
         text-align: center !important;
         margin: 0 auto 0.3cm auto !important; 
         padding-bottom: 3px !important; 
-        border-bottom: 1.5px solid #000 !important;
-        color: #000 !important;
+        border-bottom: 1.5px solid #000 !important; /* Black border for print */
+        color: #000 !important; /* Black color for print */
         font-weight: bold;
     }
     
+    /* Print Styles for the New Summary Layout */
     #config-summary .summary-layout-container { 
         page-break-inside: avoid !important; 
         color: #000 !important;
@@ -516,6 +522,29 @@
      #config-summary .total-price-iva strong {
         color: #000 !important;
         min-width: auto !important;
+    }
+
+    /* Print-only Reference in Summary Header */
+    #config-summary .summary-header-info .print-only-reference-header {
+        display: block !important; 
+        visibility: visible !important; 
+        grid-column: 1 / -1; /* Make it span all columns if its parent is grid */
+        flex-basis: 100%; /* Make it span all columns if its parent is flex */
+        margin-bottom: 0.2cm !important;
+        padding-bottom: 0.15cm !important;
+        border-bottom: 1px dashed #666 !important;
+        font-size: 8.5pt !important; 
+        font-weight: normal !important; 
+    }
+    #config-summary .summary-header-info .print-only-reference-header strong {
+        font-weight: bold !important;
+        color: #000 !important;
+        min-width: auto !important; 
+        margin-right: 5px !important;
+    }
+     /* Hide the input field for reference on print */
+    .summary-reference-input-container {
+        display: none !important;
     }
 
     #config-summary .summary-details-title {
@@ -577,4 +606,9 @@
         margin: 0 0 2px 0 !important;
         padding-bottom: 1px !important;
      }
+
+     /* Hide summary action buttons during print */
+    .summary-actions {
+        display: none !important;
+    }
 }
