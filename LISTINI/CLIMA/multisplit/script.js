@@ -521,6 +521,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const outdoorUnitBlock = document.createElement('div');
         outdoorUnitBlock.classList.add('summary-detail-block');
+        let energyClassHtml = '- / -'; // Default if data is missing
+    if (selections.outdoorUnit) {
+        const S_UE = (val) => (val != null && String(val).trim() !== "" && String(val).toUpperCase() !== "N/D" && String(val).toUpperCase() !== "DATI MANCANTI") ? String(val) : null;
+        
+        const coolingClassUE = S_UE(selections.outdoorUnit.energyClassCooling);
+        const heatingClassUE = S_UE(selections.outdoorUnit.energyClassHeating);
+
+        let coolingSpanUE = `<span class="energy-rating unknown">-</span>`;
+        if (coolingClassUE) {
+            coolingSpanUE = `<span class="energy-rating cooling">${escapeHtml(coolingClassUE)}</span>`;
+        }
+
+        let heatingSpanUE = `<span class="energy-rating unknown">-</span>`;
+        if (heatingClassUE) {
+            heatingSpanUE = `<span class="energy-rating heating">${escapeHtml(heatingClassUE)}</span>`;
+        }
+        energyClassHtml = `${coolingSpanUE} / ${heatingSpanUE}`;
+    }
         outdoorUnitBlock.innerHTML = `
             <h3>UNITA' ESTERNA</h3>
             <div class="outdoor-unit-details-content">
