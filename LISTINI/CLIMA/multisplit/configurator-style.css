@@ -261,8 +261,41 @@ h2#summary-main-title {
 /* ... (rest of admin styles) ... */
 
 /* Energy Class Rating Styles ... (Keep existing styles) ... */
-.unit-selection-card .unit-info .energy-class-container p { margin-top: 4px; margin-bottom: 8px; line-height: 1.5; }
-/* ... (rest of energy class styles) ... */
+.unit-selection-card .unit-info .energy-class-label {
+    font-weight: bold; /* Make "Classe En.:" bold */
+    color: var(--dark-color); /* Or your preferred label color */
+    margin-right: 5px;
+}
+
+.unit-selection-card .unit-info .energy-rating { 
+    display: inline-block; 
+    padding: 3px 8px; /* Adjusted padding for a more badge-like look */
+    border-radius: var(--border-radius); /* Or a smaller value like 4px */
+    color: white; 
+    font-size: 0.85em; 
+    font-weight: bold; 
+    margin: 0 2px; 
+    min-width: 35px; /* Ensure badge has some width */
+    text-align: center; 
+    line-height: 1.4; 
+    vertical-align: middle; 
+}
+.unit-selection-card .unit-info .energy-rating.cooling { 
+    background-color: var(--primary-color); /* Your blue, e.g., #007bff or your --primary-color */
+}
+.unit-selection-card .unit-info .energy-rating.heating { 
+    background-color: var(--danger-color); /* Your red, e.g., #dc3545 */
+}
+.unit-selection-card .unit-info .energy-rating.unknown { 
+    background-color: var(--secondary-color); /* Grey for unknown/placeholder */
+    color: white;
+}
+.unit-selection-card .unit-info .energy-separator { 
+    margin: 0 3px; 
+    color: var(--secondary-color); 
+    font-size: 0.9em; 
+    font-weight: bold; /* Make slash bold as in image */
+}
 
 
 @media print {
