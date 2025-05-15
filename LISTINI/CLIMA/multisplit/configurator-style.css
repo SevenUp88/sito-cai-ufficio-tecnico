@@ -43,7 +43,7 @@
 }
 
 /* H2 for steps 1-5, and the screen version of Summary Title */
-.config-step h2:not(#summary-main-title) { /* Default styles for step titles */
+.config-step h2:not(#summary-main-title) { 
     color: var(--primary-color);
     margin-top: 0;
     margin-bottom: 25px;
@@ -51,16 +51,16 @@
     border-bottom: 2px solid var(--primary-color);
     font-size: 1.6em;
 }
-#summary-main-title { /* Screen style for the main summary title */
+h2#summary-main-title { /* Screen style for the main summary title (e.g., within step-6 div but before #config-summary) */
     text-align: center;
     font-size: 1.8em; 
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 25px; 
+    margin-bottom: 15px; 
     padding-bottom: 10px;
     border-bottom: 2px solid var(--primary-color);
 }
-.config-step h2 .step-number-title { /* Span for number in step titles, if used */
+.config-step h2 .step-number-title { 
     color: var(--primary-color);
     margin-right: 8px;
     font-weight: bold;
@@ -298,22 +298,41 @@
 #outdoor-unit-selection .unit-selection-card img.main-unit-image { display: block; max-width: 150px; max-height: 120px; object-fit: contain; margin: 0 auto 15px auto; border: 1px solid #f0f0f0; border-radius: var(--border-radius); }
 
 /* === STYLES FOR NEW SUMMARY (STEP 6) LAYOUT (Screen) === */
-/* Screen style for the main summary title H2 inside #step-6 */
-#step-6 > h2#summary-main-title { 
+/* Screen style for the main summary title H2 (e.g. inside #step-6 before #config-summary) */
+h2#summary-main-title { 
     text-align: center;
     font-size: 1.8em; 
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 15px; /* Reduced margin before reference input */
+    margin-bottom: 15px; 
     padding-bottom: 10px;
     border-bottom: 2px solid var(--primary-color);
 }
 
-#config-summary .summary-layout-container {
+#config-summary .summary-layout-container { /* The main wrapper for all summary content */
     font-family: Arial, sans-serif; 
     color: #333; 
 }
 
+/* Input field for reference on summary page (screen only) */
+.summary-reference-input-container {
+    max-width: 600px; 
+    margin: 0 auto 20px auto; /* Centered with bottom margin */
+    padding: 15px; 
+    background-color: #f0f0f0; 
+    border: 1px solid #ddd; 
+    border-radius: var(--border-radius);
+}
+.summary-reference-input-container label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: block;
+}
+.summary-reference-input-container input.form-control { 
+    width: calc(100% - 1.5rem); /* Default from your global style */
+}
+
+/* Top header section of the summary (Marca, Modello, Totals, etc.) */
 #config-summary .summary-header-info {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -325,11 +344,11 @@
     border: 1px solid #e0e0e0;
     font-size: 0.95em; 
 }
-/* Hide the print-only reference header on screen */
+/* Hide the print-only reference display on screen */
+#config-summary .summary-print-reference-display,
 #config-summary .summary-header-info .print-only-reference-header {
     display: none; 
 }
-
 
 #config-summary .summary-header-info .info-group { }
 
@@ -423,25 +442,6 @@
     border-bottom: 1px solid #eee;
     padding-bottom: 8px; 
 }
-/* Screen styles for the reference input field */
-.summary-reference-input-container {
-    max-width: 600px; 
-    margin-left: auto;
-    margin-right: auto;
-    margin-bottom: 20px; 
-    padding: 15px; 
-    background-color: #f0f0f0; /* Slightly different from header info bg for distinction */
-    border: 1px solid #ddd; 
-    border-radius: var(--border-radius);
-}
-.summary-reference-input-container label {
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-.summary-reference-input-container input.form-control { /* Ensure input width is controlled */
-    width: calc(100% - 1.5rem); /* Adjust if form-control default is not good */
-}
-
 /* === END: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
 
 
@@ -450,6 +450,7 @@
 
 /* Admin Section styles */
 #admin-section h3 { font-size: 1.3em; margin-bottom: 15px; color: var(--warning-color); border-bottom-color: var(--warning-color);}
+/* ... (rest of your existing admin styles) ... */
 .admin-subsection { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
 .admin-subsection:last-child { border-bottom: none; }
 #admin-brands-list ul { list-style: none; padding: 0; }
@@ -477,14 +478,10 @@
 
 
 @media print {
-    /* Hide screen-only elements */
-    .config-step:not(#step-6), /* Hide all steps except summary for printing */
-    #step-6 > h2#summary-main-title, /* Hide the screen H2 title for summary */
-    .summary-reference-input-container, /* Hide the input field for reference */
-    .summary-actions { /* Hide the action buttons */
+    /* configurator-container and general step display handled by global style.css print rules */
+    .config-step:not(#step-6) {
         display: none !important;
     }
-
     .config-step#step-6 {
         display: block !important;
         border: none !important; 
@@ -494,42 +491,58 @@
         background-color: transparent !important; 
     }
     
+    /* Hide the H2 that is normally used for screen display of "Riepilogo Configurazione" */
+    #step-6 > h2#summary-main-title {
+        display: none !important; 
+    }
+
     /* New Print-Only Header for "RIEPILOGO CONFIGURAZIONE" and Reference */
-    .summary-print-page-header {
+    /* This styles the div that is prepended by JS inside #config-summary */
+    #config-summary > .summary-print-page-header { /* Targeting the div for print title+ref */
         display: flex !important;
-        justify-content: space-between !important;
-        align-items: center; 
+        justify-content: space-between !important; 
+        align-items: baseline; 
         width: 100% !important; 
-        padding: 0 0 0.3cm 0 !important; 
-        margin-bottom: 0.3cm !important; 
+        padding: 0 0 0.2cm 0 !important; 
+        margin: 0 auto 0.3cm auto !important; 
         border-bottom: 1.5px solid #000 !important; 
-        font-size: 14pt !important; 
         visibility: visible !important; 
     }
-    .summary-print-page-header .print-page-title,
-    .summary-print-page-header .print-page-reference {
+    #config-summary > .summary-print-page-header .print-page-title,
+    #config-summary > .summary-print-page-header .print-page-reference {
         visibility: visible !important; 
         color: #000 !important;
+        padding: 0 !important; 
+        margin: 0 !important;  
     }
-    .summary-print-page-header .print-page-title {
+    #config-summary > .summary-print-page-header .print-page-title {
+        font-size: 14pt !important; 
         font-weight: bold;
         text-align: left;
+        flex-grow: 1; 
     }
-    .summary-print-page-header .print-page-reference {
+    #config-summary > .summary-print-page-header .print-page-reference {
         text-align: right;
         font-size: 9pt; 
         font-weight: normal;
+        white-space: nowrap; 
+        flex-shrink: 0; 
     }
-    .summary-print-page-header .print-page-reference strong { /* "Rif:" label */
+    #config-summary > .summary-print-page-header .print-page-reference strong { 
         font-weight: bold !important;
     }
     
-    /* Styles for the summary content (within #config-summary) */
+    /* Hide the input field for reference on print */
+    .summary-reference-input-container {
+        display: none !important;
+    }
+
+    /* Styles for the main summary content blocks */
     #config-summary .summary-layout-container { 
         page-break-inside: avoid !important; 
         color: #000 !important;
         padding: 0 !important; 
-        margin-top: 0.2cm !important; /* Space below the new print header */
+        margin-top: 0 !important; /* Adjusted since print header is now separate */
     }
 
     #config-summary .summary-header-info {
@@ -543,6 +556,9 @@
         border: 1px solid #ddd !important; 
         background-color: #ffffff !important; 
         box-shadow: none !important;
+    }
+    #config-summary .summary-header-info .print-only-reference-header { /* Ensure if this class was used, it is hidden, use new structure above */
+         display: none !important;
     }
     #config-summary .summary-header-info .info-group {
         flex-basis: 48%; 
@@ -630,4 +646,9 @@
         padding-bottom: 1px !important;
         border-bottom: 1px solid #eee !important;
      }
+
+     /* Hide summary action buttons during print */
+    .summary-actions {
+        display: none !important;
+    }
 }
