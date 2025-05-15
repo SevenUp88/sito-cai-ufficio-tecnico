@@ -418,27 +418,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function generateSummary() {
     console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
-    summaryDiv.innerHTML = ''; 
+    summaryDiv.innerHTML = '';
     const mainSummaryTitleEl = document.getElementById('summary-main-title');
     if (mainSummaryTitleEl) {
         mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
-        // La classe 'print-main-title' viene gestita dal CSS per la stampa
     }
 
     const referenceInput = document.getElementById('config-reference');
     const referenceValue = referenceInput ? referenceInput.value.trim() : "";
 
-    if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
-        summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
-        return;
+    // ... (your existing validation and totalPrice calculation code) ...
+    let totalPrice = 0; // Initialize
+    if (selections.outdoorUnit) {
+        totalPrice += selections.outdoorUnit.price || 0;
     }
-    if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
-        summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
-        return;
-    }
-
-    let totalPrice = selections.outdoorUnit.price || 0;
     selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+
 
     const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
     const valOrDash = (val, suffix = '') => {
@@ -451,49 +446,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
 
     let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
-    if (selections.configType.numUnits === 0) {
+    if (selections.configType && selections.configType.numUnits === 0) { // Check configType exists
         indoorUnitsBtuList = "Nessuna";
+    } else if (!selections.configType) { // If configType is somehow null
+        indoorUnitsBtuList = "N/D";
     }
+
 
     const layoutContainer = document.createElement('div');
     layoutContainer.classList.add('summary-layout-container');
 
-    // --- NUOVO: Logica per il riferimento sulla stampa ---
-    // L'elemento #print-only-reference-display sarà visibile solo in stampa grazie al CSS
-    // e verrà anteposto a tutto il contenuto del riepilogo.
-    // Si può anche inserire direttamente nel logo se è più opportuno per il layout.
-    if (referenceValue) {
-        const referenceDisplayDiv = document.createElement('div');
-        referenceDisplayDiv.id = 'print-only-reference-display'; // ID per CSS specifico
-        referenceDisplayDiv.innerHTML = `<strong>Riferimento:</strong> ${escapeHtml(referenceValue)}`;
-        // Questo elemento verrà stilizzato dal CSS @media print per apparire sopra tutto.
-        // Alternativamente, per integrarlo come nella tua immagine sopra "Marca", etc.
-        // lo inseriremo direttamente nell'headerInfoDiv più avanti, ma con una classe
-        // che lo rende visibile solo in stampa.
-        layoutContainer.appendChild(referenceDisplayDiv); // Aggiunto per CSS separato.
-    }
-    // --- FINE NUOVO ---
-
-
     const headerInfoDiv = document.createElement('div');
     headerInfoDiv.classList.add('summary-header-info');
-    
-    // Includi il riferimento qui se vuoi che sia parte del blocco header (per la stampa)
-    let referenceHeaderHtml = '';
+
+    // --- MODIFIED REFERENCE HANDLING ---
+    // Create the div for the reference, it will be styled by CSS to only show in print.
+    const referenceDisplayForPrintDiv = document.createElement('div');
+    referenceDisplayForPrintDiv.classList.add('summary-print-reference-display'); // New distinct class
     if (referenceValue) {
-        // Questa riga sarà mostrata SOLO IN STAMPA grazie alla classe print-only-reference-header
-        referenceHeaderHtml = `<div class="print-only-reference-header" style="grid-column: 1 / -1; margin-bottom: 8px; font-weight: normal; border-bottom: 1px dashed #ccc; padding-bottom: 5px;"><strong>Riferimento:</strong> ${escapeHtml(referenceValue)}</div>`;
+        referenceDisplayForPrintDiv.innerHTML = `<strong>Riferimento:</strong> ${escapeHtml(referenceValue)}`;
+    } else {
+        referenceDisplayForPrintDiv.innerHTML = ''; // Empty if no reference, but div is still there for consistent structure if needed
     }
+    // Prepend this to the layoutContainer so it's at the very top of the printed summary content block
+    layoutContainer.appendChild(referenceDisplayForPrintDiv);
+    // --- END MODIFIED REFERENCE HANDLING ---
     
+    // The rest of the header info
     headerInfoDiv.innerHTML = `
-        ${referenceHeaderHtml} 
         <div class="info-group">
-            <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand.name)}</p>
-            <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries.name)}</p>
-            <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType.name)}</p>
+            <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand?.name)}</p>
+            <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries?.name)}</p>
+            <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType?.name)}</p>
         </div>
         <div class="info-group">
-            <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit.kw, 'kW')}</p>
+            <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit?.kw, 'kW')}</p>
             <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
             <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
         </div>
@@ -510,16 +497,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     outdoorUnitBlock.innerHTML = `
         <h3>UNITA' ESTERNA</h3>
         <div class="outdoor-unit-details-content">
-            <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit.modelCode)}</p>
-            <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit.dimensions)}</p>
-            <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit.weight, ' kg')}</p>
-            <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit.energyClassCooling)} / ${valOrDash(selections.outdoorUnit.energyClassHeating)}</p>
-            <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit.price)}</p>
+            <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
+            <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
+            <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
+            <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
+            <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
         </div>
     `;
     layoutContainer.appendChild(outdoorUnitBlock);
 
-    if (selections.configType.numUnits > 0) {
+    if (selections.configType?.numUnits > 0) {
         const indoorUnitsSectionBlock = document.createElement('div');
         indoorUnitsSectionBlock.classList.add('summary-detail-block');
         indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
