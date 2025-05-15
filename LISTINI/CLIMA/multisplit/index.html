@@ -112,7 +112,12 @@
 
         <div id="step-6" class="config-step">
             <h2 id="summary-main-title">Riepilogo Configurazione</h2> 
-            <!-- Reference Input Field has been REMOVED from here -->
+            
+            <div class="summary-reference-input-container" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: var(--border-radius);">
+                <label for="config-reference" style="display: block; margin-bottom: 5px; font-weight: 500;">Riferimento (opzionale, per la stampa):</label>
+                <input type="text" id="config-reference" class="form-control" style="width: 95%;" placeholder="Es. Preventivo #123, Cliente Rossi">
+            </div>
+
             <div id="config-summary" class="summary-section">
                 <!-- Content populated by JavaScript (new summary layout) -->
             </div>
