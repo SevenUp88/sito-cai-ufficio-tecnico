@@ -417,54 +417,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function generateSummary() {
-        console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
-        summaryDiv.innerHTML = ''; 
-        const mainSummaryTitleEl = document.getElementById('summary-main-title');
-        if (mainSummaryTitleEl) {
-            mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
-            mainSummaryTitleEl.classList.add('print-main-title'); 
+    console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
+    summaryDiv.innerHTML = ''; 
+    const mainSummaryTitleEl = document.getElementById('summary-main-title');
+    if (mainSummaryTitleEl) {
+        mainSummaryTitleEl.textContent = "RIEPILOGO CONFIGURAZIONE";
+        // mainSummaryTitleEl.classList.add('print-main-title'); // JS no longer adds print-main-title here, CSS handles it
+    }
+
+    // NEW: Get the reference input value
+    const referenceInput = document.getElementById('config-reference');
+    const referenceValue = referenceInput ? referenceInput.value.trim() : "";
+
+    if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
+        summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
+        return;
+    }
+    if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
+        summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
+        return;
+    }
+
+    let totalPrice = selections.outdoorUnit.price || 0;
+    selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+
+    const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
+    const valOrDash = (val, suffix = '') => {
+        const strVal = S_SUMMARY(val);
+        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D." && strVal.toUpperCase() !== "N.D" && strVal.trim() !== "" && strVal.trim() !== "-") {
+            return `${strVal}${suffix}`;
         }
+        return '-';
+    };
+    const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
 
-        if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
-            summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
-            return;
-        }
-        if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
-            summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
-            return;
-        }
+    let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
+    if (selections.configType.numUnits === 0) {
+        indoorUnitsBtuList = "Nessuna";
+    }
 
-        let totalPrice = selections.outdoorUnit.price || 0;
-        selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+    const layoutContainer = document.createElement('div');
+    layoutContainer.classList.add('summary-layout-container');
 
-        const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
-        // valOrDash is already globally defined
-        const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
+    // NEW: Create a print-only reference display element
+    let referenceHtml = '';
+    if (referenceValue) {
+        // This div will be styled to only show on print media via CSS
+        referenceHtml = `<div class="print-only-reference" style="text-align: left; margin-bottom: 0.3cm; font-size: 10pt;"><strong>Riferimento:</strong> ${escapeHtml(referenceValue)}</div>`;
+    }
+    
+    // Inject referenceHtml at the top of the summary content for printing later if CSS handles its print-only display
+    // For now, we'll prepend it to the header info.
+    
+    const headerInfoDiv = document.createElement('div');
+    headerInfoDiv.classList.add('summary-header-info');
 
-        let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
-        if (selections.configType.numUnits === 0) {
-            indoorUnitsBtuList = "Nessuna";
-        }
+    // Prepend reference if it exists. Will be styled by print CSS to only show in print
+    // An alternative is to have a dedicated placeholder in summaryHTML only visible in print.
+    let headerContent = `
+        ${referenceValue ? `<div class="print-only-reference-header" style="grid-column: 1 / -1; margin-bottom: 8px; font-weight: bold; border-bottom: 1px dashed #ccc; padding-bottom: 5px;">Riferimento: ${escapeHtml(referenceValue)}</div>` : ''}
+        <div class="info-group">
+            <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand.name)}</p>
+            <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries.name)}</p>
+            <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType.name)}</p>
+        </div>
+        <div class="info-group">
+            <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit.kw, 'kW')}</p>
+            <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
+            <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
+        </div>
+    `;
+    headerInfoDiv.innerHTML = headerContent;
 
-        const layoutContainer = document.createElement('div');
-        layoutContainer.classList.add('summary-layout-container');
+    layoutContainer.appendChild(headerInfoDiv);
 
-        const headerInfoDiv = document.createElement('div');
-        headerInfoDiv.classList.add('summary-header-info');
-        headerInfoDiv.innerHTML = `
-            <div class="info-group">
-                <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand.name)}</p>
-                <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries.name)}</p>
-                <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType.name)}</p>
-            </div>
-            <div class="info-group">
-                <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit.kw, 'kW')}</p>
-                <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
-                <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
-            </div>
-        `;
-        layoutContainer.appendChild(headerInfoDiv);
-
+    // ... (rest of your generateSummary function: detailsTitle, outdoorUnitBlock, indoorUnitsSectionBlock) ...
+    // (Make sure it's identical to the last correct version from here on)
         const detailsTitle = document.createElement('h2');
         detailsTitle.classList.add('summary-details-title');
         detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
