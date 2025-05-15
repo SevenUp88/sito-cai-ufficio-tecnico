@@ -198,38 +198,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         infoDiv.appendChild(modelP);
 
         const energyClassContainerP = document.createElement('p');
-        const energyLabelSpan = document.createElement('span');
-        energyLabelSpan.classList.add('energy-class-label');
-        energyLabelSpan.textContent = "Classe Energetica (F/C):";
-        energyClassContainerP.appendChild(energyLabelSpan);
-        
-        const coolingVal = unit?.energyClassCooling;
-        let coolingDisplayText = valOrDashDisplay(coolingVal);
-        let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
+    const energyLabelSpan = document.createElement('span');
+    energyLabelSpan.classList.add('energy-class-label');
+    energyLabelSpan.textContent = "Classe En.:"; // MODIFIED LABEL
+    energyClassContainerP.appendChild(energyLabelSpan);
+    
+    const coolingVal = unit?.energyClassCooling;
+    let coolingDisplayText = valOrDashDisplay(coolingVal, '', '-'); // Suffix is empty, placeholder is '-'
+    let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
 
-        const coolingSpan = document.createElement('span');
-        coolingSpan.classList.add('energy-rating');
-        coolingSpan.classList.toggle('cooling', isCoolingDataValid);
-        coolingSpan.classList.toggle('unknown', !isCoolingDataValid);
-        coolingSpan.textContent = coolingDisplayText;
-        energyClassContainerP.appendChild(coolingSpan);
+    const coolingSpan = document.createElement('span');
+    coolingSpan.classList.add('energy-rating'); // General class
+    coolingSpan.classList.toggle('cooling', isCoolingDataValid); // Blue background if valid
+    coolingSpan.classList.toggle('unknown', !isCoolingDataValid); // Grey if not valid
+    coolingSpan.textContent = coolingDisplayText;
+    energyClassContainerP.appendChild(coolingSpan);
 
-        const separatorSpan = document.createElement('span');
-        separatorSpan.classList.add('energy-separator');
-        separatorSpan.textContent = "/";
-        energyClassContainerP.appendChild(separatorSpan);
+    const separatorSpan = document.createElement('span');
+    separatorSpan.classList.add('energy-separator');
+    separatorSpan.textContent = " / "; // MODIFIED SEPARATOR to have spaces
+    energyClassContainerP.appendChild(separatorSpan);
 
-        const heatingVal = unit?.energyClassHeating;
-        let heatingDisplayText = valOrDashDisplay(heatingVal);
-        let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
-        
-        const heatingSpan = document.createElement('span');
-        heatingSpan.classList.add('energy-rating');
-        heatingSpan.classList.toggle('heating', isHeatingDataValid);
-        heatingSpan.classList.toggle('unknown', !isHeatingDataValid);
-        heatingSpan.textContent = heatingDisplayText;
-        energyClassContainerP.appendChild(heatingSpan);
-        infoDiv.appendChild(energyClassContainerP);
+    const heatingVal = unit?.energyClassHeating;
+    let heatingDisplayText = valOrDashDisplay(heatingVal, '', '-');
+    let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
+    
+    const heatingSpan = document.createElement('span');
+    heatingSpan.classList.add('energy-rating'); // General class
+    heatingSpan.classList.toggle('heating', isHeatingDataValid); // Red background if valid
+    heatingSpan.classList.toggle('unknown', !isHeatingDataValid); // Grey if not valid
+    heatingSpan.textContent = heatingDisplayText;
+    energyClassContainerP.appendChild(heatingSpan);
+    infoDiv.appendChild(energyClassContainerP);
 
         const dimensionsP = document.createElement('p');
         const dimDisplay = valOrDashDisplay(unit?.dimensions);
