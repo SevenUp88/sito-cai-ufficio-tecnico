@@ -1,7 +1,8 @@
 /* File: LISTINI/CALDAIE/style.css */
 
-/* :root variables from your original style.css / style (5).css should be inherited
-   if style.css is linked before this one, or define them here if this is standalone */
+/* :root variables should be inherited from your main ../../style.css if linked first.
+   If this is a standalone page test, uncomment and define them: */
+/*
 :root {
     --primary-color: #0056a8;
     --secondary-color: #6c757d;
@@ -11,358 +12,372 @@
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     --border-radius: 8px;
     --danger-color: #dc3545;
-    --warning-color: #ffc107; /* Used for "Economico" badge */
-    --header-height: 65px; /* Assuming your main app-header height */
-    /* --sticky-offset: calc(var(--header-height) + 10px); Defined in style (5), ensure it's available */
+    --warning-color: #ffc107;
+    --header-height: 65px;
+    --sticky-offset: calc(var(--header-height) + 10px); // Assuming sticky offset defined in global
 }
+*/
 
-/* General body styles (ensure consistency with your main app style.css) */
-/* body styles are likely in your root style.css, so these might not be needed here if linked after */
-/* body {
-    font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding-top: var(--header-height);
-    background-color: var(--light-color);
-    color: var(--dark-color);
-    line-height: 1.6;
-} */
-
-/* --- MODIFIED FROM HERE BASED ON style (7).css INSPIRATION --- */
-
-.listini-page-container { /* Renamed from .container for clarity if needed, or keep .container */
+.listini-page-container {
     max-width: 1200px;
-    margin: 0 auto; /* Margin top will be handled by .page-controls padding */
-    padding: 0 20px 20px 20px; /* Remove top padding, add side for sticky */
+    margin: 0 auto;
+    padding: 0 20px 20px 20px; /* Adjusted padding */
     background-color: var(--background-color);
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); */ /* Shadow might be on .page-controls now */
-    /* border-radius: var(--border-radius); */ /* Radius might be on .page-controls */
 }
 
-/* === Styles per Controlli Pagina e Filtri Sticky (Inspired by style (7).css) === */
 .page-controls {
     text-align: center;
     border-bottom: 1px solid #eee;
-    position: sticky; /* <<< KEY FOR STICKY BEHAVIOR */
-    top: var(--header-height); /* Stick below the main app header */
-    background-color: var(--background-color); /* Background needed for sticky overlay */
+    position: sticky;
+    top: var(--header-height); /* Stick below main app header */
+    background-color: var(--background-color);
     z-index: 990;
-    padding-top: 15px; /* Space above h1 */
-    padding-bottom: 15px; /* Space below filters */
-    /* Make it full width for sticky effect if .container has side padding */
-    margin-left: -20px; /* Adjust if your .listini-page-container padding is different */
-    margin-right: -20px;/* Adjust if your .listini-page-container padding is different */
-    padding-left: 20px;
-    padding-right: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Subtle shadow for sticky header */
-    margin-bottom: 20px; /* Space between sticky header and content grid */
+    padding: 15px 20px; /* Internal padding */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 25px; /* Space after sticky controls */
 }
 
 .page-controls h1 {
     color: var(--primary-color);
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     font-weight: 700;
     font-size: 2em;
-    line-height: 1.2;
+}
+.page-controls > p {
+    margin-bottom: 15px;
+    font-size: 0.95em;
+    color: var(--secondary-color);
 }
 
-/* Adapting your .filters-container to look like .filters from style (7) */
-.filters-container { /* This div will hold the filter buttons */
-    margin-top: 0; /* No top margin as it's inside .page-controls */
-    margin-bottom: 0; /* No bottom margin as it's inside .page-controls */
+.filters-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px;
-    padding: 0; /* Removed padding as individual buttons will have it */
-    background-color: transparent; /* No background on the container itself */
-    border: none; /* No border on the container */
-    align-items: center; /* Vertically align if there's a label + buttons */
+    gap: 10px; /* Increased gap slightly */
+    align-items: center;
 }
-.filters-container > span { /* For "Filtra per:" label if you add one */
-     margin-right: 10px; font-weight: 500; color: var(--secondary-color); align-self: center; margin-bottom: 5px;
+.filters-container > span { /* "Filtra per:" */
+    margin-right: 10px;
+    font-weight: 500;
+    color: var(--secondary-color);
+    align-self: center;
+    margin-bottom: 5px; /* For alignment with buttons if they wrap */
 }
 
-/* Style for the filter buttons (Brand, Category) */
-/* We need JS to create these as buttons if they are currently select dropdowns */
+.filter-button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
 .filter-btn {
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     color: var(--dark-color);
-    padding: 7px 14px;
-    border-radius: 20px; /* Pill shape */
+    padding: 6px 12px; /* Slightly adjusted padding */
+    border-radius: 16px; /* More rounded */
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 0.85em;
+    transition: all 0.2s ease;
+    font-size: 0.8em; /* Slightly smaller font */
     white-space: nowrap;
-    /* Existing .filter-group, select, input can be hidden/removed if replaced by buttons */
+    line-height: 1.5;
 }
 .filter-btn:hover {
     background-color: #d1d5db;
-    border-color: #adb5bd;
 }
-.filter-btn.active { /* JS will toggle this class */
+.filter-btn.active {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    font-weight: bold;
+    font-weight: 500; /* Less bold than clima */
 }
-/* Example for a special "economico" type filter, adapt if you have one for caldaie */
-/* .filter-btn[data-filter-type="low-consumption"] {
-    background-color: var(--warning-color); border-color: #e6a007; color: #333;
+#economico-filter-btn {
+    background-color: var(--warning-color);
+    border-color: #e6a007;
+    color: #333;
 }
-.filter-btn[data-filter-type="low-consumption"].active {
-    background-color: #c68b00; border-color: #a06d00; color: white;
-} */
-
-
-/* Search input (if you keep it alongside filter buttons) */
-.filters-container .search-group { /* Your existing .search-group */
-    /* flex-grow: 1; Might need adjustment based on button layout */
-    /* margin-left: 15px; Optional spacing */
-}
-.filters-container .search-group input[type="text"] { /* Your existing input */
-    border-radius: 20px; /* Match pill shape */
-    min-width: 200px; /* Adjust */
-    font-size: 0.85em;
-    padding: 7px 14px;
-}
-.filters-container .search-group label {
-    display: none; /* Often label is implicit with search fields in this style */
+#economico-filter-btn.active {
+    background-color: #e6a007; /* Brighter active yellow */
+    border-color: #c79100;
+    color: white; /* White text on active yellow */
 }
 
+/* Hide original select based filters if JS creates buttons */
+.filters-container .filter-group {
+    display: none;
+}
 
-/* Reset button styling if kept with new filter buttons */
+.filters-container .search-group {
+    display: flex;
+    align-items: center;
+    margin-left: 10px; /* Space from other filters */
+}
+.filters-container .search-group input[type="text"] {
+    border-radius: 16px; /* Match button roundness */
+    min-width: 180px;
+    font-size: 0.8em;
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+}
+.filters-container .search-group label { display: none; } /* Label is placeholder */
+
 #reset-filters-btn {
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 0.8em;
     background-color: var(--secondary-color);
-    border: 1px solid var(--secondary-color);
-    color: white;
-    padding: 7px 14px;
-    border-radius: 20px;
-    font-size: 0.85em;
-    /* align-self: center; */ /* Remove if you don't have a flex-end on parent */
+    color:white;
+    border: none; /* Remove border */
+    line-height: 1.5;
 }
 #reset-filters-btn:hover {
     background-color: #5a6268;
-    border-color: #545b62;
 }
 
-/* Main content area for the boiler grid */
-#boiler-list-container { /* Your existing boiler grid ID */
+/* Main content area & grid */
+main {
+    padding-top: 10px;
+}
+.product-grid { /* This is your #boiler-list-container */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); /* From style (7) */
-    gap: 25px; /* From style (7) */
-    /* padding-top: 20px; Add padding if .page-controls no longer has margin-bottom */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly smaller min card width */
+    gap: 20px; /* Reduced gap slightly */
+    margin-bottom: 30px;
 }
 
-/* Card Prodotto (Boiler Card) - Adapting from .product-card in style (7).css */
+/* BOILER CARD STYLES */
 .boiler-card {
     background-color: var(--background-color);
     border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
-    padding: 20px;
+    padding: 15px; /* Reduced padding slightly */
     box-shadow: var(--card-shadow);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Faster transition */
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    position: relative; /* For badges/icons */
-    min-height: auto; /* Removed fixed min-height, let content define it */
+    position: relative;
+    cursor: pointer; /* Indicate clickable for popup */
 }
 .boiler-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px); /* Slightly less lift */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Top-right elements like WiFi icon or special badges */
 .card-top-right-elements {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 12px;
+    right: 12px;
     display: flex;
-    flex-direction: column; /* Stack if multiple, or row */
-    align-items: flex-end;
-    gap: 5px;
-    z-index: 5;
+    align-items: center;
+    gap: 8px;
+    z-index: 2;
 }
-.boiler-badge { /* Generic badge, e.g., "Detrazione 65%" */
+.economico-badge {
     display: inline-block;
-    background-color: var(--warning-color); /* Or other colors */
-    color: #333;
-    font-size: 0.7em;
-    padding: 2px 8px;
-    border-radius: 10px;
+    background-color: var(--warning-color);
+    color: #493800; /* Darker text for yellow */
+    font-size: 0.65em; /* Smaller badge */
+    padding: 2px 7px;
+    border-radius: 8px;
     font-weight: bold;
     text-transform: uppercase;
 }
-.boiler-card .wifi-icon-display { /* Class to add to a span/i if boiler has WiFi */
-    font-size: 1.1em;
-    color: var(--primary-color);
-    /* You'll need FontAwesome or an SVG for the WiFi icon itself */
-}
 
-
-/* Product Header for Boiler Card */
-.boiler-card-header { /* New div to wrap logo and title/brand */
+.boiler-card-header {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 12px; /* Reduced margin */
     gap: 10px;
-    min-height: 50px; /* Adjust as needed */
-    padding-right: 50px; /* Space for top-right elements */
+    min-height: 40px;
+    padding-right: 50px;
 }
-.boiler-card .boiler-logo { /* For the brand logo image */
-    max-height: 40px; /* Adjust */
-    max-width: 120px; /* Adjust */
-    width: auto;
+.boiler-logo {
+    max-height: 35px; /* Smaller logo */
+    max-width: 100px;
     object-fit: contain;
-    flex-shrink: 0; /* Prevent shrinking too much */
+    flex-shrink: 0;
 }
-.boiler-card .boiler-title-brand { /* For h3 model and p brand */
+.boiler-title-brand {
     flex-grow: 1;
-    min-width: 0; /* Allow flex shrinking */
 }
-
-.boiler-card h3.model { /* Your existing h3.model */
-    margin: 0 0 2px 0;
-    font-size: 1.15em;
-    color: var(--dark-color); /* Matching product-title-brand h3 */
+.boiler-card h3.model {
+    margin: 0 0 1px 0;
+    font-size: 1.05em; /* Smaller model title */
+    color: var(--dark-color);
     font-weight: 700;
-    line-height: 1.3; /* Adjust for 1-2 lines */
-    /* For multi-line truncation (optional) */
-    /* display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: calc(1.3em * 2); */
+    line-height: 1.25;
 }
-.boiler-card .brand-text { /* New class for brand text below model */
-    font-size: 0.85em;
+.boiler-card .brand-text {
+    font-size: 0.8em; /* Smaller brand text */
     color: var(--secondary-color);
-    font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
     display: block;
 }
 
-.boiler-card .image-container { /* Your existing image container */
-    display: block; /* Changed from flex */
+.boiler-card .image-container img { /* This refers to the product image */
+    display: block;
     width: 100%;
-    height: 150px; /* Adjust, was 130px, Clima uses 180px */
+    height: 130px; /* Slightly smaller product image */
     object-fit: contain;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    box-sizing: border-box;
-    border-bottom: none; /* Removed from here */
-    padding-bottom: 0; /* Removed from here */
-}
-.boiler-card .image-container img { /* Your existing img */
-    max-height: 100%;
-    max-width: 100%;
-    object-fit: contain; /* Already there, good */
-    /* border-radius: 4px; Already on parent if needed */
+    margin-bottom: 12px;
+    border-radius: 3px; /* Small radius */
 }
 
-.boiler-card .boiler-info { /* Your existing .boiler-info */
-    margin-bottom: 15px; /* From product-details */
+.boiler-card .boiler-info {
     flex-grow: 1;
+    margin-bottom: 8px;
 }
-.boiler-card .boiler-info p { /* Your existing p inside .boiler-info */
-    margin: 6px 0; /* From product-info-text */
-    line-height: 1.5;
-    font-size: 0.95em; /* From product-info-text */
+.boiler-card .boiler-info p {
+    margin: 4px 0; /* Tighter paragraph spacing */
+    font-size: 0.85em; /* Smaller info text */
     color: #495057;
+    line-height: 1.4;
 }
-.boiler-card .boiler-info p strong { /* Your existing p strong */
+.boiler-card .boiler-info p strong {
     color: var(--dark-color);
-    margin-right: 5px;
-    /* display: inline-block; */ /* Optional */
+    font-weight: 500; /* Reset to match clima */
+    margin-right: 4px;
 }
-/* Specific info text like 'Potenza', 'Codice' */
-.boiler-card .potenza-text { font-weight: 700; } /* Example class */
-
-/* Adapting your .brand-category to just .product-brand-text if simpler,
-   or use this as is, but .boiler-card-header handles brand image and text more like clima */
-.boiler-card .brand-category { /* Your existing .brand-category */
-    display:none; /* Hide if handled by boiler-card-header/brand-text */
+.boiler-card .availability.in-esaurimento {
+    color: var(--danger-color);
+    font-weight: bold;
 }
+.boiler-card .product-datasheet a { /* Style for Scheda Tecnica Link */
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.85em;
+    font-weight: 500;
+}
+.boiler-card .product-datasheet a:hover { text-decoration: underline; }
+.boiler-card .product-datasheet i { margin-right: 4px; }
 
 
-/* Footer section of the card for price and actions */
-.boiler-card-footer { /* New div, similar to product-footer */
+.boiler-card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto; /* Pushes to bottom */
-    padding-top: 15px;
+    margin-top: auto;
+    padding-top: 12px;
     border-top: 1px solid #eee;
 }
-.boiler-card .price-section { /* Your existing .price-section */
-    margin-top: 0; /* Handled by footer padding */
-    padding-top: 0;
-    border-top: none;
+.boiler-card .price-section {
+    margin:0; padding:0; border:0;
 }
-.boiler-card .price-discounted, .boiler-card .price-discounted.no-discount {
-    font-size: 1.3em; /* From product-price-value */
+.boiler-card .price-discounted,
+.boiler-card .price-discounted.no-discount {
+    font-size: 1.2em; /* Slightly smaller main price */
     font-weight: 700;
-    white-space: nowrap;
-    /* Color already handled by your existing rules */
+    color: var(--primary-color);
+}
+.boiler-card .price-discounted.economico-price {
+    color: var(--warning-color) !important;
+    /* If you want text dark on yellow, you might need a specific class/logic
+       or use text-shadow: 0 0 1px var(--warning-color); to make primary-color text readable on it */
 }
 .boiler-card .price-list {
-     font-size: 0.8em; /* Make it smaller than discounted */
+    font-size: 0.75em;
+    color: var(--secondary-color);
+    text-decoration: line-through;
+    margin-right: 5px;
 }
 
-.boiler-card .action-buttons-placeholder { /* For potential future buttons like "Compare" */
-    /* Styles for action buttons if you add them */
+/* POPUP STYLES */
+.popup-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.65); /* Slightly darker */
+    z-index: 1060; /* Ensure above other elements like sticky header */
+    display: none; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.25s ease-in-out;
+}
+.popup-overlay.visible { display: flex; opacity: 1; }
+
+.popup-content {
+    background-color: var(--background-color);
+    padding: 20px 25px; /* Adjusted padding */
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    width: 90%; max-width: 650px; /* Max width for details */
+    max-height: 80vh; /* Max height */
+    display: flex; flex-direction: column;
+    transform: translateY(-20px) scale(0.98); /* Start from slightly above for effect */
+    transition: transform 0.25s ease-out, opacity 0.25s ease-in-out;
+    position: relative;
+    opacity: 0; /* Start hidden, fade in with overlay */
+}
+.popup-overlay.visible .popup-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
-.boiler-card .notes, .boiler-card .availability {
-    font-size: 0.8em; /* Slightly smaller */
-    margin-top: 5px;
+.popup-content h2#popup-boiler-title {
+    margin-top: 0;
+    margin-bottom: 18px;
+    color: var(--primary-color);
+    text-align: left; /* Align title left for detail view */
+    font-size: 1.4em; /* Slightly smaller title */
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.close-popup-btn {
+    position: absolute; top: 12px; right: 12px;
+    background: none; border: none; font-size: 1.8em; /* Slightly smaller close */
+    color: var(--secondary-color); cursor: pointer; line-height: 1;
+}
+.close-popup-btn:hover { color: var(--dark-color); }
+
+#popup-boiler-content-area {
+    font-size: 0.9em; /* Base font size for popup details */
+    overflow-y: auto; /* Allow scrolling if content is long */
+    padding-right: 10px; /* Space for scrollbar */
+}
+#popup-boiler-content-area p {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    display: flex; /* For aligning label and value */
+    border-bottom: 1px dotted #f0f0f0;
+    padding-bottom: 8px;
+}
+#popup-boiler-content-area p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+#popup-boiler-content-area strong { /* Field Label */
+    font-weight: 500;
+    color: var(--dark-color);
+    width: 180px; /* Fixed width for labels */
+    flex-shrink: 0; /* Prevent label from shrinking */
+    margin-right: 10px;
+}
+#popup-boiler-content-area .popup-value { /* Field Value */
+    flex-grow: 1;
+    word-break: break-word; /* Allow long values to wrap */
+}
+#popup-boiler-content-area .unknown-value {
+    color: var(--secondary-color);
+    font-style: italic;
 }
 
-
-/* Hiding original filter dropdowns if using buttons now */
-.filters-container .filter-group select,
-.filters-container .filter-group label:not(.search-group label) { /* Hide labels for select if buttons are used */
-    /* display: none; */ /* Uncomment if you fully replace dropdowns with buttons via JS */
-}
-
-
-/* General loading/no-results - ensure it spans grid columns */
+/* General loading/no-results */
 .loading-indicator, #loading-indicator,
 #no-results-message {
-    grid-column: 1 / -1; /* Make sure it spans all columns in the grid */
+    grid-column: 1 / -1;
     text-align: center;
-    padding: 40px;
+    padding: 30px 20px;
     color: var(--secondary-color);
-    font-size: 1.1em;
+    font-size: 1.05em;
 }
 
-/* Print Styles - You'll need to adapt the detailed print styles from style (7).css
-   This is a very basic placeholder. Refer to your style (7).css @media print section. */
+/* Admin section - minimal styling from before */
+#admin-section-caldaie { border-top: 2px solid var(--warning-color); }
+/* ... (other admin styles from previous style.css) */
+
+
+/* Print Styles (Minimal placeholder) */
 @media print {
-    body { padding-top: 0 !important; font-size: 8.5pt !important; color: #000 !important; }
-    .app-header, .page-controls, .app-footer, #password-panel /* Add other non-print elements */ {
+    body { padding-top: 0 !important; font-size: 8pt !important; }
+    .app-header, .page-controls, .app-footer, .popup-overlay, #login-modal-caldaie, #admin-section-caldaie {
         display: none !important;
     }
-    .listini-page-container { box-shadow: none; padding:0; margin:0; }
-    #boiler-list-container { display: block; column-count: 2; column-gap: 1cm; } /* Example for 2 columns */
-    .boiler-card {
-        page-break-inside: avoid;
-        -webkit-column-break-inside: avoid;
-        break-inside: avoid;
-        border: 1px solid #ccc !important;
-        box-shadow: none !important;
-        margin-bottom: 0.7cm;
-        padding: 8px;
-    }
-    .boiler-card .image-container { height: 70px !important; max-width: 60%; margin: 5px auto 8px auto;}
-    .boiler-card h3.model { font-size: 9pt !important; }
-    .boiler-card p { font-size: 8pt !important; line-height: 1.2 !important; }
-    .boiler-card-footer { border-top: none !important; padding-top: 3px !important;}
-    .boiler-card .price-discounted, .boiler-card .price-discounted.no-discount { font-size: 9.5pt !important; color: #000 !important; }
-    .boiler-card .wifi-icon-display::before { content: " (WiFi)"; font-family: sans-serif; font-size: 0.85em; }
-    .boiler-card .boiler-logo {max-height: 20px !important; }
-    /* Add more specific print rules from style (7).css print section */
+    /* Add more specific print styles */
 }
