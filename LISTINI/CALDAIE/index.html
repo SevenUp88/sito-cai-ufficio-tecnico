@@ -5,21 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listini Caldaie - CAI Ufficio Tecnico</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Link to general styles (root level, two levels up) -->
-    <link rel="stylesheet" href="../../style.css">
-    <!-- Link to specific styles for this page (in the same directory) -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
-    <!-- FontAwesome if used (match your configurator's version/method) -->
+    <link rel="stylesheet" href="../../style.css"> <!-- Main global styles -->
+    <link rel="stylesheet" href="style.css">     <!-- Caldaie specific styles (this page's CSS) -->
+    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon"> <!-- Assuming favicon is in root/images/ -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <header class="app-header">
         <a href="../../index.html" class="logo-link">
+            <!-- Assuming CAI_Logo_Ufficio_Tecnico.png is at the project root -->
             <img src="../../CAI_Logo_Ufficio_Tecnico.png" alt="Logo CAI Ufficio Tecnico" class="logo">
         </a>
         <div class="header-controls">
-            <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Info Utente">
+            <button id="admin-trigger" class="header-action-button" title="Accesso Admin">
                  <i class="fas fa-user-shield"></i>
             </button>
              <a href="../../configuratore/configuratore.html" class="header-action-button" title="Configuratore Climatizzatori">
@@ -41,81 +39,82 @@
                   <label for="login-password-caldaie">Password:</label>
                   <input type="password" id="login-password-caldaie" required class="form-control">
               </div>
-              <div id="login-error-caldaie" style="color: var(--danger-color); margin-bottom: 1rem; display: none; font-size:0.9em;"></div>
+              <div id="login-error-caldaie" class="error-message" style="display: none;"></div>
               <button type="submit" class="btn btn-primary btn-block">Accedi</button>
           </form>
           <button id="logout-button-caldaie" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
       </div>
     </div>
 
-    <!-- The main container for the page content, excluding the full-width sticky header -->
     <div class="listini-page-container">
-
-        <!-- page-controls will now be sticky and contain h1 and filters-container -->
-        <div class="page-controls">
+        <div class="page-controls"> <!-- This will be sticky -->
             <h1>Listini Caldaie</h1>
-            <!-- Optional paragraph moved here as per your original structure -->
             <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
 
             <div class="filters-container">
-                <!-- Optional: Label for filters -->
-                <!-- <span>Filtra per:</span> -->
+                <span>Filtra per:</span>
+                <div id="brand-filter-buttons" class="filter-button-group">
+                    <!-- Brand filter buttons will be inserted here by JS -->
+                    <!-- Example: <button class="filter-btn active" data-filter-group="brand" data-filter-value="">Tutte</button> -->
+                    <!-- Example: <button class="filter-btn" data-filter-group="brand" data-filter-value="BAXI">BAXI</button> -->
+                </div>
+                <!-- Optional: Placeholder for Category filter buttons if you add them -->
+                <!-- <div id="category-filter-buttons" class="filter-button-group">
+                    <button class="filter-btn active" data-filter-group="category" data-filter-value="">Tutte</button>
+                </div> -->
+                <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
 
-                <div class="filter-group">
-                    <label for="brand-filter">Marca:</label>
-                    <select id="brand-filter">
-                        <option value="">Tutte le Marche</option>
-                    </select>
+                <div class="search-group">
+                    <input type="text" id="search-input" placeholder="Cerca Modello, Codice...">
                 </div>
-                <div class="filter-group">
-                    <label for="category-filter">Categoria:</label>
-                    <select id="category-filter">
-                        <option value="">Tutte le Categorie</option>
-                    </select>
-                </div>
-                <div class="filter-group search-group">
-                    <label for="search-input">Cerca:</label> <!-- Simplified label for search -->
-                    <input type="text" id="search-input" placeholder="Modello, Codice...">
-                </div>
-                <button id="reset-filters-btn" class="btn btn-secondary">Resetta</button> <!-- Text changed slightly -->
+                <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
             </div>
         </div>
-        <!-- End of sticky page-controls -->
 
-
-        <div id="loading-indicator" style="text-align: center; padding: 20px; font-size: 1.2em; display: none;">
-             <div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; display: inline-block;"></div>
+        <div id="loading-indicator" style="display: none;">
+             <div class="loading-spinner"></div>
              <p>Caricamento listini...</p>
-             <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+             <style>
+                .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+             </style>
         </div>
-        <div id="no-results-message" style="text-align: center; padding: 20px; font-size: 1.2em; display: none;">
-            Nessun prodotto trovato con i filtri selezionati.
-        </div>
+        <div id="no-results-message" style="display: none;">Nessun prodotto trovato.</div>
 
-        <div id="boiler-list-container" class="boiler-grid">
-            <!-- Boiler cards will be dynamically inserted here by JavaScript -->
-        </div>
+        <main>
+            <div id="boiler-list-container" class="product-grid">
+                <!-- Boiler cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </main>
 
         <div id="admin-section-caldaie" style="display: none; margin-top: 30px; padding: 20px; border: 1px solid var(--warning-color); border-radius: var(--border-radius); background-color: #fff8e1;">
             <h2>Gestione Listino Caldaie (Admin)</h2>
             <p>Funzionalità per aggiungere, modificare o eliminare caldaie.</p>
             <button id="add-boiler-btn" class="btn btn-primary">Aggiungi Nuova Caldaia</button>
             <div id="admin-boilers-list" style="margin-top:20px;">
-                <!-- Admin list populated by JS -->
             </div>
         </div>
+    </div>
 
-    </div> <!-- End of .listini-page-container -->
+    <!-- Popup for Boiler Details -->
+    <div id="boiler-details-popup-overlay" class="popup-overlay" style="display: none;">
+        <div class="popup-content boiler-details-popup">
+            <button class="close-popup-btn" id="close-boiler-details-popup">×</button>
+            <h2 id="popup-boiler-title">Dettagli Caldaia</h2>
+            <div id="popup-boiler-content-area">
+                <!-- Detailed boiler info will be populated here by JavaScript -->
+            </div>
+        </div>
+    </div>
 
     <footer class="app-footer">
-        <p>© <span id="current-year"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico. Tutti i diritti riservati.</p>
+        <p>© <span id="current-year"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico.</p>
         <p class="data-info">Listino aggiornato al: <span id="data-update-date">--/--/----</span></p>
     </footer>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
