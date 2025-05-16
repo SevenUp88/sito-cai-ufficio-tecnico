@@ -1,0 +1,255 @@
+/* File: listini-caldaie-style.css */
+
+/* Reusing general variables and styles from style.css (from user's original files) */
+
+.listini-page-container {
+    background-color: var(--background-color);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e0e0;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-grow: 1;
+}
+
+.filter-group label {
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--dark-color);
+}
+
+.filter-group select,
+.filter-group input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+    background-color: #fff;
+    min-width: 180px; /* Adjust as needed */
+}
+.filter-group input[type="text"] {
+    width: auto;
+}
+
+.filter-group.search-group {
+    flex-grow: 2;
+}
+
+#reset-filters-btn {
+    padding: 10px 15px; /* Match input padding style for height */
+    line-height: 1.5; /* Match input line-height */
+    height: auto; /* Auto height for button content */
+    align-self: flex-end;
+}
+
+
+.boiler-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust minmax for desired card size */
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.boiler-card {
+    padding: 15px; /* Slightly less padding than configurator's unit-selection-card */
+    border: 1px solid #e0e0e0; /* Softer border than 2px */
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    transition: all 0.3s ease;
+    min-height: 380px; /* Adjust based on content */
+    justify-content: space-between;
+}
+
+.boiler-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 3px 10px rgba(0, 86, 168, 0.12); /* Slightly different hover shadow */
+    transform: translateY(-2px);
+}
+
+.boiler-card .image-container {
+    width: 100%;
+    height: 130px; /* Adjust image height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-bottom: 1px solid #f0f0f0; /* Softer separator */
+    padding-bottom: 12px;
+}
+
+.boiler-card img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    border-radius: 4px; /* Keep small radius for image */
+}
+
+.boiler-card .boiler-info {
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.boiler-card h3.model {
+    font-size: 1.15em; /* Slightly smaller model name */
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+}
+
+.boiler-card p {
+    font-size: 0.88em; /* Smaller general text */
+    color: var(--secondary-color);
+    margin: 3px 0;
+    line-height: 1.45;
+}
+
+.boiler-card p.description {
+    font-size: 0.85em;
+    height: 4.35em; /* Approx 3 lines */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Consider a "read more" for longer descriptions if needed */
+}
+
+
+.boiler-card p strong {
+    color: var(--dark-color);
+    font-weight: 500; /* Medium weight for strong tags */
+}
+
+.boiler-card .brand-category {
+    font-size: 0.8em;
+    font-weight: 500;
+    color: #555; /* Slightly lighter than dark-color */
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+}
+
+.boiler-card .bottom-details {
+    /* Contains price and availability */
+}
+
+.boiler-card .price-section {
+    margin-top: 10px;
+    padding-top: 8px;
+    /* border-top: 1px solid #eee; Removed border, brand-category has one */
+}
+
+.boiler-card .price-list {
+    font-size: 0.85em; /* Smaller list price */
+    color: var(--secondary-color);
+    text-decoration: line-through;
+}
+
+.boiler-card .price-discounted {
+    font-size: 1.2em; /* Discounted price stands out */
+    font-weight: bold;
+    color: var(--danger-color); /* Default to danger color for discount */
+    margin-top: 1px;
+}
+.boiler-card .price-discounted.no-discount {
+    color: var(--primary-color); /* If only one price, show it in primary */
+    font-size: 1.1em;
+}
+
+
+.boiler-card .notes {
+    font-size: 0.78em; /* Even smaller notes */
+    font-style: italic;
+    margin-top: 6px;
+    background-color: #f9f9f9;
+    padding: 4px 7px;
+    border-radius: 3px;
+    color: #666;
+}
+
+.boiler-card .availability {
+    font-size: 0.82em;
+    font-weight: 500;
+    margin-top: 6px;
+}
+
+.boiler-card .availability.available { color: #28a745; }
+.boiler-card .availability.on-order { color: #ffc107; }
+.boiler-card .availability.not-available { color: #dc3545; }
+.boiler-card .availability.unknown { color: var(--secondary-color); }
+
+/* Re-using modal styles from configurator page if they are in style.css */
+/* If not, copy relevant .modal, .modal-content, .close-btn etc. here */
+/* Ensure .close-btn-caldaie is styled if it's different */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-group {
+        min-width: 0;
+    }
+    .filter-group select,
+    .filter-group input[type="text"] {
+        width: 100%;
+        min-width: 0;
+    }
+    #reset-filters-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .boiler-grid {
+        grid-template-columns: 1fr; /* Stack cards on small screens */
+    }
+    .boiler-card {
+        min-height: auto;
+    }
+}
+
+/* Admin Section specific styles - can be expanded */
+#admin-section-caldaie {
+    border-top: 2px solid var(--warning-color);
+}
+#admin-boilers-list .boiler-admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+#admin-boilers-list .boiler-admin-item:last-child {
+    border-bottom: none;
+}
+#admin-boilers-list .boiler-admin-item img {
+    height: 30px;
+    width: auto;
+    margin-right: 10px;
+    object-fit: contain;
+}
+#admin-boilers-list .btn {
+    font-size: 0.8em;
+    padding: 3px 6px;
+    margin-left: 5px;
+}
