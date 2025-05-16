@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scontistiche Prodotti - CAI Ufficio Tecnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css"> <!-- Main global styles -->
+    <link rel="stylesheet" href="style.css">     <!-- Scontistiche specific styles -->
+    <link rel="icon" href="../images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="app-header">
+        <a href="../index.html" class="logo-link">
+            <img src="../CAI_Logo_Ufficio_Tecnico.png" alt="Logo CAI Ufficio Tecnico" class="logo">
+        </a>
+        <div class="header-controls">
+            <button id="admin-trigger" class="header-action-button" title="Accesso Admin"><i class="fas fa-user-shield"></i></button>
+            <a href="../configuratore/configuratore.html" class="header-action-button" title="Configuratore Clima">
+                <svg><!-- ... clima icon svg ... --></svg>
+            </a>
+            <!-- Link to Caldaie Page -->
+            <a href="../LISTINI/CALDAIE/index.html" class="header-action-button" title="Listini Caldaie">
+                <i class="fas fa-fire"></i> <!-- Example icon for caldaie -->
+            </a>
+        </div>
+    </header>
+
+    <!-- Login Modal (similar to other pages) -->
+    <div id="login-modal-scontistiche" class="modal" style="display: none;">
+      <div class="modal-content">
+          <span class="close-btn-scontistiche close-btn">×</span>
+          <h2 id="login-modal-title-scontistiche">Accesso Amministratore</h2>
+          <form id="login-form-scontistiche">
+              <div class="form-group">
+                  <label for="login-email-scontistiche">Email:</label>
+                  <input type="email" id="login-email-scontistiche" required class="form-control">
+              </div>
+              <div class="form-group">
+                  <label for="login-password-scontistiche">Password:</label>
+                  <input type="password" id="login-password-scontistiche" required class="form-control">
+              </div>
+              <div id="login-error-scontistiche" class="error-message" style="display: none;"></div>
+              <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+          </form>
+          <button id="logout-button-scontistiche" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
+      </div>
+    </div>
+
+    <div class="listini-page-container"> <!-- General container class -->
+        <div class="page-controls"> <!-- Sticky header for title and filters -->
+            <h1>Scontistiche Prodotti</h1>
+            <p>Consulta le scontistiche attive sui prodotti.</p>
+
+            <div class="filters-container">
+                <span>Filtra per:</span>
+                <div id="brand-filter-buttons-scontistiche" class="filter-button-group">
+                    <!-- Brand filter buttons will be inserted here by JS -->
+                </div>
+                <!-- Add other filter groups here if needed (e.g., Categoria) -->
+                <div class="search-group">
+                    <input type="text" id="search-input-scontistiche" placeholder="Cerca per Marca, Categoria, Articolo...">
+                </div>
+                <button id="reset-filters-btn-scontistiche" style="display:none;">Resetta Filtri</button>
+            </div>
+        </div>
+
+        <div id="loading-indicator-scontistiche" style="display: none;">
+             <div class="loading-spinner"></div>
+             <p>Caricamento scontistiche...</p>
+        </div>
+        <div id="no-results-message-scontistiche" style="display: none;">Nessun prodotto scontato trovato.</div>
+
+        <main>
+            <div id="sconti-list-container" class="product-grid"> <!-- Reusing product-grid for layout -->
+                <!-- Discount item cards will be dynamically inserted here by JavaScript -->
+            </div>
+        </main>
+
+        <!-- Admin Section (placeholder for now) -->
+        <div id="admin-section-scontistiche" style="display: none; margin-top: 30px; padding: 20px; border:1px solid var(--warning-color); background-color:#fff8e1;">
+            <h2>Gestione Scontistiche (Admin)</h2>
+        </div>
+    </div>
+
+    <footer class="app-footer">
+        <p>© <span id="current-year-scontistiche"></span> CAI.</p>
+        <p class="data-info">Dati aggiornati al: <span id="data-update-date-scontistiche">--/--/----</span></p>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
