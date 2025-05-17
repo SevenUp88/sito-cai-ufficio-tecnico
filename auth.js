@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Admin-specific elements (e.g., for adding categories)
     const addCategoryTriggerButton = document.getElementById('add-category-trigger');
     // Define your admin email(s) here or implement a more robust role check with custom claims
-    const ADMIN_EMAILS = ['your-admin-email@example.com']; // !!! REPLACE WITH YOUR ACTUAL ADMIN EMAIL(S)
+    const ADMIN_EMAILS = ['tecnicovillalta@gmail.com']; // !!! REPLACE WITH YOUR ACTUAL ADMIN EMAIL(S)
 
 
     // Listen for auth state changes
