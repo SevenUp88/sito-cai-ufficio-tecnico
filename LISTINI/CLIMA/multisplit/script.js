@@ -14,11 +14,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       appId: "1:136848104008:web:2724f60607dbe91d09d67d",
       measurementId: "G-NNPV2607G7"
     };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
     // --- App Data & State ---
     const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] };
     let currentLogicalStep = 1;
