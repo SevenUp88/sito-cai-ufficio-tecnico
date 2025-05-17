@@ -50,12 +50,12 @@
     border-bottom: 2px solid var(--primary-color);
     font-size: 1.6em;
 }
-h2#summary-main-title { 
+h2#summary-main-title { /* This is the on-screen title for Step 6 Summary */
     text-align: center;
     font-size: 1.8em; 
     font-weight: bold;
     color: var(--primary-color);
-    margin-bottom: 25px; /* Now only relevant for screen, print has its own header */
+    margin-bottom: 25px; 
     padding-bottom: 10px;
     border-bottom: 2px solid var(--primary-color);
 }
@@ -64,7 +64,6 @@ h2#summary-main-title {
     margin-right: 8px;
     font-weight: bold;
 }
-
 
 /* Step Indicator ... (Keep existing styles) ... */
 .step-indicator {
@@ -228,10 +227,9 @@ h2#summary-main-title {
 
 
 /* === STYLES FOR NEW SUMMARY (STEP 6) LAYOUT (Screen) === */
-/* Screen styles for the summary content are largely the same as before, just ensure no reference-specific screen styles remain if they aren't needed. */
 #config-summary .summary-layout-container { font-family: Arial, sans-serif; color: #333; }
 #config-summary .summary-header-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 20px; padding: 20px; background-color: #f8f9fa; border-radius: var(--border-radius); margin-bottom: 30px; border: 1px solid #e0e0e0; font-size: 0.95em; }
-#config-summary .summary-header-info .print-only-reference-header { display: none;  } /* Hide print-specific ref header on screen */
+#config-summary .summary-header-info .print-only-reference-header { display: none;  } 
 #config-summary .summary-header-info .info-group { }
 #config-summary .summary-header-info p { margin: 5px 0; line-height: 1.5; }
 #config-summary .summary-header-info strong { font-weight: bold; min-width: 130px; display: inline-block; margin-right: 8px; color: var(--dark-color); }
@@ -247,77 +245,117 @@ h2#summary-main-title {
 #config-summary .summary-indoor-units-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 15px; }
 #config-summary .summary-indoor-unit-detail-card { background-color: #f8f9fa; padding: 15px; border: 1px solid #e0e0e0; border-radius: var(--border-radius); box-shadow: var(--card-shadow); }
 #config-summary .summary-indoor-unit-detail-card h4 { margin: 0 0 10px 0; font-size: 1.05em; font-weight: bold; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 8px; }
-/* Removed .summary-reference-input-container screen styles as the HTML element was removed */
-/* === END: STYLES FOR NEW SUMMARY (STEP 6) LAYOUT === */
 
 
 .print-instructions { margin-top: 20px; padding: 10px; background-color: #e9ecef; border-radius: var(--border-radius); font-size: 0.9em; text-align: center; }
 .summary-actions { justify-content: flex-end; gap: 10px; }
 
-/* Admin Section styles ... (Keep existing styles) ... */
+/* Admin Section styles */
 #admin-section h3 { font-size: 1.3em; margin-bottom: 15px; color: var(--warning-color); border-bottom-color: var(--warning-color);}
 .admin-subsection { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
 .admin-subsection:last-child { border-bottom: none; }
-/* ... (rest of admin styles) ... */
 
-/* Energy Class Rating Styles ... (Keep existing styles) ... */
+
+/* Energy Class Rating Styles */
 .unit-selection-card .unit-info .energy-class-label {
-    font-weight: bold; /* Make "Classe En.:" bold */
-    color: var(--dark-color); /* Or your preferred label color */
+    font-weight: bold; 
+    color: var(--dark-color); 
     margin-right: 5px;
 }
-
 .unit-selection-card .unit-info .energy-rating { 
     display: inline-block; 
-    padding: 3px 8px; /* Adjusted padding for a more badge-like look */
-    border-radius: var(--border-radius); /* Or a smaller value like 4px */
+    padding: 3px 8px; 
+    border-radius: var(--border-radius); 
     color: white; 
     font-size: 0.85em; 
     font-weight: bold; 
     margin: 0 2px; 
-    min-width: 35px; /* Ensure badge has some width */
+    min-width: 35px; 
     text-align: center; 
     line-height: 1.4; 
     vertical-align: middle; 
 }
 .unit-selection-card .unit-info .energy-rating.cooling { 
-    background-color: var(--primary-color); /* Your blue, e.g., #007bff or your --primary-color */
+    background-color: var(--primary-color); 
 }
 .unit-selection-card .unit-info .energy-rating.heating { 
-    background-color: var(--danger-color); /* Your red, e.g., #dc3545 */
+    background-color: var(--danger-color); 
 }
 .unit-selection-card .unit-info .energy-rating.unknown { 
-    background-color: var(--secondary-color); /* Grey for unknown/placeholder */
+    background-color: var(--secondary-color); 
     color: white;
 }
 .unit-selection-card .unit-info .energy-separator { 
     margin: 0 3px; 
     color: var(--secondary-color); 
     font-size: 0.9em; 
-    font-weight: bold; /* Make slash bold as in image */
+    font-weight: bold; 
 }
 
-
+/* ==========================================================================
+   PRINT STYLES SPECIFIC TO CONFIGURATOR PAGE (configurator-style.css)
+   ========================================================================== */
 @media print {
-    /* Hide screen-only elements for print */
-    .config-step:not(#step-6), 
-    h2#summary-main-title, /* Hide the screen H2 summary title, print uses .summary-print-page-header */
-    /* .summary-reference-input-container, /* This HTML was removed, so class is no longer needed here */
-    .summary-actions { /* Hide Modifica, Stampa, Nuova buttons */
+    /* --- Elements to HIDE on configurator print --- */
+
+    /* 1. DO NOT SHOW THE TEXT "CONFIGURATORE MULTISPLIT" (The main H1 title on screen) */
+    .configurator-container .page-controls > h1 { /* Selector for H1 inside configurator */
         display: none !important;
     }
 
-    .config-step#step-6 { /* Container for #config-summary and .summary-print-page-header */
+    /* 2. DO NOT SHOW THE STEPS 1-6 (The step indicator) */
+    /* This rule might also exist in global print styles, ensuring it here is safe. */
+    .step-indicator {
+        display: none !important;
+    }
+
+    /* 3. HIDE THE ENTIRE "Riferimento" input container (which includes "opzionale per la stampa") */
+    /* Assuming step-6 is the summary step container */
+    #step-6 .summary-reference-input-container {
+        display: none !important;
+    }
+
+    /* 4. REMOVE ELEMENTS BELOW THE INDOOR UNIT CARDS */
+    /* Text "Per la stampa: usare Ctrl+P o Cmd+P." */
+    #step-6 .print-instructions {
+        display: none !important;
+    }
+    
+    /* Buttons: Modifica, Stampa, Nuova */
+    /* These are inside .step-navigation.summary-actions for this page */
+    #step-6 .step-navigation.summary-actions {
+        display: none !important;
+    }
+    
+    /* Hide general config step titles (1-5), but NOT the screen summary title #summary-main-title,
+       as that itself will be hidden in favor of JS-generated print header. */
+    .config-step h2:not(#summary-main-title) {
+        display: none !important;
+    }
+    
+    /* Hide screen-specific elements of Step 6 summary generation */
+    h2#summary-main-title { /* The on-screen H2 "Riepilogo Configurazione" */
+        display: none !important;
+    }
+
+
+    /* --- Elements to ensure are visible or correctly styled FOR PRINT on this page --- */
+    
+    /* Only the final summary step (#step-6) should be visible */
+    .config-step:not(#step-6) {
+        display: none !important;
+    }
+    #step-6.config-step {
         display: block !important;
         border: none !important; 
         padding: 0 !important; 
-        margin:0 !important; 
+        margin: 0 !important; 
         box-shadow: none !important; 
         background-color: transparent !important; 
     }
-    
-    /* New Print-Only Header (Title left, Reference right) */
-    /* This div is created by JS and appended directly to #config-summary (summaryDiv) */
+
+    /* Styles for the dynamically generated print header (from JS in script.js) */
+    /* Ensure these are consistent with your JS output */
     #config-summary > .summary-print-page-header { 
         display: flex !important;
         justify-content: space-between !important; 
@@ -328,28 +366,23 @@ h2#summary-main-title {
         border-bottom: 1.5px solid #000 !important; 
         visibility: visible !important; 
     }
-    #config-summary > .summary-print-page-header .print-page-title,
-    #config-summary > .summary-print-page-header .print-page-reference {
-        visibility: visible !important; 
-        color: #000 !important;
-        padding: 0 !important; 
-        margin: 0 !important;  
-    }
     #config-summary > .summary-print-page-header .print-page-title {
         font-size: 14pt !important; 
-        font-weight: bold;
+        font-weight: bold !important; /* Ensure boldness */
         text-align: left;
         flex-grow: 1; 
+        color: #000 !important;
     }
     #config-summary > .summary-print-page-header .print-page-reference {
         text-align: right;
-        font-size: 9pt; 
-        font-weight: normal;
+        font-size: 9pt !important; 
+        font-weight: normal !important;
         white-space: nowrap; 
         flex-shrink: 0; 
+        color: #000 !important;
     }
     #config-summary > .summary-print-page-header .print-page-reference strong { 
-        font-weight: bold !important;
+        font-weight: bold !important; /* For the "Rif:" part */
     }
     
     /* Styles for the main summary content blocks on print */
@@ -360,7 +393,6 @@ h2#summary-main-title {
         margin-top: 0 !important; /* No extra margin if print-header is handled */
     }
 
-    /* ... (Rest of the compact print styles for .summary-header-info, .summary-details-title, .summary-detail-block, etc. from previous correct response) ... */
      #config-summary .summary-header-info {
         display: flex !important; 
         flex-wrap: wrap !important;
@@ -373,9 +405,8 @@ h2#summary-main-title {
         background-color: #ffffff !important; 
         box-shadow: none !important;
     }
-    /* Removed .print-only-reference-header from within .summary-header-info as it's now handled by .summary-print-page-header */
     #config-summary .summary-header-info .info-group {
-        flex-basis: 48%; 
+        flex-basis: calc(50% - 4px); /* Ensure this fits with the gap */
         min-width: 0; 
     }
     #config-summary .summary-header-info p {
@@ -383,9 +414,10 @@ h2#summary-main-title {
         line-height: 1.1 !important;
     }
     #config-summary .summary-header-info strong {
-        min-width: 80px !important; 
+        min-width: 70px !important;  /* Adjusted from 80px if needed */
         color: #000 !important;
         margin-right: 3px !important;
+        display: inline-block;
     }
     #config-summary .total-price-iva { 
         font-size: 9pt !important; 
@@ -395,10 +427,10 @@ h2#summary-main-title {
     }
      #config-summary .total-price-iva strong {
         color: #000 !important;
-        min-width: auto !important;
+        min-width: auto !important; /* Allow "Prezzo totale:" to not have min-width */
     }
     
-    #config-summary .summary-details-title {
+    #config-summary .summary-details-title { /* "DETTAGLI CONFIGURAZIONE" */
         font-size: 11pt !important; 
         margin-top: 0.3cm !important; 
         margin-bottom: 0.2cm !important; 
@@ -406,9 +438,10 @@ h2#summary-main-title {
         text-align: center !important; 
         color: #000 !important;
         padding-bottom: 2px !important;
+        text-transform: uppercase; /* Keep if needed */
     }
     
-    #config-summary .summary-detail-block {
+    #config-summary .summary-detail-block { /* UNITA' ESTERNA & UNITA' INTERNE container blocks */
         background-color: #ffffff !important; 
         border: 1px solid #ddd !important; 
         box-shadow: none !important;
@@ -417,7 +450,7 @@ h2#summary-main-title {
         margin-bottom: 0.2cm !important; 
         page-break-inside: avoid !important;
     }
-    #config-summary .summary-detail-block h3 { 
+    #config-summary .summary-detail-block h3 { /* Titles like "UNITA' ESTERNA" */
         font-size: 9.5pt !important; 
         text-align: center; 
         background-color: #f0f0f0 !important; 
@@ -425,6 +458,7 @@ h2#summary-main-title {
         margin: 0 0 3px 0 !important; 
         color: #000 !important;
         border-bottom: none !important; 
+        text-transform: uppercase; /* Keep if needed */
     }
 
     #config-summary .outdoor-unit-details-content p,
@@ -435,29 +469,59 @@ h2#summary-main-title {
     }
      #config-summary .outdoor-unit-details-content strong,
     #config-summary .summary-indoor-unit-detail-card strong {
-        min-width: 65px !important; 
+        min-width: 60px !important; /* Adjusted from 65px */
         font-weight: bold !important; 
         color: #000 !important;
         margin-right: 2px !important;
+        display: inline-block;
     }
 
-    #config-summary .summary-indoor-units-container {
+    #config-summary .summary-indoor-units-container { /* Contains the multiple indoor unit cards */
         display: grid !important; 
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; /* Adjust 170px if needed */
         gap: 0.15cm !important; 
         padding-left: 0 !important;
         margin-top: 0.1cm !important;
     }
-     #config-summary .summary-indoor-unit-detail-card {
-         margin-bottom: 0.15cm !important; 
+     #config-summary .summary-indoor-unit-detail-card { /* Individual indoor unit card */
+         margin-bottom: 0 !important; /* No margin needed if gap is used in container */
          padding: 0.1cm 0.15cm !important; 
-         border: 1px solid #ccc !important; 
+         border: 1px solid #eee !important; 
+         box-shadow: none !important; /* Explicitly remove any screen shadow */
      }
-     #config-summary .summary-indoor-unit-detail-card h4 {
+     #config-summary .summary-indoor-unit-detail-card h4 { /* "UNITA' 1:", "UNITA' 2:" */
         font-size: 9pt !important; 
         color: #000 !important;
         margin: 0 0 2px 0 !important;
         padding-bottom: 1px !important;
         border-bottom: 1px solid #eee !important;
+        text-transform: uppercase; /* Keep if needed */
      }
+
+    /* Styles for energy class rating badges in summary, if your JS adds them to the summary too */
+    #config-summary .energy-rating {
+        display: inline-block; 
+        padding: 1px 4px !important; /* Smaller padding for print */
+        border-radius: 3px !important;
+        color: white !important; 
+        font-size: 7.5pt !important; /* Smaller font for print */
+        font-weight: bold !important; 
+        margin: 0 1px !important; 
+        min-width: 25px !important; 
+        text-align: center !important; 
+        line-height: 1.2 !important; 
+        vertical-align: middle !important; 
+        -webkit-print-color-adjust: exact !important; /* Ensure background colors print */
+        print-color-adjust: exact !important;
+    }
+    #config-summary .energy-rating.cooling { 
+        background-color: var(--primary-color) !important; 
+    }
+    #config-summary .energy-rating.heating { 
+        background-color: var(--danger-color) !important; 
+    }
+    #config-summary .energy-rating.unknown { 
+        background-color: var(--secondary-color) !important; 
+        color: white !important;
+    }
 }
