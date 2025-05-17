@@ -6,40 +6,71 @@
     <title>Configuratore Multi-Split (con Admin)</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="configurator-style.css">
+    
+    <!-- Path to style.css and configurator-style.css needs to be relative to this file's location -->
+    <!-- Assuming they are in the root, like the main index.html and style.css -->
+    <link rel="stylesheet" href="../../../style.css"> 
+    <link rel="stylesheet" href="../../../configurator-style.css"> 
+    <!-- If configurator-style.css is specific to this page and in the same folder, use: -->
+    <!-- <link rel="stylesheet" href="configurator-style.css"> -->
+    <!-- For now, assuming common root style and configurator-style for simplicity as provided earlier -->
+
     <style>
+        /* Modal styles already in the previous provided style/configurator-style files */
+        /* If not, copy the .modal styles here or ensure style.css/configurator-style.css are correctly linked */
+        /* Example local modal style if global CSS isn't picking up perfectly due to pathing */
         .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: var(--border-radius); position: relative; }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; /* Assuming var(--border-radius) is 8px */ position: relative; }
         .modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor:pointer; }
-        .modal-content .close-btn:hover, .modal-content .close-btn:focus { color: black; text-decoration: none; }
         .form-group { margin-bottom: 1rem; }
         .form-group label { display: block; margin-bottom: .5rem; font-weight:500; }
-        .form-control { display: block; width: 95%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
-        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
-        .btn-primary { color: #fff; background-color: var(--primary-color); border-color: var(--primary-color); }
-        .btn-primary:hover { background-color: #004182; border-color: #00376d; }
-        .btn-secondary { color: #fff; background-color: var(--secondary-color); border-color: var(--secondary-color); }
-        .btn-secondary:hover { background-color: #5a6268; border-color: #545b62; }
-        .btn-danger { color: #fff; background-color: var(--danger-color); border-color: var(--danger-color); }
-        .btn-danger:hover { background-color: #c82333; border-color: #bd2130; }
+        .form-control { display: block; width: 95%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; }
+        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; }
+        .btn-primary { color: #fff; background-color: #0056a8; border-color: #0056a8; } /* Using fallback primary color */
+        .btn-danger { color: #fff; background-color: #dc3545; border-color: #dc3545; } /* Using fallback danger color */
         .btn-block { display: block; width: 100%; }
-        #admin-section ul { list-style: none; padding-left: 0;}
-        #admin-section li { border-bottom: 1px dotted #eee; padding: 8px 0; }
-        #admin-section li button { font-size: 0.8em; padding: 3px 6px; margin-left: 8px; }
     </style>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> <!-- Keep if configurator uses Firestore -->
+    
+    <!-- Shared Firebase Configuration (adjust path from this file's location to the root) -->
+    <script src="../../../firebase-config.js"></script> 
+
+    <!-- Authentication Guard -->
+    <script>
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                // No user is signed in. Redirect to login page (root).
+                console.log("User not authenticated. Redirecting to login...");
+                window.location.href = '/'; // Redirect to the main site URL (where index.html with login is)
+            } else {
+                // User is signed in. Allow page to load.
+                console.log("User authenticated:", user.email);
+                // You might want to hide a "loading" spinner here if you have one
+            }
+        });
+    </script>
 </head>
 <body>
+    <!-- Page content will only be rendered or visible if user is authenticated due to the guard -->
+    <!-- Add a simple "Loading..." or spinner that the guard can hide -->
+    <!-- For now, assume the content below just won't be interacted with if redirected -->
+
     <header class="app-header">
-        <a href="https://caiufficiotecnico.netlify.app/" title="Home">
-            <img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo">
+        <a href="/" title="Home"> <!-- Updated to root home -->
+            <img src="../../../img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"> <!-- Adjusted path for logo -->
         </a>
         <div class="header-title-container">
         </div>
         <div class="header-controls">
-            <a href="https://caiufficiotecnico.netlify.app/" class="header-action-button" title="Home">
+            <a href="/" class="header-action-button" title="Home"> <!-- Updated to root home -->
                 <i class="fas fa-home"></i>
             </a>
+            <!-- The admin trigger and login modal within configurator is for its *specific* admin functions, -->
+            <!-- not general site access, so it can remain, accessible if user is logged into the site first. -->
             <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Info Utente">
                 <i class="fas fa-user-shield"></i>
             </button>
@@ -51,30 +82,31 @@
     <div id="login-modal-configurator" class="modal">
       <div class="modal-content">
           <span class="close-btn">×</span>
-          <h2 id="login-modal-title-configurator">Accesso Amministratore</h2>
+          <h2 id="login-modal-title-configurator">Accesso Amministratore Configurazione</h2>
           <form id="login-form-configurator">
               <div class="form-group">
-                  <label for="login-email-configurator">Email:</label>
+                  <label for="login-email-configurator">Email (Admin Config.):</label>
                   <input type="email" id="login-email-configurator" required class="form-control">
               </div>
               <div class="form-group">
-                  <label for="login-password-configurator">Password:</label>
+                  <label for="login-password-configurator">Password (Admin Config.):</label>
                   <input type="password" id="login-password-configurator" required class="form-control">
               </div>
               <div id="login-error-configurator" style="color: var(--danger-color); margin-bottom: 1rem; display: none; font-size:0.9em;"></div>
-              <button type="submit" class="btn btn-primary btn-block">Accedi</button>
+              <button type="submit" class="btn btn-primary btn-block">Accedi Admin Config.</button>
           </form>
-          <button id="logout-button-configurator" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
+          <button id="logout-button-configurator" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout Admin Config.</button>
       </div>
     </div>
 
     <div class="container configurator-container">
         <div class="page-controls">
-            <img src="img/logos/cai.png" alt="CAI Logo" class="logo print-only-logo">
+            <img src="../../../img/logos/cai.png" alt="CAI Logo" class="logo print-only-logo"> <!-- Adjusted path for logo -->
             <h1>Configuratore Multi-Split</h1>
         </div>
 
         <div class="step-indicator">
+            <!-- ... (step indicator content remains the same) ... -->
             <div class="step-item" data-step="1"> <span class="step-dot">1</span> <span class="step-name">Marca</span> <span class="step-selection-info" id="step-info-1"></span> </div> <span class="step-line"></span>
             <div class="step-item" data-step="2"> <span class="step-dot">2</span> <span class="step-name">Config.</span> <span class="step-selection-info" id="step-info-2"></span> </div> <span class="step-line"></span>
             <div class="step-item" data-step="3"> <span class="step-dot">3</span> <span class="step-name">Modello</span> <span class="step-selection-info" id="step-info-3"></span> </div> <span class="step-line"></span>
@@ -89,13 +121,13 @@
             <div class="step-navigation"></div>
         </div>
 
-        <div id="step-3" class="config-step">
+        <div id="step-3" class="config-step"> <!-- This seems to be step 2 visually in the prev. images. Check sequence logic. -->
             <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2>
             <div id="config-type-selection" class="selection-grid"></div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
         </div>
         
-        <div id="step-2" class="config-step">
+        <div id="step-2" class="config-step"> <!-- This seems to be step 3 visually. -->
             <h2><span class="step-number-title">3.</span> Seleziona Modello</h2>
             <div id="model-selection" class="selection-grid"></div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
@@ -118,7 +150,7 @@
         <div id="step-6" class="config-step">
             <h2 id="summary-main-title">Riepilogo Configurazione</h2> 
             
-            <div class="summary-reference-input-container" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: var(--border-radius);">
+            <div class="summary-reference-input-container" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: 8px;">
                 <label for="config-reference" style="display: block; margin-bottom: 5px; font-weight: 500;">Riferimento (opzionale, per la stampa):</label>
                 <input type="text" id="config-reference" class="form-control" style="width: 95%;" placeholder="Es. Preventivo #123, Cliente Rossi">
             </div>
@@ -134,8 +166,10 @@
             </div>
         </div>
 
+        <!-- The Admin Section for managing configurator data (brands etc.) remains -->
         <div id="admin-section" class="config-step" style="display: none; border-color: var(--warning-color); margin-top: 20px;">
-            <h2><span class="step-number-title">Admin:</span> Gestione Dati</h2>
+            <!-- ... (admin-section content remains the same) ... -->
+            <h2><span class="step-number-title">Admin:</span> Gestione Dati Configurazione</h2>
             <div class="admin-subsection" style="margin-bottom: 20px; padding:15px; border: 1px solid #ddd; border-radius: var(--border-radius);">
                 <h3>Gestione Marche</h3>
                 <div id="admin-brands-list">
@@ -162,19 +196,17 @@
                 </form>
             </div>
         </div>
-
     </div> 
 
     <footer class="app-footer">
         <p>© <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
         <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
     </footer>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     
-    <script src="script.js"></script>
+    <!-- Original script for configurator logic -->
+    <!-- Ensure this script does NOT re-initialize Firebase if firebase-config.js has done so. -->
+    <!-- The firebase.apps.length check in firebase-config.js should handle this. -->
+    <script src="script.js"></script> 
 
 </body>
 </html>
