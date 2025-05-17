@@ -9,7 +9,10 @@ const firebaseConfig = {
   appId: "1:136848104008:web:2724f60607dbe91d09d67d",
   measurementId: "G-NNPV2607G7"
 };
-
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Check if Firebase has already been initialized
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app(); // if already initialized, use that one
+}
