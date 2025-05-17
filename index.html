@@ -4,82 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Gestione Ufficio Tecnico - Home</title>
-    <!-- Questo link a style.css è corretto perché style.css è ora nella stessa cartella (CAI) -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Styles for login form */
+        #login-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+        #login-section h2 {
+            color: var(--primary-color, #0056a8); /* Fallback color */
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: calc(100% - 22px); /* Account for padding and border */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-login {
+            background-color: var(--primary-color, #0056a8);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .btn-login:hover {
+            background-color: var(--dark-primary-color, #004182); /* Define if not in style.css */
+        }
+        #login-error {
+            color: var(--danger-color, #dc3545);
+            margin-top: 10px;
+            font-size: 0.9em;
+            min-height: 1.2em;
+        }
+        #user-dashboard {
+            padding: 10px;
+            text-align: right; /* For logout button placement */
+        }
+        #user-dashboard p {
+            margin: 0 0 10px 0;
+            font-size: 0.9em;
+        }
+         #logout-button {
+            background-color: var(--secondary-color, #6c757d);
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+        .hidden { display: none !important; }
+    </style>
 </head>
-<body> <!-- Nessuna classe admin-mode inizialmente -->
+<body>
 
     <header class="app-header">
-        <!-- MANTENUTO URL ESTERNO: Se hai spostato un logo locale qui, cambia src -->
         <img src="https://i.postimg.cc/2jsfDrZf/LOGO-CAI.png" alt="Logo Ufficio Tecnico" class="logo">
         <div class="header-controls">
-            <!-- Pulsante Login Admin -->
-            <button id="admin-toggle" class="admin-button" title="Modalità Admin">
-                <i class="fas fa-user-shield"></i>
-            </button>
-            <!-- Pulsante Aggiungi Categoria (Nascosto inizialmente) -->
+             <!-- "Add Category" button is now controlled by auth.js based on user role -->
             <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
                 <i class="fas fa-plus-circle"></i>
             </button>
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
         </div>
     </header>
 
     <main id="content-area">
-        <div class="welcome-message">
-            <h2>Benvenuto!</h2>
-            <p>Seleziona una voce dal menu per accedere alle diverse sezioni.</p>
-        </div>
+        <!-- Login Section -->
+        <section id="login-section">
+            <h2>Accesso Riservato</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error" class="error-message hidden"></p>
+            </form>
+        </section>
 
-        <nav class="main-nav">
-            <!-- Pulsanti sempre visibili - PERCORSI AGGIORNATI (senza ../) -->
-            <a href="NOLEGGI/code.html" class="nav-button"> <i class="fas fa-key"></i> Noleggi </a>
-            <a href="PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
-            <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
-            <a href="FGAS/index.html" class="nav-button"> <i class="fas fa-fire-extinguisher"></i> FGAS </a>
-            <a href="SCHEDE_TECNICHE/index.html" class="nav-button"> <i class="fas fa-file-alt"></i> Schede Tecniche </a>
-            <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
-            <!-- Nuovi pulsanti verranno aggiunti qui dallo script -->
-        </nav>
-
-        <div id="submenu-listini" class="submenu">
-             <!-- PERCORSI AGGIORNATI (senza ../) -->
-             <a href="/LISTINI/CLIMA/" class="submenu-button"> <i class="fas fa-snowflake"></i> Clima </a>
-             <a href="LISTINI/CALDAIE/index.html" class="submenu-button"> <i class="fas fa-fire-alt"></i> Caldaie </a>
-             <a href="LISTINI/SCALDABAGNI/index.html" class="submenu-button"> <i class="fas fa-shower"></i> Scaldabagno </a>
-             <a href="LISTINI/SANITARI/index.html" class="submenu-button"> <i class="fas fa-toilet"></i> Sanitari </a>
-        </div>
-
-        <!-- Popup Login Admin (Invariato) -->
-        <div id="admin-login-popup" class="admin-popup hidden">
-            <h3>Accesso Admin</h3>
-            <label for="admin-password">Password:</label>
-            <input type="password" id="admin-password" name="admin-password">
-            <div class="admin-popup-buttons">
-                <button id="admin-login-submit">Accedi</button>
-                <button id="admin-login-cancel">Annulla</button>
+        <!-- Main Application Content (Initially Hidden) -->
+        <div id="app-content" class="hidden">
+            <div class="welcome-message">
+                <h2>Benvenuto nel Portale CAI Ufficio Tecnico!</h2>
+                <p>Seleziona una voce dal menu per accedere alle diverse sezioni.</p>
             </div>
-            <p id="admin-error-message" class="error-message hidden">Password errata!</p>
+
+            <nav class="main-nav">
+                <a href="NOLEGGI/code.html" class="nav-button"> <i class="fas fa-key"></i> Noleggi </a>
+                <a href="PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
+                <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
+                <a href="FGAS/index.html" class="nav-button"> <i class="fas fa-fire-extinguisher"></i> FGAS </a>
+                <a href="SCHEDE_TECNICHE/index.html" class="nav-button"> <i class="fas fa-file-alt"></i> Schede Tecniche </a>
+                <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
+                <!-- Nuovi pulsanti verranno aggiunti qui dallo script.js originale (per gestione categorie) -->
+            </nav>
+
+            <div id="submenu-listini" class="submenu">
+                 <a href="LISTINI/CLIMA/" class="submenu-button"> <i class="fas fa-snowflake"></i> Clima </a>
+                 <a href="LISTINI/CALDAIE/index.html" class="submenu-button"> <i class="fas fa-fire-alt"></i> Caldaie </a>
+                 <a href="LISTINI/SCALDABAGNI/index.html" class="submenu-button"> <i class="fas fa-shower"></i> Scaldabagno </a>
+                 <a href="LISTINI/SANITARI/index.html" class="submenu-button"> <i class="fas fa-toilet"></i> Sanitari </a>
+            </div>
         </div>
 
-        <!-- Pannello Aggiungi Categoria (Invariato - MA NOTA: Il placeholder per path è ora obsoleto) -->
+        <!-- Pannello Aggiungi Categoria (Funzionalità mantenuta, attivata da #add-category-trigger) -->
         <div id="add-category-panel" class="admin-popup hidden">
-             <span class="close-panel-btn" id="add-category-close">&times;</span>
+             <span class="close-panel-btn" id="add-category-close">×</span>
             <h3>Aggiungi Nuova Categoria</h3>
             <div class="form-group"> <label for="category-name">Nome Categoria:</label> <input type="text" id="category-name" placeholder="Es: Manutenzioni"> </div>
-            <!-- NOTA: Il percorso suggerito qui ora dovrebbe essere relativo alla root, es: MANUTENZIONI/index.html -->
             <div class="form-group"> <label for="category-path">Percorso File:</label> <input type="text" id="category-path" placeholder="Es: MANUTENZIONI/index.html"> </div>
              <div class="form-group"> <label for="category-icon">Classe Icona Font Awesome:</label> <input type="text" id="category-icon" placeholder="Es: fas fa-tools"> </div>
             <div class="admin-popup-buttons centered"> <button id="add-category-submit">Aggiungi Categoria</button> </div>
              <p id="add-category-feedback" class="feedback-message hidden"></p>
         </div>
-
-        <!-- Overlay condiviso -->
-        <div id="admin-overlay" class="overlay hidden"></div>
+        <div id="admin-overlay" class="overlay hidden"></div> <!-- Shared overlay for add category panel -->
 
     </main>
 
-    <!-- Questo link a script.js è corretto perché script.js è ora nella stessa cartella (CAI) -->
-    <script src="script.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script> 
+    
+    <!-- New Authentication Script -->
+    <script src="auth.js"></script> 
+
+    <!-- Original UI Script (for submenus, category adding UI etc. that is not auth related) -->
+    <script src="script.js"></script> 
 </body>
 </html>
