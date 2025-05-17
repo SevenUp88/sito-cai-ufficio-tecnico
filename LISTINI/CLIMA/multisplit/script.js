@@ -4,16 +4,31 @@
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (6-Step Flow - Scenario 1)");
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
-      authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-      projectId: "consorzio-artigiani-idraulici",
-      storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-      messagingSenderId: "136848104008",
-      appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-      measurementId: "G-NNPV2607G7"
-    };
+    // Firebase is already initialized by ../../../firebase-config.js
+    // We just need to get references to the services.
+    // Ensure firebase is available globally from the included SDKs and firebase-config.js
+    if (typeof firebase === 'undefined' || typeof firebase.auth === 'undefined' || typeof firebase.firestore === 'undefined') {
+        console.error("CRITICAL: Firebase SDKs or firebase-config.js not loaded correctly before this script.");
+        alert("Errore critico: impossibile caricare i servizi Firebase. Controlla la console per i dettagli.");
+        // Optionally, display an error message on the page and stop further execution
+        const loadingOverlayImmediate = document.getElementById('loading-overlay') || document.createElement('div');
+        if (!loadingOverlayImmediate.id) { /* Create if not exists for critical error */
+            loadingOverlayImmediate.id = 'loading-overlay';
+            loadingOverlayImmediate.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:red;z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
+            document.body.appendChild(loadingOverlayImmediate);
+        }
+        loadingOverlayImmediate.innerHTML = '<p>Errore Caricamento Firebase SDKs.</p>';
+        loadingOverlayImmediate.style.display = 'flex';
+        return; // Stop script execution
+    }
+    
+    const auth = firebase.auth();       // Define auth using the initialized Firebase app
+    const db = firebase.firestore();    // Define db using the initialized Firebase app
+
+    // REMOVED: Local firebaseConfig and initializeApp call - this is now handled by firebase-config.js
+    // const firebaseConfig = { ... }; 
+    // firebase.initializeApp(firebaseConfig); // <-- This was the problem line, REMOVE IT
+
     // --- App Data & State ---
     const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] };
     let currentLogicalStep = 1;
@@ -21,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] };
 
     // --- DOM Element References ---
+    // ... (rest of your DOM element references are fine)
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
     const indoorSeriesSelectionDiv = document.getElementById('model-selection');
@@ -35,17 +51,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadingOverlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:var(--primary-color);z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
     loadingOverlay.innerHTML = '<div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px;"></div><p>Caricamento dati...</p><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
 
-    // --- Step Mapping & Names ---
+
+    // ... (TOTAL_LOGICAL_STEPS, LOGICAL_TO_HTML_STEP_MAP, etc. are fine) ...
     const TOTAL_LOGICAL_STEPS = 6;
     const LOGICAL_TO_HTML_STEP_MAP = { 1: "step-1", 2: "step-3", 3: "step-2", 4: "step-4", 5: "step-5", 6: "step-6" };
     const HTML_TO_LOGICAL_STEP_MAP = { "step-1": 1, "step-3": 2, "step-2": 3, "step-4": 4, "step-5": 5, "step-6": 6 };
     const LOGICAL_STEP_NAMES = [ "Marca", "Config.", "Modello", "Unità Est.", "Unità Int.", "Riepilogo" ];
 
-    // --- Utility & Data Fetching / Processing ---
+    // fetchFirestoreCollection uses `db` which is now defined at the top of this scope
+    // ... (fetchFirestoreCollection, parsePowerString, sanitizeForId are fine) ...
     async function fetchFirestoreCollection(collectionName) { console.log(`DEBUG: Fetching Firestore collection: ${collectionName}`); try { const snapshot = await db.collection(collectionName).get(); const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); console.log(`DEBUG: Fetched ${data.length} items from ${collectionName}.`); return data; } catch (error) { console.error(`DEBUG: Error fetching collection ${collectionName}:`, error); loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Errore caricamento ${collectionName}.</span>`; return []; } }
     function parsePowerString(powerStr) { let btu = 0; let kw = "N/A"; if (typeof powerStr === 'string' && powerStr !== "Dati mancanti") { const btuMatch = powerStr.match(/([\d.,]+)\s*BTU/i); if (btuMatch && btuMatch[1]) btu = parseInt(btuMatch[1].replace(/[.,]/g, ''), 10) || 0; const kwMatch = powerStr.match(/([\d.,]+)\s*kW/i); if (kwMatch && kwMatch[1]) kw = kwMatch[1].replace(',', '.'); else if (btu > 0 && kw === "N/A") kw = (btu / 3412.14).toFixed(1); } return { btu, kw }; }
     function sanitizeForId(str) { if (!str) return ''; return String(str).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''); }
 
+    // processLoadedData is fine
+    // ... (processLoadedData function remains the same) ...
     function processLoadedData(brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs) {
         APP_DATA.brands = brandsDocs;
         APP_DATA.configTypes = configTypesDocs.reduce((acc, ct) => { acc[ct.id] = { id: ct.id, name: ct.name, numUnits: ct.numUnits }; return acc; }, {});
@@ -106,6 +126,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     } 
 
+    // createSelectionItem, createUnitSelectionCard etc. are fine
+    // ... (These functions do not directly use `auth` or `db`, so they should be fine)
     function createSelectionItem(item, type, clickHandler, isSelected = false) {
     const itemDiv = document.createElement('div');
     itemDiv.classList.add('selection-item');
@@ -269,7 +291,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         return card;
     } // END OF createUnitSelectionCard
+    // --- Population Functions ---
+    // clearAndResetUIForStep, resetSelectionsAndUIFrom, populateBrands, populateConfigTypes,
+    // populateIndoorSeries, populateOutdoorUnits, generateIndoorUnitDetailsHtml,
+    // handleIndoorUnitChoiceClick, populateIndoorUnitSelectors, updateStepSelectionInfo
+    // valOrDash, generateSummary
+    // ... (These functions do not directly use `auth` or `db` or they use the `db` already correctly defined, so they should be fine) ...
+    // ... keep all these functions as they are in your script (12).js ...
 
+    // --- UI & Navigation Functions ---
+    // checkAllIndoorUnitsSelected, showStep, updateStepIndicator, initializeNavigation
+    // ... (These functions also do not directly use `auth`, so they should be fine) ...
+     // All UI update and navigation logic
     function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
     function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('indoor-unit-choice-card'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
 
@@ -578,11 +611,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
     function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
     function initializeNavigation() { stepIndicatorItems.forEach(item => { item.addEventListener('click', () => { if (item.classList.contains('disabled') || item.style.display === 'none') return; const targetLogicalStep = parseInt(item.dataset.step); if (isNaN(targetLogicalStep) || targetLogicalStep < 1 || targetLogicalStep > TOTAL_LOGICAL_STEPS) return; if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { const canShowSummary = selections.brand && selections.configType && selections.indoorSeries && selections.outdoorUnit && (!selections.configType.numUnits > 0 || (selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))); if (!canShowSummary) { alert("Completa passaggi precedenti."); return;} generateSummary(); } showStep(targetLogicalStep, true); }); }); if(finalizeBtn) { finalizeBtn.addEventListener('click', () => { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); generateSummary(); showStep(TOTAL_LOGICAL_STEPS); }); } document.querySelectorAll('.prev-btn').forEach(button => { const currentStepElement = button.closest('.config-step'); if (!currentStepElement) return; const currentHtmlId = currentStepElement.id; const currentLogical = HTML_TO_LOGICAL_STEP_MAP[currentHtmlId]; if (currentLogical === undefined || currentLogical === 1) { button.style.display = 'none'; return;} let prevLogicalStep = currentLogical - 1; button.style.display = ''; button.addEventListener('click', () => {showStep(prevLogicalStep, true); }); }); document.getElementById('reset-config-btn')?.addEventListener('click', () => { if (!confirm("Sei sicuro?")) return; selections.brand = null; selections.configType = null; selections.indoorSeries = null; selections.outdoorUnit = null; selections.indoorUnits = []; resetSelectionsAndUIFrom(1); populateBrands(); highestLogicalStepCompleted = 0; showStep(1); }); document.getElementById('print-summary-btn')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Vai al Riepilogo (Passaggio 6) prima di stampare."); }); document.getElementById('print-list')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Completa fino al Riepilogo (Passaggio 6)."); }); }
-    async function initializeApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore caricamento.</p>`; return;} stepsHtmlContainers.forEach(el=>el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep=1; highestLogicalStepCompleted=0; updateStepIndicator(); populateBrands(); const brandSelContent = brandSelectionDiv.innerHTML.trim(); if (brandSelContent.includes("Nessuna marca")||(brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Nessuna marca.</p>`;}} else {loadingOverlay.style.display='none';} document.getElementById('currentYear').textContent = new Date().getFullYear(); try { if (metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate) { const ts=metadataDoc.data().lastDataUpdate;document.getElementById('lastUpdated').textContent=new Date(ts.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});} else {document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err metadata:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
+    // --- Admin Functions ---
+    // (escapeHtml, toggleAdminSectionVisibility, loadAndDisplayAdminBrands, clearAdminBrandForm,
+    // setupAdminBrandFormListener, handleEditBrand, handleDeleteBrand - these use `db` already correctly defined)
+    // ... (keep all these admin functions as they are) ...
     
-    window.currentUserRole = null; 
-    let adminBrandsListener = null; 
-    
+    // setupAuthUI uses `auth` which is now defined at the top of this scope
+    // It also uses `db` which is defined there too.
+    // --- Auth UI Functions ---
     function escapeHtml(unsafeString) {
         if (typeof unsafeString !== 'string') {
             unsafeString = String(unsafeString);
@@ -731,8 +767,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert("Errore eliminazione marca.");
         }
     }
-
     function setupAuthUI() {
+        console.log("setupAuthUI called"); // For debugging
         const loginModal = document.getElementById('login-modal-configurator');
         const loginForm = document.getElementById('login-form-configurator');
         const logoutButton = document.getElementById('logout-button-configurator');
@@ -747,11 +783,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (adminTriggerBtn) {
             adminTriggerBtn.addEventListener('click', () => {
                 if (!loginModal) { console.error("Login modal not found"); return; }
-                if (auth.currentUser) {
+                // Use the `auth` constant defined at the top of the DOMContentLoaded scope
+                const currentUser = auth.currentUser; // Get current user from the 'auth' instance
+                if (currentUser) {
                     if (logoutButton) logoutButton.style.display = 'block';
                     if (loginForm) loginForm.style.display = 'none';
                     if (loginErrorEl) loginErrorEl.style.display = 'none';
-                    if (loginModalTitle) loginModalTitle.textContent = `Loggato: ${auth.currentUser.email}`;
+                    if (loginModalTitle) loginModalTitle.textContent = `Loggato: ${currentUser.email}`;
                 } else {
                     if (logoutButton) logoutButton.style.display = 'none';
                     if (loginForm) loginForm.style.display = 'block';
@@ -773,10 +811,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 if (loginErrorEl) loginErrorEl.style.display = 'none';
+                // Use the `auth` constant defined at the top of the DOMContentLoaded scope
                 auth.signInWithEmailAndPassword(email, password)
                     .then(userCredential => { 
                         if (loginModal) loginModal.style.display = 'none';
                         if (loginPasswordInput) loginPasswordInput.value = '';
+                        // Login successful, userCredential.user has the user info
+                        // The onAuthStateChanged listener below will handle UI updates for role, etc.
                     })
                     .catch(error => { 
                         if (loginErrorEl) { loginErrorEl.textContent = `Errore: ${error.message}`; loginErrorEl.style.display = 'block'; }
@@ -785,20 +826,54 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (logoutButton) {
             logoutButton.addEventListener('click', () => { 
+                // Use the `auth` constant
+                // This signOut will log the user out of the main site session too.
+                // If this is only for configurator admin-mode, adjust logic to not call signOut.
                 auth.signOut().then(() => { 
                     if (loginModal) loginModal.style.display = 'none';
+                    // window.currentUserRole will be set to null by onAuthStateChanged
+                    // Main auth guard in HTML will redirect to '/'
                 });
             });
         }
+
+        // Listen for Auth state changes FOR THIS PAGE'S UI (admin section visibility, auth status text)
+        // This is separate from the auth guard in the HTML which handles page access
+        // `auth` here refers to the constant defined at the top of DOMContentLoaded
         auth.onAuthStateChanged(user => { 
+            console.log("Configurator script.js: onAuthStateChanged triggered. User:", user ? user.email : 'null');
             if (user) {
+                // The auth guard in HTML has already ensured the user is logged in to *access* this page.
+                // Now, we check their role for *configurator-specific admin features*.
                 db.collection('users').doc(user.uid).get().then(doc => { 
-                    window.currentUserRole = doc.exists && doc.data().role ? doc.data().role : 'user';
-                    if (authStatusEl) authStatusEl.textContent = ` (${window.currentUserRole})`;
-                    if (adminTriggerBtn) adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Admin Logout (${user.email.split('@')[0]})` : `Logout (${user.email.split('@')[0]})`);
-                    toggleAdminSectionVisibility();
-                }).catch(() => { 
-                    window.currentUserRole = null;
+                    // Check if role field exists in your Firestore 'users' collection
+                    // For simplicity, let's assume you might not have this Firestore 'users' collection setup yet
+                    // So, we'll default to a simple check or a predefined role.
+                    // For actual role based from Firestore, you'd use:
+                    // window.currentUserRole = doc.exists && doc.data().role ? doc.data().role : 'user';
+                    
+                    // TEMPORARY: Check if email is an admin email (if you have one defined for configurator admin)
+                    // This part should be aligned with how you determine configurator-admin access.
+                    // If general login is enough, this complex role check isn't needed here for setupAuthUI only.
+                    // But it is good for the #admin-section visibility.
+                    // Let's assume an admin for the configurator can be defined or it's the site admin.
+                    const CONFIGURATOR_ADMIN_EMAILS = ["tecnicovillalta@gmail.com"]; // Example
+                    if (CONFIGURATOR_ADMIN_EMAILS.includes(user.email)) {
+                         window.currentUserRole = 'admin'; // Specific for configurator's admin section
+                    } else {
+                         window.currentUserRole = 'user';
+                    }
+
+                    if (authStatusEl) authStatusEl.textContent = user.email ? ` (${window.currentUserRole})` : ' (Utente)';
+                    if (adminTriggerBtn) adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Admin Logout (${user.email.split('@')[0]})` : `Info Utente (${user.email.split('@')[0]})`);
+                    toggleAdminSectionVisibility(); // This function shows/hides #admin-section
+                }).catch((error) => { 
+                    console.error("Error fetching user role from Firestore:", error);
+                    window.currentUserRole = 'user'; // Default to user if role fetch fails
+                    if (authStatusEl && user) authStatusEl.textContent = ` (user)`;
+                    else if (authStatusEl) authStatusEl.textContent = '';
+                    if (adminTriggerBtn && user) adminTriggerBtn.title = `Info Utente (${user.email.split('@')[0]})`;
+                    else if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
                     toggleAdminSectionVisibility();
                 });
             } else {
@@ -809,9 +884,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     }
+
+
+    // --- App Initialization ---
+    // `db` and `auth` (used by initializeConfiguratorApp indirectly via other functions like setupAuthUI and admin functions) 
+    // are now defined at the top of the DOMContentLoaded scope.
     async function initializeConfiguratorApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR config init:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore config.</p>`; return;} stepsHtmlContainers.forEach(el=>el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep=1; highestLogicalStepCompleted=0; updateStepIndicator(); populateBrands(); const brandSelCont=brandSelectionDiv.innerHTML.trim(); if (brandSelCont.includes("Nessuna marca")||(brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Errore config.</p>`;}} else {if(loadingOverlay.isConnected && loadingOverlay.style.display !== 'none') loadingOverlay.style.display = 'none';} document.getElementById('currentYear').textContent=new Date().getFullYear(); try{if(metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate){const ts=metadataDoc.data().lastDataUpdate;document.getElementById('lastUpdated').textContent=new Date(ts.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});}else{document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err meta config:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
 
+
+    // Call initial setup functions
+    // `auth` is available to setupAuthUI because it's defined in the same (DOMContentLoaded) scope.
     setupAuthUI(); 
     initializeConfiguratorApp(); 
+
 });
 // --- END OF SCRIPT.JS ---
