@@ -1,23 +1,15 @@
-body {
-    font-family: sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 20px;
-    background-color: #f4f4f4;
-    color: #333;
+/* Stili base del configuratore (fieldset, label, input - come prima) */
+body { /* Già definito nel tag style dell'HTML, ma potrebbe essere qui */
+    font-family: sans-serif; /* Esempio */
 }
 
 .container {
-    max-width: 800px;
+    max-width: 1000px; /* Aumentato per fare spazio alle card affiancate */
     margin: auto;
     background: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-h1, h3, h4 {
-    color: #337ab7; /* Blu tema */
 }
 
 fieldset {
@@ -37,21 +29,23 @@ label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    font-size: 0.9em; /* Leggermente più piccolo */
 }
 
 input[type="text"],
 input[type="number"],
 select {
-    width: calc(100% - 22px); /* Considera padding e border */
-    padding: 10px;
-    margin-bottom: 10px; /* Ridotto un po' */
+    width: calc(100% - 18px); /* Leggermente aggiustato per il padding interno */
+    padding: 8px; /* Leggermente ridotto */
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Importante per il calcolo della larghezza */
+    box-sizing: border-box;
+    font-size: 0.95em; /* Leggermente ridotto */
 }
-input[type="number"] + small {
+input[type="number"] + small, select + small { /* Stile per le <small> sotto gli input */
     display: block;
-    font-size: 0.85em;
+    font-size: 0.8em;
     color: #666;
     margin-top: -5px;
     margin-bottom: 10px;
@@ -65,69 +59,115 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1em; /* Normalizzato */
 }
+button:hover { background-color: #286090; }
 
-button:hover {
-    background-color: #286090;
-}
-
-#addRoomBtn {
-    background-color: #5cb85c; /* Verde */
+#addRoomBtn { /* Bottone principale per aggiungere stanze */
+    background-color: #5cb85c;
     margin-top:10px;
 }
-#addRoomBtn:hover {
-    background-color: #4cae4c;
+#addRoomBtn:hover { background-color: #4cae4c; }
+
+/* Styles for Room Cards Layout */
+.rooms-grid-container {
+    display: grid;
+    /* Responsive: cerca di mettere 3 card se c'è spazio, altrimenti 2, poi 1.
+       minmax(280px, 1fr) -> larghezza minima 280px, massima 1 frazione dello spazio. */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+    gap: 15px; 
+    margin-bottom: 20px;
 }
 
-.remove-room-btn {
-    background-color: #d9534f; /* Rosso */
-    font-size: 12px;
-    padding: 5px 10px;
-    margin-top: 10px;
-}
-.remove-room-btn:hover {
-    background-color: #c9302c;
-}
-
-
-.room-entry {
-    border: 1px dashed #eee;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-}
-
-.room-entry h4 {
-    margin-top: 0;
-}
-
-#resultsSection table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-#resultsSection th, #resultsSection td {
+.room-card {
     border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
 }
 
-#resultsSection th {
-    background-color: #f2f2f2;
+.room-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px; /* Ridotto padding */
+    background-color: #e9edf0; 
+    border-bottom: 1px solid #ddd;
+    border-top-left-radius: 7px; /* Arrotondamento angoli */
+    border-top-right-radius: 7px;
 }
 
-.product-info {
+.room-card-header h4 {
+    margin: 0;
+    font-size: 1em; /* Ridotto */
+    color: #337ab7;
+}
+
+.icon-btn, .remove-room-btn { 
+    background: none;
+    border: none;
+    color: #d9534f; 
+    font-size: 1.1em; /* Ridotto */
+    cursor: pointer;
+    padding: 3px;
+}
+.icon-btn:hover, .remove-room-btn:hover {
+    color: #c9302c;
+}
+
+.room-card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; 
+}
+
+/* Stile per le card placeholder (le due vuote iniziali se serve) */
+.room-placeholder .room-card-body input::placeholder {
+    color: #bbb;
+}
+/* Fine Stili Room Cards */
+
+
+#resultsSection table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+#resultsSection th, #resultsSection td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.9em; }
+#resultsSection th { background-color: #f2f2f2; }
+.product-info { font-size: 0.85em; color: #555; margin-left: 10px; }
+.disclaimer { font-size: 0.85em; color: #777; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+
+#additionalMaterialsOutput ul {
+    list-style-type: disc;
+    margin-left: 20px;
     font-size: 0.9em;
-    color: #555;
-    margin-left: 10px;
+}
+#additionalMaterialsOutput h3 {
+    margin-top: 15px;
+    font-size: 1.1em;
+}
+#additionalMaterialsOutput p small {
+    font-size: 0.9em;
 }
 
-.disclaimer {
-    font-size: 0.9em;
-    color: #777;
-    margin-top: 20px;
-    border-top: 1px solid #eee;
-    padding-top: 10px;
+/* Stile per opzioni select disabilitate - necessita test cross-browser */
+select option:disabled {
+    color: #ababab;
+    background-color: #f0f0f0;
+}
+.option-disabled-visual { /* Classe aggiuntiva se lo stile diretto non basta */
+    color: #ababab !important;
+    background-color: #f0f0f0 !important;
+}
+
+/* Media Queries per migliorare responsiveness se necessario */
+@media (max-width: 992px) { /* Sotto questa soglia, forse 2 card per riga */
+    .rooms-grid-container {
+        /* grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); Potrebbe già farlo auto-fill */
+    }
+}
+@media (max-width: 600px) { /* Sotto questa soglia, 1 card per riga */
+    .rooms-grid-container {
+        grid-template-columns: 1fr; /* Una colonna piena */
+    }
 }
