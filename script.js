@@ -1,20 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elementi DOM ---
-    // const bodyElement = document.body; // Non più necessario per aggiungere/rimuovere classe
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
-    const mainNav = document.querySelector('.main-nav');
+    
+    // Elementi per il nuovo sottomenu Configuratori
+    const btnConfiguratori = document.getElementById('btn-configuratori');
+    const submenuConfiguratori = document.getElementById('submenu-configuratori');
 
-    // Elementi Admin Login
-    const adminToggleButton = document.getElementById('admin-toggle');
-    const adminLoginPopup = document.getElementById('admin-login-popup');
-    const adminPasswordInput = document.getElementById('admin-password');
-    const adminLoginSubmit = document.getElementById('admin-login-submit');
-    const adminLoginCancel = document.getElementById('admin-login-cancel');
-    const adminErrorMessage = document.getElementById('admin-error-message');
+    const mainNav = document.getElementById('mainNav'); // Assicurati che <nav class="main-nav"> abbia id="mainNav"
 
     // Elementi Pannello Aggiungi Categoria
-    const addCategoryTriggerBtn = document.getElementById('add-category-trigger'); // Bottone "+" nell'header
+    const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
     const categoryNameInput = document.getElementById('category-name');
@@ -22,111 +18,154 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryIconInput = document.getElementById('category-icon');
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
     const addCategoryFeedback = document.getElementById('add-category-feedback');
-
-    // Overlay condiviso
     const adminOverlay = document.getElementById('admin-overlay');
 
-    // --- Logica Sottomenu Listini (Invariata) ---
-    const toggleSubmenu = (show) => { /* ... codice invariato ... */
-        if (!submenuListini || !btnListini) return;
-        if (show) { submenuListini.classList.add('visible'); btnListini.setAttribute('aria-expanded', 'true'); btnListini.classList.add('active'); }
-        else { submenuListini.classList.remove('visible'); btnListini.setAttribute('aria-expanded', 'false'); btnListini.classList.remove('active'); }
-    };
-    if (btnListini) { btnListini.addEventListener('click', (event) => { event.stopPropagation(); toggleSubmenu(!submenuListini.classList.contains('visible')); }); }
-    document.addEventListener('click', (event) => { if (submenuListini && submenuListini.classList.contains('visible')) { if (btnListini && !btnListini.contains(event.target) && !submenuListini.contains(event.target)) { toggleSubmenu(false); } } });
+    // --- Logica Sottomenu Generica ---
+    const currentlyOpenSubmenu = { btn: null, menu: null };
 
-    // --- Logica Admin / Pannelli ---
+    const toggleSubmenu = (button, submenu) => {
+        if (!button || !submenu) {
+            console.error("Pulsante o sottomenu non trovato per toggle:", button, submenu);
+            return;
+        }
+        const isCurrentlyVisible = submenu.classList.contains('visible');
 
-    const showAdminLoginPopup = () => { /* ... codice invariato ... */
-        if (!adminLoginPopup || !adminOverlay || !adminPasswordInput || !adminErrorMessage) return;
-        adminLoginPopup.classList.remove('hidden'); adminOverlay.classList.remove('hidden');
-        adminPasswordInput.value = ''; adminPasswordInput.focus(); adminErrorMessage.classList.add('hidden');
+        // Chiudi qualsiasi altro sottomenu aperto
+        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
+            currentlyOpenSubmenu.menu.classList.remove('visible');
+            if (currentlyOpenSubmenu.btn) {
+                currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false');
+                currentlyOpenSubmenu.btn.classList.remove('active');
+            }
+        }
+
+        // Apri/Chiudi il sottomenu corrente
+        if (!isCurrentlyVisible) {
+            submenu.classList.add('visible');
+            button.setAttribute('aria-expanded', 'true');
+            button.classList.add('active');
+            currentlyOpenSubmenu.btn = button;
+            currentlyOpenSubmenu.menu = submenu;
+        } else {
+            submenu.classList.remove('visible');
+            button.setAttribute('aria-expanded', 'false');
+            button.classList.remove('active');
+            // Se stiamo chiudendo il sottomenu attualmente registrato come aperto
+            if (currentlyOpenSubmenu.menu === submenu) {
+                currentlyOpenSubmenu.btn = null;
+                currentlyOpenSubmenu.menu = null;
+            }
+        }
     };
-    const hideAdminLoginPopup = () => { /* ... codice invariato ... */
-        if (!adminLoginPopup || !adminOverlay || !adminPasswordInput) return;
-        adminLoginPopup.classList.add('hidden'); adminPasswordInput.value = ''; adminErrorMessage.classList.add('hidden');
-        if (addCategoryPanel && addCategoryPanel.classList.contains('hidden')) { if(adminOverlay) adminOverlay.classList.add('hidden'); }
-    };
-    const showAddCategoryPanel = () => { /* ... codice invariato ... */
+
+    // Event Listener per Sottomenu Listini
+    if (btnListini && submenuListini) {
+        btnListini.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleSubmenu(btnListini, submenuListini);
+        });
+    }
+
+    // Event Listener per Sottomenu Configuratori
+    if (btnConfiguratori && submenuConfiguratori) {
+        btnConfiguratori.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleSubmenu(btnConfiguratori, submenuConfiguratori);
+        });
+    }
+
+    // Chiudi i sottomenu se si clicca altrove nel documento
+    document.addEventListener('click', (event) => {
+        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.btn) {
+            // Controlla se il click è avvenuto fuori dal pulsante attivo E fuori dal sottomenu attivo
+            const isClickInsideButton = currentlyOpenSubmenu.btn.contains(event.target);
+            const isClickInsideSubmenu = currentlyOpenSubmenu.menu.contains(event.target);
+
+            if (!isClickInsideButton && !isClickInsideSubmenu) {
+                toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu); // Chiude quello aperto
+            }
+        }
+    });
+
+
+    // --- Logica Pannello "Aggiungi Categoria" ---
+    // (La visibilità di addCategoryTriggerBtn è gestita da auth.js)
+
+    const showAddCategoryPanel = () => {
         if (!addCategoryPanel || !adminOverlay || !categoryNameInput) return;
-        addCategoryPanel.classList.remove('hidden'); adminOverlay.classList.remove('hidden');
-        categoryNameInput.focus();
-        if(categoryNameInput) categoryNameInput.value = ''; if(categoryPathInput) categoryPathInput.value = ''; if(categoryIconInput) categoryIconInput.value = '';
+        addCategoryPanel.classList.remove('hidden');
+        adminOverlay.classList.remove('hidden');
+        categoryNameInput.value = ''; 
+        categoryPathInput.value = ''; 
+        categoryIconInput.value = '';
         if(addCategoryFeedback) addCategoryFeedback.classList.add('hidden');
+        categoryNameInput.focus();
     };
-    const hideAddCategoryPanel = () => { /* ... codice invariato ... */
+
+    const hideAddCategoryPanel = () => {
          if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.add('hidden');
-        if (adminLoginPopup && adminLoginPopup.classList.contains('hidden')) { if(adminOverlay) adminOverlay.classList.add('hidden'); }
-         if(categoryNameInput) categoryNameInput.value = ''; if(categoryPathInput) categoryPathInput.value = ''; if(categoryIconInput) categoryIconInput.value = '';
-         if(addCategoryFeedback) addCategoryFeedback.classList.add('hidden');
+        adminOverlay.classList.add('hidden'); // Nasconde l'overlay generale
     };
-
-    // Mostra popup login
-    if (adminToggleButton) {
-        adminToggleButton.addEventListener('click', () => {
-            if (adminLoginPopup && !adminLoginPopup.classList.contains('hidden')) return;
-            if (addCategoryPanel && !addCategoryPanel.classList.contains('hidden')) return;
-            showAdminLoginPopup();
-        });
-    }
-
-    // Gestisce il submit del login admin -> ORA MOSTRA SOLO BOTTONE '+'
-    if (adminLoginSubmit) {
-        adminLoginSubmit.addEventListener('click', () => {
-            if (!adminPasswordInput || !adminToggleButton) return;
-            const enteredPassword = adminPasswordInput.value;
-            if (enteredPassword === '123stella') { // Controlla la password
-                hideAdminLoginPopup();
-                // NON aggiunge più la classe admin-mode al body
-                // bodyElement.classList.add('admin-mode');
-                adminToggleButton.disabled = true; // Disabilita il login
-                adminToggleButton.title = "Modalità Admin Attiva";
-                if (addCategoryTriggerBtn) { // Mostra il bottone '+'
-                    addCategoryTriggerBtn.classList.remove('hidden');
-                }
-            } else {
-                if (adminErrorMessage) adminErrorMessage.classList.remove('hidden');
-                adminPasswordInput.value = '';
-                adminPasswordInput.focus();
-            }
-        });
-    }
-
-     // Invio con Invio nel campo password login
-     if (adminPasswordInput) { /* ... codice invariato ... */
-         adminPasswordInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); if(adminLoginSubmit) adminLoginSubmit.click(); } });
-     }
-
-    // --- Event Listener per bottone '+' che apre il pannello ---
+    
     if (addCategoryTriggerBtn) {
         addCategoryTriggerBtn.addEventListener('click', () => {
-             if (addCategoryPanel && !addCategoryPanel.classList.contains('hidden')) return;
+            if (addCategoryPanel && !addCategoryPanel.classList.contains('hidden')) return; 
             showAddCategoryPanel();
         });
     }
 
-    // --- Logica Pannello Aggiungi Categoria (Submit) (Invariata) ---
-    if (addCategorySubmitBtn) { /* ... codice invariato ... */
+    if (addCategorySubmitBtn) {
         addCategorySubmitBtn.addEventListener('click', () => {
             if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav || !addCategoryFeedback) return;
-            const name = categoryNameInput.value.trim(); const path = categoryPathInput.value.trim(); const iconClass = categoryIconInput.value.trim() || 'fas fa-folder';
-            if (!name || !path) { addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!'; addCategoryFeedback.className = 'feedback-message error'; addCategoryFeedback.classList.remove('hidden'); return; }
-            const newLink = document.createElement('a'); newLink.href = path; newLink.className = 'nav-button';
+            
+            const name = categoryNameInput.value.trim();
+            const path = categoryPathInput.value.trim();
+            const iconClassRaw = categoryIconInput.value.trim() || 'folder'; 
+            
+            if (!name || !path) {
+                addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!';
+                addCategoryFeedback.className = 'feedback-message error'; 
+                addCategoryFeedback.classList.remove('hidden');
+                return;
+            }
+            
+            const newLink = document.createElement('a'); 
+            newLink.href = path; 
+            newLink.className = 'nav-button';
+            
             const newIcon = document.createElement('i');
-            if (iconClass.includes('fa-')) { newIcon.className = iconClass; if (!iconClass.startsWith('fa')) { newIcon.className = `fas ${iconClass}`; } } else { newIcon.className = `fas ${iconClass}`; }
-            const linkText = document.createTextNode(` ${name}`);
-            newLink.appendChild(newIcon); newLink.appendChild(linkText); mainNav.appendChild(newLink);
+            if (iconClassRaw.startsWith('fa-') || iconClassRaw.startsWith('fas ') || iconClassRaw.startsWith('far ') || iconClassRaw.startsWith('fab ')) {
+                 newIcon.className = iconClassRaw;
+            } else {
+                 newIcon.className = `fas fa-${iconClassRaw}`; 
+            }
+
+            const linkText = document.createTextNode(` ${name}`); 
+            newLink.appendChild(newIcon);
+            newLink.appendChild(linkText);
+            
+            mainNav.appendChild(newLink);
+            
             categoryNameInput.value = ''; categoryPathInput.value = ''; categoryIconInput.value = '';
-            addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`; addCategoryFeedback.className = 'feedback-message success'; addCategoryFeedback.classList.remove('hidden');
-            setTimeout(() => { addCategoryFeedback.classList.add('hidden'); }, 3000);
-            categoryNameInput.focus();
+            addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`;
+            addCategoryFeedback.className = 'feedback-message success';
+            addCategoryFeedback.classList.remove('hidden');
+            
+            setTimeout(() => {
+                addCategoryFeedback.classList.add('hidden');
+                // hideAddCategoryPanel(); // Opzionale: chiudi il pannello dopo successo
+            }, 3000);
+            categoryNameInput.focus(); // Per aggiungere un'altra categoria subito
         });
     }
 
-    // --- Chiusura Pannelli (Invariata) ---
-    if (adminLoginCancel) { adminLoginCancel.addEventListener('click', hideAdminLoginPopup); }
     if (addCategoryCloseBtn) { addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel); }
-    if (adminOverlay) { adminOverlay.addEventListener('click', () => { hideAdminLoginPopup(); hideAddCategoryPanel(); }); }
+    if (adminOverlay) { adminOverlay.addEventListener('click', () => { hideAddCategoryPanel(); }); }
 
-});
+    // Nota: la logica di admin login (showAdminLoginPopup, hideAdminLoginPopup, adminLoginSubmit ecc.)
+    // sembra essere gestita primariamente da auth.js. Ho rimosso le chiamate dirette a show/hideAdminLoginPopup
+    // da questo script se non strettamente necessarie per il flusso "Aggiungi Categoria",
+    // dato che addCategoryTriggerBtn è controllato da auth.js.
+
+}); // Fine DOMContentLoaded
