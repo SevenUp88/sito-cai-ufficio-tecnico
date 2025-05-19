@@ -3,208 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Impianto Radiante - CAI Ufficio Tecnico</title>
-    <!-- Assicurati che il percorso del CSS sia corretto rispetto a questa pagina -->
-    <link rel="stylesheet" href="../../style.css"> <!-- CSS Generale dell'app principale -->
-    <link rel="stylesheet" href="style.css">   <!-- CSS Specifico del configuratore radiante -->
+    <title>CAI - Gestione Ufficio Tecnico - Home</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        /* Stili aggiuntivi per l'header specifico di questa pagina, se necessario,
-           oppure assicurati che .app-header da style.css principale funzioni bene qui */
-        body {
-            display: flex; /* Necessario se l'header deve essere sticky e il main deve occupare il resto */
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .configurator-main-content {
-            flex-grow: 1; /* Fa sì che il contenuto principale occupi lo spazio rimanente */
-            padding-top: 20px; /* Aggiungi padding se l'header è fisso/sticky */
-        }
-    </style>
 </head>
-<body>
+<body> <!-- Nessuna classe admin-mode inizialmente -->
 
-    <!-- NUOVO HEADER -->
     <header class="app-header">
-        <!-- Logo: Usa un percorso relativo o assoluto corretto -->
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico" class="logo">
+        <img src="https://i.postimg.cc/2jsfDrZf/LOGO-CAI.png" alt="Logo Ufficio Tecnico" class="logo">
         <div class="header-controls">
-            <!-- Pulsante Home -->
-            <a href="https://caiufficiotecnico.netlify.app/" class="admin-button" title="Torna alla Home">
-                <i class="fas fa-home"></i>
-            </a>
-            <!-- Eventuali altri controlli specifici per questa pagina, se necessario -->
+            <!-- Pulsante Login Admin -->
+            <button id="admin-toggle" class="admin-button" title="Modalità Admin">
+                <i class="fas fa-user-shield"></i>
+            </button>
+            <!-- Pulsante Aggiungi Categoria (Nascosto inizialmente) -->
+            <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
+                <i class="fas fa-plus-circle"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Contenuto Principale del Configuratore -->
-    <main class="configurator-main-content">
-        <div class="container"> <!-- Questo .container è dal tuo CSS del configuratore -->
-            <h1>Configuratore Impianto Radiante a Pavimento</h1>
+    <main id="content-area">
+        <div class="welcome-message">
+            <h2>Benvenuto!</h2>
+            <p>Seleziona una voce dal menu per accedere alle diverse sezioni.</p>
+        </div>
 
-            <form id="radiantForm">
-                <!-- Sezione 1: Informazioni Generali -->
-                <fieldset>
-                    <legend>1. Informazioni Generali del Progetto</legend>
-                    <div>
-                        <label for="projectName">Nome Progetto:</label>
-                        <input type="text" id="projectName" name="projectName" value="Casa Prova">
-                    </div>
-                    <div>
-                        <label for="buildingType">Tipo di Edificio:</label>
-                        <select id="buildingType" name="buildingType">
-                            <option value="new">Nuova Costruzione</option>
-                            <option value="renovation">Ristrutturazione</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="insulationLevel">Livello di Isolamento:</label>
-                        <select id="insulationLevel" name="insulationLevel">
-                            <option value="excellent">Ottimo (A/B)</option>
-                            <option value="good">Buono (C/D)</option>
-                            <option value="poor">Scarso (E+)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="heatSource">Fonte di Calore Prevista:</label>
-                        <select id="heatSource" name="heatSource">
-                            <option value="condensing_boiler">Caldaia a Condensazione</option>
-                            <option value="heat_pump">Pompa di Calore</option>
-                            <option value="other">Altro</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="flowTemperature">Temperatura di Mandata Prevista (°C):</label>
-                        <input type="number" id="flowTemperature" name="flowTemperature" value="35" min="25" max="55">
-                    </div>
-                    <div>
-                        <label for="screedHeight">Altezza Disponibile per Massetto (cm, sopra solaio grezzo):</label>
-                        <input type="number" id="screedHeight" name="screedHeight" value="8" min="4">
-                    </div>
-                </fieldset>
+        <nav class="main-nav">
+            <!-- Pulsanti sempre visibili -->
+            <a href="../NOLEGGI/code.html" class="nav-button"> <i class="fas fa-key"></i> Noleggi </a>
+            <a href="../PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
+            <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
+            <a href="../FGAS/index.html" class="nav-button"> <i class="fas fa-fire-extinguisher"></i> FGAS </a>
+            <a href="../SCHEDE_TECNICHE/index.html" class="nav-button"> <i class="fas fa-file-alt"></i> Schede Tecniche </a>
+            <a href="../SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
+            <!-- Nuovi pulsanti verranno aggiunti qui dallo script -->
+        </nav>
 
-                <!-- Sezione 2: Definizione Stanze -->
-                <fieldset>
-                    <legend>2. Definizione Stanze e Superfici</legend>
-                    <div id="roomsContainer">
-                        <div class="room-entry">
-                            <h4>Stanza 1</h4>
-                            <div><label for="roomName1">Nome Stanza:</label><input type="text" class="roomName" name="roomName1" value="Soggiorno"></div>
-                            <div><label for="roomSurface1">Superficie (mq):</label><input type="number" class="roomSurface" name="roomSurface1" value="25" min="1" step="0.1" required></div>
-                            <div><label for="roomFlooring1">Tipo Pavimentazione:</label>
-                                <select class="roomFlooring" name="roomFlooring1">
-                                    <option value="tiles">Piastrelle/Gres/Pietra</option>
-                                    <option value="parquet">Parquet (<15mm)</option>
-                                    <option value="laminate">Laminato (adatto)</option>
-                                    <option value="resin">Resina</option>
-                                    <option value="carpet_low_res">Moquette (bassa res.)</option>
-                                </select>
-                            </div>
-                            <button type="button" class="remove-room-btn" style="display:none;">Rimuovi Stanza</button>
-                        </div>
-                    </div>
-                    <button type="button" id="addRoomBtn">Aggiungi Stanza</button>
-                    <hr>
-                    <div><strong>Totale Superficie Radiante (mq):</strong> <span id="totalRadiantSurfaceOutput">0</span></div>
-                </fieldset>
+        <div id="submenu-listini" class="submenu">
+             <a href="../LISTINI/CLIMA/index.html" class="submenu-button"> <i class="fas fa-snowflake"></i> Clima </a>
+             <a href="../LISTINI/CALDAIE/index.html" class="submenu-button"> <i class="fas fa-fire-alt"></i> Caldaie </a>
+             <a href="../LISTINI/SCALDABAGNI/index.html" class="submenu-button"> <i class="fas fa-shower"></i> Scaldabagno </a>
+             <a href="../LISTINI/SANITARI/index.html" class="submenu-button"> <i class="fas fa-toilet"></i> Sanitari </a>
+        </div>
 
-                <!-- Sezione 3: Opzioni Sistema -->
-                <fieldset>
-                    <legend>3. Opzioni e Preferenze del Sistema</legend>
-                    <div><label for="brandSystem">Marca Sistema Preferita:</label>
-                        <select id="brandSystem" name="brandSystem">
-                            <option value="eurotherm">Eurotherm</option>
-                            <option value="thermolutz" selected>Thermolutz</option>
-                            <option value="generic">Generico/Altro</option>
-                        </select>
-                    </div>
-                    <div><label for="panelType">Tipo di Pannello Isolante:</label>
-                        <select id="panelType" name="panelType">
-                            <option value="bugnato">Bugnato</option>
-                            <option value="liscio">Liscio (con guide/rete)</option>
-                            <option value="secco">A secco / Basso spessore</option>
-                            <option value="zero">ZERO (Liscio ribassato)</option>
-                        </select>
-                    </div>
-                    <div><label for="panelThickness">Spessore Pannello Desiderato (mm):</label><input type="number" id="panelThickness" name="panelThickness" value="30" min="10" max="100" step="1"><small>Verrà cercato il pannello Thermolutz più vicino se selezionato.</small></div>
-                    <div><label for="pipeDiameter">Diametro Tubazione:</label>
-                        <select id="pipeDiameter" name="pipeDiameter">
-                            <option value="16x2">16x2 mm</option>
-                            <option value="17x2">17x2 mm</option>
-                        </select>
-                    </div>
-                    <div><label for="generalPipePitch">Passo di Posa Generale Desiderato (cm):</label><input type="number" id="generalPipePitch" name="generalPipePitch" value="15" min="5" max="30" step="1"></div>
-                    <div><label for="cooling">Raffrescamento a Pavimento:</label>
-                        <select id="cooling" name="cooling">
-                            <option value="no">No</option>
-                            <option value="yes">Sì</option>
-                        </select>
-                    </div>
-                </fieldset>
-
-                <!-- Sezione 4: Calcola -->
-                <div style="text-align: center; margin-top: 20px;"><button type="button" id="calculateBtn">CALCOLA CONFIGURAZIONE</button></div>
-            </form>
-
-            <!-- Sezione 5: Risultati -->
-            <div id="resultsSection" style="display:none;">
-                <fieldset>
-                    <legend>5. Risultati della Configurazione (Stima)</legend>
-                    <h3>A. Riepilogo Materiali Stimati:</h3>
-                    <p><strong>Pannello Isolante:</strong> <span id="panelTypeOutput"></span> - <span id="insulationPanelAreaOutput"></span> mq (incluso sfrido ~7%)<br><small id="thermolutzPanelInfo" class="product-info"></small></p>
-                    <p><strong>Tubazione (<span id="pipeDiameterOutput"></span>):</strong></p>
-                    <ul id="pipeDetailsList">
-                        <li>Passo di Posa Medio Stimato: <span id="pipePitchOutput"></span> cm</li>
-                        <li>Lunghezza Totale Tubo Stimata: <span id="totalPipeLengthOutput"></span> m</li>
-                        <li>Numero Rotoli: <span id="pipeRollsOutput"></span></li>
-                        <li id="thermolutzPipeInfo" class="product-info" style="list-style-type: none;"></li>
-                    </ul>
-                    <p><strong>Collettore/i di Distribuzione:</strong></p>
-                    <ul id="collectorDetailsList">
-                        <li>Numero Circuiti Stimato: <span id="numCircuitsOutput"></span></li>
-                        <li>Numero Collettori (max 12 vie/cad): <span id="numCollectorsOutput"></span> (es. <span id="collectorsDetailOutput"></span>)</li>
-                        <li id="thermolutzCollectorInfo" class="product-info" style="list-style-type: none;"></li>
-                    </ul>
-                    <p><strong>Striscia Perimetrale Isolate:</strong> <span id="perimeterStripLengthOutput"></span> m<br><small id="thermolutzStripInfo" class="product-info"></small></p>
-                    <p><strong>Testine Elettrotermiche:</strong> <span id="actuatorsOutput"></span><br><small id="thermolutzActuatorInfo" class="product-info"></small></p>
-                    <p><strong>Termostati Ambiente:</strong> <span id="thermostatsOutput"></span></p>
-                    <p id="mixingGroupNote" style="display:none;"><strong>Gruppo di Miscelazione:</strong> Probabilmente necessario.</p>
-                    <p id="coolingNote" style="display:none;"><strong>Raffrescamento:</strong> Considerare deumidificazione e controllo punto di rugiada.</p>
-
-                    <h3>B. Riepilogo per Stanza (Stima):</h3>
-                    <table id="roomResultsTable">
-                        <thead>
-                            <tr>
-                                <th>Nome Stanza</th><th>Superficie (mq)</th><th>Passo Posa (cm)</th>
-                                <th>Potenza Specifica (W/mq)*</th><th>Potenza Totale (W)*</th>
-                                <th>Lunghezza Tubo (m)</th><th>N° Circuiti</th>
-                            </tr>
-                        </thead>
-                        <tbody id="roomResultsTableBody"></tbody>
-                    </table>
-                    <p><small><em>*La potenza termica è una STIMA... Consultare un termotecnico.</em></small></p>
-
-                    <h3>C. Considerazioni Progettuali:</h3>
-                    <ul>
-                        <li>Spessore Totale Pacchetto Stimato (escluso pavimento): <span id="totalScreedHeightOutput"></span> cm. Verificare compatibilità.</li>
-                        <li>Lunghezza max circuito usata per stima: <span id="maxCircuitLengthOutput"></span> m.</li>
-                        <li>È fondamentale l'equilibratura dei circuiti.</li>
-                        <li>Utilizzare massetto specifico per impianti radianti.</li>
-                        <li>Seguire procedura di prima accensione.</li>
-                    </ul>
-                    <p class="disclaimer"><strong>Disclaimer:</strong> I risultati sono puramente indicativi...</p>
-                </fieldset>
+        <!-- Popup Login Admin (Invariato) -->
+        <div id="admin-login-popup" class="admin-popup hidden">
+            <h3>Accesso Admin</h3>
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" name="admin-password">
+            <div class="admin-popup-buttons">
+                <button id="admin-login-submit">Accedi</button>
+                <button id="admin-login-cancel">Annulla</button>
             </div>
-        </div> <!-- Fine .container -->
+            <p id="admin-error-message" class="error-message hidden">Password errata!</p>
+        </div>
+
+        <!-- Pannello Aggiungi Categoria (Invariato) -->
+        <div id="add-category-panel" class="admin-popup hidden">
+             <span class="close-panel-btn" id="add-category-close">&times;</span>
+            <h3>Aggiungi Nuova Categoria</h3>
+            <div class="form-group"> <label for="category-name">Nome Categoria:</label> <input type="text" id="category-name" placeholder="Es: Manutenzioni"> </div>
+            <div class="form-group"> <label for="category-path">Percorso File:</label> <input type="text" id="category-path" placeholder="Es: ../MANUTENZIONI/index.html"> </div>
+             <div class="form-group"> <label for="category-icon">Classe Icona Font Awesome:</label> <input type="text" id="category-icon" placeholder="Es: fas fa-tools"> </div>
+            <div class="admin-popup-buttons centered"> <button id="add-category-submit">Aggiungi Categoria</button> </div>
+             <p id="add-category-feedback" class="feedback-message hidden"></p>
+        </div>
+
+        <!-- Overlay condiviso -->
+        <div id="admin-overlay" class="overlay hidden"></div>
+
     </main>
 
-    <!-- Firebase SDKs (necessari se script.js li usa) -->
-    <!-- <script type="module" src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script> -->
-    <!-- <script type="module" src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js"></script> -->
-    <!-- Considera di centralizzare firebase-config.js se usato da più pagine -->
-    <!-- <script src="../../firebase-config.js"></script> --> 
-
-    <!-- Script Specifico del Configuratore -->
-    <script type="module" src="script.js"></script> 
+    <script src="script.js"></script>
 </body>
 </html>
