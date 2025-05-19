@@ -1,0 +1,133 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h3, h4 {
+    color: #337ab7; /* Blu tema */
+}
+
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    padding: 15px;
+}
+
+legend {
+    font-weight: bold;
+    color: #337ab7;
+    padding: 0 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: calc(100% - 22px); /* Considera padding e border */
+    padding: 10px;
+    margin-bottom: 10px; /* Ridotto un po' */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Importante per il calcolo della larghezza */
+}
+input[type="number"] + small {
+    display: block;
+    font-size: 0.85em;
+    color: #666;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+
+button {
+    background-color: #337ab7;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #286090;
+}
+
+#addRoomBtn {
+    background-color: #5cb85c; /* Verde */
+    margin-top:10px;
+}
+#addRoomBtn:hover {
+    background-color: #4cae4c;
+}
+
+.remove-room-btn {
+    background-color: #d9534f; /* Rosso */
+    font-size: 12px;
+    padding: 5px 10px;
+    margin-top: 10px;
+}
+.remove-room-btn:hover {
+    background-color: #c9302c;
+}
+
+
+.room-entry {
+    border: 1px dashed #eee;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+}
+
+.room-entry h4 {
+    margin-top: 0;
+}
+
+#resultsSection table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#resultsSection th, #resultsSection td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#resultsSection th {
+    background-color: #f2f2f2;
+}
+
+.product-info {
+    font-size: 0.9em;
+    color: #555;
+    margin-left: 10px;
+}
+
+.disclaimer {
+    font-size: 0.9em;
+    color: #777;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+}
