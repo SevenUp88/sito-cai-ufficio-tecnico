@@ -81,7 +81,6 @@
     <header class="app-header">
         <img src="https://i.postimg.cc/2jsfDrZf/LOGO-CAI.png" alt="Logo Ufficio Tecnico" class="logo">
         <div class="header-controls">
-             <!-- "Add Category" button is now controlled by auth.js based on user role -->
             <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
                 <i class="fas fa-plus-circle"></i>
             </button>
@@ -93,7 +92,6 @@
     </header>
 
     <main id="content-area">
-        <!-- Login Section -->
         <section id="login-section">
             <h2>Accesso Riservato</h2>
             <form id="login-form">
@@ -110,7 +108,6 @@
             </form>
         </section>
 
-        <!-- Main Application Content (Initially Hidden) -->
         <div id="app-content" class="hidden">
             <div class="welcome-message">
                 <h2>Benvenuto nel Portale CAI Ufficio Tecnico!</h2>
@@ -121,10 +118,11 @@
                 <a href="NOLEGGI/code.html" class="nav-button"> <i class="fas fa-key"></i> Noleggi </a>
                 <a href="PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
                 <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
+                <!-- NUOVO PULSANTE CONFIGURATORI -->
+                <button id="btn-configuratori" class="nav-button" aria-expanded="false" aria-controls="submenu-configuratori"> <i class="fas fa-cogs"></i> Configuratori </button>
                 <a href="FGAS/index.html" class="nav-button"> <i class="fas fa-fire-extinguisher"></i> FGAS </a>
                 <a href="SCHEDE_TECNICHE/index.html" class="nav-button"> <i class="fas fa-file-alt"></i> Schede Tecniche </a>
                 <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
-                <!-- Nuovi pulsanti verranno aggiunti qui dallo script.js originale (per gestione categorie) -->
             </nav>
 
             <div id="submenu-listini" class="submenu">
@@ -133,9 +131,15 @@
                  <a href="LISTINI/SCALDABAGNI/index.html" class="submenu-button"> <i class="fas fa-shower"></i> Scaldabagno </a>
                  <a href="LISTINI/SANITARI/index.html" class="submenu-button"> <i class="fas fa-toilet"></i> Sanitari </a>
             </div>
+
+            <!-- NUOVO SUBMENU CONFIGURATORI -->
+            <div id="submenu-configuratori" class="submenu">
+                 <a href="CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="submenu-button"> <i class="fas fa-floor-ร้อน"></i> Impianto Radiante </a>
+                 <!-- Aggiungi altri link per futuri configuratori qui -->
+                 <!-- Esempio: <a href="CONFIGURATORI/ALTRO_CONFIG/index.html" class="submenu-button"> <i class="fas fa-tools"></i> Altro Config </a> -->
+            </div>
         </div>
 
-        <!-- Pannello Aggiungi Categoria (Funzionalità mantenuta, attivata da #add-category-trigger) -->
         <div id="add-category-panel" class="admin-popup hidden">
              <span class="close-panel-btn" id="add-category-close">×</span>
             <h3>Aggiungi Nuova Categoria</h3>
@@ -145,21 +149,14 @@
             <div class="admin-popup-buttons centered"> <button id="add-category-submit">Aggiungi Categoria</button> </div>
              <p id="add-category-feedback" class="feedback-message hidden"></p>
         </div>
-        <div id="admin-overlay" class="overlay hidden"></div> <!-- Shared overlay for add category panel -->
+        <div id="admin-overlay" class="overlay hidden"></div>
 
     </main>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    
-    <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script> 
-    
-    <!-- New Authentication Script -->
     <script src="auth.js"></script> 
-
-    <!-- Original UI Script (for submenus, category adding UI etc. that is not auth related) -->
     <script src="script.js"></script> 
 </body>
 </html>
