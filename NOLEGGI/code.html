@@ -22,26 +22,7 @@
         font-size: 1.1em;
         color: #555;
     }
-    #login-modal #logout-button {
-        display: none;
-    }
-    #login-modal.showing-logout #login-form > div,
-    #login-modal.showing-logout #login-form > button[type=submit] {
-        display: none;
-    }
-    #login-modal.showing-logout #logout-button {
-        display: block;
-    }
-    #auth-status {
-        margin: 0 10px;
-        color: #eee;
-        font-size: 0.85em;
-        display: inline-block;
-        vertical-align: middle;
-    }
-    #auth-status .user-email {
-        font-weight: 500;
-    }
+    /* Rimosse regole specifiche per #login-modal */
   </style>
 </head>
 <body class="logged-out"> <!-- Start in logged-out state -->
@@ -55,20 +36,15 @@
           <a href="../index.html" class="header-action-button" title="Torna alla Home">
               <i class="fas fa-home"></i>
           </a>
-          <!-- Placeholder for Auth Status -->
-          <span id="auth-status"></span>
-          <!-- This button will now trigger the login modal -->
-          <button id="noleggi-admin-trigger" class="header-action-button" title="Accesso Admin / Logout">
-              <i class="fas fa-user-shield"></i>
-          </button>
+          <!-- Il bottone #noleggi-admin-trigger e #auth-status sono stati rimossi -->
       </div>
   </header>
   <!-- === Fine Header === -->
 
   <!-- Loading Indicator -->
   <div id="loading-indicator">
-     <i class="fas fa-spinner fa-spin"></i> Accesso in corso...
-     <p style="font-size: 0.8em; margin-top: 10px;">Se non sei reindirizzato, potrebbe essere necessario effettuare il login.</p>
+     <i class="fas fa-spinner fa-spin"></i> Verifica autenticazione e permessi...
+     <!-- Questo messaggio verrà sovrascritto dallo script se l'utente non è loggato -->
   </div>
 
   <!-- Main Content Container (Hidden initially by CSS via body.logged-out) -->
@@ -103,33 +79,12 @@
      </div>
   </div><!-- end container -->
 
-  <!-- Modals -->
-
-  <!-- Login Modal -->
-  <div id="login-modal" class="modal" style="display: none;">
-    <div class="modal-content" style="max-width: 400px;">
-        <span class="close-btn">&times;</span>
-        <h2>Accesso Amministratore / Utente</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="login-email">Email:</label>
-                <input type="email" id="login-email" required class="form-control" placeholder="admin@example.com">
-            </div>
-            <div class="form-group">
-                <label for="login-password">Password:</label>
-                <input type="password" id="login-password" required class="form-control" placeholder="••••••••">
-            </div>
-            <div id="login-error-message" style="color: var(--danger); margin-bottom: 1rem; display: none; font-size: 0.9em;"></div>
-            <button type="submit" class="btn btn-primary btn-block">Accedi</button>
-        </form>
-         <button id="logout-button" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
-    </div>
-  </div>
+  <!-- Modals (IL LOGIN MODAL E' STATO RIMOSSO) -->
 
   <!-- New/Add Rental Modal -->
   <div id="rental-modal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
+        <span class="close-btn">×</span>
         <h2 id="rental-modal-title">Nuovo Noleggio</h2>
         <form id="new-rental-form">
             <input type="hidden" id="rental-number-ongoing">
@@ -151,7 +106,7 @@
   <!-- Edit Active Rental Modal -->
   <div id="edit-rental-modal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
+        <span class="close-btn">×</span>
         <h2>Modifica Riga Noleggio Attivo</h2>
         <form id="edit-rental-form">
             <input type="hidden" id="edit-rental-id">
@@ -181,7 +136,7 @@
   <!-- New Inventory Item Modal -->
   <div id="new-item-modal" class="modal">
       <div class="modal-content">
-          <span class="close-btn">&times;</span>
+          <span class="close-btn">×</span>
           <h2>Nuovo Articolo Inventario</h2>
           <form id="new-item-form">
               <div class="form-group"> <label for="new-item-brand">Marca:</label> <input type="text" id="new-item-brand" required class="form-control"> </div>
@@ -195,7 +150,7 @@
   <!-- Edit Inventory Item Modal -->
   <div id="edit-item-modal" class="modal">
       <div class="modal-content">
-          <span class="close-btn">&times;</span>
+          <span class="close-btn">×</span>
           <h2>Modifica Articolo Inventario</h2>
           <form id="edit-item-form">
               <input type="hidden" id="edit-item-id">
@@ -218,16 +173,15 @@
 
   <script>
     // --------------- FIREBASE CONFIGURATION ---------------
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDNDAo1Omgoi3UdPqGWWbEaz1KTx9K0JMU",
-  authDomain: "gestione-noleggi-cai.firebaseapp.com",
-  projectId: "gestione-noleggi-cai",
-  storageBucket: "gestione-noleggi-cai.firebasestorage.app",
-  messagingSenderId: "684932393341",
-  appId: "1:684932393341:web:d0e74cf826ad1732fa8414",
-  measurementId: "G-Y4LM7DCDH0"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyDNDAo1Omgoi3UdPqGWWbEaz1KTx9K0JMU", // NOTA: Le API Key di Firebase per il web sono pubbliche e non sono un segreto.
+      authDomain: "gestione-noleggi-cai.firebaseapp.com",
+      projectId: "gestione-noleggi-cai",
+      storageBucket: "gestione-noleggi-cai.firebasestorage.app", // Probabilmente un errore di battitura, dovrebbe essere .appspot.com, ma Firebase funziona anche con .app
+      messagingSenderId: "684932393341",
+      appId: "1:684932393341:web:d0e74cf826ad1732fa8414",
+      measurementId: "G-Y4LM7DCDH0"
+    };
     // ------------------------------------------------------
 
     // Initialize Firebase
@@ -235,25 +189,21 @@ const firebaseConfig = {
       firebase.initializeApp(firebaseConfig);
       window.db = firebase.firestore();
       window.auth = firebase.auth();
-      console.log("Firebase Initialized Successfully!");
+      console.log("Firebase Initialized Successfully (Noleggi Page)!");
 
       // --- Authentication Listener ---
       auth.onAuthStateChanged(user => {
         const loadingIndicator = document.getElementById('loading-indicator');
         const mainContent = document.getElementById('main-content-container');
-        const loginModal = document.getElementById('login-modal');
-        const authStatusEl = document.getElementById('auth-status');
-        const adminTriggerBtn = document.getElementById('noleggi-admin-trigger');
-        const logoutBtnInModal = loginModal ? loginModal.querySelector('#logout-button') : null;
-        const loginFormInModal = loginModal ? loginModal.querySelector('#login-form') : null;
 
         if (user) {
             // User is signed in.
-            console.log("User logged in:", user.email, user.uid);
-            document.body.classList.remove('logged-out');
-            if (loadingIndicator) loadingIndicator.style.display = 'block';
-            if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifica permessi...';
-            if (mainContent) mainContent.style.display = 'none';
+            console.log("Noleggi Page: User detected:", user.email, user.uid);
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento permessi utente...';
+            }
+            if (mainContent) mainContent.style.display = 'none'; // Nascondi finché il ruolo non è pronto
 
             // Fetch User Role from Firestore
             const userDocRef = db.collection('users').doc(user.uid);
@@ -262,58 +212,69 @@ const firebaseConfig = {
                 if (doc.exists && doc.data().role) {
                     userRole = doc.data().role;
                 } else {
-                    console.warn(`User document or role not found for UID ${user.uid}. Assigning default 'user' role.`);
+                    console.warn(`Noleggi Page: User document or role not found in Firestore for UID ${user.uid}. Assigning default 'user' role. This means user will have limited access here unless Firestore data is updated.`);
                 }
                 window.currentUserRole = userRole; // Store role globally
-                console.log("User role:", window.currentUserRole);
+                console.log("Noleggi Page: User role set to:", window.currentUserRole);
 
-                // Update UI
+                // Update UI for logged-in state
+                 document.body.classList.remove('logged-out');
                  document.body.classList.add('logged-in');
                  if (loadingIndicator) loadingIndicator.style.display = 'none';
                  if (mainContent) mainContent.style.display = 'block';
-                if(authStatusEl) authStatusEl.innerHTML = `Loggato: <span class="user-email">${user.email}</span> (${userRole})`;
-                if(adminTriggerBtn) adminTriggerBtn.title = "Logout / Info Utente";
-                if (loginModal) loginModal.classList.add('showing-logout');
-                if (logoutBtnInModal) logoutBtnInModal.style.display = 'block';
-                if (loginFormInModal) loginFormInModal.reset();
 
                 // Initialize the main application AFTER getting the role
-                if (typeof initializeApp === 'function') {
-                   initializeApp(window.currentUserRole); // Pass role
+                if (typeof window.initializeApp === 'function') { // initializeApp è in code.js
+                   window.initializeApp(window.currentUserRole);
                 } else {
-                   console.error("initializeApp function not found!");
+                   console.error("Noleggi Page: initializeApp function not found (is code.js loaded?)!");
                 }
 
             }).catch(error => {
-                console.error("Error fetching user role:", error);
-                alert("ERRORE nel recupero dei permessi utente. Effettua nuovamente il login.");
-                 if (loadingIndicator) loadingIndicator.innerHTML = "Errore permessi.";
-                auth.signOut();
+                console.error("Noleggi Page: Error fetching user role from Firestore:", error);
+                if (loadingIndicator) {
+                    loadingIndicator.innerHTML = `
+                        <p style="color:red;">Errore nel recupero dei permessi utente.</p>
+                        <p>L'accesso è consentito, ma potresti non avere i permessi corretti. Torna alla <a href="../index.html">Home</a> e riprova, o contatta l'amministratore.</p>
+                    `;
+                }
+                // Potresti decidere di inizializzare con ruolo 'user' di default anche in caso di errore
+                window.currentUserRole = 'user';
+                document.body.classList.remove('logged-out');
+                document.body.classList.add('logged-in'); // Comunque loggato
+                if (loadingIndicator) loadingIndicator.style.display = 'none'; // Nasconde l'indicatore dopo errore
+                if (mainContent) mainContent.style.display = 'block'; // Mostra il contenuto con ruolo di default
+
+                if (typeof window.initializeApp === 'function') {
+                   window.initializeApp(window.currentUserRole); // Inizializza con ruolo 'user'
+                }
             });
 
         } else {
             // User is signed out.
-            console.log("User logged out.");
+            console.log("Noleggi Page: User is not authenticated.");
             window.currentUserRole = null; // Clear role
             document.body.classList.add('logged-out');
             document.body.classList.remove('logged-in');
             if (mainContent) mainContent.style.display = 'none';
-            if (loadingIndicator) loadingIndicator.style.display = 'block';
-            if (loadingIndicator) loadingIndicator.innerHTML = '<i class="fas fa-sign-in-alt"></i> Accesso richiesto per utilizzare l\'applicazione.';
-            if (authStatusEl) authStatusEl.innerHTML = `<i>Non Loggato</i>`;
-            if (adminTriggerBtn) adminTriggerBtn.title = "Accesso";
-            if (loginModal) loginModal.classList.remove('showing-logout');
-            if (logoutBtnInModal) logoutBtnInModal.style.display = 'none';
-            if (loginFormInModal) loginFormInModal.reset();
-            window.appInitialized = false; // Reset initialization flag
+            if (loadingIndicator) {
+                loadingIndicator.style.display = 'block';
+                loadingIndicator.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i> Accesso Richiesto
+                    <p style="font-size: 0.9em; margin-top: 10px;">
+                        Per utilizzare questa sezione, per favore effettua il login dalla
+                        <a href="../index.html" style="text-decoration: underline; color: var(--primary);">Pagina Principale</a>.
+                    </p>`;
+            }
+            window.appInitialized = false; // Reset initialization flag from code.js
         }
       });
 
     } catch (error) {
-        console.error("Firebase Initialization Failed:", error);
+        console.error("Firebase Initialization Failed on Noleggi Page:", error);
         const loadingIndicator = document.getElementById('loading-indicator');
         if (loadingIndicator) loadingIndicator.innerHTML = "ERRORE CRITICO: Impossibile caricare Firebase.";
-        alert("ERRORE CRITICO: Impossibile inizializzare Firebase.");
+        alert("ERRORE CRITICO: Impossibile inizializzare Firebase sulla pagina Noleggi.");
     }
   </script>
 
