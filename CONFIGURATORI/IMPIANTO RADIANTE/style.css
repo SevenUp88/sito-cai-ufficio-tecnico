@@ -1,173 +1,234 @@
-/* Stili base del configuratore (fieldset, label, input - come prima) */
-body { /* Già definito nel tag style dell'HTML, ma potrebbe essere qui */
-    font-family: sans-serif; /* Esempio */
+/* Reset base (opzionale, se non già nel tuo CSS generale) */
+/* * { box-sizing: border-box; margin: 0; padding: 0; } */
+
+/* Stili di base del corpo della pagina del configuratore, se necessario 
+   (potrebbero essere ereditati dal CSS generale) */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f7f6; /* Sfondo leggermente diverso per distinguere */
 }
 
-.container {
-    max-width: 1000px; /* Aumentato per fare spazio alle card affiancate */
-    margin: auto;
-    background: #fff;
-    padding: 20px;
+/* Layout generale a due colonne */
+.configurator-layout {
+    display: flex;
+    flex-direction: row; /* Affiancate su schermi larghi */
+    flex-wrap: wrap;     /* Permette al riepilogo di andare sotto su schermi piccoli */
+    gap: 30px;          /* Spazio tra colonna form e colonna riepilogo */
+    width: 100%;
+    max-width: 1350px;  /* Larghezza massima del layout complessivo */
+    margin: 0 auto;     /* Centra il layout nella pagina */
+    padding: 0 15px;    /* Padding laterale per non toccare i bordi viewport */
+}
+
+.configurator-form-column {
+    flex: 3;  /* La colonna del form prende più spazio (circa 3/4 se flex:1 per summary) */
+    flex-basis: 0; /* Importante per la distribuzione corretta di flex-grow */
+    min-width: 450px; /* Larghezza minima prima di andare a capo o stringersi troppo */
+    display: flex; /* Per far sì che .container interno si adatti bene */
+    flex-direction: column;
+}
+
+.configurator-form-column .container {
+    width: 100%; /* Il container interno prende tutta la larghezza della colonna */
+    max-width: none; 
+    margin: 0;      
+    padding: 20px;   
+    background-color: #ffffff; 
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Fa sì che il container si espanda verticalmente */
 }
-
-fieldset {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 20px;
-    padding: 15px;
-}
-
-legend {
-    font-weight: bold;
+.configurator-form-column .container h1 {
+    margin-top: 0;
+    margin-bottom: 25px;
     color: #337ab7;
-    padding: 0 10px;
+    text-align: center;
+    font-size: 1.8em;
 }
 
+.summary-column {
+    flex: 1;   
+    flex-basis: 0; 
+    min-width: 320px; 
+}
+
+.summary-card {
+    background-color: #ffffff; /* Sfondo più pulito */
+    border: 1px solid #dde4eb;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.sticky-summary {
+    position: sticky;
+    top: 100px; /* Esempio: Altezza dell'app-header + 20px di margine */
+                /* REGOLA questo valore in base all'altezza effettiva del tuo header sticky */
+    align-self: flex-start; /* Importante per sticky in un contenitore flex */
+}
+
+.summary-card h3 {
+    text-align: center;
+    color: #0056a8;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #dde4eb;
+    padding-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.summary-logo-container {
+    text-align:center;
+    margin-bottom:20px;
+    min-height: 50px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.summary-logo-container img {
+    max-width: 160px; 
+    max-height: 55px; 
+    object-fit: contain;
+}
+
+.summary-list { list-style: none; padding: 0; margin: 0; }
+.summary-list li { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; font-size: 0.9em; border-bottom: 1px dashed #eef2f5; }
+.summary-list li:last-child { border-bottom: none; }
+.summary-list li strong { color: #2c3e50; margin-right: 10px; white-space: nowrap;}
+.summary-list li span { text-align: right; color: #526b84; word-break: break-word; }
+.summary-list hr { border: none; border-top: 1px solid #d0d7e0; margin: 10px 0; }
+
+.summary-note {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e6ed;
+}
+
+/* Stili per Fieldset, Legend, Label, Input (come da tue versioni precedenti, leggermente rifiniti) */
+fieldset {
+    border: 1px solid #e0e6ed;
+    border-radius: 6px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #fdfdfd; /* Sfondo leggermente off-white per fieldset */
+}
+legend {
+    font-weight: 600; /* Semi-bold */
+    color: #0056a8; /* Blu CAI */
+    padding: 0 10px;
+    font-size: 1.1em;
+    margin-bottom: 10px; /* Spazio sotto la legenda */
+}
 label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    font-size: 0.9em; /* Leggermente più piccolo */
+    margin-bottom: 6px;
+    font-weight: 500; /* Medium weight */
+    font-size: 0.9em;
+    color: #4a5568; /* Grigio scuro per label */
 }
-
 input[type="text"],
 input[type="number"],
 select {
-    width: calc(100% - 18px); /* Leggermente aggiustato per il padding interno */
-    padding: 8px; /* Leggermente ridotto */
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    width: 100%; /* Usa 100% e box-sizing per padding */
+    padding: 9px 10px; 
+    margin-bottom: 12px;
+    border: 1px solid #cbd5e0; /* Bordo più tenue */
+    border-radius: 5px;
     box-sizing: border-box;
-    font-size: 0.95em; /* Leggermente ridotto */
+    font-size: 0.95em;
+    background-color: #fff;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-input[type="number"] + small, select + small { /* Stile per le <small> sotto gli input */
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #337ab7; /* Blu CAI su focus */
+    box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.2);
+    outline: none;
+}
+input[type="number"] + small, 
+select + small { 
     display: block;
     font-size: 0.8em;
-    color: #666;
-    margin-top: -5px;
+    color: #718096; /* Grigio medio per testo small */
+    margin-top: -8px; /* Tira su un po' */
     margin-bottom: 10px;
 }
 
-
-button {
-    background-color: #337ab7;
+/* Stili Bottoni */
+button, .button-link { /* .button-link per <a> stilizzati come bottoni */
+    background-color: #0056a8; /* Blu CAI */
     color: white;
-    padding: 10px 15px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 1em; /* Normalizzato */
+    font-size: 1em;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    text-decoration: none;
+    display: inline-block; /* Per <a> */
+    text-align: center; /* Per <a> */
 }
-button:hover { background-color: #286090; }
-
-#addRoomBtn { /* Bottone principale per aggiungere stanze */
-    background-color: #5cb85c;
-    margin-top:10px;
+button:hover, .button-link:hover {
+    background-color: #004182; /* Blu più scuro */
+    transform: translateY(-1px);
 }
-#addRoomBtn:hover { background-color: #4cae4c; }
-
-/* Styles for Room Cards Layout */
-.rooms-grid-container {
-    display: grid;
-    /* Responsive: cerca di mettere 3 card se c'è spazio, altrimenti 2, poi 1.
-       minmax(280px, 1fr) -> larghezza minima 280px, massima 1 frazione dello spazio. */
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-    gap: 15px; 
-    margin-bottom: 20px;
+button:active, .button-link:active {
+    transform: translateY(0px);
 }
 
-.room-card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
+#addRoomBtn { 
+    background-color: #48bb78; /* Verde per aggiungi */
+    margin-top: 10px;
 }
+#addRoomBtn:hover { background-color: #38a169; } /* Verde più scuro */
 
-.room-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px; /* Ridotto padding */
-    background-color: #e9edf0; 
-    border-bottom: 1px solid #ddd;
-    border-top-left-radius: 7px; /* Arrotondamento angoli */
-    border-top-right-radius: 7px;
-}
+/* Layout a Card per le Stanze */
+.rooms-grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
+.room-card { border: 1px solid #d2d6dc; border-radius: 6px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.04); display: flex; flex-direction: column; }
+.room-card-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background-color: #f0f4f8; border-bottom: 1px solid #d2d6dc; border-top-left-radius: 5px; border-top-right-radius: 5px; }
+.room-card-header h4 { margin: 0; font-size: 1.05em; color: #2c5282; } /* Blu più scuro */
+.icon-btn, .remove-room-btn { background: none; border: none; color: #e53e3e; font-size: 1.1em; cursor: pointer; padding: 5px; transition: color 0.2s ease; }
+.icon-btn:hover, .remove-room-btn:hover { color: #c53030; }
+.room-card-body { padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+.room-placeholder .room-card-body input::placeholder { color: #a0aec0; } /* Grigio più chiaro per placeholder */
 
-.room-card-header h4 {
-    margin: 0;
-    font-size: 1em; /* Ridotto */
-    color: #337ab7;
-}
+/* Sezione Risultati */
+#resultsSection table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em;}
+#resultsSection th, #resultsSection td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+#resultsSection th { background-color: #edf2f7; color: #4a5568; font-weight: 600;}
+.product-info { font-size: 0.8em; color: #718096; margin-left: 10px; display: block; margin-top: 2px;} /* Rendilo blocco per andare a capo */
+.disclaimer { font-size: 0.8em; color: #718096; margin-top: 25px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
 
-.icon-btn, .remove-room-btn { 
-    background: none;
-    border: none;
-    color: #d9534f; 
-    font-size: 1.1em; /* Ridotto */
-    cursor: pointer;
-    padding: 3px;
-}
-.icon-btn:hover, .remove-room-btn:hover {
-    color: #c9302c;
-}
+/* Materiali aggiuntivi */
+#additionalMaterialsOutput { margin-top: 20px; }
+#additionalMaterialsOutput h3 { margin-bottom: 10px; font-size: 1.15em; color: #2c5282; }
+#additionalMaterialsOutput ul { list-style-type: disc; margin-left: 20px; font-size: 0.9em; padding-left: 0;}
+#additionalMaterialsOutput ul li { padding: 4px 0; border-bottom: 1px dashed #eef2f5; }
+#additionalMaterialsOutput ul li:last-child { border-bottom: none; }
+#additionalMaterialsOutput p small { font-size: 0.9em; color: #718096;}
 
-.room-card-body {
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px; 
-}
+/* Stile per opzioni select disabilitate */
+select option:disabled, .option-disabled-visual { color: #a0aec0 !important; background-color: #e2e8f0 !important; font-style: italic; }
 
-/* Stile per le card placeholder (le due vuote iniziali se serve) */
-.room-placeholder .room-card-body input::placeholder {
-    color: #bbb;
+/* Media Queries */
+@media (max-width: 1024px) { /* Quando le colonne del layout principale diventano stacked */
+    .configurator-layout { flex-direction: column; }
+    .summary-column { margin-top: 30px; }
+    .sticky-summary { position: static; }
 }
-/* Fine Stili Room Cards */
-
-
-#resultsSection table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-#resultsSection th, #resultsSection td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 0.9em; }
-#resultsSection th { background-color: #f2f2f2; }
-.product-info { font-size: 0.85em; color: #555; margin-left: 10px; }
-.disclaimer { font-size: 0.85em; color: #777; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
-
-#additionalMaterialsOutput ul {
-    list-style-type: disc;
-    margin-left: 20px;
-    font-size: 0.9em;
-}
-#additionalMaterialsOutput h3 {
-    margin-top: 15px;
-    font-size: 1.1em;
-}
-#additionalMaterialsOutput p small {
-    font-size: 0.9em;
-}
-
-/* Stile per opzioni select disabilitate - necessita test cross-browser */
-select option:disabled {
-    color: #ababab;
-    background-color: #f0f0f0;
-}
-.option-disabled-visual { /* Classe aggiuntiva se lo stile diretto non basta */
-    color: #ababab !important;
-    background-color: #f0f0f0 !important;
-}
-
-/* Media Queries per migliorare responsiveness se necessario */
-@media (max-width: 992px) { /* Sotto questa soglia, forse 2 card per riga */
-    .rooms-grid-container {
-        /* grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); Potrebbe già farlo auto-fill */
-    }
-}
-@media (max-width: 600px) { /* Sotto questa soglia, 1 card per riga */
-    .rooms-grid-container {
-        grid-template-columns: 1fr; /* Una colonna piena */
-    }
+@media (max-width: 600px) { /* Per schermi ancora più piccoli, le card delle stanze vanno in colonna singola */
+    .rooms-grid-container { grid-template-columns: 1fr; }
+    .configurator-form-column { min-width: 100%; } /* Permette al form di prendere tutta la larghezza */
+    .summary-column { min-width: 100%; }
+    .configurator-layout { padding: 0 10px; /* Riduci padding laterale su mobile */}
+    .configurator-form-column .container { padding: 15px; }
 }
