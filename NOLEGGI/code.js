@@ -6,34 +6,32 @@
     const RENTAL_COUNTER_LS_KEY = "rentalCounter";
     const WAREHOUSES = ["VILLALTA", "SAVIGNANO", "VILLAMARINA"];
     const OPERATORS = ["DANIELE", "GIOVANNI", "LEANDRO", "LEONE", "LUCA", "MASSIMO", "MATTIA", "RAFFAELE", "SERGIO", "SEVERINO", "THOMAS"];
-    const LOGO_URL = "https://i.postimg.cc/1XQtFBSX/logo-cai-removebg-preview.png"; // Ensure this URL is correct
+    const LOGO_URL = "https://i.postimg.cc/1XQtFBSX/logo-cai-removebg-preview.png";
     const MIN_DAYS_FOR_ATTENTION = 5;
 
     // --- Special Pricing Constants ---
-    // !!! IMPORTANT: Replace these IDs with your actual Firestore Document IDs !!!
-    const SPECIAL_ITEM_IDS = ['TAnSRPuHwm64QoZCzBe0', 'bsQV3qBAgCBXvkGJHHPK'];
+    const SPECIAL_ITEM_IDS = ['TAnSRPuHwm64QoZCzBe0', 'bsQV3qBAgCBXvkGJHHPK']; // Example IDs
     const SPECIAL_ITEM_SAME_DAY_PRICE = 15.00;
     const SPECIAL_ITEM_EXTRA_DAY_PRICE = 25.00;
     // --- End Special Pricing Constants ---
 
     let ongoingRentalInfo = null;
     window.appInitialized = false;
-    // window.currentUserRole is set in HTML's onAuthStateChanged
+    // window.currentUserRole is set by the onAuthStateChanged listener in code.html
 
-    // --- Firebase References ---
+    // --- Firebase References (expected to be initialized in code.html) ---
     const db = window.db;
     const auth = window.auth;
 
     // --- Utility Functions ---
     const generateId = (prefix = 'id') => `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    const escapeHtml = (unsafe) => { if (typeof unsafe !== 'string') unsafe = String(unsafe); return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#039;"); };
+    const escapeHtml = (unsafe) => { if (typeof unsafe !== 'string') unsafe = String(unsafe); return unsafe.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/'/g, "'"); };
     const formatPrice = (value) => { const number = parseFloat(value); return isNaN(number) ? 'N/D' : number.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
     const formatDate = (dateString) => { if (!dateString) return 'N/A'; try { const parts = dateString.split('-'); if (parts.length !== 3) return dateString; const date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2])); if (isNaN(date.getTime())) return 'Data non valida'; return new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }).format(date); } catch (e) { console.error("Errore formattazione data:", dateString, e); return 'Errore data'; } };
     const getDaysDifference = (startDate, endDate) => { if (!startDate || !endDate) return 1; try { const start = new Date(startDate + 'T00:00:00Z'); const end = new Date(endDate + 'T00:00:00Z'); if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1; const startUTC = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()); const endUTC = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()); if (endUTC < startUTC) return 1; const diffTime = endUTC - startUTC; return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; } catch (e) { console.error("Error calculating date difference:", startDate, endDate, e); return 1; } };
     const getDaysElapsed = (startDateString) => { if (!startDateString) return 0; try { const startDate = new Date(startDateString + 'T00:00:00Z'); if (isNaN(startDate.getTime())) return 0; const today = new Date(); const todayUTCStart = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()); const startUTC = Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()); const diffTime = todayUTCStart - startUTC; return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24))); } catch (e) { console.error("Error calculating days elapsed:", startDateString, e); return 0; } };
-    const showError = (message) => { console.error("SHOW_ERROR:", message); alert(`[ERRORE] ${message}`); };
-    const showLoginError = (message) => { const errorElement = document.getElementById('login-error-message'); if (errorElement) { errorElement.textContent = message; errorElement.style.display = 'block'; } };
-    const clearLoginError = () => { const errorElement = document.getElementById('login-error-message'); if (errorElement) { errorElement.textContent = ''; errorElement.style.display = 'none'; } };
+    const showError = (message) => { console.error("SHOW_ERROR (Noleggi):", message); alert(`[ERRORE - NOLEGGI] ${message}`); };
+    // Login-specific error utilities (showLoginError, clearLoginError) have been removed
 
     // --- Role Check Helper ---
     const isAdmin = () => window.currentUserRole === 'admin';
@@ -47,7 +45,14 @@
 
     // --- Modal Functions ---
     const openModal = (modalId) => { console.log("Attempting to open modal:", modalId); const modalElement = document.getElementById(modalId); if (modalElement) { modalElement.style.display = 'block'; } else { console.error(`Modal with ID ${modalId} not found!`); }};
-    const closeModal = (modalElement) => { if (!modalElement) return; modalElement.style.display = 'none'; if (modalElement.id === 'rental-modal') { resetOngoingRentalState(); } if (modalElement.id === 'login-modal') { clearLoginError(); const loginForm = document.getElementById('login-form'); if (loginForm) { const passwordInput = loginForm.querySelector('#login-password'); if (passwordInput) passwordInput.value = ''; } } };
+    const closeModal = (modalElement) => {
+        if (!modalElement) return;
+        modalElement.style.display = 'none';
+        if (modalElement.id === 'rental-modal') {
+            resetOngoingRentalState();
+        }
+        // Removed conditional block for 'login-modal'
+    };
     const resetOngoingRentalState = () => {
         ongoingRentalInfo = null;
         const getElement = (id) => document.getElementById(id);
@@ -81,7 +86,22 @@
         const totalCompletedStat = document.getElementById('total-completed');
         const totalClientsStat = document.getElementById('total-clients');
         if (!db) { console.warn("DB not ready for updateBillingStats"); if (totalCompletedStat) totalCompletedStat.textContent = 'N/D'; if (totalClientsStat) totalClientsStat.textContent = 'N/D'; return; }
-        try { const snapshot = await db.collection("completedRentals").get(); const completedRentals = []; snapshot.forEach(doc => completedRentals.push(doc.data())); const clients = [...new Set(completedRentals.map(rental => rental.client))]; if (totalCompletedStat) totalCompletedStat.textContent = completedRentals.length; if (totalClientsStat) totalClientsStat.textContent = clients.length; } catch (err) { console.error("Error updating billing stats from Firestore:", err); if (!err.message?.includes('permission')) { console.error("Permission error likely, not showing alert."); } else { showError("Errore aggiornamento statistiche fatturazione: " + err.message); } if (totalCompletedStat) totalCompletedStat.textContent = 'ERR'; if (totalClientsStat) totalClientsStat.textContent = 'ERR'; }
+        try {
+            const snapshot = await db.collection("completedRentals").get();
+            const completedRentals = []; snapshot.forEach(doc => completedRentals.push(doc.data()));
+            const clients = [...new Set(completedRentals.map(rental => rental.client))];
+            if (totalCompletedStat) totalCompletedStat.textContent = completedRentals.length;
+            if (totalClientsStat) totalClientsStat.textContent = clients.length;
+        } catch (err) {
+            console.error("Error updating billing stats from Firestore:", err);
+            if (!err.message?.includes('permission denied') && !err.message?.includes('Missing or insufficient permissions')) {
+                showError("Errore aggiornamento statistiche fatturazione: " + err.message);
+            } else {
+                console.warn("Permission error suppressed for billing stats update.");
+            }
+            if (totalCompletedStat) totalCompletedStat.textContent = 'ERR';
+            if (totalClientsStat) totalClientsStat.textContent = 'ERR';
+        }
     };
     const updateInventoryStats = (inventory = []) => { const totalItemsStat = document.getElementById('total-items'); const availableItemsStat = document.getElementById('available-items'); try { if (totalItemsStat) totalItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.totalQuantity || 0), 0); if (availableItemsStat) availableItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.availableQuantity || 0), 0); } catch (err) { console.error("Error updating inventory stats:", err); } };
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
@@ -92,7 +112,7 @@
         if (!inventoryTableBody) { console.error("Inventory table body not found"); return; }
         inventoryTableBody.innerHTML = '';
         const filteredInventory = applyInventoryFilters(inventory);
-        const isAdminUser = isAdmin(); // Check role
+        const isAdminUser = isAdmin();
 
         if (filteredInventory.length === 0) {
             inventoryTableBody.innerHTML = `<tr><td colspan="7" class="text-center" style="font-style:italic;">Nessun articolo trovato.</td></tr>`;
@@ -104,8 +124,11 @@
             tr.dataset.itemId = item.id;
             const status = item.availableQuantity > 0 ? '<span class="badge badge-success">Disponibile</span>' : '<span class="badge badge-danger">Esaurito</span>';
             let actionsHtml = `<td class="actions">`;
-            actionsHtml += `<button class="btn btn-sm btn-warning btn-edit-item" data-id="${item.id}"><i class="fas fa-edit"></i> Modifica</button> `; // Edit for all
-            if (isAdminUser) { actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i> Elimina</button>`; } // Delete for Admin
+            // "Modifica Articolo" disponibile per tutti gli utenti loggati
+            actionsHtml += `<button class="btn btn-sm btn-warning btn-edit-item" data-id="${item.id}"><i class="fas fa-edit"></i> Modifica</button> `;
+            if (isAdminUser) {
+                actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i> Elimina</button>`;
+            }
             actionsHtml += `</td>`;
             tr.innerHTML = `<td><i class="fas fa-tag"></i> ${escapeHtml(item.brand)}</td><td>${escapeHtml(item.name)}</td><td class="text-center">${item.totalQuantity}</td><td class="text-center">${item.availableQuantity}</td><td class="text-right">${formatPrice(item.dailyRate)}</td><td>${status}</td>${actionsHtml}`;
             fragment.appendChild(tr);
@@ -114,10 +137,10 @@
     };
 
     const renderActiveRentalsTable = (rentals) => {
-         const activeRentalsTableBody = document.getElementById('active-rentals-table')?.querySelector('tbody');
+        const activeRentalsTableBody = document.getElementById('active-rentals-table')?.querySelector('tbody');
         if (!activeRentalsTableBody) { console.error("Active rentals table body not found"); return; }
         activeRentalsTableBody.innerHTML = '';
-        const isAdminUser = isAdmin(); // Check role
+        const isAdminUser = isAdmin();
 
         if (rentals.length === 0) {
             activeRentalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
@@ -128,10 +151,10 @@
             const tr = document.createElement('tr');
             tr.dataset.rentalId = rental.id;
             let actionsHtml = '<td class="actions">';
-            actionsHtml += `<button class="btn btn-sm btn-success btn-complete-rental" data-id="${rental.id}" title="Completa Noleggio"><i class="fas fa-check"></i></button> `; // COMPLETE FOR ALL
-            actionsHtml += `<button class="btn btn-sm btn-warning btn-edit-rental" data-id="${rental.id}" title="Modifica Noleggio"><i class="fas fa-edit"></i></button> `; // Edit for all
-            actionsHtml += `<button class="btn btn-sm btn-primary btn-reprint-rental" data-id="${rental.id}" title="Ristampa Ricevuta"><i class="fas fa-print"></i></button> `; // Reprint all
-            if (isAdminUser) { // Admin-only buttons
+            actionsHtml += `<button class="btn btn-sm btn-success btn-complete-rental" data-id="${rental.id}" title="Completa Noleggio"><i class="fas fa-check"></i></button> `;
+            actionsHtml += `<button class="btn btn-sm btn-warning btn-edit-rental" data-id="${rental.id}" title="Modifica Noleggio"><i class="fas fa-edit"></i></button> `;
+            actionsHtml += `<button class="btn btn-sm btn-primary btn-reprint-rental" data-id="${rental.id}" title="Ristampa Ricevuta"><i class="fas fa-print"></i></button> `;
+            if (isAdminUser) {
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-rental" data-id="${rental.id}" title="Annulla Riga Noleggio"><i class="fas fa-times"></i></button>`;
             }
             actionsHtml += '</td>';
@@ -181,8 +204,11 @@
             console.log(`Loaded ${currentInventory.length} items from Firestore.`);
         } catch (error) {
             console.error("Error loading inventory from Firestore:", error);
-            if (!error.message?.includes('permission')) { console.error("Permission error likely, not showing alert."); }
-             else { showError("Errore nel caricamento dell'inventario dal database."); }
+             if (!error.message?.includes('permission denied') && !error.message?.includes('Missing or insufficient permissions')) {
+                 showError("Errore nel caricamento dell'inventario dal database.");
+             } else {
+                console.warn("Permission error suppressed for inventory load.");
+             }
             currentInventory = [];
         } finally {
             renderInventoryTable(currentInventory);
@@ -214,8 +240,8 @@
         console.log("Attempting to load rental data...");
         const activeRentalsTableBody = document.getElementById('active-rentals-table')?.querySelector('tbody');
         let activeRentals = [];
-        await updateBillingStats();
-        await updateRentalStats([]);
+        await updateBillingStats(); // This now also suppresses permission errors
+        await updateRentalStats([]); // Reset stats before loading
 
         if (!db) { console.warn("DB not ready for loadRentalData"); return; }
         try {
@@ -225,10 +251,13 @@
             console.log(`Loaded ${activeRentals.length} active rentals from Firestore.`);
         } catch (error) {
             console.error("Error loading active rentals from Firestore:", error);
-            if (!error.message?.includes('permission')) { console.error("Permission error likely, not showing alert."); }
-             else { showError("Errore nel caricamento dei noleggi attivi dal database."); }
+            if (!error.message?.includes('permission denied') && !error.message?.includes('Missing or insufficient permissions')) {
+                 showError("Errore nel caricamento dei noleggi attivi dal database.");
+            } else {
+                 console.warn("Permission error suppressed for active rentals load.");
+            }
             if (activeRentalsTableBody) activeRentalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Errore caricamento noleggi.</td></tr>';
-            activeRentals = [];
+            activeRentals = []; // Ensure it's an empty array on error
         } finally {
              renderActiveRentalsTable(activeRentals);
              renderOldestRentals(activeRentals);
@@ -253,11 +282,11 @@
     };
 
 
-    // --- Main Application Initialization (Accepts userRole) ---
+    // --- Main Application Initialization (Accepts userRole from onAuthStateChanged) ---
     const initializeApp = async (userRole) => {
         if (window.appInitialized) { console.log("initializeApp: Already initialized."); return; }
-        console.log(`Initializing application UI and loading data for role: ${userRole}`);
-        window.appInitialized = true;
+        console.log(`Noleggi App: Initializing application UI and loading data for role: ${userRole}`);
+        window.appInitialized = true; // Set flag when initialization starts
 
         // --- DOM Element References ---
         const getElement = (id) => document.getElementById(id);
@@ -267,43 +296,52 @@
         const resetInventoryBtn = getElement('reset-inventory');
         const excelUploadLabel = querySel('label[for="excel-upload"]');
         const resetCompletedBtn = getElement('reset-completed-btn');
-        const inventoryActionsHeader = querySel('#inventory-table th:last-child');
-        const rentalActionsHeader = querySel('#active-rentals-table th:last-child');
+        // const inventoryActionsHeader = querySel('#inventory-table th:last-child'); // Already visible by default
+        // const rentalActionsHeader = querySel('#active-rentals-table th:last-child'); // Already visible by default
         const rentalOperatorSelect = getElement('rental-operator');
         const editRentalOperatorSelect = getElement('edit-rental-operator');
 
         // --- Apply Role-Based UI Visibility ---
-        console.log("Applying role-based UI visibility...");
-        const isAdminUser = isAdmin();
+        console.log("Noleggi App: Applying role-based UI visibility based on currentUserRole:", window.currentUserRole);
+        const isAdminUser = isAdmin(); // Uses window.currentUserRole which should be set
+
+        // Display buttons that create new entries or export data for all authenticated users
         if (newItemBtn) newItemBtn.style.display = 'inline-block';
         if (exportInventoryBtn) exportInventoryBtn.style.display = 'inline-block';
+
+        // Admin-only destructive or bulk-import actions
         if (resetInventoryBtn) resetInventoryBtn.style.display = isAdminUser ? 'inline-block' : 'none';
         if (excelUploadLabel) excelUploadLabel.style.display = isAdminUser ? 'inline-block' : 'none';
         if (resetCompletedBtn) resetCompletedBtn.style.display = isAdminUser ? 'inline-block' : 'none';
-        if (inventoryActionsHeader) inventoryActionsHeader.style.display = 'table-cell';
-        if (rentalActionsHeader) rentalActionsHeader.style.display = 'table-cell';
+
+        // Actions columns headers are always visible, individual buttons inside are controlled by render functions
+        // if (inventoryActionsHeader) inventoryActionsHeader.style.display = 'table-cell';
+        // if (rentalActionsHeader) rentalActionsHeader.style.display = 'table-cell';
+
 
         // --- Initial Load ---
-        console.log("Performing initial data load...");
+        console.log("Noleggi App: Performing initial data load...");
         try {
             if(rentalOperatorSelect) populateOperatorDropdown(rentalOperatorSelect);
             if(editRentalOperatorSelect) populateOperatorDropdown(editRentalOperatorSelect);
-            await loadInventoryData();
+            await loadInventoryData(); // These functions now suppress permission errors for general users
             await loadRentalData();
             setDefaultPrintDate();
-            console.log("Application initialized successfully.");
+            console.log("Noleggi App: Application initialized successfully.");
         } catch (err) {
-            console.error("Error during initial data load:", err);
-            showError("Errore critico durante il caricamento dati: " + err.message);
+            console.error("Noleggi App: Error during initial data load:", err);
+            // Avoid showing permission errors here as access control is handled by onAuthStateChanged
+            if (!err.message?.includes('permission')) {
+                 showError("Errore critico durante il caricamento dati: " + err.message);
+            }
         }
     }; // End of initializeApp
 
 
     // --- Setup Event Listeners ONCE on DOM Ready ---
     const setupEventListeners = () => {
-        console.log("Attaching event listeners ONCE...");
+        console.log("Noleggi App: Attaching event listeners ONCE...");
 
-        // --- DOM Element References for Listeners ---
         const getElement = (id) => document.getElementById(id);
         const querySel = (selector) => document.querySelector(selector);
         const inventoryTableBody = querySel('#inventory-table tbody');
@@ -330,12 +368,12 @@
         const rentalNotesTextarea = getElement('rental-notes');
         const editRentalModal = getElement('edit-rental-modal');
         const editRentalForm = getElement('edit-rental-form');
-        const editRentalOperatorSelect = getElement('edit-rental-operator');
+        // const editRentalOperatorSelect = getElement('edit-rental-operator'); // Already referenced in initializeApp
         const editRentalBrandSelection = getElement('edit-rental-brand-selection');
         const editRentalItemSelection = getElement('edit-rental-item-selection');
         const editRentalQuantityInput = getElement('edit-rental-quantity');
         const editQuantityAvailableInfo = getElement('edit-quantity-available-info');
-        const allModals = document.querySelectorAll('.modal:not(#login-modal)');
+        const allModals = document.querySelectorAll('.modal'); // Select all modals, no exclusion needed
         const exportInventoryBtn = getElement('export-inventory-btn');
         const resetInventoryBtn = getElement('reset-inventory');
         const excelUploadInput = getElement('excel-upload');
@@ -352,7 +390,7 @@
         if (excelUploadInput) {
              excelUploadInput.addEventListener('change', async function (e) {
                  console.log("Excel upload changed.");
-                 if (!isAdmin()) { showError("Azione non consentita."); excelUploadInput.value = ''; return; }
+                 if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); excelUploadInput.value = ''; return; }
                  const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
                  reader.onload = async function(event) {
                      try {
@@ -364,7 +402,7 @@
                  reader.readAsArrayBuffer(file);
             });
         }
-        if (exportInventoryBtn) {
+        if (exportInventoryBtn) { // Available to all authenticated users
             exportInventoryBtn.addEventListener('click', async function () {
                 console.log("Export inventory clicked.");
                 try {
@@ -375,7 +413,7 @@
         if (resetInventoryBtn) {
             resetInventoryBtn.addEventListener('click', async function () {
                 console.log("Reset inventory clicked.");
-                if (!isAdmin()) { showError("Azione non consentita."); return; }
+                if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); return; }
                 try {
                     let activeRentalsCount = 0; try { if (!db) throw new Error("Firestore non inizializzato."); const activeSnapshot = await db.collection("activeRentals").limit(1).get(); activeRentalsCount = activeSnapshot.size; } catch(err) { console.error("Error checking active rentals before reset:", err); showError("Errore controllo noleggi attivi prima del reset."); return; } if (activeRentalsCount > 0) { showError("Impossibile resettare: ci sono noleggi attivi nel database."); return; } if (confirm("CANCELLARE tutto l'inventario dal database? Azione irreversibile.")) { try { if (!db) throw new Error("Firestore non inizializzato."); const snapshot = await db.collection("inventory").get(); const batch = db.batch(); snapshot.docs.forEach(doc => batch.delete(doc.ref)); await batch.commit(); saveDataLS(RENTAL_COUNTER_LS_KEY, 0); loadInventoryData(); loadRentalData(); alert("Inventario resettato dal database."); } catch (err) { console.error("Error resetting inventory in Firestore:", err); showError("Errore durante il reset dell'inventario nel database."); } }
                 } catch (err) { console.error("Reset inventory check error:", err); }
@@ -385,7 +423,7 @@
         if(filterBrandSelect) filterBrandSelect.addEventListener('input', () => { loadInventoryData(); });
         if(filterStatusSelect) filterStatusSelect.addEventListener('input', () => { loadInventoryData(); });
 
-        if (newItemBtn) {
+        if (newItemBtn) { // Available to all authenticated users
             newItemBtn.addEventListener('click', () => {
                 console.log("New item button clicked.");
                 if (newItemForm) newItemForm.reset(); openModal('new-item-modal'); getElement('new-item-brand')?.focus();
@@ -405,7 +443,7 @@
                 const editButton = e.target.closest('.btn-edit-item');
                 const deleteButton = e.target.closest('.btn-delete-item');
 
-                if (editButton) {
+                if (editButton) { // Available to all authenticated users
                     const itemId = editButton.dataset.id;
                     console.log(`Edit item button clicked for: ${itemId}`);
                     try {
@@ -419,7 +457,7 @@
                     } catch (err) { console.error("Error fetching item for edit:", err); showError("Errore recupero dati articolo."); }
                 } else if (deleteButton) {
                     console.log("Delete item button clicked.");
-                    if (!isAdmin()) { showError("Azione non consentita."); return; } // Check role INSIDE
+                    if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); return; }
                     const itemId = deleteButton.dataset.id;
                     console.log(`Attempting delete for item: ${itemId}`);
                     try {
@@ -429,7 +467,7 @@
                 }
             });
         }
-        if (editItemForm) {
+        if (editItemForm) { // Form for editing item (available to all authenticated)
             editItemForm.addEventListener('submit', async (e) => {
                 console.log("Edit item form submitted.");
                 e.preventDefault();
@@ -439,7 +477,7 @@
             });
         }
 
-        // --- Rental Actions ---
+        // --- Rental Actions (available to all authenticated users) ---
         if (newRentalBtn) {
             newRentalBtn.addEventListener('click', () => {
                 console.log("New rental button clicked.");
@@ -476,33 +514,33 @@
                 if (!rentalDocId) { console.warn("Button clicked but no data-id found:", target); return; }
                 console.log(`Rental table button clicked: ${target.className.match(/btn-[\w-]+/)?.[0]}, ID: ${rentalDocId}`);
 
-                // Complete Rental (ALL users)
+                // Complete Rental (ALL authenticated users)
                 if (target.classList.contains('btn-complete-rental')) {
                      console.log(`Attempting complete for rental: ${rentalDocId}`);
-                     try { // Full complete rental logic
+                     try {
                         const activeRentalRef = db.collection("activeRentals").doc(rentalDocId); const rentalDoc = await activeRentalRef.get(); if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; } const rentalToComplete = { id: rentalDoc.id, ...rentalDoc.data() }; const today = new Date().toISOString().split('T')[0]; const endDate = prompt(`Data fine noleggio per #${rentalToComplete.rentalNumber} (${rentalToComplete.itemName}) (AAAA-MM-GG):`, today); if (endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)) { const startDateObj = new Date(rentalToComplete.startDate + 'T00:00:00Z'); const endDateObj = new Date(endDate + 'T00:00:00Z'); if (endDateObj < startDateObj) { showError("Data fine non può precedere data inizio."); return; } const completedRentalData = { ...rentalToComplete, endDate: endDate, status: "completed" }; delete completedRentalData.id; const itemRef = db.collection("inventory").doc(rentalToComplete.itemId); const batch = db.batch(); batch.set(db.collection("completedRentals").doc(), completedRentalData); batch.delete(activeRentalRef); if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { batch.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(rentalToComplete.quantity) }); } else { throw "Errore tecnico: FieldValue non disponibile."; } await batch.commit(); console.log("Rental moved to completed."); loadInventoryData(); loadRentalData(); } else if (endDate !== null) { showError("Formato data non valido (AAAA-MM-GG)."); }
                      } catch (err) { console.error("Error completing rental:", err); showError("Errore completamento noleggio: " + err.message); }
                 }
-                // Edit Rental (ALL users)
+                // Edit Rental (ALL authenticated users)
                 else if (target.classList.contains('btn-edit-rental')) {
                      console.log(`Edit rental button clicked for: ${rentalDocId}`);
-                     try { // Full logic to fetch and populate edit modal
+                     try {
                          const rentalRef = db.collection("activeRentals").doc(rentalDocId); const rentalDoc = await rentalRef.get(); if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; } const rentalToEdit = { id: rentalDoc.id, ...rentalDoc.data() }; if (editRentalModal && editRentalForm) { getElement('edit-rental-id').value = rentalToEdit.id; getElement('edit-rental-original-item-id').value = rentalToEdit.itemId; getElement('edit-rental-original-quantity').value = rentalToEdit.quantity; getElement('edit-rental-number-display').value = rentalToEdit.rentalNumber || 'N/A'; getElement('edit-rental-warehouse-display').value = rentalToEdit.warehouse || 'N/D'; getElement('edit-rental-startdate-display').value = formatDate(rentalToEdit.startDate); getElement('edit-rental-client-name').value = rentalToEdit.client; populateOperatorDropdown(getElement('edit-rental-operator')); getElement('edit-rental-operator').value = rentalToEdit.operator || ""; getElement('edit-rental-notes').value = rentalToEdit.notes || ""; const inventorySnapshot = await db.collection("inventory").get(); const inventoryForEdit = []; inventorySnapshot.forEach(doc => inventoryForEdit.push({id: doc.id, ...doc.data()})); const originalItemDetails = inventoryForEdit.find(i => i.id === rentalToEdit.itemId); updateBrandFilters(inventoryForEdit, getElement('edit-rental-brand-selection'), getElement('edit-rental-item-selection'), getElement('edit-quantity-available-info'), getElement('edit-rental-quantity'), rentalToEdit.itemId, rentalToEdit.quantity); if (originalItemDetails) { getElement('edit-rental-brand-selection').value = originalItemDetails.brand; await populateItemDropdown(originalItemDetails.brand, getElement('edit-rental-item-selection'), getElement('edit-quantity-available-info'), getElement('edit-rental-quantity'), rentalToEdit.itemId, rentalToEdit.quantity); getElement('edit-rental-item-selection').value = rentalToEdit.itemId; } getElement('edit-rental-quantity').value = rentalToEdit.quantity; setTimeout(() => { const editItemSel = getElement('edit-rental-item-selection'); if (editItemSel && editItemSel.value) { if (Array.from(editItemSel.options).some(opt => opt.value === rentalToEdit.itemId)) { editItemSel.value = rentalToEdit.itemId; } editItemSel.dispatchEvent(new Event('change')); } }, 100); openModal('edit-rental-modal'); } else { showError("Errore apertura modulo modifica."); }
                      } catch (err) { console.error("Error preparing rental edit:", err); showError("Errore caricamento dati per modifica noleggio: " + err.message); }
                 }
-                // Reprint Rental (ALL users)
+                // Reprint Rental (ALL authenticated users)
                 else if (target.classList.contains('btn-reprint-rental')) {
                      console.log(`Reprint rental button clicked for: ${rentalDocId}`);
-                     try { // Full reprint logic
+                     try {
                          const rentalRef = db.collection("activeRentals").doc(rentalDocId); const rentalDoc = await rentalRef.get(); if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; } const rentalToPrint = { id: rentalDoc.id, ...rentalDoc.data() }; const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", rentalToPrint.rentalNumber).get(); const allItemsForRental = []; rentalsSnapshot.forEach(doc => allItemsForRental.push({id: doc.id, ...doc.data()})); if(allItemsForRental.length > 0) { printSingleRentalReceipt(allItemsForRental); } else { showError("Nessun articolo trovato per questo numero di noleggio."); }
                      } catch (err) { console.error("Error fetching rentals for reprint:", err); showError("Errore recupero dati per ristampa: " + err.message); }
                 }
                 // Delete Rental Row (Admin Only)
                 else if (target.classList.contains('btn-delete-rental')) {
-                     if (!isAdmin()) { showError("Azione non consentita."); return; } // Check Role
+                     if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); return; }
                      console.log(`Attempting delete for rental: ${rentalDocId}`);
                      const rentalRef = db.collection("activeRentals").doc(rentalDocId);
-                     try { // Full delete rental logic
+                     try {
                         const rentalDoc = await rentalRef.get(); if (!rentalDoc.exists) { showError("Riga noleggio già eliminata."); loadRentalData(); return; } const rentalToDelete = { id: rentalDoc.id, ...rentalDoc.data() }; if (confirm(`Annullare riga?\nArticolo: ${rentalToDelete.itemName} (Q: ${rentalToDelete.quantity})\nNoleggio #: ${rentalToDelete.rentalNumber}\n\nL'articolo tornerà disponibile.`)) { const itemRef = db.collection("inventory").doc(rentalToDelete.itemId); const batch = db.batch(); if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { batch.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(rentalToDelete.quantity) }); } else { throw "Errore tecnico: FieldValue non disponibile."; } batch.delete(rentalRef); await batch.commit(); console.log("Rental row deleted."); loadInventoryData(); loadRentalData(); }
                      } catch (err) { console.error("Error deleting rental row:", err); showError("Errore annullamento riga noleggio: " + err.message); }
                 }
@@ -513,21 +551,21 @@
         if (editRentalBrandSelection) { editRentalBrandSelection.addEventListener('change', (e) => { const id = getElement('edit-rental-original-item-id').value; const qty = parseInt(getElement('edit-rental-original-quantity').value)||0; populateItemDropdown(e.target.value, getElement('edit-rental-item-selection'), getElement('edit-quantity-available-info'), getElement('edit-rental-quantity'), id, qty); }); }
         if (editRentalItemSelection) { editRentalItemSelection.addEventListener('change', (e) => { const selectedOption = e.target.options[e.target.selectedIndex]; const maxQuantity = selectedOption?.dataset.max ? parseInt(selectedOption.dataset.max) : 0; const qtyInput = getElement('edit-rental-quantity'); const infoEl = getElement('edit-quantity-available-info'); if (qtyInput) { qtyInput.max = maxQuantity > 0 ? maxQuantity : null; qtyInput.value = 1; /* Reset to 1 when item changes */ if (infoEl) { infoEl.textContent = `Disponibili (incl. originale se stesso articolo): ${maxQuantity}`; infoEl.style.display = 'block'; } } else if (infoEl) { infoEl.style.display = 'none'; } }); }
         if (editRentalQuantityInput) { editRentalQuantityInput.addEventListener('input', (e) => { const max = parseInt(e.target.max); const currentVal = parseInt(e.target.value); if (!isNaN(max) && !isNaN(currentVal) && currentVal > max) { e.target.value = max; showError(`Quantità massima disponibile (incl. originale se stesso articolo): ${max}`); } if (!isNaN(currentVal) && currentVal < 1) { e.target.value = 1; } }); }
-        if (editRentalForm) {
+        if (editRentalForm) { // Form for editing rental line (available to all authenticated)
             editRentalForm.addEventListener('submit', async (e) => {
                 console.log("Edit rental form submitted.");
                 e.preventDefault();
-                try { // Full edit rental save logic
+                try {
                     const rentalDocId = getElement('edit-rental-id').value; const originalItemId = getElement('edit-rental-original-item-id').value; const originalQuantity = parseInt(getElement('edit-rental-original-quantity').value) || 0; const newClientName = getElement('edit-rental-client-name').value.trim().toUpperCase(); const newOperator = getElement('edit-rental-operator').value; const newItemId = getElement('edit-rental-item-selection').value; const newQuantity = getElement('edit-rental-quantity') ? parseInt(getElement('edit-rental-quantity').value) : 0; const newNotes = getElement('edit-rental-notes').value.trim().toUpperCase(); if (!rentalDocId || !newClientName || !newOperator || !newItemId || isNaN(newQuantity) || newQuantity < 1) { showError("Cliente, Operatore, Articolo e Quantità obbligatori."); return; } if (!db) throw new Error("Firestore non inizializzato."); const rentalRef = db.collection("activeRentals").doc(rentalDocId); const newItemRef = db.collection("inventory").doc(newItemId); const originalItemRef = db.collection("inventory").doc(originalItemId); await db.runTransaction(async (transaction) => { const rentalDoc = await transaction.get(rentalRef); if (!rentalDoc.exists) throw "Noleggio originale non trovato."; const originalRentalData = rentalDoc.data(); const newItemDoc = await transaction.get(newItemRef); if (!newItemDoc.exists) throw "Nuovo articolo non trovato."; const newItemData = newItemDoc.data(); let originalItemCurrentStock = 0; let originalItemDoc; if (originalItemId === newItemId) { originalItemDoc = newItemDoc; originalItemCurrentStock = newItemData.availableQuantity; } else { originalItemDoc = await transaction.get(originalItemRef); if (!originalItemDoc.exists) throw "Articolo inventario originale non trovato."; originalItemCurrentStock = originalItemDoc.data().availableQuantity; } const maxAllowed = newItemData.availableQuantity + (originalItemId === newItemId ? originalQuantity : 0); if (newQuantity > maxAllowed) { throw `Quantità non disponibile per "${newItemData.name}". Max: ${maxAllowed}. Richiesti: ${newQuantity}.`; } if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.firestore.FieldValue) { throw "Errore tecnico: Firebase FieldValue non disponibile." } if (originalItemId !== newItemId) { transaction.update(originalItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity) }); transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-newQuantity) }); } else { transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity - newQuantity) }); } transaction.update(rentalRef, { itemId: newItemId, itemName: `${newItemData.brand} ${newItemData.name}`, quantity: newQuantity, dailyRate: newItemData.dailyRate, client: newClientName, operator: newOperator, notes: newNotes }); }); console.log("Rental updated."); loadInventoryData(); loadRentalData(); closeModal(editRentalModal); alert("Modifiche noleggio salvate.");
                 } catch(err) { console.error("Error saving rental edits:", err); showError("Errore salvataggio modifiche noleggio: " + err); }
             });
         }
 
         // --- Print/History Actions ---
-        if (printRentalsBtn) {
+        if (printRentalsBtn) { // Available to all authenticated users
             printRentalsBtn.addEventListener('click', async function () {
                 console.log("Print history clicked.");
-                try { // Use the NEW print logic with improved styling
+                try {
                     const selectedMonth = printMonthSelect ? parseInt(printMonthSelect.value) : 0;
                     const selectedYear = printYearInput ? parseInt(printYearInput.value) : 0;
                     if (isNaN(selectedYear) || selectedYear < 1900 || selectedYear > 2100) { showError("Anno non valido."); printYearInput?.focus(); return; }
@@ -547,14 +585,16 @@
                     sortedClients.forEach(client => { printHtml += `<h2>Cliente: ${escapeHtml(client)}</h2><table><colgroup><col style="width: 7%;"><col style="width: 24%;"><col style="width: 9%;"><col style="width: 9%;"><col style="width: 5%; text-align: center;"><col style="width: 9%; text-align: right;"><col style="width: 9%;"><col style="width: 9%;"><col style="width: 6%; text-align: center;"><col style="width: 9%; text-align: right;"><col style="width: auto;"></colgroup><thead><tr><th># Nol.</th><th>Articolo Noleggiato</th><th>Mag. Orig.</th><th>Operatore</th><th class="text-center">Q.tà</th><th class="text-right">€/Giorn.</th><th>Inizio</th><th>Fine</th><th class="text-center">GG Tot.</th><th class="text-right">€ Tot.</th><th>Note</th></tr></thead><tbody>`; let clientTotal = 0; const rentalsForClient = clientRentals[client];
                         rentalsForClient.forEach(rental => {
                             const days = getDaysDifference(rental.startDate, rental.endDate);
-                            const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId); // Use rental.itemId
+                            const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
                             let totalCost = 0;
                             if (isSpecialItem) {
                                 if (days === 1) { totalCost = SPECIAL_ITEM_SAME_DAY_PRICE; }
                                 else if (days > 1) { totalCost = SPECIAL_ITEM_SAME_DAY_PRICE + (SPECIAL_ITEM_EXTRA_DAY_PRICE * (days - 1)); }
                             } else {
-                                if (days === 1) { totalCost = 0; }
-                                else if (days > 1) { totalCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days; }
+                                totalCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
+                                // CORREZIONE PREZZO GIORNO SINGOLO: Precedentemente, se days === 1, totalCost diventava 0.
+                                // Se il costo del noleggio di un solo giorno per item non speciali è uguale al dailyRate, allora questa è la correzione.
+                                // Se è 0, si può ripristinare il blocco if (days ===1 ) { totalCost = 0; }
                             }
                             clientTotal += totalCost;
                             printHtml += `<tr><td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)}</td><td>${escapeHtml(rental.warehouse)}</td><td>${escapeHtml(rental.operator)}</td><td class="text-center">${rental.quantity}</td><td class="text-right">${isSpecialItem ? 'Spec.' : formatPrice(rental.dailyRate)}</td><td>${formatDate(rental.startDate)}</td><td>${formatDate(rental.endDate)}</td><td class="text-center">${days}</td><td class="text-right">${formatPrice(totalCost)}</td><td>${escapeHtml(rental.notes || '')}</td></tr>`; });
@@ -567,42 +607,27 @@
         if (resetCompletedBtn) {
             resetCompletedBtn.addEventListener('click', async function () {
                 console.log("Reset history clicked.");
-                if (!isAdmin()) { showError("Azione non consentita."); return; } // Check role inside
+                if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); return; }
                 try {
                     if (confirm("Eliminare TUTTO lo storico noleggi completati dal database? Azione irreversibile.")) { try { if (!db) throw new Error("Firestore non inizializzato."); const snapshot = await db.collection("completedRentals").get(); if (snapshot.empty) { alert("Lo storico è già vuoto."); return; } const batch = db.batch(); snapshot.docs.forEach(doc => batch.delete(doc.ref)); await batch.commit(); updateBillingStats(); alert("Storico resettato dal database."); } catch(err) { console.error("Error resetting completed rentals:", err); showError("Errore durante il reset dello storico."); } }
                 } catch (err) { console.error("Reset history error:", err); }
              });
         }
-        console.log("Event listeners attached successfully.");
+        console.log("Noleggi App: Event listeners attached successfully.");
 
     }; // End of setupEventListeners
 
 
-    // --- Authentication UI Setup (Remains the same) ---
-    const setupAuthUI = () => {
-        console.log("Setting up Auth UI...");
-        const loginModal = document.getElementById('login-modal');
-        const loginForm = document.getElementById('login-form');
-        const logoutButton = document.getElementById('logout-button');
-        const adminTriggerBtn = document.getElementById('noleggi-admin-trigger');
-        const loginModalCloseBtn = loginModal ? loginModal.querySelector('.close-btn') : null;
+    // --- Authentication UI Setup (REMOVED) ---
+    // const setupAuthUI = () => { ... }; // This entire function is removed.
 
-        if (!loginModal || !loginForm || !logoutButton || !adminTriggerBtn || !loginModalCloseBtn) { console.error("Auth UI elements missing:", { loginModal: !!loginModal, loginForm: !!loginForm, logoutButton: !!logoutButton, adminTriggerBtn: !!adminTriggerBtn, loginModalCloseBtn: !!loginModalCloseBtn }); }
-        if (adminTriggerBtn) { adminTriggerBtn.addEventListener('click', () => { console.log("Admin trigger button clicked."); if (loginModal) { openModal('login-modal'); } else { console.error("Login modal not found when trying to open."); } }); } else { console.error("Admin trigger button not found."); }
-        if (loginForm) { loginForm.addEventListener('submit', (e) => { e.preventDefault(); console.log("Login form submitted."); clearLoginError(); const emailInput = document.getElementById('login-email'); const passwordInput = document.getElementById('login-password'); if (!emailInput || !passwordInput) { console.error("Email or Password input not found."); showLoginError("Errore interno del modulo."); return; } const email = emailInput.value; const password = passwordInput.value; if (!email || !password) { showLoginError("Inserisci email e password."); return; } if (!auth) { showLoginError("Errore: Servizio autenticazione non disponibile."); console.error("Firebase auth object not available."); return; } auth.signInWithEmailAndPassword(email, password) .then((userCredential) => { console.log("Login successful via form:", userCredential.user.email); if (loginModal) { closeModal(loginModal); } }) .catch((error) => { console.error("Login Error:", error.code, error.message); let friendlyMessage = "Errore di accesso. Riprova."; switch (error.code) { case 'auth/invalid-email': friendlyMessage = "Formato email non valido."; emailInput.focus(); break; case 'auth/user-disabled': friendlyMessage = "Questo account utente è stato disabilitato."; break; case 'auth/user-not-found': case 'auth/wrong-password': case 'auth/invalid-credential': friendlyMessage = "Credenziali non valide (email o password errata)."; if (passwordInput) { passwordInput.value = ''; passwordInput.focus(); } break; default: friendlyMessage = `Errore: ${error.message}`; } showLoginError(friendlyMessage); }); }); } else { console.error("Login form not found."); }
-        if (logoutButton) { logoutButton.addEventListener('click', () => { console.log("Logout button clicked."); if (!auth) { showError("Errore: Servizio autenticazione non disponibile per il logout."); console.error("Firebase auth object not available for signout."); return; } auth.signOut().then(() => { console.log("Logout successful."); if (loginModal) { closeModal(loginModal); } window.appInitialized = false; }).catch((error) => { console.error("Logout Error:", error); showError("Errore durante il logout."); }); }); } else { console.error("Logout button not found."); }
-        if (loginModalCloseBtn) { loginModalCloseBtn.addEventListener('click', () => { if (loginModal) { closeModal(loginModal); } }); } else { console.error("Login modal close button not found."); }
-        if (loginModal) { loginModal.addEventListener('click', (event) => { if (event.target === loginModal) { closeModal(loginModal); } }); }
-        console.log("Auth UI setup complete.");
-    }; // End of setupAuthUI
-
-    // Run Auth UI Setup AND Attach General Event Listeners when DOM is ready
+    // Attach General Event Listeners when DOM is ready
     document.addEventListener("DOMContentLoaded", () => {
-        setupAuthUI();
+        // setupAuthUI(); // Call to setupAuthUI is removed
         setupEventListeners(); // Attach the main app listeners once
     });
 
-    // Make initializeApp globally accessible for the onAuthStateChanged listener
+    // Make initializeApp globally accessible for the onAuthStateChanged listener in code.html
     window.initializeApp = initializeApp;
     // Expose data loading functions if needed by other parts or for debugging
     window.loadInventoryData = loadInventoryData;
