@@ -163,8 +163,6 @@
           </form>
       </div>
   </div>
-
-
   <!-- Scripts -->
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
@@ -173,110 +171,146 @@
 
   <script>
     // --------------- FIREBASE CONFIGURATION ---------------
-    const firebaseConfig = {
-      apiKey: "AIzaSyDNDAo1Omgoi3UdPqGWWbEaz1KTx9K0JMU", // NOTA: Le API Key di Firebase per il web sono pubbliche e non sono un segreto.
-      authDomain: "gestione-noleggi-cai.firebaseapp.com",
-      projectId: "gestione-noleggi-cai",
-      storageBucket: "gestione-noleggi-cai.firebasestorage.app", // Probabilmente un errore di battitura, dovrebbe essere .appspot.com, ma Firebase funziona anche con .app
-      messagingSenderId: "684932393341",
-      appId: "1:684932393341:web:d0e74cf826ad1732fa8414",
-      measurementId: "G-Y4LM7DCDH0"
+    const firebaseConfig = { // DEVE ESSERE IDENTICA A QUELLA DELLA HOME PAGE
+      apiKey: "AIzaSyDNDAo1Omgoi3UdPqGWWbEaz1KTx9K0JMU", // VERIFICA che sia la STESSA KEY usata nella HOME
+      authDomain: "gestione-noleggi-cai.firebaseapp.com", // VERIFICA
+      projectId: "gestione-noleggi-cai",                 // VERIFICA
+      storageBucket: "gestione-noleggi-cai.appspot.com", // CORREGGI IN .appspot.com se è il default di Firebase, e rendila uguale alla HOME
+      messagingSenderId: "684932393341",             // VERIFICA
+      appId: "1:684932393341:web:d0e74cf826ad1732fa8414", // VERIFICA
+      measurementId: "G-Y4LM7DCDH0"                    // VERIFICA
     };
     // ------------------------------------------------------
 
-    // Initialize Firebase
     try {
-      firebase.initializeApp(firebaseConfig);
+      // Utilizza l'SDK compatibile v9
+      if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+          console.log("Noleggi Page: Firebase App Initialized (compat).");
+      } else {
+          firebase.app(); // if already initialized, use that one
+          console.log("Noleggi Page: Firebase App Already Initialized (compat), using existing.");
+      }
+
       window.db = firebase.firestore();
       window.auth = firebase.auth();
-      console.log("Firebase Initialized Successfully (Noleggi Page)!");
+      console.log("Noleggi Page: Firebase Services (db, auth) set on window (compat).");
 
-      // --- Authentication Listener ---
-      auth.onAuthStateChanged(user => {
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const mainContent = document.getElementById('main-content-container');
+      // !!! AGGIUNTA FONDAMENTALE: Imposta la persistenza !!!
+      if (window.auth) {
+          window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+              .then(() => {
+                  console.log("Noleggi Page: Firebase Auth persistence set to LOCAL.");
+                  initializeAuthListenerForNoleggi(); // Chiama il listener DOPO che la persistenza è impostata
+              })
+              .catch((error) => {
+                  console.error("Noleggi Page: Error setting Firebase Auth persistence:", error);
+                  initializeAuthListenerForNoleggi(); // Chiama comunque il listener, potrebbe funzionare con la default (ma è meno affidabile)
+              });
+      } else {
+           console.error("Noleggi Page: window.auth not defined before attempting to set persistence! Check Firebase initialization.");
+           // Fallback: prova ad inizializzare il listener comunque, ma l'auth potrebbe non funzionare.
+           // Sarebbe meglio mostrare un errore qui se auth non si inizializza.
+           // initializeAuthListenerForNoleggi(); 
+      }
 
-        if (user) {
-            // User is signed in.
-            console.log("Noleggi Page: User detected:", user.email, user.uid);
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'block';
-                loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento permessi utente...';
-            }
-            if (mainContent) mainContent.style.display = 'none'; // Nascondi finché il ruolo non è pronto
 
-            // Fetch User Role from Firestore
-            const userDocRef = db.collection('users').doc(user.uid);
-            userDocRef.get().then(doc => {
-                let userRole = 'user'; // Default to 'user'
-                if (doc.exists && doc.data().role) {
-                    userRole = doc.data().role;
-                } else {
-                    console.warn(`Noleggi Page: User document or role not found in Firestore for UID ${user.uid}. Assigning default 'user' role. This means user will have limited access here unless Firestore data is updated.`);
-                }
-                window.currentUserRole = userRole; // Store role globally
-                console.log("Noleggi Page: User role set to:", window.currentUserRole);
+      function initializeAuthListenerForNoleggi() {
+          let authStateChangeCountNoleggi = 0;
+          // Ora window.auth dovrebbe essere definito qui
+          if (!window.auth) {
+              console.error("Noleggi Page: FATAL - window.auth is still not defined in initializeAuthListenerForNoleggi. Cannot proceed.");
+              // Mostra un messaggio di errore critico all'utente
+              const loadingIndicator = document.getElementById('loading-indicator');
+              if (loadingIndicator) {
+                  loadingIndicator.innerHTML = "<p style='color:red;'>Errore critico: servizio di autenticazione non disponibile.</p>";
+              }
+              return; // Non registrare il listener se auth non c'è
+          }
 
-                // Update UI for logged-in state
-                 document.body.classList.remove('logged-out');
-                 document.body.classList.add('logged-in');
-                 if (loadingIndicator) loadingIndicator.style.display = 'none';
-                 if (mainContent) mainContent.style.display = 'block';
+          window.auth.onAuthStateChanged(user => {
+              authStateChangeCountNoleggi++;
+              console.log(`Noleggi Page: onAuthStateChanged triggered (Count: ${authStateChangeCountNoleggi}). User object:`, user ? user.email : 'Not authenticated');
 
-                // Initialize the main application AFTER getting the role
-                if (typeof window.initializeApp === 'function') { // initializeApp è in code.js
-                   window.initializeApp(window.currentUserRole);
-                } else {
-                   console.error("Noleggi Page: initializeApp function not found (is code.js loaded?)!");
-                }
+              const loadingIndicator = document.getElementById('loading-indicator');
+              const mainContent = document.getElementById('main-content-container');
 
-            }).catch(error => {
-                console.error("Noleggi Page: Error fetching user role from Firestore:", error);
-                if (loadingIndicator) {
-                    loadingIndicator.innerHTML = `
-                        <p style="color:red;">Errore nel recupero dei permessi utente.</p>
-                        <p>L'accesso è consentito, ma potresti non avere i permessi corretti. Torna alla <a href="../index.html">Home</a> e riprova, o contatta l'amministratore.</p>
-                    `;
-                }
-                // Potresti decidere di inizializzare con ruolo 'user' di default anche in caso di errore
-                window.currentUserRole = 'user';
-                document.body.classList.remove('logged-out');
-                document.body.classList.add('logged-in'); // Comunque loggato
-                if (loadingIndicator) loadingIndicator.style.display = 'none'; // Nasconde l'indicatore dopo errore
-                if (mainContent) mainContent.style.display = 'block'; // Mostra il contenuto con ruolo di default
+              if (user) {
+                  console.log("Noleggi Page: User IS authenticated:", user.email, user.uid);
+                  if (loadingIndicator) {
+                      loadingIndicator.style.display = 'block';
+                      loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento permessi utente...';
+                  }
+                  if (mainContent) mainContent.style.display = 'none';
 
-                if (typeof window.initializeApp === 'function') {
-                   window.initializeApp(window.currentUserRole); // Inizializza con ruolo 'user'
-                }
-            });
+                  const userDocRef = db.collection('users').doc(user.uid);
+                  userDocRef.get().then(doc => {
+                      let userRole = 'user';
+                      if (doc.exists && doc.data().role) {
+                          userRole = doc.data().role;
+                      } else {
+                          console.warn(`Noleggi Page: User document or role not found in Firestore for UID ${user.uid}. Assigning default 'user' role. Access to admin features will be restricted.`);
+                      }
+                      window.currentUserRole = userRole;
+                      console.log("Noleggi Page: User role set to:", window.currentUserRole);
 
-        } else {
-            // User is signed out.
-            console.log("Noleggi Page: User is not authenticated.");
-            window.currentUserRole = null; // Clear role
-            document.body.classList.add('logged-out');
-            document.body.classList.remove('logged-in');
-            if (mainContent) mainContent.style.display = 'none';
-            if (loadingIndicator) {
-                loadingIndicator.style.display = 'block';
-                loadingIndicator.innerHTML = `
-                    <i class="fas fa-exclamation-circle"></i> Accesso Richiesto
-                    <p style="font-size: 0.9em; margin-top: 10px;">
-                        Per utilizzare questa sezione, per favore effettua il login dalla
-                        <a href="../index.html" style="text-decoration: underline; color: var(--primary);">Pagina Principale</a>.
-                    </p>`;
-            }
-            window.appInitialized = false; // Reset initialization flag from code.js
-        }
-      });
+                      document.body.classList.remove('logged-out');
+                      document.body.classList.add('logged-in');
+                      if (loadingIndicator) loadingIndicator.style.display = 'none';
+                      if (mainContent) mainContent.style.display = 'block';
 
-    } catch (error) {
-        console.error("Firebase Initialization Failed on Noleggi Page:", error);
-        const loadingIndicator = document.getElementById('loading-indicator');
-        if (loadingIndicator) loadingIndicator.innerHTML = "ERRORE CRITICO: Impossibile caricare Firebase.";
-        alert("ERRORE CRITICO: Impossibile inizializzare Firebase sulla pagina Noleggi.");
-    }
-  </script>
+                      if (typeof window.initializeApp === 'function') {
+                         window.initializeApp(window.currentUserRole);
+                      } else {
+                         console.error("Noleggi Page: initializeApp function not found (is code.js loaded?)!");
+                      }
+                  }).catch(error => {
+                      console.error("Noleggi Page: Error fetching user role from Firestore:", error);
+                      if (loadingIndicator) {
+                          loadingIndicator.innerHTML = `
+                              <p style="color:red;">Errore nel recupero dei permessi utente.</p>
+                              <p>L'app potrebbe non funzionare correttamente. Torna alla <a href="../index.html">Home</a> e riprova.</p>
+                          `;
+                      }
+                      window.currentUserRole = 'user';
+                      document.body.classList.remove('logged-out');
+                      document.body.classList.add('logged-in');
+                      if (loadingIndicator) loadingIndicator.style.display = 'none';
+                      if (mainContent) mainContent.style.display = 'block';
+                      if (typeof window.initializeApp === 'function') {
+                         window.initializeApp(window.currentUserRole);
+                      }
+                  });
+
+              } else {
+                  console.log("Noleggi Page: User IS NOT authenticated.");
+                  window.currentUserRole = null;
+                  document.body.classList.add('logged-out');
+                  document.body.classList.remove('logged-in');
+                  if (mainContent) mainContent.style.display = 'none';
+                  if (loadingIndicator) {
+                      loadingIndicator.style.display = 'block';
+                      loadingIndicator.innerHTML = `
+                          <i class="fas fa-exclamation-circle"></i> Accesso Richiesto
+                          <p style="font-size: 0.9em; margin-top: 10px;">
+                              Per utilizzare questa sezione, per favore effettua il login dalla
+                              <a href="../index.html" style="text-decoration: underline; color: var(--primary);">Pagina Principale</a>.
+                          </p>`;
+                  }
+                  if (window.appInitialized) {
+                       window.appInitialized = false;
+                  }
+              }
+          });
+      } // Fine initializeAuthListenerForNoleggi
+
+  } catch (error) {
+      console.error("Noleggi Page: Firebase Initialization Failed:", error);
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) loadingIndicator.innerHTML = "ERRORE CRITICO: Impossibile caricare Firebase.";
+      // Non usare alert() qui perché potrebbe bloccare altri script o il rendering
+  }
+</script>
 
   <!-- Libreria Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
