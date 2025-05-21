@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo Sconti - V. Avanzata (6 Sconti Acq.)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f7f9fc;
+            --surface-color: #ffffff;
+            --text-color-primary: #2c3e50;
+            --text-color-secondary: #7f8c8d;
+            --primary-color: #3498db;
+            --primary-color-dark: #2980b9;
+            --accent-color-success: #27ae60; 
+            --accent-color-danger: #c0392b;  
+            --border-color: #e0e6ed;
+            --font-body: 'Inter', sans-serif;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-medium: 0 4px 15px rgba(0,0,0,0.07);
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-color-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            font-weight: 400;
+            transition: background-color 0.3s ease; 
+        }
+
+        * { box-sizing: border-box; }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--surface-color);
+            padding: 24px;
+            height: 100vh;
+            position: fixed; top: 0; left: 0;
+            border-right: 1px solid var(--border-color);
+            box-shadow: var(--shadow-medium);
+            transition: transform 0.3s ease; 
+        }
+        .sidebar h1 {
+            font-size: 1.7em;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-align: center;
+        }
+        .sidebar nav ul { list-style: none; padding: 0; margin: 0; }
+        .sidebar nav li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--text-color-secondary);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-weight: 500;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+        }
+        .sidebar nav li a:hover {
+            background-color: #eaf5fc;
+            color: var(--primary-color);
+            transform: translateX(3px);
+        }
+        .sidebar nav li a.active {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        .sidebar nav li a .icon { margin-right: 12px; font-size: 1.1em; width:20px; text-align:center;}
+
+        .main-content { flex-grow: 1; padding: 32px 40px; margin-left: 250px; overflow-y: auto; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .main-content h2 {
+            font-size: 2em;
+            color: var(--text-color-primary);
+            margin-top: 0;
+            font-weight: 700;
+        }
+        .button {
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.95em;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none; 
+        }
+        .button:hover { transform: translateY(-1px); }
+        .button:active { transform: translateY(0); }
+
+        .button-primary { background-color: var(--primary-color); color: white; }
+        .button-primary:hover { background-color: var(--primary-color-dark); box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3); }
+        .button-secondary { background-color: var(--surface-color); color: var(--text-color-secondary); border: 1px solid var(--border-color); }
+        .button-secondary:hover { background-color: #f0f3f7; border-color: #c8d0da; }
+        .button-danger { background-color: var(--accent-color-danger); color:white; }
+        .button-danger:hover { background-color: #a5281b; box-shadow: 0 2px 8px rgba(192, 57, 43, 0.3); }
+
+
+        .card {
+            background-color: var(--surface-color);
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-medium);
+        }
+        .filters-container { display: flex; justify-content: space-between; align-items: center; }
+        .filters { display: flex; gap: 20px; align-items: center; flex-wrap: wrap;}
+        .filters label { font-weight: 500; margin-right: 8px; color: var(--text-color-secondary); font-size: 0.9em;}
+        .filters select, .filters input[type="text"] {
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 0.95em;
+            background-color: #fdfdff;
+            color: var(--text-color-primary);
+            min-width: 180px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .filters select:focus, .filters input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        .discounts-matrix-table { width: 100%; border-collapse: collapse; }
+        .discounts-matrix-table th, .discounts-matrix-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .discounts-matrix-table th { font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-color-secondary); }
+        .discounts-matrix-table tr:last-child td { border-bottom: none; }
+        .discounts-matrix-table tbody tr { transition: background-color 0.15s ease; }
+        .discounts-matrix-table tbody tr:hover { background-color: #f7f9fc; }
+
+        .discounts-display { font-weight: 500; color: var(--text-color-primary); }
+        .category-name { font-weight: 600; color: var(--primary-color-dark); }
+        .brand-name { color: var(--text-color-primary); }
+
+        .actions .action-button {
+            font-size: 0.85em; padding: 6px 10px; border-radius: 6px;
+            border: 1px solid transparent; margin-left: 6px;
+            transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .actions .edit-btn { background-color: #eaf5fc; color: var(--primary-color); }
+        .actions .edit-btn:hover { background-color: #d6eaf8; border-color: var(--primary-color); }
+        .actions .delete-btn { background-color: #fdedec; color: var(--accent-color-danger); }
+        .actions .delete-btn:hover { background-color: #f9c9c4; border-color: var(--accent-color-danger); }
+
+
+        .no-data { text-align: center; padding: 40px; color: var(--text-color-secondary); font-size: 1.1em; }
+
+        .modal {
+            display: none; position: fixed; z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(44, 62, 80, 0.7);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: var(--surface-color);
+            margin: 5% auto; padding: 28px 35px;
+            border-radius: 12px; width: 90%; max-width: 600px; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            animation: fadeInModal 0.3s ease-out;
+        }
+        @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        .modal-content h3 { margin-top:0; font-size:1.5em; color: var(--text-color-primary); font-weight: 600; margin-bottom: 24px; }
+        .modal-content .form-group { margin-bottom: 16px; }
+        .modal-content label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-color-secondary); font-size:0.9em; }
+        .modal-content input[type="text"], .modal-content input[type="number"] {
+            width: 100%; padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 1em;
+            background-color: #fdfdff;
+            color: var(--text-color-primary);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .modal-content input[type="text"]:focus, .modal-content input[type="number"]:focus {
+             outline: none; border-color: var(--primary-color);
+             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+        .sconto-fields { display: flex; gap: 10px; margin-bottom: 8px; /* Aggiunto per spaziare le righe di sconti acquisto */ }
+        .sconto-fields:last-of-type { margin-bottom: 0; } /* Rimuove margine extra se è l'ultimo gruppo */
+        .sconto-fields input[type="number"] { width: calc( (100% / 3) - (20px / 3) ); }
+
+
+        .modal-actions { text-align: right; margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;}
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--accent-color-success);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 2000;
+            right: 30px;
+            bottom: 30px;
+            font-size: 1em;
+            box-shadow: var(--shadow-medium);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            transform: translateY(20px);
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h1>Sconti Pro</h1>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="event.preventDefault()"><span class="icon">📊</span>Dashboard</a></li>
+                <li><a href="#" class="active" onclick="event.preventDefault()"><span class="icon">📋</span>Matrice Sconti</a></li>
+                <li><a href="#" onclick="event.preventDefault()"><span class="icon">🏷️</span>Categorie</a></li>
+                <li><a href="#" onclick="event.preventDefault()"><span class="icon">🏢</span>Marche</a></li>
+                <li><a href="#" onclick="event.preventDefault()"><span class="icon">⚙️</span>Impostazioni</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="header-actions">
+            <h2>Tabella Sconti Applicati</h2>
+            <button class="button button-primary" onclick="openAddRuleModal()">
+                <span style="font-size:1.2em;">+</span> Nuova Regola
+            </button>
+        </div>
+
+        <div class="filters-container card">
+            <div class="filters">
+                <div>
+                    <label for="category-filter">Categoria:</label>
+                    <select id="category-filter" onchange="filterDiscountRules()">
+                        <option value="">Tutte</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="brand-filter">Marca:</label>
+                    <select id="brand-filter" onchange="filterDiscountRules()">
+                        <option value="">Tutte</option>
+                    </select>
+                </div>
+            </div>
+            <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;">
+                <span style="font-size:1.2em;">↺</span> Reset Filtri
+            </button>
+        </div>
+
+        <div class="card">
+            <table class="discounts-matrix-table">
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Marca</th>
+                        <th>Sconti Acquisto</th>
+                        <th>Sconti Vendita</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="discounts-matrix-body"></tbody>
+            </table>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto corrisponde ai filtri selezionati.</div>
+        </div>
+    </main>
+
+    <div id="editRuleModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Modifica Regola Sconto</h3>
+            <input type="hidden" id="editRuleId">
+            <div class="form-group">
+                <label for="editCategoria">Categoria</label>
+                <input type="text" id="editCategoria" placeholder="Nome categoria">
+            </div>
+            <div class="form-group">
+                <label for="editMarca">Marca</label>
+                <input type="text" id="editMarca" placeholder="Nome marca">
+            </div>
+            <div class="form-group">
+                <label>Sconti Acquisto (max 6, lasciare vuoto se non applicabile)</label>
+                <div class="sconto-fields"> <!-- Prima riga sconti acquisto -->
+                    <input type="number" id="editScontoAcquisto1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
+                    <input type="number" id="editScontoAcquisto2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
+                    <input type="number" id="editScontoAcquisto3" placeholder="Sconto 3 %" min="0" max="100" step="0.01">
+                </div>
+                <div class="sconto-fields"> <!-- Seconda riga sconti acquisto -->
+                    <input type="number" id="editScontoAcquisto4" placeholder="Sconto 4 %" min="0" max="100" step="0.01">
+                    <input type="number" id="editScontoAcquisto5" placeholder="Sconto 5 %" min="0" max="100" step="0.01">
+                    <input type="number" id="editScontoAcquisto6" placeholder="Sconto 6 %" min="0" max="100" step="0.01">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Sconti Vendita (max 2, lasciare vuoto se non applicabile)</label>
+                <div class="sconto-fields">
+                    <input type="number" id="editScontoVendita1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
+                    <input type="number" id="editScontoVendita2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="button button-secondary" onclick="closeModal()">Annulla</button>
+                <button type="button" class="button button-primary" style="background-color: var(--accent-color-success);" onclick="saveRuleChanges()">
+                    <span style="font-size:1.1em;">✓</span> Salva
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast">Messaggio Toast!</div>
+
+    <script>
+        let discountRulesData = [
+            { id: 1, categoria: 'Climatizzatori', marca: 'Mitsubishi', scontiAcquisto: [25, 10, 5, 2, 1, 1], scontiVendita: [15, 5] },
+            { id: 2, categoria: 'Climatizzatori', marca: 'Daikin', scontiAcquisto: [28, 12], scontiVendita: [18, 6] },
+            { id: 3, categoria: 'Climatizzatori', marca: 'Haier', scontiAcquisto: [22, 8, 3], scontiVendita: [12, 4] },
+            { id: 18, categoria: 'Climatizzatori', marca: 'GenericClima', scontiAcquisto: [15, 5], scontiVendita: [10] },
+            { id: 4, categoria: 'Caldaie', marca: 'Immergas', scontiAcquisto: [30, 10, 5, 3], scontiVendita: [20, 8] },
+            { id: 5, categoria: 'Caldaie', marca: 'Riello', scontiAcquisto: [27, 9, 2, 1], scontiVendita: [17, 7] },
+            { id: 19, categoria: 'Caldaie', marca: 'GenericHeat', scontiAcquisto: [20, 7], scontiVendita: [12] },
+            { id: 6, categoria: 'Addolcitori', marca: 'AquaPure', scontiAcquisto: [15, 5, 2], scontiVendita: [10, 2] },
+            { id: 20, categoria: 'Addolcitori', marca: 'GenericWater', scontiAcquisto: [12, 3], scontiVendita: [8] },
+            { id: 7, categoria: 'Idraulica', marca: 'Caleffi', scontiAcquisto: [25, 10, 5, 5, 2, 1], scontiVendita: [15, 5] },
+            { id: 8, categoria: 'Idraulica', marca: 'Irsap', scontiAcquisto: [30, 5, 3], scontiVendita: [18, 7] },
+            { id: 9, categoria: 'Idraulica', marca: 'Rubinetterie Bresciane', scontiAcquisto: [20, 8, 3, 2], scontiVendita: [12, 4] },
+            { id: 10, categoria: 'Idraulica', marca: 'RBM', scontiAcquisto: [22, 7, 1], scontiVendita: [14, 6] },
+            { id: 11, categoria: 'Idraulica', marca: 'Icma', scontiAcquisto: [18, 5, 2, 1, 1], scontiVendita: [10, 3] },
+            { id: 12, categoria: 'Idraulica', marca: 'General fittings', scontiAcquisto: [15, 6], scontiVendita: [9, 2] },
+            { id: 13, categoria: 'Idraulica', marca: 'Wilo', scontiAcquisto: [35, 10, 5], scontiVendita: [20, 8] },
+            { id: 14, categoria: 'Idraulica', marca: 'DAB', scontiAcquisto: [32, 8, 4, 2], scontiVendita: [19, 7] },
+            { id: 15, categoria: 'Fotovoltaico', marca: 'SunPower', scontiAcquisto: [22, 12, 6], scontiVendita: [15, 7] },
+            { id: 16, categoria: 'Fotovoltaico', marca: 'EcoAlternative', scontiAcquisto: [18, 9, 4, 1], scontiVendita: [12, 5] },
+            { id: 17, categoria: 'Fotovoltaico', marca: 'GenericSolar', scontiAcquisto: [15, 7, 2], scontiVendita: [10] }
+        ];
+        let currentFilteredRules = [...discountRulesData];
+        let nextId = Math.max(...discountRulesData.map(r => r.id), 0) + 1;
+
+        const modal = document.getElementById('editRuleModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const editRuleIdInput = document.getElementById('editRuleId');
+        const editCategoriaInput = document.getElementById('editCategoria');
+        const editMarcaInput = document.getElementById('editMarca');
+        
+        // Aggiungere gli altri ID degli input sconto acquisto
+        const editScontoAcquisto1 = document.getElementById('editScontoAcquisto1');
+        const editScontoAcquisto2 = document.getElementById('editScontoAcquisto2');
+        const editScontoAcquisto3 = document.getElementById('editScontoAcquisto3');
+        const editScontoAcquisto4 = document.getElementById('editScontoAcquisto4');
+        const editScontoAcquisto5 = document.getElementById('editScontoAcquisto5');
+        const editScontoAcquisto6 = document.getElementById('editScontoAcquisto6');
+
+        const editScontoVendita1 = document.getElementById('editScontoVendita1');
+        const editScontoVendita2 = document.getElementById('editScontoVendita2');
+        
+        const toastElement = document.getElementById('toast-notification');
+
+        function showToast(message, duration = 3000) { /* ...identica... */
+            toastElement.textContent = message;
+            toastElement.classList.add("show");
+            setTimeout(() => {
+                toastElement.classList.remove("show");
+            }, duration);
+        }
+
+        function getScontiFromFields(baseId, count) { /* ...identica... */
+            const sconti = [];
+            for (let i = 1; i <= count; i++) {
+                const field = document.getElementById(`${baseId}${i}`);
+                if (field && field.value !== "") { // Aggiunto check per field esistente
+                    const val = parseFloat(field.value);
+                    if (!isNaN(val) && val >= 0 && val <= 100) { 
+                        sconti.push(val);
+                    } else {
+                        showToast(`Errore: Valore non valido per ${field.placeholder}. Inserire numeri (0-100).`, 4000);
+                        return null; 
+                    }
+                }
+            }
+            return sconti;
+        }
+
+        function setScontiToFields(baseId, count, scontiArray) { /* ...identica... */
+            for (let i = 1; i <= count; i++) {
+                const field = document.getElementById(`${baseId}${i}`);
+                if (field) { // Aggiunto check per field esistente
+                   field.value = scontiArray && scontiArray[i-1] !== undefined ? scontiArray[i-1] : "";
+                }
+            }
+        }
+        
+        function openEditModal(ruleId) { /* Modificato per 6 sconti acquisto */
+            const rule = discountRulesData.find(r => r.id === ruleId);
+            if (!rule) return;
+            modalTitle.textContent = "Modifica Regola Sconto";
+            editRuleIdInput.value = rule.id;
+            editCategoriaInput.value = rule.categoria;
+            editMarcaInput.value = rule.marca;
+            setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto); // <<< MODIFICATO A 6
+            setScontiToFields('editScontoVendita', 2, rule.scontiVendita);
+            modal.style.display = "block";
+        }
+
+        function openAddRuleModal() { /* Modificato per 6 sconti acquisto */
+            modalTitle.textContent = "Aggiungi Nuova Regola Sconto";
+            editRuleIdInput.value = "";
+            editCategoriaInput.value = "";
+            editMarcaInput.value = "";
+            setScontiToFields('editScontoAcquisto', 6, []); // <<< MODIFICATO A 6
+            setScontiToFields('editScontoVendita', 2, []);
+            modal.style.display = "block";
+            editCategoriaInput.focus();
+        }
+
+        function closeModal() { /* ...identica... */
+            modal.style.display = "none";
+        }
+
+        function saveRuleChanges() { /* Modificato per 6 sconti acquisto */
+            const id = editRuleIdInput.value ? parseInt(editRuleIdInput.value) : null;
+            const categoria = editCategoriaInput.value.trim();
+            const marca = editMarcaInput.value.trim();
+            
+            const scontiAcquisto = getScontiFromFields('editScontoAcquisto', 6); // <<< MODIFICATO A 6
+            const scontiVendita = getScontiFromFields('editScontoVendita', 2);
+
+            if (scontiAcquisto === null || scontiVendita === null) return;
+
+            if (!categoria || !marca) {
+                showToast("Errore: Categoria e Marca sono campi obbligatori.", 4000);
+                return;
+            }
+
+            if (id) {
+                const ruleIndex = discountRulesData.findIndex(r => r.id === id);
+                if (ruleIndex > -1) {
+                    discountRulesData[ruleIndex] = { ...discountRulesData[ruleIndex], categoria, marca, scontiAcquisto, scontiVendita };
+                }
+            } else {
+                const newRule = { id: nextId++, categoria, marca, scontiAcquisto, scontiVendita };
+                discountRulesData.push(newRule);
+            }
+            closeModal();
+            filterDiscountRules();
+            populateFilters();
+            showToast("Regola salvata con successo!");
+        }
+
+        function deleteRule(ruleId) { /* ...identica... */
+             if (window.confirm("Sei sicuro di voler eliminare questa regola? L'azione non è reversibile.")) {
+                discountRulesData = discountRulesData.filter(rule => rule.id !== ruleId);
+                filterDiscountRules();
+                populateFilters(); // Necessario se l'ultima marca/categoria viene eliminata
+                showToast("Regola eliminata.");
+            }
+        }
+        
+        function formatDiscountString(discountArray) { /* ...identica... */
+            if (!discountArray || discountArray.length === 0) return "N/A";
+            return discountArray.map(d => d + "%").join(" + ");
+        }
+
+        function populateFilters() { /* ...identica, ma con controlli più robusti per la selezione corrente... */
+            const categories = [...new Set(discountRulesData.map(rule => rule.categoria))].sort();
+            const brands = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
+            const categoryFilterEl = document.getElementById('category-filter');
+            const brandFilterEl = document.getElementById('brand-filter');
+            const currentCatVal = categoryFilterEl.value;
+            const currentBrandVal = brandFilterEl.value;
+
+            while (categoryFilterEl.options.length > 1) categoryFilterEl.remove(1);
+            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1);
+            
+            categories.forEach(cat => {
+                const option = document.createElement('option'); option.value = cat; option.textContent = cat; categoryFilterEl.appendChild(option);
+            });
+            brands.forEach(brand => {
+                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
+            });
+
+            if (categories.includes(currentCatVal)) categoryFilterEl.value = currentCatVal;
+            else categoryFilterEl.value = ""; // Se la categoria selezionata non esiste più, resetta
+            
+            // Ricarica le marche basate sulla categoria attuale o mostra tutte se nessuna categoria è selezionata
+            const effectiveCategory = categoryFilterEl.value;
+            const brandsForDropdown = effectiveCategory ? 
+                                    [...new Set(discountRulesData.filter(r => r.categoria === effectiveCategory).map(r => r.marca))].sort() :
+                                    brands;
+            
+            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1); // Pulisci di nuovo per le marche aggiornate
+            brandsForDropdown.forEach(brand => {
+                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
+            });
+
+            if (brandsForDropdown.includes(currentBrandVal)) brandFilterEl.value = currentBrandVal;
+            else brandFilterEl.value = ""; // Se la marca selezionata non esiste più nella lista aggiornata, resetta
+        }
+
+
+        function renderTable(rulesToRender) { /* ...identica... */
+            const tableBody = document.getElementById('discounts-matrix-body');
+            const noDataMessage = document.getElementById('no-data-message');
+            const tableElement = document.querySelector('.discounts-matrix-table');
+            
+            tableBody.innerHTML = ''; 
+
+            if (rulesToRender.length === 0) {
+                noDataMessage.style.display = 'block'; 
+                if(tableElement) tableElement.style.display = 'none';
+                return;
+            }
+            noDataMessage.style.display = 'none'; 
+            if(tableElement) tableElement.style.display = 'table';
+
+            const sortedRules = [...rulesToRender].sort((a,b) => {
+                if (a.categoria < b.categoria) return -1;
+                if (a.categoria > b.categoria) return 1;
+                if (a.marca < b.marca) return -1;
+                if (a.marca > b.marca) return 1;
+                return 0;
+            });
+            sortedRules.forEach(rule => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td class="category-name">${rule.categoria}</td>
+                    <td class="brand-name">${rule.marca}</td>
+                    <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
+                    <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
+                    <td class="actions">
+                        <button class="button action-button edit-btn" onclick="openEditModal(${rule.id})"><span style="font-size:1.1em;">✎</span> Modifica</button>
+                        <button class="button action-button delete-btn" onclick="deleteRule(${rule.id})"><span style="font-size:1.1em;">🗑</span> Elimina</button>
+                    </td>
+                `;
+            });
+        }
+
+        function filterDiscountRules() { /* ...logica di aggiornamento del filtro marche migliorata... */
+            const categoryValue = document.getElementById('category-filter').value;
+            const brandFilterEl = document.getElementById('brand-filter'); // Prima il brand filter element
+            const brandValue = brandFilterEl.value; // Poi il suo valore
+            
+            currentFilteredRules = discountRulesData.filter(rule => {
+                const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
+                const matchesBrand = brandValue ? rule.marca === brandValue : true;
+                return matchesCategory && matchesBrand;
+            });
+            
+            // Aggiorna il dropdown delle marche basato sulla categoria selezionata
+            const currentBrandSelection = brandFilterEl.value; 
+            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1); 
+            
+            let brandsToShowInDropdown;
+            if (categoryValue) {
+                // Mostra solo marche della categoria selezionata che esistono nei dati FILTRATI (o globali, dipende dalla UX desiderata)
+                // Per ora, mostriamo le marche della categoria selezionata presenti in tutti i dati, non solo quelli filtrati
+                 brandsToShowInDropdown = [...new Set(discountRulesData.filter(rule => rule.categoria === categoryValue).map(rule => rule.marca))].sort();
+            } else { 
+                brandsToShowInDropdown = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
+            }
+            brandsToShowInDropdown.forEach(brand => {
+                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
+            });
+
+            if (brandsToShowInDropdown.includes(currentBrandSelection)) {
+                brandFilterEl.value = currentBrandSelection;
+            } else {
+                brandFilterEl.value = ""; // Se la marca selezionata non è più valida, resetta
+                 // E rifiltra se il brand è stato resettato
+                if (brandValue !== "") { // Solo se brandValue era impostato e ora è stato resettato
+                    currentFilteredRules = discountRulesData.filter(rule => {
+                        const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
+                        // Il brand non è più un filtro attivo qui perché è stato resettato
+                        return matchesCategory;
+                    });
+                }
+            }
+            renderTable(currentFilteredRules);
+        }
+        
+        function resetFilters() { /* ...identica... */
+            document.getElementById('category-filter').value = "";
+            // document.getElementById('brand-filter').value = ""; // Non è necessario resettare la marca qui, filterDiscountRules lo farà
+            filterDiscountRules(); // Questo popolerà anche il filtro marche con tutte le opzioni
+            document.getElementById('brand-filter').value = ""; // Assicurati che sia "Tutte" dopo
+            filterDiscountRules(); // Richiama di nuovo per applicare "Tutte le Marche"
+            showToast("Filtri resettati.");
+        }
+
+        window.onclick = function(event) { /* ...identica... */
+            if (event.target == modal) { closeModal(); }
+        }
+        document.addEventListener('DOMContentLoaded', () => { /* ...identica... */
+            populateFilters();
+            filterDiscountRules(); 
+        });
+    </script>
+
+</body>
+</html>
