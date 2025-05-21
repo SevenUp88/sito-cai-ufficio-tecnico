@@ -3,221 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrice Sconti - Sconti Pro</title>
-    <!-- Stile di base per questo prototipo, potresti voler integrare style (2).css -->
+    <title>Matrice Sconti - Firestore</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
+    <!-- Firebase SDK (versioni "compat" per uso globale) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-analytics-compat.js"></script> -->
+
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // Mantieni la tua API Key
+        authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+        projectId: "consorzio-artigiani-idraulici",
+        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app", // Errore di battitura "firebaseapp.com" -> "firebasestorage.app"
+        messagingSenderId: "136848104008",
+        appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+        measurementId: "G-NNPV2607G7" // Opzionale, ma puoi includerlo
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore(); // Istanza di Firestore (globale grazie a -compat)
+      const SCONTISTICHE_COLLECTION = "scontisticheProdotti"; // Nome della tua collezione
+      // const analytics = firebase.analytics(); // Se vuoi usare Analytics
+    </script>
+
     <style>
-        /* :root e stili base dal tuo style (2).css, adattati se necessario */
+        /* CSS dalla risposta precedente, adattato e integrato */
         :root {
-            --primary-color: #0056a8; /* Da style (2).css */
+            --primary-color: #0056a8;
             --secondary-color: #6c757d;
             --light-color: #f8f9fa;
             --dark-color: #343a40;
             --background-color: #ffffff;
             --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             --border-radius: 8px;
-            --danger-color: #dc3545;
+            --danger-color: #dc3545; /* Bootstrap danger */
             --warning-color: #ffc107;
             --header-height: 65px;
 
-            /* Colori specifici della matrice sconti (se diversi, altrimenti usa quelli sopra) */
-            --matrice-primary-color: var(--primary-color); /* Eredita o sovrascrivi */
+            --matrice-primary-color: var(--primary-color);
             --matrice-text-primary: var(--dark-color);
             --matrice-text-secondary: var(--secondary-color);
             --matrice-surface-color: var(--background-color);
             --matrice-bg-color: var(--light-color);
-            --matrice-border-color: #e0e0e0; /* Simile a product-card border */
-            --matrice-accent-success: #27ae60; /* Mantenuto da matrice originale */
-            --matrice-accent-danger: #c0392b;   /* Mantenuto da matrice originale */
-
+            --matrice-border-color: #e0e0e0;
+            --matrice-accent-success: #198754; /* Bootstrap success */
+            --matrice-accent-danger: #dc3545;   /* Bootstrap danger */
         }
 
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--matrice-bg-color);
-            color: var(--matrice-text-primary);
-            line-height: 1.6;
-            padding-top: var(--header-height); /* Spazio per header fisso */
-            min-height: 100vh;
-            font-weight: 400;
-        }
-
+        body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--matrice-bg-color); color: var(--matrice-text-primary); line-height: 1.6; padding-top: var(--header-height); min-height: 100vh; font-weight: 400; }
         * { box-sizing: border-box; }
 
-        /* === Header Styles (da style (2).css) === */
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
         .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
         .app-header a { line-height: 0; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
         .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-        .header-action-button:hover { color: var(--danger-color); }
-        /* Fine Header Styles */
+        .header-action-button:hover { color: var(--matrice-accent-danger); }
 
-
-        /* Container principale della pagina Matrice Sconti */
-        .main-container {
-            max-width: 1300px; /* Un po' più largo per la tabella */
-            margin: 20px auto;
-            padding: 20px;
-        }
-
+        .main-container { max-width: 1300px; margin: 20px auto; padding: 20px; }
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .page-title-actions h1 {
-            font-size: 2em;
-            color: var(--primary-color); /* Uso il blu primario per il titolo */
-            margin-top: 0;
-            margin-bottom: 0; /* Tolto margine inferiore per allineare meglio */
-            font-weight: 700;
-        }
+        .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin: 0; font-weight: 700; }
 
-        .button {
-            border: none;
-            padding: 10px 18px; /* Leggermente meno padding orizzontale */
-            font-size: 0.9em;   /* Leggermente più piccolo */
-            font-weight: 600;
-            border-radius: var(--border-radius); /* Usa il border-radius standard */
-            cursor: pointer;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            line-height: 1.4; /* Aggiunto per coerenza */
-        }
+        .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; line-height: 1.4; }
         .button:hover { transform: translateY(-1px); }
-        .button:active { transform: translateY(0); }
-
         .button-primary { background-color: var(--matrice-primary-color); color: white; }
-        .button-primary:hover { background-color: #004182; /* Più scuro del primary-color */ box-shadow: 0 2px 8px rgba(0, 86, 168, 0.3); }
+        .button-primary:hover { background-color: #004182; box-shadow: 0 2px 8px rgba(0, 86, 168, 0.3); }
         .button-secondary { background-color: var(--matrice-surface-color); color: var(--matrice-text-secondary); border: 1px solid var(--matrice-border-color); }
         .button-secondary:hover { background-color: #e9ecef; border-color: #ced4da; }
-        .button-danger { background-color: var(--matrice-accent-danger); color:white; } /* Era var(--accent-color-danger) */
-        .button-danger:hover { background-color: #a5281b; box-shadow: 0 2px 8px rgba(192, 57, 43, 0.3); }
 
-
-        /* Card per filtri e tabella */
-        .content-card {
-            background-color: var(--matrice-surface-color);
-            padding: 24px;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--matrice-border-color);
-            margin-bottom: 24px;
-            box-shadow: var(--card-shadow); /* Usa lo shadow standard */
-        }
+        .content-card { background-color: var(--matrice-surface-color); padding: 24px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); margin-bottom: 24px; box-shadow: var(--card-shadow); }
         .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;}
         .filters { display: flex; gap: 20px; align-items: center; flex-wrap: wrap;}
         .filters label { font-weight: 500; margin-right: 8px; color: var(--matrice-text-secondary); font-size: 0.9em;}
-        .filters select, .filters input[type="text"] { /* Stile input/select simile a style(2).css */
-            padding: 8px 12px;
-            border-radius: 4px; /* Ridotto border-radius */
-            border: 1px solid #ced4da; /* Colore bordo standard */
-            font-size: 0.9em;
-            background-color: #fff; /* Sfondo bianco */
-            color: var(--matrice-text-primary);
-            min-width: 180px;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .filters select:focus, .filters input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary-color); /* Usa il primary-color per il focus */
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); /* Stile focus standard Bootstrap-like */
-        }
+        .filters select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.9em; background-color: #fff; color: var(--matrice-text-primary); min-width: 180px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); }
 
         .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
-        .discounts-matrix-table th, .discounts-matrix-table td {
-            padding: 12px 15px; /* Ridotto padding per celle */
-            text-align: left;
-            border-bottom: 1px solid var(--matrice-border-color);
-            font-size: 0.88em; /* Leggermente più piccolo */
-            vertical-align: top;
-        }
-        .discounts-matrix-table th {
-            font-weight: 600;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--matrice-text-secondary);
-            background-color: #f8f9fa; /* Sfondo leggero per header tabella */
-        }
+        .discounts-matrix-table th, .discounts-matrix-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.88em; vertical-align: top; }
+        .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
         .discounts-matrix-table tr:last-child td { border-bottom: none; }
-        .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; } /* Righe alternate */
-        .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; } /* Hover più evidente */
-
+        .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
+        .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
         .discounts-display { font-weight: 500; color: var(--matrice-text-primary); }
-        .category-name { font-weight: 600; color: var(--primary-color); } /* Usa colore primario */
+        .category-name { font-weight: 600; color: var(--primary-color); }
         .brand-name { font-weight: 500; color: var(--matrice-text-primary); }
-        .service-centers-cell { font-size: 0.85em; line-height: 1.5; }
-        .service-centers-cell strong { color: var(--dark-color); } /* Evidenzia nome città */
+        .service-centers-cell { font-size: 0.85em; line-height: 1.5; max-width: 280px; white-space: normal; word-break: break-word;}
+        .service-centers-cell strong { color: var(--dark-color); }
 
-
-        .actions .action-button {
-            font-size: 0.8em; padding: 5px 8px; border-radius: 4px;
-            border: 1px solid transparent; margin-left: 4px;
-        }
-        .actions .edit-btn { background-color: #e0efff; color: var(--primary-color); border-color: #b3d7ff; }
-        .actions .edit-btn:hover { background-color: #cce5ff; }
-        .actions .delete-btn { background-color: #f8d7da; color: var(--danger-color); border-color: #f5c2c7;}
-        .actions .delete-btn:hover { background-color: #f1c1c5; }
-
+        .actions .action-button { font-size: 0.8em; padding: 5px 8px; border-radius: 4px; border: 1px solid transparent; margin-left: 4px; background-color: transparent; cursor:pointer; transition: all 0.2s ease; }
+        .actions .edit-btn { color: var(--primary-color); border-color: var(--primary-color);}
+        .actions .edit-btn:hover { background-color: #e0efff; }
+        .actions .delete-btn { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger);}
+        .actions .delete-btn:hover { background-color: #f8d7da; }
 
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
 
-        /* Stili Modale (simili alla versione precedente ma con colori allineati) */
-        .modal {
-            display: none; position: fixed; z-index: 1030; /* Sopra la maggior parte degli elementi */
-            left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0, 0, 0, 0.6); /* Sfondo più scuro */
-        }
-        .modal-content {
-            background-color: var(--matrice-surface-color);
-            margin: 5% auto; padding: 25px 35px;
-            border-radius: var(--border-radius); width: 90%; max-width: 650px; /* Max-width leggermente aumentata */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            animation: fadeInModal 0.3s ease-out;
-        }
+        .modal { display: none; position: fixed; z-index: 1030; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: var(--matrice-surface-color); margin: 5% auto; padding: 25px 35px; border-radius: var(--border-radius); width: 90%; max-width: 650px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); animation: fadeInModal 0.3s ease-out; }
         @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
         .modal-content h3 { margin-top:0; font-size:1.6em; color: var(--primary-color); font-weight: 600; margin-bottom: 25px; text-align: center; }
         .modal-content .form-group { margin-bottom: 16px; }
         .modal-content label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--matrice-text-secondary); font-size:0.9em; }
-        .modal-content input[type="text"], .modal-content input[type="number"] {
-            width: 100%; padding: 10px 12px; /* Adattato padding */
-            border: 1px solid #ced4da;
-            border-radius: 4px; font-size: 0.95em;
-            background-color: #fff;
-            color: var(--matrice-text-primary);
-        }
-        .modal-content input[type="text"]:focus, .modal-content input[type="number"]:focus {
-             outline: none; border-color: var(--primary-color);
-             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
-        }
+        .modal-content input[type="text"], .modal-content input[type="number"] { width: 100%; padding: 10px 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.95em; background-color: #fff; color: var(--matrice-text-primary); }
+        .modal-content input[type="text"]:focus, .modal-content input[type="number"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); }
         .sconto-fields { display: flex; gap: 10px; margin-bottom: 8px; }
         .sconto-fields:last-of-type { margin-bottom: 0; }
         .sconto-fields input { width: calc( (100% / 3) - (20px / 3) ); }
-
-
         .modal-actions { text-align: right; margin-top: 30px; display: flex; justify-content: flex-end; gap: 12px;}
-        .modal-actions .button-primary { background-color: var(--matrice-accent-success); } /* Verde per salva */
-        .modal-actions .button-primary:hover { background-color: #1f8b4c; }
-
-
-        /* Toast (invariato ma usa variabili globali se possibile) */
-        .toast { /* ... invariato ... */ }
-        .modal-row { /* ... invariato ... */ }
-
+        .modal-actions .button-primary { background-color: var(--matrice-accent-success); border-color: var(--matrice-accent-success); }
+        .modal-actions .button-primary:hover { background-color: #146c43; border-color: #13653f; }
+        
+        .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
+        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
+        .modal-row { display: flex; gap: 15px; }
+        .modal-row .form-group { flex: 1; }
     </style>
 </head>
 <body>
 
     <header class="app-header">
-        <a href="/" title="C.A.I. - Home"> <!-- Link alla Home del sito -->
+        <a href="/" title="C.A.I. - Home">
              <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
         </a>
         <div class="header-controls">
-            <!-- Potresti aggiungere altri controlli qui se necessario per la matrice sconti -->
             <a href="/" class="header-action-button" title="Torna alla Home">
                 <i class="fas fa-home"></i>
             </a>
@@ -234,18 +148,8 @@
 
         <div class="content-card filters-container">
             <div class="filters">
-                <div>
-                    <label for="category-filter">Categoria:</label>
-                    <select id="category-filter" onchange="filterDiscountRules()">
-                        <option value="">Tutte</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="brand-filter">Marca:</label>
-                    <select id="brand-filter" onchange="filterDiscountRules()">
-                        <option value="">Tutte</option>
-                    </select>
-                </div>
+                <div> <label for="category-filter">Categoria:</label> <select id="category-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
+                <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
             </div>
             <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;">
                 <i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri
@@ -267,9 +171,9 @@
                 </thead>
                 <tbody id="discounts-matrix-body"></tbody>
             </table>
-            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto corrisponde ai filtri selezionati (o dati non ancora caricati).</div>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto.</div>
         </div>
-    </div> <!-- Fine .main-container -->
+    </div>
 
     <div id="editRuleModal" class="modal">
         <div class="modal-content">
@@ -277,161 +181,82 @@
             <input type="hidden" id="editRuleId">
 
             <div class="modal-row">
-                <div class="form-group">
-                    <label for="editCategoria">Categoria</label>
-                    <input type="text" id="editCategoria" placeholder="Nome categoria">
-                </div>
-                <div class="form-group">
-                    <label for="editMarca">Marca</label>
-                    <input type="text" id="editMarca" placeholder="Nome marca">
-                </div>
+                <div class="form-group"> <label for="editCategoria">Categoria</label> <input type="text" id="editCategoria" placeholder="Nome categoria"> </div>
+                <div class="form-group"> <label for="editMarca">Marca</label> <input type="text" id="editMarca" placeholder="Nome marca"> </div>
             </div>
-             <!-- Sottocategoria rimossa -->
-
             <hr style="margin: 20px 0; border-color: var(--matrice-border-color); border-top:none;">
-            
-            <div class="form-group">
-                <label for="editAgente">Agenzia Rappresentante</label>
-                <input type="text" id="editAgente" placeholder="Nome agenzia (futuro: ref + tel)">
-            </div>
-            
+            <div class="form-group"> <label for="editAgente">Agenzia</label> <input type="text" id="editAgente" placeholder="Nome agenzia"> </div>
             <div class="form-group">
                 <label>Centri Assistenza (formato: Nome | Telefono)</label>
-                <div class="sconto-fields"> <!-- Riusa .sconto-fields per layout, ma questi sono text -->
+                <div class="sconto-fields">
                     <input type="text" id="editCentroAssistenza1" placeholder="Assistenza Cesena">
                     <input type="text" id="editCentroAssistenza2" placeholder="Assistenza Savignano">
                     <input type="text" id="editCentroAssistenza3" placeholder="Assistenza Rimini">
                 </div>
             </div>
-             <hr style="margin: 20px 0; border-color: var(--matrice-border-color); border-top:none;">
-
-
+            <hr style="margin: 20px 0; border-color: var(--matrice-border-color); border-top:none;">
             <div class="form-group">
-                <label>Sconti Acquisto (max 6, lasciare vuoto se non applicabile)</label>
-                <div class="sconto-fields">
-                    <input type="number" id="editScontoAcquisto1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
-                    <input type="number" id="editScontoAcquisto2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
-                    <input type="number" id="editScontoAcquisto3" placeholder="Sconto 3 %" min="0" max="100" step="0.01">
-                </div>
-                <div class="sconto-fields">
-                    <input type="number" id="editScontoAcquisto4" placeholder="Sconto 4 %" min="0" max="100" step="0.01">
-                    <input type="number" id="editScontoAcquisto5" placeholder="Sconto 5 %" min="0" max="100" step="0.01">
-                    <input type="number" id="editScontoAcquisto6" placeholder="Sconto 6 %" min="0" max="100" step="0.01">
-                </div>
+                <label>Sconti Acquisto (max 6)</label>
+                <div class="sconto-fields"> <input type="number" id="editScontoAcquisto1" placeholder="S1%" min="0" max="100" step="0.01"> <input type="number" id="editScontoAcquisto2" placeholder="S2%" min="0" max="100" step="0.01"> <input type="number" id="editScontoAcquisto3" placeholder="S3%" min="0" max="100" step="0.01"> </div>
+                <div class="sconto-fields"> <input type="number" id="editScontoAcquisto4" placeholder="S4%" min="0" max="100" step="0.01"> <input type="number" id="editScontoAcquisto5" placeholder="S5%" min="0" max="100" step="0.01"> <input type="number" id="editScontoAcquisto6" placeholder="S6%" min="0" max="100" step="0.01"> </div>
             </div>
             <div class="form-group">
-                <label>Sconti Vendita (max 2, lasciare vuoto se non applicabile)</label>
-                <div class="sconto-fields">
-                    <input type="number" id="editScontoVendita1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
-                    <input type="number" id="editScontoVendita2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
-                </div>
+                <label>Sconti Vendita (max 2)</label>
+                <div class="sconto-fields"> <input type="number" id="editScontoVendita1" placeholder="S1%" min="0" max="100" step="0.01"> <input type="number" id="editScontoVendita2" placeholder="S2%" min="0" max="100" step="0.01"> </div>
             </div>
             <div class="modal-actions">
                 <button type="button" class="button button-secondary" onclick="closeModal()">Annulla</button>
-                <button type="button" class="button button-primary" onclick="saveRuleChanges()"> <!-- Stile del bottone "Salva" ereditato e corretto sopra -->
-                    <i class="fas fa-check" style="font-size:0.9em;"></i> Salva
-                </button>
+                <button type="button" class="button button-primary" onclick="saveRuleChanges()"> <i class="fas fa-check" style="font-size:0.9em;"></i> Salva </button>
             </div>
         </div>
     </div>
 
-    <div id="toast-notification" class="toast">Messaggio Toast!</div>
+    <div id="toast-notification" class="toast"></div>
 
     <script>
         // ----- INIZIO SCRIPT -----
-        let discountRulesData = [];
-        let currentFilteredRules = [];
-        let nextId = 1;
+        // 'db' e 'SCONTISTICHE_COLLECTION' sono globali grazie all'init Firebase nel <head>
+        
+        let allFirestoreData = []; // Conterrà tutti i dati da Firestore, non filtrati
+        let currentFilteredRulesUI = []; // Per la visualizzazione dopo filtri UI
 
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR7adRsTXVEHY2zeVqHmlYj1n259pWbMxE1I9ihp1DKmOtlHH135ZxC5xLeF2xn_EKaNcZB0NpLbBX5/pub?gid=623616075&single=true&output=csv';
-
-        const modal = document.getElementById('editRuleModal');
+        // Elementi DOM del Modale (come prima)
+        const modal = document.getElementById('editRuleModal'); /* ... e tutti gli altri ... */
         const modalTitle = document.getElementById('modalTitle');
         const editRuleIdInput = document.getElementById('editRuleId');
         const editCategoriaInput = document.getElementById('editCategoria');
-        // Sottocategoria rimossa dai campi JS principali
         const editMarcaInput = document.getElementById('editMarca');
-        const editAgenteInput = document.getElementById('editAgente'); // Nome agenzia
-        
+        const editAgenteInput = document.getElementById('editAgente');
         const editCentroAssistenza1Input = document.getElementById('editCentroAssistenza1');
         const editCentroAssistenza2Input = document.getElementById('editCentroAssistenza2');
         const editCentroAssistenza3Input = document.getElementById('editCentroAssistenza3');
-        
         const toastElement = document.getElementById('toast-notification');
 
-        function showToast(message, duration = 3000) { /* ...invariata... */ }
-        
-        async function loadDataFromCSV() {
+        function showToast(message, duration = 3000) { toastElement.textContent = message; toastElement.classList.add("show"); setTimeout(() => toastElement.classList.remove("show"), duration); }
+
+        async function loadDataFromFirestore() {
+            showToast("Caricamento dati da Firestore...", 3000);
             try {
-                showToast("Caricamento dati dal CSV...", 2000);
-                const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error(`Errore HTTP: ${response.status} ${response.statusText}`);
+                const snapshot = await db.collection(SCONTISTICHE_COLLECTION).get();
+                allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                console.log("Dati caricati da Firestore:", JSON.parse(JSON.stringify(allFirestoreData)));
                 
-                const csvText = await response.text();
-                const rows = csvText.split(/\r?\n/).map(row => 
-                    row.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''))
-                );
-
-                const headersRaw = rows[0];
-                if (!headersRaw || headersRaw.length === 0) throw new Error("Header CSV non valido.");
-                
-                const headerMap = {};
-                headersRaw.forEach((header, index) => {
-                    headerMap[String(header).trim().toLowerCase()] = index;
-                });
-                console.log("Header CSV mappati:", headerMap);
-
-                const parseCSVCascadeDiscount = (str) => {
-                    if (!str || typeof str !== 'string') return [];
-                    return str.split(';').map(s => parseFloat(String(s).trim().replace(',', '.'))).filter(n => !isNaN(n) && n >= 0 && n <= 100);
-                };
-                const parseCSVCentroAssistenza = (str) => {
-                    const s = String(str || "").trim();
-                    if (!s || s.toLowerCase() === 'no' || s.toLowerCase() === 'n/d') return null;
-                    const parts = s.split('|').map(p => p.trim());
-                    return (parts.length >= 1 && parts[0]) ? { nome: parts[0], telefono: (parts[1] || null) } : null;
-                };
-                
-                discountRulesData = rows.slice(1).map((row, csvRowIndex) => {
-                    if (row.join('').trim() === '') return null;
-                    
-                    const idFromCSV = row[headerMap['id']] ? String(row[headerMap['id']]).trim() : null;
-                    const id = (idFromCSV && idFromCSV.length > 0) ? idFromCSV : `csv_${Date.now()}_${csvRowIndex}`;
-                    
-                    const categoria = row[headerMap['categoria']];
-                    const marca = row[headerMap['marca']];
-                    if (!categoria || !marca) return null;
-
-                    const scontiAcquisto = parseCSVCascadeDiscount(row[headerMap['sconto_in_acquisto']]);
-                    const scontiVendita = parseCSVCascadeDiscount(row[headerMap['sconto_in_vendita']]);
-                    const agente = row[headerMap['agenzia']];
-                    
-                    const centriAssistenza = {};
-                    const pCesena = parseCSVCentroAssistenza(row[headerMap['assistenza_cesena']]);
-                    if (pCesena) centriAssistenza.cesena = pCesena;
-                    const pSavignano = parseCSVCentroAssistenza(row[headerMap['assistenza_savignano']]);
-                    if (pSavignano) centriAssistenza.savignano = pSavignano;
-                    const pRimini = parseCSVCentroAssistenza(row[headerMap['assistenza_rimini']]);
-                    if (pRimini) centriAssistenza.rimini = pRimini;
-                    
-                    return { id, categoria, marca, scontiAcquisto, scontiVendita, agente, centriAssistenza, sottocategoria: "" };
-                }).filter(rule => rule !== null);
-
-                if (discountRulesData.length > 0) { /* ... Logica nextId come prima ... */ }
-                
-                showToast("Dati CSV processati!", 3000);
-                console.log("Dati caricati:", JSON.parse(JSON.stringify(discountRulesData)));
-
-            } catch (error) { /* ... Gestione errori come prima ... */ } 
-            finally { populateFilters(); filterDiscountRules(); }
+                populateUiFilters(allFirestoreData);
+                applyUiFilters(); // Applica i filtri (e renderizza la tabella)
+                showToast("Dati caricati da Firestore!", 2000);
+            } catch (error) {
+                console.error("Errore caricamento da Firestore:", error);
+                showToast(`Errore caricamento: ${error.message}`, 5000);
+                allFirestoreData = []; populateUiFilters([]); applyUiFilters();
+            }
         }
 
         function getScontiFromFields(baseId, count) { /* ...invariata... */ }
         function setScontiToFields(baseId, count, scontiArray) { /* ...invariata... */ }
 
         function openEditModal(ruleId) {
-            const rule = discountRulesData.find(r => String(r.id) === String(ruleId));
-            if (!rule) { console.error("MODIFICA: Regola non trovata:", ruleId); return; }
+            const rule = allFirestoreData.find(r => String(r.id) === String(ruleId));
+            if (!rule) { console.error("EDIT: Rule not found for ID:", ruleId); return; }
             
             modalTitle.textContent = "Modifica Regola Sconto";
             editRuleIdInput.value = rule.id;
@@ -441,97 +266,198 @@
 
             const caObj = rule.centriAssistenza || {};
             if (editCentroAssistenza1Input) editCentroAssistenza1Input.value = caObj.cesena ? `${caObj.cesena.nome}${caObj.cesena.telefono ? ' | ' + caObj.cesena.telefono : ''}` : "";
-            if (editCentroAssistenza2Input) editCentroAssistenza2Input.value = caObj.savignano ? `${caObj.savignano.nome}${caObj.savignano.telefono ? ' | ' + caObj.savignano.telefono : ''}` : "";
-            if (editCentroAssistenza3Input) editCentroAssistenza3Input.value = caObj.rimini ? `${caObj.rimini.nome}${caObj.rimini.telefono ? ' | ' + caObj.rimini.telefono : ''}` : "";
+            /* ... if (editCentroAssistenza2Input) ... e 3 ... */
+            if (editCentroAssistenza2Input) { const d = caObj.savignano; editCentroAssistenza2Input.value = d ? `${d.nome}${d.telefono ? ' | ' + d.telefono : ''}` : "";}
+            if (editCentroAssistenza3Input) { const d = caObj.rimini; editCentroAssistenza3Input.value = d ? `${d.nome}${d.telefono ? ' | ' + d.telefono : ''}` : "";}
             
-            setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto);
-            setScontiToFields('editScontoVendita', 2, rule.scontiVendita);
+            setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto || []); // Assicura sia array
+            setScontiToFields('editScontoVendita', 2, rule.scontiVendita || []); // Assicura sia array
             modal.style.display = "block";
         }
 
-        function openAddRuleModal() { /* ...come prima, ma senza sottocategoria... */
-            modalTitle.textContent = "Aggiungi Nuova Regola Sconto";
+        function openAddRuleModal() { /* ...come prima, no sottocategoria... */
+            modalTitle.textContent = "Aggiungi Nuova Regola";
             editRuleIdInput.value = ""; 
-            editCategoriaInput.value = "";
-            editMarcaInput.value = "";
-            editAgenteInput.value = ""; 
-            if (editCentroAssistenza1Input) editCentroAssistenza1Input.value = "";
-            /* ... et altri campi centro assistenza e sconti a "" o [] ... */
-            setScontiToFields('editScontoAcquisto', 6, []);
-            setScontiToFields('editScontoVendita', 2, []);
-            modal.style.display = "block";
-            editCategoriaInput.focus();
+            editCategoriaInput.value = ""; editMarcaInput.value = ""; editAgenteInput.value = "";
+            if(editCentroAssistenza1Input) editCentroAssistenza1Input.value = "";
+            if(editCentroAssistenza2Input) editCentroAssistenza2Input.value = "";
+            if(editCentroAssistenza3Input) editCentroAssistenza3Input.value = "";
+            setScontiToFields('editScontoAcquisto', 6, []); setScontiToFields('editScontoVendita', 2, []);
+            modal.style.display = "block"; editCategoriaInput.focus();
         }
-        function closeModal() { /* ...invariata... */ }
+        function closeModal() { modal.style.display = "none"; }
 
-        function saveRuleChanges() {
+        async function saveRuleChanges() {
             const idOriginale = editRuleIdInput.value;
             const categoria = editCategoriaInput.value.trim();
             const marca = editMarcaInput.value.trim();
             const agente = editAgenteInput.value.trim();
             
             const centriAssistenzaSalvataggio = {};
-            const parseInputCentro = (el) => {
+            const parseInputCentro = (el) => { /* ... (vedi risposta precedente) ... */
                 if (el && el.value.trim()) {
                     const parts = el.value.trim().split('|').map(p => p.trim());
                     return (parts.length >= 1 && parts[0]) ? { nome: parts[0], telefono: (parts[1] || null) } : null;
                 } return null;
             };
             const caCesena = parseInputCentro(editCentroAssistenza1Input); if (caCesena) centriAssistenzaSalvataggio.cesena = caCesena;
-            /* ... et altri caSavignano e caRimini ... */
+            const caSavignano = parseInputCentro(editCentroAssistenza2Input); if (caSavignano) centriAssistenzaSalvataggio.savignano = caSavignano;
+            const caRimini = parseInputCentro(editCentroAssistenza3Input); if (caRimini) centriAssistenzaSalvataggio.rimini = caRimini;
 
             const scontiAcquisto = getScontiFromFields('editScontoAcquisto', 6);
             const scontiVendita = getScontiFromFields('editScontoVendita', 2);
-            if (scontiAcquisto === null || scontiVendita === null || !categoria || !marca) { /* ... gestione errore ... */ return; }
 
-            const ruleDataToSave = { categoria, marca, scontiAcquisto, scontiVendita, agente, centriAssistenza: centriAssistenzaSalvataggio, sottocategoria: "" };
+            if (scontiAcquisto === null || scontiVendita === null) return;
+            if (!categoria || !marca) { showToast("Categoria e Marca obbligatori.", 4000); return; }
 
-            if (idOriginale) { /* ... Logica modifica ... */ }
-            else { /* ... Logica aggiunta ... */ }
-            closeModal(); filterDiscountRules(); populateFilters(); showToast("Regola salvata (in memoria)!");
+            const ruleDataToSave = { categoria, marca, agente: agente || null, centriAssistenza: (Object.keys(centriAssistenzaSalvataggio).length > 0) ? centriAssistenzaSalvataggio : firebase.firestore.FieldValue.delete(), scontiAcquisto: scontiAcquisto.length > 0 ? scontiAcquisto : firebase.firestore.FieldValue.delete(), scontiVendita: scontiVendita.length > 0 ? scontiVendita : firebase.firestore.FieldValue.delete() };
+            // Rimuovi campi null/undefined o vuoti per non scriverli (se un campo diventa vuoto, verrà eliminato in Firestore)
+            for (const key in ruleDataToSave) {
+                if (ruleDataToSave[key] === null || ruleDataToSave[key] === undefined || (typeof ruleDataToSave[key] === 'string' && ruleDataToSave[key].trim() === '')) {
+                    ruleDataToSave[key] = firebase.firestore.FieldValue.delete(); // Usa delete per rimuovere il campo
+                }
+            }
+
+
+            try {
+                showToast("Salvataggio...", 2000);
+                if (idOriginale) {
+                    await db.collection(SCONTISTICHE_COLLECTION).doc(idOriginale).set(ruleDataToSave, { merge: true });
+                    showToast("Regola aggiornata!", 3000);
+                } else {
+                    const docRef = await db.collection(SCONTISTICHE_COLLECTION).add(ruleDataToSave);
+                    showToast(`Nuova regola aggiunta!`, 3000);
+                }
+                closeModal();
+                loadDataFromFirestore(); // Ricarica tutto
+            } catch (error) { console.error("Errore salvataggio:", error); showToast(`Errore: ${error.message}`, 5000); }
         }
-        function deleteRule(ruleId) { /* ...invariata... */ }
-        function formatDiscountString(arr) { /* ...invariata... */ }
-        function populateFilters() { /* ...invariata... */ }
-        function updateBrandFilterOptions(selectedCategory, previouslySelectedBrandValue) { /* ...invariata... */ }
 
+        async function deleteRule(ruleId) {
+            if (window.confirm("Eliminare questa regola da Firestore? L'azione è permanente.")) {
+                try {
+                    showToast("Eliminazione...", 2000);
+                    await db.collection(SCONTISTICHE_COLLECTION).doc(ruleId).delete();
+                    showToast("Regola eliminata!", 3000);
+                    loadDataFromFirestore(); // Ricarica
+                } catch (error) { console.error("Errore eliminazione:", error); showToast(`Errore: ${error.message}`, 5000); }
+            }
+        }
+        function formatDiscountString(arr) { if (!arr || arr.length === 0) return "N/A"; return arr.map(d => d + "%").join(" + ");}
+
+        function populateUiFilters(dataToUse) {
+            const categories = [...new Set(dataToUse.map(rule => rule.categoria))].sort();
+            const brands = [...new Set(dataToUse.map(rule => rule.marca))].sort(); // Tutti i brand inizialmente
+            
+            const categoryFilterEl = document.getElementById('category-filter');
+            const brandFilterEl = document.getElementById('brand-filter');
+            const catVal = categoryFilterEl.value; // Salva selezione precedente
+            const brandVal = brandFilterEl.value;
+
+            categoryFilterEl.innerHTML = '<option value="">Tutte</option>'; // Pulisci e metti default
+            categories.forEach(cat => categoryFilterEl.add(new Option(cat, cat)));
+            categoryFilterEl.value = catVal; // Ripristina
+
+            brandFilterEl.innerHTML = '<option value="">Tutte</option>';
+            brands.forEach(brand => brandFilterEl.add(new Option(brand, brand)));
+            brandFilterEl.value = brandVal;
+        }
+        
+        // Rinominata per chiarezza e per essere chiamata dagli onchange
+        function triggerFilter() {
+            applyUiFilters();
+        }
+
+        function applyUiFilters() {
+            const categoryValue = document.getElementById('category-filter').value;
+            const brandFilterEl = document.getElementById('brand-filter'); // Elemento
+            
+            // Dinamicamente aggiorna le opzioni del filtro marca se una categoria è selezionata
+            if (categoryValue) {
+                const brandsForCategory = [...new Set(allFirestoreData
+                                            .filter(rule => rule.categoria === categoryValue)
+                                            .map(rule => rule.marca))].sort();
+                const currentBrandSelection = brandFilterEl.value; // Salva la selezione corrente del brand
+                brandFilterEl.innerHTML = '<option value="">Tutte</option>'; // Ricrea opzioni brand
+                brandsForCategory.forEach(b => brandFilterEl.add(new Option(b, b)));
+                
+                // Prova a ripristinare la selezione del brand se ancora valida per la categoria
+                if (brandsForCategory.includes(currentBrandSelection)) {
+                    brandFilterEl.value = currentBrandSelection;
+                } else {
+                    brandFilterEl.value = ""; // Altrimenti resetta a "Tutte" per la marca
+                }
+            } else { // Nessuna categoria selezionata, mostra tutti i brand
+                const allBrands = [...new Set(allFirestoreData.map(rule => rule.marca))].sort();
+                const currentBrandSelection = brandFilterEl.value;
+                brandFilterEl.innerHTML = '<option value="">Tutte</option>';
+                allBrands.forEach(b => brandFilterEl.add(new Option(b,b)));
+                brandFilterEl.value = allBrands.includes(currentBrandSelection) ? currentBrandSelection : "";
+            }
+
+            const finalBrandValue = brandFilterEl.value; // Leggi il valore del filtro marca DOPO aver aggiornato le opzioni
+
+            currentFilteredRulesUI = allFirestoreData.filter(rule => {
+                const matchesCategory = !categoryValue || rule.categoria === categoryValue;
+                const matchesBrand = !finalBrandValue || rule.marca === finalBrandValue;
+                return matchesCategory && matchesBrand;
+            });
+            renderTable(currentFilteredRulesUI);
+        }
+
+        function resetFilters() {
+            document.getElementById('category-filter').value = "";
+            document.getElementById('brand-filter').value = "";
+            populateUiFilters(allFirestoreData); // Ripopola filtri con tutti i dati
+            applyUiFilters(); // Applica (renderizza tutto)
+            showToast("Filtri resettati.");
+        }
+        
         function renderTable(rulesToRender) {
             const tableBody = document.getElementById('discounts-matrix-body');
-            /* ... (inizio logica come prima) ... */
+            const noDataMsg = document.getElementById('no-data-message');
+            tableBody.innerHTML = ''; // Pulisci tabella
+
+            if (!rulesToRender || rulesToRender.length === 0) {
+                noDataMsg.textContent = "Nessuna regola di sconto corrisponde ai filtri.";
+                noDataMsg.style.display = 'block';
+                document.querySelector('.discounts-matrix-table').style.display = 'none';
+                return;
+            }
+            noDataMsg.style.display = 'none';
+            document.querySelector('.discounts-matrix-table').style.display = '';
+
+
+            const sortedRules = [...rulesToRender].sort((a,b) => { /* ... ordinamento per categoria e marca ... */
+                 if (a.categoria < b.categoria) return -1; if (a.categoria > b.categoria) return 1;
+                 if (a.marca < b.marca) return -1; if (a.marca > b.marca) return 1;
+                 return 0;
+            });
 
             sortedRules.forEach(rule => {
                 const row = tableBody.insertRow();
-                
-                let centriAssistenzaDisplay = "N/A";
-                const ca = rule.centriAssistenza;
+                let caDisplay = "N/A"; const ca = rule.centriAssistenza;
                 if (ca && typeof ca === 'object' && Object.keys(ca).length > 0) {
-                    const parts = [];
-                    if (ca.cesena) parts.push(`<strong>Cesena:</strong> ${ca.cesena.nome}${ca.cesena.telefono ? ' (' + ca.cesena.telefono + ')' : ''}`);
-                    if (ca.savignano) parts.push(`<strong>Savignano:</strong> ${ca.savignano.nome}${ca.savignano.telefono ? ' (' + ca.savignano.telefono + ')' : ''}`);
-                    if (ca.rimini) parts.push(`<strong>Rimini:</strong> ${ca.rimini.nome}${ca.rimini.telefono ? ' (' + ca.rimini.telefono + ')' : ''}`);
-                    centriAssistenzaDisplay = parts.join('<br>');
+                    const p = [];
+                    if (ca.cesena) p.push(`<strong>Cesena:</strong> ${ca.cesena.nome}${ca.cesena.telefono?' ('+ca.cesena.telefono+')':''}`);
+                    if (ca.savignano) p.push(`<strong>Savignano:</strong> ${ca.savignano.nome}${ca.savignano.telefono?' ('+ca.savignano.telefono+')':''}`);
+                    if (ca.rimini) p.push(`<strong>Rimini:</strong> ${ca.rimini.nome}${ca.rimini.telefono?' ('+ca.rimini.telefono+')':''}`);
+                    caDisplay = p.join('<br>');
                 }
-                
-                const escapedId = String(rule.id).replace(/'/g, "\\'");
-                // Nuovo ordine colonne: Categoria, Marca, Sconti Acquisto, Sconti Vendita, Agenzia, Centri Assistenza, Azioni
+                const escId = String(rule.id).replace(/'/g, "\\'");
                 row.innerHTML = `
-                    <td class="category-name">${rule.categoria}</td>
-                    <td class="brand-name">${rule.marca}</td>
+                    <td class="category-name">${rule.categoria}</td> <td class="brand-name">${rule.marca}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
-                    <td>${rule.agente || '<em>N/A</em>'}</td>
-                    <td class="service-centers-cell">${centriAssistenzaDisplay}</td>
+                    <td>${rule.agente || 'N/A'}</td> <td class="service-centers-cell">${caDisplay}</td>
                     <td class="actions">
-                        <button class="button action-button edit-btn" onclick="openEditModal('${escapedId}')"><i class="fas fa-edit"></i> Modifica</button>
-                        <button class="button action-button delete-btn" onclick="deleteRule('${escapedId}')"><i class="fas fa-trash-alt"></i> Elimina</button>
-                    </td>
-                `;
+                        <button class="action-button edit-btn" onclick="openEditModal('${escId}')"><i class="fas fa-edit"></i> Modifica</button>
+                        <button class="action-button delete-btn" onclick="deleteRule('${escId}')"><i class="fas fa-trash-alt"></i> Elimina</button>
+                    </td>`;
             });
         }
-        function filterDiscountRules() { /* ...invariata... */ }
-        function resetFilters() { /* ...invariata... */ }
         window.onclick = function(event) { if (event.target == modal) closeModal(); }
-        document.addEventListener('DOMContentLoaded', async () => { await loadDataFromCSV(); });
+        document.addEventListener('DOMContentLoaded', loadDataFromFirestore); // Carica dati da Firestore all'avvio
         // ----- FINE SCRIPT -----
     </script>
 </body>
