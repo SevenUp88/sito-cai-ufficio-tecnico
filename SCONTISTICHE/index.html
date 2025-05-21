@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prototipo Sconti - V. Avanzata (6 Sconti Acq.)</title>
+    <title>Prototipo Sconti - CSV Esterno</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -13,8 +13,8 @@
             --text-color-secondary: #7f8c8d;
             --primary-color: #3498db;
             --primary-color-dark: #2980b9;
-            --accent-color-success: #27ae60; 
-            --accent-color-danger: #c0392b;  
+            --accent-color-success: #27ae60;
+            --accent-color-danger: #c0392b;
             --border-color: #e0e6ed;
             --font-body: 'Inter', sans-serif;
             --shadow-light: 0 2px 8px rgba(0,0,0,0.04);
@@ -30,7 +30,7 @@
             display: flex;
             min-height: 100vh;
             font-weight: 400;
-            transition: background-color 0.3s ease; 
+            transition: background-color 0.3s ease;
         }
 
         * { box-sizing: border-box; }
@@ -43,7 +43,7 @@
             position: fixed; top: 0; left: 0;
             border-right: 1px solid var(--border-color);
             box-shadow: var(--shadow-medium);
-            transition: transform 0.3s ease; 
+            transition: transform 0.3s ease;
         }
         .sidebar h1 {
             font-size: 1.7em;
@@ -96,7 +96,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            text-decoration: none; 
+            text-decoration: none;
         }
         .button:hover { transform: translateY(-1px); }
         .button:active { transform: translateY(0); }
@@ -137,8 +137,19 @@
         }
 
         .discounts-matrix-table { width: 100%; border-collapse: collapse; }
-        .discounts-matrix-table th, .discounts-matrix-table td { padding: 16px 20px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        .discounts-matrix-table th { font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-color-secondary); }
+        .discounts-matrix-table th, .discounts-matrix-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9em;
+        }
+        .discounts-matrix-table th {
+            font-weight: 600;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-color-secondary);
+        }
         .discounts-matrix-table tr:last-child td { border-bottom: none; }
         .discounts-matrix-table tbody tr { transition: background-color 0.15s ease; }
         .discounts-matrix-table tbody tr:hover { background-color: #f7f9fc; }
@@ -146,10 +157,11 @@
         .discounts-display { font-weight: 500; color: var(--text-color-primary); }
         .category-name { font-weight: 600; color: var(--primary-color-dark); }
         .brand-name { color: var(--text-color-primary); }
+        .service-centers-cell { max-width: 200px; white-space: normal; word-break: break-word; }
 
         .actions .action-button {
-            font-size: 0.85em; padding: 6px 10px; border-radius: 6px;
-            border: 1px solid transparent; margin-left: 6px;
+            font-size: 0.8em; padding: 5px 8px; border-radius: 6px;
+            border: 1px solid transparent; margin-left: 4px;
             transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
         }
         .actions .edit-btn { background-color: #eaf5fc; color: var(--primary-color); }
@@ -168,20 +180,21 @@
         }
         .modal-content {
             background-color: var(--surface-color);
-            margin: 5% auto; padding: 28px 35px;
-            border-radius: 12px; width: 90%; max-width: 600px; 
+            margin: 3% auto; 
+            padding: 24px 30px;
+            border-radius: 12px; width: 90%; max-width: 700px; 
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             animation: fadeInModal 0.3s ease-out;
         }
         @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        .modal-content h3 { margin-top:0; font-size:1.5em; color: var(--text-color-primary); font-weight: 600; margin-bottom: 24px; }
-        .modal-content .form-group { margin-bottom: 16px; }
-        .modal-content label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--text-color-secondary); font-size:0.9em; }
-        .modal-content input[type="text"], .modal-content input[type="number"] {
-            width: 100%; padding: 12px;
+        .modal-content h3 { margin-top:0; font-size:1.5em; color: var(--text-color-primary); font-weight: 600; margin-bottom: 20px; }
+        .modal-content .form-group { margin-bottom: 14px; }
+        .modal-content label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-color-secondary); font-size:0.85em; }
+        .modal-content input[type="text"], .modal-content input[type="number"] { /* Rimossa textarea dallo stile generico */
+            width: 100%; padding: 10px;
             border: 1px solid var(--border-color);
-            border-radius: 8px; font-size: 1em;
+            border-radius: 8px; font-size: 0.95em;
             background-color: #fdfdff;
             color: var(--text-color-primary);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -190,12 +203,12 @@
              outline: none; border-color: var(--primary-color);
              box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
         }
-        .sconto-fields { display: flex; gap: 10px; margin-bottom: 8px; /* Aggiunto per spaziare le righe di sconti acquisto */ }
-        .sconto-fields:last-of-type { margin-bottom: 0; } /* Rimuove margine extra se è l'ultimo gruppo */
-        .sconto-fields input[type="number"] { width: calc( (100% / 3) - (20px / 3) ); }
+        .sconto-fields { display: flex; gap: 10px; margin-bottom: 8px; }
+        .sconto-fields:last-of-type { margin-bottom: 0; }
+        .sconto-fields input { width: calc( (100% / 3) - (20px / 3) ); } /* Applicato a tutti gli input in .sconto-fields */
 
 
-        .modal-actions { text-align: right; margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;}
+        .modal-actions { text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;}
 
         .toast {
             visibility: hidden;
@@ -220,6 +233,8 @@
             opacity: 1;
             transform: translateY(0);
         }
+        .modal-row { display: flex; gap: 15px; }
+        .modal-row .form-group { flex: 1; }
     </style>
 </head>
 <body>
@@ -270,7 +285,10 @@
                 <thead>
                     <tr>
                         <th>Categoria</th>
+                        <th>Sottocategoria</th>
                         <th>Marca</th>
+                        <th>Agenzia</th>
+                        <th>Centri Assistenza</th>
                         <th>Sconti Acquisto</th>
                         <th>Sconti Vendita</th>
                         <th>Azioni</th>
@@ -278,7 +296,7 @@
                 </thead>
                 <tbody id="discounts-matrix-body"></tbody>
             </table>
-            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto corrisponde ai filtri selezionati.</div>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto corrisponde ai filtri selezionati (o dati non ancora caricati).</div>
         </div>
     </main>
 
@@ -286,22 +304,48 @@
         <div class="modal-content">
             <h3 id="modalTitle">Modifica Regola Sconto</h3>
             <input type="hidden" id="editRuleId">
-            <div class="form-group">
-                <label for="editCategoria">Categoria</label>
-                <input type="text" id="editCategoria" placeholder="Nome categoria">
+
+            <div class="modal-row">
+                <div class="form-group">
+                    <label for="editCategoria">Categoria</label>
+                    <input type="text" id="editCategoria" placeholder="Nome categoria">
+                </div>
+                <div class="form-group">
+                    <label for="editSottocategoria">Sottocategoria (opzionale)</label>
+                    <input type="text" id="editSottocategoria" placeholder="Es. Monosplit, Multisplit">
+                </div>
             </div>
             <div class="form-group">
                 <label for="editMarca">Marca</label>
                 <input type="text" id="editMarca" placeholder="Nome marca">
             </div>
+
+            <hr style="margin: 20px 0; border-color: var(--border-color); border-top:none;">
+            
+            <div class="form-group">
+                <label for="editAgente">Agenzia</label>
+                <input type="text" id="editAgente" placeholder="Nome agenzia">
+            </div>
+            
+            <div class="form-group">
+                <label>Centri Assistenza</label>
+                <div class="sconto-fields">
+                    <input type="text" id="editCentroAssistenza1" placeholder="Assistenza Cesena">
+                    <input type="text" id="editCentroAssistenza2" placeholder="Assistenza Savignano">
+                    <input type="text" id="editCentroAssistenza3" placeholder="Assistenza Rimini">
+                </div>
+            </div>
+             <hr style="margin: 20px 0; border-color: var(--border-color); border-top:none;">
+
+
             <div class="form-group">
                 <label>Sconti Acquisto (max 6, lasciare vuoto se non applicabile)</label>
-                <div class="sconto-fields"> <!-- Prima riga sconti acquisto -->
+                <div class="sconto-fields">
                     <input type="number" id="editScontoAcquisto1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoAcquisto2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoAcquisto3" placeholder="Sconto 3 %" min="0" max="100" step="0.01">
                 </div>
-                <div class="sconto-fields"> <!-- Seconda riga sconti acquisto -->
+                <div class="sconto-fields">
                     <input type="number" id="editScontoAcquisto4" placeholder="Sconto 4 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoAcquisto5" placeholder="Sconto 5 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoAcquisto6" placeholder="Sconto 6 %" min="0" max="100" step="0.01">
@@ -326,38 +370,25 @@
     <div id="toast-notification" class="toast">Messaggio Toast!</div>
 
     <script>
-        let discountRulesData = [
-            { id: 1, categoria: 'Climatizzatori', marca: 'Mitsubishi', scontiAcquisto: [25, 10, 5, 2, 1, 1], scontiVendita: [15, 5] },
-            { id: 2, categoria: 'Climatizzatori', marca: 'Daikin', scontiAcquisto: [28, 12], scontiVendita: [18, 6] },
-            { id: 3, categoria: 'Climatizzatori', marca: 'Haier', scontiAcquisto: [22, 8, 3], scontiVendita: [12, 4] },
-            { id: 18, categoria: 'Climatizzatori', marca: 'GenericClima', scontiAcquisto: [15, 5], scontiVendita: [10] },
-            { id: 4, categoria: 'Caldaie', marca: 'Immergas', scontiAcquisto: [30, 10, 5, 3], scontiVendita: [20, 8] },
-            { id: 5, categoria: 'Caldaie', marca: 'Riello', scontiAcquisto: [27, 9, 2, 1], scontiVendita: [17, 7] },
-            { id: 19, categoria: 'Caldaie', marca: 'GenericHeat', scontiAcquisto: [20, 7], scontiVendita: [12] },
-            { id: 6, categoria: 'Addolcitori', marca: 'AquaPure', scontiAcquisto: [15, 5, 2], scontiVendita: [10, 2] },
-            { id: 20, categoria: 'Addolcitori', marca: 'GenericWater', scontiAcquisto: [12, 3], scontiVendita: [8] },
-            { id: 7, categoria: 'Idraulica', marca: 'Caleffi', scontiAcquisto: [25, 10, 5, 5, 2, 1], scontiVendita: [15, 5] },
-            { id: 8, categoria: 'Idraulica', marca: 'Irsap', scontiAcquisto: [30, 5, 3], scontiVendita: [18, 7] },
-            { id: 9, categoria: 'Idraulica', marca: 'Rubinetterie Bresciane', scontiAcquisto: [20, 8, 3, 2], scontiVendita: [12, 4] },
-            { id: 10, categoria: 'Idraulica', marca: 'RBM', scontiAcquisto: [22, 7, 1], scontiVendita: [14, 6] },
-            { id: 11, categoria: 'Idraulica', marca: 'Icma', scontiAcquisto: [18, 5, 2, 1, 1], scontiVendita: [10, 3] },
-            { id: 12, categoria: 'Idraulica', marca: 'General fittings', scontiAcquisto: [15, 6], scontiVendita: [9, 2] },
-            { id: 13, categoria: 'Idraulica', marca: 'Wilo', scontiAcquisto: [35, 10, 5], scontiVendita: [20, 8] },
-            { id: 14, categoria: 'Idraulica', marca: 'DAB', scontiAcquisto: [32, 8, 4, 2], scontiVendita: [19, 7] },
-            { id: 15, categoria: 'Fotovoltaico', marca: 'SunPower', scontiAcquisto: [22, 12, 6], scontiVendita: [15, 7] },
-            { id: 16, categoria: 'Fotovoltaico', marca: 'EcoAlternative', scontiAcquisto: [18, 9, 4, 1], scontiVendita: [12, 5] },
-            { id: 17, categoria: 'Fotovoltaico', marca: 'GenericSolar', scontiAcquisto: [15, 7, 2], scontiVendita: [10] }
-        ];
-        let currentFilteredRules = [...discountRulesData];
-        let nextId = Math.max(...discountRulesData.map(r => r.id), 0) + 1;
+        let discountRulesData = []; 
+        let currentFilteredRules = [];
+        let nextId = 1; 
+
+        // Incolla qui il link al tuo CSV pubblicato come hai fatto prima
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR7adRsTXVEHY2zeVqHmlYj1n259pWbMxE1I9ihp1DKmOtlHH135ZxC5xLeF2xn_EKaNcZB0NpLbBX5/pub?gid=623616075&single=true&output=csv'; 
 
         const modal = document.getElementById('editRuleModal');
         const modalTitle = document.getElementById('modalTitle');
         const editRuleIdInput = document.getElementById('editRuleId');
         const editCategoriaInput = document.getElementById('editCategoria');
+        const editSottocategoriaInput = document.getElementById('editSottocategoria'); 
         const editMarcaInput = document.getElementById('editMarca');
+        const editAgenteInput = document.getElementById('editAgente'); // "Agenzia" nel CSV
         
-        // Aggiungere gli altri ID degli input sconto acquisto
+        const editCentroAssistenza1Input = document.getElementById('editCentroAssistenza1');
+        const editCentroAssistenza2Input = document.getElementById('editCentroAssistenza2');
+        const editCentroAssistenza3Input = document.getElementById('editCentroAssistenza3');
+        
         const editScontoAcquisto1 = document.getElementById('editScontoAcquisto1');
         const editScontoAcquisto2 = document.getElementById('editScontoAcquisto2');
         const editScontoAcquisto3 = document.getElementById('editScontoAcquisto3');
@@ -370,189 +401,381 @@
         
         const toastElement = document.getElementById('toast-notification');
 
-        function showToast(message, duration = 3000) { /* ...identica... */
+        function showToast(message, duration = 3000) {
             toastElement.textContent = message;
             toastElement.classList.add("show");
             setTimeout(() => {
                 toastElement.classList.remove("show");
             }, duration);
         }
+        
+        async function loadDataFromCSV() {
+            try {
+                showToast("Caricamento dati dal CSV...", 2000);
+                const response = await fetch(CSV_URL); 
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status} ${response.statusText}`);
+                }
+                const csvText = await response.text();
+                // Semplice parsing CSV, per CSV complessi usare una libreria
+                const rows = csvText.split(/\r?\n/).map(row => {
+                    // Questo split base non gestisce virgole dentro a campi quotati. 
+                    // Se il tuo CSV è complesso, considera una libreria (es. PapaParse).
+                    // Per il CSV attuale basato sulle intestazioni fornite, questo dovrebbe andare.
+                    return row.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+                });
 
-        function getScontiFromFields(baseId, count) { /* ...identica... */
+                const headersRaw = rows[0];
+                if (!headersRaw || headersRaw.length === 0) {
+                    throw new Error("L'header del CSV non è valido o il CSV è vuoto.");
+                }
+                const dataStartIndex = 1; 
+                
+                const headerMap = {};
+                headersRaw.forEach((header, index) => {
+                    headerMap[String(header).trim().toLowerCase()] = index; // Chiave esatta e minuscola
+                });
+                
+                console.log("Header mappati:", headerMap); // DEBUG: Verifica le chiavi mappate
+
+                // Verifica che le chiavi necessarie esistano
+                const requiredHeaders = ['categoria', 'marca', 'sconto_in_acquisto', 'sconto_in_vendita', 'agenzia'];
+                for (const reqH of requiredHeaders) {
+                    if (headerMap[reqH] === undefined) {
+                        throw new Error(`Intestazione CSV mancante o non riconosciuta: "${reqH}". Verifica le chiavi in headerMap e le intestazioni del tuo CSV.`);
+                    }
+                }
+
+                const parseDiscountString = (discountStr) => {
+                    if (!discountStr || typeof discountStr !== 'string') return [];
+                    return discountStr.split('+')
+                                      .map(s => parseFloat(s.trim()))
+                                      .filter(n => !isNaN(n) && n >= 0 && n <= 100);
+                };
+                
+                discountRulesData = rows.slice(dataStartIndex).map((row, csvRowIndex) => {
+                    const originalRowNumber = csvRowIndex + 2; 
+                    if (row.length < headersRaw.length) {
+                        console.warn(`Riga ${originalRowNumber} nel CSV (${row.join(',')}) ha meno colonne dell'header (${headersRaw.length}). Saltata.`);
+                        return null;
+                    }
+                    
+                    const idFromCSV = row[headerMap['id']] ? String(row[headerMap['id']]).trim() : null;
+                    const id = idFromCSV || `csv_${Date.now()}_${csvRowIndex}`; 
+                    
+                    const categoria = row[headerMap['categoria']];
+                    const marca = row[headerMap['marca']];
+
+                    if (!categoria || !marca) {
+                        console.warn(`Riga ${originalRowNumber} nel CSV: Categoria ('${categoria}') o Marca ('${marca}') mancanti. Saltata.`);
+                        return null;
+                    }
+
+                    const scontiAcquistoStr = row[headerMap['sconto_in_acquisto']];
+                    const scontiVenditaStr = row[headerMap['sconto_in_vendita']];
+                    
+                    const scontiAcquisto = parseDiscountString(scontiAcquistoStr);
+                    const scontiVendita = parseDiscountString(scontiVenditaStr);
+
+                    const agente = row[headerMap['agenzia']];
+                    
+                    const centriAssistenzaList = [];
+                    // Usa ?? '' per sicurezza se headerMap non dovesse trovare la chiave (già controllato sopra però)
+                    const assCesena = row[headerMap['assistenza_cesena'] ?? headerMap['assistenza cesena']]; 
+                    const assSavignano = row[headerMap['assistenza_savignano'] ?? headerMap['assistenza savignano']];
+                    const assRimini = row[headerMap['assistenza_rimini'] ?? headerMap['assistenza rimini']];
+
+                    if (assCesena && assCesena.toLowerCase() !== 'no' && assCesena.toLowerCase() !== 'n/d'  && assCesena.trim() !== '') centriAssistenzaList.push(assCesena.trim());
+                    if (assSavignano && assSavignano.toLowerCase() !== 'no' && assSavignano.toLowerCase() !== 'n/d' && assSavignano.trim() !== '') centriAssistenzaList.push(assSavignano.trim());
+                    if (assRimini && assRimini.toLowerCase() !== 'no' && assRimini.toLowerCase() !== 'n/d' && assRimini.trim() !== '') centriAssistenzaList.push(assRimini.trim());
+                    
+                    // Sottocategoria non è nel tuo CSV attuale
+                    const sottocategoria = ""; 
+
+                    return {
+                        id: id, 
+                        categoria: categoria || "N/D",
+                        sottocategoria: sottocategoria, 
+                        marca: marca || "N/D",
+                        agente: agente || "N/D", // Mappato da 'agenzia'
+                        centriAssistenza: centriAssistenzaList.join(', '), 
+                        scontiAcquisto: scontiAcquisto,
+                        scontiVendita: scontiVendita
+                    };
+                }).filter(rule => rule !== null); 
+
+                // Trova il massimo ID numerico per 'nextId', altrimenti usa un timestamp per evitare collisioni con stringhe ID
+                 if (discountRulesData.length > 0) {
+                    const numericIds = discountRulesData
+                        .map(r => parseInt(String(r.id).replace(/[^0-9]/g, ''), 10)) // Estrai numeri da ID
+                        .filter(idNum => !isNaN(idNum));
+                    nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : Date.now();
+                } else {
+                    nextId = 1; // O Date.now() se preferisci ID basati su timestamp all'inizio
+                }
+                
+                showToast("Dati CSV processati con successo!", 3000);
+                console.log("Dati caricati e processati:", discountRulesData);
+            } catch (error) {
+                console.error("Errore durante il caricamento o parsing del CSV:", error);
+                showToast(`Errore caricamento dati CSV: ${error.message}`, 5000);
+                discountRulesData = []; 
+                nextId = 1;
+            } finally {
+                populateFilters();
+                filterDiscountRules();
+            }
+        }
+
+
+        function getScontiFromFields(baseId, count) {
             const sconti = [];
             for (let i = 1; i <= count; i++) {
                 const field = document.getElementById(`${baseId}${i}`);
-                if (field && field.value !== "") { // Aggiunto check per field esistente
+                if (field && field.value !== "") {
                     const val = parseFloat(field.value);
-                    if (!isNaN(val) && val >= 0 && val <= 100) { 
+                    if (!isNaN(val) && val >= 0 && val <= 100) {
                         sconti.push(val);
                     } else {
                         showToast(`Errore: Valore non valido per ${field.placeholder}. Inserire numeri (0-100).`, 4000);
-                        return null; 
+                        return null;
                     }
                 }
             }
             return sconti;
         }
 
-        function setScontiToFields(baseId, count, scontiArray) { /* ...identica... */
+        function setScontiToFields(baseId, count, scontiArray) {
             for (let i = 1; i <= count; i++) {
                 const field = document.getElementById(`${baseId}${i}`);
-                if (field) { // Aggiunto check per field esistente
+                if (field) {
                    field.value = scontiArray && scontiArray[i-1] !== undefined ? scontiArray[i-1] : "";
                 }
             }
         }
-        
-        function openEditModal(ruleId) { /* Modificato per 6 sconti acquisto */
-            const rule = discountRulesData.find(r => r.id === ruleId);
-            if (!rule) return;
+
+        function openEditModal(ruleId) {
+            const rule = discountRulesData.find(r => String(r.id) === String(ruleId)); // Confronta come stringhe per sicurezza
+            if (!rule) {
+                console.error("Regola non trovata per ID:", ruleId, "in", discountRulesData);
+                return;
+            }
             modalTitle.textContent = "Modifica Regola Sconto";
             editRuleIdInput.value = rule.id;
             editCategoriaInput.value = rule.categoria;
+            editSottocategoriaInput.value = rule.sottocategoria || ""; 
             editMarcaInput.value = rule.marca;
-            setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto); // <<< MODIFICATO A 6
+            editAgenteInput.value = rule.agente || ""; 
+
+            const caValues = rule.centriAssistenza ? String(rule.centriAssistenza).split(',').map(s => s.trim()) : [];
+            if (editCentroAssistenza1Input) editCentroAssistenza1Input.value = caValues[0] || "";
+            if (editCentroAssistenza2Input) editCentroAssistenza2Input.value = caValues[1] || "";
+            if (editCentroAssistenza3Input) editCentroAssistenza3Input.value = caValues[2] || "";
+            
+            setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto);
             setScontiToFields('editScontoVendita', 2, rule.scontiVendita);
             modal.style.display = "block";
         }
 
-        function openAddRuleModal() { /* Modificato per 6 sconti acquisto */
+        function openAddRuleModal() {
             modalTitle.textContent = "Aggiungi Nuova Regola Sconto";
-            editRuleIdInput.value = "";
+            editRuleIdInput.value = ""; // Per nuova regola, ID sarà generato in saveRuleChanges
             editCategoriaInput.value = "";
+            editSottocategoriaInput.value = ""; 
             editMarcaInput.value = "";
-            setScontiToFields('editScontoAcquisto', 6, []); // <<< MODIFICATO A 6
+            editAgenteInput.value = ""; 
+
+            if (editCentroAssistenza1Input) editCentroAssistenza1Input.value = "";
+            if (editCentroAssistenza2Input) editCentroAssistenza2Input.value = "";
+            if (editCentroAssistenza3Input) editCentroAssistenza3Input.value = "";
+            
+            setScontiToFields('editScontoAcquisto', 6, []);
             setScontiToFields('editScontoVendita', 2, []);
             modal.style.display = "block";
             editCategoriaInput.focus();
         }
 
-        function closeModal() { /* ...identica... */
+        function closeModal() {
             modal.style.display = "none";
         }
 
-        function saveRuleChanges() { /* Modificato per 6 sconti acquisto */
-            const id = editRuleIdInput.value ? parseInt(editRuleIdInput.value) : null;
+        function saveRuleChanges() {
+            const idString = editRuleIdInput.value; // Può essere stringa ("csv_...") o numero
             const categoria = editCategoriaInput.value.trim();
+            const sottocategoria = editSottocategoriaInput.value.trim(); 
             const marca = editMarcaInput.value.trim();
+            const agente = editAgenteInput.value.trim(); 
             
-            const scontiAcquisto = getScontiFromFields('editScontoAcquisto', 6); // <<< MODIFICATO A 6
+            const caList = [];
+            if (editCentroAssistenza1Input && editCentroAssistenza1Input.value.trim()) caList.push(editCentroAssistenza1Input.value.trim());
+            if (editCentroAssistenza2Input && editCentroAssistenza2Input.value.trim()) caList.push(editCentroAssistenza2Input.value.trim());
+            if (editCentroAssistenza3Input && editCentroAssistenza3Input.value.trim()) caList.push(editCentroAssistenza3Input.value.trim());
+            const centriAssistenzaString = caList.join(', ');
+
+            const scontiAcquisto = getScontiFromFields('editScontoAcquisto', 6);
             const scontiVendita = getScontiFromFields('editScontoVendita', 2);
 
-            if (scontiAcquisto === null || scontiVendita === null) return;
+            if (scontiAcquisto === null || scontiVendita === null) return; // Errore mostrato da getScontiFromFields
 
             if (!categoria || !marca) {
                 showToast("Errore: Categoria e Marca sono campi obbligatori.", 4000);
                 return;
             }
 
-            if (id) {
-                const ruleIndex = discountRulesData.findIndex(r => r.id === id);
+            const ruleData = {
+                categoria,
+                sottocategoria,
+                marca,
+                agente,
+                centriAssistenza: centriAssistenzaString,
+                scontiAcquisto,
+                scontiVendita
+            };
+
+            if (idString) { // Modifica esistente
+                const ruleIndex = discountRulesData.findIndex(r => String(r.id) === idString);
                 if (ruleIndex > -1) {
-                    discountRulesData[ruleIndex] = { ...discountRulesData[ruleIndex], categoria, marca, scontiAcquisto, scontiVendita };
+                    discountRulesData[ruleIndex] = { ...discountRulesData[ruleIndex], ...ruleData, id: idString }; // Mantieni l'ID originale
+                } else {
+                    console.error("Tentativo di modifica regola non trovata con ID:", idString);
+                    showToast("Errore: regola da modificare non trovata.", 4000);
+                    return;
                 }
-            } else {
-                const newRule = { id: nextId++, categoria, marca, scontiAcquisto, scontiVendita };
+            } else { // Nuova regola
+                // Assicurati che nextId sia sempre un valore valido e univoco (o fallo gestire da un DB)
+                // Per la demo locale, incrementiamo.
+                const newId = typeof nextId === 'number' ? nextId++ : `new_${Date.now()}`;
+                if(typeof nextId !== 'number' && typeof newId === 'string' && newId.startsWith('new_')) {
+                     // Se stiamo generando ID stringa, assicurati che il prossimo sia diverso.
+                     // Per un sistema reale, questo va gestito dal backend/DB.
+                     // Per questa demo client-side, la strategia `Date.now()` dovrebbe essere sufficiente per la sessione.
+                }
+                const newRule = { id: newId, ...ruleData };
                 discountRulesData.push(newRule);
             }
             closeModal();
+            // NOTA: queste modifiche sono solo in memoria. Se vuoi salvarle permanentemente
+            // (es. su Firestore o riscaricando il CSV), dovrai implementare quella logica.
+            // Per ora, la tabella si aggiorna con i dati in memoria.
             filterDiscountRules();
             populateFilters();
-            showToast("Regola salvata con successo!");
+            showToast("Regola salvata con successo (in memoria)!");
         }
 
-        function deleteRule(ruleId) { /* ...identica... */
-             if (window.confirm("Sei sicuro di voler eliminare questa regola? L'azione non è reversibile.")) {
-                discountRulesData = discountRulesData.filter(rule => rule.id !== ruleId);
+        function deleteRule(ruleId) {
+             if (window.confirm("Sei sicuro di voler eliminare questa regola? L'azione è solo in memoria per questa demo.")) {
+                discountRulesData = discountRulesData.filter(rule => String(rule.id) !== String(ruleId));
                 filterDiscountRules();
-                populateFilters(); // Necessario se l'ultima marca/categoria viene eliminata
-                showToast("Regola eliminata.");
+                populateFilters();
+                showToast("Regola eliminata (in memoria).");
             }
         }
-        
-        function formatDiscountString(discountArray) { /* ...identica... */
+
+        function formatDiscountString(discountArray) {
             if (!discountArray || discountArray.length === 0) return "N/A";
             return discountArray.map(d => d + "%").join(" + ");
         }
 
-        function populateFilters() { /* ...identica, ma con controlli più robusti per la selezione corrente... */
+        function populateFilters() {
             const categories = [...new Set(discountRulesData.map(rule => rule.categoria))].sort();
             const brands = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
             const categoryFilterEl = document.getElementById('category-filter');
             const brandFilterEl = document.getElementById('brand-filter');
-            const currentCatVal = categoryFilterEl.value;
-            const currentBrandVal = brandFilterEl.value;
+            
+            const previouslySelectedCategory = categoryFilterEl.value;
+            // Non serve salvare il brand, perché updateBrandFilterOptions lo gestisce
 
             while (categoryFilterEl.options.length > 1) categoryFilterEl.remove(1);
-            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1);
             
             categories.forEach(cat => {
                 const option = document.createElement('option'); option.value = cat; option.textContent = cat; categoryFilterEl.appendChild(option);
             });
-            brands.forEach(brand => {
-                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
-            });
 
-            if (categories.includes(currentCatVal)) categoryFilterEl.value = currentCatVal;
-            else categoryFilterEl.value = ""; // Se la categoria selezionata non esiste più, resetta
-            
-            // Ricarica le marche basate sulla categoria attuale o mostra tutte se nessuna categoria è selezionata
-            const effectiveCategory = categoryFilterEl.value;
-            const brandsForDropdown = effectiveCategory ? 
-                                    [...new Set(discountRulesData.filter(r => r.categoria === effectiveCategory).map(r => r.marca))].sort() :
-                                    brands;
-            
-            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1); // Pulisci di nuovo per le marche aggiornate
-            brandsForDropdown.forEach(brand => {
-                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
-            });
-
-            if (brandsForDropdown.includes(currentBrandVal)) brandFilterEl.value = currentBrandVal;
-            else brandFilterEl.value = ""; // Se la marca selezionata non esiste più nella lista aggiornata, resetta
+            if (categories.includes(previouslySelectedCategory)) {
+                categoryFilterEl.value = previouslySelectedCategory;
+            } else {
+                categoryFilterEl.value = ""; 
+            }
+            updateBrandFilterOptions(categoryFilterEl.value);
         }
 
+        function updateBrandFilterOptions(selectedCategory, previouslySelectedBrandValue) {
+            const brandFilterEl = document.getElementById('brand-filter');
+            const currentBrandVal = previouslySelectedBrandValue || brandFilterEl.value; 
 
-        function renderTable(rulesToRender) { /* ...identica... */
+            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1);
+
+            let brandsForDropdown;
+            if (selectedCategory) {
+                brandsForDropdown = [...new Set(discountRulesData
+                    .filter(rule => rule.categoria === selectedCategory)
+                    .map(rule => rule.marca))]
+                    .sort();
+            } else {
+                brandsForDropdown = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
+            }
+
+            brandsForDropdown.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandFilterEl.appendChild(option);
+            });
+
+            if (brandsForDropdown.includes(currentBrandVal)) {
+                brandFilterEl.value = currentBrandVal;
+            } else {
+                brandFilterEl.value = ""; 
+            }
+        }
+
+        function renderTable(rulesToRender) {
             const tableBody = document.getElementById('discounts-matrix-body');
             const noDataMessage = document.getElementById('no-data-message');
             const tableElement = document.querySelector('.discounts-matrix-table');
             
-            tableBody.innerHTML = ''; 
+            tableBody.innerHTML = '';
 
             if (rulesToRender.length === 0) {
-                noDataMessage.style.display = 'block'; 
+                noDataMessage.style.display = 'block';
                 if(tableElement) tableElement.style.display = 'none';
                 return;
             }
-            noDataMessage.style.display = 'none'; 
+            noDataMessage.style.display = 'none';
             if(tableElement) tableElement.style.display = 'table';
 
             const sortedRules = [...rulesToRender].sort((a,b) => {
                 if (a.categoria < b.categoria) return -1;
                 if (a.categoria > b.categoria) return 1;
+                // if (a.sottocategoria < b.sottocategoria) return -1; // Sottocategoria non è usata per l'ordinamento qui
+                // if (a.sottocategoria > b.sottocategoria) return 1;
                 if (a.marca < b.marca) return -1;
                 if (a.marca > b.marca) return 1;
                 return 0;
             });
             sortedRules.forEach(rule => {
                 const row = tableBody.insertRow();
+                // Sottocategoria è visualizzata ma vuota/N.A. perché non nel CSV
                 row.innerHTML = `
                     <td class="category-name">${rule.categoria}</td>
+                    <td>${rule.sottocategoria || '<em>N/A</em>'}</td>
                     <td class="brand-name">${rule.marca}</td>
+                    <td>${rule.agente || '<em>N/A</em>'}</td>
+                    <td class="service-centers-cell">${rule.centriAssistenza || '<em>N/A</em>'}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
                     <td class="actions">
-                        <button class="button action-button edit-btn" onclick="openEditModal(${rule.id})"><span style="font-size:1.1em;">✎</span> Modifica</button>
-                        <button class="button action-button delete-btn" onclick="deleteRule(${rule.id})"><span style="font-size:1.1em;">🗑</span> Elimina</button>
+                        <button class="button action-button edit-btn" onclick="openEditModal('${String(rule.id).replace(/'/g, "\\'")}')"><span style="font-size:1.1em;">✎</span> Modifica</button>
+                        <button class="button action-button delete-btn" onclick="deleteRule('${String(rule.id).replace(/'/g, "\\'")}')"><span style="font-size:1.1em;">🗑</span> Elimina</button>
                     </td>
                 `;
             });
         }
 
-        function filterDiscountRules() { /* ...logica di aggiornamento del filtro marche migliorata... */
+        function filterDiscountRules() {
             const categoryValue = document.getElementById('category-filter').value;
-            const brandFilterEl = document.getElementById('brand-filter'); // Prima il brand filter element
-            const brandValue = brandFilterEl.value; // Poi il suo valore
+            const brandFilterEl = document.getElementById('brand-filter');
+            const brandValue = brandFilterEl.value;
             
             currentFilteredRules = discountRulesData.filter(rule => {
                 const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
@@ -560,53 +783,31 @@
                 return matchesCategory && matchesBrand;
             });
             
-            // Aggiorna il dropdown delle marche basato sulla categoria selezionata
-            const currentBrandSelection = brandFilterEl.value; 
-            while (brandFilterEl.options.length > 1) brandFilterEl.remove(1); 
-            
-            let brandsToShowInDropdown;
-            if (categoryValue) {
-                // Mostra solo marche della categoria selezionata che esistono nei dati FILTRATI (o globali, dipende dalla UX desiderata)
-                // Per ora, mostriamo le marche della categoria selezionata presenti in tutti i dati, non solo quelli filtrati
-                 brandsToShowInDropdown = [...new Set(discountRulesData.filter(rule => rule.categoria === categoryValue).map(rule => rule.marca))].sort();
-            } else { 
-                brandsToShowInDropdown = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
-            }
-            brandsToShowInDropdown.forEach(brand => {
-                const option = document.createElement('option'); option.value = brand; option.textContent = brand; brandFilterEl.appendChild(option);
-            });
+            updateBrandFilterOptions(categoryValue, brandValue);
 
-            if (brandsToShowInDropdown.includes(currentBrandSelection)) {
-                brandFilterEl.value = currentBrandSelection;
-            } else {
-                brandFilterEl.value = ""; // Se la marca selezionata non è più valida, resetta
-                 // E rifiltra se il brand è stato resettato
-                if (brandValue !== "") { // Solo se brandValue era impostato e ora è stato resettato
-                    currentFilteredRules = discountRulesData.filter(rule => {
-                        const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
-                        // Il brand non è più un filtro attivo qui perché è stato resettato
-                        return matchesCategory;
-                    });
-                }
+            if (brandValue && !document.getElementById('brand-filter').value) { 
+                 currentFilteredRules = discountRulesData.filter(rule => {
+                    const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
+                    return matchesCategory; 
+                });
             }
+            
             renderTable(currentFilteredRules);
         }
-        
-        function resetFilters() { /* ...identica... */
+
+        function resetFilters() {
             document.getElementById('category-filter').value = "";
-            // document.getElementById('brand-filter').value = ""; // Non è necessario resettare la marca qui, filterDiscountRules lo farà
-            filterDiscountRules(); // Questo popolerà anche il filtro marche con tutte le opzioni
-            document.getElementById('brand-filter').value = ""; // Assicurati che sia "Tutte" dopo
-            filterDiscountRules(); // Richiama di nuovo per applicare "Tutte le Marche"
+            // updateBrandFilterOptions("", ""); // Chiamato da filterDiscountRules
+            document.getElementById('brand-filter').value = "";
+            filterDiscountRules();
             showToast("Filtri resettati.");
         }
 
-        window.onclick = function(event) { /* ...identica... */
+        window.onclick = function(event) {
             if (event.target == modal) { closeModal(); }
         }
-        document.addEventListener('DOMContentLoaded', () => { /* ...identica... */
-            populateFilters();
-            filterDiscountRules(); 
+        document.addEventListener('DOMContentLoaded', async () => { 
+            await loadDataFromCSV(); // Attende il caricamento dei dati prima di fare altro
         });
     </script>
 
