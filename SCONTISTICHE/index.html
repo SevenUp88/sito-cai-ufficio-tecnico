@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prototipo Sconti - CSV Esterno</title>
+    <title>Prototipo Sconti - CSV Esterno (v3)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -142,6 +142,7 @@
             text-align: left;
             border-bottom: 1px solid var(--border-color);
             font-size: 0.9em;
+            vertical-align: top; /* Allinea contenuto in alto per celle con <br> */
         }
         .discounts-matrix-table th {
             font-weight: 600;
@@ -157,7 +158,7 @@
         .discounts-display { font-weight: 500; color: var(--text-color-primary); }
         .category-name { font-weight: 600; color: var(--primary-color-dark); }
         .brand-name { color: var(--text-color-primary); }
-        .service-centers-cell { max-width: 200px; white-space: normal; word-break: break-word; }
+        .service-centers-cell { max-width: 280px; white-space: normal; word-break: break-word; font-size: 0.85em; line-height: 1.4;}
 
         .actions .action-button {
             font-size: 0.8em; padding: 5px 8px; border-radius: 6px;
@@ -180,9 +181,9 @@
         }
         .modal-content {
             background-color: var(--surface-color);
-            margin: 3% auto; 
+            margin: 3% auto;
             padding: 24px 30px;
-            border-radius: 12px; width: 90%; max-width: 700px; 
+            border-radius: 12px; width: 90%; max-width: 700px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             animation: fadeInModal 0.3s ease-out;
         }
@@ -191,7 +192,7 @@
         .modal-content h3 { margin-top:0; font-size:1.5em; color: var(--text-color-primary); font-weight: 600; margin-bottom: 20px; }
         .modal-content .form-group { margin-bottom: 14px; }
         .modal-content label { display: block; margin-bottom: 5px; font-weight: 500; color: var(--text-color-secondary); font-size:0.85em; }
-        .modal-content input[type="text"], .modal-content input[type="number"] { /* Rimossa textarea dallo stile generico */
+        .modal-content input[type="text"], .modal-content input[type="number"] {
             width: 100%; padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 8px; font-size: 0.95em;
@@ -205,7 +206,7 @@
         }
         .sconto-fields { display: flex; gap: 10px; margin-bottom: 8px; }
         .sconto-fields:last-of-type { margin-bottom: 0; }
-        .sconto-fields input { width: calc( (100% / 3) - (20px / 3) ); } /* Applicato a tutti gli input in .sconto-fields */
+        .sconto-fields input { width: calc( (100% / 3) - (20px / 3) ); }
 
 
         .modal-actions { text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 12px;}
@@ -287,7 +288,7 @@
                         <th>Categoria</th>
                         <th>Sottocategoria</th>
                         <th>Marca</th>
-                        <th>Agenzia</th>
+                        <th>Agenzia</th> <!-- Intestazione 'agenzia' dal CSV -->
                         <th>Centri Assistenza</th>
                         <th>Sconti Acquisto</th>
                         <th>Sconti Vendita</th>
@@ -312,7 +313,7 @@
                 </div>
                 <div class="form-group">
                     <label for="editSottocategoria">Sottocategoria (opzionale)</label>
-                    <input type="text" id="editSottocategoria" placeholder="Es. Monosplit, Multisplit">
+                    <input type="text" id="editSottocategoria" placeholder="Es. Monosplit (non dal CSV)">
                 </div>
             </div>
             <div class="form-group">
@@ -323,12 +324,12 @@
             <hr style="margin: 20px 0; border-color: var(--border-color); border-top:none;">
             
             <div class="form-group">
-                <label for="editAgente">Agenzia</label>
+                <label for="editAgente">Agenzia (da CSV 'agenzia')</label>
                 <input type="text" id="editAgente" placeholder="Nome agenzia">
             </div>
             
             <div class="form-group">
-                <label>Centri Assistenza</label>
+                <label>Centri Assistenza (formato: Nome | Telefono)</label>
                 <div class="sconto-fields">
                     <input type="text" id="editCentroAssistenza1" placeholder="Assistenza Cesena">
                     <input type="text" id="editCentroAssistenza2" placeholder="Assistenza Savignano">
@@ -339,7 +340,7 @@
 
 
             <div class="form-group">
-                <label>Sconti Acquisto (max 6, lasciare vuoto se non applicabile)</label>
+                <label>Sconti Acquisto (max 6, separati da ';')</label>
                 <div class="sconto-fields">
                     <input type="number" id="editScontoAcquisto1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoAcquisto2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
@@ -352,7 +353,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label>Sconti Vendita (max 2, lasciare vuoto se non applicabile)</label>
+                <label>Sconti Vendita (max 2, separati da ';')</label>
                 <div class="sconto-fields">
                     <input type="number" id="editScontoVendita1" placeholder="Sconto 1 %" min="0" max="100" step="0.01">
                     <input type="number" id="editScontoVendita2" placeholder="Sconto 2 %" min="0" max="100" step="0.01">
@@ -370,34 +371,29 @@
     <div id="toast-notification" class="toast">Messaggio Toast!</div>
 
     <script>
+        // ----- INIZIO SCRIPT -----
         let discountRulesData = []; 
         let currentFilteredRules = [];
         let nextId = 1; 
 
-        // Incolla qui il link al tuo CSV pubblicato come hai fatto prima
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR7adRsTXVEHY2zeVqHmlYj1n259pWbMxE1I9ihp1DKmOtlHH135ZxC5xLeF2xn_EKaNcZB0NpLbBX5/pub?gid=623616075&single=true&output=csv'; 
 
+        // Elementi DOM del Modale
         const modal = document.getElementById('editRuleModal');
         const modalTitle = document.getElementById('modalTitle');
         const editRuleIdInput = document.getElementById('editRuleId');
         const editCategoriaInput = document.getElementById('editCategoria');
         const editSottocategoriaInput = document.getElementById('editSottocategoria'); 
         const editMarcaInput = document.getElementById('editMarca');
-        const editAgenteInput = document.getElementById('editAgente'); // "Agenzia" nel CSV
+        const editAgenteInput = document.getElementById('editAgente'); 
         
         const editCentroAssistenza1Input = document.getElementById('editCentroAssistenza1');
         const editCentroAssistenza2Input = document.getElementById('editCentroAssistenza2');
         const editCentroAssistenza3Input = document.getElementById('editCentroAssistenza3');
         
-        const editScontoAcquisto1 = document.getElementById('editScontoAcquisto1');
-        const editScontoAcquisto2 = document.getElementById('editScontoAcquisto2');
-        const editScontoAcquisto3 = document.getElementById('editScontoAcquisto3');
-        const editScontoAcquisto4 = document.getElementById('editScontoAcquisto4');
-        const editScontoAcquisto5 = document.getElementById('editScontoAcquisto5');
-        const editScontoAcquisto6 = document.getElementById('editScontoAcquisto6');
-
-        const editScontoVendita1 = document.getElementById('editScontoVendita1');
-        const editScontoVendita2 = document.getElementById('editScontoVendita2');
+        // Elementi DOM Sconti (già definiti, solo per completezza)
+        // const editScontoAcquisto1 = ..., etc.
+        // const editScontoVendita1 = ..., etc.
         
         const toastElement = document.getElementById('toast-notification');
 
@@ -417,11 +413,7 @@
                     throw new Error(`Errore HTTP: ${response.status} ${response.statusText}`);
                 }
                 const csvText = await response.text();
-                // Semplice parsing CSV, per CSV complessi usare una libreria
                 const rows = csvText.split(/\r?\n/).map(row => {
-                    // Questo split base non gestisce virgole dentro a campi quotati. 
-                    // Se il tuo CSV è complesso, considera una libreria (es. PapaParse).
-                    // Per il CSV attuale basato sulle intestazioni fornite, questo dovrebbe andare.
                     return row.split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
                 });
 
@@ -433,92 +425,111 @@
                 
                 const headerMap = {};
                 headersRaw.forEach((header, index) => {
-                    headerMap[String(header).trim().toLowerCase()] = index; // Chiave esatta e minuscola
+                    // Normalizza le intestazioni: minuscolo, trim, e sostituisce spazi con underscore se necessario (ma il tuo CSV usa già underscore)
+                    headerMap[String(header).trim().toLowerCase()] = index;
                 });
-                
-                console.log("Header mappati:", headerMap); // DEBUG: Verifica le chiavi mappate
+                console.log("Header del CSV mappati:", headerMap);
 
-                // Verifica che le chiavi necessarie esistano
-                const requiredHeaders = ['categoria', 'marca', 'sconto_in_acquisto', 'sconto_in_vendita', 'agenzia'];
-                for (const reqH of requiredHeaders) {
+                // Verifica chiavi essenziali basate sul tuo CSV
+                const requiredCSVHeaders = ['categoria', 'marca', 'sconto_in_acquisto', 'sconto_in_vendita', 'agenzia', 'assistenza_cesena', 'assistenza_savignano', 'assistenza_rimini'];
+                for (const reqH of requiredCSVHeaders) {
                     if (headerMap[reqH] === undefined) {
-                        throw new Error(`Intestazione CSV mancante o non riconosciuta: "${reqH}". Verifica le chiavi in headerMap e le intestazioni del tuo CSV.`);
+                         console.warn(`Attenzione: Intestazione CSV "${reqH}" non trovata. I dati per questo campo potrebbero mancare.`);
+                         // Potresti decidere di lanciare un errore se un campo è assolutamente cruciale
+                         // throw new Error(`Intestazione CSV obbligatoria mancante: "${reqH}"`);
                     }
                 }
 
-                const parseDiscountString = (discountStr) => {
+                // Parsa gli sconti con separatore ';'
+                const parseCSVCascadeDiscount = (discountStr) => {
                     if (!discountStr || typeof discountStr !== 'string') return [];
-                    return discountStr.split('+')
-                                      .map(s => parseFloat(s.trim()))
+                    return discountStr.split(';') 
+                                      .map(s => parseFloat(String(s).trim().replace(',', '.'))) // Gestisce virgola/punto decimale
                                       .filter(n => !isNaN(n) && n >= 0 && n <= 100);
+                };
+
+                // Parsa la stringa "NOME | TELEFONO" per i centri assistenza
+                const parseCSVCentroAssistenza = (centroCSVString) => {
+                    const str = String(centroCSVString || "").trim();
+                    if (!str || str.toLowerCase() === 'no' || str.toLowerCase() === 'n/d') {
+                        return null;
+                    }
+                    const parts = str.split('|').map(p => p.trim());
+                    if (parts.length >= 1 && parts[0]) {
+                        return { nome: parts[0], telefono: (parts[1] || null) };
+                    }
+                    return null;
                 };
                 
                 discountRulesData = rows.slice(dataStartIndex).map((row, csvRowIndex) => {
                     const originalRowNumber = csvRowIndex + 2; 
-                    if (row.length < headersRaw.length) {
-                        console.warn(`Riga ${originalRowNumber} nel CSV (${row.join(',')}) ha meno colonne dell'header (${headersRaw.length}). Saltata.`);
-                        return null;
+                    if (row.length < headersRaw.length && row.join('').trim() !== '') { // Salta righe vuote ma logga quelle con dati parziali
+                        console.warn(`Riga ${originalRowNumber} del CSV (${row.join(',')}) ha ${row.length} colonne, attese ${headersRaw.length}. Potrebbe essere saltata o processata parzialmente.`);
+                        // return null; // Decisione se saltare o tentare il processamento
                     }
+                    if (row.join('').trim() === '') return null; // Salta righe completamente vuote
                     
                     const idFromCSV = row[headerMap['id']] ? String(row[headerMap['id']]).trim() : null;
-                    const id = idFromCSV || `csv_${Date.now()}_${csvRowIndex}`; 
+                    // Se l'ID dal CSV è vuoto, genera un ID univoco per questa sessione.
+                    const id = idFromCSV && idFromCSV.length > 0 ? idFromCSV : `csv_${Date.now()}_${csvRowIndex}`; 
                     
                     const categoria = row[headerMap['categoria']];
                     const marca = row[headerMap['marca']];
 
                     if (!categoria || !marca) {
-                        console.warn(`Riga ${originalRowNumber} nel CSV: Categoria ('${categoria}') o Marca ('${marca}') mancanti. Saltata.`);
+                        console.warn(`Riga ${originalRowNumber} del CSV: Categoria ('${categoria}') o Marca ('${marca}') sono mancanti. Riga saltata.`);
                         return null;
                     }
 
                     const scontiAcquistoStr = row[headerMap['sconto_in_acquisto']];
                     const scontiVenditaStr = row[headerMap['sconto_in_vendita']];
                     
-                    const scontiAcquisto = parseDiscountString(scontiAcquistoStr);
-                    const scontiVendita = parseDiscountString(scontiVenditaStr);
+                    const scontiAcquisto = parseCSVCascadeDiscount(scontiAcquistoStr);
+                    const scontiVendita = parseCSVCascadeDiscount(scontiVenditaStr);
 
-                    const agente = row[headerMap['agenzia']];
+                    const agente = row[headerMap['agenzia']]; // Dal CSV colonna 'agenzia'
                     
-                    const centriAssistenzaList = [];
-                    // Usa ?? '' per sicurezza se headerMap non dovesse trovare la chiave (già controllato sopra però)
-                    const assCesena = row[headerMap['assistenza_cesena'] ?? headerMap['assistenza cesena']]; 
-                    const assSavignano = row[headerMap['assistenza_savignano'] ?? headerMap['assistenza savignano']];
-                    const assRimini = row[headerMap['assistenza_rimini'] ?? headerMap['assistenza rimini']];
+                    const centriAssistenzaStrutturati = {};
+                    const rawCesena = row[headerMap['assistenza_cesena']];
+                    const parsedCesena = parseCSVCentroAssistenza(rawCesena);
+                    if (parsedCesena) centriAssistenzaStrutturati.cesena = parsedCesena;
 
-                    if (assCesena && assCesena.toLowerCase() !== 'no' && assCesena.toLowerCase() !== 'n/d'  && assCesena.trim() !== '') centriAssistenzaList.push(assCesena.trim());
-                    if (assSavignano && assSavignano.toLowerCase() !== 'no' && assSavignano.toLowerCase() !== 'n/d' && assSavignano.trim() !== '') centriAssistenzaList.push(assSavignano.trim());
-                    if (assRimini && assRimini.toLowerCase() !== 'no' && assRimini.toLowerCase() !== 'n/d' && assRimini.trim() !== '') centriAssistenzaList.push(assRimini.trim());
+                    const rawSavignano = row[headerMap['assistenza_savignano']];
+                    const parsedSavignano = parseCSVCentroAssistenza(rawSavignano);
+                    if (parsedSavignano) centriAssistenzaStrutturati.savignano = parsedSavignano;
+
+                    const rawRimini = row[headerMap['assistenza_rimini']];
+                    const parsedRimini = parseCSVCentroAssistenza(rawRimini);
+                    if (parsedRimini) centriAssistenzaStrutturati.rimini = parsedRimini;
                     
-                    // Sottocategoria non è nel tuo CSV attuale
-                    const sottocategoria = ""; 
+                    const sottocategoria = ""; // Non presente nel tuo CSV.
 
                     return {
                         id: id, 
                         categoria: categoria || "N/D",
                         sottocategoria: sottocategoria, 
                         marca: marca || "N/D",
-                        agente: agente || "N/D", // Mappato da 'agenzia'
-                        centriAssistenza: centriAssistenzaList.join(', '), 
+                        agente: agente || "N/D", // 'agente' è il nome campo interno, 'agenzia' è l'header CSV
+                        centriAssistenza: centriAssistenzaStrutturati, 
                         scontiAcquisto: scontiAcquisto,
                         scontiVendita: scontiVendita
                     };
                 }).filter(rule => rule !== null); 
 
-                // Trova il massimo ID numerico per 'nextId', altrimenti usa un timestamp per evitare collisioni con stringhe ID
-                 if (discountRulesData.length > 0) {
+                if (discountRulesData.length > 0) {
                     const numericIds = discountRulesData
-                        .map(r => parseInt(String(r.id).replace(/[^0-9]/g, ''), 10)) // Estrai numeri da ID
+                        .map(r => parseInt(String(r.id).replace(/[^0-9]/g, ''), 10)) 
                         .filter(idNum => !isNaN(idNum));
-                    nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : Date.now();
+                    nextId = numericIds.length > 0 ? Math.max(...numericIds) + 1 : (Date.now() % 100000); // Modulo per un numero più corto se basato su Date
                 } else {
-                    nextId = 1; // O Date.now() se preferisci ID basati su timestamp all'inizio
+                    nextId = 1;
                 }
                 
                 showToast("Dati CSV processati con successo!", 3000);
-                console.log("Dati caricati e processati:", discountRulesData);
+                console.log("Dati finali caricati in discountRulesData:", JSON.parse(JSON.stringify(discountRulesData)));
             } catch (error) {
                 console.error("Errore durante il caricamento o parsing del CSV:", error);
-                showToast(`Errore caricamento dati CSV: ${error.message}`, 5000);
+                showToast(`Errore caricamento dati CSV: ${error.message}`, 6000);
                 discountRulesData = []; 
                 nextId = 1;
             } finally {
@@ -528,7 +539,7 @@
         }
 
 
-        function getScontiFromFields(baseId, count) {
+        function getScontiFromFields(baseId, count) { /* Identica alla versione precedente */
             const sconti = [];
             for (let i = 1; i <= count; i++) {
                 const field = document.getElementById(`${baseId}${i}`);
@@ -545,7 +556,7 @@
             return sconti;
         }
 
-        function setScontiToFields(baseId, count, scontiArray) {
+        function setScontiToFields(baseId, count, scontiArray) { /* Identica */
             for (let i = 1; i <= count; i++) {
                 const field = document.getElementById(`${baseId}${i}`);
                 if (field) {
@@ -555,31 +566,41 @@
         }
 
         function openEditModal(ruleId) {
-            const rule = discountRulesData.find(r => String(r.id) === String(ruleId)); // Confronta come stringhe per sicurezza
+            const rule = discountRulesData.find(r => String(r.id) === String(ruleId));
             if (!rule) {
-                console.error("Regola non trovata per ID:", ruleId, "in", discountRulesData);
+                console.error("MODIFICA: Regola non trovata per ID:", ruleId);
+                showToast(`Errore: regola con ID ${ruleId} non trovata.`, 4000);
                 return;
             }
             modalTitle.textContent = "Modifica Regola Sconto";
-            editRuleIdInput.value = rule.id;
+            editRuleIdInput.value = rule.id; // Mantiene l'ID originale (stringa o numero)
             editCategoriaInput.value = rule.categoria;
             editSottocategoriaInput.value = rule.sottocategoria || ""; 
             editMarcaInput.value = rule.marca;
             editAgenteInput.value = rule.agente || ""; 
 
-            const caValues = rule.centriAssistenza ? String(rule.centriAssistenza).split(',').map(s => s.trim()) : [];
-            if (editCentroAssistenza1Input) editCentroAssistenza1Input.value = caValues[0] || "";
-            if (editCentroAssistenza2Input) editCentroAssistenza2Input.value = caValues[1] || "";
-            if (editCentroAssistenza3Input) editCentroAssistenza3Input.value = caValues[2] || "";
+            const caObj = rule.centriAssistenza || {};
+            if (editCentroAssistenza1Input) {
+                const cesenaData = caObj.cesena;
+                editCentroAssistenza1Input.value = cesenaData ? `${cesenaData.nome}${cesenaData.telefono ? ' | ' + cesenaData.telefono : ''}` : "";
+            }
+            if (editCentroAssistenza2Input) {
+                const savignanoData = caObj.savignano;
+                editCentroAssistenza2Input.value = savignanoData ? `${savignanoData.nome}${savignanoData.telefono ? ' | ' + savignanoData.telefono : ''}` : "";
+            }
+            if (editCentroAssistenza3Input) {
+                const riminiData = caObj.rimini;
+                editCentroAssistenza3Input.value = riminiData ? `${riminiData.nome}${riminiData.telefono ? ' | ' + riminiData.telefono : ''}` : "";
+            }
             
             setScontiToFields('editScontoAcquisto', 6, rule.scontiAcquisto);
             setScontiToFields('editScontoVendita', 2, rule.scontiVendita);
             modal.style.display = "block";
         }
 
-        function openAddRuleModal() {
+        function openAddRuleModal() { /* Identica, imposta campi a vuoto */
             modalTitle.textContent = "Aggiungi Nuova Regola Sconto";
-            editRuleIdInput.value = ""; // Per nuova regola, ID sarà generato in saveRuleChanges
+            editRuleIdInput.value = ""; 
             editCategoriaInput.value = "";
             editSottocategoriaInput.value = ""; 
             editMarcaInput.value = "";
@@ -595,74 +616,76 @@
             editCategoriaInput.focus();
         }
 
-        function closeModal() {
-            modal.style.display = "none";
-        }
+        function closeModal() { modal.style.display = "none"; }
 
         function saveRuleChanges() {
-            const idString = editRuleIdInput.value; // Può essere stringa ("csv_...") o numero
+            const idOriginale = editRuleIdInput.value; // Stringa o vuota
             const categoria = editCategoriaInput.value.trim();
             const sottocategoria = editSottocategoriaInput.value.trim(); 
             const marca = editMarcaInput.value.trim();
             const agente = editAgenteInput.value.trim(); 
             
-            const caList = [];
-            if (editCentroAssistenza1Input && editCentroAssistenza1Input.value.trim()) caList.push(editCentroAssistenza1Input.value.trim());
-            if (editCentroAssistenza2Input && editCentroAssistenza2Input.value.trim()) caList.push(editCentroAssistenza2Input.value.trim());
-            if (editCentroAssistenza3Input && editCentroAssistenza3Input.value.trim()) caList.push(editCentroAssistenza3Input.value.trim());
-            const centriAssistenzaString = caList.join(', ');
+            const centriAssistenzaSalvataggio = {};
+            const parseInputCentro = (inputElement) => {
+                if (inputElement && inputElement.value.trim()) {
+                    const val = inputElement.value.trim();
+                    const parts = val.split('|').map(p => p.trim());
+                     // Deve esserci almeno un nome per essere valido
+                    if (parts.length >= 1 && parts[0]) {
+                        return { nome: parts[0], telefono: (parts[1] || null) };
+                    }
+                }
+                return null;
+            };
+
+            const caCesenaSave = parseInputCentro(editCentroAssistenza1Input);
+            if (caCesenaSave) centriAssistenzaSalvataggio.cesena = caCesenaSave;
+
+            const caSavignanoSave = parseInputCentro(editCentroAssistenza2Input);
+            if (caSavignanoSave) centriAssistenzaSalvataggio.savignano = caSavignanoSave;
+            
+            const caRiminiSave = parseInputCentro(editCentroAssistenza3Input);
+            if (caRiminiSave) centriAssistenzaSalvataggio.rimini = caRiminiSave;
 
             const scontiAcquisto = getScontiFromFields('editScontoAcquisto', 6);
             const scontiVendita = getScontiFromFields('editScontoVendita', 2);
 
-            if (scontiAcquisto === null || scontiVendita === null) return; // Errore mostrato da getScontiFromFields
+            if (scontiAcquisto === null || scontiVendita === null) return; 
 
             if (!categoria || !marca) {
                 showToast("Errore: Categoria e Marca sono campi obbligatori.", 4000);
                 return;
             }
 
-            const ruleData = {
+            const ruleDataToSave = {
                 categoria,
                 sottocategoria,
                 marca,
                 agente,
-                centriAssistenza: centriAssistenzaString,
+                centriAssistenza: (Object.keys(centriAssistenzaSalvataggio).length > 0) ? centriAssistenzaSalvataggio : null,
                 scontiAcquisto,
                 scontiVendita
             };
 
-            if (idString) { // Modifica esistente
-                const ruleIndex = discountRulesData.findIndex(r => String(r.id) === idString);
+            if (idOriginale) { 
+                const ruleIndex = discountRulesData.findIndex(r => String(r.id) === String(idOriginale));
                 if (ruleIndex > -1) {
-                    discountRulesData[ruleIndex] = { ...discountRulesData[ruleIndex], ...ruleData, id: idString }; // Mantieni l'ID originale
+                    discountRulesData[ruleIndex] = { ...discountRulesData[ruleIndex], ...ruleDataToSave, id: idOriginale }; 
                 } else {
-                    console.error("Tentativo di modifica regola non trovata con ID:", idString);
-                    showToast("Errore: regola da modificare non trovata.", 4000);
-                    return;
+                     showToast(`Errore salvataggio: regola con ID ${idOriginale} non trovata.`, 4000); return;
                 }
-            } else { // Nuova regola
-                // Assicurati che nextId sia sempre un valore valido e univoco (o fallo gestire da un DB)
-                // Per la demo locale, incrementiamo.
-                const newId = typeof nextId === 'number' ? nextId++ : `new_${Date.now()}`;
-                if(typeof nextId !== 'number' && typeof newId === 'string' && newId.startsWith('new_')) {
-                     // Se stiamo generando ID stringa, assicurati che il prossimo sia diverso.
-                     // Per un sistema reale, questo va gestito dal backend/DB.
-                     // Per questa demo client-side, la strategia `Date.now()` dovrebbe essere sufficiente per la sessione.
-                }
-                const newRule = { id: newId, ...ruleData };
+            } else { 
+                const newId = typeof nextId === 'number' ? nextId++ : `new_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+                const newRule = { id: newId, ...ruleDataToSave };
                 discountRulesData.push(newRule);
             }
             closeModal();
-            // NOTA: queste modifiche sono solo in memoria. Se vuoi salvarle permanentemente
-            // (es. su Firestore o riscaricando il CSV), dovrai implementare quella logica.
-            // Per ora, la tabella si aggiorna con i dati in memoria.
             filterDiscountRules();
             populateFilters();
             showToast("Regola salvata con successo (in memoria)!");
         }
 
-        function deleteRule(ruleId) {
+        function deleteRule(ruleId) { /* Identica, usa String(rule.id) === String(ruleId) */
              if (window.confirm("Sei sicuro di voler eliminare questa regola? L'azione è solo in memoria per questa demo.")) {
                 discountRulesData = discountRulesData.filter(rule => String(rule.id) !== String(ruleId));
                 filterDiscountRules();
@@ -671,22 +694,20 @@
             }
         }
 
-        function formatDiscountString(discountArray) {
+        function formatDiscountString(discountArray) { /* Identica */
             if (!discountArray || discountArray.length === 0) return "N/A";
-            return discountArray.map(d => d + "%").join(" + ");
+            return discountArray.map(d => d + "%").join(" + "); // Usa "+" per visualizzazione come da formato sconti originale
         }
+
+        // populateFilters e updateBrandFilterOptions restano sostanzialmente identiche.
 
         function populateFilters() {
             const categories = [...new Set(discountRulesData.map(rule => rule.categoria))].sort();
             const brands = [...new Set(discountRulesData.map(rule => rule.marca))].sort();
             const categoryFilterEl = document.getElementById('category-filter');
-            const brandFilterEl = document.getElementById('brand-filter');
-            
             const previouslySelectedCategory = categoryFilterEl.value;
-            // Non serve salvare il brand, perché updateBrandFilterOptions lo gestisce
 
             while (categoryFilterEl.options.length > 1) categoryFilterEl.remove(1);
-            
             categories.forEach(cat => {
                 const option = document.createElement('option'); option.value = cat; option.textContent = cat; categoryFilterEl.appendChild(option);
             });
@@ -701,7 +722,8 @@
 
         function updateBrandFilterOptions(selectedCategory, previouslySelectedBrandValue) {
             const brandFilterEl = document.getElementById('brand-filter');
-            const currentBrandVal = previouslySelectedBrandValue || brandFilterEl.value; 
+            // Se previouslySelectedBrandValue è passato, usa quello, altrimenti il valore corrente del filtro
+            const currentBrandVal = previouslySelectedBrandValue !== undefined ? previouslySelectedBrandValue : brandFilterEl.value; 
 
             while (brandFilterEl.options.length > 1) brandFilterEl.remove(1);
 
@@ -728,8 +750,9 @@
                 brandFilterEl.value = ""; 
             }
         }
+        
 
-        function renderTable(rulesToRender) {
+        function renderTable(rulesToRender) { /* Modificata per centri assistenza e escaping ID */
             const tableBody = document.getElementById('discounts-matrix-body');
             const noDataMessage = document.getElementById('no-data-message');
             const tableElement = document.querySelector('.discounts-matrix-table');
@@ -747,68 +770,75 @@
             const sortedRules = [...rulesToRender].sort((a,b) => {
                 if (a.categoria < b.categoria) return -1;
                 if (a.categoria > b.categoria) return 1;
-                // if (a.sottocategoria < b.sottocategoria) return -1; // Sottocategoria non è usata per l'ordinamento qui
-                // if (a.sottocategoria > b.sottocategoria) return 1;
                 if (a.marca < b.marca) return -1;
                 if (a.marca > b.marca) return 1;
                 return 0;
             });
             sortedRules.forEach(rule => {
                 const row = tableBody.insertRow();
-                // Sottocategoria è visualizzata ma vuota/N.A. perché non nel CSV
+                
+                let centriAssistenzaDisplay = "N/A";
+                const ca = rule.centriAssistenza;
+                if (ca && typeof ca === 'object' && Object.keys(ca).length > 0) {
+                    const partsDisplay = [];
+                    if (ca.cesena) partsDisplay.push(`Cesena: ${ca.cesena.nome}${ca.cesena.telefono ? ' ('+ca.cesena.telefono+')':''}`);
+                    if (ca.savignano) partsDisplay.push(`Savignano: ${ca.savignano.nome}${ca.savignano.telefono ? ' ('+ca.savignano.telefono+')':''}`);
+                    if (ca.rimini) partsDisplay.push(`Rimini: ${ca.rimini.nome}${ca.rimini.telefono ? ' ('+ca.rimini.telefono+')':''}`);
+                    centriAssistenzaDisplay = partsDisplay.join('<br>'); 
+                }
+                
+                // Escape apici singoli negli ID per gli onclick (importante se gli ID possono contenere ')
+                const escapedId = String(rule.id).replace(/'/g, "\\'");
+
                 row.innerHTML = `
                     <td class="category-name">${rule.categoria}</td>
                     <td>${rule.sottocategoria || '<em>N/A</em>'}</td>
                     <td class="brand-name">${rule.marca}</td>
                     <td>${rule.agente || '<em>N/A</em>'}</td>
-                    <td class="service-centers-cell">${rule.centriAssistenza || '<em>N/A</em>'}</td>
+                    <td class="service-centers-cell">${centriAssistenzaDisplay}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
                     <td class="actions">
-                        <button class="button action-button edit-btn" onclick="openEditModal('${String(rule.id).replace(/'/g, "\\'")}')"><span style="font-size:1.1em;">✎</span> Modifica</button>
-                        <button class="button action-button delete-btn" onclick="deleteRule('${String(rule.id).replace(/'/g, "\\'")}')"><span style="font-size:1.1em;">🗑</span> Elimina</button>
+                        <button class="button action-button edit-btn" onclick="openEditModal('${escapedId}')"><span style="font-size:1.1em;">✎</span> Modifica</button>
+                        <button class="button action-button delete-btn" onclick="deleteRule('${escapedId}')"><span style="font-size:1.1em;">🗑</span> Elimina</button>
                     </td>
                 `;
             });
         }
 
-        function filterDiscountRules() {
+        function filterDiscountRules() { /* Sostanzialmente identica, ma con una chiamata a updateBrandFilterOptions più esplicita */
             const categoryValue = document.getElementById('category-filter').value;
             const brandFilterEl = document.getElementById('brand-filter');
-            const brandValue = brandFilterEl.value;
+            const brandValue = brandFilterEl.value; // Salva il valore attuale prima di aggiornare le opzioni
             
+            // Prima aggiorna le opzioni del filtro marca basate sulla categoria
+            updateBrandFilterOptions(categoryValue, brandValue);
+            
+            // Poi usa il valore (potenzialmente aggiornato/resettato) del filtro marca per filtrare i dati
+            const currentBrandFilterValue = document.getElementById('brand-filter').value;
+
             currentFilteredRules = discountRulesData.filter(rule => {
                 const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
-                const matchesBrand = brandValue ? rule.marca === brandValue : true;
+                const matchesBrand = currentBrandFilterValue ? rule.marca === currentBrandFilterValue : true;
                 return matchesCategory && matchesBrand;
             });
-            
-            updateBrandFilterOptions(categoryValue, brandValue);
-
-            if (brandValue && !document.getElementById('brand-filter').value) { 
-                 currentFilteredRules = discountRulesData.filter(rule => {
-                    const matchesCategory = categoryValue ? rule.categoria === categoryValue : true;
-                    return matchesCategory; 
-                });
-            }
             
             renderTable(currentFilteredRules);
         }
 
-        function resetFilters() {
+        function resetFilters() { /* Identica */
             document.getElementById('category-filter').value = "";
-            // updateBrandFilterOptions("", ""); // Chiamato da filterDiscountRules
-            document.getElementById('brand-filter').value = "";
-            filterDiscountRules();
+            document.getElementById('brand-filter').value = ""; 
+            filterDiscountRules(); // Questo ricaricherà anche le opzioni del brand con tutti i brand
             showToast("Filtri resettati.");
         }
 
-        window.onclick = function(event) {
-            if (event.target == modal) { closeModal(); }
-        }
+        window.onclick = function(event) { if (event.target == modal) { closeModal(); } }
+        
         document.addEventListener('DOMContentLoaded', async () => { 
-            await loadDataFromCSV(); // Attende il caricamento dei dati prima di fare altro
+            await loadDataFromCSV(); 
         });
+        // ----- FINE SCRIPT -----
     </script>
 
 </body>
