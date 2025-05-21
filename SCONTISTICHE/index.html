@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrice Sconti - Protetta</title>
+    <title>Matrice Sconti & Calcolatore</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Firebase SDK (versioni "compat" per uso globale) -->
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
-      // Your web app's Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
@@ -23,83 +22,72 @@
         appId: "1:136848104008:web:2724f60607dbe91d09d67d",
         measurementId: "G-NNPV2607G7"
       };
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth(); // Istanza di Firebase Auth
+      const auth = firebase.auth();
       const db = firebase.firestore();
       const SCONTISTICHE_COLLECTION = "scontisticheProdotti";
     </script>
 
     <style>
         :root {
-            --primary-color: #0056a8;
-            --secondary-color: #6c757d;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --background-color: #ffffff;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --border-radius: 8px;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --header-height: 65px;
-            --matrice-primary-color: var(--primary-color);
-            --matrice-text-primary: var(--dark-color);
-            --matrice-text-secondary: var(--secondary-color);
-            --matrice-surface-color: var(--background-color);
-            --matrice-bg-color: var(--light-color);
-            --matrice-border-color: #e0e0e0;
-            --matrice-accent-success: #198754;
+            --primary-color: #0056a8; --secondary-color: #6c757d; --light-color: #f8f9fa;
+            --dark-color: #343a40; --background-color: #ffffff; --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius: 8px; --danger-color: #dc3545; --warning-color: #ffc107;
+            --header-height: 65px; --matrice-primary-color: var(--primary-color);
+            --matrice-text-primary: var(--dark-color); --matrice-text-secondary: var(--secondary-color);
+            --matrice-surface-color: var(--background-color); --matrice-bg-color: var(--light-color);
+            --matrice-border-color: #e0e0e0; --matrice-accent-success: #198754;
             --matrice-accent-danger: #dc3545;
         }
-
         body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--matrice-bg-color); color: var(--matrice-text-primary); line-height: 1.6; padding-top: var(--header-height); min-height: 100vh; font-weight: 400; }
         * { box-sizing: border-box; }
 
-        /* === Stili Autenticazione === */
+        /* Autenticazione & Loader */
         #auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - var(--header-height) - 40px); padding: 20px; }
         .login-form { background-color: var(--background-color); padding: 30px 40px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); width: 100%; max-width: 400px; text-align: center; }
         .login-form h2 { color: var(--primary-color); margin-bottom: 25px; }
         .login-form .form-group { margin-bottom: 20px; text-align: left; }
         .login-form label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--secondary-color); }
         .login-form input[type="email"], .login-form input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
-        .login-form input[type="email"]:focus, .login-form input[type="password"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); }
+        .login-form input[type="email"]:focus, .login-form input[type="password"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
         .login-form .button-login { background-color: var(--primary-color); color: white; padding: 12px; width: 100%; font-size: 1.1em; border: none; border-radius: var(--border-radius); cursor: pointer; }
         .login-form .button-login:hover { background-color: #004182; }
         .auth-error { color: var(--danger-color); margin-top: 15px; font-size: 0.9em; min-height: 1.2em; }
         .content-hidden { display: none !important; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
+        .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
+        /* Header */
+        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0,86,168,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
         .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
         .app-header a { line-height: 0; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
         .header-user-info { font-size: 0.85em; color: var(--secondary-color); margin-right: 10px;}
         .header-user-info strong { color: var(--dark-color); }
         .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-        .header-action-button:hover { color: var(--matrice-accent-danger); }
         .button-logout { background: none; border: 1px solid var(--secondary-color); color: var(--secondary-color); font-size: 0.85em; padding: 6px 12px; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px; }
-        .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); background-color: #f8d7da1a; }
-
-
+        .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
+        
+        /* Main Content & Cards */
         .main-container { max-width: 1300px; margin: 20px auto; padding: 20px; }
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
         .title-group { flex-grow: 1; }
         .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin-top: 0; margin-bottom: 2px; font-weight: 700; line-height: 1.2;}
         .page-subtitle { font-size: 0.9em; color: var(--secondary-color); margin-top: 0; margin-bottom: 0; font-weight: 400; line-height: 1.4; }
-
         .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; line-height: 1.4; }
         .button:hover { transform: translateY(-1px); }
         .button-secondary { background-color: var(--matrice-surface-color); color: var(--matrice-text-secondary); border: 1px solid var(--matrice-border-color); }
         .button-secondary:hover { background-color: #e9ecef; border-color: #ced4da; }
-
         .content-card { background-color: var(--matrice-surface-color); padding: 24px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); margin-bottom: 24px; box-shadow: var(--card-shadow); }
+        
+        /* Filtri */
         .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;}
         .filters { display: flex; gap: 20px; align-items: center; flex-wrap: wrap;}
         .filters label { font-weight: 500; margin-right: 8px; color: var(--matrice-text-secondary); font-size: 0.9em;}
         .filters select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.9em; background-color: #fff; color: var(--matrice-text-primary); min-width: 180px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); }
+        .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
 
+        /* Tabella */
         .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
         .discounts-matrix-table th, .discounts-matrix-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.85em; vertical-align: top; }
         .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 18%; }
@@ -108,22 +96,40 @@
         .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 12%; }
         .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 15%; }
         .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 25%; }
-        
         .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
         .discounts-matrix-table tr:last-child td { border-bottom: none; }
         .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
         .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
-        .discounts-display { font-weight: 500; color: var(--matrice-text-primary); }
-        .category-name { font-weight: 600; color: var(--primary-color); }
-        .brand-name { font-weight: 500; color: var(--matrice-text-primary); }
-        .service-centers-cell { font-size: 0.85em; line-height: 1.5; max-width: 280px; white-space: normal; word-break: break-word;}
+        .discounts-display { font-weight: 500; } .category-name { font-weight: 600; color: var(--primary-color); }
+        .brand-name { font-weight: 500; } .service-centers-cell { font-size: 0.85em; line-height: 1.5; max-width: 280px; white-space: normal; word-break: break-word;}
         .service-centers-cell strong { color: var(--dark-color); }
-        
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
         
+        /* Calcolatore Sconto */
+        .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
+        .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; }
+        .calculator-layout .input-section { flex: 2; min-width: 300px; }
+        .calculator-layout .result-section { flex: 1; background-color: #f8f9fa; padding: 15px 20px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); text-align: center; min-width: 220px;}
+        .sconto-fields-calculator { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 8px; margin-bottom: 15px; }
+        .sconto-fields-calculator input[type="number"] { width: 100%; padding: 8px; font-size: 0.9em; text-align: center; border: 1px solid #ced4da; border-radius: 4px; }
+        .calculator-panel .form-group { margin-bottom: 15px; }
+        .calculator-panel .form-group label { font-size: 0.85em; font-weight: 500; margin-bottom: 5px; color: var(--secondary-color); }
+        .calculator-panel #calc-base-price { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px; }
+        .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; }
+        .calculator-panel .button-primary-calc { background-color: var(--matrice-accent-success); }
+        .calculator-panel .button-primary-calc:hover { background-color: #147543; }
+        .calculator-panel .button-secondary-calc { background-color: var(--secondary-color); }
+        .calculator-panel .button-secondary-calc:hover { background-color: #5a6268; }
+        .result-section p { margin-top: 0; margin-bottom: 5px; color: var(--secondary-color); font-size: 0.9em; }
+        .calculated-price-display { font-size: 1.8em; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block; }
+        .total-discount-display { font-size: 1.3em; font-weight: 500; color: var(--dark-color); }
+        @media (max-width: 768px) { .calculator-layout { flex-direction: column; } .sconto-fields-calculator { grid-template-columns: repeat(3, 1fr); } .calculator-panel #calc-base-price { max-width: none; } }
+        @media (max-width: 480px) { .sconto-fields-calculator { grid-template-columns: repeat(2, 1fr); } }
+
+        /* Toast */
         .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
         .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
-
     </style>
 </head>
 <body>
@@ -133,29 +139,17 @@
              <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
         </a>
         <div class="header-controls">
-            <div id="user-info-header" class="header-user-info content-hidden">
-                Utente: <strong id="user-email-display"></strong>
-            </div>
-            <a href="/" class="header-action-button" title="Torna alla Home">
-                <i class="fas fa-home"></i>
-            </a>
-            <button id="logout-button" class="button-logout content-hidden" title="Esci">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
+            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="button-logout content-hidden" title="Esci"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
 
     <div id="auth-container">
         <div class="login-form">
             <h2>Accesso Riservato Matrice Sconti</h2>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-            </div>
+            <div class="form-group"><label for="email">Email:</label><input type="email" id="email" required></div>
+            <div class="form-group"><label for="password">Password:</label><input type="password" id="password" required></div>
             <button id="login-button" class="button button-login">Accedi</button>
             <p id="auth-error-message" class="auth-error"></p>
         </div>
@@ -171,212 +165,160 @@
             </div>
         </div>
 
+        <div id="quick-discount-calculator" class="content-card calculator-panel">
+            <h2><i class="fas fa-calculator"></i> Calcolatore Sconto Rapido</h2>
+            <div class="calculator-layout">
+                <div class="input-section">
+                    <div class="form-group"><label for="calc-base-price">Prezzo di Listino (€):</label><input type="number" id="calc-base-price" placeholder="Es. 1000" step="0.01"></div>
+                    <div class="form-group"><label>Sconti in Cascata (%):</label>
+                        <div class="sconto-fields-calculator">
+                            <input type="number" id="calc-sconto1" placeholder="S1" step="0.01" min="0" max="100"><input type="number" id="calc-sconto2" placeholder="S2" step="0.01" min="0" max="100"><input type="number" id="calc-sconto3" placeholder="S3" step="0.01" min="0" max="100">
+                            <input type="number" id="calc-sconto4" placeholder="S4" step="0.01" min="0" max="100"><input type="number" id="calc-sconto5" placeholder="S5" step="0.01" min="0" max="100"><input type="number" id="calc-sconto6" placeholder="S6" step="0.01" min="0" max="100">
+                        </div>
+                    </div>
+                    <button id="calculate-button" class="button button-primary-calc"><i class="fas fa-cogs"></i> Calcola</button>
+                    <button id="reset-calculator-button" class="button button-secondary-calc" style="margin-left: 10px;"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+                <div class="result-section">
+                    <p>Prezzo Scontato:</p><div id="calculated-price" class="calculated-price-display">0.00 €</div>
+                    <p style="margin-top:10px;">Sconto Totale Applicato:</p><div id="total-discount-percentage" class="total-discount-display">0.00 %</div>
+                </div>
+            </div>
+        </div>
+
         <div class="content-card filters-container">
             <div class="filters">
                 <div> <label for="category-filter">Categoria:</label> <select id="category-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
                 <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
             </div>
-            <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;">
-                <i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri
-            </button>
+            <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;"><i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri</button>
         </div>
 
         <div class="content-card">
             <table class="discounts-matrix-table">
-                <thead>
-                    <tr>
-                        <th>Categoria</th>
-                        <th>Marca</th>
-                        <th>Sconti Acquisto</th>
-                        <th>Sconti Vendita</th>
-                        <th>Agenzia</th>
-                        <th>Centri Assistenza</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto</th><th>Sconti Vendita</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
                 <tbody id="discounts-matrix-body"></tbody>
             </table>
-            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto.</div>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola.</div>
         </div>
     </div>
 
     <div id="toast-notification" class="toast"></div>
 
     <script>
-        // ----- SCRIPT CON AUTENTICAZIONE E LETTURA DATI -----
-        let allFirestoreData = [];
-        let currentFilteredRulesUI = [];
-
-        const authContainer = document.getElementById('auth-container');
-        const mainContentWrapper = document.getElementById('main-content-wrapper');
-        const appLoader = document.getElementById('app-loader');
-        const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const authErrorMessage = document.getElementById('auth-error-message');
-        const userInfoHeader = document.getElementById('user-info-header');
-        const userEmailDisplay = document.getElementById('user-email-display');
+        // ----- SCRIPT CON AUTENTICAZIONE, LETTURA DATI E CALCOLATORE -----
+        let allFirestoreData = []; let currentFilteredRulesUI = [];
+        const authContainer = document.getElementById('auth-container'); const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const appLoader = document.getElementById('app-loader'); const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button'); const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password'); const authErrorMessage = document.getElementById('auth-error-message');
+        const userInfoHeader = document.getElementById('user-info-header'); const userEmailDisplay = document.getElementById('user-email-display');
         const toastElement = document.getElementById('toast-notification');
+        const calcBasePriceInput = document.getElementById('calc-base-price');
+        const calcScontoInputs = Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`));
+        const calculateButton = document.getElementById('calculate-button'); const resetCalculatorButton = document.getElementById('reset-calculator-button');
+        const calculatedPriceDisplay = document.getElementById('calculated-price'); const totalDiscountPercentageDisplay = document.getElementById('total-discount-percentage');
 
-        function showToast(message, duration = 3000) { toastElement.textContent = message; toastElement.classList.add("show"); setTimeout(() => { toastElement.classList.remove("show"); }, duration); }
+        function showToast(msg, dur = 3000) { toastElement.textContent = msg; toastElement.classList.add("show"); setTimeout(()=>toastElement.classList.remove("show"), dur); }
 
         auth.onAuthStateChanged(async (user) => {
-            appLoader.classList.remove('content-hidden'); // Mostra loader subito
+            appLoader.classList.remove('content-hidden');
             if (user) {
-                authContainer.classList.add('content-hidden');
-                mainContentWrapper.classList.remove('content-hidden');
-                userInfoHeader.classList.remove('content-hidden');
-                userEmailDisplay.textContent = user.email;
-                logoutButton.classList.remove('content-hidden');
+                authContainer.classList.add('content-hidden'); mainContentWrapper.classList.remove('content-hidden');
+                userInfoHeader.classList.remove('content-hidden'); userEmailDisplay.textContent = user.email; logoutButton.classList.remove('content-hidden');
                 await loadDataFromFirestore();
             } else {
-                authContainer.classList.remove('content-hidden');
-                mainContentWrapper.classList.add('content-hidden');
-                userInfoHeader.classList.add('content-hidden');
-                logoutButton.classList.add('content-hidden');
+                authContainer.classList.remove('content-hidden'); mainContentWrapper.classList.add('content-hidden');
+                userInfoHeader.classList.add('content-hidden'); logoutButton.classList.add('content-hidden');
                 allFirestoreData = []; populateUiFilters([]); applyUiFilters();
             }
-            appLoader.classList.add('content-hidden'); // Nascondi loader alla fine
+            appLoader.classList.add('content-hidden');
         });
 
         loginButton.addEventListener('click', async () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            authErrorMessage.textContent = '';
+            const email = emailInput.value; const password = passwordInput.value; authErrorMessage.textContent = '';
             if (!email || !password) { authErrorMessage.textContent = 'Email e Password obbligatori.'; return; }
             try {
-                showToast("Accesso in corso...", 2000);
-                appLoader.classList.remove('content-hidden');
+                showToast("Accesso...", 2000); appLoader.classList.remove('content-hidden');
                 await auth.signInWithEmailAndPassword(email, password);
-            } catch (error) {
-                console.error("Errore login:", error);
-                authErrorMessage.textContent = "Credenziali non valide o errore di rete.";
-                showToast("Errore login.", 3000);
-                appLoader.classList.add('content-hidden');
-            }
+            } catch (error) { console.error("Login Err:", error); authErrorMessage.textContent = "Credenziali non valide."; showToast("Errore login.", 3000); appLoader.classList.add('content-hidden');}
         });
 
         logoutButton.addEventListener('click', async () => {
-            try {
-                appLoader.classList.remove('content-hidden');
-                await auth.signOut();
-                showToast("Logout effettuato.", 2000);
-            } catch (error) {
-                console.error("Errore logout:", error);
-                showToast("Errore logout.", 3000);
-                appLoader.classList.add('content-hidden');
-            }
+            try { appLoader.classList.remove('content-hidden'); await auth.signOut(); showToast("Logout.", 2000); } 
+            catch (error) { console.error("Logout Err:", error); showToast("Errore logout.", 3000); appLoader.classList.add('content-hidden'); }
         });
 
         async function loadDataFromFirestore() {
-            showToast("Caricamento dati...", 2500);
-            appLoader.classList.remove('content-hidden');
+            showToast("Caricamento...", 2500); appLoader.classList.remove('content-hidden');
             try {
                 const snapshot = await db.collection(SCONTISTICHE_COLLECTION).orderBy("categoria").orderBy("marca").get();
                 allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                populateUiFilters(allFirestoreData);
-                applyUiFilters();
-            } catch (error) {
-                console.error("Errore lettura Firestore:", error);
-                showToast(`Errore dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000);
-                allFirestoreData = []; populateUiFilters([]); applyUiFilters();
-            } finally {
-                appLoader.classList.add('content-hidden');
-            }
+                populateUiFilters(allFirestoreData); applyUiFilters();
+            } catch (error) { console.error("Firestore Read Err:", error); showToast(`Errore dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000); allFirestoreData = []; populateUiFilters([]); applyUiFilters(); } 
+            finally { appLoader.classList.add('content-hidden'); }
         }
 
         function formatDiscountString(arr) { if (!arr || arr.length === 0) return "N/A"; return arr.map(d => d + "%").join(" + ");}
-        
-        function populateUiFilters(dataToUse = allFirestoreData) { // Default a allFirestoreData
-            const categories = [...new Set(dataToUse.map(rule => rule.categoria))].sort();
-            const categoryFilterEl = document.getElementById('category-filter');
-            const catVal = categoryFilterEl.value;
-            categoryFilterEl.innerHTML = '<option value="">Tutte</option>';
-            categories.forEach(cat => categoryFilterEl.add(new Option(cat, cat)));
-            if (categories.includes(catVal)) categoryFilterEl.value = catVal; else categoryFilterEl.value = "";
-            // Il filtro brand viene popolato da applyUiFilters
+        function populateUiFilters(dataToUse = allFirestoreData) {
+            const categories = [...new Set(dataToUse.map(r => r.categoria))].sort(); const catEl = document.getElementById('category-filter');
+            const catVal = catEl.value; catEl.innerHTML = '<option value="">Tutte</option>';
+            categories.forEach(c => catEl.add(new Option(c, c)));
+            if (categories.includes(catVal)) catEl.value = catVal; else catEl.value = "";
         }
-        
         function triggerFilter() { applyUiFilters(); }
-
         function applyUiFilters() {
-            const categoryValue = document.getElementById('category-filter').value;
-            const brandFilterEl = document.getElementById('brand-filter');
-            let brandsForCurrentCategory;
-
-            if (categoryValue) {
-                brandsForCurrentCategory = [...new Set(allFirestoreData.filter(rule => rule.categoria === categoryValue).map(rule => rule.marca))].sort();
-            } else {
-                brandsForCurrentCategory = [...new Set(allFirestoreData.map(rule => rule.marca))].sort();
-            }
-
-            const currentBrandSelection = brandFilterEl.value;
-            brandFilterEl.innerHTML = '<option value="">Tutte</option>';
-            brandsForCurrentCategory.forEach(b => brandFilterEl.add(new Option(b, b)));
-            
-            if (brandsForCurrentCategory.includes(currentBrandSelection)) {
-                brandFilterEl.value = currentBrandSelection;
-            } else {
-                brandFilterEl.value = ""; 
-            }
-            const finalBrandValue = brandFilterEl.value; 
-
-            currentFilteredRulesUI = allFirestoreData.filter(rule => {
-                const matchesCategory = !categoryValue || rule.categoria === categoryValue;
-                const matchesBrand = !finalBrandValue || rule.marca === finalBrandValue;
-                return matchesCategory && matchesBrand;
-            });
+            const catVal = document.getElementById('category-filter').value; const brandEl = document.getElementById('brand-filter'); let brandsForCat;
+            if (catVal) { brandsForCat = [...new Set(allFirestoreData.filter(r=>r.categoria===catVal).map(r=>r.marca))].sort(); } 
+            else { brandsForCat = [...new Set(allFirestoreData.map(r=>r.marca))].sort(); }
+            const currentBrandSel = brandEl.value; brandEl.innerHTML='<option value="">Tutte</option>';
+            brandsForCat.forEach(b=>brandEl.add(new Option(b,b)));
+            if(brandsForCat.includes(currentBrandSel)) brandEl.value = currentBrandSel; else brandEl.value = "";
+            const finalBrandVal = brandEl.value;
+            currentFilteredRulesUI = allFirestoreData.filter(r => (!catVal || r.categoria === catVal) && (!finalBrandVal || r.marca === finalBrandVal));
             renderTable(currentFilteredRulesUI);
         }
-
-        function resetFilters() {
-            document.getElementById('category-filter').value = "";
-            document.getElementById('brand-filter').value = "";
-            // applyUiFilters si occuperà di aggiornare le opzioni del brand e renderizzare
-            applyUiFilters(); 
-            showToast("Filtri resettati.");
-        }
+        function resetFilters() { document.getElementById('category-filter').value = ""; document.getElementById('brand-filter').value = ""; applyUiFilters(); showToast("Filtri resettati."); }
         
         function renderTable(rulesToRender) {
-            const tableBody = document.getElementById('discounts-matrix-body');
-            const noDataMsg = document.getElementById('no-data-message');
-            const tableElement = document.querySelector('.discounts-matrix-table');
-            tableBody.innerHTML = ''; 
-
-            if (!rulesToRender || rulesToRender.length === 0) {
-                noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
-                noDataMsg.style.display = 'block';
-                if(tableElement) tableElement.style.display = 'none';
-                return;
-            }
-            noDataMsg.style.display = 'none';
-            if(tableElement) tableElement.style.display = '';
-
-            // L'ordinamento da Firestore è già applicato, ma se vuoi riordinare dopo il filtro:
-            const sortedRules = [...rulesToRender].sort((a,b) => {
-                 if (a.categoria < b.categoria) return -1; if (a.categoria > b.categoria) return 1;
-                 if (a.marca < b.marca) return -1; if (a.marca > b.marca) return 1;
-                 return 0;
-            });
-
-            sortedRules.forEach(rule => {
-                const row = tableBody.insertRow();
-                let caDisplay = "N/A"; const ca = rule.centriAssistenza;
-                if (ca && typeof ca === 'object' && Object.keys(ca).length > 0) {
-                    const p = [];
-                    if (ca.cesena) p.push(`<strong>Cesena:</strong> ${ca.cesena.nome}${ca.cesena.telefono?' ('+ca.cesena.telefono+')':''}`);
-                    if (ca.savignano) p.push(`<strong>Savignano:</strong> ${ca.savignano.nome}${ca.savignano.telefono?' ('+ca.savignano.telefono+')':''}`);
-                    if (ca.rimini) p.push(`<strong>Rimini:</strong> ${ca.rimini.nome}${ca.rimini.telefono?' ('+ca.rimini.telefono+')':''}`);
-                    caDisplay = p.join('<br>');
+            const tb = document.getElementById('discounts-matrix-body'); const ndm = document.getElementById('no-data-message');
+            const tableEl = document.querySelector('.discounts-matrix-table'); tb.innerHTML = '';
+            if (!rulesToRender || rulesToRender.length === 0) { ndm.textContent = "Nessuna regola per i filtri."; ndm.style.display='block'; if(tableEl) tableEl.style.display='none'; return; }
+            ndm.style.display='none'; if(tableEl) tableEl.style.display='';
+            const sorted = [...rulesToRender].sort((a,b)=>{if(a.categoria<b.categoria)return -1;if(a.categoria>b.categoria)return 1;if(a.marca<b.marca)return -1;if(a.marca>b.marca)return 1;return 0;});
+            sorted.forEach(rule => {
+                const row = tb.insertRow(); let caDisp="N/A"; const ca=rule.centriAssistenza;
+                if(ca && typeof ca==='object' && Object.keys(ca).length>0){const p=[];
+                    if(ca.cesena)p.push(`<strong>Cesena:</strong> ${ca.cesena.nome}${ca.cesena.telefono?' ('+ca.cesena.telefono+')':''}`);
+                    if(ca.savignano)p.push(`<strong>Savignano:</strong> ${ca.savignano.nome}${ca.savignano.telefono?' ('+ca.savignano.telefono+')':''}`);
+                    if(ca.rimini)p.push(`<strong>Rimini:</strong> ${ca.rimini.nome}${ca.rimini.telefono?' ('+ca.rimini.telefono+')':''}`);
+                    caDisp=p.join('<br>');
                 }
-                row.innerHTML = `
-                    <td class="category-name">${rule.categoria}</td> <td class="brand-name">${rule.marca}</td>
+                row.innerHTML = `<td class="category-name">${rule.categoria}</td><td class="brand-name">${rule.marca}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
-                    <td>${rule.agente || 'N/A'}</td> <td class="service-centers-cell">${caDisplay}</td>`;
+                    <td>${rule.agente||'N/A'}</td><td class="service-centers-cell">${caDisp}</td>`;
             });
         }
-        // Inizializzazione gestita da onAuthStateChanged
+
+        // Calcolatore Sconto
+        function applyCascadingDiscounts(base, discounts) { let cur=base; discounts.forEach(d=>{if(d>0 && d<=100) cur*=(1-(d/100));}); return cur;}
+        calculateButton.addEventListener('click', () => {
+            const base = parseFloat(calcBasePriceInput.value);
+            if(isNaN(base)||base<=0){showToast("Prezzo base non valido.",3000);calculatedPriceDisplay.textContent="N/A";totalDiscountPercentageDisplay.textContent="N/A";return;}
+            const discounts = calcScontoInputs.map(i=>parseFloat(i.value)).filter(d=>!isNaN(d)&&d>0&&d<=100);
+            if(discounts.length===0 && base > 0){calculatedPriceDisplay.textContent=base.toFixed(2)+" €"; totalDiscountPercentageDisplay.textContent="0.00 %"; return;}
+            const finalP = applyCascadingDiscounts(base, discounts); calculatedPriceDisplay.textContent=finalP.toFixed(2)+" €";
+            if(base>0){const totDisc=((base-finalP)/base)*100; totalDiscountPercentageDisplay.textContent=totDisc.toFixed(2)+" %";}else{totalDiscountPercentageDisplay.textContent="N/A";}
+        });
+        resetCalculatorButton.addEventListener('click', () => {
+            calcBasePriceInput.value=''; calcScontoInputs.forEach(i=>i.value='');
+            calculatedPriceDisplay.textContent="0.00 €"; totalDiscountPercentageDisplay.textContent="0.00 %"; showToast("Calcolatore resettato.",2000);
+        });
+        calcBasePriceInput.addEventListener('keypress', e => {if(e.key==='Enter'){e.preventDefault();calculateButton.click();}});
+        calcScontoInputs.forEach(i=>i.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();calculateButton.click();}}));
+        
+        document.addEventListener('DOMContentLoaded', () => auth.onAuthStateChanged(auth.currentUser => { /* Già gestito da onAuthStateChanged globale */}) ); // Inizializzazione già fatta
         // ----- FINE SCRIPT -----
     </script>
 </body>
