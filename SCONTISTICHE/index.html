@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrice Sconti & Calcolatore - V2</title>
+    <title>Matrice Sconti & Calcolatore - Protetto</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -69,9 +69,9 @@
         .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
         
         /* Main Content & Cards */
-        .main-container { max-width: 1350px; /* Aumentato per far spazio al calcolatore */ margin: 20px auto; padding: 20px; }
-        .page-title-actions { display: flex; justify-content: space-between; align-items: flex-start; /* Allinea in alto per titolo e calc */ margin-bottom: 24px; flex-wrap: wrap; gap: 20px; }
-        .title-group { flex-grow: 1; min-width: 300px; /* Larghezza minima per titolo/sottotitolo */ }
+        .main-container { max-width: 1300px; margin: 20px auto; padding: 20px; }
+        .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
+        .title-group { flex-grow: 1; }
         .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin-top: 0; margin-bottom: 2px; font-weight: 700; line-height: 1.2;}
         .page-subtitle { font-size: 0.9em; color: var(--secondary-color); margin-top: 0; margin-bottom: 0; font-weight: 400; line-height: 1.4; }
         .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; line-height: 1.4; }
@@ -105,72 +105,27 @@
         .service-centers-cell strong { color: var(--dark-color); }
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
         
-        /* Calcolatore Sconto (Inline e Responsive) */
-        .calculator-panel-inline { /* Quando è affianco al titolo */
-            padding: 15px; border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow); border: 1px solid var(--matrice-border-color);
-            background-color: var(--matrice-surface-color);
-            min-width: 480px; max-width: 550px; /* ADATTA QUESTI VALORI */
-            flex-shrink: 0; /* Non farlo restringere troppo */
-        }
-        .calculator-panel-inline .calculator-layout { display: flex; gap: 10px; align-items: flex-end;}
-        .calculator-panel-inline .input-section { flex: 3; min-width: 0; }
-        .calculator-panel-inline .result-section { flex: 2; padding: 0 0 0 10px; text-align: right; align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end;}
-        .calculator-panel-inline .form-group { margin-bottom: 8px; }
-        .calculator-panel-inline .form-group label { font-size: 0.8em; margin-bottom: 3px; display: block;}
-        .calculator-panel-inline #calc-base-price { padding: 8px; font-size: 0.9em; margin-bottom: 5px; width: 100%;}
-        .sconto-fields-calculator.inline-calc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 8px; } /* Sfrutta meglio lo spazio: 3 colonne */
-        .sconto-fields-calculator.inline-calc input[type="number"] { padding: 6px; font-size: 0.85em; text-align: center; }
-        .calculator-panel-inline .button-primary-calc { background-color: var(--primary-color); padding: 8px 10px; font-size: 0.85em; width: 100%; margin-bottom: 5px; }
-        .calculator-panel-inline .button-primary-calc:hover { background-color: #004182; }
-        .calculator-panel-inline .calculated-price-display { font-size: 1.4em; font-weight: bold; color: var(--primary-color); padding: 0; border-bottom: none; margin-bottom: 0; width: 100%;}
-        /* Nascondi alcuni elementi per compattezza quando inline */
-        .calculator-panel-inline #reset-calculator-button,
-        .calculator-panel-inline #total-discount-percentage,
-        .calculator-panel-inline .result-section p:nth-of-type(2) { display: none; }
-
-        /* Stile calcolatore quando NON è inline (blocco separato) */
-        .calculator-panel-block { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
-        .calculator-panel-block h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
-        .calculator-panel-block .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .calculator-panel-block .input-section { flex: 2; min-width: 300px; }
-        .calculator-panel-block .result-section { flex: 1; background-color: #f8f9fa; padding: 15px 20px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); text-align: center; min-width: 220px;}
-        .calculator-panel-block .sconto-fields-calculator { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .calculator-panel-block .sconto-fields-calculator input { width:100%; text-align: center;}
-        .calculator-panel-block #calc-base-price { width:100%; max-width:250px;}
-        .calculator-panel-block .button-primary-calc { background-color: var(--matrice-accent-success); padding: 10px 20px; font-size: 0.95em;}
-        .calculator-panel-block .button-primary-calc:hover { background-color: #147543; }
-        .calculator-panel-block .button-secondary-calc { background-color: var(--secondary-color); padding: 10px 15px; font-size: 0.95em; }
-        .calculator-panel-block .button-secondary-calc:hover { background-color: #5a6268; }
-        .calculator-panel-block .calculated-price-display { font-size: 1.8em; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block; }
-        .calculator-panel-block .total-discount-display { font-size: 1.3em; }
-        .calculator-panel-block #reset-calculator-button,
-        .calculator-panel-block #total-discount-percentage,
-        .calculator-panel-block .result-section p:nth-of-type(2) { display: block; } /* Mostra reset e totale % */
-
-
-        /* Breakpoint per spostare calcolatore sotto titolo */
-        @media (max-width: 1250px) { /* ADATTA QUESTO BREAKPOINT */
-            .page-title-actions {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            #quick-discount-calculator.calculator-panel-inline { /* Quando va sotto, applica stili del pannello a blocco */
-                width: 100%; max-width: none; margin-top: 20px;
-                padding: 20px; border-top: 3px solid var(--primary-color);
-            }
-            #quick-discount-calculator.calculator-panel-inline .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; align-items: flex-start;}
-            #quick-discount-calculator.calculator-panel-inline .input-section { flex: 2; min-width: 300px;}
-            #quick-discount-calculator.calculator-panel-inline .result-section { flex:1; text-align: center; padding: 15px; background-color: #f8f9fa; border: 1px solid var(--matrice-border-color); justify-content: center;}
-            #quick-discount-calculator.calculator-panel-inline #calc-base-price {max-width:250px;}
-            #quick-discount-calculator.calculator-panel-inline .sconto-fields-calculator { grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); }
-            #quick-discount-calculator.calculator-panel-inline .button-primary-calc { background-color: var(--matrice-accent-success); width:auto; padding: 10px 20px; font-size: 0.95em;}
-            #quick-discount-calculator.calculator-panel-inline .calculated-price-display { font-size: 1.8em; text-align: center; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block;}
-            #quick-discount-calculator.calculator-panel-inline #reset-calculator-button,
-            #quick-discount-calculator.calculator-panel-inline #total-discount-percentage,
-            #quick-discount-calculator.calculator-panel-inline .result-section p:nth-of-type(2) { display: block; } /* Mostra tutti gli elementi quando va sotto */
-        }
-
+        /* Calcolatore Sconto */
+        .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
+        .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+        .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; }
+        .calculator-layout .input-section { flex: 2; min-width: 300px; }
+        .calculator-layout .result-section { flex: 1; background-color: #f8f9fa; padding: 15px 20px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); text-align: center; min-width: 220px;}
+        .sconto-fields-calculator { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 8px; margin-bottom: 15px; }
+        .sconto-fields-calculator input[type="number"] { width: 100%; padding: 8px; font-size: 0.9em; text-align: center; border: 1px solid #ced4da; border-radius: 4px; }
+        .calculator-panel .form-group { margin-bottom: 15px; }
+        .calculator-panel .form-group label { font-size: 0.85em; font-weight: 500; margin-bottom: 5px; color: var(--secondary-color); }
+        .calculator-panel #calc-base-price { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px; }
+        .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; border-radius: var(--border-radius); cursor:pointer; } /* Aggiunto border-radius e cursor */
+        .calculator-panel .button-primary-calc { background-color: var(--matrice-accent-success); }
+        .calculator-panel .button-primary-calc:hover { background-color: #147543; }
+        .calculator-panel .button-secondary-calc { background-color: var(--secondary-color); }
+        .calculator-panel .button-secondary-calc:hover { background-color: #5a6268; }
+        .result-section p { margin-top: 0; margin-bottom: 5px; color: var(--secondary-color); font-size: 0.9em; }
+        .calculated-price-display { font-size: 1.8em; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block; }
+        .total-discount-display { font-size: 1.3em; font-weight: 500; color: var(--dark-color); }
+        @media (max-width: 768px) { .calculator-layout { flex-direction: column; } .sconto-fields-calculator { grid-template-columns: repeat(3, 1fr); } .calculator-panel #calc-base-price { max-width: none; } }
+        @media (max-width: 480px) { .sconto-fields-calculator { grid-template-columns: repeat(2, 1fr); } }
 
         /* Toast */
         .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
@@ -180,7 +135,9 @@
 <body>
 
     <header class="app-header">
-        <a href="/" title="C.A.I. - Home"><img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI" class="logo"></a>
+        <a href="/" title="C.A.I. - Home">
+             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
+        </a>
         <div class="header-controls">
             <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
             <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
@@ -206,23 +163,25 @@
                 <h1>Scontistiche in vigore</h1>
                 <p class="page-subtitle">Le percentuali di sconto devono essere applicate al valore di listino</p>
             </div>
-             <div id="quick-discount-calculator" class="calculator-panel-inline"> <!-- CALCOLATORE SPOSTATO QUI -->
-                <div class="calculator-layout">
-                    <div class="input-section">
-                        <div class="form-group small-margin"><label for="calc-base-price">Prezzo Listino (€):</label><input type="number" id="calc-base-price" placeholder="Prezzo" step="0.01"></div>
-                        <div class="form-group small-margin"><label>Sconti (%):</label>
-                            <div class="sconto-fields-calculator inline-calc">
-                                <input type="number" id="calc-sconto1" placeholder="S1" step="0.01" min="0" max="100"><input type="number" id="calc-sconto2" placeholder="S2" step="0.01" min="0" max="100"><input type="number" id="calc-sconto3" placeholder="S3" step="0.01" min="0" max="100">
-                                <input type="number" id="calc-sconto4" placeholder="S4" step="0.01" min="0" max="100"><input type="number" id="calc-sconto5" placeholder="S5" step="0.01" min="0" max="100"><input type="number" id="calc-sconto6" placeholder="S6" step="0.01" min="0" max="100">
-                            </div>
+        </div>
+
+        <div id="quick-discount-calculator" class="content-card calculator-panel">
+            <h2><i class="fas fa-calculator"></i> Calcolatore Sconto Rapido</h2>
+            <div class="calculator-layout">
+                <div class="input-section">
+                    <div class="form-group"><label for="calc-base-price">Prezzo di Listino (€):</label><input type="number" id="calc-base-price" placeholder="Es. 1000" step="0.01"></div>
+                    <div class="form-group"><label>Sconti in Cascata (%):</label>
+                        <div class="sconto-fields-calculator">
+                            <input type="number" id="calc-sconto1" placeholder="S1" step="0.01" min="0" max="100"><input type="number" id="calc-sconto2" placeholder="S2" step="0.01" min="0" max="100"><input type="number" id="calc-sconto3" placeholder="S3" step="0.01" min="0" max="100">
+                            <input type="number" id="calc-sconto4" placeholder="S4" step="0.01" min="0" max="100"><input type="number" id="calc-sconto5" placeholder="S5" step="0.01" min="0" max="100"><input type="number" id="calc-sconto6" placeholder="S6" step="0.01" min="0" max="100">
                         </div>
                     </div>
-                    <div class="result-section inline-result">
-                        <button id="calculate-button" class="button button-primary-calc small-btn"><i class="fas fa-cogs" style="font-size:0.9em; margin-right: 3px;"></i>Calcola</button>
-                        <div id="calculated-price" class="calculated-price-display small-display">0.00 €</div>
-                        <p style="margin-top:5px; font-size:0.8em;">Sconto Totale:</p><div id="total-discount-percentage" class="total-discount-display" style="font-size:1em;">0.00 %</div>
-                        <button id="reset-calculator-button" class="button button-secondary-calc" style="font-size:0.8em; padding: 5px 8px; margin-top:5px; width:100%;"><i class="fas fa-undo"></i> Reset</button>
-                    </div>
+                    <button id="calculate-button" class="button button-primary-calc"><i class="fas fa-cogs"></i> Calcola</button>
+                    <button id="reset-calculator-button" class="button button-secondary-calc" style="margin-left: 10px;"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+                <div class="result-section">
+                    <p>Prezzo Scontato:</p><div id="calculated-price" class="calculated-price-display">0.00 €</div>
+                    <p style="margin-top:10px;">Sconto Totale Applicato:</p><div id="total-discount-percentage" class="total-discount-display">0.00 %</div>
                 </div>
             </div>
         </div>
@@ -247,7 +206,7 @@
     <div id="toast-notification" class="toast"></div>
 
     <script>
-        // ----- SCRIPT COMPLETO -----
+        // ----- SCRIPT -----
         let allFirestoreData = []; let currentFilteredRulesUI = [];
         const authContainer = document.getElementById('auth-container'); const mainContentWrapper = document.getElementById('main-content-wrapper');
         const appLoader = document.getElementById('app-loader'); const loginButton = document.getElementById('login-button');
@@ -260,7 +219,7 @@
         const calculateButton = document.getElementById('calculate-button'); const resetCalculatorButton = document.getElementById('reset-calculator-button');
         const calculatedPriceDisplay = document.getElementById('calculated-price'); const totalDiscountPercentageDisplay = document.getElementById('total-discount-percentage');
 
-        function showToast(msg, dur = 3000) { toastElement.textContent = msg; toastElement.classList.add("show"); setTimeout(()=>toastElement.classList.remove("show"), dur); }
+        function showToast(message, duration = 3000) { toastElement.textContent = message; toastElement.classList.add("show"); setTimeout(() => { toastElement.classList.remove("show"); }, duration); }
 
         auth.onAuthStateChanged(async (user) => {
             appLoader.classList.remove('content-hidden');
@@ -396,17 +355,8 @@
         calculateButton.addEventListener('click', () => {
             const base = parseFloat(calcBasePriceInput.value);
             if(isNaN(base) || base <= 0){ showToast("Prezzo base non valido.",3000); calculatedPriceDisplay.textContent="N/A"; totalDiscountPercentageDisplay.textContent="N/A"; return; }
-            const discounts = calcScontoInputs.map(inputElement => parseFloat(inputElement.value)).filter(discountValue => !isNaN(discountValue) && discountValue >= 0 && discountValue <= 100); // Permetti 0% sconto
-            if(discounts.every(d => d === 0) && base > 0){ // Se tutti gli sconti sono 0
-                calculatedPriceDisplay.textContent = base.toFixed(2) + " €"; 
-                totalDiscountPercentageDisplay.textContent = "0.00 %"; 
-                return;
-            }
-            if(discounts.length === 0 && base > 0 && !calcScontoInputs.some(inp => inp.value.trim() !== '')) { // Se nessun input sconto è stato toccato
-                calculatedPriceDisplay.textContent = base.toFixed(2) + " €"; 
-                totalDiscountPercentageDisplay.textContent = "0.00 %"; 
-                return;
-            }
+            const discounts = calcScontoInputs.map(inputElement => parseFloat(inputElement.value)).filter(discountValue => !isNaN(discountValue) && discountValue > 0 && discountValue <= 100);
+            if(discounts.length === 0 && base > 0){ calculatedPriceDisplay.textContent = base.toFixed(2) + " €"; totalDiscountPercentageDisplay.textContent = "0.00 %"; return; }
             const finalPrice = applyCascadingDiscounts(base, discounts); 
             calculatedPriceDisplay.textContent = finalPrice.toFixed(2) + " €";
             if(base > 0){ const totalDiscount = ((base - finalPrice) / base) * 100; totalDiscountPercentageDisplay.textContent = totalDiscount.toFixed(2) + " %"; }
