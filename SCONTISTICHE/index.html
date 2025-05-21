@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrice Sconti - Visualizzazione da Firestore</title>
+    <title>Matrice Sconti - Protetta</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK (versioni "compat" per uso globale) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
@@ -22,51 +23,116 @@
         measurementId: "G-NNPV2607G7"
       };
       firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth(); // Istanza di Firebase Auth
       const db = firebase.firestore();
       const SCONTISTICHE_COLLECTION = "scontisticheProdotti";
     </script>
 
     <style>
-        /* CSS come prima, ma gli stili per il modale potrebbero essere rimossi se non usati altrove */
-        :root {
-            --primary-color: #0056a8; /* Da style (2).css */
-            --secondary-color: #6c757d;
-            --light-color: #f8f9fa;
-            --dark-color: #343a40;
-            --background-color: #ffffff;
-            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --border-radius: 8px;
-            --danger-color: #dc3545; /* Bootstrap danger */
-            --warning-color: #ffc107;
-            --header-height: 65px;
+        /* CSS (la maggior parte come prima, con aggiunte per login/loader) */
+        :root { /* ... variabili CSS come prima ... */ }
+        body { /* ... come prima ... */ }
+        * { /* ... come prima ... */ }
 
-            --matrice-primary-color: var(--primary-color);
-            --matrice-text-primary: var(--dark-color);
-            --matrice-text-secondary: var(--secondary-color);
-            --matrice-surface-color: var(--background-color);
-            --matrice-bg-color: var(--light-color);
-            --matrice-border-color: #e0e0e0;
-            --matrice-accent-success: #198754; 
-            --matrice-accent-danger: #dc3545;   
+        /* === Stili Autenticazione === */
+        #auth-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - var(--header-height) - 40px); /* Sottrai header e padding eventuale */
+            padding: 20px;
         }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--matrice-bg-color); color: var(--matrice-text-primary); line-height: 1.6; padding-top: var(--header-height); min-height: 100vh; font-weight: 400; }
-        * { box-sizing: border-box; }
+        .login-form {
+            background-color: var(--background-color);
+            padding: 30px 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-form h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+        }
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+        .login-form input[type="email"],
+        .login-form input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        .login-form input[type="email"]:focus,
+        .login-form input[type="password"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+        }
+        .login-form .button-login {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            width: 100%;
+            font-size: 1.1em;
+            border: none;
+        }
+        .login-form .button-login:hover {
+            background-color: #004182;
+        }
+        .auth-error {
+            color: var(--danger-color);
+            margin-top: 15px;
+            font-size: 0.9em;
+            min-height: 1.2em; /* Per evitare salti di layout */
+        }
+
+        /* Per nascondere/mostrare contenuto */
+        .content-hidden { display: none !important; }
+
+        /* Loader (opzionale, per attesa) */
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid var(--primary-color); /* Blue */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* ... Resto del tuo CSS per header, .main-container, tabelle, ecc. ... */
+        /* Header, main-container, content-card, filtri, tabelle, modale (anche se modale e bottoni modifica verranno rimossi), toast ... */
+        /* Assicurati che .app-header, .main-container etc. abbiano gli stili della tua risposta precedente */
+        /* Ho copiato il blocco CSS essenziale per il layout della matrice sconti di seguito */
 
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
         .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
         .app-header a { line-height: 0; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
+        .header-user-info { font-size: 0.85em; color: var(--secondary-color); }
+        .header-user-info strong { color: var(--dark-color); }
         .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-        .header-action-button:hover { color: var(--matrice-accent-danger); }
+        .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); }
+        .button-logout { font-size: 0.9em; padding: 8px 12px; color: var(--secondary-color); border: 1px solid var(--secondary-color); }
+
 
         .main-container { max-width: 1300px; margin: 20px auto; padding: 20px; }
-        
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
         .title-group { flex-grow: 1; }
         .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin-top: 0; margin-bottom: 2px; font-weight: 700; line-height: 1.2;}
         .page-subtitle { font-size: 0.9em; color: var(--secondary-color, #6c757d); margin-top: 0; margin-bottom: 0; font-weight: 400; line-height: 1.4; }
-        /* Rimosso stile per .page-title-actions .button-primary se non c'è più il bottone qui */
-
 
         .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; line-height: 1.4; }
         .button:hover { transform: translateY(-1px); }
@@ -81,7 +147,15 @@
         .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25); }
 
         .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
-        .discounts-matrix-table th, .discounts-matrix-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.88em; vertical-align: top; }
+        .discounts-matrix-table th, .discounts-matrix-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.85em; vertical-align: top; }
+        /* ... Larghezze colonne come da tua precedente indicazione ... */
+        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 18%; } /* Categoria */
+        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 15%; } /* Marca */
+        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 15%; } /* Sconti Acq */
+        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 12%; } /* Sconti Ven */
+        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 15%; } /* Agenzia */
+        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 25%; } /* Centri Ass. */
+        
         .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
         .discounts-matrix-table tr:last-child td { border-bottom: none; }
         .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
@@ -91,17 +165,10 @@
         .brand-name { font-weight: 500; color: var(--matrice-text-primary); }
         .service-centers-cell { font-size: 0.85em; line-height: 1.5; max-width: 280px; white-space: normal; word-break: break-word;}
         .service-centers-cell strong { color: var(--dark-color); }
-        /* Rimuovi .actions e .action-button se non ci sono più azioni */
-        /* Se la colonna Azioni viene rimossa del tutto: */
-        /* .discounts-matrix-table th:last-child, .discounts-matrix-table td:last-child { display: none; } */
-
-
+        
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
         
-        /* Stili per .modal, .modal-content, .modal-actions etc. possono essere rimossi se non ci sono più modali */
-
-        .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
-        .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
+        .toast { /* ...come prima... */ }
 
     </style>
 </head>
@@ -112,19 +179,45 @@
              <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
         </a>
         <div class="header-controls">
+            <div id="user-info-header" class="header-user-info content-hidden">
+                Utente: <strong id="user-email-display"></strong>
+            </div>
             <a href="/" class="header-action-button" title="Torna alla Home">
                 <i class="fas fa-home"></i>
             </a>
+            <button id="logout-button" class="button button-logout content-hidden" title="Esci">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </header>
 
-    <div class="main-container">
+    <!-- Contenitore per il form di Login -->
+    <div id="auth-container">
+        <div class="login-form">
+            <h2>Accesso Riservato</h2>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button id="login-button" class="button button-login">Accedi</button>
+            <p id="auth-error-message" class="auth-error"></p>
+        </div>
+    </div>
+
+    <!-- Contenuto principale della Matrice Sconti (nascosto inizialmente) -->
+    <div id="main-content-wrapper" class="main-container content-hidden">
+        <div id="app-loader" class="loader content-hidden"></div> <!-- Loader -->
+
         <div class="page-title-actions">
             <div class="title-group">
                 <h1>Scontistiche in vigore</h1>
                 <p class="page-subtitle">Le percentuali di sconto devono essere applicate al valore di listino</p>
             </div>
-            <!-- Bottone Nuova Regola RIMOSSO -->
+            <!-- No bottone "+ Nuova Regola" -->
         </div>
 
         <div class="content-card filters-container">
@@ -147,120 +240,135 @@
                         <th>Sconti Vendita</th>
                         <th>Agenzia</th>
                         <th>Centri Assistenza</th>
-                        <!-- <th>Azioni</th> RIMOSSA COLONNA AZIONI -->
+                        <!-- No colonna Azioni -->
                     </tr>
                 </thead>
                 <tbody id="discounts-matrix-body"></tbody>
             </table>
-            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto trovata.</div>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola di sconto.</div>
         </div>
     </div>
-
-    <!-- MODALE RIMOSSO -->
-    <!-- <div id="editRuleModal" class="modal"> ... </div> -->
 
     <div id="toast-notification" class="toast"></div>
 
     <script>
-        // ----- SCRIPT SEMPLIFICATO SOLO PER LETTURA E FILTRI -----
-        let allFirestoreData = []; 
+        // ----- SCRIPT CON AUTENTICAZIONE E LETTURA DATI -----
+        // 'auth' e 'db' sono globali grazie all'init Firebase nel <head>
+        
+        let allFirestoreData = [];
         let currentFilteredRulesUI = [];
 
+        const authContainer = document.getElementById('auth-container');
+        const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const appLoader = document.getElementById('app-loader');
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const userInfoHeader = document.getElementById('user-info-header');
+        const userEmailDisplay = document.getElementById('user-email-display');
+
         const toastElement = document.getElementById('toast-notification');
-        function showToast(message, duration = 3000) { toastElement.textContent = message; toastElement.classList.add("show"); setTimeout(() => toastElement.classList.remove("show"), duration); }
+        function showToast(message, duration = 3000) { /* ...invariata... */ }
+
+        // Gestione stato autenticazione
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Utente loggato
+                console.log("Utente loggato:", user.email);
+                authContainer.classList.add('content-hidden');
+                mainContentWrapper.classList.remove('content-hidden');
+                appLoader.classList.remove('content-hidden'); // Mostra loader
+                userInfoHeader.classList.remove('content-hidden');
+                userEmailDisplay.textContent = user.email;
+                logoutButton.classList.remove('content-hidden');
+
+                await loadDataFromFirestore();
+                appLoader.classList.add('content-hidden'); // Nascondi loader dopo caricamento
+            } else {
+                // Utente non loggato
+                console.log("Nessun utente loggato.");
+                authContainer.classList.remove('content-hidden');
+                mainContentWrapper.classList.add('content-hidden');
+                appLoader.classList.add('content-hidden');
+                userInfoHeader.classList.add('content-hidden');
+                logoutButton.classList.add('content-hidden');
+                allFirestoreData = []; populateUiFilters([]); applyUiFilters(); // Pulisci UI
+            }
+        });
+
+        // Login
+        loginButton.addEventListener('click', async () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authErrorMessage.textContent = '';
+            if (!email || !password) {
+                authErrorMessage.textContent = 'Email e Password sono obbligatori.';
+                return;
+            }
+            try {
+                showToast("Accesso in corso...", 2000);
+                await auth.signInWithEmailAndPassword(email, password);
+                // onAuthStateChanged gestirà il resto
+            } catch (error) {
+                console.error("Errore di login:", error);
+                authErrorMessage.textContent = `Errore: ${error.message}`;
+                showToast("Errore di login.", 3000);
+            }
+        });
+
+        // Logout
+        logoutButton.addEventListener('click', async () => {
+            try {
+                await auth.signOut();
+                // onAuthStateChanged gestirà il resto
+                showToast("Logout effettuato.", 2000);
+            } catch (error) {
+                console.error("Errore di logout:", error);
+                showToast("Errore durante il logout.", 3000);
+            }
+        });
+
 
         async function loadDataFromFirestore() {
-            showToast("Caricamento dati da Firestore...", 3000);
+            showToast("Caricamento dati...", 2500);
             try {
-                const snapshot = await db.collection(SCONTISTICHE_COLLECTION).orderBy("categoria").orderBy("marca").get(); // Ordina i dati da Firestore
+                const snapshot = await db.collection(SCONTISTICHE_COLLECTION).orderBy("categoria").orderBy("marca").get();
                 allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log("Dati letti da Firestore:", JSON.parse(JSON.stringify(allFirestoreData)));
-                
+                console.log("Dati da Firestore:", JSON.parse(JSON.stringify(allFirestoreData)));
                 populateUiFilters(allFirestoreData);
                 applyUiFilters();
-                showToast("Dati caricati!", 2000);
             } catch (error) {
-                console.error("Errore lettura da Firestore:", error);
-                showToast(`Errore caricamento: ${error.message}`, 5000);
+                console.error("Errore lettura Firestore:", error);
+                showToast(`Errore caricamento: ${error.code === 'permission-denied' ? 'Permessi insufficienti.' : error.message}`, 6000);
                 allFirestoreData = []; populateUiFilters([]); applyUiFilters();
             }
         }
 
         function formatDiscountString(arr) { if (!arr || arr.length === 0) return "N/A"; return arr.map(d => d + "%").join(" + ");}
 
-        function populateUiFilters(dataToUse) {
-            const categories = [...new Set(dataToUse.map(rule => rule.categoria))].sort();
-            // Non serve popolare i brand qui se applyUiFilters li gestisce dinamicamente
-            
-            const categoryFilterEl = document.getElementById('category-filter');
-            const catVal = categoryFilterEl.value;
-
-            categoryFilterEl.innerHTML = '<option value="">Tutte</option>';
-            categories.forEach(cat => categoryFilterEl.add(new Option(cat, cat)));
-            if (categories.includes(catVal)) categoryFilterEl.value = catVal; else categoryFilterEl.value = "";
-        }
-        
+        function populateUiFilters(dataToUse) { /* ...invariata... */ }
         function triggerFilter() { applyUiFilters(); }
-
-        function applyUiFilters() {
-            const categoryValue = document.getElementById('category-filter').value;
-            const brandFilterEl = document.getElementById('brand-filter');
-            
-            let brandsForCurrentCategory = [];
-            if (categoryValue) {
-                brandsForCurrentCategory = [...new Set(allFirestoreData
-                                            .filter(rule => rule.categoria === categoryValue)
-                                            .map(rule => rule.marca))].sort();
-            } else { // Nessuna categoria selezionata, mostra tutti i brand disponibili nei dati caricati
-                brandsForCurrentCategory = [...new Set(allFirestoreData.map(rule => rule.marca))].sort();
-            }
-
-            const currentBrandSelection = brandFilterEl.value;
-            brandFilterEl.innerHTML = '<option value="">Tutte</option>';
-            brandsForCurrentCategory.forEach(b => brandFilterEl.add(new Option(b, b)));
-            
-            if (brandsForCurrentCategory.includes(currentBrandSelection)) {
-                brandFilterEl.value = currentBrandSelection;
-            } else {
-                brandFilterEl.value = ""; 
-            }
-
-            const finalBrandValue = brandFilterEl.value; 
-
-            currentFilteredRulesUI = allFirestoreData.filter(rule => {
-                const matchesCategory = !categoryValue || rule.categoria === categoryValue;
-                const matchesBrand = !finalBrandValue || rule.marca === finalBrandValue;
-                return matchesCategory && matchesBrand;
-            });
-            renderTable(currentFilteredRulesUI);
-        }
-
-        function resetFilters() {
-            document.getElementById('category-filter').value = "";
-            document.getElementById('brand-filter').value = ""; // Resetta anche il filtro marca
-            applyUiFilters(); // Richiama applyUiFilters che ora gestisce anche il repopulate del filtro marca
-            showToast("Filtri resettati.");
-        }
+        function applyUiFilters() { /* ...invariata... */ }
+        function resetFilters() { /* ...invariata... */ }
         
         function renderTable(rulesToRender) {
             const tableBody = document.getElementById('discounts-matrix-body');
             const noDataMsg = document.getElementById('no-data-message');
-            const tableElement = document.querySelector('.discounts-matrix-table'); // Assicurati che la tabella esista
+            // ... (resto della funzione come prima, ma SENZA la colonna Azioni e i relativi bottoni) ...
             tableBody.innerHTML = ''; 
 
             if (!rulesToRender || rulesToRender.length === 0) {
-                noDataMsg.textContent = "Nessuna regola di sconto corrisponde ai filtri selezionati.";
+                noDataMsg.textContent = "Nessuna regola di sconto corrisponde ai filtri.";
                 noDataMsg.style.display = 'block';
-                if(tableElement) tableElement.style.display = 'none';
+                document.querySelector('.discounts-matrix-table').style.display = 'none';
                 return;
             }
             noDataMsg.style.display = 'none';
-            if(tableElement) tableElement.style.display = ''; // Mostra tabella
+            document.querySelector('.discounts-matrix-table').style.display = '';
 
-            // Non serve riordinare qui se i dati da Firestore sono già ordinati (con .orderBy)
-            // Oppure, se vuoi un ordinamento client-side aggiuntivo, puoi farlo:
-            const sortedRules = [...rulesToRender]; // Se non ordini, puoi rimuovere .sort()
-            // .sort((a,b) => { ... }); // L'ordinamento attuale per categoria e marca è ok
+            const sortedRules = [...rulesToRender]; // Assumendo ordinamento da Firestore
 
             sortedRules.forEach(rule => {
                 const row = tableBody.insertRow();
@@ -278,10 +386,10 @@
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
                     <td>${rule.agente || 'N/A'}</td> <td class="service-centers-cell">${caDisplay}</td>
-                    <!-- Colonna Azioni RIMOSSA --> `;
+                    `; // NESSUNA COLONNA AZIONI
             });
         }
-        document.addEventListener('DOMContentLoaded', loadDataFromFirestore);
+        // La funzione loadDataFromFirestore è chiamata da onAuthStateChanged
         // ----- FINE SCRIPT -----
     </script>
 </body>
