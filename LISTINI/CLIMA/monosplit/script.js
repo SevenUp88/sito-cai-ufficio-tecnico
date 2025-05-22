@@ -1,436 +1,145 @@
-// --- CONFIGURAZIONE FIREBASE (DA AGGIUNGERE ALL'INIZIO) ---
-    // Assicurati che Firebase SDK sia incluso nell'HTML prima di questo script
-    // e che firebaseConfig sia definita.
-    /* Esempio:
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+  authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+  projectId: "consorzio-artigiani-idraulici",
+  storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
+  messagingSenderId: "136848104008",
+  appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+  measurementId: "G-NNPV2607G7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+/* File: script.js (per Listino Climatizzatori, con Firebase Auth) */
+document.addEventListener('DOMContentLoaded', () => {
+    // --- CONFIGURAZIONE FIREBASE ---
+    // !!! INSERISCI QUI LA TUA CONFIGURAZIONE FIREBASE !!!
     const firebaseConfig = {
         apiKey: "TUO_API_KEY",
-        // ...altre chiavi config
+        authDomain: "TUO_AUTH_DOMAIN",
+        projectId: "TUO_PROJECT_ID",
+        storageBucket: "TUO_STORAGE_BUCKET",
+        messagingSenderId: "TUO_MESSAGING_SENDER_ID",
+        appId: "TUO_APP_ID"
+        // measurementId: "G-TUO_MEASUREMENT_ID" // Se usi Analytics
     };
-    firebase.initializeApp(firebaseConfig); // Per SDK v8
-    const auth = firebase.auth();           // Per SDK v8
-    // const db = firebase.firestore();      // Per SDK v8, se usi Firestore client-side
 
-    // Per SDK v9+:
-    // import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-    // import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
-    // const app = initializeApp(firebaseConfig);
-    // const auth = getAuth(app);
-    // const db = getFirestore(app); // Se necessario
-    */
+    let app;
+    let auth;
+    // let db; // Descommenta se usi Firestore client-side per caricare i prodotti
 
-    // --- RIFERIMENTO: Per semplicità, userò la sintassi SDK v8 (globale firebase.) ---
-    // Se usi v9+, adatta le chiamate (es. onAuthStateChanged(auth, user => {...}) )
+    try {
+        if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            // db = firebase.firestore(); // Descommenta se necessario
+            console.log("Firebase inizializzato con successo (SDK v8).");
+        } else {
+            throw new Error("SDK Firebase (v8 globale) non trovato. Assicurati che sia incluso nell'HTML.");
+        }
+    } catch (error) {
+        console.error("Errore durante l'inizializzazione di Firebase:", error);
+        handleFatalError("Errore critico: impossibile inizializzare i servizi. Verifica la console.");
+        // Se Firebase non si inizializza, blocca l'esecuzione o mostra un messaggio chiaro.
+        // In questo caso, la logica di auth non partirà.
+        // showLoginPanelWithMessage("Servizio di autenticazione non disponibile."); // Funzione da creare se necessario
+        return; // Interrompe l'esecuzione del resto dello script se Firebase non si inizializza
+    }
+    // --- FINE CONFIGURAZIONE FIREBASE ---
+
 
     // --- STATO UTENTE E RUOLO ---
     let currentUser = null;
-    let currentUserRole = null; // Potresti voler caricare questo dopo il login
+    let currentUserRole = null; // 'admin', 'operator', o null
     let firebaseAuthInitialized = false;
 
-
-    // --- VARIABILI ESISTENTI (da adattare/rimuovere se la modalità admin dipende da Firebase) ---
-    // let isAdmin = false; // Questa sarà determinata dal ruolo utente Firebase
-    // const ADMIN_PASSWORD = "123stella"; // Non più necessaria per l'accesso alla pagina
+    // --- VARIABILI PER LA LOGICA ESISTENTE ---
     let currentFilteredProducts = [];
     let currentBrandFilter = 'all';
     let showOnlyEconomic = false;
-    const activeSection = 'monosplit';
+    // const activeSection = 'monosplit'; // Non più usata per switchare, solo monosplit in questa pagina
 
-    // --- SELETTORI DOM ESISTENTI (alcuni per il login panel andranno aggiornati) ---
-    const mainPageContainer = document.querySelector('.container'); // Il container principale dei contenuti
+    // --- SELETTORI DOM ---
+    const mainPageContainer = document.querySelector('.container');
     const headerElement = document.querySelector('.app-header');
 
-    // Pannello di Login (rinominato e adattato da #password-panel)
-    const loginPanel = document.getElementById('password-panel'); // Manteniamo ID esistente per CSS
+    const loginPanel = document.getElementById('password-panel'); // Riutilizziamo l'ID per CSS
     const closeLoginPanelBtn = document.getElementById('close-panel-btn');
-    const loginEmailInput = document.createElement('input'); // Aggiungeremo un input email
-    const loginPasswordInput = document.getElementById('admin-password'); // Riutilizziamo per password
-    const submitLoginBtn = document.getElementById('submit-password-btn'); // Riutilizziamo per submit
-    const loginErrorMsg = document.getElementById('password-error'); // Riutilizziamo per messaggi errore
+    const loginPasswordInput = document.getElementById('admin-password');
+    const submitLoginBtn = document.getElementById('submit-password-btn');
+    const loginErrorMsg = document.getElementById('password-error');
+    let loginEmailInput; // Verrà creato e inserito
 
-    // Modifica il pannello per includere l'email
-    if (loginPanel && loginPasswordInput && loginErrorMsg) {
+    // Modifica il pannello di login per includere l'email
+    if (loginPanel && loginPasswordInput && loginErrorMsg && submitLoginBtn && closeLoginPanelBtn) {
         loginPanel.querySelector('h3').textContent = 'Accesso Area Riservata';
-        loginPanel.querySelector('p:not(.error-message)').textContent = 'Inserisci email e password per accedere.';
+        const panelDescription = loginPanel.querySelector('p:not(.error-message)');
+        if(panelDescription) panelDescription.textContent = 'Inserisci email e password per accedere.';
         
         const emailFormGroup = document.createElement('div');
         emailFormGroup.className = 'form-group';
         const emailLabel = document.createElement('label');
-        emailLabel.htmlFor = 'login-email-input';
+        emailLabel.htmlFor = 'login-email-input-clima'; // ID unico per pagina
         emailLabel.textContent = 'Email:';
+        
+        loginEmailInput = document.createElement('input');
         loginEmailInput.type = 'email';
-        loginEmailInput.id = 'login-email-input';
-        loginEmailInput.name = 'login-email-input';
+        loginEmailInput.id = 'login-email-input-clima';
+        loginEmailInput.name = 'login-email-input-clima';
         loginEmailInput.required = true;
+        loginEmailInput.style.width = '100%'; // Stile inline di base
+        loginEmailInput.style.padding = '10px';
+        loginEmailInput.style.border = '1px solid #ccc';
+        loginEmailInput.style.borderRadius = '4px';
+
+
         emailFormGroup.appendChild(emailLabel);
         emailFormGroup.appendChild(loginEmailInput);
-        loginPasswordInput.closest('.form-group').insertAdjacentElement('beforebegin', emailFormGroup);
-        loginPasswordInput.placeholder="Password"; // Rimuovi placeholder esistente se c'è
-
-        submitLoginBtn.textContent = "Accedi"; // Testo del pulsante
-    }
-
-
-    const monosplitGrid = document.getElementById('monosplit-grid');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const sectionTabs = document.querySelectorAll('.tab-btn');
-    const monosplitSection = document.getElementById('monosplit-section');
-    const sections = { monosplit: monosplitSection };
-
-    const adminTrigger = document.getElementById('admin-trigger'); // Questo bottone potrebbe ora aprire il login panel se l'utente non è loggato
-    const exitAdminButton = document.getElementById('exit-admin-button'); // Questo diventerà il pulsante di Logout
-    const printButton = document.getElementById('print-button');
-
-    const tooltipElement = document.getElementById('dimension-tooltip');
-    const tooltipUiDimElement = document.getElementById('tooltip-ui-dimensions');
-    const tooltipUeDimElement = document.getElementById('tooltip-ue-dimensions');
-
-
-    // --- FUNZIONI UTILITY ---
-    function handleFatalError(message) { /* ...invariata... */ }
-    function formatPrice(price) { /* ...invariata... */ }
-    const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
-
-    // --- CREAZIONE CARD (Funzione esistente, andrà adattata la parte `actionButtonsHTML`) ---
-    function createProductCard(product) {
-        if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
-        try {
-            // ... (tutta la logica esistente per definire imageUrl, brand, model, etc. RESTA INVARIATA) ...
-            const imageUrl = product.image_url || '../images/placeholder.png';
-            const brand = product.marca || 'N/D';
-            const model = product.modello || 'N/D';
-            // ... (altre variabili come prima) ...
-            const isMonobloc = brand.toUpperCase() === 'INNOVA';
-            const modelDataAttribute = (model || 'nd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-            let actionButtonsHTML = '';
-            // La visibilità dei bottoni edit/save/cancel ora dipende da currentUserRole
-            if (currentUser && currentUserRole === 'admin') {
-                actionButtonsHTML = `
-                    <button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button>
-                    <button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
-            }
-            // Aggiungi qui altri bottoni se necessario (es. confronta)
-            // actionButtonsHTML += `<button class="btn-compare" data-product-id="${product.id}" title="Aggiungi al confronto"><i class="fas fa-exchange-alt"></i></button>`;
-
-            // Il resto del template della card RESTA INVARIATO fino a:
-            return `
-               <div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
-                   {/* ... Contenuto esistente della card ... */}
-                   <div class="product-footer">
-                       <div class="product-price-value">${formatPrice(product.prezzo)}</div>
-                       <div class="action-buttons-container">${actionButtonsHTML}</div>
-                   </div>
-               </div>`;
-        } catch (error) { console.error(`Error creating card ID ${product?.id}`, error); return `<div class="product-card error-card">Err card ID ${product?.id}.</div>`; }
-    }
-    // --- FINE CREAZIONE CARD ---
-
-    // --- FILTRAGGIO E VISUALIZZAZIONE (Logica interna dovrebbe restare, ma displayProducts chiama addEditListeners) ---
-    function applyFiltersAndSort() { /* ...logica invariata... */ }
-    function displayProducts(productsToDisplay) {
-        /* ...logica interna invariata... */
-        // La chiamata a addEditListeners ora dipende dal ruolo
-        if (currentUser && currentUserRole === 'admin') {
-            addEditListeners();
-        }
-        if (typeof addTooltipListeners === 'function') addTooltipListeners();
-    }
-    // --- FINE FILTRAGGIO E VISUALIZZAZIONE ---
-
-    // --- GESTIONE "ADMIN MODE" LOCALE (DA RIMUOVERE O ADATTARE DRASTICAMENTE) ---
-    // Queste funzioni verranno sostituite dalla logica di login/logout Firebase
-    // function enterAdminMode() { /* Rimuovi o adatta se admin mode è diversa dal semplice login */ }
-    // function exitAdminMode() { /* Questa logica sarà gestita da Firebase signOut */ }
-    let originalProductData = {}; // Mantenuta per la funzionalità di edit in-place
-    function toggleEditMode(productId, isEditing) { /* ...logica invariata (presumendo che controlli `currentUserRole === 'admin'`)... */ }
-    function handleEditClick(event) { if (currentUser && currentUserRole === 'admin') { /* ... */ } }
-    function handleCancelClick(event) { if (currentUser && currentUserRole === 'admin') { /* ... */ } }
-    function handleSaveClick(event) { /* Questa funzione dovrà scrivere su Firestore se implementato */
-        if (currentUser && currentUserRole === 'admin') {
-            const productId = event.currentTarget.dataset.id;
-            const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
-            if (!card) return;
-            const newPrice = card.querySelector('.edit-price-input')?.value;
-            const newModel = card.querySelector('.edit-model-input')?.value;
-
-            console.log(`Salvataggio per ID ${productId}: Prezzo: ${newPrice}, Modello: ${newModel}`);
-            // QUI, invece di aggiornare solo `products`, dovresti chiamare una funzione
-            // per aggiornare i dati in Firestore. Esempio: updateProductInFirestore(productId, {prezzo: parseFloat(newPrice), modello: newModel});
-            // E poi ricaricare i dati da Firestore o aggiornare l'array locale 'products'
-            // Per ora, manteniamo l'aggiornamento locale e un refresh.
-            const productIndex = products.findIndex(p => String(p.id) === String(productId));
-            if (productIndex > -1) {
-                if (newPrice !== undefined) products[productIndex].prezzo = parseFloat(String(newPrice).replace(',', '.'));
-                if (newModel !== undefined) products[productIndex].modello = newModel;
-            }
-            toggleEditMode(productId, false); // Torna alla modalità visualizzazione
-            applyFiltersAndSort(); // Ridisegna
-            showToast("Modifiche salvate localmente.", "success"); // Toast per feedback
-        }
-    }
-    function addEditListeners() { /* ... (La logica per aggiungere listener ai bottoni .edit-btn etc. rimane, ma i bottoni sono visibili solo per admin) ... */ }
-    // --- FINE GESTIONE "ADMIN MODE" LOCALE ---
-
-    // --- GESTIONE TOOLTIP (Invariata) ---
-    /* ... codice tooltip invariato ... */
-
-    // --- LOGICA DI AUTENTICAZIONE FIREBASE ---
-    function showLogin() {
-        if(mainPageContainer) mainPageContainer.style.display = 'none';
-        if(headerElement) headerElement.style.display = 'none'; // Nascondi anche l'header principale
-        if(loginPanel) loginPanel.classList.add('visible'); // Usa la classe 'visible' dal tuo CSS per mostrarlo
-        if (exitAdminButton) exitAdminButton.style.display = 'none';
-        if (adminTrigger) adminTrigger.style.display = 'none'; // Nascondi trigger se il login è attivo
-    }
-
-    function hideLoginAndShowApp() {
-        if(loginPanel) loginPanel.classList.remove('visible');
-        if(mainPageContainer) mainPageContainer.style.display = 'block'; // O come era prima
-        if(headerElement) headerElement.style.display = 'flex';
-        if (exitAdminButton) exitAdminButton.style.display = currentUser ? 'inline-flex' : 'none';
-        // adminTrigger non serve più se l'accesso è controllato da Firebase
-    }
-
-    function initializeAppWithUser(user) {
-        currentUser = user;
-        // Qui dovresti recuperare il ruolo dell'utente da Firestore (dalla collezione /users/{userId})
-        // Per ora, assumiamo che se l'utente è loggato, è admin per questa demo.
-        // In un'app reale:
-        // const userDocRef = firebase.firestore().collection('users').doc(user.uid);
-        // userDocRef.get().then(doc => {
-        //    if (doc.exists && doc.data().role === 'admin') {
-        //        currentUserRole = 'admin';
-        //    } else {
-        //        currentUserRole = 'operator'; // o null se non ha un ruolo definito
-        //    }
-        //    document.body.classList.toggle('admin-mode', currentUserRole === 'admin');
-        //    document.body.classList.toggle('operator-mode', currentUserRole !== 'admin');
-        //    initializeAppLogic(); // Inizializza filtri, prodotti ecc.
-        // }).catch(error => {
-        //    console.error("Errore nel recuperare il ruolo utente:", error);
-        //    currentUserRole = null; // Fallback
-        //    initializeAppLogic();
-        // });
         
-        // DEMO: Se loggato, consideralo admin per ora
-        currentUserRole = 'admin'; 
-        document.body.classList.remove('operator-mode');
-        document.body.classList.add('admin-mode'); // Abilita sempre admin mode se loggato (per DEMO)
-
-        hideLoginAndShowApp();
-        initializeAppLogic(); // Funzione che carica i dati e imposta i filtri
-    }
-
-    function handleLogout() {
-        currentUser = null;
-        currentUserRole = null;
-        document.body.classList.remove('admin-mode');
-        document.body.classList.add('operator-mode');
-        showLogin();
-        if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Effettua il login per visualizzare i prodotti.</p>';
-    }
-
-    // Listener di Firebase Auth (deve essere dopo l'inizializzazione di Firebase)
-    // Assicurati che `auth` sia definito globalmente o passato qui.
-    if (typeof firebase !== 'undefined' && firebase.auth) { // Verifica che Firebase sia caricato
-        const auth = firebase.auth();
-        auth.onAuthStateChanged(user => {
-            firebaseAuthInitialized = true;
-            if (user) {
-                initializeAppWithUser(user);
-            } else {
-                handleLogout();
-            }
-        });
-
-        // Event Listener per il submit del Login
-        if (submitLoginBtn && loginEmailInput && loginPasswordInput) {
-            submitLoginBtn.addEventListener('click', () => {
-                const email = loginEmailInput.value.trim();
-                const password = loginPasswordInput.value;
-                if(loginErrorMsg) loginErrorMsg.textContent = '';
-
-                if (!email || !password) {
-                    if(loginErrorMsg) loginErrorMsg.textContent = 'Email e password sono obbligatori.';
-                    return;
-                }
-                signInWithEmailAndPassword(auth, email, password) // SDK v9: signInWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        // onAuthStateChanged gestirà il resto
-                        console.log("Login via Firebase Auth OK:", userCredential.user.email);
-                    })
-                    .catch((error) => {
-                        console.error("Errore Firebase Login:", error);
-                        if(loginErrorMsg) loginErrorMsg.textContent = mapFirebaseAuthError(error.code); // Funzione da creare/adattare
-                        if(loginPasswordInput) loginPasswordInput.classList.add('input-error');
-                    });
-            });
-            if(loginPasswordInput) loginPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitLoginBtn.click(); });
-            if(loginEmailInput) loginEmailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitLoginBtn.click(); });
-
+        const passwordFormGroup = loginPasswordInput.closest('.form-group');
+        if (passwordFormGroup) {
+            passwordFormGroup.insertAdjacentElement('beforebegin', emailFormGroup);
+        } else { // Fallback se la struttura del DOM fosse diversa
+            loginPanel.insertBefore(emailFormGroup, loginPasswordInput.parentElement || loginPasswordInput);
         }
-
-        // Event Listener per il Logout (pulsante exitAdminButton)
-        if (exitAdminButton) {
-            exitAdminButton.addEventListener('click', () => {
-                signOut(auth).then(() => { // SDK v9: signOut(auth)
-                    console.log('Logout Firebase effettuato');
-                    // onAuthStateChanged gestirà il resto
-                }).catch((error) => {
-                    console.error('Errore durante il logout Firebase:', error);
-                });
-            });
-        }
+        submitLoginBtn.textContent = "Accedi";
     } else {
-        console.error("Firebase Auth non inizializzato! Il login non funzionerà.");
-        // Fallback o messaggio all'utente
-        showLogin(); // Mostra comunque il pannello, ma il login non andrà a buon fine
-        if(loginErrorMsg) loginErrorMsg.textContent = "Errore: servizio di autenticazione non disponibile.";
-    }
-    
-    // Funzione per mappare errori Firebase Auth (simile a quella per Matrice Sconti)
-    function mapFirebaseAuthError(errorCode) {
-        switch (errorCode) {
-            case "auth/invalid-email": return "Formato email non valido.";
-            case "auth/user-disabled": return "Account utente disabilitato.";
-            case "auth/user-not-found": return "Nessun utente trovato con questa email.";
-            case "auth/wrong-password": return "Password errata.";
-            case "auth/too-many-requests": return "Accesso bloccato temporaneamente a causa di troppi tentativi. Riprova più tardi.";
-            default: return "Credenziali non valide o errore di autenticazione.";
-        }
-    }
-    // --- FINE LOGICA AUTENTICAZIONE FIREBASE ---
-
-
-    // --- EVENT LISTENERS ESISTENTI (Filtri, Tabs, Stampa) ---
-    if (filterButtons.length > 0) { /* ... logica invariata ... */ }
-    if (sectionTabs.length > 0) { /* ... logica invariata ... */ }
-    if (printButton) { printButton.addEventListener('click', () => { window.print(); }); }
-
-    // Non serve più il trigger del pannello password se il login è forzato
-    // if (adminTrigger && loginPanel) {
-    //     adminTrigger.addEventListener('click', () => loginPanel.classList.add('visible'));
-    // }
-    if (closeLoginPanelBtn && loginPanel) { // Listener per chiudere il pannello login
-        closeLoginPanelBtn.addEventListener('click', () => {
-             // In un sistema reale, chiudere il pannello senza loggarsi non dovrebbe dare accesso
-             // Ma per ora, se hai un bottone chiudi, potrebbe semplicemente nasconderlo.
-             // loginPanel.classList.remove('visible');
-             // Se vuoi che rimanga forzato, non fare nulla o reindirizza.
-             // Se l'utente chiude e non è loggato, onAuthStateChanged lo mostrerà di nuovo.
-        });
+        console.error("Elementi del pannello di login mancanti. Il login non funzionerà correttamente.");
     }
 
-    // --- INIZIALIZZAZIONE APP (ORA CHIAMATA DOPO LOGIN) ---
-    function initializeAppLogic() { // Rinominata da initializeApp
-        // Verifica che 'products' (da data.js) sia definito
-        if (typeof products === 'undefined' || !Array.isArray(products) || products.length === 0) {
-            console.warn("'products' (da data.js) non è definito o è vuoto. Visualizzazione prodotti basata su di esso fallirà.");
-            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto disponibile o errore caricamento dati iniziali.</p>';
-            // Anche se i dati vengono da Firestore, questa variabile 'products' locale potrebbe essere un fallback o per test
-            // return; // Esci se i dati base mancano
-        }
 
-        currentBrandFilter = 'all';
-        showOnlyEconomic = false;
-        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
-        // Resetta e attiva il filtro "Tutte le Marche"
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
-
-        applyFiltersAndSort();
-        
-        // Mostra pulsante di logout se utente è loggato (già gestito in hideLoginAndShowApp)
-        if (exitAdminButton && currentUser) {
-            exitAdminButton.style.display = 'inline-flex';
-        }
-         if (adminTrigger && !currentUser) { // Mostra admin trigger solo se non loggato (improbabile arrivarci qui)
-            adminTrigger.style.display = 'inline-flex';
-        } else if (adminTrigger) {
-             adminTrigger.style.display = 'none';
-        }
-
-
-    }
-    // L'inizializzazione principale dell'app (initializeAppLogic) ora viene chiamata
-    // da onAuthStateChanged dopo che lo stato dell'utente è determinato.
-    // Se Firebase non è inizializzato, onAuthStateChanged non partirà, quindi prevedi un fallback.
-    // Aggiungiamo un timeout per dare tempo a Firebase di inizializzarsi se `onAuthStateChanged` non scatta subito.
-    setTimeout(() => {
-        if (!firebaseAuthInitialized && typeof firebase !== 'undefined' && firebase.auth) {
-             // Se dopo un breve ritardo onAuthStateChanged non è ancora scattato,
-             // potrebbe esserci un problema con l'init di Firebase o l'utente è effettivamente non loggato.
-             // In tal caso, mostriamo il login panel.
-             const authCheck = firebase.auth();
-             if (!authCheck.currentUser) {
-                 console.log("Nessun utente corrente dopo timeout, mostro login.");
-                 handleLogout(); // Forzerà la visualizzazione del pannello di login
-             }
-        } else if (!firebaseAuthInitialized) {
-            // Firebase non sembra caricato affatto.
-             console.error("Firebase Auth SDK non disponibile. Mostro pannello login di fallback.");
-             handleLogout(); // o una schermata di errore più specifica
-        }
-    }, 1500); // 1.5 secondi di attesa
-
-}); // Fine DOMContentLoaded
-Use code with caution.
-JavaScript
-Spiegazione delle modifiche chiave in script (5).js:
-Inizializzazione Firebase (Commentata): Devi aggiungere il tuo firebaseConfig e inizializzare Firebase (firebase.initializeApp) e Auth (firebase.auth()).
-Stato Utente: currentUser e currentUserRole per tenere traccia dell'utente loggato e del suo ruolo.
-Modifica Pannello Login: Il #password-panel esistente è stato modificato al volo per aggiungere un campo email e aggiornare i testi.
-onAuthStateChanged: È il cuore della gestione della sessione.
-Se user esiste, chiama initializeAppWithUser (che a sua volta chiama initializeAppLogic per caricare i dati e visualizzare i prodotti).
-Se user è null, chiama handleLogout che mostra il pannello di login e pulisce la UI.
-Login Handler (submitLoginBtn): Usa signInWithEmailAndPassword per tentare il login con Firebase.
-Logout Handler (exitAdminButton): Usa signOut per disconnettere l'utente.
-Logica Admin Locale Rimossa/Adattata:
-La visibilità dei bottoni di modifica (actionButtonsHTML in createProductCard) ora dipende da currentUserRole === 'admin'.
-Le funzioni enterAdminMode ed exitAdminMode originali non sono più necessarie per l'accesso base; handleLogout e initializeAppWithUser gestiscono lo stato della UI.
-Il #admin-trigger originale non dovrebbe più essere necessario per attivare la "modalità admin"; il login Firebase lo fa. Potrebbe essere usato per richiamare il pannello di login se l'utente chiude il modale per errore.
-Recupero Ruolo (Commentato): Ho incluso un commento su come potresti recuperare il ruolo utente da Firestore (/users/{uid}). Per questa demo, ho semplificato assumendo che chiunque si logghi sia "admin" ai fini della visualizzazione dei bottoni di modifica. Per un'app reale, devi implementare correttamente il recupero del ruolo.
-Timeout per Inizializzazione Auth: Aggiunto un piccolo timeout per mostrare il login panel se onAuthStateChanged non scatta subito (potrebbe succedere se Firebase non si inizializza o non c'è utente).
-Sostituzione isAdmin: La variabile globale isAdmin non viene più usata per determinare la modalità. Ora si basa su currentUser e currentUserRole. Devi cercare tutti gli usi di if (isAdmin) e sostituirli con if (currentUser && currentUserRole === 'admin').
-Prima di testare:
-Aggiungi il tuo firebaseConfig all'inizio di script (5).js.
-Assicurati che l'SDK Firebase sia correttamente incluso nel tuo index (8).html (specialmente firebase-app.js e firebase-auth.js).
-Verifica gli ID degli elementi DOM che vengono manipolati per il pannello di login, assicurandoti che corrispondano a quelli nel tuo HTML.
-Crea utenti di test nella console Firebase Authentication (Email/Password).
-(Opzionale, ma raccomandato per un sistema reale) Implementa il recupero del ruolo utente da Firestore per distinguere veramente gli admin dagli utenti normali.
-Questo dovrebbe darti un solido sistema di login basato su Firebase per la tua pagina Listino Climatizzatori!
-
-    document.body.classList.add('operator-mode');
-
-    // Selezione elementi DOM principali
     const monosplitGrid = document.getElementById('monosplit-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
-    const sectionTabs = document.querySelectorAll('.tab-btn');
+    const sectionTabs = document.querySelectorAll('.tab-btn'); // Usati per navigare, non per mostrare/nascondere sezioni qui
     const monosplitSection = document.getElementById('monosplit-section');
-    const sections = { monosplit: monosplitSection }; // Manteniamo solo monosplit
+    // const sections = { monosplit: monosplitSection }; // Non più necessario se c'è solo monosplit
 
-    // Selettori Header
-    const adminTrigger = document.getElementById('admin-trigger');
-    const exitAdminButton = document.getElementById('exit-admin-button');
+    const adminTrigger = document.getElementById('admin-trigger'); // Sarà nascosto se login forzato
+    const exitAdminButton = document.getElementById('exit-admin-button'); // Diventa Logout
     const printButton = document.getElementById('print-button');
 
-    // Elementi Tooltip
     const tooltipElement = document.getElementById('dimension-tooltip');
-    const tooltipUiDimElement = document.getElementById('tooltip-ui-dimensions');
-    const tooltipUeDimElement = document.getElementById('tooltip-ue-dimensions');
+    // ... altri elementi tooltip se presenti ...
 
-    // --- VERIFICHE INIZIALI ---
-    if (typeof products === 'undefined' || !Array.isArray(products)) { console.error("CRITICAL ERROR: 'products' array not found or invalid."); handleFatalError("Errore critico: impossibile caricare i dati dei prodotti."); return; }
-    if (!tooltipElement || !tooltipUiDimElement || !tooltipUeDimElement) { console.warn("Tooltip elements missing. Tooltip functionality disabled."); window.addTooltipListeners = () => {}; }
+    // --- VERIFICHE INIZIALI PER ELEMENTI DELLA PAGINA (esclusa la logica Auth ancora) ---
+    if (typeof products === 'undefined' || !Array.isArray(products)) { console.warn("Avviso: 'products' (da data.js) non definito o invalido. L'app potrebbe fare affidamento su dati da Firestore dopo il login."); /* Non è più fatale se i dati vengono da Firestore */ }
     if (!monosplitGrid || !monosplitSection) { console.error("CRITICAL ERROR: Monosplit grid or section elements missing."); handleFatalError("Errore critico: elementi della pagina mancanti."); return; }
     // --- FINE VERIFICHE ---
 
+
     // --- FUNZIONI UTILITY ---
-    function handleFatalError(message) { document.body.innerHTML = `<div style="padding: 20px; text-align: center; color: red; font-size: 1.2em;">${message}</div>`; }
-    function formatPrice(price) { if (price === null || price === undefined || price === '') { return 'N/D'; } let numericPrice = NaN; if (typeof price === 'number') { numericPrice = price; } else if (typeof price === 'string') { try { const cleanedPrice = price.replace(/[^0-9,.-]/g, ''); const normalizedPrice = cleanedPrice.replace(/\./g, '').replace(',', '.'); numericPrice = parseFloat(normalizedPrice); } catch (e) { /* Ignora */ } } if (!isNaN(numericPrice)) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice); } else { return 'N/D'; } }
+    function handleFatalError(message) { if(mainPageContainer) mainPageContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: red; font-size: 1.2em;">${message}</div>`; if(headerElement) headerElement.style.display = 'none';}
+    function formatPrice(price) {  if (price === null || price === undefined || price === '') { return 'N/D'; } let numericPrice = NaN; if (typeof price === 'number') { numericPrice = price; } else if (typeof price === 'string') { try { const cleanedPrice = price.replace(/[^0-9,.-]/g, ''); const normalizedPrice = cleanedPrice.replace(/\./g, '').replace(',', '.'); numericPrice = parseFloat(normalizedPrice); } catch (e) { /* Ignora */ } } if (!isNaN(numericPrice)) { return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice); } else { return 'N/D'; }  }
     const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
-    // --- FINE FUNZIONI UTILITY ---
 
     // --- CREAZIONE CARD ---
     function createProductCard(product) {
@@ -452,14 +161,18 @@ Questo dovrebbe darti un solido sistema di login basato su Firebase per la tua p
             const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
             const logoPath = `../images/logos/${safeBrandName}.png`;
             const placeholderLogoPath = '../images/logos/placeholder_logo.png';
+            
             let economicBadgeHTML = '';
             const isEconomic = economicModels.includes(model.toUpperCase());
             if (isEconomic) economicBadgeHTML = `<span class="economic-badge" title="Prodotto linea economica">Economico</span>`;
+            
             let wifiIconHTML = '';
             const wifiString = String(wifi).toLowerCase().trim();
-            if (wifiString === 'sì' || wifiString === 'si') wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
+            if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
+            
             let datasheetLink = '';
             if (datasheetUrl && String(datasheetUrl).trim() !== '') datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
+            
             let productCodeHTML = '';
             if (productCode && productCode !== 'N/D') {
                 let codeContent = '';
@@ -472,44 +185,77 @@ Questo dovrebbe darti un solido sistema di login basato su Firebase per la tua p
                 } else { codeContent = productCode; }
                 productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><br><span class="code-value">${codeContent}</span></p>`;
             }
-             let dimensionsHTML = '';
-             if (uiDimensions !== "N/D") { dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; }
-             if (!isMonobloc && ueDimensions !== "N/D") { if (dimensionsHTML !== '') dimensionsHTML += ''; dimensionsHTML += `<span>UE: ${ueDimensions}</span>`; }
-             if (dimensionsHTML !== '') { dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`; }
+            
+            let dimensionsHTML = '';
+            if (uiDimensions !== "N/D") { dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; }
+            if (!isMonobloc && ueDimensions !== "N/D") { if (dimensionsHTML !== '') dimensionsHTML += ''; dimensionsHTML += `<span>UE: ${ueDimensions}</span>`; } // Già presente, nessun /
+            if (dimensionsHTML !== '') { dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`; }
+
             let actionButtonsHTML = '';
-            if (isAdmin) actionButtonsHTML = `<button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button><button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button><button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
+            // Mostra bottoni di modifica solo se l'utente è loggato E ha il ruolo 'admin'
+            if (currentUser && currentUserRole === 'admin') {
+                actionButtonsHTML = `
+                    <button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button>
+                    <button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
+            }
+             // Potresti voler aggiungere il bottone Confronta per tutti gli utenti loggati, o per tutti
+            // actionButtonsHTML += `<button class="btn-compare" data-product-id="${product.id}" title="Aggiungi al confronto"><i class="fas fa-exchange-alt"></i></button>`;
+
+
             return `
                <div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
                    <div class="card-top-right-elements">${economicBadgeHTML}${wifiIconHTML}</div>
-                   <div class="product-header"> <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';"> <div class="product-title-brand"> <span class="product-brand-text">${brand}</span> <h3 class="product-model">${model}</h3> </div> </div>
+                   <div class="product-header">
+                       <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';">
+                       <div class="product-title-brand">
+                           <span class="product-brand-text">${brand}</span>
+                           <h3 class="product-model">${model}</h3>
+                       </div>
+                   </div>
                    <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
-                   <div class="product-info"> <div class="product-details"> <p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p> <p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> / <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p> ${productCodeHTML} ${dimensionsHTML} ${datasheetLink} </div> <div class="product-footer"> <div class="product-price-value">${formatPrice(product.prezzo)}</div> <div class="action-buttons-container">${actionButtonsHTML}</div> </div> </div>
+                   <div class="product-info">
+                       <div class="product-details">
+                           <p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p>
+                           <p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> / <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>
+                           ${productCodeHTML}
+                           ${dimensionsHTML}
+                           ${datasheetLink}
+                       </div>
+                       <div class="product-footer">
+                           <div class="product-price-value">${formatPrice(product.prezzo)}</div>
+                           <div class="action-buttons-container">${actionButtonsHTML}</div>
+                       </div>
+                   </div>
                </div>`;
-        } catch (error) { console.error(`Error creating card ID ${product?.id}`, error); return `<div class="product-card error-card">Err card ID ${product?.id}.</div>`; }
+        } catch (error) { console.error(`Error creating card ID ${product?.id}`, error); return `<div class="product-card error-card">Errore creazione card ID ${product?.id}.</div>`; }
     }
-    // --- FINE CREAZIONE CARD ---
 
-    // --- FILTRAGGIO, ORDINAMENTO E VISUALIZZAZIONE (Solo Monosplit) ---
     function applyFiltersAndSort() {
-        if (!Array.isArray(products)) { console.error("Cannot filter, 'products' invalid."); currentFilteredProducts = []; displayProducts(currentFilteredProducts); return; }
+        let sourceProducts = [];
+        // QUI: Decidi se `products` viene da `data.js` o se lo carichi da Firestore dopo il login.
+        // Se da Firestore, `currentFilteredProducts` dovrebbe essere popolato da lì.
+        // Per ora, si basa sulla variabile globale `products` da `data.js`.
+        if (typeof products !== 'undefined' && Array.isArray(products)) {
+            sourceProducts = [...products];
+        } else {
+             console.warn("Variabile 'products' (da data.js) non trovata o vuota. I filtri opereranno su un array vuoto.");
+        }
+
         let filtered = [];
         try {
-            filtered = [...products];
-            // Filtra SOLO per tipo MONOSPLIT (o default se tipo manca)
-            filtered = filtered.filter(p => !p.tipo || p.tipo.toLowerCase() === 'monosplit');
-
+            filtered = sourceProducts.filter(p => !p.tipo || p.tipo.toLowerCase() === 'monosplit');
             if (currentBrandFilter !== 'all') { filtered = filtered.filter(p => p && p.marca && p.marca.toUpperCase() === currentBrandFilter); }
             if (showOnlyEconomic) { filtered = filtered.filter(p => p && p.modello && economicModels.includes(p.modello.toUpperCase())); }
-            if (!Array.isArray(filtered)) { throw new Error("Filtering resulted in invalid data type."); }
             filtered.sort((a, b) => { const priceA = (a && typeof a.prezzo === 'number' && !isNaN(a.prezzo)) ? a.prezzo : Infinity; const priceB = (b && typeof b.prezzo === 'number' && !isNaN(b.prezzo)) ? b.prezzo : Infinity; return priceA - priceB; });
-        } catch (error) { console.error("Error filtering/sorting:", error); filtered = []; handleFatalError("Errore applicazione filtri."); }
+        } catch (error) { console.error("Error filtering/sorting:", error); filtered = []; if(mainPageContainer) mainPageContainer.innerHTML = '<p class="no-results error-message">Errore applicazione filtri.</p>'; }
         currentFilteredProducts = filtered;
         displayProducts(currentFilteredProducts);
     }
 
     function displayProducts(productsToDisplay) {
-        if (!monosplitGrid) { console.error("CRITICAL ERROR: Monosplit grid not found."); return; }
-        if (!Array.isArray(productsToDisplay)) { console.error("ERROR: productsToDisplay invalid!", productsToDisplay); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati.</p>'; return; }
+        if (!monosplitGrid) { console.error("CRITICAL ERROR: Monosplit grid not found for display."); return; }
+        if (!Array.isArray(productsToDisplay)) { console.error("ERROR: productsToDisplay invalid for display!", productsToDisplay); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati prodotti.</p>'; return; }
 
         let monosplitHTML = '';
         let monosplitCount = 0;
@@ -520,148 +266,366 @@ Questo dovrebbe darti un solido sistema di login basato su Firebase per la tua p
                 monosplitHTML += cardHTML;
                 monosplitCount++;
             });
-        } catch (loopError) { console.error("Error during product display loop:", loopError); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore visualizzazione.</p>'; return; }
+        } catch (loopError) { console.error("Error during product display loop:", loopError); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore visualizzazione prodotti.</p>'; return; }
 
-        const noMonoMsg = '<p class="no-results">Nessun prodotto Monosplit trovato.</p>';
-        try {
-            monosplitGrid.innerHTML = monosplitCount > 0 ? monosplitHTML : noMonoMsg;
-        } catch (domError) { console.error("Error setting innerHTML for monosplitGrid:", domError); monosplitGrid.textContent = 'Errore aggiornamento visualizzazione.'; }
+        const noMonoMsg = '<p class="no-results">Nessun prodotto Monosplit trovato con i filtri selezionati.</p>';
+        monosplitGrid.innerHTML = monosplitCount > 0 ? monosplitHTML : noMonoMsg;
 
-        if (monosplitSection) monosplitSection.style.display = 'block';
+        if (monosplitSection) monosplitSection.style.display = 'block'; // Assicurati che la sezione sia visibile
 
-        if (isAdmin) addEditListeners();
-        if (typeof addTooltipListeners === 'function') addTooltipListeners();
+        if (currentUser && currentUserRole === 'admin') { // Aggiungi listeners solo se admin
+            addEditListeners();
+        }
+        if (typeof addTooltipListeners === 'function' && tooltipElement) { addTooltipListeners(); }
     }
-    // --- FINE FILTRAGGIO E VISUALIZZAZIONE ---
-
-    // --- GESTIONE ADMIN ---
-    function enterAdminMode() { isAdmin = true; document.body.classList.remove('operator-mode'); document.body.classList.add('admin-mode'); if (adminTrigger) adminTrigger.style.display = 'none'; if (exitAdminButton) exitAdminButton.style.display = 'inline-flex'; applyFiltersAndSort(); }
-    function exitAdminMode() { isAdmin = false; document.body.classList.remove('admin-mode'); document.body.classList.add('operator-mode'); if (adminTrigger) adminTrigger.style.display = 'inline-flex'; if (exitAdminButton) exitAdminButton.style.display = 'none'; document.querySelectorAll('.edit-price-input, .edit-model-input').forEach(input => { const card = input.closest('.product-card'); if (card) { const productId = card.dataset.productId; toggleEditMode(productId, false); } }); applyFiltersAndSort(); }
-    let originalProductData = {};
-    function toggleEditMode(productId, isEditing) { /* ... (Codice toggleEditMode invariato - presumo sia corretto) ... */ }
-    function handleEditClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, true); } }
-    function handleCancelClick(event) { if (isAdmin) { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, false); } }
-    function handleSaveClick(event) { if (isAdmin) { /* ... (Codice save invariato - presumo sia corretto) ... */ applyFiltersAndSort(); } }
-    function addEditListeners() { /* ... (Codice addEditListeners invariato - presumo sia corretto) ... */ }
-    // --- FINE GESTIONE ADMIN ---
-
-    // --- GESTIONE TOOLTIP ---
-    function positionTooltip(event) { /* ... (Codice positionTooltip invariato - presumo sia corretto) ... */ }
-    if (typeof window.addTooltipListeners === 'undefined') { window.addTooltipListeners = () => {}; }
-    window.addTooltipListeners = function() { /* ... (Codice addTooltipListeners invariato - presumo sia corretto) ... */ }
-    function handleTooltipMouseEnter(event) { /* ... (Codice handleTooltipMouseEnter invariato - presumo sia corretto) ... */ }
-    function handleTooltipMouseLeave() { /* ... (Codice handleTooltipMouseLeave invariato - presumo sia corretto) ... */ }
-    // --- FINE GESTIONE TOOLTIP ---
 
 
-    // --- EVENT LISTENERS ---
-    // Filtri (MODIFICATO)
+    let originalProductData = {}; // Mantenuto per la funzionalità di edit in-place
+    // Funzioni toggleEditMode, handleEditClick, handleCancelClick, handleSaveClick, addEditListeners:
+    // La loro logica interna per manipolare il DOM e `originalProductData` può rimanere
+    // simile, ma `handleSaveClick` DEVE essere modificata per salvare su Firestore
+    // invece che solo sull'array locale `products`. La visibilità dei bottoni
+    // è già gestita da `createProductCard`.
+    
+    function toggleEditMode(productId, isEditing) { /* ... (implementazione esistente, assicurarsi che funzioni con il DOM delle card) ... */
+        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+        if (!card) return;
+        // ... (logica per mostrare/nascondere input e bottoni save/cancel) ...
+    }
+    function handleEditClick(event) { if (currentUser && currentUserRole === 'admin') { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, true); } }
+    function handleCancelClick(event) { if (currentUser && currentUserRole === 'admin') { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, false); /* Ripristina originalProductData se necessario */ } }
+    
+    function handleSaveClick(event) {
+        if (currentUser && currentUserRole === 'admin') {
+            const productId = event.currentTarget.dataset.id;
+            const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+            if (!card) return;
+
+            const newPriceInput = card.querySelector('.edit-price-input');
+            const newModelInput = card.querySelector('.edit-model-input');
+            
+            const updates = {};
+            let needsRemoteUpdate = false;
+
+            if (newPriceInput && newPriceInput.value !== (originalProductData[productId]?.prezzo || '')) {
+                const parsedPrice = parseFloat(String(newPriceInput.value).replace(',', '.'));
+                if (!isNaN(parsedPrice)) {
+                    updates.prezzo = parsedPrice;
+                    needsRemoteUpdate = true;
+                } else {
+                    alert("Formato prezzo non valido."); return;
+                }
+            }
+            if (newModelInput && newModelInput.value !== (originalProductData[productId]?.modello || '')) {
+                updates.modello = newModelInput.value;
+                needsRemoteUpdate = true;
+            }
+
+            if (needsRemoteUpdate) {
+                console.log(`Tentativo di salvare ID ${productId} con aggiornamenti:`, updates);
+                // --- INTEGRAZIONE FIRESTORE PER SALVATAGGIO ---
+                // Esempio (richiede `db` inizializzato e che la collezione esista):
+                /*
+                if (db && productId) {
+                    showToast("Salvataggio modifiche...", "info", 2000);
+                    db.collection("prodottiClimaMonosplit").doc(String(productId)) // Assicurati che l'ID sia una stringa
+                        .update(updates)
+                        .then(() => {
+                            console.log("Prodotto aggiornato su Firestore con successo!");
+                            showToast("Modifiche salvate su server!", "success");
+                            // Aggiorna l'array locale 'products' e riesegui i filtri
+                            const productIndex = products.findIndex(p => String(p.id) === String(productId));
+                            if (productIndex > -1) {
+                                if (updates.prezzo !== undefined) products[productIndex].prezzo = updates.prezzo;
+                                if (updates.modello !== undefined) products[productIndex].modello = updates.modello;
+                            }
+                            applyFiltersAndSort(); // Ridisegna con i dati aggiornati
+                        })
+                        .catch((error) => {
+                            console.error("Errore aggiornamento prodotto su Firestore: ", error);
+                            showToast("Errore salvataggio su server.", "error");
+                            // Opzionalmente ripristina i valori originali nella UI
+                            toggleEditMode(productId, false); // Annulla l'editing nella UI
+                        });
+                } else {
+                    console.warn("Firestore (db) non inizializzato o productId mancante. Salvataggio solo locale.");
+                     // Fallback a salvataggio locale se Firestore non è disponibile
+                    const productIndex = products.findIndex(p => String(p.id) === String(productId));
+                    if (productIndex > -1) {
+                        if (updates.prezzo !== undefined) products[productIndex].prezzo = updates.prezzo;
+                        if (updates.modello !== undefined) products[productIndex].modello = updates.modello;
+                         applyFiltersAndSort();
+                         showToast("Modifiche salvate localmente (server non disp.).", "warning");
+                    }
+                }
+                */
+                // PER QUESTA DEMO SENZA SCRITTURA SU FIRESTORE CLIENT-SIDE:
+                const productIndex = products.findIndex(p => String(p.id) === String(productId));
+                if (productIndex > -1) {
+                    if (updates.prezzo !== undefined) products[productIndex].prezzo = updates.prezzo;
+                    if (updates.modello !== undefined) products[productIndex].modello = updates.modello;
+                     applyFiltersAndSort();
+                     showToast("Modifiche salvate (in memoria).", "success");
+                }
+
+            }
+            toggleEditMode(productId, false);
+        }
+    }
+    function addEditListeners() { /* ... (Logica di querySelectorAll e addEventListener per .edit-btn, .save-btn, .cancel-btn rimane) ... */
+         document.querySelectorAll('.product-card .edit-btn').forEach(btn => btn.addEventListener('click', handleEditClick));
+         document.querySelectorAll('.product-card .save-btn').forEach(btn => btn.addEventListener('click', handleSaveClick));
+         document.querySelectorAll('.product-card .cancel-btn').forEach(btn => btn.addEventListener('click', handleCancelClick));
+    }
+
+    // --- GESTIONE TOOLTIP (Presumibilmente invariato) ---
+    // function positionTooltip(event) { ... } etc.
+    // Se `addTooltipListeners` e le altre funzioni tooltip sono globali o definite prima, OK.
+
+    // --- LOGICA DI AUTENTICAZIONE FIREBASE ---
+    function showLoginScreen() {
+        if(mainPageContainer) mainPageContainer.style.display = 'none';
+        if(headerElement) headerElement.style.display = 'none';
+        if(loginPanel) loginPanel.classList.add('visible');
+        if(adminTrigger) adminTrigger.style.display = 'none'; // Nascondi admin trigger (era per la password locale)
+        if(exitAdminButton) exitAdminButton.style.display = 'none'; // Nascondi bottone logout
+    }
+
+    function hideLoginScreenAndShowApp() {
+        if(loginPanel) loginPanel.classList.remove('visible');
+        if(mainPageContainer) mainPageContainer.style.display = 'block';
+        if(headerElement) headerElement.style.display = 'flex';
+        if(exitAdminButton) exitAdminButton.style.display = currentUser ? 'inline-flex' : 'none';
+    }
+
+    async function initializeAppForUser(user) { // Async per fetch del ruolo
+        currentUser = user;
+        
+        // RECUPERO RUOLO UTENTE DA FIRESTORE (esempio SDK v8, se 'db' è inizializzato)
+        // Assumiamo che 'db' sia firebase.firestore()
+        /*
+        if (db && user) {
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists && userDoc.data().role === 'admin') {
+                    currentUserRole = 'admin';
+                    document.body.classList.add('admin-mode');
+                    document.body.classList.remove('operator-mode');
+                } else {
+                    currentUserRole = 'operator'; // O un altro ruolo, o null
+                    document.body.classList.add('operator-mode');
+                    document.body.classList.remove('admin-mode');
+                     // Potresti voler impedire l'accesso se non è admin, o mostrare UI limitata
+                     // handleFatalError("Accesso non autorizzato a questa sezione.");
+                     // auth.signOut(); // Disconnetti l'utente se non ha i permessi
+                     // return; 
+                }
+            } catch (error) {
+                console.error("Errore nel recuperare il ruolo utente:", error);
+                currentUserRole = null; // Fallback
+                // Decidi come gestire: permettere accesso limitato o disconnettere?
+                // Per ora, si procede con accesso limitato se il ruolo non è admin.
+                document.body.classList.add('operator-mode');
+                document.body.classList.remove('admin-mode');
+            }
+        } else if(user) { // Se db non è disponibile ma l'utente è loggato
+            console.warn("Firestore (db) non disponibile, ruolo utente non verificato. Accesso limitato.");
+            currentUserRole = 'operator'; // default a operatore
+            document.body.classList.add('operator-mode');
+            document.body.classList.remove('admin-mode');
+        }
+        */
+        
+        // DEMO SIMPLIFICATA: Se loggato, consideralo admin ai fini dell'UI dei bottoni
+        // In un sistema reale, il blocco `if (db && user)` sopra è cruciale.
+        if (user) {
+            currentUserRole = 'admin'; // Forza admin per la demo se utente è loggato
+            document.body.classList.remove('operator-mode');
+            document.body.classList.add('admin-mode');
+        }
+
+        hideLoginScreenAndShowApp();
+        // Solo ora inizializza la logica principale dell'app (filtri, visualizzazione prodotti)
+        // Assicurati che 'products' da data.js sia caricato o che carichi da Firestore.
+        initializeAppMainLogic();
+    }
+
+    function performLogoutCleanup() {
+        currentUser = null;
+        currentUserRole = null;
+        currentFilteredProducts = []; // Pulisci i dati visualizzati
+        if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Effettua il login per visualizzare i listini.</p>'; // Messaggio nel grid
+        // Nascondi eventuali elementi specifici per admin/utente loggato
+        document.body.classList.remove('admin-mode');
+        document.body.classList.add('operator-mode'); // Torna a stato base
+        showLoginScreen();
+    }
+
+    if (auth) { // Controlla che auth sia stato inizializzato
+        auth.onAuthStateChanged(user => {
+            firebaseAuthInitialized = true;
+            if (user) {
+                initializeAppForUser(user);
+            } else {
+                performLogoutCleanup();
+            }
+        });
+
+        if (submitLoginBtn && loginEmailInput && loginPasswordInput && loginErrorMsg) {
+            submitLoginBtn.addEventListener('click', () => {
+                const email = loginEmailInput.value.trim();
+                const password = loginPasswordInput.value;
+                loginErrorMsg.textContent = '';
+
+                if (!email || !password) {
+                    loginErrorMsg.textContent = 'Email e password sono obbligatori.';
+                    return;
+                }
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Successo: onAuthStateChanged gestirà il resto.
+                        console.log("Firebase Auth: Login effettuato", userCredential.user.email);
+                    })
+                    .catch((error) => {
+                        console.error("Firebase Auth: Errore Login:", error);
+                        loginErrorMsg.textContent = mapFirebaseAuthError(error.code);
+                        if(loginPasswordInput) loginPasswordInput.classList.add('input-error');
+                         if(loginEmailInput) loginEmailInput.classList.add('input-error');
+                    });
+            });
+            // Aggiungi listener per Enter key
+             if(loginEmailInput) loginEmailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') {e.preventDefault(); submitLoginBtn.click();} });
+             if(loginPasswordInput) loginPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') {e.preventDefault(); submitLoginBtn.click();} });
+        }
+
+        if (exitAdminButton) { // Questo è il pulsante di Logout ora
+            exitAdminButton.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    console.log('Firebase Auth: Logout effettuato.');
+                    // onAuthStateChanged gestirà il cleanup e la visualizzazione del login.
+                }).catch((error) => {
+                    console.error('Firebase Auth: Errore durante il logout:', error);
+                });
+            });
+        }
+         if (closeLoginPanelBtn && loginPanel) { // Chiudere il pannello di login
+            closeLoginPanelBtn.addEventListener('click', () => {
+                // Se si chiude il pannello e l'utente non è loggato,
+                // onAuthStateChanged (o il timeout di fallback) dovrebbe riaprirlo.
+                // Non c'è un'azione specifica da fare qui, a meno che non si voglia impedire la chiusura.
+                console.log("Pannello di login chiuso dall'utente.");
+            });
+        }
+    } else {
+        console.error("FATAL: Istanza Firebase Auth non disponibile. Il sistema di login è bloccato.");
+        handleFatalError("Servizio di autenticazione non disponibile. Impossibile caricare la pagina.");
+    }
+
+    // Timeout di fallback nel caso onAuthStateChanged non scatti per qualche motivo anomalo all'inizio
+    // o Firebase non si sia inizializzato rapidamente
+    setTimeout(() => {
+        if (!firebaseAuthInitialized && auth) { // auth esiste ma onAuthStateChanged non è partito
+            console.warn("Timeout: onAuthStateChanged non ha risposto. Verifico utente corrente...");
+            if (!auth.currentUser) {
+                console.log("Nessun utente corrente dopo timeout, forzo visualizzazione login.");
+                performLogoutCleanup(); // Mostra il pannello di login
+            } else {
+                 console.log("Utente corrente trovato dopo timeout, procedo con l'app.");
+                 initializeAppForUser(auth.currentUser); // Tenta di inizializzare
+            }
+        } else if (!auth) { // Se auth è ancora undefined, l'init di Firebase è fallito.
+             // L'errore dovrebbe essere già stato gestito nel blocco try/catch dell'inizializzazione.
+             // handleFatalError è già stato chiamato.
+        }
+    }, 2000); // Aumentato leggermente il timeout
+
+
+    function mapFirebaseAuthError(errorCode) { /* ... (Funzione esistente per mappare errori) ... */
+        switch (errorCode) {
+            case "auth/invalid-email": case "auth/invalid-credential": return "Formato email non valido o credenziali errate."; // auth/invalid-credential per v9+ email/pass errati
+            case "auth/user-disabled": return "Account utente disabilitato.";
+            case "auth/user-not-found": return "Nessun utente trovato con questa email."; // Meno comune con v9+ per email/pass
+            case "auth/wrong-password": return "Password errata."; // Meno comune con v9+ per email/pass
+            case "auth/too-many-requests": return "Accesso bloccato temporaneamente. Riprova più tardi.";
+            default: return "Errore di autenticazione: " + errorCode;
+        }
+    }
+    // --- FINE LOGICA AUTENTICAZIONE ---
+
+
+    // --- EVENT LISTENERS PER FILTRI E TABS (Esistenti) ---
     if (filterButtons.length > 0) {
         filterButtons.forEach(button => {
             button.addEventListener('click', (event) => {
+                // ... (logica esistente per i filtri, adattata leggermente per chiarezza)
                 const clickedButton = event.currentTarget;
-                const filterType = clickedButton.dataset.filterType; // Es. 'economic'
-                const brandToFilter = clickedButton.dataset.brand;   // Es. 'DAIKIN', 'SAMSUNG', 'all'
-
-                // console.log('Clicked filter button:', { filterType, brandToFilter, buttonElement: clickedButton }); // Per debug
+                const filterType = clickedButton.dataset.filterType;
+                const brandToFilter = clickedButton.dataset.brand;
 
                 if (filterType === 'economic') {
-                    // Gestione del bottone "Economico"
-                    showOnlyEconomic = !showOnlyEconomic; // Toggle dello stato
-                    clickedButton.classList.toggle('active', showOnlyEconomic); // Aggiorna classe CSS
-                    // console.log('showOnlyEconomic Toggled:', showOnlyEconomic); // Per debug
+                    showOnlyEconomic = !showOnlyEconomic;
+                    clickedButton.classList.toggle('active', showOnlyEconomic);
                 } else if (brandToFilter) {
-                    // Gestione dei bottoni filtro per marca
-                    // (include "TUTTI MARCHI" che ha data-brand="all")
-
-                    // 1. Rimuovi 'active' da tutti i bottoni di marca
-                    filterButtons.forEach(btn => {
-                        if (btn.dataset.brand) { // Solo quelli con data-brand
-                            btn.classList.remove('active');
-                        }
-                    });
-
-                    // 2. Aggiungi 'active' al bottone marca cliccato
+                    filterButtons.forEach(btn => { if (btn.dataset.brand) btn.classList.remove('active'); });
                     clickedButton.classList.add('active');
-
-                    // 3. Aggiorna currentBrandFilter.
-                    if (brandToFilter.toLowerCase() === 'all') {
-                        currentBrandFilter = 'all';
-                    } else {
-                        currentBrandFilter = brandToFilter.toUpperCase();
-                    }
-                    // console.log('currentBrandFilter set to:', currentBrandFilter); // Per debug
+                    currentBrandFilter = brandToFilter.toLowerCase() === 'all' ? 'all' : brandToFilter.toUpperCase();
                 }
-                // Applica i filtri e ridisegna i prodotti
                 applyFiltersAndSort();
             });
         });
-    } else {
-        console.warn("Filter buttons not found.");
     }
 
-    // Tabs Sezioni (MODIFICATO)
     if (sectionTabs.length > 0) {
         sectionTabs.forEach(tab => {
             tab.addEventListener('click', (event) => {
-                const targetSection = tab.dataset.section;
+                const targetSectionId = tab.dataset.section;
                 event.preventDefault();
-                if (targetSection === 'multisplit') {
-                    window.location.href = '../multisplit/index.html';
-                } else if (targetSection === 'monosplit') {
+                if (targetSectionId === 'multisplit') {
+                    // Assumiamo che la pagina multisplit abbia un URL specifico.
+                    // Se è parte della stessa pagina e controllata da JS, la logica sarebbe diversa.
+                    window.location.href = '../multisplit/index.html'; // O il percorso corretto
+                } else if (targetSectionId === 'monosplit') {
+                    // In questa pagina, monosplit è sempre attiva, quindi aggiorniamo solo il tab.
                     sectionTabs.forEach(t => t.classList.remove('active'));
                     tab.classList.add('active');
+                    // Non c'è bisogno di mostrare/nascondere sezioni qui se c'è solo monosplit.
                 }
             });
         });
-    } else { console.warn("Section tab buttons not found."); }
+    }
 
-    // Pannello Password (logica invariata - presumo sia corretta)
-    if (adminTrigger && passwordPanel && closePanelButton && passwordInput && submitPasswordButton && passwordError) {
-        adminTrigger.addEventListener('click', () => passwordPanel.classList.add('visible'));
-        closePanelButton.addEventListener('click', () => {
-            passwordPanel.classList.remove('visible');
-            passwordInput.value = '';
-            passwordError.textContent = '';
-            passwordInput.classList.remove('input-error');
-        });
-        submitPasswordButton.addEventListener('click', () => {
-            if (passwordInput.value === ADMIN_PASSWORD) {
-                enterAdminMode();
-                passwordPanel.classList.remove('visible');
-                passwordInput.value = '';
-                passwordError.textContent = '';
-                passwordInput.classList.remove('input-error');
-            } else {
-                passwordError.textContent = 'Password errata.';
-                passwordInput.classList.add('input-error');
-                passwordInput.focus();
-            }
-        });
-        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') submitPasswordButton.click(); });
-    } else { console.warn("Password panel elements missing or incomplete."); }
-
-    // Bottone Uscita Admin (logica invariata)
-    if (exitAdminButton) { exitAdminButton.addEventListener('click', exitAdminMode); } else { console.warn("Exit admin button not found."); }
-    // Bottone Stampa (logica invariata)
-    if (printButton) { printButton.addEventListener('click', () => { window.print(); }); } else { console.warn("Print button not found."); }
+    if (printButton) { printButton.addEventListener('click', () => { if(currentUser) window.print(); else alert("Devi effettuare il login per stampare."); }); }
     // --- FINE EVENT LISTENERS ---
 
 
-    // --- INIZIALIZZAZIONE APP ---
-    function initializeApp() {
-        if (products && products.length > 0) {
-            currentBrandFilter = 'all';
-            showOnlyEconomic = false;
-            document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
-            document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
-            applyFiltersAndSort();
-        } else {
-            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto disponibile.</p>';
-            if (monosplitSection) monosplitSection.style.display = 'block';
+    // --- INIZIALIZZAZIONE LOGICA PRINCIPALE APP (dopo autenticazione) ---
+    function initializeAppMainLogic() {
+        console.log("Inizializzazione logica principale dell'app...");
+        // Assicurati che 'products' da data.js sia disponibile.
+        // Se carichi da Firestore, questo avverrebbe qui o prima.
+        if (typeof products === 'undefined' || !Array.isArray(products) || products.length === 0) {
+            console.warn("'products' da data.js non caricato. I dati verranno visualizzati vuoti.");
+            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Caricamento dati prodotti non riuscito o nessun prodotto disponibile.</p>';
+            // Non fermare l'app, ma segnala il problema.
         }
+
+        currentBrandFilter = 'all';
+        showOnlyEconomic = false;
+
+        // Attiva tab e filtro di default (solo se esistono nel DOM)
+        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
+        filterButtons.forEach(btn => btn.classList.remove('active')); // Pulisci tutti i filtri marca
+        document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
+        const economicBtn = document.querySelector('.filter-btn[data-filter-type="economic"]');
+        if (economicBtn) economicBtn.classList.remove('active');
+
+
+        applyFiltersAndSort(); // Mostra i prodotti iniziali
+
+        // Gestione visibilità pulsante Admin Trigger (non più rilevante se login forzato)
+        // if (adminTrigger) adminTrigger.style.display = currentUser ? 'none' : 'inline-flex';
     }
-    initializeApp();
-    // --- FINE INIZIALIZZAZIONE ---
+    // L'inizializzazione effettiva avviene tramite `onAuthStateChanged`.
+    // Se nessun utente è loggato, verrà mostrato il pannello di login.
 
 }); // Fine DOMContentLoaded
