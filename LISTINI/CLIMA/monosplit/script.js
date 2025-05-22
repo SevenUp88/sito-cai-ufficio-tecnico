@@ -18,15 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAZIONE FIREBASE ---
     // !!! INSERISCI QUI LA TUA CONFIGURAZIONE FIREBASE !!!
     const firebaseConfig = {
-        apiKey: "TUO_API_KEY",
-        authDomain: "TUO_AUTH_DOMAIN",
-        projectId: "TUO_PROJECT_ID",
-        storageBucket: "TUO_STORAGE_BUCKET",
-        messagingSenderId: "TUO_MESSAGING_SENDER_ID",
-        appId: "TUO_APP_ID"
-        // measurementId: "G-TUO_MEASUREMENT_ID" // Se usi Analytics
-    };
-
+  apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+  authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+  projectId: "consorzio-artigiani-idraulici",
+  storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
+  messagingSenderId: "136848104008",
+  appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+  measurementId: "G-NNPV2607G7"
+};
     let app;
     let auth;
     // let db; // Descommenta se usi Firestore client-side per caricare i prodotti
