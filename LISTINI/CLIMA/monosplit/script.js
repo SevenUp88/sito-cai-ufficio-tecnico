@@ -1,8 +1,5 @@
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 /* File: script.js (per Listino Climatizzatori, con Firebase Auth) */
-document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAZIONE FIREBASE ---
     // !!! INSERISCI QUI LA TUA CONFIGURAZIONE FIREBASE !!!
     const firebaseConfig = {
