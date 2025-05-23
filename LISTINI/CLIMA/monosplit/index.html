@@ -105,24 +105,23 @@
     </div>
 
     <!-- Pannello Login/Password (modificato) -->
-    <div id="password-panel"> <!-- Manteniamo l'ID per riutilizzare gli stili CSS, ma lo trattiamo come pannello di login -->
-        <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button> <!-- Opzionale: potrebbe non avere senso chiuderlo se il login è obbligatorio -->
-        <h3>Accesso Area Riservata</h3>
-        <p>Inserisci le tue credenziali per continuare.</p>
-        
-        <div class="form-group">
-            <label for="login-email-input-clima">Email:</label>
-            <!-- L'input email verrà inserito qui da JavaScript, o puoi metterlo staticamente: -->
-            <!-- <input type="email" id="login-email-input-clima" name="login-email-input-clima" required> -->
-        </div>
+   <div id="password-panel">
+       <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
+       <h3>Accesso Area Riservata</h3>
+       <p>Inserisci le tue credenziali per continuare.</p>
+       
+       <div class="form-group">  <!-- Contenitore per l'input email -->
+           <label for="login-email-input-clima">Email:</label>
+           <input type="email" id="login-email-input-clima" name="login-email-input-clima" required>  <!-- **DEFINITO QUI** -->
+       </div>
 
-        <div class="form-group">
-            <label for="admin-password">Password:</label> <!-- admin-password è l'ID esistente -->
-            <input type="password" id="admin-password" name="admin-password" placeholder="Password" required>
-        </div>
-        <button id="submit-password-btn">Accedi</button> <!-- submit-password-btn è l'ID esistente -->
-        <p id="password-error" class="error-message"></p> <!-- password-error è l'ID esistente -->
-    </div>
+       <div class="form-group">
+           <label for="admin-password">Password:</label>
+           <input type="password" id="admin-password" name="admin-password" placeholder="Password" required>
+       </div>
+       <button id="submit-password-btn">Accedi</button>
+       <p id="password-error" class="error-message"></p>
+   </div>
 
     <!-- Tooltip per le dimensioni (invariato) -->
     <div id="dimension-tooltip">
