@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Multi-Split (con Admin)</title>
+    <title>Configuratore Multi-Split - C.A.I.</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -13,75 +13,84 @@
     <link rel="stylesheet" href="configurator-style.css">
 
     <style>
-        /* Any in-page styles can remain, but redundant ones with configurator-style.css might be removable */
-        .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
-        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; position: relative; }
-        .modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor:pointer; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: .5rem; font-weight:500; }
-        .form-control { display: block; width: 95%; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; color: #495057; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; border-radius: .25rem; }
-        .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; }
-        .btn-primary { color: #fff; background-color: #0056a8; border-color: #0056a8; }
-        .btn-primary:hover { background-color: #004182; border-color: #00376d; }
-        /* ... other .btn styles ... */
-        #admin-section ul { list-style: none; padding-left: 0;}
-        #admin-section li { border-bottom: 1px dotted #eee; padding: 8px 0; }
-        #admin-section li button { font-size: 0.8em; padding: 3px 6px; margin-left: 8px; }
+        /* Nascondi il contenuto principale finché l'autenticazione non è verificata */
+        .configurator-container, .app-footer {
+            display: none; /* Nascosti finché JS non li mostra dopo auth */
+        }
+        /* Stile per il messaggio di caricamento/stato */
+        #auth-loading-status {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 1.2em;
+            color: var(--secondary-color); /* Usa variabile CSS globale se definita */
+        }
+        /* Assicurati che gli stili per #password-panel siano nel tuo style.css globale */
+        /* Questi sono solo per garantire la visibilità gestita da JS */
+        #password-panel:not(.visible) {
+            transform: translateX(100%); 
+        }
+        #password-panel.visible {
+            transform: translateX(0); 
+            display: flex !important; /* Forza display se JS lo aggiunge */
+        }
     </style>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase SDKs v8 -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
-    <!-- Shared Firebase Configuration (points three levels up to the root) -->
+    <!-- Shared Firebase Configuration -->
     <script src="../../../firebase-config.js"></script> 
 
-    <!-- Authentication Guard -->
-    <script>
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (!user) {
-                console.log("Configurator: User not authenticated. Redirecting to login...");
-                window.location.href = '/'; 
-            } else {
-                console.log("Configurator: User authenticated:", user.email);
-            }
-        });
-    </script>
+    <!-- L'Authentication Guard inline è stato rimosso; sarà gestito da configurator-script.js -->
 </head>
 <body>
-    <header class="app-header">
-        <!-- Corrected path for appLogo, relative to this configurator's index.html -->
+    <header class="app-header"> <!-- Sarà mostrato da JS dopo il check auth -->
         <a href="/"><img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"></a>
         <div class="header-title-container">
+            <!-- Eventuale titolo specifico qui -->
         </div>
         <div class="header-controls">
-            <a href="/" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-            <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Info Utente">
-                <i class="fas fa-user-shield"></i>
+            <a href="/" class="header-action-button" title="Home">
+                <i class="fas fa-home"></i>
+            </a>
+            
+            <!-- Pulsante per Login / Info Utente -->
+            <button id="user-auth-trigger-btn" class="header-action-button" title="Accesso / Info Utente">
+                <i class="fas fa-user-cog"></i> 
             </button>
-            <span id="auth-status-configurator" style="color: var(--secondary-color); margin-left: 10px; font-size: 0.8em; vertical-align: middle;"></span>
-            <button id="print-list" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
+            
+            <span id="auth-status-display" style="color: var(--secondary-color); margin-left: 5px; margin-right:10px; font-size: 0.8em; vertical-align: middle; display:none;"></span>
+            
+            <!-- Pulsante Logout sarà gestito/inserito da JS nel pannello laterale -->
+            <!-- Pulsante Stampa Lista generale RIMOSSO -->
         </div>
     </header>
 
-    <div id="login-modal-configurator" class="modal">
-      <!-- ... (modal content as before) ... -->
+    <div id="auth-loading-status">Caricamento e verifica autenticazione...</div>
+
+    <!-- PANNELLO LATERALE PER LOGIN/INFO UTENTE (da style.css globale) -->
+    <div id="password-panel"> 
+        <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
+        <div id="panel-content-dynamic">
+            <!-- Contenuto dinamico (login form o info utente) inserito da JS -->
+        </div>
     </div>
 
-    <div class="container configurator-container">
+    <div class="container configurator-container"> <!-- Nascosto di default, JS lo mostrerà -->
         <div class="page-controls">
-    <h1>Configuratore Multi-Split</h1>
+             <img src="img/logos/cai_print_header.png" alt="CAI Logo per Stampa" class="print-only-logo">
+             <h1>Configuratore Multi-Split</h1>
         </div>
 
-        <!-- ... (Rest of your configurator's HTML content remains the same from step-indicator onwards) ... -->
         <div class="step-indicator">
-            <div class="step-item" data-step="1"> <span class="step-dot">1</span> <span class="step-name">Marca</span> <span class="step-selection-info" id="step-info-1"></span> </div> <span class="step-line"></span>
-            <div class="step-item" data-step="2"> <span class="step-dot">2</span> <span class="step-name">Config.</span> <span class="step-selection-info" id="step-info-2"></span> </div> <span class="step-line"></span>
-            <div class="step-item" data-step="3"> <span class="step-dot">3</span> <span class="step-name">Modello</span> <span class="step-selection-info" id="step-info-3"></span> </div> <span class="step-line"></span>
-            <div class="step-item" data-step="4"> <span class="step-dot">4</span> <span class="step-name">Unità Est.</span> <span class="step-selection-info" id="step-info-4"></span> </div> <span class="step-line"></span>
-            <div class="step-item" data-step="5"> <span class="step-dot">5</span> <span class="step-name">Unità Int.</span> <span class="step-selection-info" id="step-info-5"></span> </div> <span class="step-line"></span>
-            <div class="step-item" data-step="6"> <span class="step-dot">6</span> <span class="step-name">Riepilogo</span> <span class="step-selection-info" id="step-info-6"></span> </div>
+            <div class="step-item" data-step="1"><span class="step-dot">1</span><span class="step-name">Marca</span><span class="step-selection-info" id="step-info-1"></span></div><span class="step-line"></span>
+            <div class="step-item" data-step="2"><span class="step-dot">2</span><span class="step-name">Config.</span><span class="step-selection-info" id="step-info-2"></span></div><span class="step-line"></span>
+            <div class="step-item" data-step="3"><span class="step-dot">3</span><span class="step-name">Modello</span><span class="step-selection-info" id="step-info-3"></span></div><span class="step-line"></span>
+            <div class="step-item" data-step="4"><span class="step-dot">4</span><span class="step-name">Unità Est.</span><span class="step-selection-info" id="step-info-4"></span></div><span class="step-line"></span>
+            <div class="step-item" data-step="5"><span class="step-dot">5</span><span class="step-name">Unità Int.</span><span class="step-selection-info" id="step-info-5"></span></div><span class="step-line"></span>
+            <div class="step-item" data-step="6"><span class="step-dot">6</span><span class="step-name">Riepilogo</span><span class="step-selection-info" id="step-info-6"></span></div>
         </div>
 
         <div id="step-1" class="config-step active-step">
@@ -90,14 +99,16 @@
             <div class="step-navigation"></div>
         </div>
 
-        <div id="step-3" class="config-step">
+        <!-- Corretto ID step per "Scegli Configurazione" in base alla logica dei passi -->
+        <div id="step-2" class="config-step"> 
             <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2>
             <div id="config-type-selection" class="selection-grid"></div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
         </div>
         
-        <div id="step-2" class="config-step">
-            <h2><span class="step-number-title">3.</span> Seleziona Modello</h2>
+        <!-- Corretto ID step per "Seleziona Modello" in base alla logica dei passi -->
+        <div id="step-3" class="config-step">
+            <h2><span class="step-number-title">3.</span> Seleziona Serie/Modello</h2>
             <div id="model-selection" class="selection-grid"></div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button></div>
         </div>
@@ -110,48 +121,40 @@
 
         <div id="step-5" class="config-step">
             <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
-            <div id="indoor-units-selection-area">
-                <!-- Content populated by JavaScript (choice cards and details) -->
-            </div>
+            <div id="indoor-units-selection-area"></div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button><button class="next-btn" id="finalize-btn" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button></div>
         </div>
 
         <div id="step-6" class="config-step">
             <h2 id="summary-main-title">Riepilogo Configurazione</h2> 
-            
             <div class="summary-reference-input-container" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border: 1px solid #eee; border-radius: var(--border-radius);">
                 <label for="config-reference" style="display: block; margin-bottom: 5px; font-weight: 500;">Riferimento (opzionale, per la stampa):</label>
-                <input type="text" id="config-reference" class="form-control" style="width: 95%;" placeholder="Es. Preventivo #123, Cliente Rossi">
+                <input type="text" id="config-reference" class="form-control" placeholder="Es. Preventivo #123, Cliente Rossi">
             </div>
-
-            <div id="config-summary" class="summary-section">
-                <!-- Content populated by JavaScript (new summary layout) -->
-            </div>
+            <div id="config-summary" class="summary-section"></div>
             <div class="print-instructions"><p><strong>Per la stampa:</strong> usare Ctrl+P o Cmd+P.</p></div>
             <div class="step-navigation summary-actions">
                 <button class="prev-btn"><i class="fas fa-arrow-left"></i> Modifica</button>
-                <button id="print-summary-btn"><i class="fas fa-print"></i> Stampa</button>
-                <button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova</button>
+                <button id="print-summary-btn"><i class="fas fa-print"></i> Stampa Riepilogo</button>
+                <button id="reset-config-btn"><i class="fas fa-undo"></i> Nuova Config.</button>
             </div>
         </div>
 
         <div id="admin-section" class="config-step" style="display: none; border-color: var(--warning-color); margin-top: 20px;">
-            <h2><span class="step-number-title">Admin:</span> Gestione Dati</h2>
+            <h2><span class="step-number-title">Admin:</span> Gestione Dati Configuratore</h2>
             <div class="admin-subsection" style="margin-bottom: 20px; padding:15px; border: 1px solid #ddd; border-radius: var(--border-radius);">
                 <h3>Gestione Marche</h3>
-                <div id="admin-brands-list">
-                    <p>Caricamento marche...</p>
-                </div>
+                <div id="admin-brands-list"><p>Caricamento marche...</p></div>
                 <hr style="margin: 15px 0;">
                 <h4>Aggiungi/Modifica Marca</h4>
                 <form id="admin-brand-form">
                     <input type="hidden" id="brand-doc-id">
                     <div class="form-group">
-                        <label for="brand-id">ID Unico Marca (es. 'haier'):</label>
+                        <label for="brand-id">ID Unico Marca (es. 'haier', usato internamente):</label>
                         <input type="text" id="brand-id" required class="form-control">
                     </div>
                     <div class="form-group">
-                        <label for="brand-name">Nome Visualizzato:</label>
+                        <label for="brand-name">Nome Visualizzato (es. 'Haier'):</label>
                         <input type="text" id="brand-name" required class="form-control">
                     </div>
                     <div class="form-group">
@@ -162,16 +165,16 @@
                     <button type="button" id="admin-brand-form-clear" class="btn btn-secondary" style="margin-left:10px;">Nuova / Pulisci</button>
                 </form>
             </div>
+            <!-- Altre sezioni admin verranno qui -->
         </div>
     </div> 
 
     <footer class="app-footer">
-        <p>© <span id="currentYear"></span> CAI - Listino Multi-Split Configurator</p>
-        <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
+        <p>© <span id="currentYear"></span> C.A.I. - Configuratore Multi-Split</p>
+        <p class="data-info">Ultimo aggiornamento dati: <span id="lastUpdated"></span></p>
     </footer>
 
-    <!-- This page's specific script. It should NOT re-initialize Firebase. -->
-    <script src="script.js"></script> 
+    <script src="configurator-script.js"></script> 
 
 </body>
 </html>
