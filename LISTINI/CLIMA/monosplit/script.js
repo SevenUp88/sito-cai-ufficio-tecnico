@@ -14,10 +14,6 @@
   measurementId: "G-NNPV2607G7"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
     let app;
     let auth;
     // let db; // Descommenta se usi Firestore client-side per caricare i prodotti
