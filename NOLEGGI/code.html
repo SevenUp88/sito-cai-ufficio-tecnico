@@ -29,14 +29,13 @@
 
   <!-- === Header === -->
   <header class="app-header">
-      <a href="../index.html" title="C.A.I. - Home">
+      <a href="../index.html" title="C.A.I. - Home" class="logo-link"> <!-- Aggiunto class logo-link -->
            <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
       </a>
       <div class="header-controls">
-          <a href="../index.html" class="header-action-button" title="Torna alla Home">
-              <i class="fas fa-home"></i>
-          </a>
-          <!-- Il bottone #noleggi-admin-trigger e #auth-status sono stati rimossi -->
+          <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
+          <a href="../index.html" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
+          <button id="logout-button" class="button-logout content-hidden" title="Esci"><i class="fas fa-sign-out-alt"></i> Logout</button>
       </div>
   </header>
   <!-- === Fine Header === -->
