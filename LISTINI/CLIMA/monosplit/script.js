@@ -1,61 +1,98 @@
-/* File: script.js (per Listino Climatizzatori - Firebase Auth & Firestore Data v2) */
+/* File: script.js (per Listino Climatizzatori, con Firebase Auth e IIFE) */
 
-(function() { // Inizio IIFE
+(function() { // Inizio IIFE (Immediately Invoked Function Expression)
 
     // --- CONFIGURAZIONE FIREBASE ---
-    const firebaseConfig = {
-        apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // Maschera se condividi pubblicamente
-        authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-        projectId: "consorzio-artigiani-idraulici",
-        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
-        messagingSenderId: "136848104008",
-        appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-        measurementId: "G-NNPV2607G7"
-    };
+    // !!! INSERISCI QUI LA TUA CONFIGURAZIONE FIREBASE !!!
+ const firebaseConfig = {
+  apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+  authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+  projectId: "consorzio-artigiani-idraulici",
+  storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
+  messagingSenderId: "136848104008",
+  appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+  measurementId: "G-NNPV2607G7"
+};
 
     let app;
     let auth;
-    let db; // Istanza Firestore
+ let db;
 
     try {
         if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
             app = firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
-            db = firebase.firestore(); // Inizializza Firestore
-            console.log("Firebase App, Auth e Firestore inizializzati (SDK v8).");
-            if (typeof firebase.analytics === 'function') firebase.analytics();
+            db = firebase.firestore();
+            console.log("Firebase inizializzato con successo (SDK v8).");
         } else {
-            throw new Error("SDK Firebase (v8) non trovato.");
+            throw new Error("SDK Firebase (v8 globale) non trovato. Assicurati che sia incluso correttamente nell'HTML.");
         }
     } catch (error) {
-        console.error("ERRORE FATALE inizializzazione Firebase:", error);
-        const statusMsg = document.getElementById('app-status-message');
-        if (statusMsg) statusMsg.innerHTML = '<p style="color:red;font-weight:bold;">Errore Firebase. Impossibile caricare.</p>';
-        else document.body.innerHTML = '<p style="color:red;font-weight:bold;text-align:center;padding:20px;">Errore Firebase.</p>';
-        return; // Esce dall'IIFE
+        console.error("Errore FATALE durante l'inizializzazione di Firebase:", error);
+        // Tenta di mostrare un messaggio all'utente se il DOM è già parzialmente caricato
+        const statusMessageOnInitError = document.getElementById('app-status-message');
+        if (statusMessageOnInitError) {
+            statusMessageOnInitError.innerHTML = '<p style="color:red; font-weight:bold;">Errore critico: servizi Firebase non disponibili. Impossibile caricare.</p>';
+        } else { // Fallback se neanche app-status-message è pronto
+            document.addEventListener('DOMContentLoaded', () => { // Aspetta che il DOM sia pronto per scrivere nel body
+                 document.body.innerHTML = '<p style="color:red; text-align:center; padding:20px; font-weight:bold;">Errore critico nell\'inizializzazione. Impossibile caricare l\'applicazione.</p>';
+            });
+        }
+        return; // Esce dall'IIFE, bloccando l'esecuzione del resto dello script
     }
 
-    // --- STATO GLOBALE SCRIPT ---
-    let currentUser = null;
-    let currentUserRole = null;
-    let firebaseAuthInitialized = false;
-    let allProductsFromFirestore = []; // Per i prodotti da Firestore
-    let currentFilteredProducts = [];
-    let currentBrandFilter = 'all';
-    let showOnlyEconomic = false;
+    // Se arrivi qui, 'app' e 'auth' dovrebbero essere inizializzati.
 
-    // --- RIFERIMENTI DOM (Popolati in DOMContentLoaded) ---
+    // --- STATO GLOBALE DELLO SCRIPT (all'interno dell'IIFE) ---
+    let currentUser = null;
+    let currentUserRole = null; // 'admin', 'operator', o null
+    let firebaseAuthInitialized = false; // Traccia se onAuthStateChanged è stato eseguito almeno una volta
+
+    let currentFilteredProducts = []; // Array dei prodotti attualmente filtrati
+    let currentBrandFilter = 'all';   // Filtro marca corrente
+    let showOnlyEconomic = false;     // Flag per filtro prodotti economici
+
+    // --- RIFERIMENTI ELEMENTI DOM (Selezionati una volta che il DOM è pronto) ---
+    // Questi verranno popolati in DOMContentLoaded
     let mainPageContainer, headerElement, loginPanel, closeLoginPanelBtn, loginEmailInput,
         loginPasswordInput, submitLoginBtn, loginErrorMsg, monosplitGrid, filterButtons,
         sectionTabs, monosplitSection, exitAdminButton, printButton, tooltipElement, appStatusMessageElement;
 
-    // --- FUNZIONI UTILITY ---
-    function handleFatalError(message) { /* ... come prima ... */ }
-    function formatPrice(price) { /* ... come prima ... */ }
-    const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
 
-    // --- FUNZIONI CORE ---
-    function createProductCard(product) { /* ... come prima, SENZA bottoni di modifica ... */
+    // --- FUNZIONI UTILITY ---
+    function handleFatalError(message) {
+        // Sovrascrive il contenuto per mostrare solo l'errore fatale
+        if(mainPageContainer) mainPageContainer.innerHTML = `<div style="padding: 20px; text-align: center; color: red; font-size: 1.2em;">${message}</div>`;
+        if(headerElement) headerElement.style.display = 'none';
+        if(loginPanel) loginPanel.classList.remove('visible'); // Nasconde pannello login
+        if(appStatusMessageElement) appStatusMessageElement.innerHTML = `<p style="color:red;">${message}</p>`;
+        console.error("ERRORE FATALE:", message);
+    }
+
+    function formatPrice(price) {
+        if (price === null || price === undefined || price === '') return 'N/D';
+        let numericPrice = NaN;
+        if (typeof price === 'number') {
+            numericPrice = price;
+        } else if (typeof price === 'string') {
+            try {
+                const cleanedPrice = price.replace(/[^0-9,.-]/g, '');
+                const normalizedPrice = cleanedPrice.replace(/\./g, '').replace(',', '.'); // Per formati come 1.234,56
+                numericPrice = parseFloat(normalizedPrice);
+            } catch (e) { /* Ignora, numericPrice resterà NaN */ }
+        }
+        if (!isNaN(numericPrice)) {
+            return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice);
+        }
+        return 'N/D';
+    }
+    const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART']; // Case sensitive
+
+    // --- CREAZIONE CARD PRODOTTO ---
+    function createProductCard(product) {
+        // ... (La tua funzione createProductCard come l'avevi prima, assicurandoti che
+        //      `actionButtonsHTML` usi `currentUser` e `currentUserRole` per decidere
+        //      quali bottoni mostrare. Il riferimento a 'products' (globale o da parametro) deve essere chiaro.)
         if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
         try {
             const imageUrl = product.image_url || '../images/placeholder.png';
@@ -74,144 +111,411 @@
             const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
             const logoPath = `../images/logos/${safeBrandName}.png`;
             const placeholderLogoPath = '../images/logos/placeholder_logo.png';
-            let economicBadgeHTML = ''; if (economicModels.includes(model.toUpperCase())) economicBadgeHTML = `<span class="economic-badge" title="Linea economica">Economico</span>`;
-            let wifiIconHTML = ''; const wifiString = String(wifi).toLowerCase().trim(); if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi"></i>`;
-            let datasheetLink = ''; if (datasheetUrl && String(datasheetUrl).trim() !== '') datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
-            let productCodeHTML = ''; if (productCode && productCode !== 'N/D') { let c = ''; const hcp = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number'; if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) { const uim = productCode.match(/UI:\s*([^/]+)/); const uem = productCode.match(/UE:\s*([^/]+)/); const uic = uim?uim[1].trim():'N/D'; const uec = uem?uem[1].trim():'N/D'; c = `UI: ${uic}`; if(hcp) c+=` <span>(${formatPrice(product.prezzo_ui)})</span>`; c += `<br>UE: ${uec}`; if(hcp) c+=` <span>(${formatPrice(product.prezzo_ue)})</span>`;} else {c=productCode;} productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><br><span class="code-value">${c}</span></p>`;}
-            let dimensionsHTML = ''; if(uiDimensions !== "N/D") dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; if(!isMonobloc && ueDimensions !== "N/D"){if(dimensionsHTML!=='')dimensionsHTML+=''; dimensionsHTML+=`<span>UE: ${ueDimensions}</span>`;} if(dimensionsHTML!==''){dimensionsHTML=`<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`;}
-            // Non ci sono bottoni di modifica ora
-            const actionButtonsContainerContent = ''; // Lascia vuoto o aggiungi "Confronta" se necessario
-
-            return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}"><div class="card-top-right-elements">${economicBadgeHTML}${wifiIconHTML}</div><div class="product-header"><img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';"><div class="product-title-brand"><span class="product-brand-text">${brand}</span><h3 class="product-model">${model}</h3></div></div><img src="${imageUrl}" alt="${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';"><div class="product-info"><div class="product-details"><p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p><p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling">${energyCooling}</span>/<span class="heating product-energy-heating">${energyHeating}</span></p>${productCodeHTML}${dimensionsHTML}${datasheetLink}</div><div class="product-footer"><div class="product-price-value">${formatPrice(product.prezzo)}</div><div class="action-buttons-container">${actionButtonsContainerContent}</div></div></div></div>`;
-        } catch (e) { console.error(`Err card ID ${product?.id}`, e); return `<div class="product-card error-card">Err card ${product?.id}</div>`;}
-    }
-
-    async function loadProductsFromFirestore() {
-        if (!db) {
-            console.error("Firestore (db) non inizializzato.");
-            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results error-message">Servizio database non disp.</p>';
-            return [];
-        }
-        const collectionName = "prodottiClimaMonosplit"; // Conforme alle regole Firestore
-        const ref = db.collection(collectionName);
-        let loaded = [];
-        if (monosplitGrid) monosplitGrid.innerHTML = '<div class="loading-placeholder">Caricamento prodotti...</div>';
-        try {
-            const snapshot = await ref.get();
-            if (snapshot.empty) {
-                if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto nel database.</p>';
-                return [];
+            
+            let economicBadgeHTML = '';
+            if (economicModels.includes(model.toUpperCase())) economicBadgeHTML = `<span class="economic-badge" title="Prodotto linea economica">Economico</span>`;
+            
+            let wifiIconHTML = '';
+            const wifiString = String(wifi).toLowerCase().trim();
+            if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
+            
+            let datasheetLink = '';
+            if (datasheetUrl && String(datasheetUrl).trim() !== '') datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
+            
+            let productCodeHTML = '';
+            if (productCode && productCode !== 'N/D') {
+                let codeContent = '';
+                const hasComponentPrices = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number';
+                if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) {
+                    const uiMatch = productCode.match(/UI:\s*([^/]+)/); const ueMatch = productCode.match(/UE:\s*([^/]+)/);
+                    const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D'; const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D';
+                    codeContent = `UI: ${uiCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`;
+                    codeContent += `<br>UE: ${ueCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`;
+                } else { codeContent = productCode; }
+                productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><br><span class="code-value">${codeContent}</span></p>`;
             }
-            snapshot.forEach(doc => loaded.push({ id: doc.id, ...doc.data() }));
-            console.log(`Caricati ${loaded.length} prodotti da '${collectionName}'.`);
-            return loaded;
-        } catch (error) {
-            console.error(`Errore caricamento da '${collectionName}':`, error);
-            if (monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results error-message">Errore caricamento prodotti.</p>';
-            return [];
-        }
-    }
+            
+            let dimensionsHTML = '';
+            if (uiDimensions !== "N/D") { dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; }
+            if (!isMonobloc && ueDimensions !== "N/D") { if (dimensionsHTML !== '') dimensionsHTML += ''; dimensionsHTML += `<span>UE: ${ueDimensions}</span>`; }
+            if (dimensionsHTML !== '') { dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`; }
 
-    function updateAvailableBrandFilters(sourceProducts) {
-        if (!Array.isArray(sourceProducts)) {
-             filterButtons.forEach(b => { if(b.dataset.brand && b.dataset.brand !=='all') b.style.display='none';}); return;
-        }
-        const brands = [...new Set(sourceProducts.map(p => p.marca ? p.marca.toUpperCase() : null).filter(Boolean))].sort();
-        console.log("Marche per filtri:", brands);
-        filterButtons.forEach(b => {
-            const btnBrand = b.dataset.brand;
-            if (btnBrand && btnBrand !== 'all') {
-                b.style.display = brands.includes(btnBrand.toUpperCase()) ? '' : 'none';
+            let actionButtonsHTML = '';
+            if (currentUser && currentUserRole === 'admin') {
+                actionButtonsHTML = `
+                    <button class="edit-btn" data-id="${product.id}" title="Modifica dati prodotto"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="save-btn" data-id="${product.id}" style="display: none;" title="Salva modifiche"><i class="fas fa-save"></i></button>
+                    <button class="cancel-btn" data-id="${product.id}" style="display: none;" title="Annulla modifiche"><i class="fas fa-times"></i></button>`;
             }
-        });
+            // actionButtonsHTML += `<button class="btn-compare" data-product-id="${product.id}" title="Aggiungi al confronto"><i class="fas fa-exchange-alt"></i></button>`;
+
+            return `
+               <div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
+                   <div class="card-top-right-elements">${economicBadgeHTML}${wifiIconHTML}</div>
+                   <div class="product-header">
+                       <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';">
+                       <div class="product-title-brand">
+                           <span class="product-brand-text">${brand}</span>
+                           <h3 class="product-model">${model}</h3>
+                       </div>
+                   </div>
+                   <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
+                   <div class="product-info">
+                       <div class="product-details">
+                           <p class="product-info-text"><strong>Potenza:</strong> <span class="product-power">${power}</span></p>
+                           <p class="energy-class product-info-text"><strong>Classe En.:</strong> <span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> / <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>
+                           ${productCodeHTML}
+                           ${dimensionsHTML}
+                           ${datasheetLink}
+                       </div>
+                       <div class="product-footer">
+                           <div class="product-price-value">${formatPrice(product.prezzo)}</div>
+                           <div class="action-buttons-container">${actionButtonsHTML}</div>
+                       </div>
+                   </div>
+               </div>`;
+        } catch (error) { console.error(`Error creating card ID ${product?.id}`, error); return `<div class="product-card error-card">Errore creazione card ID ${product?.id}.</div>`; }
     }
 
+    // --- LOGICA FILTRI E VISUALIZZAZIONE ---
     function applyFiltersAndSort() {
-        let source = allProductsFromFirestore; // USA I DATI DA FIRESTORE
-        if (!Array.isArray(source)) {
-            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati filtri.</p>';
-            currentFilteredProducts = []; displayProducts([]); return;
+        // ... (Tua funzione applyFiltersAndSort, assicurati che `products` sia disponibile)
+        //      Questa funzione ora userà la variabile globale `products` (che viene da data.js)
+        //      Se i dati venissero da Firestore, questa funzione sarebbe chiamata dopo il fetch.
+        let sourceProducts = (typeof products !== 'undefined' && Array.isArray(products)) ? [...products] : [];
+        if(sourceProducts.length === 0 && currentUser) { // Se utente loggato ma products è vuoto
+            console.warn("Nessun prodotto locale trovato in 'products' (data.js). La visualizzazione potrebbe essere vuota o dipendere da un caricamento dati Firestore non implementato qui.");
         }
+
+
         let filtered = [];
         try {
-            filtered = source.filter(p => !p.tipo || p.tipo.toLowerCase() === 'monosplit');
-            if (currentBrandFilter !== 'all') filtered = filtered.filter(p => p?.marca?.toUpperCase() === currentBrandFilter);
-            if (showOnlyEconomic) filtered = filtered.filter(p => p?.modello && economicModels.includes(p.modello.toUpperCase()));
-            filtered.sort((a,b) => (a?.prezzo ?? Infinity) - (b?.prezzo ?? Infinity));
-        } catch (e) { console.error("Err filtri:", e); filtered = []; if(mainPageContainer) mainPageContainer.innerHTML = '<p class="no-results error-message">Errore filtri.</p>'; }
+            filtered = sourceProducts.filter(p => !p.tipo || p.tipo.toLowerCase() === 'monosplit');
+            if (currentBrandFilter !== 'all') { filtered = filtered.filter(p => p && p.marca && p.marca.toUpperCase() === currentBrandFilter); }
+            if (showOnlyEconomic) { filtered = filtered.filter(p => p && p.modello && economicModels.includes(p.modello.toUpperCase())); }
+            filtered.sort((a, b) => { const priceA = (a && typeof a.prezzo === 'number' && !isNaN(a.prezzo)) ? a.prezzo : Infinity; const priceB = (b && typeof b.prezzo === 'number' && !isNaN(b.prezzo)) ? b.prezzo : Infinity; return priceA - priceB; });
+        } catch (error) { console.error("Error filtering/sorting:", error); filtered = []; if(mainPageContainer) mainPageContainer.innerHTML = '<p class="no-results error-message">Errore applicazione filtri.</p>'; }
         currentFilteredProducts = filtered;
         displayProducts(currentFilteredProducts);
     }
 
     function displayProducts(productsToDisplay) {
-        if (!monosplitGrid) return;
-        if (!Array.isArray(productsToDisplay)) { monosplitGrid.innerHTML = '<p class="no-results error-message">Errore.</p>'; return; }
-        let html = '';
-        if (productsToDisplay.length > 0) {
-            productsToDisplay.forEach(p => html += createProductCard(p));
-        } else {
-            html = '<p class="no-results">Nessun prodotto trovato con i filtri selezionati.</p>';
-        }
-        monosplitGrid.innerHTML = html;
+        // ... (Tua funzione displayProducts, che chiama createProductCard e addEditListeners)
+         if (!monosplitGrid) { console.error("CRITICAL ERROR: Monosplit grid not found for display."); return; }
+        if (!Array.isArray(productsToDisplay)) { console.error("ERROR: productsToDisplay invalid for display!", productsToDisplay); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore dati prodotti.</p>'; return; }
+
+        let monosplitHTML = '';
+        let monosplitCount = 0;
+        try {
+            productsToDisplay.forEach((product) => {
+                if (!product || typeof product.id === 'undefined' || (product.tipo && product.tipo.toLowerCase() !== 'monosplit')) return;
+                const cardHTML = createProductCard(product);
+                monosplitHTML += cardHTML;
+                monosplitCount++;
+            });
+        } catch (loopError) { console.error("Error during product display loop:", loopError); monosplitGrid.innerHTML = '<p class="no-results error-message">Errore visualizzazione prodotti.</p>'; return; }
+
+        const noMonoMsg = '<p class="no-results">Nessun prodotto Monosplit trovato con i filtri selezionati.</p>';
+        monosplitGrid.innerHTML = monosplitCount > 0 ? monosplitHTML : noMonoMsg;
+
         if (monosplitSection) monosplitSection.style.display = 'block';
-        // Non c'è più addEditListeners
-        if (typeof addTooltipListeners === 'function' && tooltipElement) addTooltipListeners();
-    }
 
-    // --- FUNZIONI UI e AUTH ---
-    function showLoginScreen() { /* ...come prima... */ }
-    function hideLoginScreenAndShowApp() { /* ...come prima... */ }
-    async function initializeAppForUser(user) { /* ...come prima, recupera ruolo da db.collection('users').doc(user.uid) ... */
-        currentUser = user;
-        console.log("Autenticato:", user.email, "Recupero ruolo...");
-        if (db && user) {
-            const userDocRef = db.collection('users').doc(user.uid);
-            try {
-                const doc = await userDocRef.get();
-                currentUserRole = doc.exists ? (doc.data().role || 'user') : 'user';
-                console.log("Ruolo:", currentUserRole);
-            } catch (e) { console.error("Err ruolo:", e); currentUserRole = 'user';}
-        } else { currentUserRole = user ? 'user' : null; console.warn("DB o user non disp per ruolo."); }
-        document.body.classList.toggle('admin-mode', currentUserRole === 'admin');
-        document.body.classList.toggle('operator-mode', currentUserRole !== 'admin');
-        hideLoginScreenAndShowApp();
-        await initializeAppMainLogic(); // Await qui se initializeAppMainLogic è async
-    }
-    function performLogoutCleanup() { /* ...come prima... */ }
-    async function initializeAppMainLogic() { // Resa async
-        console.log("Init UI principale (dati da Firestore)...");
-        if(appStatusMessageElement) appStatusMessageElement.style.display = 'none';
-        allProductsFromFirestore = await loadProductsFromFirestore();
-        if (!Array.isArray(allProductsFromFirestore) || allProductsFromFirestore.length === 0) {
-             if(monosplitGrid && !monosplitGrid.querySelector('.error-message')) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto.</p>';
+        if (currentUser && currentUserRole === 'admin') {
+            addEditListeners(); // Chiama se l'utente è admin
         }
-        currentBrandFilter = 'all'; showOnlyEconomic = false;
-        document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
-        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
-        updateAvailableBrandFilters(allProductsFromFirestore);
-        filterButtons.forEach(btn=>btn.classList.remove('active'));
-        document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
-        const ecBtn = document.querySelector('.filter-btn[data-filter-type="economic"]'); if(ecBtn) ecBtn.classList.remove('active');
-        applyFiltersAndSort();
+        if (typeof addTooltipListeners === 'function' && tooltipElement) { addTooltipListeners(); }
     }
-    function mapFirebaseAuthError(errorCode) { /* ...come prima... */ }
 
-    // --- DOMContentLoaded ---
+    // --- LOGICA DI EDIT (invariata nel suo funzionamento base, ma il salvataggio andrebbe su Firestore) ---
+    let originalProductData = {}; // Per ripristino su cancel
+    function toggleEditMode(productId, isEditing) { /* ... implementazione ... */ }
+    function handleEditClick(event) { if (currentUser && currentUserRole === 'admin') { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, true); } }
+    function handleCancelClick(event) { if (currentUser && currentUserRole === 'admin') { const productId = event.currentTarget.dataset.id; toggleEditMode(productId, false); } }
+    function handleSaveClick(event) {
+        // ... (tua logica di handleSaveClick, idealmente dovrebbe salvare su Firestore)
+        // PER ORA, aggiorna solo `products` e chiama `applyFiltersAndSort`
+        if (currentUser && currentUserRole === 'admin') {
+            // ... implementa il salvataggio (per ora, simula salvataggio locale come prima)
+            const productId = event.currentTarget.dataset.id;
+             const productIndex = products.findIndex(p => String(p.id) === String(productId));
+            if (productIndex > -1) {
+                // Simula l'aggiornamento prendendo i valori dagli input (che dovresti creare in toggleEditMode)
+                // products[productIndex].prezzo = nuovoPrezzo;
+                // products[productIndex].modello = nuovoModello;
+            }
+            applyFiltersAndSort();
+            // showToast("Modifiche salvate (in memoria).", "success");
+        }
+    }
+    function addEditListeners() { /* ... implementazione ... */ }
+
+    // --- FUNZIONI PER LA GESTIONE DELLO STATO UI E AUTENTICAZIONE ---
+    function showLoginScreen() {
+        if (mainPageContainer) mainPageContainer.classList.add('content-hidden');
+        if (headerElement) headerElement.classList.add('content-hidden');
+        if (loginPanel) loginPanel.classList.add('visible');
+        if (exitAdminButton) exitAdminButton.style.display = 'none';
+        if (appStatusMessageElement) appStatusMessageElement.textContent = "Accesso richiesto.";
+    }
+
+    function hideLoginScreenAndShowApp() {
+        if (loginPanel) loginPanel.classList.remove('visible');
+        if (mainPageContainer) mainPageContainer.classList.remove('content-hidden');
+        if (headerElement) headerElement.classList.remove('content-hidden');
+        if (exitAdminButton) exitAdminButton.style.display = currentUser ? 'inline-flex' : 'none';
+        if (appStatusMessageElement) appStatusMessageElement.style.display = 'none';
+    }
+
+// All'inizio dello script, dopo l'init di Firebase:
+// let db = firebase.firestore(); // Assicurati che db sia inizializzato
+
+async function initializeAppForUser(user) {
+    currentUser = user;
+    console.log("Utente autenticato:", user.email);
+
+    // Recupera il ruolo dell'utente da Firestore
+    if (db && user) { 
+        const userDocRef = db.collection('users').doc(user.uid);
+        try {
+            const doc = await userDocRef.get();
+            if (doc.exists) {
+                currentUserRole = doc.data().role; // Es. 'admin' o 'user'
+                console.log("Ruolo utente recuperato:", currentUserRole);
+            } else {
+                console.warn(`Documento utente non trovato in Firestore per UID: ${user.uid}. Ruolo non impostato.`);
+                currentUserRole = null; // o un ruolo di default 'guest' o 'user' se preferisci
+            }
+        } catch (error) {
+            console.error("Errore nel recuperare il ruolo utente da Firestore:", error);
+            currentUserRole = null; // Fallback
+        }
+    } else if (user) {
+        console.warn("Istanza Firestore (db) non disponibile. Ruolo utente non verificato.");
+        currentUserRole = null; // Non possiamo determinare il ruolo
+    }
+
+
+    // Applica classi CSS al body o gestisci la UI in base al ruolo
+    if (currentUserRole === 'admin') {
+        document.body.classList.add('admin-mode');
+        document.body.classList.remove('operator-mode'); // 'operator-mode' potrebbe essere per 'user'
+        console.log("Modalità Admin Attivata per l'UI.");
+        // Qui potresti mostrare elementi specifici per admin (NON bottoni di modifica card)
+        // Esempio: document.getElementById('admin-dashboard-link').style.display = 'block';
+    } else if (currentUserRole === 'user') {
+        document.body.classList.add('operator-mode'); // o 'user-mode'
+        document.body.classList.remove('admin-mode');
+        console.log("Modalità User (Collaboratore) Attivata per l'UI.");
+        // Qui potresti nascondere elementi "admin-only"
+        // Esempio: document.getElementById('admin-only-section').style.display = 'none';
+    } else { // Utente loggato ma senza ruolo definito o errore nel recupero
+        document.body.classList.remove('admin-mode');
+        document.body.classList.add('operator-mode'); // Default a una vista limitata
+        console.log("Ruolo utente non definito o 'operator'. Accesso base.");
+        // Potresti voler anche gestire questo caso in modo più restrittivo, es. mostrare un messaggio.
+    }
+
+    hideLoginScreenAndShowApp();    // Mostra l'interfaccia principale dell'app
+    initializeAppMainLogic();       // Inizializza il contenuto (filtri, prodotti)
+}
+
+    function performLogoutCleanup() {
+        currentUser = null;
+        currentUserRole = null;
+        currentFilteredProducts = [];
+        if (monosplitGrid) monosplitGrid.innerHTML = '';
+        
+        document.body.classList.remove('admin-mode');
+        document.body.classList.add('operator-mode');
+        showLoginScreen();
+    }
+
+    function initializeAppMainLogic() {
+        console.log("Inizializzazione logica principale dell'app...");
+        if (typeof products === 'undefined' || !Array.isArray(products) || products.length === 0) {
+            console.warn("'products' (da data.js) non caricato o vuoto.");
+            if(monosplitGrid) monosplitGrid.innerHTML = '<p class="no-results">Nessun dato prodotto da visualizzare.</p>';
+        }
+        
+        // Impostazioni filtri e tab di default
+        currentBrandFilter = 'all';
+        showOnlyEconomic = false;
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
+        const economicBtn = document.querySelector('.filter-btn[data-filter-type="economic"]');
+        if (economicBtn) economicBtn.classList.remove('active');
+
+        applyFiltersAndSort(); // Carica e visualizza prodotti
+    }
+    
+    function mapFirebaseAuthError(errorCode) { /* ... (Tua funzione mapFirebaseAuthError) ... */
+        switch (errorCode) {
+            case "auth/invalid-email": case "auth/invalid-credential": return "Formato email non valido o credenziali errate.";
+            case "auth/user-disabled": return "Account utente disabilitato.";
+            case "auth/user-not-found": return "Nessun utente trovato con questa email.";
+            case "auth/wrong-password": return "Password errata.";
+            case "auth/too-many-requests": return "Accesso bloccato. Riprova più tardi.";
+            default: return "Errore di autenticazione: " + errorCode;
+        }
+    }
+
+
+    // --- CODICE DA ESEGUIRE QUANDO IL DOM È PRONTO ---
     document.addEventListener('DOMContentLoaded', () => {
-        mainPageContainer=document.querySelector('.container'); headerElement=document.querySelector('.app-header'); loginPanel=document.getElementById('password-panel'); closeLoginPanelBtn=document.getElementById('close-panel-btn'); loginEmailInput=document.getElementById('login-email-input-clima'); loginPasswordInput=document.getElementById('admin-password'); submitLoginBtn=document.getElementById('submit-password-btn'); loginErrorMsg=document.getElementById('password-error'); monosplitGrid=document.getElementById('monosplit-grid'); filterButtons=document.querySelectorAll('.filters .filter-btn'); sectionTabs=document.querySelectorAll('.section-tabs .tab-btn'); monosplitSection=document.getElementById('monosplit-section'); exitAdminButton=document.getElementById('exit-admin-button'); printButton=document.getElementById('print-button'); tooltipElement=document.getElementById('dimension-tooltip'); appStatusMessageElement=document.getElementById('app-status-message');
-        if (!loginPanel || !loginEmailInput || !loginPasswordInput || !submitLoginBtn || !loginErrorMsg) { console.error("Err DOM login."); if (appStatusMessageElement) {appStatusMessageElement.textContent="Err interfaccia login."; appStatusMessageElement.style.display='block';} if(mainPageContainer)mainPageContainer.classList.add('content-hidden'); if(headerElement)headerElement.classList.add('content-hidden'); return;}
-        if (loginPanel) { const pTitle=loginPanel.querySelector('h3'); if(pTitle)pTitle.textContent='Accesso Area Riservata'; const pDesc=loginPanel.querySelector('p:not(.error-message)'); if(pDesc)pDesc.textContent='Credenziali per continuare.'; if(submitLoginBtn)submitLoginBtn.textContent="Accedi"; }
+        // Popola i riferimenti DOM globali (all'interno dell'IIFE)
+        mainPageContainer = document.querySelector('.container');
+        headerElement = document.querySelector('.app-header');
+        loginPanel = document.getElementById('password-panel');
+        closeLoginPanelBtn = document.getElementById('close-panel-btn');
+        // L'input email viene creato e aggiunto sopra, qui potresti ricreare il riferimento
+        loginEmailInput = document.getElementById('login-email-input-clima'); 
+        loginPasswordInput = document.getElementById('admin-password');
+        submitLoginBtn = document.getElementById('submit-password-btn');
+        loginErrorMsg = document.getElementById('password-error');
+        monosplitGrid = document.getElementById('monosplit-grid');
+        filterButtons = document.querySelectorAll('.filter-btn');
+        sectionTabs = document.querySelectorAll('.tab-btn');
+        monosplitSection = document.getElementById('monosplit-section');
+        exitAdminButton = document.getElementById('exit-admin-button');
+        printButton = document.getElementById('print-button');
+        tooltipElement = document.getElementById('dimension-tooltip');
+        appStatusMessageElement = document.getElementById('app-status-message');
+
+        // Verifica elementi essenziali per il login panel
+        if (!loginPanel || !loginEmailInput || !loginPasswordInput || !submitLoginBtn || !loginErrorMsg) {
+            console.error("Elementi DOM per il pannello di login mancanti. Funzionalità di login compromessa.");
+            if (appStatusMessageElement) appStatusMessageElement.textContent = "Errore interfaccia di login.";
+            return; // Non continuare se il login non può funzionare
+        }
+
+
+        // Aggancia listener `onAuthStateChanged` (assicurati che `auth` sia definito)
         if (auth) {
-            auth.onAuthStateChanged(user => { firebaseAuthInitialized = true; if (user) initializeAppForUser(user); else performLogoutCleanup(); });
-            submitLoginBtn.addEventListener('click', () => { const e=loginEmailInput.value.trim(),p=loginPasswordInput.value; loginErrorMsg.textContent=''; if(!e||!p){loginErrorMsg.textContent='Email/Password obbligatori.';return;} auth.signInWithEmailAndPassword(e,p).catch(err=>{loginErrorMsg.textContent=mapFirebaseAuthError(err.code);loginPasswordInput.classList.add('input-error');loginEmailInput.classList.add('input-error');});});
-            loginEmailInput.addEventListener('keypress', (e)=>{if(e.key==='Enter'){e.preventDefault();submitLoginBtn.click();}}); loginPasswordInput.addEventListener('keypress', (e)=>{if(e.key==='Enter'){e.preventDefault();submitLoginBtn.click();}});
-            if(exitAdminButton) exitAdminButton.addEventListener('click', () => auth.signOut().catch(e=>console.error('Logout err:',e)));
-            if(closeLoginPanelBtn) closeLoginPanelBtn.addEventListener('click', () => {if(loginPanel)loginPanel.classList.remove('visible');});
-        } else { console.error("FATAL: Auth non definito."); if(appStatusMessageElement){appStatusMessageElement.textContent="No Auth."; appStatusMessageElement.style.display='block';} if(mainPageContainer)mainPageContainer.classList.add('content-hidden'); if(headerElement)headerElement.classList.add('content-hidden'); }
-        setTimeout(() => { if (!firebaseAuthInitialized && auth) { if(!auth.currentUser) performLogoutCleanup(); else initializeAppForUser(auth.currentUser); } else if(!firebaseAuthInitialized && !auth){ if(appStatusMessageElement&&(!currentUser))appStatusMessageElement.textContent="Auth timeout.";}}, 3000);
-        if(filterButtons.length>0) filterButtons.forEach(b => b.addEventListener('click', e => { if(!currentUser)return; const cb=e.currentTarget,ft=cb.dataset.filterType,bf=cb.dataset.brand; if(ft==='economic'){showOnlyEconomic=!showOnlyEconomic;cb.classList.toggle('active',showOnlyEconomic);}else if(bf){filterButtons.forEach(btn=>{if(btn.dataset.brand)btn.classList.remove('active');});cb.classList.add('active');currentBrandFilter=bf.toLowerCase()==='all'?'all':bf.toUpperCase();} applyFiltersAndSort();}));
-        if(sectionTabs.length>0) sectionTabs.forEach(t => t.addEventListener('click', e => { if(!currentUser)return; const ts=t.dataset.section; e.preventDefault(); if(ts==='multisplit')window.location.href='../multisplit/index.html'; else if(ts==='monosplit'){sectionTabs.forEach(tb=>tb.classList.remove('active'));t.classList.add('active');}}));
-        if(printButton) printButton.addEventListener('click', () => { if(!currentUser){alert("Login per stampare.");return;} window.print(); });
+            auth.onAuthStateChanged(user => {
+                firebaseAuthInitialized = true;
+                if (user) {
+                    initializeAppForUser(user);
+                } else {
+                    performLogoutCleanup();
+                }
+            });
+
+            // Event Listener per il submit del Login
+            submitLoginBtn.addEventListener('click', () => {
+                const email = loginEmailInput.value.trim();
+                const password = loginPasswordInput.value;
+                loginErrorMsg.textContent = '';
+
+                if (!email || !password) {
+                    loginErrorMsg.textContent = 'Email e password sono obbligatori.';
+                    return;
+                }
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // onAuthStateChanged gestirà il resto.
+                    })
+                    .catch((error) => {
+                        loginErrorMsg.textContent = mapFirebaseAuthError(error.code);
+                        loginPasswordInput.classList.add('input-error');
+                        loginEmailInput.classList.add('input-error');
+                    });
+            });
+            loginEmailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitLoginBtn.click(); }});
+            loginPasswordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitLoginBtn.click(); }});
+
+
+            // Event Listener per il Logout (pulsante #exit-admin-button)
+            if (exitAdminButton) {
+                exitAdminButton.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        // onAuthStateChanged gestirà il cleanup.
+                    }).catch((error) => {
+                        console.error('Errore durante il logout Firebase:', error);
+                    });
+                });
+            }
+
+             // Event Listener per chiudere il pannello (se presente e voluto)
+            if(closeLoginPanelBtn){
+                closeLoginPanelBtn.addEventListener('click', () => {
+                    if(loginPanel) loginPanel.classList.remove('visible');
+                    // Nota: se l'utente non è loggato, onAuthStateChanged (o il timeout) lo riaprirà.
+                });
+            }
+
+        } else {
+            // Questo caso è già gestito dal try-catch dell'inizializzazione di Firebase.
+            // Se 'auth' non è definito qui, significa che l'init è fallito e lo script dovrebbe essersi fermato.
+            console.error("FATAL: Oggetto Firebase Auth non definito in DOMContentLoaded.");
+            if (appStatusMessageElement) appStatusMessageElement.textContent = "Impossibile avviare autenticazione.";
+        }
+
+
+        // Timeout di fallback (già discusso, qui per completezza)
+        setTimeout(() => {
+            if (!firebaseAuthInitialized && auth) {
+                if (!auth.currentUser) {
+                    performLogoutCleanup();
+                } else {
+                    initializeAppForUser(auth.currentUser);
+                }
+            } else if (!firebaseAuthInitialized && !auth) { // Se init Firebase è fallito
+                if(appStatusMessageElement && (!currentUser)) appStatusMessageElement.textContent = "Servizio di autenticazione non attivo.";
+            }
+        }, 2500); // 2.5 secondi di attesa
+
+
+        // Listener per filtri, tabs, ecc. (possono essere inizializzati qui, ma la loro efficacia
+        // sul contenuto dipenderà dallo stato di login e dal caricamento dati)
+        if (filterButtons.length > 0) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    if(!currentUser) return; // Non fare nulla se non loggato
+                    const clickedButton = event.currentTarget;
+                    const filterType = clickedButton.dataset.filterType;
+                    const brandToFilter = clickedButton.dataset.brand;
+
+                    if (filterType === 'economic') {
+                        showOnlyEconomic = !showOnlyEconomic;
+                        clickedButton.classList.toggle('active', showOnlyEconomic);
+                    } else if (brandToFilter) {
+                        filterButtons.forEach(btn => { if (btn.dataset.brand) btn.classList.remove('active'); });
+                        clickedButton.classList.add('active');
+                        currentBrandFilter = brandToFilter.toLowerCase() === 'all' ? 'all' : brandToFilter.toUpperCase();
+                    }
+                    applyFiltersAndSort();
+                });
+            });
+        }
+
+        if (sectionTabs.length > 0) {
+            sectionTabs.forEach(tab => {
+                tab.addEventListener('click', (event) => {
+                    if(!currentUser) return;
+                    const targetSectionId = tab.dataset.section;
+                    event.preventDefault();
+                    if (targetSectionId === 'multisplit') {
+                        window.location.href = '../multisplit/index.html';
+                    } else if (targetSectionId === 'monosplit') {
+                        sectionTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        if (printButton) {
+            printButton.addEventListener('click', () => {
+                if (!currentUser) {
+                    alert("Devi effettuare il login per utilizzare la funzione di stampa.");
+                    return;
+                }
+                window.print();
+            });
+        }
+
     }); // Fine DOMContentLoaded
 
-})(); // Fine IIFE
+})(); // Fine e chiamata dell'IIFE
