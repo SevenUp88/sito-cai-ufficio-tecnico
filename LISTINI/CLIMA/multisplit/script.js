@@ -30,12 +30,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     // firebase.initializeApp(firebaseConfig); // <-- This was the problem line, REMOVE IT
 
     // --- App Data & State ---
-    const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] };
+    const APP_DATA = { /* ... */ };
     let currentLogicalStep = 1;
     let highestLogicalStepCompleted = 0;
-    const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] };
-
-    // --- DOM Element References ---
+    const selections = { /* ... */ };
+    let windowCurrentUserRole = null; // Variabile per il ruolo utente globale all'IIFE
+    let adminBrandsListener = null; // <<< DICHIARA QUI E INIZIALIZZA A NULL    // --- DOM Element References ---
     // ... (rest of your DOM element references are fine)
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
