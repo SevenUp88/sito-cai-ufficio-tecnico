@@ -31,41 +31,52 @@ body {
 .app-header {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Logo a sx, controlli a dx */
-    padding: 10px 30px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+    justify-content: space-between;
+    padding: 10px 30px; /* Spaziatura standard */
+    background-color: #ffffff; /* Sfondo bianco standard */
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); /* Ombra standard */
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
-    height: var(--header-height);
+    height: var(--header-height); /* Usa la variabile globale definita */
     box-sizing: border-box;
 }
 
-.logo {
-    height: 45px; /* Altezza logo standard */
+.app-header a.logo-link { /* Specifica per il link del logo */
+    line-height: 0; /* Rimuove spazio extra se l'immagine è inline */
+    display: block; /* Assicura che il link prenda le dimensioni dell'immagine */
+}
+
+.app-header .logo { /* Stile per l'immagine del logo */
+    height: 45px; /* Altezza logo standardizzata */
     width: auto;
     flex-shrink: 0;
-    background-color: transparent;
-    display: block;
-}
-.app-header a.logo-link { /* Link del logo */
-    line-height: 0;
+    display: block; /* Assicura corretto rendering */
 }
 
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 15px; /* Spazio tra icone header */
+    gap: 15px;
+}
+
+.header-user-info {
+    font-size: 0.85em;
+    color: var(--gray); /* Usa la tua variabile --gray */
+    margin-right: 10px;
+}
+
+.header-user-info strong {
+    color: var(--dark); /* Usa la tua variabile --dark */
 }
 
 .header-action-button {
     background: none;
     border: none;
-    color: var(--primary-color); /* Usa blu standard CAI */
-    font-size: 1.8em;
+    color: var(--primary-color); /* Blu CAI standard header */
+    font-size: 1.8em; /* Dimensione icone come da matrice */
     cursor: pointer;
     padding: 5px;
     transition: color 0.3s ease;
@@ -76,43 +87,33 @@ body {
 }
 
 .header-action-button:hover {
-    color: var(--danger); /* Colore hover standard */
+    color: var(--danger); /* Rosso per hover standard */
 }
-/* Nasconde bottone admin se modalità attiva (JS da implementare) */
-/* body.admin-mode #noleggi-admin-trigger { display: none; } */
 
-/* === END: Nuovi Stili Header Standard === */
-
-
-/* --- Vecchi Stili Header (Rimossi/Commentati) --- */
-/*
-header {
-    background-color: #ffffff;
-    color: var(--dark);
-    padding: 0.25rem 1.5rem;
-    box-shadow: var(--box-shadow);
-    margin-bottom: 2rem;
-    display: flex;
+.button-logout { /* Stile specifico per il bottone logout */
+    background: none;
+    border: 1px solid var(--gray); /* Usa la tua variabile --gray */
+    color: var(--gray);
+    font-size: 0.85em;
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
-    gap: 1.5rem;
-    border-bottom: 1px solid #dee2e6;
+    gap: 5px;
 }
 
-.header-logo {
-    max-height: 80px;
-    width: auto;
-    flex-shrink: 0;
+.button-logout:hover {
+    color: var(--danger); /* Rosso per hover standard */
+    border-color: var(--danger); /* Rosso per hover standard */
 }
 
-header h1 {
-    font-size: 1.8rem;
-    margin: 0;
-    font-weight: 500;
-    flex-grow: 1;
-    text-align: left;
+/* Classe per nascondere elementi (usata da JS) */
+.content-hidden {
+    display: none !important;
 }
-*/
-/* --- Fine Vecchi Stili Header --- */
+/* === END: Nuovi Stili Header Standard === */
 
 /* Stile per titolo pagina spostato */
 .page-title {
