@@ -59,9 +59,9 @@ body {
     background: none; 
     border: none; 
     color: var(--primary-color); 
-    font-size: 1.8em; 
+    font-size: 2.2em; /* Increased from 1.8em */
     cursor: pointer; 
-    padding: 5px; 
+    padding: 8px; /* Increased from 5px */
     transition: color 0.3s ease, opacity 0.3s ease; 
     display: inline-flex; 
     align-items: center; 
@@ -179,8 +179,8 @@ body {
                   /* The configurator footer uses <footer class="app-footer"> which *should* be caught by this if it's the same footer structure. */
     #password-panel, 
     .modal, /* Hides all modals including configurator's admin login */
-    #admin-trigger,  /* Header admin trigger button */
-    #print-list,    /* Header print list button */
+    /* #admin-trigger,  (Button removed from HTML) */
+    /* #print-list,    (Button removed from HTML) */
     #admin-section  /* Hide the full admin data management section if it's outside step-6 */
     /* Note: Hiding specific configurator parts like .step-indicator, .config-step:not(#step-6)
        will be handled in configurator-style.css @media print for better separation,
