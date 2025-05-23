@@ -24,18 +24,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     const auth = firebase.auth();       // Define auth using the initialized Firebase app
     const db = firebase.firestore();    // Define db using the initialized Firebase app
-
-    // REMOVED: Local firebaseConfig and initializeApp call - this is now handled by firebase-config.js
-    // const firebaseConfig = { ... }; 
-    // firebase.initializeApp(firebaseConfig); // <-- This was the problem line, REMOVE IT
+    console.log("CONFIGURATORE: Istanze Firebase Auth e Firestore ottenute.");
 
     // --- App Data & State ---
-    const APP_DATA = { /* ... */ };
+    const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] }; // Inizializza APP_DATA come oggetto vuoto o con la struttura che usi
     let currentLogicalStep = 1;
     let highestLogicalStepCompleted = 0;
-    const selections = { /* ... */ };
+    const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] }; // Inizializza selections
     let windowCurrentUserRole = null; // Variabile per il ruolo utente globale all'IIFE
-    let adminBrandsListener = null; // <<< DICHIARA QUI E INIZIALIZZA A NULL    // --- DOM Element References ---
+    let currentUser = null;       // Sarà popolato da onAuthStateChanged
+    let currentUserRole = null;   // Sarà popolato dopo il recupero da Firestore
+    let adminBrandsListener = null; // <<<---- DICHIARAZIONE CHIAVE QUI
     // ... (rest of your DOM element references are fine)
     const brandSelectionDiv = document.getElementById('brand-selection');
     const configTypeSelectionDiv = document.getElementById('config-type-selection');
