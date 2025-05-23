@@ -318,49 +318,6 @@ async function initializeAppForUser(user) {
     hideLoginScreenAndShowApp();    // Mostra l'interfaccia principale dell'app
     initializeAppMainLogic();       // Inizializza il contenuto (filtri, prodotti)
 }
-Use code with caution.
-JavaScript
-Adattare la UI in base al Ruolo (Senza Bottoni di Modifica):
-createProductCard: Come detto, nessun bottone di modifica.
-Visibilità Elementi:
-Potresti avere sezioni dell'HTML (non sulle card, ma altrove sulla pagina) o pulsanti nell'header (diversi da "Logout") che sono visibili solo agli admin. Puoi controllarli usando currentUserRole.
-Ad esempio, un admin potrebbe vedere un link a un "Pannello di Amministrazione Generale" (una pagina diversa) che gli utenti normali non vedono.
-Un admin potrebbe vedere più colonne di dati in una tabella rispetto a un utente normale.
-document.body.classList.add/remove: Usare classi sul <body> (admin-mode, user-mode) è un buon modo per controllare la visibilità di interi blocchi di UI tramite CSS, senza dover manipolare lo stile di ogni singolo elemento via JavaScript.
-Esempio CSS:
-/* Stili generali */
-.admin-only-feature { display: none; }
-.user-only-feature { display: none; }
-
-/* Quando il body ha la classe admin-mode */
-body.admin-mode .admin-only-feature { display: block; /* o inline, flex, ecc. */ }
-/* Nascondi cose specifiche per user se sei admin */
-/* body.admin-mode .user-only-feature { display: none; } */
-
-/* Quando il body ha la classe user-mode (o operator-mode) */
-body.operator-mode .user-only-feature { display: block; }
-/* body.operator-mode .admin-only-feature { display: none; } */
-Use code with caution.
-Css
-Verifica Ruolo per Azioni (se ce ne fossero):
-Anche se non c'è modifica diretta di prezzi/modelli, se avessi altre azioni (es. "Esporta dati avanzati" disponibile solo per admin), il listener di quel pulsante dovrebbe verificare if (currentUser && currentUserRole === 'admin').
-Il tuo pulsante #print-button potrebbe rimanere accessibile a tutti gli utenti loggati.
-HTML (index (9/10).html):
-Le modifiche principali all'HTML sarebbero per aggiungere eventuali elementi "admin-only" che verranno poi controllati via CSS/JS. L'HTML del pannello di login e della struttura generale rimane come nell'ultima versione fornita.
-script.js (Sintesi delle Modifiche):
-Inizializzazione: Includi l'SDK di Firestore e inizializza db = firebase.firestore();.
-initializeAppForUser(user):
-Obbligatorio: Fai la query a db.collection('users').doc(user.uid).get() per leggere il campo role.
-Imposta currentUserRole.
-Aggiungi/rimuovi classi dal <body> (es. admin-mode, user-mode) in base al ruolo.
-Rimozione Logica di Editing Diretto: Assicurati che tutte le funzioni e la UI per modificare i dati delle card direttamente dall'interfaccia siano state rimosse.
-Altre Funzionalità Basate sul Ruolo: Implementa la logica per mostrare/nascondere altre parti dell'interfaccia o abilitare funzionalità specifiche in base a currentUserRole.
-Importante sulla Creazione Utenti e Assegnazione Ruoli:
-Dato che le modifiche ai dati avvengono su Google Sheets/Firestore e non tramite questa UI, il processo di:
-Creazione di nuovi utenti: Dovrà avvenire tramite la console Firebase Authentication o un'interfaccia di amministrazione separata (se ne costruisci una).
-Assegnazione dei ruoli ('admin', 'user'): Quando un nuovo utente viene creato in Firebase Authentication, dovrai creare un documento corrispondente nella tua collezione users in Firestore (con docId = user.uid) e impostare il campo role al valore desiderato (es. role: "user" o role: "admin"). Lo script GAS per la sincronizzazione da Sheet a Firestore non gestisce la creazione di utenti o l'assegnazione di ruoli, ma le regole di sicurezza di Firestore usano questi ruoli.
-Questo approccio ti dà una chiara separazione: l'interfaccia web è per la visualizzazione (con permessi basati sul ruolo), mentre la gestione dei dati avviene altrove (Google Sheets/Firestore).
-
 
     function performLogoutCleanup() {
         currentUser = null;
