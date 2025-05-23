@@ -16,7 +16,7 @@
 
     let app;
     let auth;
-    // let db; // Descommenta se usi Firestore client-side per caricare i prodotti
+ let db;
 
     try {
         if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
@@ -274,7 +274,7 @@ async function initializeAppForUser(user) {
     console.log("Utente autenticato:", user.email);
 
     // Recupera il ruolo dell'utente da Firestore
-    if (db && user) { // Assicurati che 'db' (istanza Firestore) sia inizializzato
+    if (db && user) { 
         const userDocRef = db.collection('users').doc(user.uid);
         try {
             const doc = await userDocRef.get();
