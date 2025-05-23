@@ -22,7 +22,7 @@
         if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
             app = firebase.initializeApp(firebaseConfig);
             auth = firebase.auth();
-            // db = firebase.firestore();
+            db = firebase.firestore();
             console.log("Firebase inizializzato con successo (SDK v8).");
         } else {
             throw new Error("SDK Firebase (v8 globale) non trovato. Assicurati che sia incluso correttamente nell'HTML.");
