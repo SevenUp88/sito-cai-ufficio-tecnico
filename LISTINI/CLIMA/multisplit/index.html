@@ -47,11 +47,13 @@
 </head>
 <body>
     <header class="app-header">
-        <a href="/"><img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"></a>
-        <div class="header-title-container">
-        </div>
+        <a href="/" title="C.A.I. - Home" class="logo-link"> <!-- Aggiunto class logo-link -->
+             <img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"> <!-- Mantenuto id appLogo se serve altrove -->
+        </a>
         <div class="header-controls">
-            <a href="/" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
+            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="button-logout content-hidden" title="Esci"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
 
