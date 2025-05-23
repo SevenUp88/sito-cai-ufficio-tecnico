@@ -13,53 +13,29 @@
     <!-- SDK Firebase v8 (Globale) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <!-- Se carichi i prodotti da Firestore e non da data.js, includi: -->
+    <!-- Se carichi i prodotti da Firestore (non attualmente): -->
     <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> -->
 
     <style>
-        /* Stile per nascondere elementi inizialmente */
-        .content-hidden {
-            display: none !important;
+        .content-hidden { display: none !important; }
+        #password-panel:not(.visible) { transform: translateX(100%); }
+        #password-panel.visible { transform: translateX(0); display: flex; }
+        #login-email-input-clima { /* Stile base per l'input email */
+            width: 100%; padding: 10px; border: 1px solid #ccc;
+            border-radius: 4px; box-sizing: border-box;
         }
-        /* Stile per il pannello di login se `visible` viene gestito via JS e non solo CSS */
-        #password-panel:not(.visible) {
-            transform: translateX(100%); /* Nasconde se non ha la classe .visible */
-        }
-        #password-panel.visible {
-            transform: translateX(0); /* Mostra */
-            display: flex; /* Assicurati sia flex se modificato da JS */
-        }
-         /* Aggiustamenti per input email */
-        #login-email-input-clima {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box; /* Aggiunto per coerenza con altri input nel CSS */
-        }
-
     </style>
 </head>
-<body class="operator-mode"> <!-- Inizia in operator-mode, JS gestirà il cambio a admin-mode se appropriato -->
+<body class="operator-mode">
 
-    <header class="app-header content-hidden"> <!-- Nascosto inizialmente -->
+    <header class="app-header content-hidden">
         <a href="/" title="C.A.I. - Home">
-             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
+             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI" class="logo">
         </a>
         <div class="header-controls">
-            <button id="print-button" class="header-action-button" title="Stampa Listino">
-                <i class="fas fa-print"></i>
-            </button>
-            <a href="/" class="header-action-button" title="Torna alla Home">
-                <i class="fas fa-home"></i>
-            </a>
-            <!-- #admin-trigger non più usato per attivare la password, il login è forzato -->
-            <!-- <button id="admin-trigger" class="header-action-button" title="Accesso Admin Listini">
-                <i class="fas fa-user-shield"></i>
-            </button> -->
-            <button id="exit-admin-button" class="header-action-button" title="Logout" style="display: none;"> <!-- Sarà il pulsante Logout -->
-                 <i class="fas fa-sign-out-alt"></i> <!-- Icona cambiata per Logout -->
-            </button>
+            <button id="print-button" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
+            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
+            <button id="exit-admin-button" class="header-action-button" title="Logout" style="display: none;"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
 
@@ -67,13 +43,21 @@
         Inizializzazione applicazione...
     </div>
 
-    <div class="container content-hidden"> <!-- Nascosto inizialmente -->
+    <div class="container content-hidden">
         <div class="page-controls">
              <h1>Listino Climatizzatori</h1>
              <div class="filters">
                  <span>Filtra per:</span>
                  <button class="filter-btn active" data-filter-type="brand" data-brand="all">Tutte le Marche</button>
-                 <!-- ... altri bottoni filtro ... -->
+                 <button class="filter-btn" data-filter-type="brand" data-brand="DAIKIN">Daikin</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="HAIER">Haier</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="HITACHI">Hitachi</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="IMMERGAS">Immergas</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="INNOVA">Innova</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="LG">LG</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="MITSUBISHI">Mitsubishi</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="SAMSUNG">Samsung</button>
+                 <button class="filter-btn" data-filter-type="brand" data-brand="TOSHIBA">Toshiba</button>
                  <button class="filter-btn" data-filter-type="brand" data-brand="VIESSMANN">Viessmann</button>
                  <button class="filter-btn" data-filter-type="economic">Economici</button>
              </div>
@@ -82,7 +66,6 @@
                  <button class="tab-btn" data-section="multisplit">Multisplit</button>
              </div>
         </div>
-
         <main>
             <div class="sections-wrapper">
                 <section id="monosplit-section" class="content-section active-section">
@@ -90,31 +73,24 @@
                         <div class="loading-placeholder">Caricamento prodotti in corso...</div>
                     </div>
                 </section>
-                <!-- Sezione Multisplit (mantenuta per completezza della struttura, anche se script.js si concentra su monosplit) -->
                 <section id="multisplit-section" class="content-section">
                      <div id="multisplit-grid" class="product-grid">
-                         <div class="loading-placeholder">Contenuto Multisplit qui (se implementato).</div>
+                         <div class="loading-placeholder">Contenuto Multisplit (se implementato).</div>
                     </div>
                 </section>
             </div>
         </main>
-
-        <footer class="app-footer">
-             <p>© 2025 C.A.I - Consorzio Artigiani Idraulici </p>
-        </footer>
+        <footer class="app-footer"><p>© 2025 C.A.I - Consorzio Artigiani Idraulici</p></footer>
     </div>
 
-    <!-- Pannello Login/Password (modificato) -->
-   <div id="password-panel">
+   <div id="password-panel"> <!-- ID Pannello Password Esistente -->
        <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
        <h3>Accesso Area Riservata</h3>
        <p>Inserisci le tue credenziali per continuare.</p>
-       
-       <div class="form-group">  <!-- Contenitore per l'input email -->
+       <div class="form-group">
            <label for="login-email-input-clima">Email:</label>
-           <input type="email" id="login-email-input-clima" name="login-email-input-clima" required>  <!-- **DEFINITO QUI** -->
+           <input type="email" id="login-email-input-clima" name="login-email-input-clima" required>
        </div>
-
        <div class="form-group">
            <label for="admin-password">Password:</label>
            <input type="password" id="admin-password" name="admin-password" placeholder="Password" required>
@@ -123,15 +99,13 @@
        <p id="password-error" class="error-message"></p>
    </div>
 
-    <!-- Tooltip per le dimensioni (invariato) -->
     <div id="dimension-tooltip">
         <img src="../images/dimensioni_blueprint.png" alt="Schema dimensioni UI/UE">
         <div id="tooltip-ui-dimensions" class="tooltip-dimension-text"></div>
         <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
     </div>
 
-    <!-- Scripts -->
-    <script src="data.js"></script> <!-- Carica i dati dei prodotti PRIMA dello script che li usa -->
-    <script src="script.js"></script> <!-- Il tuo script.js modificato per Firebase Auth -->
+    <script src="data.js"></script>
+    <script src="script.js"></script> <!-- Questo sarà script (7).js con le correzioni -->
 </body>
 </html>
