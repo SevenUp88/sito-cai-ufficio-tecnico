@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Multi-Split (con Admin)</title>
+    <title>Configuratore Multi-Split</title> <!-- Rimosso (con Admin) dal titolo se non c'è login admin qui -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Path to global style.css (assuming it's at the project root) -->
     <link rel="stylesheet" href="../../../style.css"> 
-    <!-- Corrected path to configurator-style.css (it's in the same folder) -->
     <link rel="stylesheet" href="configurator-style.css">
 
     <style>
-        /* Any in-page styles can remain, but redundant ones with configurator-style.css might be removable */
+        /* Stili in-page ridotti o rimossi se non più necessari */
+        #admin-section ul { list-style: none; padding-left: 0;}
+        #admin-section li { border-bottom: 1px dotted #eee; padding: 8px 0; }
+        #admin-section li button { font-size: 0.8em; padding: 3px 6px; margin-left: 8px; }
+        /* Se il modal di login è rimosso, gli stili .modal, .modal-content ecc. potrebbero non essere più necessari qui
+           a meno che non siano usati da altri modal generici. Li lascio per ora. */
         .modal { display: none; position: fixed; z-index: 1050; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
         .modal-content { background-color: #fefefe; margin: 10% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; position: relative; }
         .modal-content .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor:pointer; }
@@ -23,21 +26,14 @@
         .btn { display: inline-block; font-weight: 400; text-align: center; vertical-align: middle; cursor: pointer; user-select: none; background-color: transparent; border: 1px solid transparent; padding: .375rem .75rem; font-size: 1rem; line-height: 1.5; border-radius: .25rem; }
         .btn-primary { color: #fff; background-color: #0056a8; border-color: #0056a8; }
         .btn-primary:hover { background-color: #004182; border-color: #00376d; }
-        /* ... other .btn styles ... */
-        #admin-section ul { list-style: none; padding-left: 0;}
-        #admin-section li { border-bottom: 1px dotted #eee; padding: 8px 0; }
-        #admin-section li button { font-size: 0.8em; padding: 3px 6px; margin-left: 8px; }
     </style>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
-    <!-- Shared Firebase Configuration (points three levels up to the root) -->
     <script src="../../../firebase-config.js"></script> 
 
-    <!-- Authentication Guard -->
     <script>
         firebase.auth().onAuthStateChanged(function(user) {
             if (!user) {
@@ -51,30 +47,26 @@
 </head>
 <body>
     <header class="app-header">
-        <!-- Corrected path for appLogo, relative to this configurator's index.html -->
         <a href="/"><img src="img/logos/cai.png" alt="CAI Logo" class="logo" id="appLogo"></a>
         <div class="header-title-container">
         </div>
         <div class="header-controls">
             <a href="/" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-            <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Info Utente">
-                <i class="fas fa-user-shield"></i>
-            </button>
-            <span id="auth-status-configurator" style="color: var(--secondary-color); margin-left: 10px; font-size: 0.8em; vertical-align: middle;"></span>
-            <button id="print-list" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
         </div>
     </header>
 
+    <!-- MODAL DI LOGIN PER ADMIN RIMOSSO DA QUI -->
+    <!-- 
     <div id="login-modal-configurator" class="modal">
-      <!-- ... (modal content as before) ... -->
+        ...
     </div>
+    -->
 
     <div class="container configurator-container">
         <div class="page-controls">
-    <h1>Configuratore Multi-Split</h1>
+            <h1>Configuratore Multi-Split</h1>
         </div>
 
-        <!-- ... (Rest of your configurator's HTML content remains the same from step-indicator onwards) ... -->
         <div class="step-indicator">
             <div class="step-item" data-step="1"> <span class="step-dot">1</span> <span class="step-name">Marca</span> <span class="step-selection-info" id="step-info-1"></span> </div> <span class="step-line"></span>
             <div class="step-item" data-step="2"> <span class="step-dot">2</span> <span class="step-name">Config.</span> <span class="step-selection-info" id="step-info-2"></span> </div> <span class="step-line"></span>
@@ -111,7 +103,6 @@
         <div id="step-5" class="config-step">
             <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
             <div id="indoor-units-selection-area">
-                <!-- Content populated by JavaScript (choice cards and details) -->
             </div>
             <div class="step-navigation"><button class="prev-btn"><i class="fas fa-arrow-left"></i> Indietro</button><button class="next-btn" id="finalize-btn" disabled>Vai al Riepilogo <i class="fas fa-check"></i></button></div>
         </div>
@@ -125,7 +116,6 @@
             </div>
 
             <div id="config-summary" class="summary-section">
-                <!-- Content populated by JavaScript (new summary layout) -->
             </div>
             <div class="print-instructions"><p><strong>Per la stampa:</strong> usare Ctrl+P o Cmd+P.</p></div>
             <div class="step-navigation summary-actions">
@@ -137,6 +127,8 @@
 
         <div id="admin-section" class="config-step" style="display: none; border-color: var(--warning-color); margin-top: 20px;">
             <h2><span class="step-number-title">Admin:</span> Gestione Dati</h2>
+            <!-- Rimosso admin-login-prompt dato che il modal è stato rimosso -->
+            
             <div class="admin-subsection" style="margin-bottom: 20px; padding:15px; border: 1px solid #ddd; border-radius: var(--border-radius);">
                 <h3>Gestione Marche</h3>
                 <div id="admin-brands-list">
@@ -170,7 +162,6 @@
         <p class="data-info">Ultimo aggiornamento: <span id="lastUpdated"></span></p>
     </footer>
 
-    <!-- This page's specific script. It should NOT re-initialize Firebase. -->
     <script src="script.js"></script> 
 
 </body>
