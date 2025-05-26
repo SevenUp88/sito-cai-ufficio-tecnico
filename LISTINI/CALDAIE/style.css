@@ -438,42 +438,54 @@ main {
 @media print { /* ... (come prima) ... */ }
 /* --- STILI SPECIFICI PER INGRANDIRE IMMAGINI ARTICOLI BAXI --- */
 
-/* Seleziona le card con la classe specifica 'brand-baxi' */
+/* 1. (OPZIONALE MA CONSIGLIATO) Dai più spazio alla colonna dell'immagine nelle card BAXI.
+      Sperimenta con il valore di flex-basis.
+      Se il default per .boiler-card-image-column è 'flex: 0 0 40%;', prova ad aumentarlo. */
 .boiler-card.brand-baxi .boiler-card-image-column {
-    /* Potremmo voler dare più spazio alla colonna dell'immagine per Baxi */
-    /* flex-basis: 50%; */ /* Esempio: aumenta al 50% invece del 40% di default */
-    /* Se aumenti flex-basis qui, considera di ridurre quello della colonna info,
-       oppure assicurati che la card possa crescere o che il testo vada a capo bene. */
+    flex-grow: 0;    /* Non deve crescere oltre il suo basis */
+    flex-shrink: 0;  /* Non deve restringersi sotto il suo basis */
+    flex-basis: 45%; /* ESEMPIO: aumenta dal 40% al 45%. Prova valori come 45%, 50%,
+                        o anche un valore fisso come '250px' se preferisci, ma
+                        una percentuale si adatta meglio alla larghezza variabile della card.
+                        Regola questo valore finché non ottieni l'effetto desiderato
+                        senza rompere troppo il layout della colonna info. */
+    /* min-width: 0; */ /* Dovrebbe già averlo per permettere il restringimento generale,
+                           ma non fa male ripeterlo o assicurarsi che ci sia. */
 }
 
+/* 2. (OPZIONALE) Se hai dato più spazio alla colonna immagine,
+      assicurati che la colonna info si adatti.
+      Con flex:1, dovrebbe prendere lo spazio rimanente. */
+.boiler-card.brand-baxi .boiler-card-info-column {
+    flex: 1;      /* Permette a questa colonna di prendere lo spazio non usato dalla colonna immagine */
+    min-width: 0; /* Essenziale per permettere al testo di andare a capo
+                     e alla colonna di restringersi se necessario */
+}
+
+/* 3. (FONDAMENTALE) Definisci la max-height per le immagini degli articoli BAXI. */
 .boiler-card.brand-baxi .image-container img {
-    /* Aumenta la max-height dell'immagine per i prodotti BAXI */
-    max-height: 300px; /* Esempio: da 200px a 250px. Adatta questo valore come preferisci. */
+    max-height: 250px;  /* ESEMPIO: Il tuo target di altezza. Era 200px, ora prova 250px.
+                           Puoi aumentarlo a 280px, 300px, ecc. finché ti piace,
+                           compatibilmente con lo spazio che la colonna immagine
+                           (vedi punto 1) può effettivamente offrire. */
     
-    /* Potresti anche voler permettere all'immagine di occupare più larghezza,
-       ma fai attenzione a non distorcere l'immagine o rompere il layout.
-       'object-fit: contain;' dovrebbe già prevenire distorsioni. */
-    /* width: 100%; /* Già presente e corretto */
-
-    /* Opzionale: aggiungi una leggera transizione se vuoi un effetto zoom al hover
-       SOLO SULL'IMMAGINE (questo è un extra, non strettamente l'ingrandimento base) */
-    /* transition: transform 0.3s ease; */
+    /* Le seguenti proprietà dovrebbero essere ereditate dalla regola generale
+       per .boiler-card .image-container img, ma per chiarezza e
+       per assicurarsi che non vengano sovrascritte, puoi ripeterle: */
+    display: block;     /* Già presente nella regola generale */
+    width: 100%;        /* Già presente nella regola generale, fa sì che l'immagine riempia la larghezza del suo contenitore */
+    max-width: 100%;    /* Aggiunta di sicurezza per non superare il contenitore in larghezza */
+    object-fit: contain;/* Già presente, mantiene le proporzioni senza tagliare */
+    border-radius: 3px; /* Già presente */
 }
 
-/* Opzionale: Effetto zoom leggero al passaggio del mouse sulla card BAXI, SOLO SULL'IMMAGINE */
+/* 4. (OPZIONALE, per debug) Se l'immagine non si ingrandisce, puoi
+      temporaneamente dare un bordo al contenitore dell'immagine
+      per vedere quanto spazio ha effettivamente. */
 /*
-.boiler-card.brand-baxi:hover .image-container img {
-    transform: scale(1.05);
+.boiler-card.brand-baxi .image-container {
+    border: 1px solid red;
 }
 */
 
-/* Se l'immagine più grande causa problemi di overflow o di spazio nella colonna delle informazioni,
-   potresti dover aggiustare anche il flex-basis delle colonne interne alla card per 'brand-baxi'
-   o assicurarti che il testo nella colonna info possa andare a capo in meno spazio. */
-
-.boiler-card.brand-baxi .boiler-card-info-column {
-    /* Se hai aumentato il flex-basis della colonna immagine,
-       potresti dover ridurre questo, ad esempio: */
-    /* flex-basis: 50%; */
-    /* Oppure affidati a flex-grow:1 e assicurati che il contenuto si adatti. */
-}
+/* --- FINE STILI IMMAGINI BAXI --- */
