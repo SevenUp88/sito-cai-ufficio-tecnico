@@ -247,32 +247,47 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Boiler Card Creation and Display ---
     function createBoilerCard(boiler) {
-        const card = document.createElement('div');
-        card.classList.add('boiler-card');
-        card.dataset.boilerId = boiler.id;
-        card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
+    const card = document.createElement('div');
+    card.classList.add('boiler-card');
+    card.dataset.boilerId = boiler.id;
 
-        const productImgName = boiler.imageName || 'placeholder.png';
-        const productImgUrl = imageBaseUrl + productImgName;
-        
-        const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '') : '';
-        const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : '';
-        const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
+    // =============== INIZIO MODIFICA: AGGIUNTA CLASSE BRAND ===============
+    if (boiler.brand) {
+        // Crea un nome di classe CSS-friendly dalla marca:
+        // es. "BAXI" -> "brand-baxi", "CosmoGas" -> "brand-cosmogas"
+        const brandClass = `brand-${boiler.brand.toLowerCase() // minuscolo
+                                      .replace(/\s+/g, '-')    // spazi con trattini
+                                      .replace(/[^\w-]+/g, '')}`; // rimuovi caratteri non validi
+        card.classList.add(brandClass);
+    }
+    // =============== FINE MODIFICA: AGGIUNTA CLASSE BRAND =================
 
-        const displayPriceVal = boiler.price; 
-        const listPriceVal = boiler.listPrice; 
-        const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
+    // Da qui in poi, il resto della tua funzione rimane invariato.
+    // La card ora avrà la classe aggiuntiva (es. 'brand-baxi') se la marca è definita.
 
-        let priceHTML = '';
-        const formattedDisplayPrice = formatPrice(displayPriceVal);
-        if (formattedDisplayPrice) {
-            priceHTML += `<span class="price-discounted">${formattedDisplayPrice}</span>`; 
-            if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
-                priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
-            }
-        } else {
-            priceHTML = `<span class="price-discounted no-discount">Prezzo su richiesta</span>`;
+    card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
+
+    const productImgName = boiler.imageName || 'placeholder.png';
+    const productImgUrl = imageBaseUrl + productImgName;
+
+    const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '') : '';
+    const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : '';
+    const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
+
+    const displayPriceVal = boiler.price;
+    const listPriceVal = boiler.listPrice;
+    const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
+
+    let priceHTML = '';
+    const formattedDisplayPrice = formatPrice(displayPriceVal);
+    if (formattedDisplayPrice) {
+        priceHTML += `<span class="price-discounted">${formattedDisplayPrice}</span>`;
+        if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
+            priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
         }
+    } else {
+        priceHTML = `<span class="price-discounted no-discount">Prezzo su richiesta</span>`;
+    }
 
         let disponibilityText = "SCONOSCIUTO";
         let disponibilityClass = "unknown";
