@@ -1,4 +1,4 @@
-// --- START OF FILE script.js (COMPLETO E CORRETTO) ---
+// --- START OF FILE script.js (COMPLETO E CORRETTO) --- 
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (Listini Caldaie)");
