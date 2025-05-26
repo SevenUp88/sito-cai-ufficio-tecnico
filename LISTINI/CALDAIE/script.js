@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(boilerListContainer) boilerListContainer.innerHTML = '';
         try {
             const snapshot = await db.collection('prodottiCaldaie') 
-                                     .orderBy('marca')
-                                     .orderBy('modello')
+                                     .orderBy('brand')
+                                     .orderBy('model')
                                      .get();
             const boilers = snapshot.docs.map(doc => ({
                 id: doc.id,
