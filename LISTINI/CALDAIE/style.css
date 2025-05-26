@@ -173,8 +173,8 @@ main {
 .economico-badge, .storage-badge, .wifi-icon-display { /* Stili comuni per i badge in alto a destra */
     display: inline-flex;
     align-items: center;
-    font-size: 0.65em;
-    padding: 3px 8px;
+    font-size: 0.75em;
+    padding: 4px 9px;
     border-radius: 8px;
     font-weight: bold;
     text-transform: uppercase;
