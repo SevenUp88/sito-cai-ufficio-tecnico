@@ -448,7 +448,7 @@ main {
 
 .boiler-card.brand-baxi .image-container img {
     /* Aumenta la max-height dell'immagine per i prodotti BAXI */
-    max-height: 250px; /* Esempio: da 200px a 250px. Adatta questo valore come preferisci. */
+    max-height: 300px; /* Esempio: da 200px a 250px. Adatta questo valore come preferisci. */
     
     /* Potresti anche voler permettere all'immagine di occupare più larghezza,
        ma fai attenzione a non distorcere l'immagine o rompere il layout.
