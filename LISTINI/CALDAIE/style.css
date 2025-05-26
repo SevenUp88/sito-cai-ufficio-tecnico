@@ -181,6 +181,29 @@ main {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+@media (min-width: 1400px) { /* Esempio: circa (4 * 300px card) + (3 * 20px gap) + (40px padding) = 1300px, quindi mettiamo 1400px per il breakpoint */
+    .listini-page-container {
+        max-width: 1600px; /* Permetti al container di espandersi */
+    }
+    .product-grid {
+        grid-template-columns: repeat(4, 1fr); /* Prova con 4 colonne fisse */
+        /* Oppure, per renderlo di nuovo completamente dinamico SOLO per questi schermi: */
+        /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+    }
+}
+
+/* Opzionale: per schermi ancora più larghi */
+@media (min-width: 1700px) { /* Esempio per 5 colonne */
+    .listini-page-container {
+        max-width: 1900px;
+    }
+    .product-grid {
+        grid-template-columns: repeat(5, 1fr);
+        /* Oppure: */
+        /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+    }
+}
 /* --- FINE PRODUCT GRID --- */
 
 
