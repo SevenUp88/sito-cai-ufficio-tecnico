@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/&/g, "&") // Modificato per correttezza HTML
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, """)
+            .replace(/"/g, "'")
             .replace(/'/g, "'");
     }
 
