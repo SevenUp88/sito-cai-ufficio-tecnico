@@ -1,11 +1,11 @@
-// --- START OF FILE script.js (MODIFIED) ---
+// --- START OF FILE script.js (COMPLETO E CORRETTO) ---
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (Listini Caldaie)");
 
     // Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // NASCONDI QUESTA CHIAVE SE POSSIBILE (vedi nota sotto)
+      apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
       authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
       projectId: "consorzio-artigiani-idraulici",
       storageBucket: "consorzio-artigiani-idraulici.appspot.com",
@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeBoilerDetailsPopupBtn = document.getElementById('close-boiler-details-popup');
     const popupBoilerTitle = document.getElementById('popup-boiler-title');
 
+    // === MODIFICA CHIAVE: Sposta la dichiarazione di adminTriggerBtn qui ===
+    let adminTriggerBtn = null; 
+    // ======================================================================
+
     // --- App State for Caldaie Page ---
     let allBoilers = [];
     let currentFilters = {
@@ -48,9 +52,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     let metadataListener = null;
     window.currentUserRole = null; 
-    let authInitialized = false; // Flag per sapere se onAuthStateChanged è stato eseguito almeno una volta
+    let authInitialized = false; 
 
-    // Define all possible fields and their display labels for the popup
     const ALL_BOILER_FIELDS_MAP = {
         marca: "Marca",
         modello: "Modello",
@@ -72,11 +75,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         eer: "EER",
         cop: "COP",
         schedaTecnicaUrl: "Scheda Tecnica",
-        manualeUrl: "Manuale Utente/Installazione", // NUOVO CAMPO: presumo si chiami 'manualeUrl' in Firestore
+        manualeUrl: "Manuale Utente/Installazione",
         note: "Note",
         wifi: "WiFi Presente"
     };
-
 
     // --- Utility Functions ---
     function escapeHtml(unsafeString) {
@@ -84,10 +86,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             unsafeString = String(unsafeString || '');
         }
         return unsafeString
-            .replace(/&/g, "&") // Modificato per correttezza HTML
+            .replace(/&/g, "&") 
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, "'")
+            .replace(/"/g, """)
             .replace(/'/g, "'");
     }
 
@@ -98,12 +100,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Data Fetching & Processing for Caldaie ---
     async function fetchBoilersFromFirestore() {
-        console.log("Fetching 'prodottiCaldaie' from Firestore..."); // NOME COLLEZIONE AGGIORNATO
-        loadingIndicator.style.display = 'block';
-        noResultsMessage.style.display = 'none';
-        boilerListContainer.innerHTML = '';
+        console.log("Fetching 'prodottiCaldaie' from Firestore..."); 
+        if(loadingIndicator) loadingIndicator.style.display = 'block';
+        if(noResultsMessage) noResultsMessage.style.display = 'none';
+        if(boilerListContainer) boilerListContainer.innerHTML = '';
         try {
-            const snapshot = await db.collection('prodottiCaldaie') // NOME COLLEZIONE AGGIORNATO
+            const snapshot = await db.collection('prodottiCaldaie') 
                                      .orderBy('marca')
                                      .orderBy('modello')
                                      .get();
@@ -115,15 +117,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             return boilers;
         } catch (error) {
             console.error("Error fetching boilers:", error);
-            if (error.code === 'permission-denied' || error.message.toLowerCase().includes('insufficient permissions')) {
-                noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Effettua il login.';
-            } else {
-                noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
+            if(noResultsMessage) {
+                if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
+                    noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Effettua il login.';
+                } else {
+                    noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
+                }
+                noResultsMessage.style.display = 'block';
             }
-            noResultsMessage.style.display = 'block';
             return [];
         } finally {
-            loadingIndicator.style.display = 'none';
+            if(loadingIndicator) loadingIndicator.style.display = 'none';
         }
     }
 
@@ -136,7 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Element #brand-filter-buttons not found!");
             return;
         }
-        brandFilterButtonsContainer.innerHTML = ''; // Pulisci eventuali messaggi precedenti
+        brandFilterButtonsContainer.innerHTML = ''; 
         
         const allBrandsBtn = document.createElement('button');
         allBrandsBtn.classList.add('filter-btn');
@@ -166,7 +170,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (group === 'brand') {
             currentFilters.brand = value;
-            brandFilterButtonsContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            if(brandFilterButtonsContainer) {
+                brandFilterButtonsContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            }
             clickedButton.classList.add('active');
         }
         applyFiltersAndSearch();
@@ -189,7 +195,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-
     if (resetFiltersBtn) {
         resetFiltersBtn.addEventListener('click', () => {
             currentFilters.brand = "";
@@ -204,7 +209,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             }
             if (economicoFilterBtn) economicoFilterBtn.classList.remove('active');
-            // resetFiltersBtn.style.display = 'none'; // Gestito da updateResetButtonVisibility
             applyFiltersAndSearch();
         });
     }
@@ -225,7 +229,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             filteredBoilers = filteredBoilers.filter(b => b.marca === currentFilters.brand);
         }
         if (currentFilters.economico) {
-            // Assicurati che prezzoScontato o prezzoListino esista e sia un numero
             filteredBoilers = filteredBoilers.filter(b => {
                 const price = typeof b.prezzoScontato === 'number' ? b.prezzoScontato : (typeof b.prezzoListino === 'number' ? b.prezzoListino : Infinity);
                 return price < 1000;
@@ -273,15 +276,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let disponibilityText = "SCONOSCIUTO";
         let disponibilityClass = "unknown";
-        if (boiler.hasOwnProperty('articoloInEsaurimento')) { // Campo booleano diretto da GS
+        if (boiler.hasOwnProperty('articoloInEsaurimento')) { 
             if (boiler.articoloInEsaurimento === true) {
                 disponibilityText = "In Esaurimento";
                 disponibilityClass = "in-esaurimento";
             } else if (boiler.articoloInEsaurimento === false) {
-                disponibilityText = boiler.disponibilita || "Disponibile"; // Usa 'disponibilita' se presente, altrimenti default
+                disponibilityText = boiler.disponibilita || "Disponibile"; 
                 disponibilityClass = "available";
             }
-        } else if (boiler.disponibilita) { // Se 'articoloInEsaurimento' non c'è, usa 'disponibilita' (testo)
+        } else if (boiler.disponibilita) { 
             disponibilityText = boiler.disponibilita;
             const lowerDisp = disponibilityText.toLowerCase();
             if (lowerDisp.includes("esaurimento")) disponibilityClass = "in-esaurimento";
@@ -289,12 +292,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (lowerDisp.includes("ordinazione") || lowerDisp.includes("arrivo")) disponibilityClass = "on-order";
         }
         
-        // NUOVA PARTE PER MANUALE
         let manualeLinkHTML = '';
         if (boiler.manualeUrl && typeof boiler.manualeUrl === 'string' && boiler.manualeUrl.trim() !== '') {
             manualeLinkHTML = `<p class="product-manual"><a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> Manuale</a></p>`;
         }
-
 
         card.innerHTML = `
             <div class="card-top-right-elements">
@@ -320,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${boiler.categoria ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.categoria)}</p>` : ''}
                 <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
                 ${boiler.schedaTecnicaUrl ? `<p class="product-datasheet"><a href="${escapeHtml(boiler.schedaTecnicaUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>` : ''}
-                ${manualeLinkHTML} {/* NUOVO LINK MANUALE */}
+                ${manualeLinkHTML}
             </div>
             <div class="boiler-card-footer">
                 <div class="price-section">
@@ -334,19 +335,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     function displayBoilers(boilersToDisplay) {
         if (!boilerListContainer) return;
         boilerListContainer.innerHTML = '';
-        if (boilersToDisplay.length === 0 && (currentFilters.brand || currentFilters.economico || currentFilters.searchTerm)) {
-            noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.';
-            noResultsMessage.style.display = 'block';
-            return;
-        } else if (boilersToDisplay.length === 0 && auth.currentUser) { // Se loggato e non ci sono caldaie
-             noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
-             noResultsMessage.style.display = 'block';
-             return;
-        } else if (boilersToDisplay.length === 0 && !auth.currentUser) { // Se non loggato, il messaggio è gestito altrove
-            // Non mostrare "Nessun listino disponibile" se il messaggio di login è già attivo
-        }
 
-        if (boilersToDisplay.length > 0) noResultsMessage.style.display = 'none';
+        if (boilersToDisplay.length === 0) {
+            if (noResultsMessage) {
+                if (auth.currentUser && (currentFilters.brand || currentFilters.economico || currentFilters.searchTerm)) {
+                    noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.';
+                } else if (auth.currentUser) {
+                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
+                } else {
+                    // Il messaggio per utenti non loggati è gestito da loadAndDisplayPrimaryData
+                    // noResultsMessage.textContent = 'Devi essere autenticato per visualizzare i listini.'; 
+                }
+                noResultsMessage.style.display = 'block';
+            }
+            return;
+        }
+        
+        if (noResultsMessage) noResultsMessage.style.display = 'none';
 
         boilersToDisplay.forEach(boiler => {
             boilerListContainer.appendChild(createBoilerCard(boiler));
@@ -366,15 +371,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 let displayValueHtml; 
 
                 if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "")) {
-                    // Non mostrare righe vuote nel popup a meno che non sia un campo specifico che vuoi mostrare come "SCONOSCIUTO"
                     if (['prezzoListino', 'prezzoScontato', 'disponibilita'].includes(fieldKey)) {
                          displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
                     } else {
-                        continue; // Salta i campi vuoti non cruciali
+                        continue; 
                     }
                 } else if (typeof value === 'boolean') {
                     displayValueHtml = value ? 'Sì' : 'No';
-                } else if (fieldKey === 'schedaTecnicaUrl' || fieldKey === 'manualeUrl') { // AGGIUNTO manualeUrl
+                } else if (fieldKey === 'schedaTecnicaUrl' || fieldKey === 'manualeUrl') { 
                     displayValueHtml = `<a href="${escapeHtml(String(value))}" target="_blank" rel="noopener noreferrer">${escapeHtml(String(value))}</a>`;
                 } else if (fieldKey === 'prezzoListino' || fieldKey === 'prezzoScontato') {
                     const formatted = formatPrice(value);
@@ -400,7 +404,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-
     // --- Admin Authentication and UI Visibility ---
     function toggleAdminCaldaieSectionVisibility() {
         const adminSectionCaldaie = document.getElementById('admin-section-caldaie');
@@ -413,14 +416,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loginModal = document.getElementById('login-modal-caldaie');
         const loginForm = document.getElementById('login-form-caldaie');
         const logoutButton = document.getElementById('logout-button-caldaie');
-        const adminTriggerBtn = document.getElementById('admin-trigger');
+        
+        // === MODIFICA CHIAVE: Assegna adminTriggerBtn qui, non dichiararlo con const ===
+        adminTriggerBtn = document.getElementById('admin-trigger'); 
+        // ===============================================================================
+
         const loginEmailInput = document.getElementById('login-email-caldaie');
         const loginPasswordInput = document.getElementById('login-password-caldaie');
         const loginErrorEl = document.getElementById('login-error-caldaie');
         const closeModalBtn = loginModal ? loginModal.querySelector('.close-btn-caldaie') : null;
         const loginModalTitle = document.getElementById('login-modal-title-caldaie');
 
-        if (adminTriggerBtn && loginModal) {
+        if (adminTriggerBtn && loginModal) { 
             adminTriggerBtn.addEventListener('click', () => {
                 const currentUser = auth.currentUser;
                 if (currentUser) {
@@ -432,7 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (logoutButton) logoutButton.style.display = 'none';
                     if (loginForm) loginForm.style.display = 'block';
                     if (loginModalTitle) loginModalTitle.textContent = 'Accesso Amministratore';
-                    if (loginEmailInput) loginEmailInput.value = ''; // Pulisci i campi
+                    if (loginEmailInput) loginEmailInput.value = ''; 
                     if (loginPasswordInput) loginPasswordInput.value = '';
                     if (loginErrorEl) loginErrorEl.style.display = 'none';
                 }
@@ -461,6 +468,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (loginForm) {
             loginForm.addEventListener('submit', (event) => {
                 event.preventDefault();
+                if(!loginEmailInput || !loginPasswordInput) return;
                 const email = loginEmailInput.value;
                 const password = loginPasswordInput.value;
                 if (!email || !password) {
@@ -476,7 +484,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             loginModal.classList.remove('visible');
                         }
                         if (loginPasswordInput) loginPasswordInput.value = '';
-                        // onAuthStateChanged gestirà l'aggiornamento della UI e il fetch dei dati
                     })
                     .catch(error => {
                         console.error("Login error:", error);
@@ -501,7 +508,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         loginModal.style.display = 'none';
                         loginModal.classList.remove('visible');
                     }
-                    // onAuthStateChanged gestirà l'aggiornamento della UI
                 });
             });
         }
@@ -523,34 +529,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if(loadingIndicator) loadingIndicator.style.display = 'none';
             
-            // Nascondi o disabilita filtri e controlli se l'utente non è loggato
             if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '<p style="color: var(--secondary-color); font-size: 0.9em; text-align: center; width:100%;">Autenticati per visualizzare e filtrare i prodotti.</p>';
             if (economicoFilterBtn) economicoFilterBtn.style.display = 'none';
             if (searchInput) { searchInput.value = ''; searchInput.disabled = true; }
             if (resetFiltersBtn) resetFiltersBtn.style.display = 'none';
-            allBoilers = []; // Svuota l'array di caldaie
+            allBoilers = []; 
             return;
         }
 
-        // Se l'utente è loggato, ripristina la UI dei filtri (se erano stati nascosti)
         if (economicoFilterBtn) economicoFilterBtn.style.display = 'inline-block';
         if (searchInput) searchInput.disabled = false;
-        // populateFilterButtons verrà chiamato dopo il fetch se ci sono dati
 
         console.log("Utente autenticato, procedo con il fetch dei listini caldaie.");
         allBoilers = await fetchBoilersFromFirestore(); 
 
         if (allBoilers.length > 0) {
-            if(noResultsMessage) noResultsMessage.style.display = 'none'; // Nascondi messaggio se ci sono risultati
+            if(noResultsMessage) noResultsMessage.style.display = 'none'; 
             populateFilterButtons(allBoilers);
-            displayBoilers(allBoilers); // Mostra tutte le caldaie inizialmente
+            displayBoilers(allBoilers); 
         } else {
-            // Se l'utente è loggato ma non ci sono caldaie (o errore nel fetch gestito da fetchBoilersFromFirestore)
-            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage && noResultsMessage.style.display !== 'block') {
+            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage && (!noResultsMessage.textContent || noResultsMessage.style.display !== 'block') ) {
                 noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
                 noResultsMessage.style.display = 'block';
             }
-            // Svuota i filtri se non ci sono caldaie
             if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '';
         }
         updateResetButtonVisibility();
@@ -560,12 +561,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     async function initializeCaldaiePage() {
         if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
 
-        // Listener per metadati (se la lettura di metadata è pubblica)
         if (metadataListener) metadataListener(); 
         metadataListener = db.collection('metadata').doc('listiniInfo')
             .onSnapshot(doc => {
                 if (dataUpdateDateEl) {
-                    if (doc.exists && doc.data()?.caldaieLastUpdate) { // Assumendo che il campo sia 'caldaieLastUpdate'
+                    if (doc.exists && doc.data()?.caldaieLastUpdate) { 
                         const ts = doc.data().caldaieLastUpdate;
                         if (ts && typeof ts.toDate === 'function') { 
                              dataUpdateDateEl.textContent = ts.toDate().toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -579,9 +579,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (dataUpdateDateEl) dataUpdateDateEl.textContent = "Errore caricamento data";
             });
         
-        setupAuthUI_Caldaie(); // Imposta il listener onAuthStateChanged e la UI di login
+        setupAuthUI_Caldaie(); 
 
-        // onAuthStateChanged gestirà il caricamento dei dati e la visibilità della sezione admin
         auth.onAuthStateChanged(async user => { 
             authInitialized = true; 
 
@@ -590,19 +589,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const userDoc = await db.collection('users').doc(user.uid).get();
                     window.currentUserRole = userDoc.exists && userDoc.data().role ? userDoc.data().role : 'user';
                     console.log("User Authenticated. Role:", window.currentUserRole);
-                    if (adminTriggerBtn) adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Pannello Admin (${user.email.split('@')[0]})` : `Profilo Utente (${user.email.split('@')[0]})`);
+                    
+                    // === MODIFICA CHIAVE: Ora adminTriggerBtn è accessibile qui ===
+                    if (adminTriggerBtn) { 
+                        adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Pannello Admin (${user.email.split('@')[0]})` : `Profilo Utente (${user.email.split('@')[0]})`);
+                    }
+                    // ============================================================
                 } catch (error) {
                     console.error("Error fetching user role:", error);
-                    window.currentUserRole = 'user';
-                    if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+                    window.currentUserRole = 'user'; // Default to user on error
+                    // === MODIFICA CHIAVE: Anche qui ===
+                    if (adminTriggerBtn) {
+                        adminTriggerBtn.title = "Accesso Admin"; 
+                    }
+                    // =================================
                 }
             } else {
                 console.log("User logged out or not authenticated.");
                 window.currentUserRole = null;
-                if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+                // === MODIFICA CHIAVE: Anche qui ===
+                if (adminTriggerBtn) {
+                    adminTriggerBtn.title = "Accesso Admin";
+                }
+                // =================================
             }
             
-            await loadAndDisplayPrimaryData(); // Carica i dati o aggiorna la UI in base allo stato auth
+            await loadAndDisplayPrimaryData(); 
             toggleAdminCaldaieSectionVisibility(); 
         });
     }
@@ -610,4 +622,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeCaldaiePage();
 });
 
-// --- END OF FILE script.js (MODIFIED) ---
+// --- END OF FILE script.js (COMPLETO E CORRETTO) ---
