@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         noResultsMessage.style.display = 'none';
         boilerListContainer.innerHTML = '';
         try {
-            const snapshot = await db.collection('caldaie').orderBy('marca').orderBy('modello').get();
+            const snapshot = await db.collection('prodottiCaldaie').orderBy('marca').orderBy('modello').get();
             const boilers = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
