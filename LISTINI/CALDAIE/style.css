@@ -436,3 +436,44 @@ main {
 
 /* Print Styles */
 @media print { /* ... (come prima) ... */ }
+/* --- STILI SPECIFICI PER INGRANDIRE IMMAGINI ARTICOLI BAXI --- */
+
+/* Seleziona le card con la classe specifica 'brand-baxi' */
+.boiler-card.brand-baxi .boiler-card-image-column {
+    /* Potremmo voler dare più spazio alla colonna dell'immagine per Baxi */
+    /* flex-basis: 50%; */ /* Esempio: aumenta al 50% invece del 40% di default */
+    /* Se aumenti flex-basis qui, considera di ridurre quello della colonna info,
+       oppure assicurati che la card possa crescere o che il testo vada a capo bene. */
+}
+
+.boiler-card.brand-baxi .image-container img {
+    /* Aumenta la max-height dell'immagine per i prodotti BAXI */
+    max-height: 250px; /* Esempio: da 200px a 250px. Adatta questo valore come preferisci. */
+    
+    /* Potresti anche voler permettere all'immagine di occupare più larghezza,
+       ma fai attenzione a non distorcere l'immagine o rompere il layout.
+       'object-fit: contain;' dovrebbe già prevenire distorsioni. */
+    /* width: 100%; /* Già presente e corretto */
+
+    /* Opzionale: aggiungi una leggera transizione se vuoi un effetto zoom al hover
+       SOLO SULL'IMMAGINE (questo è un extra, non strettamente l'ingrandimento base) */
+    /* transition: transform 0.3s ease; */
+}
+
+/* Opzionale: Effetto zoom leggero al passaggio del mouse sulla card BAXI, SOLO SULL'IMMAGINE */
+/*
+.boiler-card.brand-baxi:hover .image-container img {
+    transform: scale(1.05);
+}
+*/
+
+/* Se l'immagine più grande causa problemi di overflow o di spazio nella colonna delle informazioni,
+   potresti dover aggiustare anche il flex-basis delle colonne interne alla card per 'brand-baxi'
+   o assicurarti che il testo nella colonna info possa andare a capo in meno spazio. */
+
+.boiler-card.brand-baxi .boiler-card-info-column {
+    /* Se hai aumentato il flex-basis della colonna immagine,
+       potresti dover ridurre questo, ad esempio: */
+    /* flex-basis: 50%; */
+    /* Oppure affidati a flex-grow:1 e assicurati che il contenuto si adatti. */
+}
