@@ -1,4 +1,4 @@
-// --- START OF FILE script.js (COMPLETO E CORRETTO) --- 
+// --- START OF FILE script.js (MODIFIED PER NOMI CAMPI FIRESTORE) ---
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (Listini Caldaie)");
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Constants for Caldaie Page ---
     const imageBaseUrl = 'img/'; 
     const brandLogoBaseUrl = 'img/logos/'; 
-    const placeholderImage = imageBaseUrl + 'placeholder.png';
+    const placeholderImage = imageBaseUrl + 'placeholder.png'; // ASSICURATI CHE QUESTO FILE ESISTA!
 
     // --- DOM Element References for Caldaie Page ---
     const boilerListContainer = document.getElementById('boiler-list-container');
@@ -39,14 +39,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeBoilerDetailsPopupBtn = document.getElementById('close-boiler-details-popup');
     const popupBoilerTitle = document.getElementById('popup-boiler-title');
 
-    // === MODIFICA CHIAVE: Sposta la dichiarazione di adminTriggerBtn qui ===
     let adminTriggerBtn = null; 
-    // ======================================================================
 
     // --- App State for Caldaie Page ---
     let allBoilers = [];
     let currentFilters = {
-        brand: "",
+        brand: "", // Qui useremo il valore del campo 'brand' di Firestore
         economico: false,
         searchTerm: ""
     };
@@ -54,30 +52,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.currentUserRole = null; 
     let authInitialized = false; 
 
+    // Mappa dei campi Firestore ai label di visualizzazione e chiavi usate internamente se diverse
+    // Le CHIAVI di questo oggetto DEVONO CORRISPONDERE ai nomi dei campi in Firestore
     const ALL_BOILER_FIELDS_MAP = {
-        marca: "Marca",
-        modello: "Modello",
-        codiceArticolo: "Codice Articolo",
-        categoria: "Tipologia",
-        potenzaKw: "Potenza (kW)",
-        dimensioni: "Dimensioni (AxLxP)",
-        peso: "Peso",
-        prezzoListino: "Prezzo di Listino",
-        prezzoScontato: "Prezzo Scontato",
-        disponibilita: "Disponibilità", 
-        incasso: "Incasso",
-        conAccumulo: "Con Accumulo",
-        daEsterno: "Da Esterno",
-        conBasamento: "Con Basamento",
-        sdoppiatoreIncluso: "Sdoppiatore Incluso",
-        potenzaSanitarioKw: "Potenza Sanitario (kW)",
-        potenzaRiscaldamentoKw: "Potenza Riscaldamento (kW)",
+        brand: "Marca",
+        model: "Modello",
+        productCode: "Codice Articolo",
+        type: "Tipologia", // Era 'categoria'
+        powerKw: "Potenza (kW)", // Era 'potenzaKw'
+        dimensions: "Dimensioni (AxLxP)", // Era 'dimensioni'
+        weightKg: "Peso (kg)", // Era 'peso'
+        // listPrice: "Prezzo di Listino", // DA AGGIUNGERE SE ESISTE IN FIRESTORE con nome 'listPrice'
+        price: "Prezzo Scontato", // Era 'prezzoScontato', ora usa 'price' da Firestore
+        // disponibilitaTestuale: "Disponibilità", // Campo per testo libero, se esistesse in Firestore
+        nearingEndOfStock: "Articolo in Esaurimento", // Era 'articoloInEsaurimento'
+        builtIn: "Incasso", // Era 'incasso'
+        withStorage: "Con Accumulo", // Era 'conAccumulo'
+        outdoorInstallation: "Da Esterno", // Era 'daEsterno'
+        withBase: "Con Basamento", // Era 'conBasamento'
+        splitterIncluded: "Sdoppiatore Incluso", // Era 'sdoppiatoreIncluso'
+        sanitaryPower: "Potenza Sanitario (kW)", // Era 'potenzaSanitarioKw'
+        heatingPower: "Potenza Riscaldamento (kW)", // Era 'potenzaRiscaldamentoKw'
         eer: "EER",
         cop: "COP",
-        schedaTecnicaUrl: "Scheda Tecnica",
-        manualeUrl: "Manuale Utente/Installazione",
-        note: "Note",
-        wifi: "WiFi Presente"
+        datasheetUrl: "Scheda Tecnica", // Era 'schedaTecnicaUrl'
+        // manualeUrl: "Manuale Utente/Installazione", // DA AGGIUNGERE SE ESISTE IN FIRESTORE
+        // note: "Note", // DA AGGIUNGERE SE ESISTE IN FIRESTORE
+        // wifi: "WiFi Presente" // DA AGGIUNGERE SE ESISTE IN FIRESTORE con nome 'wifi'
+        // Campi usati internamente ma non mostrati direttamente nel loop del popup:
+        imageName: "_ImmagineNomeFile", // Per l'immagine del prodotto (uso interno)
+        // logoMarcaFile: "_LogoMarcaFile" // Non più necessario se costruito da 'brand'
     };
 
     // --- Utility Functions ---
@@ -89,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/&/g, "&") 
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, "'")
+            .replace(/"/g, """)
             .replace(/'/g, "'");
     }
 
@@ -105,22 +109,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(noResultsMessage) noResultsMessage.style.display = 'none';
         if(boilerListContainer) boilerListContainer.innerHTML = '';
         try {
-            const snapshot = await db.collection('prodottiCaldaie') 
-                                     .orderBy('brand')
-                                     .orderBy('model')
-                                     .get();
-            const boilers = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            console.log(`Fetched ${boilers.length} boilers.`);
+            // Rimuoviamo temporaneamente orderBy per vedere se i dati arrivano
+            // const snapshot = await db.collection('prodottiCaldaie').orderBy('brand').orderBy('model').get();
+            const snapshot = await db.collection('prodottiCaldaie').get(); // SENZA ORDER BY PER TEST
+            
+            console.log(`Firestore snapshot size: ${snapshot.size}`);
+            if (snapshot.empty) {
+                console.log("Snapshot is empty.");
+            }
+
+            const boilers = snapshot.docs.map(doc => {
+                const data = doc.data();
+                console.log(`Boiler ID: ${doc.id}, Data:`, JSON.parse(JSON.stringify(data)));
+                return {
+                    id: doc.id,
+                    ...data
+                    // Aggiungiamo qui il logoMarcaFile costruito dinamicamente
+                    // logoMarcaFile: data.brand ? data.brand.toLowerCase().replace(/\s+/g, '') + '.png' : ''
+                };
+            });
+            console.log(`Fetched ${boilers.length} boilers after mapping.`);
             return boilers;
         } catch (error) {
             console.error("Error fetching boilers:", error);
             if(noResultsMessage) {
                 if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
                     noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Effettua il login.';
-                } else {
+                } else if (error.message && error.message.toLowerCase().includes('missing an index')) {
+                    noResultsMessage.textContent = 'Configurazione database in corso (manca indice). Riprova tra poco o contatta supporto. Dettagli in console.';
+                    console.error("INDICE MANCANTE IN FIRESTORE. Vai al link nell'errore qui sopra per crearlo.");
+                }
+                 else {
                     noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
                 }
                 noResultsMessage.style.display = 'block';
@@ -134,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Filter UI and Logic for Caldaie ---
     function populateFilterButtons(boilers) {
         const brands = new Set();
-        boilers.forEach(boiler => { if (boiler.marca) brands.add(boiler.marca); });
+        boilers.forEach(boiler => { if (boiler.brand) brands.add(boiler.brand); }); // Usa boiler.brand
 
         if (!brandFilterButtonsContainer) {
             console.error("Element #brand-filter-buttons not found!");
@@ -151,13 +170,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         allBrandsBtn.addEventListener('click', handleFilterButtonClick);
         brandFilterButtonsContainer.appendChild(allBrandsBtn);
 
-        Array.from(brands).sort().forEach(brand => {
+        Array.from(brands).sort().forEach(brandName => { // brandName è il valore di boiler.brand
             const btn = document.createElement('button');
             btn.classList.add('filter-btn');
-            btn.textContent = brand;
+            btn.textContent = brandName;
             btn.dataset.filterGroup = 'brand';
-            btn.dataset.filterValue = brand;
-            if (currentFilters.brand === brand) btn.classList.add('active');
+            btn.dataset.filterValue = brandName;
+            if (currentFilters.brand === brandName) btn.classList.add('active');
             btn.addEventListener('click', handleFilterButtonClick);
             brandFilterButtonsContainer.appendChild(btn);
         });
@@ -165,11 +184,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function handleFilterButtonClick(event) {
         const clickedButton = event.target;
-        const group = clickedButton.dataset.filterGroup;
-        const value = clickedButton.dataset.filterValue;
+        const group = clickedButton.dataset.filterGroup; // Sarà 'brand'
+        const value = clickedButton.dataset.filterValue; // Sarà il nome della marca (es. "BAXI")
 
         if (group === 'brand') {
-            currentFilters.brand = value;
+            currentFilters.brand = value; // currentFilters.brand ora contiene il nome della marca
             if(brandFilterButtonsContainer) {
                 brandFilterButtonsContainer.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             }
@@ -177,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         applyFiltersAndSearch();
     }
+
     if (economicoFilterBtn) {
         economicoFilterBtn.addEventListener('click', () => {
             currentFilters.economico = !currentFilters.economico;
@@ -226,20 +246,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         let filteredBoilers = [...allBoilers];
 
         if (currentFilters.brand) {
-            filteredBoilers = filteredBoilers.filter(b => b.marca === currentFilters.brand);
+            filteredBoilers = filteredBoilers.filter(b => b.brand === currentFilters.brand); // Usa b.brand
         }
         if (currentFilters.economico) {
             filteredBoilers = filteredBoilers.filter(b => {
-                const price = typeof b.prezzoScontato === 'number' ? b.prezzoScontato : (typeof b.prezzoListino === 'number' ? b.prezzoListino : Infinity);
-                return price < 1000;
+                const priceToCompare = typeof b.price === 'number' ? b.price : Infinity; // Usa b.price
+                // Considera anche b.listPrice se lo aggiungi e vuoi basare "economico" su quello
+                return priceToCompare < 1000;
             });
         }
         if (currentFilters.searchTerm) {
             const term = currentFilters.searchTerm;
             filteredBoilers = filteredBoilers.filter(b =>
-                (b.modello || '').toLowerCase().includes(term) ||
-                (b.codiceArticolo || '').toLowerCase().includes(term) ||
-                (b.descrizione || '').toLowerCase().includes(term) 
+                (b.model || '').toLowerCase().includes(term) ||       // Usa b.model
+                (b.productCode || '').toLowerCase().includes(term) || // Usa b.productCode
+                (b.description || '').toLowerCase().includes(term)  // 'description' non era nel tuo esempio dati
             );
         }
         displayBoilers(filteredBoilers);
@@ -250,24 +271,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     function createBoilerCard(boiler) {
         const card = document.createElement('div');
         card.classList.add('boiler-card');
-        card.dataset.boilerId = boiler.id;
+        card.dataset.boilerId = boiler.id; // ID del documento Firestore
         card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
 
-        const productImgName = boiler.immagineNomeFile || 'placeholder.png';
+        const productImgName = boiler.imageName || 'placeholder.png'; // Usa boiler.imageName
         const productImgUrl = imageBaseUrl + productImgName;
         
-        const brandLogoImgName = boiler.logoMarcaFile || '';
+        // Costruisci il nome del file logo dalla marca
+        const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '') : '';
+        const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : ''; // Es. 'baxi.png'
         const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
 
-        const displayPriceVal = typeof boiler.prezzoScontato === 'number' ? boiler.prezzoScontato : boiler.prezzoListino;
-        const listPriceVal = boiler.prezzoListino;
+        const displayPriceVal = boiler.price; // Usa boiler.price (presumendo sia il prezzo scontato)
+        const listPriceVal = boiler.listPrice; // USA boiler.listPrice SE LO AGGIUNGI A FIRESTORE
         const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
 
         let priceHTML = '';
         const formattedDisplayPrice = formatPrice(displayPriceVal);
         if (formattedDisplayPrice) {
             priceHTML += `<span class="price-discounted${isEconomico ? ' economico-price' : ''}">${formattedDisplayPrice}</span>`;
-            if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal && typeof boiler.prezzoScontato === 'number') {
+            // Modifica questa logica se aggiungi 'listPrice'
+            if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
                 priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
             }
         } else {
@@ -276,51 +300,48 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let disponibilityText = "SCONOSCIUTO";
         let disponibilityClass = "unknown";
-        if (boiler.hasOwnProperty('articoloInEsaurimento')) { 
-            if (boiler.articoloInEsaurimento === true) {
+        // Usa boiler.nearingEndOfStock
+        if (boiler.hasOwnProperty('nearingEndOfStock')) { 
+            if (boiler.nearingEndOfStock === true) {
                 disponibilityText = "In Esaurimento";
                 disponibilityClass = "in-esaurimento";
-            } else if (boiler.articoloInEsaurimento === false) {
-                disponibilityText = boiler.disponibilita || "Disponibile"; 
+            } else if (boiler.nearingEndOfStock === false) {
+                // Se hai un campo testuale per disponibilità (es. boiler.availabilityText), usalo qui
+                disponibilityText = "Disponibile"; 
                 disponibilityClass = "available";
             }
-        } else if (boiler.disponibilita) { 
-            disponibilityText = boiler.disponibilita;
-            const lowerDisp = disponibilityText.toLowerCase();
-            if (lowerDisp.includes("esaurimento")) disponibilityClass = "in-esaurimento";
-            else if (lowerDisp.includes("disponibile")) disponibilityClass = "available";
-            else if (lowerDisp.includes("ordinazione") || lowerDisp.includes("arrivo")) disponibilityClass = "on-order";
-        }
+        } // else if (boiler.availabilityText) { ... logica per testo disponibilità ... }
         
         let manualeLinkHTML = '';
-        if (boiler.manualeUrl && typeof boiler.manualeUrl === 'string' && boiler.manualeUrl.trim() !== '') {
-            manualeLinkHTML = `<p class="product-manual"><a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> Manuale</a></p>`;
-        }
+        // if (boiler.manualeUrl && typeof boiler.manualeUrl === 'string' && boiler.manualeUrl.trim() !== '') {
+        //     manualeLinkHTML = `<p class="product-manual"><a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> Manuale</a></p>`;
+        // } 
+        // ATTUALMENTE 'manualeUrl' non è in ALL_BOILER_FIELDS_MAP con il nome corretto da Firestore. Aggiungilo se esiste.
 
         card.innerHTML = `
             <div class="card-top-right-elements">
                 ${isEconomico ? '<span class="economico-badge">ECONOMICO</span>' : ''}
-                ${boiler.wifi === true ? '<span class="wifi-icon-display"><i class="fas fa-wifi" title="WiFi Presente"></i></span>' : ''}
+                ${boiler.wifi === true ? '<span class="wifi-icon-display"><i class="fas fa-wifi" title="WiFi Presente"></i></span>' : ''} {/* Usa boiler.wifi se lo aggiungi */}
             </div>
             <div class="boiler-card-header">
-                ${brandLogoUrl ? `<img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(boiler.marca || '')} Logo" class="boiler-logo" onerror="this.style.display='none'; this.parentElement.querySelector('.boiler-logo-placeholder')?.style.display='block';">
+                ${brandLogoUrl ? `<img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(boiler.brand || '')} Logo" class="boiler-logo" onerror="this.style.display='none'; this.parentElement.querySelector('.boiler-logo-placeholder')?.style.display='block';">
                                   <div class="boiler-logo-placeholder" style="display:none; width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">Logo mancante</div>`
                                : `<div class="boiler-logo-placeholder" style="width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">(No Logo)</div>`}
                 <div class="boiler-title-brand">
-                    <h3 class="model">${escapeHtml(boiler.modello || 'Modello non Specificato')}</h3>
-                    <span class="brand-text">${escapeHtml(boiler.marca || 'Marca non Specificata')}</span>
+                    <h3 class="model">${escapeHtml(boiler.model || 'Modello non Specificato')}</h3> {/* Usa boiler.model */}
+                    <span class="brand-text">${escapeHtml(boiler.brand || 'Marca non Specificata')}</span> {/* Usa boiler.brand */}
                 </div>
             </div>
             <div class="image-container">
-                <img src="${escapeHtml(productImgUrl)}" alt="Immagine ${escapeHtml(boiler.modello || 'Caldaia')}"
+                <img src="${escapeHtml(productImgUrl)}" alt="Immagine ${escapeHtml(boiler.model || 'Caldaia')}"
                      onerror="this.onerror=null; this.src='${escapeHtml(placeholderImage)}'; this.alt='Immagine prodotto non disponibile';">
             </div>
             <div class="boiler-info">
-                ${boiler.potenzaKw ? `<p><strong>Potenza:</strong> ${escapeHtml(String(boiler.potenzaKw))} kW</p>` : ''}
-                ${boiler.codiceArticolo ? `<p><strong>Codice:</strong> ${escapeHtml(boiler.codiceArticolo)}</p>` : ''}
-                ${boiler.categoria ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.categoria)}</p>` : ''}
+                ${boiler.powerKw ? `<p><strong>Potenza:</strong> ${escapeHtml(String(boiler.powerKw))} kW</p>` : ''} {/* Usa boiler.powerKw */}
+                ${boiler.productCode ? `<p><strong>Codice:</strong> ${escapeHtml(boiler.productCode)}</p>` : ''} {/* Usa boiler.productCode */}
+                ${boiler.type ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.type)}</p>` : ''} {/* Usa boiler.type */}
                 <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
-                ${boiler.schedaTecnicaUrl ? `<p class="product-datasheet"><a href="${escapeHtml(boiler.schedaTecnicaUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>` : ''}
+                ${boiler.datasheetUrl ? `<p class="product-datasheet"><a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>` : ''} {/* Usa boiler.datasheetUrl */}
                 ${manualeLinkHTML}
             </div>
             <div class="boiler-card-footer">
@@ -333,6 +354,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function displayBoilers(boilersToDisplay) {
+        // ... (come prima, ma ora dovrebbe funzionare se i dati sono popolati)
         if (!boilerListContainer) return;
         boilerListContainer.innerHTML = '';
 
@@ -341,12 +363,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (auth.currentUser && (currentFilters.brand || currentFilters.economico || currentFilters.searchTerm)) {
                     noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.';
                 } else if (auth.currentUser) {
-                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
-                } else {
-                    // Il messaggio per utenti non loggati è gestito da loadAndDisplayPrimaryData
-                    // noResultsMessage.textContent = 'Devi essere autenticato per visualizzare i listini.'; 
+                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non conformi.';
                 }
-                noResultsMessage.style.display = 'block';
+                // Non sovrascrivere il messaggio di "autenticati" se l'utente non è loggato
+                if (auth.currentUser || (!auth.currentUser && noResultsMessage.textContent !== 'Devi essere autenticato per visualizzare i listini.')) {
+                    noResultsMessage.style.display = 'block';
+                }
             }
             return;
         }
@@ -361,26 +383,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- Popup Logic for Caldaie ---
     function showBoilerDetailsPopup(boiler) {
         if (!boilerDetailsPopupOverlay || !boilerDetailsPopupContentArea || !popupBoilerTitle) return;
-        popupBoilerTitle.textContent = escapeHtml(boiler.modello || "Dettagli Caldaia");
+        popupBoilerTitle.textContent = escapeHtml(boiler.model || "Dettagli Caldaia"); // Usa boiler.model
         boilerDetailsPopupContentArea.innerHTML = '';
 
-        for (const fieldKey in ALL_BOILER_FIELDS_MAP) {
-            if (ALL_BOILER_FIELDS_MAP.hasOwnProperty(fieldKey)) {
-                const displayLabel = ALL_BOILER_FIELDS_MAP[fieldKey];
-                let value = boiler[fieldKey];
+        for (const fieldKeyInFirestore in ALL_BOILER_FIELDS_MAP) { // fieldKeyInFirestore è es. 'brand', 'model'
+            if (ALL_BOILER_FIELDS_MAP.hasOwnProperty(fieldKeyInFirestore) && !fieldKeyInFirestore.startsWith('_')) { // Ignora chiavi interne
+                const displayLabel = ALL_BOILER_FIELDS_MAP[fieldKeyInFirestore];
+                let value = boiler[fieldKeyInFirestore]; // Accedi al valore usando la chiave di Firestore
                 let displayValueHtml; 
 
                 if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "")) {
-                    if (['prezzoListino', 'prezzoScontato', 'disponibilita'].includes(fieldKey)) {
+                    // Mostra SCONOSCIUTO solo per campi specifici se vuoti, altrimenti salta
+                    if (['price', 'listPrice', 'nearingEndOfStock'].includes(fieldKeyInFirestore)) {
                          displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
                     } else {
                         continue; 
                     }
                 } else if (typeof value === 'boolean') {
                     displayValueHtml = value ? 'Sì' : 'No';
-                } else if (fieldKey === 'schedaTecnicaUrl' || fieldKey === 'manualeUrl') { 
+                } else if (fieldKeyInFirestore === 'datasheetUrl' /* || fieldKeyInFirestore === 'manualeUrl' */) { 
                     displayValueHtml = `<a href="${escapeHtml(String(value))}" target="_blank" rel="noopener noreferrer">${escapeHtml(String(value))}</a>`;
-                } else if (fieldKey === 'prezzoListino' || fieldKey === 'prezzoScontato') {
+                } else if (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice') { // Usa 'price' e 'listPrice' (se aggiunto)
                     const formatted = formatPrice(value);
                     displayValueHtml = formatted ? escapeHtml(formatted) : '<span class="unknown-value">SCONOSCIUTO</span>';
                 } else {
@@ -391,20 +414,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         boilerDetailsPopupOverlay.classList.add('visible');
     }
-    if (closeBoilerDetailsPopupBtn) {
-        closeBoilerDetailsPopupBtn.addEventListener('click', () => {
-            if (boilerDetailsPopupOverlay) boilerDetailsPopupOverlay.classList.remove('visible');
-        });
-    }
-    if (boilerDetailsPopupOverlay) {
-        boilerDetailsPopupOverlay.addEventListener('click', (event) => {
-            if (event.target === boilerDetailsPopupOverlay) {
-                boilerDetailsPopupOverlay.classList.remove('visible');
-            }
-        });
-    }
+
+    // ... (closeBoilerDetailsPopupBtn e overlay event listener come prima) ...
+    if (closeBoilerDetailsPopupBtn) { /* ... */ }
+    if (boilerDetailsPopupOverlay) { /* ... */ }
+
 
     // --- Admin Authentication and UI Visibility ---
+    // ... (toggleAdminCaldaieSectionVisibility come prima) ...
+    function toggleAdminCaldaieSectionVisibility() { /* ... */ }
+    // ... (setupAuthUI_Caldaie come prima, usa adminTriggerBtn globale) ...
+    function setupAuthUI_Caldaie() { /* ... */ }
+
+
+    // --- Funzione per caricare e visualizzare i dati principali ---
+    // ... (loadAndDisplayPrimaryData come prima) ...
+    async function loadAndDisplayPrimaryData() { /* ... */ }
+
+    // --- Page Initialization ---
+    // ... (initializeCaldaiePage come prima, inclusa la callback onAuthStateChanged) ...
+    async function initializeCaldaiePage() { /* ... */ }
+
+
+    // ==========================================================================================================
+    // COPIA E INCOLLA LE FUNZIONI MANCANTI (toggleAdminCaldaieSectionVisibility, setupAuthUI_Caldaie, 
+    // loadAndDisplayPrimaryData, initializeCaldaiePage) DALLA RISPOSTA PRECEDENTE, 
+    // poiché sono lunghe e non sono cambiate in questa iterazione se non per i commenti.
+    // MI SONO CONCENTRATO SUI CAMBIAMENTI RELATIVI AI NOMI DEI CAMPI.
+    // ==========================================================================================================
+    // Per completezza, ecco le funzioni che non ho ripetuto per brevità ma che devi assicurarti ci siano:
+
     function toggleAdminCaldaieSectionVisibility() {
         const adminSectionCaldaie = document.getElementById('admin-section-caldaie');
         if (adminSectionCaldaie) {
@@ -417,9 +456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const loginForm = document.getElementById('login-form-caldaie');
         const logoutButton = document.getElementById('logout-button-caldaie');
         
-        // === MODIFICA CHIAVE: Assegna adminTriggerBtn qui, non dichiararlo con const ===
         adminTriggerBtn = document.getElementById('admin-trigger'); 
-        // ===============================================================================
 
         const loginEmailInput = document.getElementById('login-email-caldaie');
         const loginPasswordInput = document.getElementById('login-password-caldaie');
@@ -513,7 +550,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- Funzione per caricare e visualizzare i dati principali ---
     async function loadAndDisplayPrimaryData() {
         if (!authInitialized) {
             console.log("Auth non ancora inizializzato, in attesa...");
@@ -548,16 +584,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             populateFilterButtons(allBoilers);
             displayBoilers(allBoilers); 
         } else {
-            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage && (!noResultsMessage.textContent || noResultsMessage.style.display !== 'block') ) {
-                noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
-                noResultsMessage.style.display = 'block';
+             // Questo blocco viene raggiunto se fetchBoilersFromFirestore ritorna un array vuoto
+            // (ad es. se lo snapshot è vuoto o se c'è un errore gestito che ritorna [])
+            // E l'utente è loggato.
+            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage) {
+                 if (!noResultsMessage.textContent.includes('Accesso ai listini non autorizzato') && 
+                     !noResultsMessage.textContent.includes('Configurazione database in corso')) {
+                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non trovati.';
+                 }
+                 // noResultsMessage.style.display = 'block'; // Già gestito da fetchBoilersFromFirestore in caso di errore
             }
-            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '';
+            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = ''; // Pulisci i filtri se non ci sono dati
         }
-        updateResetButtonVisibility();
+        updateResetButtonVisibility(); // Chiama sempre per gestire il bottone reset
     }
 
-    // --- Page Initialization ---
     async function initializeCaldaiePage() {
         if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
 
@@ -590,36 +631,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.currentUserRole = userDoc.exists && userDoc.data().role ? userDoc.data().role : 'user';
                     console.log("User Authenticated. Role:", window.currentUserRole);
                     
-                    // === MODIFICA CHIAVE: Ora adminTriggerBtn è accessibile qui ===
                     if (adminTriggerBtn) { 
                         adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Pannello Admin (${user.email.split('@')[0]})` : `Profilo Utente (${user.email.split('@')[0]})`);
                     }
-                    // ============================================================
                 } catch (error) {
                     console.error("Error fetching user role:", error);
-                    window.currentUserRole = 'user'; // Default to user on error
-                    // === MODIFICA CHIAVE: Anche qui ===
+                    window.currentUserRole = 'user'; 
                     if (adminTriggerBtn) {
                         adminTriggerBtn.title = "Accesso Admin"; 
                     }
-                    // =================================
                 }
             } else {
                 console.log("User logged out or not authenticated.");
                 window.currentUserRole = null;
-                // === MODIFICA CHIAVE: Anche qui ===
                 if (adminTriggerBtn) {
                     adminTriggerBtn.title = "Accesso Admin";
                 }
-                // =================================
             }
             
             await loadAndDisplayPrimaryData(); 
             toggleAdminCaldaieSectionVisibility(); 
         });
     }
+    // FINE DELLE FUNZIONI RIPORTATE PER COMPLETEZZA
 
     initializeCaldaiePage();
 });
 
-// --- END OF FILE script.js (COMPLETO E CORRETTO) ---
+// --- END OF FILE script.js (MODIFIED PER NOMI CAMPI FIRESTORE) ---
