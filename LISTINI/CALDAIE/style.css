@@ -2,8 +2,8 @@
 
 /* :root variables should be inherited from your main ../../style.css if linked first.
    If this is a standalone page test, uncomment and define them: */
-/*
-:root {
+
+:root { /* DECOMMENTA E DEFINISCI QUESTE SE NON EREDITATE DAL CSS GLOBALE */
     --primary-color: #0056a8;
     --secondary-color: #6c757d;
     --light-color: #f8f9fa;
@@ -11,12 +11,12 @@
     --background-color: #ffffff;
     --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     --border-radius: 8px;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --header-height: 65px;
-    --sticky-offset: calc(var(--header-height) + 10px); // Assuming sticky offset defined in global
+    --danger-color: #dc3545;    /* Rosso per "In Esaurimento" */
+    --warning-color: #ffc107;  /* Giallo per "Economico" */
+    --header-height: 65px;      /* Altezza del tuo header principale */
+    /* --sticky-offset: calc(var(--header-height) + 10px); // Assuming sticky offset defined in global */
 }
-*/
+
 
 .listini-page-container {
     max-width: 1200px;
@@ -53,15 +53,15 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px; /* Increased gap slightly */
+    gap: 10px; 
     align-items: center;
 }
-.filters-container > span { /* "Filtra per:" */
+.filters-container > span { 
     margin-right: 10px;
     font-weight: 500;
     color: var(--secondary-color);
     align-self: center;
-    margin-bottom: 5px; /* For alignment with buttons if they wrap */
+    margin-bottom: 5px; 
 }
 
 .filter-button-group {
@@ -75,11 +75,11 @@
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     color: var(--dark-color);
-    padding: 6px 12px; /* Slightly adjusted padding */
-    border-radius: 16px; /* More rounded */
+    padding: 6px 12px; 
+    border-radius: 16px; 
     cursor: pointer;
     transition: all 0.2s ease;
-    font-size: 0.8em; /* Slightly smaller font */
+    font-size: 0.8em; 
     white-space: nowrap;
     line-height: 1.5;
 }
@@ -90,7 +90,7 @@
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    font-weight: 500; /* Less bold than clima */
+    font-weight: 500; 
 }
 #economico-filter-btn {
     background-color: var(--warning-color);
@@ -98,12 +98,11 @@
     color: #333;
 }
 #economico-filter-btn.active {
-    background-color: #e6a007; /* Brighter active yellow */
+    background-color: #e6a007; 
     border-color: #c79100;
-    color: white; /* White text on active yellow */
+    color: white; 
 }
 
-/* Hide original select based filters if JS creates buttons */
 .filters-container .filter-group {
     display: none;
 }
@@ -111,16 +110,16 @@
 .filters-container .search-group {
     display: flex;
     align-items: center;
-    margin-left: 10px; /* Space from other filters */
+    margin-left: 10px; 
 }
 .filters-container .search-group input[type="text"] {
-    border-radius: 16px; /* Match button roundness */
+    border-radius: 16px; 
     min-width: 180px;
     font-size: 0.8em;
     padding: 6px 12px;
     border: 1px solid #ced4da;
 }
-.filters-container .search-group label { display: none; } /* Label is placeholder */
+.filters-container .search-group label { display: none; } 
 
 #reset-filters-btn {
     padding: 6px 12px;
@@ -128,39 +127,44 @@
     font-size: 0.8em;
     background-color: var(--secondary-color);
     color:white;
-    border: none; /* Remove border */
+    border: none; 
     line-height: 1.5;
 }
 #reset-filters-btn:hover {
     background-color: #5a6268;
 }
 
-/* Main content area & grid */
 main {
     padding-top: 10px;
 }
-.product-grid { /* This is your #boiler-list-container */
+
+/* --- MODIFICA 5: TRE CARD PER RIGA (o responsive verso il basso) --- */
+.product-grid { 
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly smaller min card width */
-    gap: 20px; /* Reduced gap slightly */
+    /* Per avere tendenzialmente 3 colonne su schermi larghi (max-width: 1200px, gap: 20px):
+       Spazio utile: 1200 - (2*20) = 1160px.
+       Per 3 colonne: 1160 / 3 = ~386px per card.
+       Usiamo un minmax che si avvicini a questo.
+    */
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); /* Sperimenta con questo valore (es. 320px-370px) */
+    gap: 20px; 
     margin-bottom: 30px;
 }
 
-/* BOILER CARD STYLES */
 .boiler-card {
     background-color: var(--background-color);
     border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
-    padding: 15px; /* Reduced padding slightly */
+    padding: 15px; 
     box-shadow: var(--card-shadow);
-    transition: transform 0.2s ease, box-shadow 0.2s ease; /* Faster transition */
+    transition: transform 0.2s ease, box-shadow 0.2s ease; 
     display: flex;
     flex-direction: column;
     position: relative;
-    cursor: pointer; /* Indicate clickable for popup */
+    cursor: pointer; 
 }
 .boiler-card:hover {
-    transform: translateY(-4px); /* Slightly less lift */
+    transform: translateY(-4px); 
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
@@ -173,12 +177,14 @@ main {
     gap: 8px;
     z-index: 2;
 }
+
+/* --- MODIFICA 4: STILE BADGE ECONOMICO (già presente, verifica var(--warning-color)) --- */
 .economico-badge {
     display: inline-block;
-    background-color: var(--warning-color);
-    color: #493800; /* Darker text for yellow */
-    font-size: 0.65em; /* Smaller badge */
-    padding: 2px 7px;
+    background-color: var(--warning-color); /* Assicurati che sia il giallo desiderato */
+    color: #333; /* Testo scuro per leggibilità su giallo */
+    font-size: 0.7em; /* Leggermente più leggibile se vuoi */
+    padding: 3px 8px;
     border-radius: 8px;
     font-weight: bold;
     text-transform: uppercase;
@@ -187,13 +193,13 @@ main {
 .boiler-card-header {
     display: flex;
     align-items: center;
-    margin-bottom: 12px; /* Reduced margin */
+    margin-bottom: 12px; 
     gap: 10px;
     min-height: 40px;
-    padding-right: 50px;
+    padding-right: 50px; 
 }
 .boiler-logo {
-    max-height: 35px; /* Smaller logo */
+    max-height: 35px; 
     max-width: 100px;
     object-fit: contain;
     flex-shrink: 0;
@@ -203,25 +209,26 @@ main {
 }
 .boiler-card h3.model {
     margin: 0 0 1px 0;
-    font-size: 1.05em; /* Smaller model title */
+    font-size: 1.05em; 
     color: var(--dark-color);
     font-weight: 700;
     line-height: 1.25;
 }
 .boiler-card .brand-text {
-    font-size: 0.8em; /* Smaller brand text */
+    font-size: 0.8em; 
     color: var(--secondary-color);
     text-transform: uppercase;
     display: block;
 }
 
-.boiler-card .image-container img { /* This refers to the product image */
+/* --- MODIFICA 1: IMMAGINE CALDAIA PIÙ GRANDE --- */
+.boiler-card .image-container img { 
     display: block;
     width: 100%;
-    height: 130px; /* Slightly smaller product image */
+    height: 190px; /* Aumentata da 130px, regola a piacere */
     object-fit: contain;
-    margin-bottom: 12px;
-    border-radius: 3px; /* Small radius */
+    margin-bottom: 15px; /* Aumentato leggermente il margine sotto l'immagine */
+    border-radius: 3px; 
 }
 
 .boiler-card .boiler-info {
@@ -229,21 +236,24 @@ main {
     margin-bottom: 8px;
 }
 .boiler-card .boiler-info p {
-    margin: 4px 0; /* Tighter paragraph spacing */
-    font-size: 0.85em; /* Smaller info text */
+    margin: 4px 0; 
+    font-size: 0.85em; 
     color: #495057;
     line-height: 1.4;
 }
 .boiler-card .boiler-info p strong {
     color: var(--dark-color);
-    font-weight: 500; /* Reset to match clima */
+    font-weight: 500; 
     margin-right: 4px;
 }
+
+/* --- MODIFICA 2: TESTO "IN ESAURIMENTO" ROSSO --- */
 .boiler-card .availability.in-esaurimento {
-    color: var(--danger-color);
+    color: var(--danger-color); /* Usa la variabile --danger-color definita in :root */
     font-weight: bold;
 }
-.boiler-card .product-datasheet a { /* Style for Scheda Tecnica Link */
+
+.boiler-card .product-datasheet a { 
     color: var(--primary-color);
     text-decoration: none;
     font-size: 0.85em;
@@ -251,7 +261,6 @@ main {
 }
 .boiler-card .product-datasheet a:hover { text-decoration: underline; }
 .boiler-card .product-datasheet i { margin-right: 4px; }
-
 
 .boiler-card-footer {
     display: flex;
@@ -264,16 +273,22 @@ main {
 .boiler-card .price-section {
     margin:0; padding:0; border:0;
 }
+
+/* --- MODIFICA 3: PREZZO PIÙ GRANDE --- */
 .boiler-card .price-discounted,
 .boiler-card .price-discounted.no-discount {
-    font-size: 1.2em; /* Slightly smaller main price */
+    font-size: 1.6em; /* Aumentato da 1.2em, regola a piacere */
     font-weight: 700;
     color: var(--primary-color);
 }
+
+/* Stile per il PREZZO se è etichettato come economico (usa var(--warning-color)) */
 .boiler-card .price-discounted.economico-price {
-    color: var(--warning-color) !important;
-    /* If you want text dark on yellow, you might need a specific class/logic
-       or use text-shadow: 0 0 1px var(--warning-color); to make primary-color text readable on it */
+    color: var(--warning-color) !important; /* Mantieni importante se necessario per sovrascrivere */
+    /* Per testo scuro su prezzo giallo, potresti considerare:
+    color: #493800 !important; 
+    text-shadow: 0 0 1px var(--warning-color); 
+    */
 }
 .boiler-card .price-list {
     font-size: 0.75em;
@@ -285,8 +300,8 @@ main {
 /* POPUP STYLES */
 .popup-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.65); /* Slightly darker */
-    z-index: 1060; /* Ensure above other elements like sticky header */
+    background-color: rgba(0, 0, 0, 0.65); 
+    z-index: 1060; 
     display: none; align-items: center; justify-content: center;
     opacity: 0; transition: opacity 0.25s ease-in-out;
 }
@@ -294,16 +309,16 @@ main {
 
 .popup-content {
     background-color: var(--background-color);
-    padding: 20px 25px; /* Adjusted padding */
+    padding: 20px 25px; 
     border-radius: var(--border-radius);
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-    width: 90%; max-width: 650px; /* Max width for details */
-    max-height: 80vh; /* Max height */
+    width: 90%; max-width: 650px; 
+    max-height: 80vh; 
     display: flex; flex-direction: column;
-    transform: translateY(-20px) scale(0.98); /* Start from slightly above for effect */
+    transform: translateY(-20px) scale(0.98); 
     transition: transform 0.25s ease-out, opacity 0.25s ease-in-out;
     position: relative;
-    opacity: 0; /* Start hidden, fade in with overlay */
+    opacity: 0; 
 }
 .popup-overlay.visible .popup-content {
     transform: translateY(0) scale(1);
@@ -314,27 +329,27 @@ main {
     margin-top: 0;
     margin-bottom: 18px;
     color: var(--primary-color);
-    text-align: left; /* Align title left for detail view */
-    font-size: 1.4em; /* Slightly smaller title */
+    text-align: left; 
+    font-size: 1.4em; 
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
 }
 .close-popup-btn {
     position: absolute; top: 12px; right: 12px;
-    background: none; border: none; font-size: 1.8em; /* Slightly smaller close */
+    background: none; border: none; font-size: 1.8em; 
     color: var(--secondary-color); cursor: pointer; line-height: 1;
 }
 .close-popup-btn:hover { color: var(--dark-color); }
 
 #popup-boiler-content-area {
-    font-size: 0.9em; /* Base font size for popup details */
-    overflow-y: auto; /* Allow scrolling if content is long */
-    padding-right: 10px; /* Space for scrollbar */
+    font-size: 0.9em; 
+    overflow-y: auto; 
+    padding-right: 10px; 
 }
 #popup-boiler-content-area p {
     margin-bottom: 8px;
     line-height: 1.5;
-    display: flex; /* For aligning label and value */
+    display: flex; 
     border-bottom: 1px dotted #f0f0f0;
     padding-bottom: 8px;
 }
@@ -342,16 +357,16 @@ main {
     border-bottom: none;
     margin-bottom: 0;
 }
-#popup-boiler-content-area strong { /* Field Label */
+#popup-boiler-content-area strong { 
     font-weight: 500;
     color: var(--dark-color);
-    width: 180px; /* Fixed width for labels */
-    flex-shrink: 0; /* Prevent label from shrinking */
+    width: 180px; 
+    flex-shrink: 0; 
     margin-right: 10px;
 }
-#popup-boiler-content-area .popup-value { /* Field Value */
+#popup-boiler-content-area .popup-value { 
     flex-grow: 1;
-    word-break: break-word; /* Allow long values to wrap */
+    word-break: break-word; 
 }
 #popup-boiler-content-area .unknown-value {
     color: var(--secondary-color);
@@ -361,7 +376,7 @@ main {
 /* General loading/no-results */
 .loading-indicator, #loading-indicator,
 #no-results-message {
-    grid-column: 1 / -1;
+    grid-column: 1 / -1; /* Assicura che occupi tutta la larghezza della griglia */
     text-align: center;
     padding: 30px 20px;
     color: var(--secondary-color);
