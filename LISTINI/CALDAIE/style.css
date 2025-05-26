@@ -23,7 +23,7 @@ body {
 /* --- FINE GLOBAL RESET --- */
 
 
-/* Assicurati che queste variabili siano definite, o nel tuo CSS globale 
+/* Assicurati che queste variabili siano definite, o nel tuo CSS globale
    ../../style.css o decommentando e adattando questo blocco :root */
 :root {
     --primary-color: #0056a8;        /* Blu primario */
@@ -40,17 +40,43 @@ body {
 }
 
 .listini-page-container {
-    max-width: 1200px;
+    max-width: 1200px; /* Default max-width */
     margin: 0 auto;
-    padding: 0 20px 20px 20px;
+    padding: 0 20px 20px 20px; /* Padding laterale di 20px + 20px = 40px */
     background-color: var(--background-color);
 }
+
+/* Media queries per estendere il max-width del container su schermi più larghi.
+   Questi breakpoint sono calcolati considerando card da 300px, gap da 20px e padding del container.
+   Esempio per 4 colonne: (4 * 300px) + (3 * 20px gap) + (40px padding container) = 1200 + 60 + 40 = 1300px.
+   Diamo un po' di margine in più al max-width per flessibilità. */
+
+@media (min-width: 1300px) { /* Permette di visualizzare circa 4 colonne */
+    .listini-page-container {
+        max-width: 1400px;
+    }
+}
+
+@media (min-width: 1620px) { /* Permette di visualizzare circa 5 colonne */
+    .listini-page-container {
+        max-width: 1700px;
+    }
+}
+
+@media (min-width: 1940px) { /* Permette di visualizzare circa 6 colonne */
+    .listini-page-container {
+        max-width: 2050px;
+        /* Puoi continuare ad aggiungere breakpoint se necessario per schermi ancora più grandi,
+           o stabilire un limite massimo assoluto se preferisci, es. max-width: 2400px; */
+    }
+}
+
 
 .page-controls {
     text-align: center;
     border-bottom: 1px solid #eee;
     position: sticky;
-    top: var(--header-height); 
+    top: var(--header-height);
     background-color: var(--background-color);
     z-index: 990;
     padding: 15px 20px;
@@ -160,26 +186,16 @@ main {
 }
 
 /* --- PRODUCT GRID CON MEDIA QUERIES PER COLONNE --- */
+/* MODIFICATO PER ESSERE COMPLETAMENTE DINAMICO */
 .product-grid {
     display: grid;
-    gap: 20px; 
+    gap: 20px;
     margin-bottom: 30px;
-    /* Default: mobile e schermi piccoli -> 1 colonna o fluido */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-}
-
-/* Tablet e schermi medi -> 2 colonne */
-@media (min-width: 700px) { /* Adatta questo breakpoint */
-    .product-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* Desktop / Schermi larghi -> 3 colonne */
-@media (min-width: 1050px) { /* Adatta questo breakpoint (poco meno di 1200px - gap*2 - padding*2) */
-    .product-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    /* Questa singola regola ora gestisce il numero di colonne in modo fluido.
+       Le card avranno una larghezza minima di 300px e si espanderanno
+       per riempire lo spazio disponibile (1fr). Il browser calcolerà
+       automaticamente quante colonne possono essere inserite. */
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 /* --- FINE PRODUCT GRID --- */
 
@@ -193,7 +209,7 @@ main {
     box-shadow: var(--card-shadow);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
-    flex-direction: column; 
+    flex-direction: column;
     position: relative;
     cursor: pointer;
     /* Aggiunta per aiutare l'allineamento verticale delle card se il contenuto differisce in altezza */
@@ -210,10 +226,10 @@ main {
     right: 12px;
     display: flex;
     align-items: center;
-    gap: 8px; 
+    gap: 8px;
     z-index: 2;
 }
-.economico-badge, .storage-badge, .wifi-icon-display { 
+.economico-badge, .storage-badge, .wifi-icon-display {
     display: inline-flex;
     align-items: center;
     font-size: 0.75em; /* Leggermente più grande */
@@ -225,21 +241,21 @@ main {
 }
 .economico-badge {
     background-color: var(--warning-color);
-    color: #333; 
+    color: #333;
 }
 .storage-badge {
-    background-color: var(--secondary-color); 
+    background-color: var(--secondary-color);
     color: white;
 }
 .storage-badge i {
     margin-right: 4px;
     /* font-size: 1.1em; /* Opzionale per icona leggermente più grande del testo badge */
 }
-.wifi-icon-display { 
-    background-color: transparent; 
-    color: var(--primary-color); 
-    padding: 2px; 
-    font-size: 0.9em; 
+.wifi-icon-display {
+    background-color: transparent;
+    color: var(--primary-color);
+    padding: 2px;
+    font-size: 0.9em;
 }
 .wifi-icon-display i {
     font-size: 1.1em; /* Adatta l'icona WiFi */
@@ -250,7 +266,7 @@ main {
     align-items: center;
     margin-bottom: 12px;
     gap: 10px;
-    min-height: 40px; 
+    min-height: 40px;
     /* Rimosso padding-right eccessivo, i badge sono absolute */
 }
 .boiler-logo {
@@ -278,27 +294,27 @@ main {
 
 .boiler-card-body-flex {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     gap: 15px;
-    flex-grow: 1; 
-    margin-bottom: 12px; 
+    flex-grow: 1;
+    margin-bottom: 12px;
 }
 
 .boiler-card-info-column {
-    flex: 1; 
+    flex: 1;
     display: flex;
     flex-direction: column;
 }
 
 .boiler-card-image-column {
-    flex: 0 0 40%; 
+    flex: 0 0 40%;
     display: flex;
-    align-items: center; 
+    align-items: center;
     justify-content: center;
 }
 
 .boiler-card .image-container {
-    width: 100%; 
+    width: 100%;
 }
 .boiler-card .image-container img {
     display: block;
@@ -309,37 +325,37 @@ main {
 }
 
 .boiler-card .boiler-info {
-    flex-grow: 1; 
+    flex-grow: 1;
 }
 /* Per allineare testi info tipo tabella */
 .boiler-card .boiler-info p {
-    display: flex; 
-    align-items: flex-start; 
-    margin: 5px 0; 
+    display: flex;
+    align-items: flex-start;
+    margin: 5px 0;
     font-size: 0.85em;
     color: #495057;
-    line-height: 1.45; 
+    line-height: 1.45;
     /* padding-bottom: 5px; */
     /* border-bottom: 1px dotted #eee; */
 }
 .boiler-card .boiler-info p strong {
     color: var(--dark-color);
-    font-weight: 500; 
-    margin-right: 8px;  
+    font-weight: 500;
+    margin-right: 8px;
     flex-shrink: 0;
     width: 100px;  /* REGOLA PER LABEL PIÙ LUNGA */
 }
 .boiler-card .availability.in-esaurimento {
-    color: var(--danger-color); 
+    color: var(--danger-color);
     font-weight: bold;
 }
 .boiler-card .product-datasheet a,
-.boiler-card .product-manual a { 
+.boiler-card .product-manual a {
     color: var(--primary-color);
     text-decoration: none;
     font-size: 0.85em;
     font-weight: 500;
-    display: inline-flex; 
+    display: inline-flex;
     align-items: center;
 }
 .boiler-card .product-datasheet a:hover,
@@ -360,7 +376,7 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto; 
+    margin-top: auto;
     padding-top: 12px;
     border-top: 1px solid #eee;
 }
@@ -369,9 +385,9 @@ main {
 }
 .boiler-card .price-discounted,
 .boiler-card .price-discounted.no-discount {
-    font-size: 1.6em; 
+    font-size: 1.6em;
     font-weight: 700;
-    color: var(--primary-color); 
+    color: var(--primary-color);
 }
 .boiler-card .price-list {
     font-size: 0.75em;
@@ -381,20 +397,99 @@ main {
 }
 
 /* POPUP STYLES */
-.popup-overlay { /* ... (come prima) ... */ }
-.popup-overlay.visible { /* ... (come prima) ... */ }
-.popup-content { /* ... (come prima) ... */ }
-.popup-overlay.visible .popup-content { /* ... (come prima) ... */ }
-.popup-content h2#popup-boiler-title { /* ... (come prima) ... */ }
-.close-popup-btn { /* ... (come prima) ... */ }
-.close-popup-btn:hover { /* ... (come prima) ... */ }
-#popup-boiler-content-area { /* ... (come prima) ... */ }
-#popup-boiler-content-area p { /* ... (come prima) ... */ }
-#popup-boiler-content-area p:last-child { /* ... (come prima) ... */ }
-#popup-boiler-content-area strong { /* ... (come prima) ... */ }
-#popup-boiler-content-area .popup-value { /* ... (come prima) ... */ }
-#popup-boiler-content-area .unknown-value { /* ... (come prima) ... */ }
-/* Mantieni qui tutti gli stili del popup che avevi nel file precedente */
+/* (Assicurati che gli stili del popup siano definiti qui se non sono in un file CSS globale.
+   Per brevità, ho omesso i commenti placeholder se non c'erano stili definiti.) */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.popup-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+.popup-content {
+    background-color: var(--background-color, white);
+    padding: 25px 30px;
+    border-radius: var(--border-radius, 8px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    max-width: 600px; /* Adattabile */
+    width: 90%;
+    position: relative;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    max-height: 90vh; /* Per prevenire overflow verticale */
+    overflow-y: auto; /* Scroll se contenuto eccede */
+}
+.popup-overlay.visible .popup-content {
+    transform: scale(1);
+}
+.popup-content h2#popup-boiler-title {
+    color: var(--primary-color);
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.5em; /* Leggermente più piccolo del H1 pagina */
+    font-weight: 700;
+}
+.close-popup-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--secondary-color, #6c757d);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+}
+.close-popup-btn:hover {
+    color: var(--dark-color, #343a40);
+}
+#popup-boiler-content-area {
+    font-size: 0.9em;
+}
+#popup-boiler-content-area p {
+    margin: 8px 0;
+    line-height: 1.6;
+    color: var(--dark-color);
+}
+#popup-boiler-content-area p:last-child {
+    margin-bottom: 0;
+}
+#popup-boiler-content-area strong {
+    font-weight: 500; /* Era 700, reso 500 come nel card body */
+    color: var(--dark-color);
+    margin-right: 5px;
+    min-width: 120px; /* Allineamento dei valori */
+    display: inline-block; /* Per min-width */
+}
+#popup-boiler-content-area .popup-value {
+    color: var(--dark-color); /* #495057 in precedenza */
+}
+#popup-boiler-content-area .popup-value a { /* Stili per i link nel popup */
+    color: var(--primary-color);
+    text-decoration: none;
+}
+#popup-boiler-content-area .popup-value a:hover {
+    text-decoration: underline;
+}
+
+#popup-boiler-content-area .unknown-value {
+    color: var(--danger-color);
+    font-style: italic;
+}
 
 /* General loading/no-results */
 .loading-indicator, #loading-indicator,
@@ -407,9 +502,63 @@ main {
 }
 
 /* Admin section */
-#admin-section-caldaie { 
-    border-top: 2px solid var(--warning-color); 
+#admin-section-caldaie {
+    border-top: 2px solid var(--warning-color);
 }
 
 /* Print Styles */
-@media print { /* ... (come prima) ... */ }
+@media print {
+    body {
+        font-size: 10pt;
+        background-color: white;
+        color: black;
+    }
+    header, footer, .page-controls, .filters-container,
+    #admin-section-caldaie, .popup-overlay {
+        display: none !important; /* Nascondi header, footer e filtri */
+    }
+    .listini-page-container {
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .product-grid {
+        display: block; /* Usa block per stacking verticale in stampa */
+    }
+    .boiler-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+        page-break-inside: avoid; /* Cerca di evitare interruzioni di pagina all'interno di una card */
+        margin-bottom: 15px; /* Spazio tra le card stampate */
+        height: auto; /* Lascia che l'altezza sia naturale */
+    }
+    .boiler-card-body-flex { /* Mantieni flex row anche in stampa */
+        flex-direction: row;
+    }
+    .boiler-card-info-column {
+        flex-basis: 60%; /* Più spazio alle info */
+    }
+    .boiler-card-image-column {
+        flex-basis: 40%; /* Meno spazio all'immagine in stampa */
+        max-height: 150px; /* Riduci altezza immagine in stampa */
+    }
+    .boiler-card .image-container img {
+        max-height: 150px;
+    }
+    .boiler-card .price-discounted,
+    .boiler-card .price-list {
+        font-size: 1.2em;
+    }
+    h1, h3, strong {
+        color: black !important;
+    }
+    a {
+        text-decoration: none;
+        color: #0056a8; /* Mantieni colore primario per link riconoscibili */
+    }
+    a[href^="http"]:after, a[href^="https"]:after {
+        content: " (" attr(href) ")"; /* Mostra URL dei link esterni */
+        font-size: 0.8em;
+        color: #555;
+    }
+}
