@@ -1,4 +1,4 @@
-// --- START OF FILE script.js (COMPLETO E CON LOGICA ACCUMULO AGGIORNATA) ---
+// --- START OF FILE script.js (COMPLETO CON ULTIME MODIFICHE) ---
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (Listini Caldaie)");
@@ -54,18 +54,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const ALL_BOILER_FIELDS_MAP = { // NOMI CAMPI DA FIRESTORE -> LABEL
         brand: "Marca", model: "Modello", productCode: "Codice Articolo",
-        type: "Tipologia", powerKw: "Potenza (kW)", dimensions: "Dimensioni (AxLxP)",
-        weightKg: "Peso (kg)", price: "Prezzo", // Mostreremo "Prezzo Scontato" o "Prezzo" in base al contesto
-        listPrice: "Prezzo di Listino", // Aggiungere se 'listPrice' esiste in Firestore e si vuole mostrare
+        type: "Tipologia", powerKw: "Potenza (kW)",
+        dimensions: "Dimensioni AxLxP (mm)", 
+        weightKg: "Peso (kg)", price: "Prezzo", 
+        listPrice: "Prezzo di Listino", 
         nearingEndOfStock: "Articolo in Esaurimento", builtIn: "Incasso",
-        // con_accumulo: "Con Accumulo (Booleano)", // Non mostriamo il booleano grezzo
-        litri_accumulo: "Capacità Accumulo (Litri)", // Per il popup se > 0
+        litri_accumulo: "Capacità Accumulo", 
         outdoorInstallation: "Da Esterno", withBase: "Con Basamento",
         splitterIncluded: "Sdoppiatore Incluso", sanitaryPower: "Potenza Sanitario (kW)",
         heatingPower: "Potenza Riscaldamento (kW)", eer: "EER", cop: "COP",
         datasheetUrl: "Scheda Tecnica",
-        manualeUrl: "Manuale", // Assicurati che 'manualeUrl' esista in Firestore
-        wifi: "WiFi Presente"  // Assicurati che 'wifi' (booleano) esista in Firestore
+        manualeUrl: "Manuale", 
+        wifi: "WiFi Presente"
     };
 
     // --- Utility Functions ---
@@ -93,9 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(noResultsMessage) noResultsMessage.style.display = 'none';
         if(boilerListContainer) boilerListContainer.innerHTML = '';
         try {
-            // Testare prima SENZA orderBy. Se funziona, e vuoi ordinare,
-            // aggiungi .orderBy('brand').orderBy('model') e crea gli indici necessari in Firestore.
-            const snapshot = await db.collection('prodottiCaldaie').get(); 
+            const snapshot = await db.collection('prodottiCaldaie').get(); // Rimuovi .orderBy per ora
             
             console.log(`Firestore snapshot size: ${snapshot.size}`);
             if (snapshot.empty) {
@@ -104,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const boilers = snapshot.docs.map(doc => {
                 const data = doc.data();
-                // console.log(`Boiler ID: ${doc.id}, Data:`, JSON.parse(JSON.stringify(data))); // Rimuovi per console pulita
+                // console.log(`Boiler ID: ${doc.id}, Data:`, JSON.parse(JSON.stringify(data))); // Debug
                 return {
                     id: doc.id,
                     ...data
@@ -262,13 +260,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
 
         const displayPriceVal = boiler.price; 
-        const listPriceVal = boiler.listPrice; // Assicurati che boiler.listPrice esista se vuoi mostrare un prezzo barrato
+        const listPriceVal = boiler.listPrice; 
         const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
 
         let priceHTML = '';
         const formattedDisplayPrice = formatPrice(displayPriceVal);
         if (formattedDisplayPrice) {
-            // Il prezzo rimane blu di default, il badge "ECONOMICO" in alto gestisce l'indicazione visiva gialla
             priceHTML += `<span class="price-discounted">${formattedDisplayPrice}</span>`; 
             if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
                 priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
@@ -284,44 +281,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 disponibilityText = "In Esaurimento";
                 disponibilityClass = "in-esaurimento";
             } else if (boiler.nearingEndOfStock === false) {
-                disponibilityText = "Disponibile"; // Potrebbe venire da un altro campo testuale se presente
+                disponibilityText = "Disponibile";
                 disponibilityClass = "available";
             }
         }
         
-        // --- LOGICA ACCUMULO con campi separati 'con_accumulo' (boolean) e 'litri_accumulo' (number) ---
-        let storageInfoHtml = '';    // Per badge in alto a destra
-        let accumuloDetailHtml = ''; // Alternativa: per info nel corpo della card
+        let storageInfoHtmlBadge = '';
+        let accumuloDetailHtmlInfo = '';
 
         const haAccumuloBooleano = boiler.con_accumulo; 
         const capacitaLitriNumero = boiler.litri_accumulo; 
 
         if (haAccumuloBooleano === true) {
-            let badgeText = 'Sì'; 
+            let badgeText = ''; 
+            let detailText = 'Sì';
             let titleText = 'Accumulo Presente';
 
             if (typeof capacitaLitriNumero === 'number' && capacitaLitriNumero > 0) {
                 badgeText = `${capacitaLitriNumero}L`;
+                detailText = `${capacitaLitriNumero} Litri`;
                 titleText = `Accumulo: ${capacitaLitriNumero}L`;
             }
-            // Per il badge in alto a destra
-            storageInfoHtml = `<span class="storage-badge" title="${titleText}">
-                                    <i class="fas fa-box-archive"></i> ${badgeText}
-                               </span>`;
             
-            // Se preferisci mostrare anche (o solo) nel corpo delle info:
-            // accumuloDetailHtml = `<p class="accumulo-info"><strong>Accumulo:</strong> ${badgeText.replace('L', ' Litri')} <i class="fas fa-box-archive storage-icon-inline"></i></p>`;
+            if (badgeText) { 
+                storageInfoHtmlBadge = `<span class="storage-badge" title="${titleText}">
+                                        <i class="fas fa-box-archive"></i> ${badgeText}
+                                   </span>`;
+            }
+            accumuloDetailHtmlInfo = `<p class="accumulo-info"><strong>Accumulo:</strong> ${detailText} ${!badgeText ? '<i class="fas fa-box-archive storage-icon-inline"></i>' : ''}</p>`;
         }
-        // --- FINE LOGICA ACCUMULO ---
         
         let manualeLinkHTML = '';
-        if (boiler.manualeUrl) { // Assicurati che il campo 'manualeUrl' esista in Firestore
+        if (boiler.manualeUrl) { 
              manualeLinkHTML = `<p class="product-manual"><a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> Manuale</a></p>`;
         } 
 
+        let dimensionsHTML = '';
+        if (boiler.dimensions) {
+            dimensionsHTML = `<p><strong>Dimensioni (AxLxP):</strong> ${escapeHtml(boiler.dimensions)} mm</p>`;
+        }
+
         card.innerHTML = `
             <div class="card-top-right-elements">
-                ${storageInfoHtml}
+                ${storageInfoHtmlBadge}
                 ${isEconomico ? '<span class="economico-badge">ECONOMICO</span>' : ''}
                 ${boiler.wifi === true ? '<span class="wifi-icon-display"><i class="fas fa-wifi" title="WiFi Presente"></i></span>' : ''}
             </div>
@@ -339,10 +341,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="boiler-card-info-column">
                     <div class="boiler-info">
                         ${boiler.powerKw ? `<p><strong>Potenza:</strong> ${escapeHtml(String(boiler.powerKw))} kW</p>` : ''}
+                        ${dimensionsHTML}
                         ${boiler.productCode ? `<p><strong>Codice:</strong> ${escapeHtml(boiler.productCode)}</p>` : ''}
                         ${boiler.type ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.type)}</p>` : ''}
                         <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
-                        ${accumuloDetailHtml} {/* Se vuoi l'info accumulo qui, decommenta questa riga e la sua definizione sopra */}
+                        ${accumuloDetailHtmlInfo}
                         ${boiler.datasheetUrl ? `<p class="product-datasheet"><a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>` : ''}
                         ${manualeLinkHTML}
                     </div>
@@ -375,8 +378,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else if (auth.currentUser) {
                     noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non conformi.';
                 }
-                // Non sovrascrivere il messaggio di "autenticati" se l'utente non è loggato
-                // o un errore più specifico (es. indice mancante)
                 const currentNoResultsText = noResultsMessage.textContent ? noResultsMessage.textContent.toLowerCase() : "";
                 if (auth.currentUser || (!auth.currentUser && currentNoResultsText !== 'devi essere autenticato per visualizzare i listini.')) {
                      if (!currentNoResultsText.includes('configurazione database') && !currentNoResultsText.includes('accesso ai listini non autorizzato')) {
@@ -404,19 +405,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const displayLabel = ALL_BOILER_FIELDS_MAP[fieldKeyInFirestore];
                 let value = boiler[fieldKeyInFirestore]; 
 
-                // Gestione speciale per accumulo se si vuole un output diverso da solo i litri
-                if (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo !== true) {
-                    continue; // Non mostrare "Capacità Accumulo" se con_accumulo è false
+                if (fieldKeyInFirestore === 'litri_accumulo') {
+                    if (boiler.con_accumulo !== true) { 
+                        continue; 
+                    }
+                    if (boiler.con_accumulo === true && (value === null || value === undefined || typeof value !== 'number' || value <= 0)) {
+                        value = "Sì (capacità non specificata)"; 
+                    } else if (typeof value === 'number' && value > 0) {
+                        value = `${value} Litri`; 
+                    } else {
+                        continue; 
+                    }
                 }
-                 if (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo === true && (value === null || value === undefined || value === 0) ) {
-                    value = "Sì (capacità non specificata)"; // Se con_accumulo è true ma litri è 0 o null
-                }
-
-
+                
                 let displayValueHtml; 
-                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "") || value === 0 && fieldKeyInFirestore !== 'litri_accumulo' /* litri 0 è valido */) {
-                    if (['price', 'listPrice', 'nearingEndOfStock'].includes(fieldKeyInFirestore) || (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo === true)) {
-                         displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>'; // Mostra sconosciuto per prezzo o se accumulo è true ma litri non specificati
+                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "") || (typeof value === 'number' && value === 0 && fieldKeyInFirestore !== 'litri_accumulo') ) {
+                    if (['price', 'listPrice', 'nearingEndOfStock'].includes(fieldKeyInFirestore)) {
+                         displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
+                    } else if (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo === true && value !== "Sì (capacità non specificata)") { 
+                         displayValueHtml = '<span class="unknown-value">Non specificata</span>';
                     } else {
                         continue; 
                     }
@@ -427,10 +434,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else if (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice') { 
                     const formatted = formatPrice(value);
                     displayValueHtml = formatted ? escapeHtml(formatted) : '<span class="unknown-value">SCONOSCIUTO</span>';
-                } else if (fieldKeyInFirestore === 'litri_accumulo') {
-                    displayValueHtml = (typeof value === 'number' && value > 0) ? `${escapeHtml(String(value))} Litri` : escapeHtml(String(value)); // Aggiunge "Litri"
-                }
-                 else {
+                } else if (fieldKeyInFirestore === 'dimensions' && boiler[fieldKeyInFirestore]) { 
+                     displayValueHtml = `${escapeHtml(String(boiler[fieldKeyInFirestore]))} mm`;
+                } else {
                     displayValueHtml = escapeHtml(String(value));
                 }
                 boilerDetailsPopupContentArea.innerHTML += `<p><strong>${escapeHtml(displayLabel)}:</strong> <span class="popup-value">${displayValueHtml}</span></p>`;
@@ -666,4 +672,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeCaldaiePage();
 });
 
-// --- END OF FILE script.js (COMPLETO E CON LOGICA ACCUMULO AGGIORNATA) ---
+// --- END OF FILE script.js ---
