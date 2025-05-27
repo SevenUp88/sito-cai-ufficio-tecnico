@@ -244,26 +244,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         displayBoilers(filteredBoilers);
         updateResetButtonVisibility();
     }
-
-    // --- Boiler Card Creation and Display ---
+// --- Boiler Card Creation and Display ---
     function createBoilerCard(boiler) {
     const card = document.createElement('div');
     card.classList.add('boiler-card');
     card.dataset.boilerId = boiler.id;
 
-    // =============== INIZIO MODIFICA: AGGIUNTA CLASSE BRAND ===============
     if (boiler.brand) {
-        // Crea un nome di classe CSS-friendly dalla marca:
-        // es. "BAXI" -> "brand-baxi", "CosmoGas" -> "brand-cosmogas"
-        const brandClass = `brand-${boiler.brand.toLowerCase() // minuscolo
-                                      .replace(/\s+/g, '-')    // spazi con trattini
-                                      .replace(/[^\w-]+/g, '')}`; // rimuovi caratteri non validi
+        const brandClass = `brand-${boiler.brand.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}`;
         card.classList.add(brandClass);
     }
-    // =============== FINE MODIFICA: AGGIUNTA CLASSE BRAND =================
-
-    // Da qui in poi, il resto della tua funzione rimane invariato.
-    // La card ora avrà la classe aggiuntiva (es. 'brand-baxi') se la marca è definita.
 
     card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
 
@@ -326,10 +316,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             accumuloDetailHtmlInfo = `<p class="accumulo-info"><strong>Accumulo:</strong> ${detailText} ${!badgeText ? '<i class="fas fa-box-archive storage-icon-inline"></i>' : ''}</p>`;
         }
         
-        let manualeLinkHTML = '';
-        if (boiler.manualeUrl) { 
-             manualeLinkHTML = `<p class="product-manual"><a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-book-open"></i> Manuale</a></p>`;
-        } 
+        // MODIFICATO: Logica per generare i link ai documenti
+        let documentsLinksHTML = '';
+        const datasheetLink = boiler.datasheetUrl 
+            ? `<a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer" class="product-link product-datasheet-link"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>` 
+            : '';
+        const manualeLink = boiler.manualeUrl 
+            ? `<a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer" class="product-link product-manual-link"><i class="fas fa-book-open"></i> Manuale</a>`
+            : '';
+
+        if (datasheetLink || manualeLink) {
+            documentsLinksHTML = `
+                <div class="product-documents-links">
+                    ${datasheetLink}
+                    ${manualeLink}
+                </div>`;
+        }
+        // FINE MODIFICA
 
         let dimensionsHTML = '';
         if (boiler.dimensions) {
@@ -361,8 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${boiler.type ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.type)}</p>` : ''}
                         <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
                         ${accumuloDetailHtmlInfo}
-                        ${boiler.datasheetUrl ? `<p class="product-datasheet"><a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>` : ''}
-                        ${manualeLinkHTML}
+                        ${documentsLinksHTML} {/* Inserisci il contenitore dei link qui */}
                     </div>
                 </div>
                 <div class="boiler-card-image-column">
