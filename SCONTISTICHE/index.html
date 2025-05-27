@@ -346,13 +346,14 @@
                 }
 
                 let trasportoDisplay = "N/A";
-                if (rule.hasOwnProperty('trasporto') && typeof rule.trasporto === 'number') {
-                    trasportoDisplay = rule.trasporto > 0 ? `${rule.trasporto.toFixed(2)} €` : "Gratuito";
-                } else if (rule.hasOwnProperty('trasporto') && rule.trasporto === null) {
-                    trasportoDisplay = `${rule.trasporto.toFixed(2)} %`; 
-                } else if (rule.hasOwnProperty('trasporto') && rule.trasporto === null) {
-                trasportoDisplay = "N/A"; 
-            }
+                // Controlla se rule.trasporto esiste, è un numero, e NON è NaN
+                if (rule.hasOwnProperty('trasporto') && typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
+                    trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
+                } else if (rule.hasOwnProperty('trasporto') && (rule.trasporto === null || isNaN(rule.trasporto))) {
+                    // Gestisce esplicitamente null o NaN (se per qualche motivo typeof fosse number ma il valore fosse NaN)
+                    trasportoDisplay = "N/A";
+                }
+                // Se rule.trasporto non esiste proprio, o è undefined, rimane "N/A"
 
                 // MODIFICATO: Riordino celle <td>
                 row.innerHTML = `
