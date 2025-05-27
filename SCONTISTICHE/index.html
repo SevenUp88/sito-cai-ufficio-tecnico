@@ -90,15 +90,28 @@
         /* Tabella */
         .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
         .discounts-matrix-table th, .discounts-matrix-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.85em; vertical-align: top; }
-               /* NUOVA DISTRIBUZIONE LARGHEZZE */
-        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 16%; } /* Categoria (ridotta) */
-        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 14%; } /* Marca (ridotta) */
-        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 14%; } /* Sconti Acquisto (ridotta) */
-        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 12%; } /* Sconti Vendita (invariata) */
-        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 12%; } /* Agenzia (invariata) */
-        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 9%; }  /* Trasporto (€) (leggermente ridotta) */
-        .discounts-matrix-table th:nth-child(7), .discounts-matrix-table td:nth-child(7) { width: 23%; } /* Centri Assistenza (aumentata per contenuto, ma prima era 18% con errore, quindi testiamo) */
-        /* Totale attuale: 16+14+14+12+12+9+23 = 100% */
+        /* MODIFICATO: Riordino e larghezze colonne */
+        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 16%; } /* Categoria */
+        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 14%; } /* Marca */
+        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 14%; } /* Sconti Acquisto */
+        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 9%; }  /* Trasporto (€) - NUOVA POSIZIONE */
+        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 12%; } /* Sconti Vendita */
+        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 12%; } /* Agenzia */
+        .discounts-matrix-table th:nth-child(7), .discounts-matrix-table td:nth-child(7) { width: 23%; } /* Centri Assistenza */
+        .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
+        .discounts-matrix-table tr:last-child td { border-bottom: none; }
+        .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
+        .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
+        .discounts-display { font-weight: 500; } .category-name { font-weight: 600; color: var(--primary-color); }
+        .brand-name { font-weight: 500; } 
+        .service-centers-cell { 
+            font-size: 0.85em; 
+            line-height: 1.5; 
+            white-space: normal; 
+            word-break: break-word;
+        }
+        .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
+        
         /* Calcolatore Sconto */
         .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
         .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
@@ -110,7 +123,7 @@
         .calculator-panel .form-group { margin-bottom: 15px; }
         .calculator-panel .form-group label { font-size: 0.85em; font-weight: 500; margin-bottom: 5px; color: var(--secondary-color); }
         .calculator-panel #calc-base-price { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px; }
-        .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; border-radius: var(--border-radius); cursor:pointer; } /* Aggiunto border-radius e cursor */
+        .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; border-radius: var(--border-radius); cursor:pointer; }
         .calculator-panel .button-primary-calc { background-color: var(--matrice-accent-success); }
         .calculator-panel .button-primary-calc:hover { background-color: #147543; }
         .calculator-panel .button-secondary-calc { background-color: var(--secondary-color); }
@@ -190,8 +203,8 @@
 
         <div class="content-card">
             <table class="discounts-matrix-table">
-                <!-- MODIFICATO: Aggiunta intestazione Trasporto -->
-                <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto</th><th>Sconti Vendita</th><th>Agenzia</th><th>Trasporto (€)</th><th>Centri Assistenza</th></tr></thead>
+                <!-- MODIFICATO: Riordino intestazioni -->
+                <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto</th><th>Trasporto (€)</th><th>Sconti Vendita</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
                 <tbody id="discounts-matrix-body"></tbody>
             </table>
             <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola.</div>
@@ -299,7 +312,6 @@
 
         function resetFilters() { document.getElementById('category-filter').value = ""; document.getElementById('brand-filter').value = ""; applyUiFilters(); showToast("Filtri resettati."); }
         
-        // MODIFICATO: Funzione renderTable per includere il campo trasporto
         function renderTable(rulesToRender) {
             const tableBody = document.getElementById('discounts-matrix-body');
             const noDataMsg = document.getElementById('no-data-message');
@@ -322,7 +334,7 @@
             });
 
             sortedRules.forEach(rule => {
-                // console.log("Dati regola da Firestore:", rule); // Decommenta per debug se necessario
+                // console.log("Dati regola da Firestore:", rule);
                 const row = tableBody.insertRow();
                 let caDisplay = "N/A"; const ca = rule.centriAssistenza;
                 if (ca && typeof ca === 'object' && Object.keys(ca).length > 0) {
@@ -333,22 +345,21 @@
                     caDisplay = p.join('<br>');
                 }
 
-                // LOGICA PER IL TRASPORTO
                 let trasportoDisplay = "N/A";
                 if (rule.hasOwnProperty('trasporto') && typeof rule.trasporto === 'number') {
                     trasportoDisplay = rule.trasporto > 0 ? `${rule.trasporto.toFixed(2)} €` : "Gratuito";
                 } else if (rule.hasOwnProperty('trasporto') && rule.trasporto === null) {
-                    // Se il campo 'trasporto' esiste in Firestore ed è esplicitamente null
-                    trasportoDisplay = "N/A"; // O "-" o come preferisci per i non applicabili
+                    trasportoDisplay = "N/A"; 
                 }
-                // Se il campo 'trasporto' non è proprio presente nell'oggetto 'rule', trasportoDisplay rimarrà "N/A"
 
+                // MODIFICATO: Riordino celle <td>
                 row.innerHTML = `
-                    <td class="category-name">${rule.categoria}</td> <td class="brand-name">${rule.marca}</td>
+                    <td class="category-name">${rule.categoria}</td> 
+                    <td class="brand-name">${rule.marca}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
+                    <td>${trasportoDisplay}</td> <!-- CELLA PER TRASPORTO -->
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
                     <td>${rule.agente || 'N/A'}</td>
-                    <td>${trasportoDisplay}</td> 
                     <td class="service-centers-cell">${caDisplay}</td>`;
             });
         }
