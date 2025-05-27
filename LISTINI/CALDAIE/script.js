@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${boiler.type ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.type)}</p>` : ''}
                         <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
                         ${accumuloDetailHtmlInfo}
-                        ${documentsLinksHTML} {/* Inserisci il contenitore dei link qui */}
+                        ${documentsLinksHTML} 
                     </div>
                 </div>
                 <div class="boiler-card-image-column">
