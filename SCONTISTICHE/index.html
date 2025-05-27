@@ -90,23 +90,15 @@
         /* Tabella */
         .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
         .discounts-matrix-table th, .discounts-matrix-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.85em; vertical-align: top; }
-        /* MODIFICATO: Larghezze colonne per includere Trasporto */
-        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 18%; } /* Categoria */
-        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 15%; } /* Marca */
-        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 15%; } /* Sconti Acquisto */
-        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 12%; } /* Sconti Vendita */
-        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 12%; } /* Agenzia */
-        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 10%; } /* Trasporto (€) */
-        .discounts-matrix-table th:nth-child(7), .discounts-matrix-table td:nth-child(7) { width: 18%; } /* Centri Assistenza */
-        .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
-        .discounts-matrix-table tr:last-child td { border-bottom: none; }
-        .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
-        .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
-        .discounts-display { font-weight: 500; } .category-name { font-weight: 600; color: var(--primary-color); }
-        .brand-name { font-weight: 500; } .service-centers-cell { font-size: 0.85em; line-height: 1.5; max-width: 280px; white-space: normal; word-break: break-word;}
-        .service-centers-cell strong { color: var(--dark-color); }
-        .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
-        
+               /* NUOVA DISTRIBUZIONE LARGHEZZE */
+        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 16%; } /* Categoria (ridotta) */
+        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 14%; } /* Marca (ridotta) */
+        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 14%; } /* Sconti Acquisto (ridotta) */
+        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 12%; } /* Sconti Vendita (invariata) */
+        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 12%; } /* Agenzia (invariata) */
+        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 9%; }  /* Trasporto (€) (leggermente ridotta) */
+        .discounts-matrix-table th:nth-child(7), .discounts-matrix-table td:nth-child(7) { width: 23%; } /* Centri Assistenza (aumentata per contenuto, ma prima era 18% con errore, quindi testiamo) */
+        /* Totale attuale: 16+14+14+12+12+9+23 = 100% */
         /* Calcolatore Sconto */
         .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
         .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
@@ -356,7 +348,7 @@
                     <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
                     <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
                     <td>${rule.agente || 'N/A'}</td>
-                    <td>${trasportoDisplay}</td> {/* CELLA PER TRASPORTO */}
+                    <td>${trasportoDisplay}</td> 
                     <td class="service-centers-cell">${caDisplay}</td>`;
             });
         }
