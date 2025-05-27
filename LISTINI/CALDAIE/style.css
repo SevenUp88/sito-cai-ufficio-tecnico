@@ -241,9 +241,9 @@ main {
 .economico-badge, .storage-badge, .wifi-icon-display {
     display: inline-flex;
     align-items: center;
-    font-size: 0.65em;  /* Dimensione testo badge ridotta */
-    padding: 2px 6px;   /* Padding badge ridotto */
-    border-radius: 5px; /* Raggio bordo badge adattato */
+    font-size: 0.75em;  /* Dimensione testo badge ridotta */
+    padding: 5px 8px;   /* Padding badge ridotto */
+    border-radius: 6px; /* Raggio bordo badge adattato */
     font-weight: bold;
     text-transform: uppercase;
     white-space: nowrap;
