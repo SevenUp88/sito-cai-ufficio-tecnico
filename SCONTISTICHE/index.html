@@ -349,8 +349,10 @@
                 if (rule.hasOwnProperty('trasporto') && typeof rule.trasporto === 'number') {
                     trasportoDisplay = rule.trasporto > 0 ? `${rule.trasporto.toFixed(2)} €` : "Gratuito";
                 } else if (rule.hasOwnProperty('trasporto') && rule.trasporto === null) {
-                    trasportoDisplay = "N/A"; 
-                }
+                    trasportoDisplay = `${rule.trasporto.toFixed(2)} %`; 
+                } else if (rule.hasOwnProperty('trasporto') && rule.trasporto === null) {
+                trasportoDisplay = "N/A"; 
+            }
 
                 // MODIFICATO: Riordino celle <td>
                 row.innerHTML = `
