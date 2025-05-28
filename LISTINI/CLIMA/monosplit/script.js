@@ -179,7 +179,7 @@
                             <div class="product-details">
                                 <p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p>
                                 ${energyClassHTML} 
-                                ${productCodeHTML} {/* Potrebbe essere modificato a seconda del <br> precedente */}
+                                ${productCodeHTML} 
                                 ${dimensionsHTML} 
                                 ${datasheetLink}
                             </div>
