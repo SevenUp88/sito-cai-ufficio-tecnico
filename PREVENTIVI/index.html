@@ -22,13 +22,19 @@
         .app-header {
             display: flex;
             align-items: center;
-            gap: 20px; /* Spazio tra logo e titolo */
+            justify-content: space-between; /* Modificato per logout button */
+            gap: 20px;
             padding: 10px 30px;
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
+        }
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         .logo {
             height: 45px;
@@ -40,9 +46,78 @@
             font-size: 1.8em;
             margin: 0;
         }
+        #logout-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        #logout-button:hover {
+            background-color: #c82333;
+        }
 
-        /* Area Contenuto Principale */
-        #content-area {
+
+        /* Login Section */
+        #login-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        #login-section h2 {
+            color: #0056a8;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%; /* Calc rimosso per semplicità con box-sizing */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-login {
+            background-color: #0056a8;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #004182;
+        }
+        #login-error {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 0.9em;
+            min-height: 1.2em; /* Per evitare salti di layout */
+            text-align: center;
+        }
+
+
+        /* Area Contenuto Principale (nascosta inizialmente) */
+        #app-content { /* Rinominato da #content-area per distinguerlo dal body */
             padding: 25px 30px 40px;
             flex-grow: 1;
             background-color: #ffffff;
@@ -72,10 +147,9 @@
             outline: none;
         }
 
-
         /* Tabella */
         .table-container {
-            overflow-x: auto; /* Permette lo scroll orizzontale su schermi piccoli */
+            overflow-x: auto;
             width: 100%;
         }
         table {
@@ -94,7 +168,7 @@
             border: 1px solid #dee2e6;
         }
         tbody tr:nth-child(even) {
-            background-color: #f8f9fa; /* Colore alternato per leggibilità */
+            background-color: #f8f9fa;
         }
         tbody tr:hover {
             background-color: #e9ecef;
@@ -116,14 +190,16 @@
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 15px;
-                flex-direction: column;
-                align-items: flex-start;
+                 /* flex-direction: column; Non più necessario con space-between e title group */
+                 /* align-items: flex-start; */
             }
-            .app-header h1 {
+            .header-title-group h1 {
                 font-size: 1.5em;
-                margin-top: 5px;
             }
-            #content-area {
+            #login-section {
+                margin: 20px auto;
+            }
+            #app-content {
                 padding: 15px;
                 margin: 10px;
             }
@@ -140,84 +216,161 @@
 <body>
 
     <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-        <h1>Elenco Preventivi</h1>
+        <div class="header-title-group">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+            <h1>Elenco Preventivi</h1>
+        </div>
+        <button id="logout-button" class="hidden">Logout</button>
     </header>
 
-    <main id="content-area">
-        <div class="controls-container">
-            <input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato...">
-        </div>
+    <main> <!-- Rimosso ID #content-area da main per evitare conflitti di stile, il contenuto dell'app è in #app-content -->
+        <section id="login-section">
+            <h2>Accesso Riservato</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error"></p>
+            </form>
+        </section>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>CLIENTE</th>
-                        <th>DATA</th>
-                        <th>RIFERIMENTO</th>
-                        <th>NUMERO</th>
-                        <th>STATO</th>
-                        <th>NOTE</th>
-                    </tr>
-                </thead>
-                <tbody id="preventivi-table-body">
-                    <tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>
-                </tbody>
-            </table>
+        <div id="app-content" class="hidden"> <!-- Contenuto principale visibile dopo login -->
+            <div class="controls-container">
+                <input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato...">
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CLIENTE</th>
+                            <th>DATA</th>
+                            <th>RIFERIMENTO</th>
+                            <th>NUMERO</th>
+                            <th>STATO</th>
+                            <th>NOTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preventivi-table-body">
+                        <!-- Le righe verranno popolate da JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            <p id="no-results-message" class="hidden">Nessun preventivo trovato.</p>
         </div>
-        <p id="no-results-message" class="hidden">Nessun preventivo trovato.</p>
     </main>
 
     <!-- Firebase SDKs v8 (Namespace/Global) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> <!-- AGGIUNTO AUTH SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- Eventualmente Firebase Auth se necessario -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> -->
 
     <script>
-        // Your web app's Firebase configuration
-        // Questa è la stessa configurazione che hai fornito.
         const firebaseConfig = {
-            apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // ATTENZIONE: Considera di proteggere API Key se l'app diventa più complessa
+            apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
             projectId: "consorzio-artigiani-idraulici",
-            storageBucket: "consorzio-artigiani-idraulici.appspot.com", // corretto: .appspot.com per storageBucket
+            storageBucket: "consorzio-artigiani-idraulici.appspot.com",
             messagingSenderId: "136848104008",
             appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-            measurementId: "G-NNPV2607G7" // Opzionale per Firestore, ma incluso nella tua config
+            measurementId: "G-NNPV2607G7"
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Inizializzazione Firebase (usando API v8 globale)
             if (typeof firebase === 'undefined') {
                 console.error("Firebase SDK non caricato.");
-                const tbody = document.getElementById('preventivi-table-body');
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-message">Errore: Firebase SDK non caricato.</td></tr>';
+                alert("Errore critico: Firebase SDK non disponibile.");
                 return;
             }
 
             try {
-                if (!firebase.apps.length) { // Controlla se Firebase è già stato inizializzato
+                if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 } else {
-                    firebase.app(); // Ottieni l'istanza di default se già inizializzata
+                    firebase.app();
                 }
             } catch (e) {
                 console.error("Errore inizializzazione Firebase: ", e);
-                const tbody = document.getElementById('preventivi-table-body');
-                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-message">Errore inizializzazione Firebase.</td></tr>';
+                alert("Errore critico: impossibile inizializzare Firebase.");
                 return;
             }
 
+            const auth = firebase.auth(); // API v8
             const db = firebase.firestore(); // API v8
+
+            const loginSection = document.getElementById('login-section');
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            const appContent = document.getElementById('app-content');
+            const logoutButton = document.getElementById('logout-button');
+
             const preventiviTableBody = document.getElementById('preventivi-table-body');
             const searchInput = document.getElementById('search-input');
             const noResultsMessage = document.getElementById('no-results-message');
             let allPreventivi = [];
 
+
+            // --- FUNZIONI DI AUTENTICAZIONE ---
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = loginForm.email.value;
+                const password = loginForm.password.value;
+                loginError.textContent = '';
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Login riuscito
+                        console.log("Utente loggato:", userCredential.user);
+                        // Non è necessario fare nulla qui perché onAuthStateChanged gestirà la UI
+                    })
+                    .catch((error) => {
+                        console.error("Errore di login:", error);
+                        loginError.textContent = красиво "Email o password errati."; // Traduci in "Email o password errati."
+                        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                            loginError.textContent = "Email o password errati.";
+                        } else {
+                            loginError.textContent = "Errore di accesso. Riprova.";
+                        }
+                    });
+            });
+
+            logoutButton.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    console.log("Utente disconnesso.");
+                    // onAuthStateChanged gestirà il cambio UI
+                }).catch((error) => {
+                    console.error("Errore di logout:", error);
+                });
+            });
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Utente loggato
+                    loginSection.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    logoutButton.classList.remove('hidden');
+                    fetchPreventivi(); // Carica i dati solo se loggato
+                } else {
+                    // Utente non loggato
+                    loginSection.classList.remove('hidden');
+                    appContent.classList.add('hidden');
+                    logoutButton.classList.add('hidden');
+                    preventiviTableBody.innerHTML = ''; // Pulisci la tabella
+                    allPreventivi = []; // Resetta i dati
+                    noResultsMessage.classList.add('hidden');
+                }
+            });
+
+
+            // --- FUNZIONI GESTIONE PREVENTIVI (come prima, ma chiamate da onAuthStateChanged) ---
             function formatDate(timestamp) {
-                if (timestamp && typeof timestamp.toDate === 'function') { // Controlla che sia un timestamp Firestore valido
+                if (timestamp && typeof timestamp.toDate === 'function') {
                     const date = timestamp.toDate();
                     const day = String(date.getDate()).padStart(2, '0');
                     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -229,11 +382,16 @@
 
             function renderTable(preventiviData) {
                 preventiviTableBody.innerHTML = '';
-                if (preventiviData.length === 0) {
+                if (preventiviData.length === 0 && searchInput.value.trim() !== '') { // Se la ricerca non ha prodotto risultati
+                    noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca.";
                     noResultsMessage.classList.remove('hidden');
-                    return;
+                } else if (preventiviData.length === 0 && allPreventivi.length === 0) { // Se non ci sono proprio preventivi
+                    noResultsMessage.textContent = "Nessun preventivo disponibile.";
+                    noResultsMessage.classList.remove('hidden');
+                } else {
+                     noResultsMessage.classList.add('hidden');
                 }
-                noResultsMessage.classList.add('hidden');
+
 
                 preventiviData.forEach(preventivo => {
                     const row = preventiviTableBody.insertRow();
@@ -244,42 +402,56 @@
                     row.insertCell().textContent = preventivo.stato || '';
                     const noteCell = row.insertCell();
                     noteCell.textContent = preventivo.note || '';
-                    noteCell.style.whiteSpace = 'pre-wrap'; // Per mostrare a capo nelle note se presenti
-                    noteCell.style.wordBreak = 'break-word'; // Per spezzare parole lunghe
+                    noteCell.style.whiteSpace = 'pre-wrap';
+                    noteCell.style.wordBreak = 'break-word';
                 });
             }
 
             function fetchPreventivi() {
                 preventiviTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>';
                 noResultsMessage.classList.add('hidden');
+                noResultsMessage.textContent = "Nessun preventivo trovato."; // Reset messaggio
 
                 db.collection("preventivi")
-                  // .orderBy("data", "desc") // Opzionale
                   .get()
                   .then((querySnapshot) => {
                         allPreventivi = [];
                         if (querySnapshot.empty) {
                             preventiviTableBody.innerHTML = '';
+                            noResultsMessage.textContent = "Nessun preventivo disponibile.";
                             noResultsMessage.classList.remove('hidden');
                             return;
                         }
                         querySnapshot.forEach((doc) => {
                             allPreventivi.push({ id: doc.id, ...doc.data() });
                         });
-                        renderTable(allPreventivi);
+                        renderTable(allPreventivi); // Render iniziale
+                        if (searchInput.value.trim() !== '') filterPreventivi(); // Applica filtro se già presente
                     })
                     .catch((error) => {
                         console.error("Errore nel caricare i preventivi: ", error);
-                        preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`;
+                        if (error.code === 'permission-denied') {
+                             preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Accesso negato. Verifica le autorizzazioni.</td></tr>`;
+                        } else {
+                             preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`;
+                        }
+                        allPreventivi = []; // Resetta in caso di errore per evitare di mostrare dati vecchi al prossimo login
                     });
             }
 
             function filterPreventivi() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                if (!searchTerm) {
+                if (!searchTerm && allPreventivi.length > 0) { // Verifica che allPreventivi non sia vuoto
                     renderTable(allPreventivi);
                     return;
                 }
+                 if (!searchTerm && allPreventivi.length === 0) { // Se la ricerca è vuota E non ci sono dati
+                    preventiviTableBody.innerHTML = '';
+                    noResultsMessage.textContent = "Nessun preventivo disponibile.";
+                    noResultsMessage.classList.remove('hidden');
+                    return;
+                }
+
 
                 const filtered = allPreventivi.filter(p => {
                     return (
@@ -296,8 +468,7 @@
             if (searchInput) {
                 searchInput.addEventListener('input', filterPreventivi);
             }
-
-            fetchPreventivi();
+            // fetchPreventivi() viene chiamato da onAuthStateChanged dopo login
         });
     </script>
 </body>
