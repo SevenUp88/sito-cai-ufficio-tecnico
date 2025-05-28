@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elenco Preventivi - CAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Reset base e stili generali */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header e Logo */
+        .app-header {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Spazio tra logo e titolo */
+            padding: 10px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            height: 45px;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .app-header h1 {
+            color: #0056a8;
+            font-size: 1.8em;
+            margin: 0;
+        }
+
+        /* Area Contenuto Principale */
+        #content-area {
+            padding: 25px 30px 40px;
+            flex-grow: 1;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+        }
+
+        /* Controlli (barra di ricerca) */
+        .controls-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        #search-input {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+        }
+        #search-input:focus {
+            border-color: #0056a8;
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 168, 0.25);
+            outline: none;
+        }
+
+
+        /* Tabella */
+        .table-container {
+            overflow-x: auto; /* Permette lo scroll orizzontale su schermi piccoli */
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+            background-color: #fff;
+        }
+        thead tr {
+            background-color: #0056a8;
+            color: #ffffff;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa; /* Colore alternato per leggibilità */
+        }
+        tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        td {
+            color: #495057;
+        }
+        .loading-message, #no-results-message {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 10px 15px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .app-header h1 {
+                font-size: 1.5em;
+                margin-top: 5px;
+            }
+            #content-area {
+                padding: 15px;
+                margin: 10px;
+            }
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9em;
+            }
+             #search-input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <h1>Elenco Preventivi</h1>
+    </header>
+
+    <main id="content-area">
+        <div class="controls-container">
+            <input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato...">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CLIENTE</th>
+                        <th>DATA</th>
+                        <th>RIFERIMENTO</th>
+                        <th>NUMERO</th>
+                        <th>STATO</th>
+                        <th>NOTE</th>
+                    </tr>
+                </thead>
+                <tbody id="preventivi-table-body">
+                    <tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p id="no-results-message" class="hidden">Nessun preventivo trovato.</p>
+    </main>
+
+    <!-- Firebase SDKs v8 (Namespace/Global) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Eventualmente Firebase Auth se necessario -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script> -->
+
+    <script>
+        // Your web app's Firebase configuration
+        // Questa è la stessa configurazione che hai fornito.
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // ATTENZIONE: Considera di proteggere API Key se l'app diventa più complessa
+            authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+            projectId: "consorzio-artigiani-idraulici",
+            storageBucket: "consorzio-artigiani-idraulici.appspot.com", // corretto: .appspot.com per storageBucket
+            messagingSenderId: "136848104008",
+            appId: "1:136848104008:web:2724f60607dbe91d09d67d",
+            measurementId: "G-NNPV2607G7" // Opzionale per Firestore, ma incluso nella tua config
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inizializzazione Firebase (usando API v8 globale)
+            if (typeof firebase === 'undefined') {
+                console.error("Firebase SDK non caricato.");
+                const tbody = document.getElementById('preventivi-table-body');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-message">Errore: Firebase SDK non caricato.</td></tr>';
+                return;
+            }
+
+            try {
+                if (!firebase.apps.length) { // Controlla se Firebase è già stato inizializzato
+                    firebase.initializeApp(firebaseConfig);
+                } else {
+                    firebase.app(); // Ottieni l'istanza di default se già inizializzata
+                }
+            } catch (e) {
+                console.error("Errore inizializzazione Firebase: ", e);
+                const tbody = document.getElementById('preventivi-table-body');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-message">Errore inizializzazione Firebase.</td></tr>';
+                return;
+            }
+
+            const db = firebase.firestore(); // API v8
+            const preventiviTableBody = document.getElementById('preventivi-table-body');
+            const searchInput = document.getElementById('search-input');
+            const noResultsMessage = document.getElementById('no-results-message');
+            let allPreventivi = [];
+
+            function formatDate(timestamp) {
+                if (timestamp && typeof timestamp.toDate === 'function') { // Controlla che sia un timestamp Firestore valido
+                    const date = timestamp.toDate();
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    return `${day}/${month}/${year}`;
+                }
+                return 'N/D';
+            }
+
+            function renderTable(preventiviData) {
+                preventiviTableBody.innerHTML = '';
+                if (preventiviData.length === 0) {
+                    noResultsMessage.classList.remove('hidden');
+                    return;
+                }
+                noResultsMessage.classList.add('hidden');
+
+                preventiviData.forEach(preventivo => {
+                    const row = preventiviTableBody.insertRow();
+                    row.insertCell().textContent = preventivo.cliente || '';
+                    row.insertCell().textContent = formatDate(preventivo.data);
+                    row.insertCell().textContent = preventivo.riferimento || '';
+                    row.insertCell().textContent = preventivo.numero || '';
+                    row.insertCell().textContent = preventivo.stato || '';
+                    const noteCell = row.insertCell();
+                    noteCell.textContent = preventivo.note || '';
+                    noteCell.style.whiteSpace = 'pre-wrap'; // Per mostrare a capo nelle note se presenti
+                    noteCell.style.wordBreak = 'break-word'; // Per spezzare parole lunghe
+                });
+            }
+
+            function fetchPreventivi() {
+                preventiviTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>';
+                noResultsMessage.classList.add('hidden');
+
+                db.collection("preventivi")
+                  // .orderBy("data", "desc") // Opzionale
+                  .get()
+                  .then((querySnapshot) => {
+                        allPreventivi = [];
+                        if (querySnapshot.empty) {
+                            preventiviTableBody.innerHTML = '';
+                            noResultsMessage.classList.remove('hidden');
+                            return;
+                        }
+                        querySnapshot.forEach((doc) => {
+                            allPreventivi.push({ id: doc.id, ...doc.data() });
+                        });
+                        renderTable(allPreventivi);
+                    })
+                    .catch((error) => {
+                        console.error("Errore nel caricare i preventivi: ", error);
+                        preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`;
+                    });
+            }
+
+            function filterPreventivi() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                if (!searchTerm) {
+                    renderTable(allPreventivi);
+                    return;
+                }
+
+                const filtered = allPreventivi.filter(p => {
+                    return (
+                        (p.cliente && p.cliente.toLowerCase().includes(searchTerm)) ||
+                        (p.numero && p.numero.toLowerCase().includes(searchTerm)) ||
+                        (p.stato && p.stato.toLowerCase().includes(searchTerm)) ||
+                        (p.riferimento && p.riferimento.toLowerCase().includes(searchTerm)) ||
+                        (p.note && p.note.toLowerCase().includes(searchTerm))
+                    );
+                });
+                renderTable(filtered);
+            }
+
+            if (searchInput) {
+                searchInput.addEventListener('input', filterPreventivi);
+            }
+
+            fetchPreventivi();
+        });
+    </script>
+</body>
+</html>
