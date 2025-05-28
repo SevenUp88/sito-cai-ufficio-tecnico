@@ -464,8 +464,8 @@
                 // Potresti nascondere la sezione multisplit e mostrare monosplit se fossero sulla stessa pagina
                 sectionTabs.forEach(tb=>tb.classList.remove('active'));
                 t.classList.add('active');
-                document.getElementById('monosplit-section')?.style.display = 'block';
-                document.getElementById('multisplit-section')?.style.display = 'none';
+            document.getElementById('monosplit-section')?.style.display = 'block';
+             document.getElementById('multisplit-section')?.style.display = 'none';
                 applyFiltersAndSort(); // Riesegui filtri se cambia la sezione visualizzata (potrebbe non essere necessario qui)
             }
         }));
