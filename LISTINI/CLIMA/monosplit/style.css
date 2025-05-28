@@ -138,8 +138,7 @@ main { padding-top: 10px; }
 .product-codes .code-value { color: var(--dark-color); font-family: inherit; font-size: inherit; line-height: 1.4; display: block; }
 .product-codes .code-value span { color: var(--secondary-color); font-size: 0.9em; margin-left: 4px; }
 
-.product-dimensions { display: none; }
-.product-dimensions strong { display: block; margin-bottom: 3px; }
+.product-dimensions strong { display: inline; margin-bottom: 0px; }
 .product-dimensions span { display: inline; }
 .product-dimensions span + span::before { content: " / "; font-weight: normal; color: var(--secondary-color); }
 
