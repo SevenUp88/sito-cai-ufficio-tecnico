@@ -134,12 +134,12 @@ main { padding-top: 10px; }
 .energy-class .cooling { background-color: #0d6efd; }
 .energy-class .heating { background-color: var(--danger-color); }
 
-.product-codes strong { display: block; margin-bottom: 3px; }
+.product-codes strong { display: block; margin-bottom: 2px; }
 .product-codes .code-value { color: var(--dark-color); font-family: inherit; font-size: inherit; line-height: 1.4; display: block; }
 .product-codes .code-value span { color: var(--secondary-color); font-size: 0.9em; margin-left: 4px; }
 
 .product-dimensions strong { display: inline; margin-bottom: 0px; }
-.product-dimensions span { display: inline; }
+.product-dimensions strong { display: inline; }
 .product-dimensions span + span::before { content: " / "; font-weight: normal; color: var(--secondary-color); }
 
 .product-datasheet { margin-top: 12px; }
