@@ -76,6 +76,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             return placeholder;
         };
+        
+        const getLinkField = (fieldValue) => { // Specific for URLs
+            if (fieldValue && typeof fieldValue === 'string' && fieldValue.trim() !== "" && fieldValue.toUpperCase() !== "DATI MANCANTI" && fieldValue.toUpperCase() !== "N/A" && fieldValue.toUpperCase() !== "N/D" && fieldValue.toUpperCase() !== "N.D.") {
+                return fieldValue.trim();
+            }
+            return null; // Return null if not a valid URL string
+        };
+
 
         APP_DATA.outdoorUnits = outdoorUnitsDocs.map((ue_doc, index) => { // THIS IS THE CORRECT AND ONLY MAPPING FOR outdoorUnits
             const brandId = String(ue_doc.marca || 'sconosciuta').toLowerCase();
@@ -93,7 +101,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 weight: getFieldOrPlaceholder(ue_doc.peso_ue),
                 energyClassCooling: getFieldOrPlaceholder(ue_doc.classe_energetica_raffrescamento),
                 energyClassHeating: getFieldOrPlaceholder(ue_doc.classe_energetica_riscaldamento),
-                compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : []
+                compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : [],
+                scheda_tecnica_url: getLinkField(ue_doc.scheda_tecnica_url) // Assuming field name is scheda_tecnica_url
             };
 
             if (ue_doc.codice_prodotto === "730440" || ue_doc.codice_prodotto === "765278") {
@@ -120,7 +129,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 capacityBTU: btu, kw: kw, price: Number(ui_doc.prezzo_ui) || 0, image: imagePath,
                 dimensions: getFieldOrPlaceholder(ui_doc.dimensioni_ui), 
                 weight: getFieldOrPlaceholder(ui_doc.peso_ui), 
-                wifi: ui_doc.wifi === true
+                wifi: ui_doc.wifi === true,
+                scheda_tecnica_url: getLinkField(ui_doc.scheda_tecnica_url) // Assuming field name is scheda_tecnica_url
             };
         });
     } 
@@ -214,38 +224,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         infoDiv.appendChild(modelP);
 
         const energyClassContainerP = document.createElement('p');
-    const energyLabelSpan = document.createElement('span');
-    energyLabelSpan.classList.add('energy-class-label');
-    energyLabelSpan.textContent = "Classe En.:"; // MODIFIED LABEL
-    energyClassContainerP.appendChild(energyLabelSpan);
-    
-    const coolingVal = unit?.energyClassCooling;
-    let coolingDisplayText = valOrDashDisplay(coolingVal, '', '-'); // Suffix is empty, placeholder is '-'
-    let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
+        const energyLabelSpan = document.createElement('span');
+        energyLabelSpan.classList.add('energy-class-label');
+        energyLabelSpan.textContent = "Classe En.:"; // MODIFIED LABEL
+        energyClassContainerP.appendChild(energyLabelSpan);
+        
+        const coolingVal = unit?.energyClassCooling;
+        let coolingDisplayText = valOrDashDisplay(coolingVal, '', '-'); // Suffix is empty, placeholder is '-'
+        let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
 
-    const coolingSpan = document.createElement('span');
-    coolingSpan.classList.add('energy-rating'); // General class
-    coolingSpan.classList.toggle('cooling', isCoolingDataValid); // Blue background if valid
-    coolingSpan.classList.toggle('unknown', !isCoolingDataValid); // Grey if not valid
-    coolingSpan.textContent = coolingDisplayText;
-    energyClassContainerP.appendChild(coolingSpan);
+        const coolingSpan = document.createElement('span');
+        coolingSpan.classList.add('energy-rating'); // General class
+        coolingSpan.classList.toggle('cooling', isCoolingDataValid); // Blue background if valid
+        coolingSpan.classList.toggle('unknown', !isCoolingDataValid); // Grey if not valid
+        coolingSpan.textContent = coolingDisplayText;
+        energyClassContainerP.appendChild(coolingSpan);
 
-    const separatorSpan = document.createElement('span');
-    separatorSpan.classList.add('energy-separator');
-    separatorSpan.textContent = " / "; // MODIFIED SEPARATOR to have spaces
-    energyClassContainerP.appendChild(separatorSpan);
+        const separatorSpan = document.createElement('span');
+        separatorSpan.classList.add('energy-separator');
+        separatorSpan.textContent = " / "; // MODIFIED SEPARATOR to have spaces
+        energyClassContainerP.appendChild(separatorSpan);
 
-    const heatingVal = unit?.energyClassHeating;
-    let heatingDisplayText = valOrDashDisplay(heatingVal, '', '-');
-    let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
-    
-    const heatingSpan = document.createElement('span');
-    heatingSpan.classList.add('energy-rating'); // General class
-    heatingSpan.classList.toggle('heating', isHeatingDataValid); // Red background if valid
-    heatingSpan.classList.toggle('unknown', !isHeatingDataValid); // Grey if not valid
-    heatingSpan.textContent = heatingDisplayText;
-    energyClassContainerP.appendChild(heatingSpan);
-    infoDiv.appendChild(energyClassContainerP);
+        const heatingVal = unit?.energyClassHeating;
+        let heatingDisplayText = valOrDashDisplay(heatingVal, '', '-');
+        let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
+        
+        const heatingSpan = document.createElement('span');
+        heatingSpan.classList.add('energy-rating'); // General class
+        heatingSpan.classList.toggle('heating', isHeatingDataValid); // Red background if valid
+        heatingSpan.classList.toggle('unknown', !isHeatingDataValid); // Grey if not valid
+        heatingSpan.textContent = heatingDisplayText;
+        energyClassContainerP.appendChild(heatingSpan);
+        infoDiv.appendChild(energyClassContainerP);
 
         const dimensionsP = document.createElement('p');
         const dimDisplay = valOrDashDisplay(unit?.dimensions);
@@ -275,6 +285,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         priceText += " € (IVA escl.)";
         priceP.textContent = priceText;
         infoDiv.appendChild(priceP);
+
+        // Add Technical Sheet button if URL exists
+        if (unit && unit.scheda_tecnica_url) {
+            const techSheetButton = document.createElement('a');
+            techSheetButton.href = unit.scheda_tecnica_url;
+            techSheetButton.target = '_blank';
+            techSheetButton.rel = 'noopener noreferrer';
+            techSheetButton.classList.add('technical-sheet-button'); 
+            techSheetButton.textContent = 'Scheda Tecnica';
+            // Prevent card click when button is clicked
+            techSheetButton.addEventListener('click', (e) => e.stopPropagation()); 
+            infoDiv.appendChild(techSheetButton);
+        }
 
         card.appendChild(infoDiv);
         card.addEventListener('click', () => {
@@ -358,6 +381,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
         html += `<p>Peso: <strong>${valOrDash(unit.weight, ' kg')}</strong></p>`;
         html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`;
+        
+        // Add Technical Sheet button if URL exists
+        if (unit.scheda_tecnica_url) {
+            html += `<p><a href="${escapeHtml(unit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Scheda Tecnica</a></p>`;
+        }
         return html;
     }
 
@@ -572,8 +600,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
                 <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
                 <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
-                <p><strong>Classe (F/C):</strong> ${valOrDash(selections.outdoorUnit?.energyClassCooling)} / ${valOrDash(selections.outdoorUnit?.energyClassHeating)}</p>
+                <p><strong>Classe (F/C):</strong> ${energyClassHtml}</p>
                 <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
+                ${selections.outdoorUnit && selections.outdoorUnit.scheda_tecnica_url ? 
+                    `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(selections.outdoorUnit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                    : ''
+                }
             </div>
         `;
         layoutContainer.appendChild(outdoorUnitBlock);
@@ -597,6 +629,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
                     <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
                     <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
+                    ${ui.scheda_tecnica_url ? 
+                        `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(ui.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                        : ''
+                    }
                 `;
                 indoorUnitsContainer.appendChild(uiCard);
             });
@@ -623,11 +659,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             unsafeString = String(unsafeString);
         }
         let newString = unsafeString;
-        newString = newString.replace(/&/g, "&");
+        newString = newString.replace(/&/g, "&"); // Use & for ampersand
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, "'");
-        newString = newString.replace(/'/g, "'");
+        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/'/g, "'"); // Use ' for single quote
         return newString;
     }
 
