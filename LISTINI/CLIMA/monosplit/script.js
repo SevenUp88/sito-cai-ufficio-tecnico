@@ -77,9 +77,6 @@
 
     // --- FUNZIONI CORE ---
     function createProductCard(product) {
-        // !!! INCOLLA QUI LA TUA IMPLEMENTAZIONE COMPLETA DI createProductCard !!!
-        // (Assicurati che NON generi bottoni di modifica/salvataggio/annulla)
-        // Questo è un placeholder MOLTO basilare per permettere allo script di funzionare:
         if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
         try {
             const imageUrl = product.image_url || '../images/placeholder.png';
@@ -98,13 +95,95 @@
             const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
             const logoPath = `../images/logos/${safeBrandName}.png`;
             const placeholderLogoPath = '../images/logos/placeholder_logo.png';
-            let economicBadgeHTML = ''; if (economicModels.includes(model.toUpperCase())) economicBadgeHTML = `<span class="economic-badge" title="Prodotto linea economica">Economico</span>`;
-            let wifiIconHTML = ''; const wifiString = String(wifi).toLowerCase().trim(); if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
-            let datasheetLink = ''; if (datasheetUrl && String(datasheetUrl).trim() !== '') datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
-            let productCodeHTML = ''; if (productCode && productCode !== 'N/D') { let codeContent = ''; const hasComponentPrices = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number'; if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) { const uiMatch = productCode.match(/UI:\s*([^/]+)/); const ueMatch = productCode.match(/UE:\s*([^/]+)/); const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D'; const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D'; codeContent = `UI: ${uiCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`; codeContent += `<br>UE: ${ueCode}`; if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`; } else { codeContent = productCode; } productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><span class="code-value">${codeContent}</span></p>`;}
-            let dimensionsHTML = ''; if (uiDimensions !== "N/D") { dimensionsHTML += `<span>UI: ${uiDimensions}</span>`; } if (!isMonobloc && ueDimensions !== "N/D") { if (dimensionsHTML !== '') dimensionsHTML += ''; dimensionsHTML += `<span>UE: ${ueDimensions}</span>`; } if (dimensionsHTML !== '') { dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong> ${dimensionsHTML}</p>`; }
-            const actionButtonsContainerContent = ''; // Nessun bottone di modifica
-            return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}"><div class="card-top-right-elements">${economicBadgeHTML}${wifiIconHTML}</div><div class="product-header"><img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';"><div class="product-title-brand"><span class="product-brand-text">${brand}</span><h3 class="product-model">${model}</h3></div></div><img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';"><div class="product-info"><div class="product-details"><p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p><p class="energy-class product-info-text"><strong>Classe En.:</strong><span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span>/<span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>${productCodeHTML}${dimensionsHTML}${datasheetLink}</div><div class="product-footer"><div class="product-price-value">${formatPrice(product.prezzo)}</div><div class="action-buttons-container">${actionButtonsContainerContent}</div></div></div></div>`;
+
+            // --- BADGE ECONOMICO (da spostare nel footer) ---
+            let economicBadgeHTML_footer = ''; // Nome variabile cambiato per chiarezza
+            if (economicModels.includes(model.toUpperCase())) {
+                economicBadgeHTML_footer = `<span class="economic-badge economic-badge-footer" title="Prodotto linea economica">Economico</span>`;
+            }
+
+            // --- ICONA WIFI (rimane nel top-right) ---
+            let wifiIconHTML = '';
+            const wifiString = String(wifi).toLowerCase().trim();
+            if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') {
+                wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
+            }
+            const cardTopRightElementsHTML = `${wifiIconHTML}`; // Solo WiFi (o vuoto) nel top-right
+            
+            let datasheetLink = '';
+            if (datasheetUrl && String(datasheetUrl).trim() !== '') {
+                datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
+            }
+
+            // --- GESTIONE CODICI ARTICOLO ---
+            let productCodeHTML = '';
+            if (productCode && productCode !== 'N/D') {
+                let codeContent = '';
+                const hasComponentPrices = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number';
+                if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) {
+                    const uiMatch = productCode.match(/UI:\s*([^/]+)/);
+                    const ueMatch = productCode.match(/UE:\s*([^/]+)/);
+                    const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D';
+                    const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D';
+                    codeContent = `UI: ${uiCode}`;
+                    if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`;
+                    codeContent += `<br>UE: ${ueCode}`;
+                    if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`;
+                } else {
+                    codeContent = productCode;
+                }
+                productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><span class="code-value">${codeContent}</span></p>`;
+            }
+            
+            // --- GESTIONE DIMENSIONI (con "Unità esterna/interna" e ordine corretto) ---
+            let dimensionsDetailsStrings = [];
+            // Ordine come da tua immagine: Esterna prima, poi Interna
+            if (!isMonobloc && ueDimensions !== "N/D") {
+                dimensionsDetailsStrings.push(`<span class="dimension-item">Unità esterna: ${ueDimensions}</span>`);
+            }
+            if (uiDimensions !== "N/D") {
+                dimensionsDetailsStrings.push(`<span class="dimension-item">Unità interna: ${uiDimensions}</span>`);
+            }
+
+            let dimensionsHTML = '';
+            if (dimensionsDetailsStrings.length > 0) {
+                const joinedDetails = dimensionsDetailsStrings.join(''); // Ogni .dimension-item andrà a capo via CSS
+                dimensionsHTML = `<p class="product-info-text product-dimensions">
+                                    <strong>Dimensioni AxLxP (mm):</strong>
+                                    <span class="dimensions-values-wrapper">${joinedDetails}</span>
+                                  </p>`;
+            }
+
+            // --- CLASSE ENERGETICA (slash rimosso, spazio inserito) ---
+            const energyClassHTML = `<p class="energy-class product-info-text"><strong>Classe En.:</strong><span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>`;
+
+            const actionButtonsContainerContent = ''; // Non ci sono bottoni admin nella vista standard
+            
+            return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
+                        <div class="card-top-right-elements">${cardTopRightElementsHTML}</div>
+                        <div class="product-header">
+                            <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';">
+                            <div class="product-title-brand">
+                                <span class="product-brand-text">${brand}</span>
+                                <h3 class="product-model">${model}</h3>
+                            </div>
+                        </div>
+                        <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
+                        <div class="product-info">
+                            <div class="product-details">
+                                <p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p>
+                                ${energyClassHTML}
+                                ${productCodeHTML}
+                                ${dimensionsHTML}
+                                ${datasheetLink}
+                            </div>
+                            <div class="product-footer">
+                                <div class="product-price-value">${formatPrice(product.prezzo)}</div>
+                                ${economicBadgeHTML_footer} {/* BADGE ECONOMICO INSERITO QUI */}
+                                <div class="action-buttons-container">${actionButtonsContainerContent}</div>
+                            </div>
+                        </div>
+                    </div>`;
         } catch(e){console.error(`Err card ID ${product?.id}`,e);return `<div class="product-card error-card">Errore creazione card ${product?.id}</div>`;}
     }
 
@@ -161,7 +240,8 @@
         else html = '<p class="no-results">Nessun prodotto con i filtri attuali.</p>';
         monosplitGrid.innerHTML = html;
         if (monosplitSection) monosplitSection.style.display = 'block';
-        // Non c'è addTooltipListeners se l'hai rimosso
+        // Tooltip listeners: assicurati che addTooltipListeners (se l'hai rimossa) non sia chiamata o ridefiniscila se necessario.
+        // Al momento non è usata in questo frammento di codice, ma è una nota.
     }
     
     function showLoginScreen() {
@@ -172,17 +252,23 @@
         if (loginPanel) loginPanel.classList.add('visible');
         if (exitAdminButton) exitAdminButton.style.display = 'none';
     }
+
     function hideLoginScreenAndShowApp() {
         console.log("UI_STATE: hideLoginScreenAndShowApp");
         if (loginPanel) loginPanel.classList.remove('visible');
         if (mainPageContainer) mainPageContainer.classList.remove('content-hidden');
         if (headerElement) headerElement.classList.remove('content-hidden');
-        if (exitAdminButton) exitAdminButton.style.display = currentUser ? 'inline-flex' : 'none';
+        if (exitAdminButton) exitAdminButton.style.display = currentUser ? 'inline-flex' : 'none'; // Mostra se loggato
         if (appStatusMessageElement) appStatusMessageElement.style.display = 'none';
     }
+
     async function initializeAppForUser(user) {
         console.log("AUTH_FLOW: initializeAppForUser per", user.email);
         currentUser = user;
+        // Nota: il ruolo admin qui controlla le classi body, che a loro volta nel CSS
+        // potrebbero mostrare/nascondere bottoni di edit che al momento non sono generati
+        // da createProductCard nella versione "utente normale". Se riattivi bottoni admin
+        // in createProductCard, assicurati che siano condizionali al ruolo.
         if (db && user) {
             const userDocRef = db.collection('users').doc(user.uid);
             try {
@@ -192,13 +278,17 @@
                 console.log("AUTH_FLOW: Ruolo:", currentUserRole);
             } catch (e) { currentUserRole = 'user'; console.error("AUTH_FLOW: Err ruolo Firestore:", e); }
         } else { currentUserRole = user ? 'user' : null; console.warn("AUTH_FLOW: DB o user non disp per ruolo."); }
-        document.body.classList.toggle('admin-mode',currentUserRole==='admin'); document.body.classList.toggle('operator-mode',currentUserRole!=='admin'||!currentUserRole);
+        
+        document.body.classList.toggle('admin-mode', currentUserRole === 'admin');
+        document.body.classList.toggle('operator-mode', currentUserRole !== 'admin' || !currentUserRole);
         console.log("AUTH_FLOW: Classi body. Admin:", document.body.classList.contains('admin-mode'));
+        
         hideLoginScreenAndShowApp();
         console.log("AUTH_FLOW: Chiamo initializeAppMainLogic...");
         await initializeAppMainLogic();
         console.log("AUTH_FLOW: initializeAppMainLogic completata.");
     }
+
     function performLogoutCleanup() {
         console.log("AUTH_FLOW: performLogoutCleanup");
         currentUser=null;currentUserRole=null;allProductsFromFirestore=[];currentFilteredProducts=[];
@@ -206,6 +296,7 @@
         document.body.classList.remove('admin-mode');document.body.classList.add('operator-mode');
         showLoginScreen();
     }
+
     async function initializeAppMainLogic() {
         console.log("APP_LOGIC: Inizio (dati da Firestore).");
         if(appStatusMessageElement) appStatusMessageElement.style.display = 'none';
@@ -214,23 +305,57 @@
         if (!Array.isArray(allProductsFromFirestore) || allProductsFromFirestore.length === 0) {
              if(monosplitGrid && !monosplitGrid.querySelector('.error-message') && !monosplitGrid.querySelector('.no-results')) monosplitGrid.innerHTML = '<p class="no-results">Nessun prodotto nel DB.</p>';
         }
-        currentBrandFilter='all'; showOnlyEconomic=false;
+        currentBrandFilter='all'; showOnlyEconomic=false; // Reset filtri
         document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));
-        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active');
-        updateAvailableBrandFilters(allProductsFromFirestore);
-        filterButtons.forEach(btn=>btn.classList.remove('active'));
+        document.querySelector('.tab-btn[data-section="monosplit"]')?.classList.add('active'); // Attiva tab monosplit
+        updateAvailableBrandFilters(allProductsFromFirestore); // Aggiorna filtri brand disponibili
+        
+        // Resetta i bottoni filtro marca
+        filterButtons.forEach(btn=>{ if(btn.dataset.brand) btn.classList.remove('active'); });
         document.querySelector('.filter-btn[data-brand="all"]')?.classList.add('active');
+        
+        // Resetta il bottone filtro economici
         const ecBtn=document.querySelector('.filter-btn[data-filter-type="economic"]');if(ecBtn)ecBtn.classList.remove('active');
+        
         applyFiltersAndSort();
         console.log("APP_LOGIC: Fine.");
     }
-    function mapFirebaseAuthError(errCode){ console.log("AUTH_ERR: map per", errCode); switch(errCode){case"auth/invalid-email":case"auth/invalid-credential":return"Email o password errati.";case"auth/user-disabled":return"Account disabilitato.";case"auth/user-not-found":return"Utente non registrato.";case"auth/wrong-password":return"Password errata.";case"auth/too-many-requests":return"Troppi tentativi.";default:return"Errore auth: "+errCode;}}
+
+    function mapFirebaseAuthError(errCode){ 
+        console.log("AUTH_ERR: map per", errCode); 
+        switch(errCode){
+            case"auth/invalid-email":case"auth/invalid-credential":return"Email o password errati.";
+            case"auth/user-disabled":return"Account disabilitato.";
+            case"auth/user-not-found":return"Utente non registrato.";
+            case"auth/wrong-password":return"Password errata.";
+            case"auth/too-many-requests":return"Troppi tentativi. Riprova più tardi.";
+            default:return"Errore autenticazione: "+errCode;
+        }
+    }
 
     // --- DOMContentLoaded ---
     document.addEventListener('DOMContentLoaded', () => {
         console.log("DOM_LOADED: Eseguito.");
-        mainPageContainer=document.querySelector('.container'); headerElement=document.querySelector('.app-header'); loginPanel=document.getElementById('password-panel'); closeLoginPanelBtn=document.getElementById('close-panel-btn'); loginEmailInput=document.getElementById('login-email-input-clima'); loginPasswordInput=document.getElementById('admin-password'); submitLoginBtn=document.getElementById('submit-password-btn'); loginErrorMsg=document.getElementById('password-error'); monosplitGrid=document.getElementById('monosplit-grid'); filterButtons=document.querySelectorAll('.filters .filter-btn'); sectionTabs=document.querySelectorAll('.section-tabs .tab-btn'); monosplitSection=document.getElementById('monosplit-section'); exitAdminButton=document.getElementById('exit-admin-button'); printButton=document.getElementById('print-button'); tooltipElement=document.getElementById('dimension-tooltip'); appStatusMessageElement=document.getElementById('app-status-message');
+        // Seleziona elementi DOM
+        mainPageContainer=document.querySelector('.container'); 
+        headerElement=document.querySelector('.app-header'); 
+        loginPanel=document.getElementById('password-panel'); 
+        closeLoginPanelBtn=document.getElementById('close-panel-btn'); 
+        loginEmailInput=document.getElementById('login-email-input-clima'); 
+        loginPasswordInput=document.getElementById('admin-password'); 
+        submitLoginBtn=document.getElementById('submit-password-btn'); 
+        loginErrorMsg=document.getElementById('password-error'); 
+        monosplitGrid=document.getElementById('monosplit-grid'); 
+        filterButtons=document.querySelectorAll('.filters .filter-btn'); 
+        sectionTabs=document.querySelectorAll('.section-tabs .tab-btn'); 
+        monosplitSection=document.getElementById('monosplit-section'); 
+        exitAdminButton=document.getElementById('exit-admin-button'); 
+        printButton=document.getElementById('print-button'); 
+        tooltipElement=document.getElementById('dimension-tooltip'); // Se usato per altro, altrimenti si può rimuovere
+        appStatusMessageElement=document.getElementById('app-status-message');
+        
         console.log("DOM_LOADED: Elementi selezionati. loginEmailInput:",!!loginEmailInput);
+
         if(appStatusMessageElement) appStatusMessageElement.textContent = "Inizializzazione (DOM OK)...";
         else { console.warn("DOM_LOADED: #app-status-message non trovato!");}
 
@@ -240,7 +365,11 @@
             if(mainPageContainer)mainPageContainer.classList.add('content-hidden');if(headerElement)headerElement.classList.add('content-hidden');
             return; 
         }
-        if(loginPanel){const pT=loginPanel.querySelector('h3');if(pT)pT.textContent='Accesso Area Riservata';const pD=loginPanel.querySelector('p:not(.error-message)');if(pD)pD.textContent='Credenziali per continuare.';if(submitLoginBtn)submitLoginBtn.textContent="Accedi";}
+        if(loginPanel){
+            const pT=loginPanel.querySelector('h3');if(pT)pT.textContent='Accesso Area Riservata';
+            const pD=loginPanel.querySelector('p:not(.error-message)');if(pD)pD.textContent='Credenziali per continuare.';
+            if(submitLoginBtn)submitLoginBtn.textContent="Accedi";
+        }
         console.log("DOM_LOADED: Pannello login OK.");
 
         if (auth) {
@@ -249,34 +378,103 @@
                 console.log("AUTH_CALLBACK: onAuthStateChanged. User:", user?user.email:"Nessuno.");
                 firebaseAuthInitialized = true; 
                 if(appStatusMessageElement)appStatusMessageElement.textContent = "Verifica autenticazione...";
-                if(user)initializeAppForUser(user);else performLogoutCleanup();
+                if(user) initializeAppForUser(user); else performLogoutCleanup();
             });
-            submitLoginBtn.addEventListener('click',()=>{console.log("LOGIN_BTN: Click.");const e=loginEmailInput.value.trim(),p=loginPasswordInput.value;loginErrorMsg.textContent='';if(!e||!p){loginErrorMsg.textContent='Email/Pass obbligatori.';return;}console.log("LOGIN_ATTEMPT:", e);auth.signInWithEmailAndPassword(e,p).catch(err=>{console.error("LOGIN_ERR:",err);loginErrorMsg.textContent=mapFirebaseAuthError(err.code);if(loginPasswordInput)loginPasswordInput.classList.add('input-error');if(loginEmailInput)loginEmailInput.classList.add('input-error');});});
+
+            submitLoginBtn.addEventListener('click',()=>{
+                console.log("LOGIN_BTN: Click.");
+                const e=loginEmailInput.value.trim(),p=loginPasswordInput.value;
+                loginErrorMsg.textContent='';
+                loginEmailInput.classList.remove('input-error'); 
+                loginPasswordInput.classList.remove('input-error');
+
+                if(!e||!p){loginErrorMsg.textContent='Email e Password sono obbligatori.';return;}
+                console.log("LOGIN_ATTEMPT:", e);
+                auth.signInWithEmailAndPassword(e,p).catch(err=>{
+                    console.error("LOGIN_ERR:",err);
+                    loginErrorMsg.textContent=mapFirebaseAuthError(err.code);
+                    if(loginPasswordInput)loginPasswordInput.classList.add('input-error');
+                    if(loginEmailInput)loginEmailInput.classList.add('input-error');
+                });
+            });
+            loginEmailInput.addEventListener('input', () => { loginEmailInput.classList.remove('input-error'); loginErrorMsg.textContent=''; });
+            loginPasswordInput.addEventListener('input', () => { loginPasswordInput.classList.remove('input-error'); loginErrorMsg.textContent=''; });
+
             loginEmailInput.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();submitLoginBtn.click();}});
             loginPasswordInput.addEventListener('keypress',e=>{if(e.key==='Enter'){e.preventDefault();submitLoginBtn.click();}});
-            if(exitAdminButton)exitAdminButton.addEventListener('click',()=>{console.log("LOGOUT_BTN: Click.");auth.signOut().catch(e=>console.error('Logout err:',e));});
-            if(closeLoginPanelBtn)closeLoginPanelBtn.addEventListener('click',()=>{if(loginPanel)loginPanel.classList.remove('visible');console.log("LOGIN_PANEL_CLOSED.");});
+            
+            if(exitAdminButton)exitAdminButton.addEventListener('click',()=>{
+                console.log("LOGOUT_BTN: Click.");auth.signOut().catch(e=>console.error('Logout err:',e));
+            });
+            
+            if(closeLoginPanelBtn)closeLoginPanelBtn.addEventListener('click',()=>{
+                if(loginPanel)loginPanel.classList.remove('visible');console.log("LOGIN_PANEL_CLOSED.");
+            });
             console.log("DOM_LOADED: Listeners Auth OK.");
         } else {
             console.error("DOM_LOADED: FATAL - 'auth' NON definito!");
             if(appStatusMessageElement)appStatusMessageElement.innerHTML='<p style="color:red;">Servizio Auth non disp.</p>';
         }
 
+        // Fallback se onAuthStateChanged non scatta subito
         setTimeout(() => {
             console.log("TIMEOUT: Eseguito. firebaseAuthInitialized:", firebaseAuthInitialized, "auth.currentUser:", auth?.currentUser?.email);
-            if (!firebaseAuthInitialized && auth) {
-                if(appStatusMessageElement) appStatusMessageElement.textContent = "Timeout auth, verifico...";
-                if(!auth.currentUser) {console.log("TIMEOUT: Nessun utente, chiamo logout cleanup.");performLogoutCleanup();}
-                else {console.log("TIMEOUT: Utente trovato, chiamo init app.");initializeAppForUser(auth.currentUser);}
-            } else if (!firebaseAuthInitialized && !auth) { if(appStatusMessageElement)appStatusMessageElement.innerHTML="<p style='color:red;'>Timeout: Servizio auth non init.</p>"; }
-            else if (firebaseAuthInitialized) { console.log("TIMEOUT: Auth già inizializzato. Nessuna azione."); }
-        }, 3500); // Aumentato a 3.5s per reti lente
+            if (!firebaseAuthInitialized && auth) { // Solo se auth esiste ma non ha ancora chiamato il callback
+                if(appStatusMessageElement) appStatusMessageElement.textContent = "Timeout autenticazione, verifico manualmente...";
+                if(!auth.currentUser) { // Se non c'è utente dopo il timeout
+                    console.log("TIMEOUT: Nessun utente, chiamo logout cleanup.");
+                    performLogoutCleanup();
+                } else { // Se un utente è trovato (es. da sessione persistente)
+                    console.log("TIMEOUT: Utente trovato, chiamo init app.");
+                    initializeAppForUser(auth.currentUser);
+                }
+            } else if (!firebaseAuthInitialized && !auth) { // Caso peggiore: auth non è proprio definito
+                if(appStatusMessageElement)appStatusMessageElement.innerHTML="<p style='color:red;'>Timeout: Servizio autenticazione non inizializzato.</p>"; 
+            }
+            else if (firebaseAuthInitialized) { // Auth ha già fatto il suo corso
+                console.log("TIMEOUT: Autenticazione già inizializzata. Nessuna azione.");
+            }
+        }, 3500); // Aumentato a 3.5s per reti più lente
         console.log("DOM_LOADED: Timeout fallback impostato.");
         
-        if(filterButtons.length>0)filterButtons.forEach(b=>b.addEventListener('click',e=>{if(!currentUser)return;const cb=e.currentTarget,ft=cb.dataset.filterType,bf=cb.dataset.brand;console.log("FILTER_CLICK:",{type:ft,brand:bf});if(ft==='economic'){showOnlyEconomic=!showOnlyEconomic;cb.classList.toggle('active',showOnlyEconomic);}else if(bf){filterButtons.forEach(btn=>{if(btn.dataset.brand)btn.classList.remove('active');});cb.classList.add('active');currentBrandFilter=bf.toLowerCase()==='all'?'all':bf.toUpperCase();} applyFiltersAndSort();}));
-        if(sectionTabs.length>0)sectionTabs.forEach(t=>t.addEventListener('click',e=>{if(!currentUser)return;const ts=t.dataset.section;console.log("TAB_CLICK:",ts);e.preventDefault();if(ts==='multisplit')window.location.href='../multisplit/index.html';else if(ts==='monosplit'){sectionTabs.forEach(tb=>tb.classList.remove('active'));t.classList.add('active');}}));
-        if(printButton)printButton.addEventListener('click',()=>{if(!currentUser){alert("Login per stampare.");return;}window.print();});
-        console.log("DOM_LOADED: Listeners UI agganciati.");
+        // Listeners UI (Filtri, Tabs, Stampa)
+        if(filterButtons.length>0)filterButtons.forEach(b=>b.addEventListener('click',e=>{
+            if(!currentUser)return; // Non fare nulla se non loggato
+            const cb=e.currentTarget,ft=cb.dataset.filterType,bf=cb.dataset.brand;
+            console.log("FILTER_CLICK:",{type:ft,brand:bf});
+            if(ft==='economic'){
+                showOnlyEconomic=!showOnlyEconomic;
+                cb.classList.toggle('active',showOnlyEconomic);
+            }else if(bf){
+                filterButtons.forEach(btn=>{if(btn.dataset.brand)btn.classList.remove('active');}); // Deseleziona altri brand
+                cb.classList.add('active');
+                currentBrandFilter=bf.toLowerCase()==='all'?'all':bf.toUpperCase();
+            } 
+            applyFiltersAndSort();
+        }));
+
+        if(sectionTabs.length>0)sectionTabs.forEach(t=>t.addEventListener('click',e=>{
+            if(!currentUser)return;
+            const ts=t.dataset.section;
+            console.log("TAB_CLICK:",ts);
+            e.preventDefault(); // Previene navigazione se il tab fosse un link
+            if(ts==='multisplit') {
+                window.location.href='../multisplit/index.html'; // Naviga a multisplit
+            } else if(ts==='monosplit'){
+                // Potresti nascondere la sezione multisplit e mostrare monosplit se fossero sulla stessa pagina
+                sectionTabs.forEach(tb=>tb.classList.remove('active'));
+                t.classList.add('active');
+                document.getElementById('monosplit-section')?.style.display = 'block';
+                document.getElementById('multisplit-section')?.style.display = 'none';
+                applyFiltersAndSort(); // Riesegui filtri se cambia la sezione visualizzata (potrebbe non essere necessario qui)
+            }
+        }));
+        
+        if(printButton)printButton.addEventListener('click',()=>{
+            if(!currentUser){alert("Devi effettuare il login per stampare il listino.");return;}
+            window.print();
+        });
+        console.log("DOM_LOADED: Listeners UI (filtri, tabs, print) agganciati.");
     });
     console.log("SCRIPT: Fine definizione DOMContentLoaded.");
 
