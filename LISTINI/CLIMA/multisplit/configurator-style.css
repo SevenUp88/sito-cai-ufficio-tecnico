@@ -1,527 +1,936 @@
-/* File: configurator-style.css */
+// --- START OF SCRIPT.JS (FIREBASE - 6 STEP FLOW - SCENARIO 1: EXACT CONNECTIONS) ---
+// Flow: Marca -> Config -> Modello -> UE -> UI Taglie -> Riepilogo
 
-:root {
-    --primary-color: #0056a8;
-    --secondary-color: #6c757d;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --background-color: #ffffff;
-    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --border-radius: 8px;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
-    --header-height: 65px;
-    --sticky-offset: calc(var(--header-height) + 10px);
-    --summary-gap: 15px; 
-}
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log("DOM Contenuto Caricato - Inizio script.js (6-Step Flow - Scenario 1)");
 
-.configurator-container {
-    background-color: var(--light-color);
-    padding: 25px;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.config-step {
-    display: none;
-    padding: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
-    background-color: var(--background-color);
-    margin-bottom: 25px;
-}
-
-#step-6.config-step { 
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
-    padding: 0;
-}
-
-.config-step.active-step {
-    display: block;
-}
-
-.config-step h2:not(#summary-main-title) { 
-    color: var(--primary-color);
-    margin-top: 0;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color);
-    font-size: 1.6em;
-}
-h2#summary-main-title { /* This is the on-screen title for Step 6 Summary */
-    text-align: center;
-    font-size: 1.8em; 
-    font-weight: bold;
-    color: var(--primary-color);
-    margin-bottom: 25px; 
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color);
-}
-.config-step h2 .step-number-title { 
-    color: var(--primary-color);
-    margin-right: 8px;
-    font-weight: bold;
-}
-
-/* Step Indicator ... (Keep existing styles) ... */
-.step-indicator {
-    display: flex;
-    align-items: flex-start; 
-    justify-content: space-between;
-    margin-bottom: 35px;
-    padding: 0 10px;
-}
-.step-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    cursor: pointer;
-    flex-basis: 0;
-    flex-grow: 1;
-    max-width: 15%;
-    position: relative;
-    padding-bottom: 30px; 
-}
-.step-item.disabled {
-    cursor: not-allowed; opacity: 0.6;
-}
-.step-dot {
-    width: 30px; height: 30px; border-radius: 50%; background-color: #ccc;
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-weight: bold; transition: background-color 0.3s ease; margin-bottom: 5px;
-}
-.step-name {
-    font-size: 0.75em; color: var(--secondary-color); font-weight: 500;
-    line-height: 1.2; overflow-wrap: break-word;
-    word-break: break-word;
-    margin-bottom: 5px; 
-}
-.step-selection-info {
-    display: block;
-    font-size: 0.68em; 
-    color: var(--secondary-color);
-    margin-top: 3px;
-    line-height: 1.25; 
-    height: 2.8em; 
-    overflow: hidden;
-    font-weight: 500; 
-    width: 100%; 
-}
-.step-selection-info strong {
-    font-weight: bold; 
-}
-.step-item.completed .step-selection-info strong {
-     color: #1f7532; 
-}
-.step-item.active .step-selection-info strong {
-     color: var(--primary-color); 
-}
-.step-item.active .step-dot, .step-dot.active { background-color: var(--primary-color); }
-.step-item.active .step-name { color: var(--primary-color); font-weight: bold; }
-.step-item.completed .step-dot, .step-dot.completed { background-color: #28a745; }
-.step-item.completed .step-name { color: #1f7532;  }
-.step-line {
-    flex-grow: 1; max-width: 60px;
-    height: 2px; background-color: #ccc; margin: 14px 3px 0 3px;
-    transition: background-color 0.3s ease;
-}
-.step-line.active { background-color: var(--primary-color); }
-
-
-/* Selection Items ... (Keep existing styles) ... */
-.selection-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-.selection-item {
-    padding: 15px; border: 2px solid #e0e0e0; border-radius: var(--border-radius);
-    text-align: center; cursor: pointer; transition: all 0.3s ease;
-    background-color: #fff; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    min-height: 160px;
-}
-.selection-item:hover:not(.selected) {
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15);
-    transform: translateY(-3px);
-}
-.selection-item.selected {
-    border-color: var(--primary-color); background-color: #e6f0fa;
-    font-weight: bold; box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1);
-    transform: translateY(0);
-}
-.selection-item img.brand-logo { max-height: 80px; max-width: 170px; margin-bottom: 10px; object-fit: contain; }
-#model-selection .selection-item { min-height: 180px; justify-content: space-around; }
-.selection-item img.series-logo { max-height: 120px; max-width: 100%; object-fit: contain; margin-bottom: 10px; border-radius: 4px; }
-.selection-item.series-selection-item span,
-#model-selection .selection-item span { font-size: 1.1em; font-weight: bold; line-height: 1.3; color: var(--dark-color); margin-top: 5px; }
-
-
-/* Step Navigation ... (Keep existing styles) ... */
-.step-navigation { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; min-height: 42px; }
-.step-navigation button { padding: 10px 20px; font-size: 1em; border-radius: var(--border-radius); cursor: pointer; border: 1px solid transparent; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-.step-navigation button:disabled { background-color: #e9ecef; color: #6c757d; cursor: not-allowed; border-color: #ced4da; }
-.step-navigation .prev-btn { background-color: var(--secondary-color); color: white; }
-.step-navigation .prev-btn:hover:not(:disabled) { background-color: #5a6268; }
-.step-navigation .next-btn, #print-summary-btn, #reset-config-btn { background-color: var(--primary-color); color: white; }
-.step-navigation .next-btn:hover:not(:disabled), #print-summary-btn:hover, #reset-config-btn:hover { background-color: #004182; }
-#reset-config-btn { background-color: var(--danger-color); }
-#reset-config-btn:hover { background-color: #c82333; }
-
-
-/* Unit Selection Cards (Outdoor & Indoor Slot structure) ... (Keep existing styles) ... */
-#indoor-units-selection-area,
-#outdoor-unit-selection {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-#outdoor-unit-selection .unit-selection-card,
-#indoor-units-selection-area .indoor-unit-slot {
-    padding: 20px; border: 1px solid #e0e0e0; border-radius: var(--border-radius);
-    background-color: var(--background-color); box-shadow: var(--card-shadow);
-    display: flex; flex-direction: column; text-align: left;
-    justify-content: flex-start; 
-    transition: all 0.3s ease; 
-}
-#indoor-units-selection-area .indoor-unit-slot { cursor: default; }
-#outdoor-unit-selection .unit-selection-card:hover:not(.selected){
-    border-color: var(--primary-color); box-shadow: 0 2px 8px rgba(0, 86, 168, 0.15); transform: translateY(-2px);
-}
-#outdoor-unit-selection .unit-selection-card.selected {
-    border-color: var(--primary-color); background-color: #e6f0fa;
-    box-shadow: 0 1px 4px rgba(0, 86, 168, 0.1); transform: translateY(0);
-}
-#outdoor-unit-selection .unit-selection-card .unit-info { width: 100%; }
-#outdoor-unit-selection .unit-selection-card .unit-info h4 { margin: 0 0 10px 0; font-size: 1.15em; color: var(--dark-color); }
-#outdoor-unit-selection .unit-selection-card .unit-info p { margin: 5px 0 10px 0; font-size: 0.9em; color: var(--secondary-color); line-height: 1.45; word-break: break-word; }
-#outdoor-unit-selection .unit-selection-card .unit-info p strong { color: var(--dark-color); }
-#outdoor-unit-selection .unit-selection-card .unit-info .unit-price { font-weight: bold; color: var(--primary-color); font-size: 1.05em; margin-top: 12px; }
-#outdoor-unit-selection .unit-selection-card .unit-info .energy-class-container p { margin-bottom: 10px; }
-
-
-/* Indoor Unit Choice Cards (Step 5) ... (Keep existing styles) ... */
-#indoor-units-selection-area .indoor-unit-slot label { display: block; margin-bottom: 10px; font-weight: 500; color: var(--dark-color); font-size: 1.05em; }
-#indoor-units-selection-area .indoor-unit-slot label strong { color: var(--primary-color); }
-.indoor-unit-choices-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-.indoor-unit-choice-card { background-color: #f0f0f0; border: 1px solid #ccc; border-radius: var(--border-radius); padding: 10px 15px; cursor: pointer; text-align: center; min-width: 90px; transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-.indoor-unit-choice-card:hover { background-color: #e0e0e0; border-color: #bbb; }
-.indoor-unit-choice-card.selected { background-color: var(--primary-color); color: white; border-color: var(--primary-color); transform: scale(1.03); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.indoor-unit-choice-card .unit-kw { display: block; font-size: 0.95em; font-weight: 500; margin-bottom: 3px; }
-.indoor-unit-choice-card.selected .unit-kw { font-weight: bold; }
-.indoor-unit-choice-card .unit-btu { display: block; font-size: 0.8em; font-weight: 400; }
-.indoor-unit-choice-card.selected .unit-btu { font-weight: 500; }
-#indoor-units-selection-area .indoor-unit-slot .unit-details { font-size: 0.88em; color: var(--secondary-color); margin-top: 10px; min-height: 100px; padding-top: 10px; border-top: 1px dashed #eee; }
-#indoor-units-selection-area .indoor-unit-slot .unit-details p { margin-top: 3px; margin-bottom: 8px; line-height: 1.35; word-break: break-word; } 
-#indoor-units-selection-area .indoor-unit-slot .unit-details p strong { color: var(--dark-color); }
-#indoor-units-selection-area .indoor-unit-slot .unit-details > *:last-child { margin-bottom: 0; }
-.indoor-unit-slot .unit-details .details-price { font-size: 1.1em; font-weight: bold; color: var(--primary-color); margin-top: 10px; }
-#indoor-units-selection-area .ui-details-img { display: none !important; }
-#outdoor-unit-selection .unit-selection-card img.main-unit-image { display: block; max-width: 150px; max-height: 120px; object-fit: contain; margin: 0 auto 15px auto; border: 1px solid #f0f0f0; border-radius: var(--border-radius); }
-
-
-/* === STYLES FOR NEW SUMMARY (STEP 6) LAYOUT (Screen) === */
-#config-summary .summary-layout-container { font-family: Arial, sans-serif; color: #333; }
-#config-summary .summary-header-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 20px; padding: 20px; background-color: #f8f9fa; border-radius: var(--border-radius); margin-bottom: 30px; border: 1px solid #e0e0e0; font-size: 0.95em; }
-#config-summary .summary-header-info .print-only-reference-header { display: none;  } 
-#config-summary .summary-header-info .info-group { }
-#config-summary .summary-header-info p { margin: 5px 0; line-height: 1.5; }
-#config-summary .summary-header-info strong { font-weight: bold; min-width: 130px; display: inline-block; margin-right: 8px; color: var(--dark-color); }
-#config-summary .summary-header-info .total-price-iva strong { min-width: auto; }
-#config-summary .total-price-iva { font-size: 1.15em; font-weight: bold; color: var(--primary-color); margin-top: 10px; }
-#config-summary .summary-details-title { text-align: center; font-size: 1.5em; font-weight: bold; color: var(--dark-color); margin-top: 30px; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 1.5px solid #ccc; text-transform: uppercase; }
-#config-summary .summary-detail-block { background-color: #e9ecef; padding: 15px 20px; margin-bottom: 20px; border-radius: var(--border-radius); }
-#config-summary .summary-detail-block h3 { margin: 0 0 15px 0; font-size: 1.2em; font-weight: bold; color: var(--dark-color); text-transform: uppercase; text-align: center; padding-bottom: 8px; border-bottom: 1px dashed var(--secondary-color); }
-#config-summary .outdoor-unit-details-content p,
-#config-summary .summary-indoor-unit-detail-card p { margin: 4px 0 4px 10px; font-size: 0.9em; line-height: 1.6; }
-#config-summary .outdoor-unit-details-content strong,
-#config-summary .summary-indoor-unit-detail-card strong { font-weight: bold; min-width: 100px; display: inline-block; margin-right: 5px; }
-#config-summary .summary-indoor-units-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 15px; }
-#config-summary .summary-indoor-unit-detail-card { background-color: #f8f9fa; padding: 15px; border: 1px solid #e0e0e0; border-radius: var(--border-radius); box-shadow: var(--card-shadow); }
-#config-summary .summary-indoor-unit-detail-card h4 { margin: 0 0 10px 0; font-size: 1.05em; font-weight: bold; color: var(--primary-color); border-bottom: 1px solid #eee; padding-bottom: 8px; }
-
-
-.print-instructions { margin-top: 20px; padding: 10px; background-color: #e9ecef; border-radius: var(--border-radius); font-size: 0.9em; text-align: center; }
-.summary-actions { justify-content: flex-end; gap: 10px; }
-
-/* Admin Section styles */
-#admin-section h3 { font-size: 1.3em; margin-bottom: 15px; color: var(--warning-color); border-bottom-color: var(--warning-color);}
-.admin-subsection { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px dashed #ccc; }
-.admin-subsection:last-child { border-bottom: none; }
-
-
-/* Energy Class Rating Styles */
-.unit-selection-card .unit-info .energy-class-label {
-    font-weight: bold; 
-    color: var(--dark-color); 
-    margin-right: 5px;
-}
-.unit-selection-card .unit-info .energy-rating { 
-    display: inline-block; 
-    padding: 3px 8px; 
-    border-radius: var(--border-radius); 
-    color: white; 
-    font-size: 0.85em; 
-    font-weight: bold; 
-    margin: 0 2px; 
-    min-width: 35px; 
-    text-align: center; 
-    line-height: 1.4; 
-    vertical-align: middle; 
-}
-.unit-selection-card .unit-info .energy-rating.cooling { 
-    background-color: var(--primary-color); 
-}
-.unit-selection-card .unit-info .energy-rating.heating { 
-    background-color: var(--danger-color); 
-}
-.unit-selection-card .unit-info .energy-rating.unknown { 
-    background-color: var(--secondary-color); 
-    color: white;
-}
-.unit-selection-card .unit-info .energy-separator { 
-    margin: 0 3px; 
-    color: var(--secondary-color); 
-    font-size: 0.9em; 
-    font-weight: bold; 
-}
-
-/* ==========================================================================
-   PRINT STYLES SPECIFIC TO CONFIGURATOR PAGE (configurator-style.css)
-   ========================================================================== */
-@media print {
-    /* --- Elements to HIDE on configurator print --- */
-
-    /* 1. DO NOT SHOW THE TEXT "CONFIGURATORE MULTISPLIT" (The main H1 title on screen) */
-    .configurator-container .page-controls > h1 { /* Selector for H1 inside configurator */
-        display: none !important;
-    }
-
-    /* 2. DO NOT SHOW THE STEPS 1-6 (The step indicator) */
-    /* This rule might also exist in global print styles, ensuring it here is safe. */
-    .step-indicator {
-        display: none !important;
-    }
-
-    /* 3. HIDE THE ENTIRE "Riferimento" input container (which includes "opzionale per la stampa") */
-    /* Assuming step-6 is the summary step container */
-    #step-6 .summary-reference-input-container {
-        display: none !important;
-    }
-
-    /* 4. REMOVE ELEMENTS BELOW THE INDOOR UNIT CARDS */
-    /* Text "Per la stampa: usare Ctrl+P o Cmd+P." */
-    #step-6 .print-instructions {
-        display: none !important;
+    // Firebase is already initialized by ../../../firebase-config.js
+    // We just need to get references to the services.
+    // Ensure firebase is available globally from the included SDKs and firebase-config.js
+    if (typeof firebase === 'undefined' || typeof firebase.auth === 'undefined' || typeof firebase.firestore === 'undefined') {
+        console.error("CRITICAL: Firebase SDKs or firebase-config.js not loaded correctly before this script.");
+        alert("Errore critico: impossibile caricare i servizi Firebase. Controlla la console per i dettagli.");
+        // Optionally, display an error message on the page and stop further execution
+        const loadingOverlayImmediate = document.getElementById('loading-overlay') || document.createElement('div');
+        if (!loadingOverlayImmediate.id) { /* Create if not exists for critical error */
+            loadingOverlayImmediate.id = 'loading-overlay';
+            loadingOverlayImmediate.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:red;z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
+            document.body.appendChild(loadingOverlayImmediate);
+        }
+        loadingOverlayImmediate.innerHTML = '<p>Errore Caricamento Firebase SDKs.</p>';
+        loadingOverlayImmediate.style.display = 'flex';
+        return; // Stop script execution
     }
     
-    /* Buttons: Modifica, Stampa, Nuova */
-    /* These are inside .step-navigation.summary-actions for this page */
-    #step-6 .step-navigation.summary-actions {
-        display: none !important;
+    const auth = firebase.auth();       // Define auth using the initialized Firebase app
+    const db = firebase.firestore();    // Define db using the initialized Firebase app
+    console.log("CONFIGURATORE: Istanze Firebase Auth e Firestore ottenute.");
+
+    // --- App Data & State ---
+    const APP_DATA = { brands: [], uiSeriesImageMapping: {}, configTypes: {}, outdoorUnits: [], indoorUnits: [] }; // Inizializza APP_DATA come oggetto vuoto o con la struttura che usi
+    let currentLogicalStep = 1;
+    let highestLogicalStepCompleted = 0;
+    const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] }; // Inizializza selections
+    let windowCurrentUserRole = null; // Variabile per il ruolo utente globale all'IIFE
+    let currentUser = null;       // Sarà popolato da onAuthStateChanged
+    let currentUserRole = null;   // Sarà popolato dopo il recupero da Firestore
+    let adminBrandsListener = null; // <<<---- DICHIARAZIONE CHIAVE QUI
+    // ... (rest of your DOM element references are fine)
+    const brandSelectionDiv = document.getElementById('brand-selection');
+    const configTypeSelectionDiv = document.getElementById('config-type-selection');
+    const indoorSeriesSelectionDiv = document.getElementById('model-selection');
+    const outdoorUnitSelectionDiv = document.getElementById('outdoor-unit-selection');
+    const indoorUnitsSelectionArea = document.getElementById('indoor-units-selection-area');
+    const summaryDiv = document.getElementById('config-summary');
+    const finalizeBtn = document.getElementById('finalize-btn');
+    const stepsHtmlContainers = document.querySelectorAll('.config-step');
+    const stepIndicatorItems = document.querySelectorAll('.step-indicator .step-item');
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'loading-overlay';
+    loadingOverlay.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.9);display:flex;flex-direction:column;justify-content:center;align-items:center;font-size:1.2em;color:var(--primary-color);z-index:2000;text-align:center;padding:20px;box-sizing:border-box;`;
+    loadingOverlay.innerHTML = '<div class="loading-spinner" style="border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px;"></div><p>Caricamento dati...</p><style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>';
+
+
+    // ... (TOTAL_LOGICAL_STEPS, LOGICAL_TO_HTML_STEP_MAP, etc. are fine) ...
+    const TOTAL_LOGICAL_STEPS = 6;
+    const LOGICAL_TO_HTML_STEP_MAP = { 1: "step-1", 2: "step-3", 3: "step-2", 4: "step-4", 5: "step-5", 6: "step-6" };
+    const HTML_TO_LOGICAL_STEP_MAP = { "step-1": 1, "step-3": 2, "step-2": 3, "step-4": 4, "step-5": 5, "step-6": 6 };
+    const LOGICAL_STEP_NAMES = [ "Marca", "Config.", "Modello", "Unità Est.", "Unità Int.", "Riepilogo" ];
+
+    // fetchFirestoreCollection uses `db` which is now defined at the top of this scope
+    // ... (fetchFirestoreCollection, parsePowerString, sanitizeForId are fine) ...
+    async function fetchFirestoreCollection(collectionName) { console.log(`DEBUG: Fetching Firestore collection: ${collectionName}`); try { const snapshot = await db.collection(collectionName).get(); const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); console.log(`DEBUG: Fetched ${data.length} items from ${collectionName}.`); return data; } catch (error) { console.error(`DEBUG: Error fetching collection ${collectionName}:`, error); loadingOverlay.innerHTML += `<br><span style="color:red;font-size:0.8em;">Errore caricamento ${collectionName}.</span>`; return []; } }
+    function parsePowerString(powerStr) { let btu = 0; let kw = "N/A"; if (typeof powerStr === 'string' && powerStr !== "Dati mancanti") { const btuMatch = powerStr.match(/([\d.,]+)\s*BTU/i); if (btuMatch && btuMatch[1]) btu = parseInt(btuMatch[1].replace(/[.,]/g, ''), 10) || 0; const kwMatch = powerStr.match(/([\d.,]+)\s*kW/i); if (kwMatch && kwMatch[1]) kw = kwMatch[1].replace(',', '.'); else if (btu > 0 && kw === "N/A") kw = (btu / 3412.14).toFixed(1); } return { btu, kw }; }
+    function sanitizeForId(str) { if (!str) return ''; return String(str).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''); }
+
+    // processLoadedData is fine
+    // ... (processLoadedData function remains the same) ...
+    function processLoadedData(brandsDocs, configTypesDocs, seriesMapDocs, outdoorUnitsDocs, indoorUnitsDocs) {
+        APP_DATA.brands = brandsDocs;
+        APP_DATA.configTypes = configTypesDocs.reduce((acc, ct) => { acc[ct.id] = { id: ct.id, name: ct.name, numUnits: ct.numUnits }; return acc; }, {});
+        APP_DATA.uiSeriesImageMapping = seriesMapDocs.reduce((acc, mapping) => { if(mapping.seriesKey) acc[mapping.seriesKey] = mapping.imageName; return acc; }, {});
+
+        const getFieldOrPlaceholder = (fieldValue, placeholder = "N/D") => {
+            if (fieldValue !== undefined && fieldValue !== null && String(fieldValue).trim() !== "" && String(fieldValue).toUpperCase() !== "DATI MANCANTI") {
+                return String(fieldValue);
+            }
+            return placeholder;
+        };
+        
+        const getLinkField = (fieldValue) => { // Specific for URLs
+            if (fieldValue && typeof fieldValue === 'string' && fieldValue.trim() !== "" && fieldValue.toUpperCase() !== "DATI MANCANTI" && fieldValue.toUpperCase() !== "N/A" && fieldValue.toUpperCase() !== "N/D" && fieldValue.toUpperCase() !== "N.D.") {
+                return fieldValue.trim();
+            }
+            return null; // Return null if not a valid URL string
+        };
+
+
+        APP_DATA.outdoorUnits = outdoorUnitsDocs.map((ue_doc, index) => { // THIS IS THE CORRECT AND ONLY MAPPING FOR outdoorUnits
+            const brandId = String(ue_doc.marca || 'sconosciuta').toLowerCase();
+            const connections = Number(ue_doc.unit_collegabili) || 0;
+            const uePotenzaKw = Number(ue_doc.potenza) || 0;
+            
+            const processedUnit = {
+                id: ue_doc.id || `ue_${index}`, brandId: brandId,
+                modelCode: getFieldOrPlaceholder(ue_doc.codice_prodotto, "N/A"),
+                name: ue_doc.nome_modello_ue && ue_doc.nome_modello_ue !== "Dati mancanti" ? `${String(ue_doc.marca || '').toUpperCase()} ${ue_doc.nome_modello_ue}` : `UE ${String(ue_doc.marca || '').toUpperCase()} (${getFieldOrPlaceholder(ue_doc.codice_prodotto, 'ID: ' + ue_doc.id)})`,
+                kw: uePotenzaKw,
+                connections: connections,
+                price: Number(ue_doc.prezzo) || 0,
+                dimensions: getFieldOrPlaceholder(ue_doc.dimensioni_ue),
+                weight: getFieldOrPlaceholder(ue_doc.peso_ue),
+                energyClassCooling: getFieldOrPlaceholder(ue_doc.classe_energetica_raffrescamento),
+                energyClassHeating: getFieldOrPlaceholder(ue_doc.classe_energetica_riscaldamento),
+                compatibleIndoorSeriesIds: Array.isArray(ue_doc.compatibleIndoorSeriesIds) ? ue_doc.compatibleIndoorSeriesIds : [],
+                scheda_tecnica_url: getLinkField(ue_doc.scheda_tecnica_url) // Assuming field name is scheda_tecnica_url
+            };
+
+            if (ue_doc.codice_prodotto === "730440" || ue_doc.codice_prodotto === "765278") {
+                console.log("RAW Firestore Doc (ue_doc) for modelCode " + ue_doc.codice_prodotto + ":", JSON.parse(JSON.stringify(ue_doc)));
+                console.log("Processed APP_DATA unit for modelCode " + ue_doc.codice_prodotto + ":", JSON.parse(JSON.stringify(processedUnit)));
+            }
+            
+            return processedUnit;
+        });
+
+        APP_DATA.indoorUnits = indoorUnitsDocs.map((ui_doc, index) => {
+            const brandId = String(ui_doc.marca || 'sconosciuta').toLowerCase();
+            const seriesName = String(ui_doc.modello || `serie_${index}`).trim();
+            const seriesId = sanitizeForId(seriesName) + "_ui";
+            const { btu, kw } = parsePowerString(ui_doc.potenza);
+            let imagePath = "";
+            if (ui_doc.percorso_immagine_ui && ui_doc.percorso_immagine_ui !== "Dati mancanti") { imagePath = ui_doc.percorso_immagine_ui;}
+            else { let imageNameMapped = APP_DATA.uiSeriesImageMapping[seriesId]; if (!imageNameMapped) { imageNameMapped = sanitizeForId(seriesName);} imagePath = `img/${imageNameMapped}.png`;}
+            return {
+                id: ui_doc.id || `ui_${index}`, brandId: brandId, seriesId: seriesId, seriesName: seriesName,
+                modelCode: getFieldOrPlaceholder(ui_doc.codice_prodotto, "N/A"), 
+                name: `${String(ui_doc.marca || '').toUpperCase()} ${seriesName} ${kw}kW (${btu} BTU)`,
+                type: String(ui_doc.tipo_unit || 'Parete').toLowerCase() === "interna" ? "Parete" : ui_doc.tipo_unit,
+                capacityBTU: btu, kw: kw, price: Number(ui_doc.prezzo_ui) || 0, image: imagePath,
+                dimensions: getFieldOrPlaceholder(ui_doc.dimensioni_ui), 
+                weight: getFieldOrPlaceholder(ui_doc.peso_ui), 
+                wifi: ui_doc.wifi === true,
+                scheda_tecnica_url: getLinkField(ui_doc.scheda_tecnica_url) // Assuming field name is scheda_tecnica_url
+            };
+        });
+    } 
+
+    // createSelectionItem, createUnitSelectionCard etc. are fine
+    // ... (These functions do not directly use `auth` or `db`, so they should be fine)
+    function createSelectionItem(item, type, clickHandler, isSelected = false) {
+    const itemDiv = document.createElement('div');
+    itemDiv.classList.add('selection-item');
+    if (isSelected) itemDiv.classList.add('selected');
+    if (item && item.id != null) { itemDiv.setAttribute('data-' + type + '-id', String(item.id));}
+    let logoSrc = '';
+    if (type === 'brand' && item && item.logo) { logoSrc = item.logo;}
+    else if (type === 'series' && item && item.image) { logoSrc = item.image; itemDiv.classList.add('series-selection-item');}
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = (item && item.name) ? String(item.name) : ''; 
+    if (logoSrc) {
+        const logoImg = document.createElement('img');
+        logoImg.src = String(logoSrc); 
+        let altText = "Immagine";
+        if (item && item.name) {altText = String(item.name) + " Immagine";} else if (type) { altText = String(type) + " Immagine";}
+        logoImg.alt = altText;
+        if (type === 'brand') logoImg.classList.add('brand-logo');
+        if (type === 'series') logoImg.classList.add('series-logo');
+        logoImg.onload = () => { if (type === 'brand' && nameSpan) nameSpan.style.display = 'none';};
+        logoImg.onerror = () => { console.warn(`DEBUG: Errore caricamento ${type} immagine ${logoSrc} per '${altText}'`); if (logoImg) logoImg.style.display = 'none'; if (nameSpan) nameSpan.style.display = 'block';};
+        itemDiv.appendChild(logoImg);
+        if (type === 'brand' && nameSpan) nameSpan.style.display = 'none';
+    } else { if (nameSpan) nameSpan.style.display = 'block';}
+    itemDiv.appendChild(nameSpan);
+    itemDiv.addEventListener('click', () => {
+        if (itemDiv.parentElement) { itemDiv.parentElement.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected'));}
+        itemDiv.classList.add('selected');
+        if (item) { clickHandler(item);} else { console.error("Tentativo di click handler con item non definito per tipo:", type);}
+    });
+    return itemDiv;
+    }
+
+    // This is the correctly placed createUnitSelectionCard function
+    function createUnitSelectionCard(unit, clickHandler, isSelected = false) {
+        if (unit && (unit.modelCode === "730440" || unit.modelCode === "765278" )) {
+            try {
+                console.log("Data object passed to createUnitSelectionCard for modelCode " + unit.modelCode + ":", JSON.parse(JSON.stringify(unit)));
+            } catch (e) {
+                console.log("Data object passed to createUnitSelectionCard for modelCode " + unit.modelCode + " (raw, stringify failed):", unit);
+                console.error("Error stringifying unit object for logging:", e);
+            }
+        }
+
+        const card = document.createElement('div');
+        card.classList.add('unit-selection-card');
+        if (isSelected) card.classList.add('selected');
+
+        if (unit && unit.id != null) {
+            card.setAttribute('data-unit-id', String(unit.id));
+        }
+
+        const infoDiv = document.createElement('div');
+        infoDiv.classList.add('unit-info');
+
+        const nameH4 = document.createElement('h4');
+        let unitTitle = "UNITA' ESTERNA";
+        if (unit && unit.kw != null && unit.kw !== 0 && 
+            String(unit.kw).toUpperCase().trim() !== "DATI MANCANTI" && 
+            String(unit.kw).toUpperCase().trim() !== "N/A" &&
+            String(unit.kw).toUpperCase().trim() !== "N/D" &&
+            String(unit.kw).toUpperCase().trim() !== "N.D.") {
+            unitTitle += ` ${String(unit.kw)}kW`;
+        }
+        nameH4.textContent = unitTitle;
+        infoDiv.appendChild(nameH4);
+
+        const valOrDashDisplay = (val, suffix = '', placeholder = '-') => {
+            const strVal = val ? String(val).trim() : ""; 
+            if (!strVal || 
+                strVal.toUpperCase() === "DATI MANCANTI" || 
+                strVal.toUpperCase() === "N/A" || 
+                strVal.toUpperCase() === "N/D" || 
+                strVal.toUpperCase() === "N.D.") { 
+                return placeholder; 
+            }
+            return `${strVal}${suffix}`;
+        };
+        
+        const modelP = document.createElement('p');
+        let modelP_html = "Codice: ";
+        const modelCodeDisplay = valOrDashDisplay(unit?.modelCode);
+        modelP_html += `<strong>${modelCodeDisplay}</strong>`;
+        modelP_html += ` | Max UI: ${(unit && unit.connections !== undefined) ? String(unit.connections) : '?'}`;
+        modelP.innerHTML = modelP_html;
+        infoDiv.appendChild(modelP);
+
+        const energyClassContainerP = document.createElement('p');
+        const energyLabelSpan = document.createElement('span');
+        energyLabelSpan.classList.add('energy-class-label');
+        energyLabelSpan.textContent = "Classe En.:"; // MODIFIED LABEL
+        energyClassContainerP.appendChild(energyLabelSpan);
+        
+        const coolingVal = unit?.energyClassCooling;
+        let coolingDisplayText = valOrDashDisplay(coolingVal, '', '-'); // Suffix is empty, placeholder is '-'
+        let isCoolingDataValid = !(coolingVal === undefined || coolingVal === null || String(coolingVal).toUpperCase() === "N/D" || String(coolingVal).toUpperCase() === "DATI MANCANTI" || String(coolingVal).trim() === "" || String(coolingVal).trim() === "-");
+
+        const coolingSpan = document.createElement('span');
+        coolingSpan.classList.add('energy-rating'); // General class
+        coolingSpan.classList.toggle('cooling', isCoolingDataValid); // Blue background if valid
+        coolingSpan.classList.toggle('unknown', !isCoolingDataValid); // Grey if not valid
+        coolingSpan.textContent = coolingDisplayText;
+        energyClassContainerP.appendChild(coolingSpan);
+
+        const separatorSpan = document.createElement('span');
+        separatorSpan.classList.add('energy-separator');
+        separatorSpan.textContent = " / "; // MODIFIED SEPARATOR to have spaces
+        energyClassContainerP.appendChild(separatorSpan);
+
+        const heatingVal = unit?.energyClassHeating;
+        let heatingDisplayText = valOrDashDisplay(heatingVal, '', '-');
+        let isHeatingDataValid = !(heatingVal === undefined || heatingVal === null || String(heatingVal).toUpperCase() === "N/D" || String(heatingVal).toUpperCase() === "DATI MANCANTI" || String(heatingVal).trim() === "" || String(heatingVal).trim() === "-");
+        
+        const heatingSpan = document.createElement('span');
+        heatingSpan.classList.add('energy-rating'); // General class
+        heatingSpan.classList.toggle('heating', isHeatingDataValid); // Red background if valid
+        heatingSpan.classList.toggle('unknown', !isHeatingDataValid); // Grey if not valid
+        heatingSpan.textContent = heatingDisplayText;
+        energyClassContainerP.appendChild(heatingSpan);
+        infoDiv.appendChild(energyClassContainerP);
+
+        const dimensionsP = document.createElement('p');
+        const dimDisplay = valOrDashDisplay(unit?.dimensions);
+        
+        let weightSuffix = '';
+        const weightRaw = unit?.weight;
+        if (weightRaw && String(weightRaw).trim() !== "" && 
+            String(weightRaw).toUpperCase() !== "N/D" && 
+            String(weightRaw).toUpperCase() !== "DATI MANCANTI" && 
+            String(weightRaw).toUpperCase() !== "N.D." && 
+            !isNaN(parseFloat(String(weightRaw))) && isFinite(Number(weightRaw))) {
+                weightSuffix = ' kg';
+        }
+        const weightDisplay = valOrDashDisplay(weightRaw, weightSuffix);
+        
+        dimensionsP.textContent = `Dimensioni: ${dimDisplay} | Peso: ${weightDisplay}`;
+        infoDiv.appendChild(dimensionsP);
+
+        const priceP = document.createElement('p');
+        priceP.classList.add('unit-price');
+        let priceText = "Prezzo: ";
+        if (unit && typeof unit.price === 'number') {
+            priceText += unit.price.toFixed(2);
+        } else {
+            priceText += valOrDashDisplay(unit?.price, '', '-'); 
+        }
+        priceText += " € (IVA escl.)";
+        priceP.textContent = priceText;
+        infoDiv.appendChild(priceP);
+
+        // Add Technical Sheet button if URL exists
+        if (unit && unit.scheda_tecnica_url) {
+            const techSheetButton = document.createElement('a');
+            techSheetButton.href = unit.scheda_tecnica_url;
+            techSheetButton.target = '_blank';
+            techSheetButton.rel = 'noopener noreferrer';
+            techSheetButton.classList.add('technical-sheet-button'); 
+            techSheetButton.textContent = 'Scheda Tecnica';
+            // Prevent card click when button is clicked
+            techSheetButton.addEventListener('click', (e) => e.stopPropagation()); 
+            infoDiv.appendChild(techSheetButton);
+        }
+
+        card.appendChild(infoDiv);
+        card.addEventListener('click', () => {
+            if (card.parentElement) {
+                card.parentElement.querySelectorAll('.unit-selection-card.selected').forEach(el => el.classList.remove('selected'));
+            }
+            card.classList.add('selected');
+            if (unit) { 
+                clickHandler(unit);
+            } else {
+                console.error("Tentativo di click handler con unit non definito.");
+            }
+        });
+        return card;
+    } // END OF createUnitSelectionCard
+    // --- Population Functions ---
+    // clearAndResetUIForStep, resetSelectionsAndUIFrom, populateBrands, populateConfigTypes,
+    // populateIndoorSeries, populateOutdoorUnits, generateIndoorUnitDetailsHtml,
+    // handleIndoorUnitChoiceClick, populateIndoorUnitSelectors, updateStepSelectionInfo
+    // valOrDash, generateSummary
+    // ... (These functions do not directly use `auth` or `db` or they use the `db` already correctly defined, so they should be fine) ...
+    // ... keep all these functions as they are in your script (12).js ...
+
+    // --- UI & Navigation Functions ---
+    // checkAllIndoorUnitsSelected, showStep, updateStepIndicator, initializeNavigation
+    // ... (These functions also do not directly use `auth`, so they should be fine) ...
+     // All UI update and navigation logic
+    function clearAndResetUIForStep(logicalStep) { const divId = LOGICAL_TO_HTML_STEP_MAP[logicalStep]; const div = document.getElementById(divId); if (div) { const contentArea = div.querySelector('.selection-grid') || div.querySelector('.selection-list') || div.querySelector('#indoor-units-selection-area'); if (contentArea) { contentArea.innerHTML = '<p>Completa i passaggi precedenti.</p>'; } else { div.innerHTML = '<p>Contenuto non disponibile.</p>';} } }
+    function resetSelectionsAndUIFrom(stepToClearFrom) { console.log(`resetSelectionsAndUIFrom: Clearing data and UI from step ${stepToClearFrom} onwards.`); if (stepToClearFrom <= 5 && (selections.indoorUnits.length > 0 || indoorUnitsSelectionArea.innerHTML.includes('indoor-unit-choice-card'))) { selections.indoorUnits = []; clearAndResetUIForStep(5); console.log("Cleared: indoorUnits & UI Step 5"); if(finalizeBtn) finalizeBtn.disabled = true; } if (stepToClearFrom <= 4 && (selections.outdoorUnit || outdoorUnitSelectionDiv.innerHTML.includes('card'))) { selections.outdoorUnit = null; clearAndResetUIForStep(4); console.log("Cleared: outdoorUnit & UI Step 4"); } if (stepToClearFrom <= 3 && (selections.indoorSeries || indoorSeriesSelectionDiv.innerHTML.includes('item'))) { selections.indoorSeries = null; clearAndResetUIForStep(3); console.log("Cleared: indoorSeries & UI Step 3"); } if (stepToClearFrom <= 2 && (selections.configType || configTypeSelectionDiv.innerHTML.includes('item'))) { selections.configType = null; clearAndResetUIForStep(2); console.log("Cleared: configType & UI Step 2"); } if (stepToClearFrom <= 1 && (selections.brand || brandSelectionDiv.innerHTML.includes('item'))) { selections.brand = null; brandSelectionDiv.querySelectorAll('.selection-item.selected').forEach(el => el.classList.remove('selected')); console.log("Cleared: brand (data only, UI repopulated by populateBrands)"); } if (stepToClearFrom <= TOTAL_LOGICAL_STEPS) { summaryDiv.innerHTML = ''; document.getElementById('summary-main-title')?.classList.remove('print-main-title');} }
+
+    function populateBrands() { brandSelectionDiv.innerHTML = ''; if (!APP_DATA.outdoorUnits?.length) { brandSelectionDiv.innerHTML = '<p>Dati unità esterne non disponibili.</p>'; return; } const uniqueBrandIdsFromUEs = [...new Set(APP_DATA.outdoorUnits.map(ue => ue.brandId).filter(id => id && id !== 'sconosciuta'))]; const brandsToShow = APP_DATA.brands.filter(b => uniqueBrandIdsFromUEs.includes(b.id)); if (!brandsToShow.length) { brandSelectionDiv.innerHTML = '<p>Nessuna marca con UEs.</p>'; return; } brandsToShow.forEach(brand => { brandSelectionDiv.appendChild(createSelectionItem(brand, 'brand', (selectedBrand) => { if (selections.brand?.id !== selectedBrand.id) { resetSelectionsAndUIFrom(2); selections.brand = selectedBrand; highestLogicalStepCompleted = 1; } populateConfigTypes(); showStep(2); }, selections.brand?.id === brand.id)); }); if (selections.brand && !brandsToShow.some(b => b.id === selections.brand.id)) selections.brand = null; }
+    function populateConfigTypes() { configTypeSelectionDiv.innerHTML = ''; if (!selections.brand) { configTypeSelectionDiv.innerHTML = '<p>Scegli marca.</p>'; return; } const validConfigs = Object.values(APP_DATA.configTypes).filter(ct => APP_DATA.outdoorUnits.some(ue => ue.brandId === selections.brand.id && ue.connections === ct.numUnits)).sort((a,b) => a.numUnits - b.numUnits); if (!validConfigs.length) { configTypeSelectionDiv.innerHTML = `<p>Nessuna config. per ${selections.brand.name}.</p>`; return; } validConfigs.forEach(config => { configTypeSelectionDiv.appendChild(createSelectionItem(config, 'config', (selectedConfig) => { if (selections.configType?.id !== selectedConfig.id) { resetSelectionsAndUIFrom(3); selections.configType = selectedConfig; highestLogicalStepCompleted = 2; } populateIndoorSeries(); showStep(3); }, selections.configType?.id === config.id)); }); if (selections.configType && !validConfigs.some(vc => vc.id === selections.configType.id)) selections.configType = null;}
+    function populateIndoorSeries() { indoorSeriesSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType) { indoorSeriesSelectionDiv.innerHTML = '<p>Scegli Marca & Config.</p>'; return; } const brandId = selections.brand.id; const numUnitsRequired = selections.configType.numUnits; const candidateUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === brandId && ue.connections === numUnitsRequired); if (!candidateUEs.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessuna UE ${brandId} per ${numUnitsRequired} UI.</p>`; return; } const compatibleSeriesIdsSet = new Set(candidateUEs.flatMap(ue => ue.compatibleIndoorSeriesIds || [])); if (compatibleSeriesIdsSet.size === 0) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun modello UI compatibile per UE ${brandId}/${numUnitsRequired}-split.</p>`; return; } const validIndoorUnitsForSeriesSelection = APP_DATA.indoorUnits.filter(ui => ui.brandId === brandId && compatibleSeriesIdsSet.has(ui.seriesId)); const uniqueSeries = []; const seenSeriesIds = new Set(); validIndoorUnitsForSeriesSelection.forEach(ui => { if (!seenSeriesIds.has(ui.seriesId)) { let img = APP_DATA.uiSeriesImageMapping[ui.seriesId] ? `img/${APP_DATA.uiSeriesImageMapping[ui.seriesId]}.png` : (ui.image || null); uniqueSeries.push({ name: ui.seriesName, id: ui.seriesId, image: img }); seenSeriesIds.add(ui.seriesId); } }); if (!uniqueSeries.length) { indoorSeriesSelectionDiv.innerHTML = `<p>Nessun Modello UI ${brandId} compatibile trovato.</p>`; return; } uniqueSeries.sort((a,b) => a.name.localeCompare(b.name)); uniqueSeries.forEach(series => { indoorSeriesSelectionDiv.appendChild(createSelectionItem(series, 'series', (selectedSeries) => { if (selections.indoorSeries?.id !== selectedSeries.id) { resetSelectionsAndUIFrom(4); selections.indoorSeries = selectedSeries; highestLogicalStepCompleted = 3; } populateOutdoorUnits(); showStep(4); }, selections.indoorSeries?.id === series.id));}); if (selections.indoorSeries && !uniqueSeries.some(s => s.id === selections.indoorSeries.id)) selections.indoorSeries = null;}
+    function populateOutdoorUnits() { outdoorUnitSelectionDiv.innerHTML = ''; if (!selections.brand || !selections.configType || !selections.indoorSeries) { outdoorUnitSelectionDiv.innerHTML = '<p>Scegli Marca, Config., Modello.</p>'; return;} const numRequired = selections.configType.numUnits; const requiredSeriesId = selections.indoorSeries.id; const compatibleUEs = APP_DATA.outdoorUnits.filter(ue => ue.brandId === selections.brand.id && ue.connections === numRequired && Array.isArray(ue.compatibleIndoorSeriesIds) && ue.compatibleIndoorSeriesIds.includes(requiredSeriesId)); if (!compatibleUEs.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE ${selections.brand.name} per ${numRequired} UI compatibile con "${selections.indoorSeries.name}".</p>`; return; } const uniqueUEsToDisplay = []; const seenUEKeys = new Set(); for (const ue of compatibleUEs) { const ueKey = `${ue.modelCode}-${ue.kw}-${ue.connections}-${ue.price.toFixed(2)}`; if (!seenUEKeys.has(ueKey)) { seenUEKeys.add(ueKey); uniqueUEsToDisplay.push(ue);}} if (!uniqueUEsToDisplay.length) { outdoorUnitSelectionDiv.innerHTML = `<p>Nessuna UE unica trovata per ${selections.brand.name}.</p>`; return; } uniqueUEsToDisplay.forEach(ue => { outdoorUnitSelectionDiv.appendChild(createUnitSelectionCard(ue, (selectedUE) => { if (selections.outdoorUnit?.id !== selectedUE.id) { resetSelectionsAndUIFrom(5); selections.outdoorUnit = selectedUE; highestLogicalStepCompleted = 4; } populateIndoorUnitSelectors(); showStep(5); }, selections.outdoorUnit?.id === ue.id));}); if (selections.outdoorUnit && !uniqueUEsToDisplay.some(ue => ue.id === selections.outdoorUnit.id)) { selections.outdoorUnit = null;}}
+    
+    const valOrDash = (val, suffix = '') => { // Global helper for consistency
+        const S = (str) => str != null ? String(str).replace(/`/g, "'") : '';
+        const strVal = S(val);
+        if (strVal && strVal.toUpperCase() !== "DATI MANCANTI" && strVal.toUpperCase() !== "N/A" && strVal.toUpperCase() !== "N.D" && strVal.toUpperCase() !== "N.D." && strVal.trim() !== "" && strVal.trim() !== "-") {
+            return `${strVal}${suffix}`;
+        }
+        return '-';
+    };
+
+    function updateStepSelectionInfo() {
+        const S = (str) => str != null ? String(str).replace(/`/g, "'") : ''; 
+        const formatText = (text, isNumericOrSpecial = false) => {
+            if (!text) return ' ';
+            const processedText = isNumericOrSpecial ? S(text) : S(text).toUpperCase();
+            return `<strong>${processedText}</strong>`;
+        };
+    
+        const stepInfo1 = document.getElementById('step-info-1');
+        if (stepInfo1) { stepInfo1.innerHTML = selections.brand && selections.brand.name ? formatText(selections.brand.name) : ' ';}
+        const stepInfo2 = document.getElementById('step-info-2');
+        if (stepInfo2) { stepInfo2.innerHTML = selections.configType && selections.configType.name ? formatText(selections.configType.name) : ' ';}
+        const stepInfo3 = document.getElementById('step-info-3');
+        if (stepInfo3) { stepInfo3.innerHTML = selections.indoorSeries && selections.indoorSeries.name ? formatText(selections.indoorSeries.name) : ' ';}
+        const stepInfo4 = document.getElementById('step-info-4');
+        if (stepInfo4) { if (selections.outdoorUnit && (selections.outdoorUnit.kw != null)) { let kwText = `${S(selections.outdoorUnit.kw)}KW`; stepInfo4.innerHTML = formatText(kwText, true); } else { stepInfo4.innerHTML = ' ';}}
+        const stepInfo5 = document.getElementById('step-info-5');
+        if (stepInfo5) {
+            if (selections.outdoorUnit && selections.configType) {
+                const numSlots = selections.configType.numUnits;
+                if (numSlots > 0) {
+                    let btuParts = [];
+                    for (let i = 0; i < numSlots; i++) { if (selections.indoorUnits[i] && selections.indoorUnits[i].capacityBTU != null) { btuParts.push(String(selections.indoorUnits[i].capacityBTU));} else { btuParts.push("..."); }}
+                    if (btuParts.length > 0) { stepInfo5.innerHTML = formatText(btuParts.join(' + '), true); } else { stepInfo5.innerHTML = formatText('DA SELEZIONARE'); }
+                } else { stepInfo5.innerHTML = formatText('N/A'); }
+            } else if (currentLogicalStep === 5 && selections.brand && selections.configType && selections.indoorSeries) { stepInfo5.innerHTML = formatText('DA SELEZIONARE');}
+            else { stepInfo5.innerHTML = ' '; }
+        }
+        const stepInfo6 = document.getElementById('step-info-6');
+        if (stepInfo6) { stepInfo6.innerHTML = ' '; }
     }
     
-    /* Hide general config step titles (1-5), but NOT the screen summary title #summary-main-title,
-       as that itself will be hidden in favor of JS-generated print header. */
-    .config-step h2:not(#summary-main-title) {
-        display: none !important;
+    function generateIndoorUnitDetailsHtml(unit) {
+        if (!unit) return '<p>Seleziona una taglia/potenza.</p>';
+        let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
+        html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`;
+        html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
+        html += `<p>Peso: <strong>${valOrDash(unit.weight, ' kg')}</strong></p>`;
+        html += `<p class="details-price">Prezzo: <strong>€${(unit.price || 0).toFixed(2)}</strong></p>`;
+        
+        // Add Technical Sheet button if URL exists
+        if (unit.scheda_tecnica_url) {
+            html += `<p><a href="${escapeHtml(unit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Scheda Tecnica</a></p>`;
+        }
+        return html;
+    }
+
+    function handleIndoorUnitChoiceClick(event) {
+        const clickedCard = event.currentTarget;
+        const unitId = clickedCard.dataset.unitId;
+        const choicesContainer = clickedCard.parentElement;
+        const slotIndex = parseInt(choicesContainer.dataset.slotIndex);
+
+        choicesContainer.querySelectorAll('.indoor-unit-choice-card.selected').forEach(card => {
+            card.classList.remove('selected');
+        });
+        clickedCard.classList.add('selected');
+        
+        const selectedUnitData = APP_DATA.indoorUnits.find(ui => ui.id === unitId);
+        selections.indoorUnits[slotIndex] = selectedUnitData || null;
+
+        const slotDiv = choicesContainer.closest('.indoor-unit-slot');
+        if (slotDiv) {
+            const detailsDiv = slotDiv.querySelector('.unit-details');
+            if (detailsDiv) {
+                detailsDiv.innerHTML = generateIndoorUnitDetailsHtml(selectedUnitData);
+            }
+        }
+        checkAllIndoorUnitsSelected();
+    }
+
+    function populateIndoorUnitSelectors() {
+        indoorUnitsSelectionArea.innerHTML = '';
+        if (!selections.outdoorUnit || !selections.configType || !selections.brand || !selections.indoorSeries) {
+            indoorUnitsSelectionArea.innerHTML = `<p>Completa passaggi precedenti per visualizzare le Unità Interne.</p>`;
+            checkAllIndoorUnitsSelected();
+            return;
+        }
+
+        const availableIndoorUnitsForSeries = APP_DATA.indoorUnits
+            .filter(ui => ui.brandId === selections.brand.id && ui.seriesId === selections.indoorSeries.id)
+            .sort((a, b) => (a.capacityBTU || 0) - (b.capacityBTU || 0));
+
+        if (!availableIndoorUnitsForSeries.length) {
+            indoorUnitsSelectionArea.innerHTML = `<p>Nessuna variante disponibile per il modello UI "${selections.indoorSeries.name}".</p>`;
+            checkAllIndoorUnitsSelected();
+            return;
+        }
+        const uniqueDisplayOptionsMap = new Map();
+        availableIndoorUnitsForSeries.forEach(uiVariant => {
+            const displayKey = `${uiVariant.kw}-${uiVariant.capacityBTU}`;
+            if (!uniqueDisplayOptionsMap.has(displayKey)) {
+                uniqueDisplayOptionsMap.set(displayKey, uiVariant);
+            }
+        });
+        const uniqueDisplayOptions = Array.from(uniqueDisplayOptionsMap.values());
+        
+        if (!Array.isArray(selections.indoorUnits) || selections.indoorUnits.length !== selections.configType.numUnits) {
+            selections.indoorUnits = new Array(selections.configType.numUnits).fill(null);
+        }
+
+        for (let i = 0; i < selections.configType.numUnits; i++) {
+            const slotDiv = document.createElement('div');
+            slotDiv.classList.add('indoor-unit-slot');
+
+            const label = document.createElement('label');
+            label.htmlFor = `indoor-unit-choices-${i}`;
+            const safeIndoorSeriesName = String(selections.indoorSeries.name || '').replace(/`/g, "'");
+            label.innerHTML = `Unità ${i + 1} (Modello: <strong>${safeIndoorSeriesName}</strong>):`;
+            slotDiv.appendChild(label);
+
+            const choicesContainer = document.createElement('div');
+            choicesContainer.id = `indoor-unit-choices-${i}`;
+            choicesContainer.classList.add('indoor-unit-choices-container');
+            choicesContainer.dataset.slotIndex = i;
+
+            if (uniqueDisplayOptions.length === 0) {
+                 choicesContainer.innerHTML = `<p>Opzioni UI non chiaramente distinguibili.</p>`;
+            } else {
+                uniqueDisplayOptions.forEach(displayUnit => {
+                    const choiceCard = document.createElement('div');
+                    choiceCard.classList.add('indoor-unit-choice-card');
+                    choiceCard.dataset.unitId = displayUnit.id; 
+                    
+                    choiceCard.innerHTML = `
+                        <span class="unit-kw">${valOrDash(displayUnit.kw, 'Kw')}</span>
+                        <span class="unit-btu">${valOrDash(displayUnit.capacityBTU, ' BTU')}</span>
+                    `;
+
+                    if (selections.indoorUnits[i] && selections.indoorUnits[i].id === displayUnit.id) {
+                        choiceCard.classList.add('selected');
+                    }
+
+                    choiceCard.addEventListener('click', handleIndoorUnitChoiceClick);
+                    choicesContainer.appendChild(choiceCard);
+                });
+            }
+            slotDiv.appendChild(choicesContainer);
+
+            const detailsDiv = document.createElement('div');
+            detailsDiv.classList.add('unit-details');
+            if (selections.indoorUnits[i]) {
+                detailsDiv.innerHTML = generateIndoorUnitDetailsHtml(selections.indoorUnits[i]);
+            } else {
+                 detailsDiv.innerHTML = '<p>Seleziona una taglia/potenza dalle opzioni sopra.</p>';
+            }
+            slotDiv.appendChild(detailsDiv);
+            
+            indoorUnitsSelectionArea.appendChild(slotDiv);
+        }
+        checkAllIndoorUnitsSelected();
+    }
+
+    function generateSummary() {
+        console.log("DEBUG: generateSummary called. Selections:", JSON.parse(JSON.stringify(selections)));
+        summaryDiv.innerHTML = ''; 
+        
+        const mainSummaryTitleEl = document.getElementById('summary-main-title');
+        if (mainSummaryTitleEl) {
+            mainSummaryTitleEl.textContent = "Riepilogo Configurazione"; 
+        }
+
+        const referenceInput = document.getElementById('config-reference'); 
+        const referenceValue = referenceInput ? referenceInput.value.trim() : "";
+
+        if (!selections.brand || !selections.configType || !selections.indoorSeries || !selections.outdoorUnit) {
+            summaryDiv.innerHTML = "<p>Configurazione incompleta. Seleziona tutti i componenti richiesti.</p>";
+            return;
+        }
+        if (selections.configType.numUnits > 0 && (selections.indoorUnits.length !== selections.configType.numUnits || selections.indoorUnits.some(ui => !ui))) {
+            summaryDiv.innerHTML = "<p>Selezione Unità Interne incompleta.</p>";
+            return;
+        }
+
+        let totalPrice = 0;
+        if (selections.outdoorUnit) totalPrice += selections.outdoorUnit.price || 0;
+        selections.indoorUnits.forEach(ui => { if (ui) totalPrice += ui.price || 0; });
+
+        const S_SUMMARY = (str) => str != null ? String(str).replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&") : '-';
+        const priceOrDash = (price) => typeof price === 'number' ? price.toFixed(2) + " €" : '-';
+
+        let indoorUnitsBtuList = selections.indoorUnits.map(ui => ui ? valOrDash(ui.capacityBTU) : '...').join(' + ');
+        if (selections.configType && selections.configType.numUnits === 0) {
+            indoorUnitsBtuList = "Nessuna";
+        } else if (!selections.configType) {
+            indoorUnitsBtuList = "N/D";
+        }
+
+        const layoutContainer = document.createElement('div');
+        layoutContainer.classList.add('summary-layout-container');
+
+        const printHeaderContainer = document.createElement('div');
+        printHeaderContainer.classList.add('summary-print-page-header'); 
+
+        const printTitleSpan = document.createElement('span');
+        printTitleSpan.classList.add('print-page-title');
+        printTitleSpan.textContent = "RIEPILOGO CONFIGURAZIONE";
+        printHeaderContainer.appendChild(printTitleSpan);
+
+        if (referenceValue) {
+            const printReferenceSpan = document.createElement('span');
+            printReferenceSpan.classList.add('print-page-reference');
+            printReferenceSpan.innerHTML = `<strong>Rif:</strong> ${escapeHtml(referenceValue)}`;
+            printHeaderContainer.appendChild(printReferenceSpan);
+        } else {
+            const emptyReferenceSpan = document.createElement('span');
+            emptyReferenceSpan.classList.add('print-page-reference');
+            printHeaderContainer.appendChild(emptyReferenceSpan); 
+        }
+        summaryDiv.appendChild(printHeaderContainer); 
+        
+        const headerInfoDiv = document.createElement('div');
+        headerInfoDiv.classList.add('summary-header-info');
+        headerInfoDiv.innerHTML = ` 
+            <div class="info-group">
+                <p><strong>Marca:</strong> ${S_SUMMARY(selections.brand?.name)}</p>
+                <p><strong>Modello UI:</strong> ${S_SUMMARY(selections.indoorSeries?.name)}</p>
+                <p><strong>Configurazione:</strong> ${S_SUMMARY(selections.configType?.name)}</p>
+            </div>
+            <div class="info-group">
+                <p><strong>Unità Esterna:</strong> ${valOrDash(selections.outdoorUnit?.kw, 'kW')}</p>
+                <p><strong>Unità interne:</strong> ${indoorUnitsBtuList}</p>
+                <p class="total-price-iva"><strong>Prezzo totale:</strong> ${priceOrDash(totalPrice)} + IVA</p>
+            </div>
+        `;
+        layoutContainer.appendChild(headerInfoDiv);
+
+        const detailsTitle = document.createElement('h2');
+        detailsTitle.classList.add('summary-details-title');
+        detailsTitle.textContent = "DETTAGLI CONFIGURAZIONE";
+        layoutContainer.appendChild(detailsTitle);
+
+        const outdoorUnitBlock = document.createElement('div');
+        outdoorUnitBlock.classList.add('summary-detail-block');
+        let energyClassHtml = '- / -'; // Default if data is missing
+    if (selections.outdoorUnit) {
+        const S_UE = (val) => (val != null && String(val).trim() !== "" && String(val).toUpperCase() !== "N/D" && String(val).toUpperCase() !== "DATI MANCANTI") ? String(val) : null;
+        
+        const coolingClassUE = S_UE(selections.outdoorUnit.energyClassCooling);
+        const heatingClassUE = S_UE(selections.outdoorUnit.energyClassHeating);
+
+        let coolingSpanUE = `<span class="energy-rating unknown">-</span>`;
+        if (coolingClassUE) {
+            coolingSpanUE = `<span class="energy-rating cooling">${escapeHtml(coolingClassUE)}</span>`;
+        }
+
+        let heatingSpanUE = `<span class="energy-rating unknown">-</span>`;
+        if (heatingClassUE) {
+            heatingSpanUE = `<span class="energy-rating heating">${escapeHtml(heatingClassUE)}</span>`;
+        }
+        energyClassHtml = `${coolingSpanUE} / ${heatingSpanUE}`;
+    }
+        outdoorUnitBlock.innerHTML = `
+            <h3>UNITA' ESTERNA</h3>
+            <div class="outdoor-unit-details-content">
+                <p><strong>Articolo:</strong> ${valOrDash(selections.outdoorUnit?.modelCode)}</p>
+                <p><strong>Dimensioni:</strong> ${valOrDash(selections.outdoorUnit?.dimensions)}</p>
+                <p><strong>Peso:</strong> ${valOrDash(selections.outdoorUnit?.weight, ' kg')}</p>
+                <p><strong>Classe (F/C):</strong> ${energyClassHtml}</p>
+                <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
+                ${selections.outdoorUnit && selections.outdoorUnit.scheda_tecnica_url ? 
+                    `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(selections.outdoorUnit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                    : ''
+                }
+            </div>
+        `;
+        layoutContainer.appendChild(outdoorUnitBlock);
+
+        if (selections.configType?.numUnits > 0) {
+            const indoorUnitsSectionBlock = document.createElement('div');
+            indoorUnitsSectionBlock.classList.add('summary-detail-block');
+            indoorUnitsSectionBlock.innerHTML = `<h3>UNITA' INTERNE</h3>`;
+            
+            const indoorUnitsContainer = document.createElement('div');
+            indoorUnitsContainer.classList.add('summary-indoor-units-container');
+
+            selections.indoorUnits.forEach((ui, index) => {
+                if (!ui) return; 
+                const uiCard = document.createElement('div');
+                uiCard.classList.add('summary-indoor-unit-detail-card');
+                uiCard.innerHTML = `
+                    <h4>UNITA' ${index + 1}:</h4>
+                    <p><strong>Articolo:</strong> ${valOrDash(ui.modelCode)}</p>
+                    <p><strong>Dimensioni:</strong> ${valOrDash(ui.dimensions)}</p>
+                    <p><strong>Peso:</strong> ${valOrDash(ui.weight, ' kg')}</p>
+                    <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
+                    <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
+                    ${ui.scheda_tecnica_url ? 
+                        `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(ui.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                        : ''
+                    }
+                `;
+                indoorUnitsContainer.appendChild(uiCard);
+            });
+            indoorUnitsSectionBlock.appendChild(indoorUnitsContainer);
+            layoutContainer.appendChild(indoorUnitsSectionBlock);
+        }
+        summaryDiv.appendChild(layoutContainer); 
+    }
+
+    function showStep(logicalStepNumber, fromDirectNavigation = false) { if (logicalStepNumber < 1 || logicalStepNumber > TOTAL_LOGICAL_STEPS) { console.warn("Invalid step:", logicalStepNumber); return; } const htmlContainerId = LOGICAL_TO_HTML_STEP_MAP[logicalStepNumber]; if (!htmlContainerId) { console.error("No HTML ID for step:", logicalStepNumber); return;} if (!fromDirectNavigation) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, currentLogicalStep); } else { if (logicalStepNumber > highestLogicalStepCompleted + 1 && logicalStepNumber !== 1) { const canJumpToSummary = logicalStepNumber === TOTAL_LOGICAL_STEPS && highestLogicalStepCompleted >= (TOTAL_LOGICAL_STEPS - 1); if (!canJumpToSummary) {showStep(highestLogicalStepCompleted + 1 > TOTAL_LOGICAL_STEPS ? 1 : highestLogicalStepCompleted + 1, true); return;}} if (logicalStepNumber <= highestLogicalStepCompleted) { resetSelectionsAndUIFrom(logicalStepNumber + 1); highestLogicalStepCompleted = logicalStepNumber - 1; }} stepsHtmlContainers.forEach(s => s.classList.remove('active-step')); const targetStepEl = document.getElementById(htmlContainerId); if (targetStepEl) { targetStepEl.classList.add('active-step'); } else { console.error(`HTML container '${htmlContainerId}' not found.`);} currentLogicalStep = logicalStepNumber; updateStepIndicator(); window.scrollTo(0, 0);}
+    function updateStepIndicator() { const stepLinesHTML = document.querySelectorAll('.step-indicator .step-line'); stepIndicatorItems.forEach((item, htmlIndex) => { const itemLogicalStep = htmlIndex + 1; if (itemLogicalStep > TOTAL_LOGICAL_STEPS) { item.style.display = 'none'; if (stepLinesHTML[htmlIndex-1]) stepLinesHTML[htmlIndex-1].style.display = 'none'; return;} item.style.display = ''; item.dataset.step = itemLogicalStep; const nameEl = item.querySelector('.step-name'); if(nameEl) nameEl.textContent = LOGICAL_STEP_NAMES[itemLogicalStep-1] || `Step ${itemLogicalStep}`; item.classList.remove('active', 'completed', 'disabled'); const dot = item.querySelector('.step-dot'); if(dot) { dot.classList.remove('active', 'completed'); dot.textContent = itemLogicalStep;} if (itemLogicalStep < currentLogicalStep) { item.classList.add('completed'); dot?.classList.add('completed');}  else if (itemLogicalStep === currentLogicalStep) { item.classList.add('active'); dot?.classList.add('active');} if (itemLogicalStep > highestLogicalStepCompleted + 1 && itemLogicalStep !== currentLogicalStep && itemLogicalStep !== 1) { item.classList.add('disabled'); }}); stepLinesHTML.forEach((line, htmlLineIndex) => { if (htmlLineIndex >= TOTAL_LOGICAL_STEPS - 1) { line.style.display = 'none'; return;} line.style.display = ''; line.classList.remove('active'); const prevItem = stepIndicatorItems[htmlLineIndex]; if (prevItem && prevItem.style.display !== 'none') { if (prevItem.classList.contains('completed')) { line.classList.add('active');} else if (currentLogicalStep > parseInt(prevItem.dataset.step)) { line.classList.add('active');}}}); updateStepSelectionInfo(); }
+    function checkAllIndoorUnitsSelected() { let allSelected = true; if (selections.configType && selections.configType.numUnits > 0) { allSelected = selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null && ui !== undefined); } if(finalizeBtn) { finalizeBtn.disabled = !allSelected; } if(allSelected && selections.configType?.numUnits > 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); } else if (allSelected && selections.configType?.numUnits === 0) { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 4); } updateStepIndicator();  }
+    function initializeNavigation() { stepIndicatorItems.forEach(item => { item.addEventListener('click', () => { if (item.classList.contains('disabled') || item.style.display === 'none') return; const targetLogicalStep = parseInt(item.dataset.step); if (isNaN(targetLogicalStep) || targetLogicalStep < 1 || targetLogicalStep > TOTAL_LOGICAL_STEPS) return; if (targetLogicalStep === TOTAL_LOGICAL_STEPS) { const canShowSummary = selections.brand && selections.configType && selections.indoorSeries && selections.outdoorUnit && (!selections.configType.numUnits > 0 || (selections.indoorUnits.length === selections.configType.numUnits && selections.indoorUnits.every(ui => ui !== null))); if (!canShowSummary) { alert("Completa passaggi precedenti."); return;} generateSummary(); } showStep(targetLogicalStep, true); }); }); if(finalizeBtn) { finalizeBtn.addEventListener('click', () => { highestLogicalStepCompleted = Math.max(highestLogicalStepCompleted, 5); generateSummary(); showStep(TOTAL_LOGICAL_STEPS); }); } document.querySelectorAll('.prev-btn').forEach(button => { const currentStepElement = button.closest('.config-step'); if (!currentStepElement) return; const currentHtmlId = currentStepElement.id; const currentLogical = HTML_TO_LOGICAL_STEP_MAP[currentHtmlId]; if (currentLogical === undefined || currentLogical === 1) { button.style.display = 'none'; return;} let prevLogicalStep = currentLogical - 1; button.style.display = ''; button.addEventListener('click', () => {showStep(prevLogicalStep, true); }); }); document.getElementById('reset-config-btn')?.addEventListener('click', () => { if (!confirm("Sei sicuro?")) return; selections.brand = null; selections.configType = null; selections.indoorSeries = null; selections.outdoorUnit = null; selections.indoorUnits = []; resetSelectionsAndUIFrom(1); populateBrands(); highestLogicalStepCompleted = 0; showStep(1); }); document.getElementById('print-summary-btn')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Vai al Riepilogo (Passaggio 6) prima di stampare."); }); document.getElementById('print-list')?.addEventListener('click', () => { if (currentLogicalStep === TOTAL_LOGICAL_STEPS && summaryDiv.innerHTML && !summaryDiv.innerHTML.includes("incompleta")) window.print(); else alert("Completa fino al Riepilogo (Passaggio 6)."); }); }
+    // --- Admin Functions ---
+    // (escapeHtml, toggleAdminSectionVisibility, loadAndDisplayAdminBrands, clearAdminBrandForm,
+    // setupAdminBrandFormListener, handleEditBrand, handleDeleteBrand - these use `db` already correctly defined)
+    // ... (keep all these admin functions as they are) ...
+    
+    // setupAuthUI uses `auth` which is now defined at the top of this scope
+    // It also uses `db` which is defined there too.
+    // --- Auth UI Functions ---
+    function escapeHtml(unsafeString) {
+        if (typeof unsafeString !== 'string') {
+            unsafeString = String(unsafeString);
+        }
+        let newString = unsafeString;
+        newString = newString.replace(/&/g, "&"); // Use & for ampersand
+        newString = newString.replace(/</g, "<");
+        newString = newString.replace(/>/g, ">");
+        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/'/g, "'"); // Use ' for single quote
+        return newString;
+    }
+
+    function toggleAdminSectionVisibility() {
+        const adminSection = document.getElementById('admin-section');
+        const isAdminUser = window.currentUserRole === 'admin';
+        if (adminSection) {
+            adminSection.style.display = isAdminUser ? 'block' : 'none';
+            if (isAdminUser && !adminBrandsListener) {
+                loadAndDisplayAdminBrands();
+                setupAdminBrandFormListener();
+            } else if (!isAdminUser && adminBrandsListener) {
+                if (typeof adminBrandsListener === 'function') adminBrandsListener(); 
+                adminBrandsListener = null;
+                const listDiv = document.getElementById('admin-brands-list');
+                if (listDiv) listDiv.innerHTML = '<p>Accesso admin richiesto.</p>';
+            }
+        }
+    }
+
+    async function loadAndDisplayAdminBrands() {
+        const listDiv = document.getElementById('admin-brands-list');
+        if (!listDiv) return;
+        listDiv.innerHTML = '<p>Caricamento marche admin...</p>';
+        if (adminBrandsListener && typeof adminBrandsListener === 'function') {
+            adminBrandsListener(); 
+        }
+        adminBrandsListener = db.collection("brands").orderBy("name").onSnapshot(snapshot => {
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<p>Nessuna marca trovata.</p>';
+                return;
+            }
+            let html = '<ul>';
+            snapshot.forEach(doc => {
+                const brand = { id: doc.id, ...doc.data() };
+                html += `<li data-id="${brand.id}" style="display:flex; justify-content:space-between; align-items:center; padding:4px 0; border-bottom:1px dotted #eee;">
+                            <span style="flex-grow:1;">
+                                <img src="${brand.logo || 'img/placeholder.png'}" alt="${escapeHtml(brand.name)}" style="height:20px; vertical-align:middle; margin-right:8px;">
+                                ${escapeHtml(brand.name)} <small>(ID: ${brand.id})</small>
+                            </span>
+                            <div>
+                                <button class="btn-admin-edit-brand" data-id="${brand.id}" style="margin-left:5px; padding:3px 6px; font-size:0.8em;">Mod</button>
+                                <button class="btn-admin-delete-brand" data-id="${brand.id}" style="padding:3px 6px; font-size:0.8em;">Elim</button>
+                            </div>
+                         </li>`;
+            });
+            html += '</ul>';
+            listDiv.innerHTML = html;
+
+            listDiv.querySelectorAll('.btn-admin-edit-brand').forEach(button => { 
+                button.addEventListener('click', (event) => { 
+                    handleEditBrand(event.target.dataset.id);
+                });
+            });
+            listDiv.querySelectorAll('.btn-admin-delete-brand').forEach(button => { 
+                button.addEventListener('click', (event) => { 
+                    handleDeleteBrand(event.target.dataset.id);
+                });
+            });
+        }, 
+        (error) => { 
+            console.error("Errore admin marche: ", error);
+            listDiv.innerHTML = '<p>Errore caricamento marche.</p>';
+        });
+    }
+
+    function clearAdminBrandForm() {
+        document.getElementById('brand-doc-id').value = '';
+        document.getElementById('brand-id').value = '';
+        document.getElementById('brand-id').disabled = false;
+        document.getElementById('brand-name').value = '';
+        document.getElementById('brand-logo-path').value = '';
+        document.getElementById('brand-id').focus();
+    }
+
+    function setupAdminBrandFormListener() {
+        const form = document.getElementById('admin-brand-form');
+        const clearBtn = document.getElementById('admin-brand-form-clear');
+        if (!form) return;
+
+        form.addEventListener('submit', async (event) => { 
+            event.preventDefault();
+            const docIdForEdit = document.getElementById('brand-doc-id').value;
+            const brandId = document.getElementById('brand-id').value.trim().toLowerCase();
+            const brandName = document.getElementById('brand-name').value.trim();
+            const brandLogoPath = document.getElementById('brand-logo-path').value.trim();
+            if (!brandId || !brandName || !brandLogoPath) {
+                alert("Tutti i campi sono obbligatori.");
+                return;
+            }
+            const brandData = { id: brandId, name: brandName, logo: brandLogoPath }; 
+            try {
+                if (docIdForEdit && docIdForEdit !== brandId && !document.getElementById('brand-id').disabled) {
+                     console.warn("Brand ID changed during edit form submission. This will result in a new document or overwrite an existing one with the new ID.");
+                }
+                await db.collection("brands").doc(brandId).set(brandData, { merge: true }); 
+                alert(`Marca ${docIdForEdit && brandId === document.getElementById('brand-doc-id').value ? 'modificata' : 'aggiunta/aggiornata'}!`);
+                clearAdminBrandForm();
+            } catch (error) {
+                console.error("Errore salvataggio marca: ", error);
+                alert("Errore salvataggio marca: " + error.message);
+            }
+        });
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearAdminBrandForm);
+        }
     }
     
-    /* Hide screen-specific elements of Step 6 summary generation */
-    h2#summary-main-title { /* The on-screen H2 "Riepilogo Configurazione" */
-        display: none !important;
+    async function handleEditBrand(brandIdToEdit) {
+        try {
+            const brandDoc = await db.collection("brands").doc(brandIdToEdit).get();
+            if (brandDoc.exists) {
+                const brand = brandDoc.data();
+                document.getElementById('brand-doc-id').value = brandDoc.id; 
+                document.getElementById('brand-id').value = brand.id || brandDoc.id;  
+                document.getElementById('brand-id').disabled = true;      
+                document.getElementById('brand-name').value = brand.name;
+                document.getElementById('brand-logo-path').value = brand.logo;
+                document.getElementById('brand-name').focus();
+            } else {
+                alert("Marca non trovata.");
+            }
+        } catch (error) {
+            console.error("Errore caricamento marca per modifica:", error);
+            alert("Errore caricamento marca.");
+        }
+    }
+
+    async function handleDeleteBrand(brandIdToDelete) {
+        if (!confirm(`Sei sicuro di voler eliminare la marca '${brandIdToDelete}'?`)) return;
+        try {
+            await db.collection("brands").doc(brandIdToDelete).delete();
+            alert("Marca eliminata!");
+        } catch (error) {
+            console.error("Errore eliminazione marca:", error);
+            alert("Errore eliminazione marca.");
+        }
+    }
+    function setupAuthUI() {
+        console.log("setupAuthUI called"); // For debugging
+        const loginModal = document.getElementById('login-modal-configurator');
+        const loginForm = document.getElementById('login-form-configurator');
+        const logoutButton = document.getElementById('logout-button-configurator');
+        const adminTriggerBtn = document.getElementById('admin-trigger');
+        const authStatusEl = document.getElementById('auth-status-configurator');
+        const loginEmailInput = document.getElementById('login-email-configurator');
+        const loginPasswordInput = document.getElementById('login-password-configurator');
+        const loginErrorEl = document.getElementById('login-error-configurator');
+        const closeModalBtn = loginModal ? loginModal.querySelector('.close-btn') : null;
+        const loginModalTitle = document.getElementById('login-modal-title-configurator');
+
+        if (adminTriggerBtn) {
+            adminTriggerBtn.addEventListener('click', () => {
+                if (!loginModal) { console.error("Login modal not found"); return; }
+                // Use the `auth` constant defined at the top of the DOMContentLoaded scope
+                const currentUser = auth.currentUser; // Get current user from the 'auth' instance
+                if (currentUser) {
+                    if (logoutButton) logoutButton.style.display = 'block';
+                    if (loginForm) loginForm.style.display = 'none';
+                    if (loginErrorEl) loginErrorEl.style.display = 'none';
+                    if (loginModalTitle) loginModalTitle.textContent = `Loggato: ${currentUser.email}`;
+                } else {
+                    if (logoutButton) logoutButton.style.display = 'none';
+                    if (loginForm) loginForm.style.display = 'block';
+                    if (loginModalTitle) loginModalTitle.textContent = 'Accesso Amministratore';
+                }
+                loginModal.style.display = 'block';
+            });
+        }
+        if (closeModalBtn) { closeModalBtn.addEventListener('click', () => { if (loginModal) loginModal.style.display = 'none'; }); }
+        if (loginModal) { loginModal.addEventListener('click', (event) => { if (event.target === loginModal) loginModal.style.display = 'none'; }); } 
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', (event) => { 
+                event.preventDefault();
+                const email = loginEmailInput.value;
+                const password = loginPasswordInput.value;
+                if (!email || !password) {
+                    if (loginErrorEl) { loginErrorEl.textContent = 'Email e Password obbligatori.'; loginErrorEl.style.display = 'block'; }
+                    return;
+                }
+                if (loginErrorEl) loginErrorEl.style.display = 'none';
+                // Use the `auth` constant defined at the top of the DOMContentLoaded scope
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(userCredential => { 
+                        if (loginModal) loginModal.style.display = 'none';
+                        if (loginPasswordInput) loginPasswordInput.value = '';
+                        // Login successful, userCredential.user has the user info
+                        // The onAuthStateChanged listener below will handle UI updates for role, etc.
+                    })
+                    .catch(error => { 
+                        if (loginErrorEl) { loginErrorEl.textContent = `Errore: ${error.message}`; loginErrorEl.style.display = 'block'; }
+                    });
+            });
+        }
+        if (logoutButton) {
+            logoutButton.addEventListener('click', () => { 
+                // Use the `auth` constant
+                // This signOut will log the user out of the main site session too.
+                // If this is only for configurator admin-mode, adjust logic to not call signOut.
+                auth.signOut().then(() => { 
+                    if (loginModal) loginModal.style.display = 'none';
+                    // window.currentUserRole will be set to null by onAuthStateChanged
+                    // Main auth guard in HTML will redirect to '/'
+                });
+            });
+        }
+
+        // Listen for Auth state changes FOR THIS PAGE'S UI (admin section visibility, auth status text)
+        // This is separate from the auth guard in the HTML which handles page access
+        // `auth` here refers to the constant defined at the top of DOMContentLoaded
+        auth.onAuthStateChanged(user => { 
+            console.log("Configurator script.js: onAuthStateChanged triggered. User:", user ? user.email : 'null');
+            if (user) {
+                // The auth guard in HTML has already ensured the user is logged in to *access* this page.
+                // Now, we check their role for *configurator-specific admin features*.
+                db.collection('users').doc(user.uid).get().then(doc => { 
+                    // Check if role field exists in your Firestore 'users' collection
+                    // For simplicity, let's assume you might not have this Firestore 'users' collection setup yet
+                    // So, we'll default to a simple check or a predefined role.
+                    // For actual role based from Firestore, you'd use:
+                    // window.currentUserRole = doc.exists && doc.data().role ? doc.data().role : 'user';
+                    
+                    // TEMPORARY: Check if email is an admin email (if you have one defined for configurator admin)
+                    // This part should be aligned with how you determine configurator-admin access.
+                    // If general login is enough, this complex role check isn't needed here for setupAuthUI only.
+                    // But it is good for the #admin-section visibility.
+                    // Let's assume an admin for the configurator can be defined or it's the site admin.
+                    const CONFIGURATOR_ADMIN_EMAILS = ["tecnicovillalta@gmail.com"]; // Example
+                    if (CONFIGURATOR_ADMIN_EMAILS.includes(user.email)) {
+                         window.currentUserRole = 'admin'; // Specific for configurator's admin section
+                    } else {
+                         window.currentUserRole = 'user';
+                    }
+
+                    if (authStatusEl) authStatusEl.textContent = user.email ? ` (${window.currentUserRole})` : ' (Utente)';
+                    if (adminTriggerBtn) adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Admin Logout (${user.email.split('@')[0]})` : `Info Utente (${user.email.split('@')[0]})`);
+                    toggleAdminSectionVisibility(); // This function shows/hides #admin-section
+                }).catch((error) => { 
+                    console.error("Error fetching user role from Firestore:", error);
+                    window.currentUserRole = 'user'; // Default to user if role fetch fails
+                    if (authStatusEl && user) authStatusEl.textContent = ` (user)`;
+                    else if (authStatusEl) authStatusEl.textContent = '';
+                    if (adminTriggerBtn && user) adminTriggerBtn.title = `Info Utente (${user.email.split('@')[0]})`;
+                    else if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+                    toggleAdminSectionVisibility();
+                });
+            } else {
+                window.currentUserRole = null;
+                if (authStatusEl) authStatusEl.textContent = '';
+                if (adminTriggerBtn) adminTriggerBtn.title = "Accesso Admin";
+                toggleAdminSectionVisibility();
+            }
+        });
     }
 
 
-    /* --- Elements to ensure are visible or correctly styled FOR PRINT on this page --- */
-    
-    /* Only the final summary step (#step-6) should be visible */
-    .config-step:not(#step-6) {
-        display: none !important;
-    }
-    #step-6.config-step {
-        display: block !important;
-        border: none !important; 
-        padding: 0 !important; 
-        margin: 0 !important; 
-        box-shadow: none !important; 
-        background-color: transparent !important; 
-    }
+    // --- App Initialization ---
+    // `db` and `auth` (used by initializeConfiguratorApp indirectly via other functions like setupAuthUI and admin functions) 
+    // are now defined at the top of the DOMContentLoaded scope.
+    async function initializeConfiguratorApp() { document.body.appendChild(loadingOverlay); loadingOverlay.style.display = 'flex'; let brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc; try { [brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs,metadataDoc] = await Promise.all([fetchFirestoreCollection('brands'),fetchFirestoreCollection('configTypes'),fetchFirestoreCollection('uiSeriesImageMapping'),fetchFirestoreCollection('outdoorUnits'),fetchFirestoreCollection('indoorUnits'),db.collection('metadata').doc('appInfo').get()]); processLoadedData(brandsDocs,configTypesDocs,seriesMapDocs,outdoorUnitsDocs,indoorUnitsDocs); } catch (error) { console.error("CRITICAL ERROR config init:", error); loadingOverlay.innerHTML = `<p style="color:red;">Errore config.</p>`; return;} stepsHtmlContainers.forEach(el=>el.classList.remove('active-step')); document.getElementById('step-1')?.classList.add('active-step'); currentLogicalStep=1; highestLogicalStepCompleted=0; updateStepIndicator(); populateBrands(); const brandSelCont=brandSelectionDiv.innerHTML.trim(); if (brandSelCont.includes("Nessuna marca")||(brandSelectionDiv.children.length===0 && !brandSelectionDiv.querySelector('p'))) { if(loadingOverlay.style.display!=='none'){loadingOverlay.innerHTML = `<p style="color:orange;">Errore config.</p>`;}} else {if(loadingOverlay.isConnected && loadingOverlay.style.display !== 'none') loadingOverlay.style.display = 'none';} document.getElementById('currentYear').textContent=new Date().getFullYear(); try{if(metadataDoc && metadataDoc.exists && metadataDoc.data()?.lastDataUpdate){const ts=metadataDoc.data().lastDataUpdate;document.getElementById('lastUpdated').textContent=new Date(ts.seconds*1000).toLocaleDateString('it-IT',{year:'numeric',month:'long',day:'numeric'});}else{document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');}}catch(err){console.warn("Err meta config:",err);document.getElementById('lastUpdated').textContent=new Date().toLocaleDateString('it-IT');} initializeNavigation();}
 
-    /* Styles for the dynamically generated print header (from JS in script.js) */
-    /* Ensure these are consistent with your JS output */
-    #config-summary > .summary-print-page-header { 
-        display: flex !important;
-        justify-content: space-between !important; 
-        align-items: baseline; 
-        width: 100% !important; 
-        padding: 0 0 0.2cm 0 !important; 
-        margin: 0 auto 0.3cm auto !important; /* Margin below this header */
-        border-bottom: 1.5px solid #000 !important; 
-        visibility: visible !important; 
-    }
-    #config-summary > .summary-print-page-header .print-page-title {
-        font-size: 14pt !important; 
-        font-weight: bold !important; /* Ensure boldness */
-        text-align: left;
-        flex-grow: 1; 
-        color: #000 !important;
-    }
-    #config-summary > .summary-print-page-header .print-page-reference {
-        text-align: right;
-        font-size: 9pt !important; 
-        font-weight: normal !important;
-        white-space: nowrap; 
-        flex-shrink: 0; 
-        color: #000 !important;
-    }
-    #config-summary > .summary-print-page-header .print-page-reference strong { 
-        font-weight: bold !important; /* For the "Rif:" part */
-    }
-    
-    /* Styles for the main summary content blocks on print */
-    #config-summary .summary-layout-container { 
-        page-break-inside: avoid !important; 
-        color: #000 !important;
-        padding: 0 !important; 
-        margin-top: 0 !important; /* No extra margin if print-header is handled */
-    }
 
-     #config-summary .summary-header-info {
-        display: flex !important; 
-        flex-wrap: wrap !important;
-        justify-content: space-between !important;
-        gap: 3px 8px !important; 
-        font-size: 8pt !important; 
-        padding: 0.15cm !important; 
-        margin-bottom: 0.2cm !important; 
-        border: 1px solid #ddd !important; 
-        background-color: #ffffff !important; 
-        box-shadow: none !important;
-    }
-    #config-summary .summary-header-info .info-group {
-        flex-basis: calc(50% - 4px); /* Ensure this fits with the gap */
-        min-width: 0; 
-    }
-    #config-summary .summary-header-info p {
-        margin: 1px 0 !important; 
-        line-height: 1.1 !important;
-    }
-    #config-summary .summary-header-info strong {
-        min-width: 70px !important;  /* Adjusted from 80px if needed */
-        color: #000 !important;
-        margin-right: 3px !important;
-        display: inline-block;
-    }
-    #config-summary .total-price-iva { 
-        font-size: 9pt !important; 
-        font-weight: bold !important; 
-        color: #000 !important;
-        margin-top: 3px !important;
-    }
-     #config-summary .total-price-iva strong {
-        color: #000 !important;
-        min-width: auto !important; /* Allow "Prezzo totale:" to not have min-width */
-    }
-    
-    #config-summary .summary-details-title { /* "DETTAGLI CONFIGURAZIONE" */
-        font-size: 11pt !important; 
-        margin-top: 0.3cm !important; 
-        margin-bottom: 0.2cm !important; 
-        border-bottom: 1px solid #000 !important;
-        text-align: center !important; 
-        color: #000 !important;
-        padding-bottom: 2px !important;
-        text-transform: uppercase; /* Keep if needed */
-    }
-    
-    #config-summary .summary-detail-block { /* UNITA' ESTERNA & UNITA' INTERNE container blocks */
-        background-color: #ffffff !important; 
-        border: 1px solid #ddd !important; 
-        box-shadow: none !important;
-        font-size: 8.5pt !important;
-        padding: 0.15cm !important; 
-        margin-bottom: 0.2cm !important; 
-        page-break-inside: avoid !important;
-    }
-    #config-summary .summary-detail-block h3 { /* Titles like "UNITA' ESTERNA" */
-        font-size: 9.5pt !important; 
-        text-align: center; 
-        background-color: #f0f0f0 !important; 
-        padding: 3px !important; 
-        margin: 0 0 3px 0 !important; 
-        color: #000 !important;
-        border-bottom: none !important; 
-        text-transform: uppercase; /* Keep if needed */
-    }
+    // Call initial setup functions
+    // `auth` is available to setupAuthUI because it's defined in the same (DOMContentLoaded) scope.
+    setupAuthUI(); 
+    initializeConfiguratorApp(); 
 
-    #config-summary .outdoor-unit-details-content p,
-    #config-summary .summary-indoor-unit-detail-card p {
-        font-size: 8pt !important;
-        line-height: 1.2 !important; 
-        margin: 1px 0 1px 3px !important; 
-    }
-     #config-summary .outdoor-unit-details-content strong,
-    #config-summary .summary-indoor-unit-detail-card strong {
-        min-width: 60px !important; /* Adjusted from 65px */
-        font-weight: bold !important; 
-        color: #000 !important;
-        margin-right: 2px !important;
-        display: inline-block;
-    }
-
-    #config-summary .summary-indoor-units-container { /* Contains the multiple indoor unit cards */
-        display: grid !important; 
-        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)) !important; /* Adjust 170px if needed */
-        gap: 0.15cm !important; 
-        padding-left: 0 !important;
-        margin-top: 0.1cm !important;
-    }
-     #config-summary .summary-indoor-unit-detail-card { /* Individual indoor unit card */
-         margin-bottom: 0 !important; /* No margin needed if gap is used in container */
-         padding: 0.1cm 0.15cm !important; 
-         border: 1px solid #eee !important; 
-         box-shadow: none !important; /* Explicitly remove any screen shadow */
-     }
-     #config-summary .summary-indoor-unit-detail-card h4 { /* "UNITA' 1:", "UNITA' 2:" */
-        font-size: 9pt !important; 
-        color: #000 !important;
-        margin: 0 0 2px 0 !important;
-        padding-bottom: 1px !important;
-        border-bottom: 1px solid #eee !important;
-        text-transform: uppercase; /* Keep if needed */
-     }
-
-    /* Styles for energy class rating badges in summary, if your JS adds them to the summary too */
-    #config-summary .energy-rating {
-        display: inline-block; 
-        padding: 1px 4px !important; /* Smaller padding for print */
-        border-radius: 3px !important;
-        color: white !important; 
-        font-size: 7.5pt !important; /* Smaller font for print */
-        font-weight: bold !important; 
-        margin: 0 1px !important; 
-        min-width: 25px !important; 
-        text-align: center !important; 
-        line-height: 1.2 !important; 
-        vertical-align: middle !important; 
-        -webkit-print-color-adjust: exact !important; /* Ensure background colors print */
-        print-color-adjust: exact !important;
-    }
-    #config-summary .energy-rating.cooling { 
-        background-color: var(--primary-color) !important; 
-    }
-    #config-summary .energy-rating.heating { 
-        background-color: var(--danger-color) !important; 
-    }
-    #config-summary .energy-rating.unknown { 
-        background-color: var(--secondary-color) !important; 
-        color: white !important;
-    }
-}
+});
+// --- END OF SCRIPT.JS ---
