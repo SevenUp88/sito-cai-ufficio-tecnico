@@ -662,7 +662,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newString = newString.replace(/&/g, "&"); // Use & for ampersand
         newString = newString.replace(/</g, "<");
         newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, """);
+        newString = newString.replace(/"/g, "'");
         newString = newString.replace(/'/g, "'"); // Use ' for single quote
         return newString;
     }
