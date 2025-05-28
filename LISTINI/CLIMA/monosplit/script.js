@@ -178,14 +178,14 @@
                         <div class="product-info">
                             <div class="product-details">
                                 <p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p>
-                                ${energyClassHTML} {/* Modificato */}
+                                ${energyClassHTML} 
                                 ${productCodeHTML} {/* Potrebbe essere modificato a seconda del <br> precedente */}
-                                ${dimensionsHTML} {/* Modificato */}
+                                ${dimensionsHTML} 
                                 ${datasheetLink}
                             </div>
-                            <div class="product-footer"> {/* HTML modificato per badge economico */}
+                            <div class="product-footer"> 
                                 <div class="product-price-value">${formatPrice(product.prezzo)}</div>
-                                ${economicBadgeHTML_footer} {/* BADGE ECONOMICO INSERITO QUI */}
+                                ${economicBadgeHTML_footer} 
                                 <div class="action-buttons-container">${actionButtonsContainerContent}</div>
                             </div>
                         </div>
