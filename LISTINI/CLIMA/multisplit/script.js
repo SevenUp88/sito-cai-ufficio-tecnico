@@ -375,7 +375,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     function generateIndoorUnitDetailsHtml(unit) {
-        if (!unit) return '<p>Seleziona una taglia/potenza.</p>';
+        if (!unit) {
+            console.log("generateIndoorUnitDetailsHtml: No unit provided for details.");
+            return '<p>Seleziona una taglia/potenza.</p>';
+        }
+        // DEBUGGING: Log the unit object to check for scheda_tecnica_url
+        try {
+            console.log("generateIndoorUnitDetailsHtml: Generating details for unit:", JSON.parse(JSON.stringify(unit)));
+            if (unit.scheda_tecnica_url) {
+                console.log("generateIndoorUnitDetailsHtml: Unit HAS scheda_tecnica_url:", unit.scheda_tecnica_url);
+            } else {
+                console.log("generateIndoorUnitDetailsHtml: Unit is MISSING scheda_tecnica_url.", unit);
+            }
+        } catch(e) {
+            console.log("generateIndoorUnitDetailsHtml: Generating details for unit (raw, stringify failed):", unit);
+             if (unit.scheda_tecnica_url) {
+                console.log("generateIndoorUnitDetailsHtml: Unit HAS scheda_tecnica_url (raw log):", unit.scheda_tecnica_url);
+            } else {
+                console.log("generateIndoorUnitDetailsHtml: Unit is MISSING scheda_tecnica_url (raw log).", unit);
+            }
+        }
+
+
         let html = `<p>Cod: <strong>${valOrDash(unit.modelCode)}</strong></p>`;
         html += `<p>Potenza: <strong>${valOrDash(unit.kw, 'kW')} (${valOrDash(unit.capacityBTU, ' BTU')})</strong></p>`;
         html += `<p>Dimensioni: <strong>${valOrDash(unit.dimensions)}</strong></p>`;
@@ -384,7 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // Add Technical Sheet button if URL exists
         if (unit.scheda_tecnica_url) {
-            html += `<p><a href="${escapeHtml(unit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Scheda Tecnica</a></p>`;
+            html += `<p class="tech-sheet-container"><a href="${escapeHtml(unit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Scheda Tecnica</a></p>`;
         }
         return html;
     }
@@ -603,7 +624,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <p><strong>Classe (F/C):</strong> ${energyClassHtml}</p>
                 <p><strong>Prezzo:</strong> ${priceOrDash(selections.outdoorUnit?.price)}</p>
                 ${selections.outdoorUnit && selections.outdoorUnit.scheda_tecnica_url ? 
-                    `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(selections.outdoorUnit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                    `<p class="tech-sheet-container"><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(selections.outdoorUnit.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
                     : ''
                 }
             </div>
@@ -630,7 +651,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p><strong>Wifi:</strong> ${ui.wifi ? 'Sì' : 'No'}</p>
                     <p><strong>Prezzo:</strong> ${priceOrDash(ui.price)}</p>
                     ${ui.scheda_tecnica_url ? 
-                        `<p><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(ui.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
+                        `<p class="tech-sheet-container"><strong>Scheda Tecnica:</strong> <a href="${escapeHtml(ui.scheda_tecnica_url)}" target="_blank" rel="noopener noreferrer" class="technical-sheet-button">Visualizza</a></p>` 
                         : ''
                     }
                 `;
@@ -654,17 +675,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // setupAuthUI uses `auth` which is now defined at the top of this scope
     // It also uses `db` which is defined there too.
     // --- Auth UI Functions ---
-    function escapeHtml(unsafeString) {
+    function escapeHtml(unsafeString) { // Corrected version
         if (typeof unsafeString !== 'string') {
             unsafeString = String(unsafeString);
         }
-        let newString = unsafeString;
-        newString = newString.replace(/&/g, "&"); // Use & for ampersand
-        newString = newString.replace(/</g, "<");
-        newString = newString.replace(/>/g, ">");
-        newString = newString.replace(/"/g, "'");
-        newString = newString.replace(/'/g, "'"); // Use ' for single quote
-        return newString;
+        return unsafeString
+             .replace(/&/g, "&")
+             .replace(/</g, "<")
+             .replace(/>/g, ">")
+             .replace(/"/g, "'")
+             .replace(/'/g, "'");
     }
 
     function toggleAdminSectionVisibility() {
