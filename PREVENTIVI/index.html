@@ -1,4 +1,257 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elenco Preventivi - CAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* Reset base e stili generali */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #343a40;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header e Logo */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 10px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .header-title-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .logo {
+            height: 45px;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .app-header h1 {
+            color: #0056a8;
+            font-size: 1.8em;
+            margin: 0;
+        }
+        #logout-button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        #logout-button:hover {
+            background-color: #c82333;
+        }
+
+        /* Login Section */
+        #login-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+        #login-section h2 {
+            color: #0056a8;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-login {
+            background-color: #0056a8;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #004182;
+        }
+        #login-error {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 0.9em;
+            min-height: 1.2em;
+            text-align: center;
+        }
+
+        /* Area Contenuto Principale (app-content) */
+        #app-content {
+            padding: 25px 30px 40px;
+            flex-grow: 1;
+            background-color: #ffffff;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+        }
+
+        /* Controlli (barra di ricerca) */
+        .controls-container {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: flex-start;
+        }
+        #search-input {
+            padding: 10px 15px;
+            font-size: 1em;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
+        }
+        #search-input:focus {
+            border-color: #0056a8;
+            box-shadow: 0 0 0 0.2rem rgba(0, 86, 168, 0.25);
+            outline: none;
+        }
+
+        /* Tabella */
+        .table-container {
+            overflow-x: auto;
+            width: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+            background-color: #fff;
+        }
+        thead tr {
+            background-color: #0056a8;
+            color: #ffffff;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        td {
+            color: #495057;
+        }
+        .loading-message, #no-results-message {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-header { padding: 10px 15px; }
+            .header-title-group h1 { font-size: 1.5em; }
+            #login-section { margin: 20px auto; }
+            #app-content { padding: 15px; margin: 10px; }
+            th, td { padding: 8px 10px; font-size: 0.9em; }
+            #search-input { max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-title-group">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+            <h1>Elenco Preventivi</h1>
+        </div>
+        <button id="logout-button" class="hidden">Logout</button>
+    </header>
+
+    <main>
+        <section id="login-section">
+            <h2>Accesso Riservato</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error"></p>
+            </form>
+        </section>
+
+        <div id="app-content" class="hidden">
+            <div class="controls-container">
+                <input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato...">
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CLIENTE</th>
+                            <th>DATA</th>
+                            <th>RIFERIMENTO</th>
+                            <th>NUMERO</th>
+                            <th>STATO</th>
+                            <th>NOTE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preventivi-table-body"></tbody>
+                </table>
+            </div>
+            <p id="no-results-message" class="hidden">Nessun preventivo trovato.</p>
+        </div>
+    </main>
+
+    <!-- Firebase SDKs v8 (Globale) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <script>
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
@@ -9,22 +262,22 @@
             measurementId: "G-NNPV2607G7"
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof firebase === 'undefined') {
-                console.error("Firebase SDK non caricato.");
-                alert("Errore critico: Firebase SDK non disponibile.");
-                return;
-            }
-
+        // Funzione principale che verrà chiamata dopo che Firebase è pronto
+        function initializeAppAndListeners() {
+            // Questo codice ora si aspetta che `firebase` e `firebaseConfig` siano già disponibili.
+            // Il controllo viene fatto in checkDependenciesAndRun()
+            
             try {
-                if (!firebase.apps.length) {
+                if (!firebase.apps.length) { // Evita reinizializzazioni
                     firebase.initializeApp(firebaseConfig);
                 } else {
-                    firebase.app();
+                    firebase.app(); // Ottieni l'istanza di default
                 }
             } catch (e) {
                 console.error("Errore inizializzazione Firebase: ", e);
                 alert("Errore critico: impossibile inizializzare Firebase.");
+                const loginSection = document.getElementById('login-section');
+                if(loginSection) loginSection.innerHTML = "<h2>Errore di inizializzazione. Ricarica la pagina.</h2>";
                 return;
             }
 
@@ -36,65 +289,68 @@
             const loginError = document.getElementById('login-error');
             const appContent = document.getElementById('app-content');
             const logoutButton = document.getElementById('logout-button');
-
             const preventiviTableBody = document.getElementById('preventivi-table-body');
             const searchInput = document.getElementById('search-input');
             const noResultsMessage = document.getElementById('no-results-message');
             let allPreventivi = [];
 
+            if(loginForm) {
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = loginForm.email.value;
+                    const password = loginForm.password.value;
+                    if(loginError) loginError.textContent = '';
 
-            loginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = loginForm.email.value;
-                const password = loginForm.password.value;
-                loginError.textContent = '';
-
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        console.log("Utente loggato:", userCredential.user);
-                    })
-                    .catch((error) => {
-                        console.error("Errore di login:", error.code, error.message);
-                        if (error.code === 'auth/user-not-found' || 
-                            error.code === 'auth/wrong-password' ||
-                            error.code === 'auth/invalid-credential') {
-                            loginError.textContent = "Email o password errati.";
-                        } else if (error.code === 'auth/invalid-email') {
-                            loginError.textContent = "Formato email non valido.";
-                        } else {
-                            loginError.textContent = "Errore di accesso. Riprova più tardi.";
-                        }
-                    });
-            });
-
-            logoutButton.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    console.log("Utente disconnesso.");
-                }).catch((error) => {
-                    console.error("Errore di logout:", error);
+                    auth.signInWithEmailAndPassword(email, password)
+                        .then((userCredential) => {
+                            console.log("Utente loggato:", userCredential.user);
+                        })
+                        .catch((error) => {
+                            console.error("Errore di login:", error.code, error.message);
+                            if(loginError) {
+                                if (error.code === 'auth/user-not-found' || 
+                                    error.code === 'auth/wrong-password' ||
+                                    error.code === 'auth/invalid-credential') {
+                                    loginError.textContent = "Email o password errati.";
+                                } else if (error.code === 'auth/invalid-email') {
+                                    loginError.textContent = "Formato email non valido.";
+                                } else {
+                                    loginError.textContent = "Errore di accesso. Riprova più tardi.";
+                                }
+                            }
+                        });
                 });
-            });
+            }
+
+            if(logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        console.log("Utente disconnesso.");
+                    }).catch((error) => {
+                        console.error("Errore di logout:", error);
+                    });
+                });
+            }
 
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    loginSection.classList.add('hidden');
-                    appContent.classList.remove('hidden');
-                    logoutButton.classList.remove('hidden');
+                    if(loginSection) loginSection.classList.add('hidden');
+                    if(appContent) appContent.classList.remove('hidden');
+                    if(logoutButton) logoutButton.classList.remove('hidden');
                     fetchPreventivi();
                 } else {
-                    loginSection.classList.remove('hidden');
-                    appContent.classList.add('hidden');
-                    logoutButton.classList.add('hidden');
-                    preventiviTableBody.innerHTML = '';
+                    if(loginSection) loginSection.classList.remove('hidden');
+                    if(appContent) appContent.classList.add('hidden');
+                    if(logoutButton) logoutButton.classList.add('hidden');
+                    if(preventiviTableBody) preventiviTableBody.innerHTML = '';
                     allPreventivi = [];
-                    noResultsMessage.classList.add('hidden');
+                    if(noResultsMessage) noResultsMessage.classList.add('hidden');
                     if (loginForm) {
                         loginForm.reset();
-                        loginError.textContent = '';
+                        if(loginError) loginError.textContent = '';
                     }
                 }
             });
-
 
             function formatDate(timestamp) {
                 if (timestamp && typeof timestamp.toDate === 'function') {
@@ -108,6 +364,8 @@
             }
 
             function renderTable(preventiviData) {
+                if(!preventiviTableBody || !noResultsMessage || !searchInput) return;
+
                 preventiviTableBody.innerHTML = '';
 
                 if (preventiviData.length === 0) {
@@ -138,12 +396,14 @@
             }
 
             function fetchPreventivi() {
+                if(!preventiviTableBody || !noResultsMessage || !db) return;
+
                 preventiviTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>';
                 noResultsMessage.classList.add('hidden');
                 noResultsMessage.textContent = "Nessun preventivo trovato.";
 
                 db.collection("preventivi")
-                  .orderBy("data", "desc") // <--- MODIFICA QUI: ordina per data, decrescente (più recente prima)
+                  .orderBy("data", "desc")
                   .get()
                   .then((querySnapshot) => {
                         allPreventivi = [];
@@ -151,38 +411,41 @@
                             allPreventivi.push({ id: doc.id, ...doc.data() });
                         });
                         
-                        // Ora allPreventivi è già ordinato da Firestore.
-                        // Applica il filtro se necessario, altrimenti renderizza tutto.
-                        if (searchInput.value.trim() !== '') {
-                            filterPreventivi(); // filterPreventivi lavorerà sull'array già ordinato
+                        if (searchInput && searchInput.value.trim() !== '') {
+                            filterPreventivi();
                         } else {
                             renderTable(allPreventivi);
                         }
                     })
                     .catch((error) => {
                         console.error("Errore nel caricare i preventivi: ", error);
+                        let errorMsgDisplayed = false;
                         if (error.code === 'permission-denied') {
                              preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Accesso negato. Verifica le autorizzazioni o effettua il login.</td></tr>`;
+                             errorMsgDisplayed = true;
                         } else if (error.code === 'failed-precondition') {
                              preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Ordinamento richiesto ('data') necessita di un indice. Controlla la console Firebase per il link per crearlo.</td></tr>`;
-                             // Logga l'errore completo per il link dell'indice
                              console.error("Errore Firestore (probabile indice mancante):", error.message);
-                        }
-                        else {
+                             errorMsgDisplayed = true;
+                        } else {
                              preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`;
+                             errorMsgDisplayed = true;
                         }
                         allPreventivi = [];
-                        noResultsMessage.textContent = "Errore nel caricare i dati.";
-                        noResultsMessage.classList.remove('hidden');
+                        if(errorMsgDisplayed && noResultsMessage) {
+                            noResultsMessage.classList.add('hidden');
+                        } else if (noResultsMessage) {
+                            noResultsMessage.textContent = "Errore nel caricare i dati.";
+                            noResultsMessage.classList.remove('hidden');
+                        }
                     });
             }
 
             function filterPreventivi() {
+                if(!searchInput) return;
                 const searchTerm = searchInput.value.toLowerCase().trim();
                 
-                // allPreventivi è già ordinato da Firestore
                 let dataToRender;
-
                 if (!searchTerm) {
                     dataToRender = allPreventivi;
                 } else {
@@ -202,7 +465,32 @@
             if (searchInput) {
                 searchInput.addEventListener('input', filterPreventivi);
             }
-        });
+        } // Fine di initializeAppAndListeners
+
+        // Meccanismo per attendere il caricamento di Firebase SDK
+        // firebaseConfig è già definito sopra, quindi controlliamo solo `firebase`
+        let checkIntervalCount = 0;
+        const maxCheckIntervals = 100; // Attendi fino a 10 secondi (100ms * 100)
+
+        function checkFirebaseSDKAndRun() {
+            checkIntervalCount++;
+            if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
+                // console.log("Firebase SDK pronto.");
+                document.addEventListener('DOMContentLoaded', initializeAppAndListeners);
+            } else if (checkIntervalCount < maxCheckIntervals) {
+                // console.log("In attesa di Firebase SDK...");
+                setTimeout(checkFirebaseSDKAndRun, 100);
+            } else {
+                console.error("TIMEOUT: Firebase SDK non è stato caricato dopo " + (maxCheckIntervals * 100) + "ms.");
+                alert("Errore critico: Firebase SDK non è stato caricato. Prova a ricaricare la pagina.");
+                 const loginSection = document.getElementById('login-section');
+                if(loginSection) loginSection.innerHTML = "<h2>Errore di caricamento SDK. Ricarica la pagina.</h2>";
+            }
+        }
+
+        // Avvia il controllo non appena questo script viene interpretato
+        checkFirebaseSDKAndRun();
+
     </script>
 </body>
 </html>
