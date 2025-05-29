@@ -331,7 +331,7 @@
                     })
                     .catch((error) => {
                         console.error("Errore di login:", error);
-                        loginError.textContent = красиво "Email o password errati."; // Traduci in "Email o password errati."
+                        loginError.textContent ="Email o password errati."; // Traduci in "Email o password errati."
                         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                             loginError.textContent = "Email o password errati.";
                         } else {
