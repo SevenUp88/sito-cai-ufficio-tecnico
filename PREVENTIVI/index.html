@@ -299,6 +299,7 @@
             measurementId: "G-NNPV2607G7"
         };
 
+        // Funzione principale che verrà chiamata dopo che Firebase è pronto
         function initializeAppAndListeners() {
             try {
                 if (!firebase.apps.length) {
@@ -321,7 +322,7 @@
             const loginForm = document.getElementById('login-form');
             const loginError = document.getElementById('login-error');
             const appContent = document.getElementById('app-content');
-            const homeButton = document.getElementById('home-button'); // MODIFICA QUI
+            const homeButton = document.getElementById('home-button');
             const logoutButton = document.getElementById('logout-button');
             const preventiviTableBody = document.getElementById('preventivi-table-body');
             const searchInput = document.getElementById('search-input');
@@ -366,20 +367,17 @@
                 });
             }
             
-            // Non è necessario un event listener per homeButton se è un <a> con href
-            // ma lo mostriamo/nascondiamo con l'autenticazione.
-
             auth.onAuthStateChanged(user => {
                 if (user) {
                     if(loginSection) loginSection.classList.add('hidden');
                     if(appContent) appContent.classList.remove('hidden');
-                    if(homeButton) homeButton.classList.remove('hidden'); // MODIFICA QUI
+                    if(homeButton) homeButton.classList.remove('hidden');
                     if(logoutButton) logoutButton.classList.remove('hidden');
                     fetchPreventivi();
                 } else {
                     if(loginSection) loginSection.classList.remove('hidden');
                     if(appContent) appContent.classList.add('hidden');
-                    if(homeButton) homeButton.classList.add('hidden'); // MODIFICA QUI
+                    if(homeButton) homeButton.classList.add('hidden');
                     if(logoutButton) logoutButton.classList.add('hidden');
                     if(preventiviTableBody) preventiviTableBody.innerHTML = '';
                     allPreventivi = [];
@@ -391,13 +389,7 @@
                 }
             });
 
-            function formatDate(timestamp) { //...invariata... }
-            function renderTable(preventiviData) { //...invariata... }
-            function fetchPreventivi() { //...invariata... }
-            function filterPreventivi() { //...invariata... }
-            
-            // Codice per formatDate, renderTable, fetchPreventivi, filterPreventivi (come prima)
-             function formatDate(timestamp) {
+            function formatDate(timestamp) {
                 if (timestamp && typeof timestamp.toDate === 'function') {
                     const date = timestamp.toDate();
                     const day = String(date.getDate()).padStart(2, '0');
@@ -438,7 +430,7 @@
                     noteCell.style.whiteSpace = 'pre-wrap';
                     noteCell.style.wordBreak = 'break-word';
                 });
-            }
+            } // <<<<---- CONTROLLA QUESTA PARENTESI
 
             function fetchPreventivi() {
                 if(!preventiviTableBody || !noResultsMessage || !db) return;
@@ -484,7 +476,7 @@
                             noResultsMessage.classList.remove('hidden');
                         }
                     });
-            }
+            } // <<<<---- CONTROLLA QUESTA PARENTESI
 
             function filterPreventivi() {
                 if(!searchInput) return;
@@ -505,16 +497,18 @@
                     });
                 }
                 renderTable(dataToRender);
-            }
+            } // <<<<---- CONTROLLA QUESTA PARENTESI
 
 
             if (searchInput) {
                 searchInput.addEventListener('input', filterPreventivi);
             }
-        } // Fine di initializeAppAndListeners
+        } // <<<<---- QUESTA ERA PROBABILMENTE LA PARENTESI MANCANTE (chiusura di initializeAppAndListeners)
 
+        // Meccanismo per attendere il caricamento di Firebase SDK
         let checkIntervalCount = 0;
         const maxCheckIntervals = 100;
+
         function checkFirebaseSDKAndRun() {
             checkIntervalCount++;
             if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
@@ -529,6 +523,7 @@
             }
         }
         checkFirebaseSDKAndRun();
+
     </script>
 </body>
 </html>
