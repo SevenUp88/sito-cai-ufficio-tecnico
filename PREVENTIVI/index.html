@@ -23,7 +23,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 15px; /* Ridotto gap per far spazio a più elementi */
+            gap: 15px;
             padding: 10px 30px;
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
@@ -36,9 +36,9 @@
             align-items: center;
             gap: 20px;
         }
-        .logo-link { /* Stile per il link del logo */
-            display: inline-block; /* Per evitare spazio extra sotto l'immagine */
-            line-height: 0; /* Per allineamento perfetto */
+        .logo-link {
+            display: inline-block;
+            line-height: 0;
         }
         .logo {
             height: 45px;
@@ -50,171 +50,64 @@
             font-size: 1.8em;
             margin: 0;
         }
-        .header-controls { /* Contenitore per i pulsanti a destra */
+        .header-controls {
             display: flex;
             align-items: center;
             gap: 15px;
         }
-        .header-button, #logout-button { /* Stile generico per i pulsanti header */
+        .header-button, #logout-button {
             color: white;
             border: none;
             padding: 8px 15px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.9em;
-            text-decoration: none; /* Per i link stilizzati come bottoni */
-            display: inline-flex; /* Per allineare icona e testo se presenti */
+            text-decoration: none;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             white-space: nowrap;
         }
         .header-button {
-             background-color: #007bff; /* Blu standard */
+             background-color: #007bff;
         }
         .header-button:hover {
             background-color: #0056b3;
         }
         #logout-button {
-            background-color: #dc3545; /* Rosso per logout */
+            background-color: #dc3545;
         }
         #logout-button:hover {
             background-color: #c82333;
         }
 
-        /* Login Section */
-        #login-section { /* ...stili invariati... */ }
-        /* ...tutti gli altri stili rimangono invariati... */
+        /* Stili per Login Section, App Content, Tabella, ecc. come prima... */
+        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
+        #login-section h2 { color: #0056a8; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
+        .btn-login:hover { background-color: #004182; }
+        #login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; text-align: center; }
+        #app-content { padding: 25px 30px 40px; flex-grow: 1; background-color: #ffffff; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
+        .controls-container { margin-bottom: 20px; display: flex; justify-content: flex-start; }
+        #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); }
+        #search-input:focus { border-color: #0056a8; box-shadow: 0 0 0 0.2rem rgba(0, 86, 168, 0.25); outline: none; }
+        .table-container { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95em; background-color: #fff; }
+        thead tr { background-color: #0056a8; color: #ffffff; text-align: left; }
+        th, td { padding: 12px 15px; border: 1px solid #dee2e6; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        tbody tr:hover { background-color: #e9ecef; }
+        td { color: #495057; }
+        .loading-message, #no-results-message { text-align: center; padding: 20px; font-style: italic; color: #6c757d; }
+        .hidden { display: none !important; }
 
-        /* Login Section */
-        #login-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            margin: 40px auto;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 400px;
-            width: 90%;
-        }
-        #login-section h2 {
-            color: #0056a8;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            width: 100%;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        .btn-login {
-            background-color: #0056a8;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1em;
-            transition: background-color 0.3s;
-        }
-        .btn-login:hover {
-            background-color: #004182;
-        }
-        #login-error {
-            color: #dc3545;
-            margin-top: 10px;
-            font-size: 0.9em;
-            min-height: 1.2em;
-            text-align: center;
-        }
-
-        /* Area Contenuto Principale (app-content) */
-        #app-content {
-            padding: 25px 30px 40px;
-            flex-grow: 1;
-            background-color: #ffffff;
-            margin: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
-        }
-
-        /* Controlli (barra di ricerca) */
-        .controls-container {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: flex-start;
-        }
-        #search-input {
-            padding: 10px 15px;
-            font-size: 1em;
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.075);
-        }
-        #search-input:focus {
-            border-color: #0056a8;
-            box-shadow: 0 0 0 0.2rem rgba(0, 86, 168, 0.25);
-            outline: none;
-        }
-
-        /* Tabella */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95em;
-            background-color: #fff;
-        }
-        thead tr {
-            background-color: #0056a8;
-            color: #ffffff;
-            text-align: left;
-        }
-        th, td {
-            padding: 12px 15px;
-            border: 1px solid #dee2e6;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-        tbody tr:hover {
-            background-color: #e9ecef;
-        }
-        td {
-            color: #495057;
-        }
-        .loading-message, #no-results-message {
-            text-align: center;
-            padding: 20px;
-            font-style: italic;
-            color: #6c757d;
-        }
-        .hidden {
-            display: none !important;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
             .app-header { padding: 10px 15px; }
-            .header-title-group h1 { font-size: 1.3em; /* Ridotto per più spazio */}
-            .header-controls a, .header-controls button { font-size: 0.8em; padding: 6px 10px; } /* Bottoni più piccoli */
+            .header-title-group h1 { font-size: 1.3em; }
+            .header-controls a, .header-controls button { font-size: 0.8em; padding: 6px 10px; }
             #login-section { margin: 20px auto; }
             #app-content { padding: 15px; margin: 10px; }
             th, td { padding: 8px 10px; font-size: 0.9em; }
@@ -229,13 +122,15 @@
 
     <header class="app-header">
         <div class="header-title-group">
-            <a href="index.html" class="logo-link" title="Torna alla Home"> <!-- MODIFICA QUI: Logo cliccabile -->
+            <!-- MODIFICA QUI: Sostituisci con l'URL della tua home deployata o con "/" se la home è alla radice del dominio -->
+            <a href="/" class="logo-link" title="Torna alla Home"> 
                 <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
             </a>
             <h1>Elenco Preventivi</h1>
         </div>
-        <div class="header-controls"> <!-- MODIFICA QUI: Contenitore per i bottoni -->
-            <a href="index.html" id="home-button" class="header-button hidden" title="Torna alla Home">
+        <div class="header-controls">
+            <!-- MODIFICA QUI: Sostituisci con l'URL della tua home deployata o con "/" -->
+            <a href="/" id="home-button" class="header-button hidden" title="Torna alla Home">
                 <i class="fas fa-home"></i> Home
             </a>
             <button id="logout-button" class="hidden">Logout</button>
@@ -322,48 +217,37 @@
             const loginForm = document.getElementById('login-form');
             const loginError = document.getElementById('login-error');
             const appContent = document.getElementById('app-content');
-            const homeButton = document.getElementById('home-button');
+            const homeButton = document.getElementById('home-button'); // Riferimento al pulsante
             const logoutButton = document.getElementById('logout-button');
             const preventiviTableBody = document.getElementById('preventivi-table-body');
             const searchInput = document.getElementById('search-input');
             const noResultsMessage = document.getElementById('no-results-message');
             let allPreventivi = [];
 
+            // ... (Logica eventi loginForm e logoutButton come prima) ...
             if(loginForm) {
                 loginForm.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const email = loginForm.email.value;
                     const password = loginForm.password.value;
                     if(loginError) loginError.textContent = '';
-
                     auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => {
-                            console.log("Utente loggato:", userCredential.user);
-                        })
+                        .then((userCredential) => { console.log("Utente loggato:", userCredential.user); })
                         .catch((error) => {
                             console.error("Errore di login:", error.code, error.message);
                             if(loginError) {
-                                if (error.code === 'auth/user-not-found' || 
-                                    error.code === 'auth/wrong-password' ||
-                                    error.code === 'auth/invalid-credential') {
+                                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                                     loginError.textContent = "Email o password errati.";
                                 } else if (error.code === 'auth/invalid-email') {
                                     loginError.textContent = "Formato email non valido.";
-                                } else {
-                                    loginError.textContent = "Errore di accesso. Riprova più tardi.";
-                                }
+                                } else { loginError.textContent = "Errore di accesso. Riprova più tardi."; }
                             }
                         });
                 });
             }
-
             if(logoutButton) {
                 logoutButton.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        console.log("Utente disconnesso.");
-                    }).catch((error) => {
-                        console.error("Errore di logout:", error);
-                    });
+                    auth.signOut().then(() => { console.log("Utente disconnesso."); }).catch((error) => { console.error("Errore di logout:", error); });
                 });
             }
             
@@ -371,13 +255,13 @@
                 if (user) {
                     if(loginSection) loginSection.classList.add('hidden');
                     if(appContent) appContent.classList.remove('hidden');
-                    if(homeButton) homeButton.classList.remove('hidden');
+                    if(homeButton) homeButton.classList.remove('hidden'); // Mostra pulsante Home
                     if(logoutButton) logoutButton.classList.remove('hidden');
                     fetchPreventivi();
                 } else {
                     if(loginSection) loginSection.classList.remove('hidden');
                     if(appContent) appContent.classList.add('hidden');
-                    if(homeButton) homeButton.classList.add('hidden');
+                    if(homeButton) homeButton.classList.add('hidden'); // Nascondi pulsante Home
                     if(logoutButton) logoutButton.classList.add('hidden');
                     if(preventiviTableBody) preventiviTableBody.innerHTML = '';
                     allPreventivi = [];
@@ -389,6 +273,7 @@
                 }
             });
 
+            // ... (Funzioni formatDate, renderTable, fetchPreventivi, filterPreventivi come prima) ...
             function formatDate(timestamp) {
                 if (timestamp && typeof timestamp.toDate === 'function') {
                     const date = timestamp.toDate();
@@ -402,22 +287,13 @@
 
             function renderTable(preventiviData) {
                 if(!preventiviTableBody || !noResultsMessage || !searchInput) return;
-
                 preventiviTableBody.innerHTML = '';
-
                 if (preventiviData.length === 0) {
-                    if (searchInput.value.trim() !== '') {
-                        noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca.";
-                    } else if (allPreventivi.length === 0 && searchInput.value.trim() === '') {
-                        noResultsMessage.textContent = "Nessun preventivo disponibile.";
-                    } else {
-                        noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca.";
-                    }
+                    if (searchInput.value.trim() !== '') { noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca."; }
+                    else if (allPreventivi.length === 0 && searchInput.value.trim() === '') { noResultsMessage.textContent = "Nessun preventivo disponibile."; }
+                    else { noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca."; }
                     noResultsMessage.classList.remove('hidden');
-                } else {
-                    noResultsMessage.classList.add('hidden');
-                }
-
+                } else { noResultsMessage.classList.add('hidden'); }
                 preventiviData.forEach(preventivo => {
                     const row = preventiviTableBody.insertRow();
                     row.insertCell().textContent = preventivo.cliente || '';
@@ -430,85 +306,51 @@
                     noteCell.style.whiteSpace = 'pre-wrap';
                     noteCell.style.wordBreak = 'break-word';
                 });
-            } // <<<<---- CONTROLLA QUESTA PARENTESI
+            }
 
             function fetchPreventivi() {
                 if(!preventiviTableBody || !noResultsMessage || !db) return;
-
                 preventiviTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>';
                 noResultsMessage.classList.add('hidden');
                 noResultsMessage.textContent = "Nessun preventivo trovato.";
-
-                db.collection("preventivi")
-                  .orderBy("data", "desc")
-                  .get()
+                db.collection("preventivi").orderBy("data", "desc").get()
                   .then((querySnapshot) => {
                         allPreventivi = [];
-                        querySnapshot.forEach((doc) => {
-                            allPreventivi.push({ id: doc.id, ...doc.data() });
-                        });
-                        
-                        if (searchInput && searchInput.value.trim() !== '') {
-                            filterPreventivi();
-                        } else {
-                            renderTable(allPreventivi);
-                        }
+                        querySnapshot.forEach((doc) => { allPreventivi.push({ id: doc.id, ...doc.data() }); });
+                        if (searchInput && searchInput.value.trim() !== '') { filterPreventivi(); }
+                        else { renderTable(allPreventivi); }
                     })
-                    .catch((error) => {
+                  .catch((error) => {
                         console.error("Errore nel caricare i preventivi: ", error);
                         let errorMsgDisplayed = false;
-                        if (error.code === 'permission-denied') {
-                             preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Accesso negato. Verifica le autorizzazioni o effettua il login.</td></tr>`;
-                             errorMsgDisplayed = true;
-                        } else if (error.code === 'failed-precondition') {
-                             preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Ordinamento richiesto ('data') necessita di un indice. Controlla la console Firebase per il link per crearlo.</td></tr>`;
-                             console.error("Errore Firestore (probabile indice mancante):", error.message);
-                             errorMsgDisplayed = true;
-                        } else {
-                             preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`;
-                             errorMsgDisplayed = true;
-                        }
+                        if (error.code === 'permission-denied') { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Accesso negato. Verifica le autorizzazioni o effettua il login.</td></tr>`; errorMsgDisplayed = true; }
+                        else if (error.code === 'failed-precondition') { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Ordinamento richiesto ('data') necessita di un indice. Controlla la console Firebase per il link per crearlo.</td></tr>`; console.error("Errore Firestore (probabile indice mancante):", error.message); errorMsgDisplayed = true; }
+                        else { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`; errorMsgDisplayed = true; }
                         allPreventivi = [];
-                        if(errorMsgDisplayed && noResultsMessage) {
-                            noResultsMessage.classList.add('hidden');
-                        } else if (noResultsMessage) {
-                            noResultsMessage.textContent = "Errore nel caricare i dati.";
-                            noResultsMessage.classList.remove('hidden');
-                        }
+                        if(errorMsgDisplayed && noResultsMessage) { noResultsMessage.classList.add('hidden'); }
+                        else if (noResultsMessage) { noResultsMessage.textContent = "Errore nel caricare i dati."; noResultsMessage.classList.remove('hidden'); }
                     });
-            } // <<<<---- CONTROLLA QUESTA PARENTESI
+            }
 
             function filterPreventivi() {
                 if(!searchInput) return;
                 const searchTerm = searchInput.value.toLowerCase().trim();
-                
                 let dataToRender;
-                if (!searchTerm) {
-                    dataToRender = allPreventivi;
-                } else {
+                if (!searchTerm) { dataToRender = allPreventivi; }
+                else {
                     dataToRender = allPreventivi.filter(p => {
-                        return (
-                            (p.cliente && p.cliente.toLowerCase().includes(searchTerm)) ||
-                            (p.numero && p.numero.toLowerCase().includes(searchTerm)) ||
-                            (p.stato && p.stato.toLowerCase().includes(searchTerm)) ||
-                            (p.riferimento && p.riferimento.toLowerCase().includes(searchTerm)) ||
-                            (p.note && p.note.toLowerCase().includes(searchTerm))
-                        );
+                        return ( (p.cliente && p.cliente.toLowerCase().includes(searchTerm)) || (p.numero && p.numero.toLowerCase().includes(searchTerm)) || (p.stato && p.stato.toLowerCase().includes(searchTerm)) || (p.riferimento && p.riferimento.toLowerCase().includes(searchTerm)) || (p.note && p.note.toLowerCase().includes(searchTerm)) );
                     });
                 }
                 renderTable(dataToRender);
-            } // <<<<---- CONTROLLA QUESTA PARENTESI
-
-
-            if (searchInput) {
-                searchInput.addEventListener('input', filterPreventivi);
             }
-        } // <<<<---- QUESTA ERA PROBABILMENTE LA PARENTESI MANCANTE (chiusura di initializeAppAndListeners)
+            if (searchInput) { searchInput.addEventListener('input', filterPreventivi); }
+
+        } // Fine di initializeAppAndListeners
 
         // Meccanismo per attendere il caricamento di Firebase SDK
         let checkIntervalCount = 0;
         const maxCheckIntervals = 100;
-
         function checkFirebaseSDKAndRun() {
             checkIntervalCount++;
             if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
@@ -523,7 +365,6 @@
             }
         }
         checkFirebaseSDKAndRun();
-
     </script>
 </body>
 </html>
