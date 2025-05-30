@@ -17,20 +17,26 @@
         apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
         projectId: "consorzio-artigiani-idraulici",
-        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
+        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app", // Corrected, though original might work too. Usually .appspot.com or .firebasestorage.app
         messagingSenderId: "136848104008",
         appId: "1:136848104008:web:2724f60607dbe91d09d67d",
         measurementId: "G-NNPV2607G7"
       };
-      firebase.initializeApp(firebaseConfig);
+      console.log("Firebase config loaded. Initializing Firebase...");
+      try {
+          firebase.initializeApp(firebaseConfig);
+          console.log("Firebase initialized successfully.");
+      } catch (e) {
+          console.error("Error initializing Firebase:", e);
+      }
+      
       const auth = firebase.auth();
       const db = firebase.firestore();
       const SCALDABAGNO_COLLECTION = "prodottiScaldabagno";
-      const IMAGE_BASE_URL = "https://www.cai-consorzio.com/img_listini/scaldabagni/"; // Adjust if different
+      const IMAGE_BASE_URL = "https://www.cai-consorzio.com/img_listini/scaldabagni/";
     </script>
 
     <style>
-        /* ... (root, body, auth, header styles remain the same) ... */
         :root {
             --primary-color: #0056a8; --secondary-color: #6c757d; --light-color: #f8f9fa;
             --dark-color: #343a40; --background-color: #ffffff; --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -44,7 +50,6 @@
         body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--matrice-bg-color); color: var(--matrice-text-primary); line-height: 1.6; padding-top: var(--header-height); min-height: 100vh; font-weight: 400; }
         * { box-sizing: border-box; }
 
-        /* Autenticazione & Loader (Keep as is) */
         #auth-container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - var(--header-height) - 40px); padding: 20px; }
         .login-form { background-color: var(--background-color); padding: 30px 40px; border-radius: var(--border-radius); box-shadow: var(--card-shadow); width: 100%; max-width: 400px; text-align: center; }
         .login-form h2 { color: var(--primary-color); margin-bottom: 25px; }
@@ -59,7 +64,6 @@
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Header (Keep as is) */
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0,86,168,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
         .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
         .app-header a { line-height: 0; }
@@ -70,8 +74,7 @@
         .button-logout { background: none; border: 1px solid var(--secondary-color); color: var(--secondary-color); font-size: 0.85em; padding: 6px 12px; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px; }
         .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
         
-        /* Main Content & Cards (Keep general structure, adapt titles) */
-        .main-container { max-width: 1600px; /* Potentially wider for more columns */ margin: 20px auto; padding: 20px; }
+        .main-container { max-width: 1600px; margin: 20px auto; padding: 20px; }
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
         .title-group { flex-grow: 1; }
         .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin-top: 0; margin-bottom: 2px; font-weight: 700; line-height: 1.2;}
@@ -82,32 +85,28 @@
         .button-secondary:hover { background-color: #e9ecef; border-color: #ced4da; }
         .content-card { background-color: var(--matrice-surface-color); padding: 24px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); margin-bottom: 24px; box-shadow: var(--card-shadow); }
         
-        /* Filtri (Adapt filter names) */
         .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;}
-        .filters { display: flex; gap: 15px; /* reduced gap for more filters */ align-items: center; flex-wrap: wrap;}
+        .filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
         .filters label { font-weight: 500; margin-right: 5px; color: var(--matrice-text-secondary); font-size: 0.9em;}
         .filters select { padding: 8px 10px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.85em; background-color: #fff; color: var(--matrice-text-primary); min-width: 130px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
         .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
 
-        /* Tabella (Adapt columns and widths) */
-        .products-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; /* or fixed */}
-        .products-table th, .products-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.8em; /* slightly smaller font */ vertical-align: middle; word-break: break-word; }
+        .products-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+        .products-table th, .products-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.8em; vertical-align: middle; word-break: break-word; }
         .products-table th { font-weight: 600; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; white-space: nowrap;}
         
-        /* NEW Column widths - Adjust as needed. These are suggestions. */
-        .products-table th:nth-child(1), .products-table td:nth-child(1) { width: 5%; text-align: center;} /* Immagine */
-        .products-table th:nth-child(2), .products-table td:nth-child(2) { width: 10%;} /* Marca */
-        .products-table th:nth-child(3), .products-table td:nth-child(3) { width: 15%;} /* Modello */
-        .products-table th:nth-child(4), .products-table td:nth-child(4) { width: 10%;} /* Codice Prodotto */
-        .products-table th:nth-child(5), .products-table td:nth-child(5) { width: 10%;} /* Tecnologia */
-        .products-table th:nth-child(6), .products-table td:nth-child(6) { width: 5%; text-align: right;}  /* Litri */
-        .products-table th:nth-child(7), .products-table td:nth-child(7) { width: 8%;}  /* Configurazione */
-        .products-table th:nth-child(8), .products-table td:nth-child(8) { width: 8%;}  /* Installazione */
-        .products-table th:nth-child(9), .products-table td:nth-child(9) { width: 8%;}  /* Orientamento */
-        .products-table th:nth-child(10),.products-table td:nth-child(10){ width: 10%;} /* Dimensioni */
-        .products-table th:nth-child(11),.products-table td:nth-child(11){ width: 6%; text-align: right; } /* Prezzo */
-        .products-table th:nth-child(12),.products-table td:nth-child(12){ width: 5%; text-align: center;} /* Scheda */
-
+        .products-table th:nth-child(1), .products-table td:nth-child(1) { width: 5%; text-align: center;}
+        .products-table th:nth-child(2), .products-table td:nth-child(2) { width: 10%;}
+        .products-table th:nth-child(3), .products-table td:nth-child(3) { width: 15%;}
+        .products-table th:nth-child(4), .products-table td:nth-child(4) { width: 10%;}
+        .products-table th:nth-child(5), .products-table td:nth-child(5) { width: 10%;}
+        .products-table th:nth-child(6), .products-table td:nth-child(6) { width: 5%; text-align: right;} 
+        .products-table th:nth-child(7), .products-table td:nth-child(7) { width: 8%;} 
+        .products-table th:nth-child(8), .products-table td:nth-child(8) { width: 8%;} 
+        .products-table th:nth-child(9), .products-table td:nth-child(9) { width: 8%;} 
+        .products-table th:nth-child(10),.products-table td:nth-child(10){ width: 10%;}
+        .products-table th:nth-child(11),.products-table td:nth-child(11){ width: 6%; text-align: right; }
+        .products-table th:nth-child(12),.products-table td:nth-child(12){ width: 5%; text-align: center;}
 
         .products-table tr:last-child td { border-bottom: none; }
         .products-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
@@ -118,14 +117,11 @@
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
         .datasheet-link i { font-size: 1.3em; color: var(--primary-color); }
         .datasheet-link:hover i { color: var(--matrice-accent-danger); }
-        .nearing-end-of-stock { color: var(--warning-color); font-weight: bold; font-size: 0.9em; display: block; margin-top: 3px;} /* For "articolo_in_esaurimento" */
+        .nearing-end-of-stock { color: var(--warning-color); font-weight: bold; font-size: 0.9em; display: block; margin-top: 3px;}
 
-        /* Calcolatore Sconto (Styles remain the same, remove if unused) */
-        .calculator-panel { display: none; /* HIDDEN BY DEFAULT - uncomment if you want it */ padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
+        .calculator-panel { display: none; padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
         .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
-        /* ... (other calculator styles if kept) ... */
 
-        /* Toast (Keep as is) */
         .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
         .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
     </style>
@@ -133,8 +129,7 @@
 <body>
 
     <header class="app-header">
-        <!-- ... (header HTML remains the same) ... -->
-        <a href="/" title="C.A.I. - Home"> <!-- Assuming "/" is your main portal page -->
+        <a href="/" title="C.A.I. - Home">
              <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
         </a>
         <div class="header-controls">
@@ -145,7 +140,6 @@
     </header>
 
     <div id="auth-container">
-        <!-- ... (auth HTML remains the same, adjust H2 if needed) ... -->
         <div class="login-form">
             <h2>Accesso Riservato Listino Scaldabagno</h2>
             <div class="form-group"><label for="email">Email:</label><input type="email" id="email" required></div>
@@ -165,12 +159,8 @@
             </div>
         </div>
 
-        <!-- Discount Calculator - Optional (Commented out its display by default) -->
-        <!-- <div id="quick-discount-calculator" class="content-card calculator-panel"> ... </div> -->
-
         <div class="content-card filters-container">
             <div class="filters">
-                <!-- NEW Filters based on your headers -->
                 <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
                 <div> <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
                 <div> <label for="litri-filter">Litri:</label> <select id="litri-filter" onchange="triggerFilter()"><option value="">Tutti</option></select> </div>
@@ -184,7 +174,6 @@
         <div class="content-card">
             <table class="products-table">
                 <thead>
-                    <!-- NEW Table Headers -->
                     <tr>
                         <th>Foto</th>
                         <th>Marca</th>
@@ -210,83 +199,222 @@
 
     <script>
         // ----- SCRIPT -----
+        console.log("Script execution started.");
         let allFirestoreData = []; let currentFilteredProductsUI = [];
-        // ... (auth elements, toast, etc. remain the same) ...
-        const authContainer = document.getElementById('auth-container'); const mainContentWrapper = document.getElementById('main-content-wrapper');
-        const appLoader = document.getElementById('app-loader'); const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button'); const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password'); const authErrorMessage = document.getElementById('auth-error-message');
-        const userInfoHeader = document.getElementById('user-info-header'); const userEmailDisplay = document.getElementById('user-email-display');
+        
+        const authContainer = document.getElementById('auth-container'); 
+        const mainContentWrapper = document.getElementById('main-content-wrapper');
+        const appLoader = document.getElementById('app-loader'); 
+        const loginButton = document.getElementById('login-button');
+        const logoutButton = document.getElementById('logout-button'); 
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password'); 
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const userInfoHeader = document.getElementById('user-info-header'); 
+        const userEmailDisplay = document.getElementById('user-email-display');
         const toastElement = document.getElementById('toast-notification');
 
-        // Calculator elements are not essential for this listino but kept for consistency if desired elsewhere
-        // const calcBasePriceInput = document.getElementById('calc-base-price');
-        // ...
+        console.log("DOM elements selected:", {
+            authContainer: !!authContainer,
+            mainContentWrapper: !!mainContentWrapper,
+            appLoader: !!appLoader,
+            loginButton: !!loginButton
+        });
 
 
-        function showToast(message, duration = 3000) { /* ... same ... */ }
+        function showToast(message, duration = 3000, isError = false) {
+            console.log(`showToast called: "${message}", error: ${isError}`);
+            if (!toastElement) {
+                console.error("Toast element not found!");
+                return;
+            }
+            toastElement.textContent = message;
+            toastElement.style.backgroundColor = isError ? 'var(--danger-color)' : 'var(--matrice-accent-success)';
+            toastElement.classList.add('show');
+            setTimeout(() => { toastElement.classList.remove('show'); }, duration);
+        }
 
-        auth.onAuthStateChanged(async (user) => { /* ... same ... */ });
-        loginButton.addEventListener('click', async () => { /* ... same ... */ });
-        logoutButton.addEventListener('click', async () => { /* ... same ... */ });
+        auth.onAuthStateChanged(async (user) => {
+            console.log("onAuthStateChanged triggered. User:", user ? user.email : 'null');
+            if (user) {
+                console.log("User is authenticated. Updating UI and preparing to load data.");
+                if (userEmailDisplay) userEmailDisplay.textContent = user.email; else console.error("userEmailDisplay is null");
+                
+                if (authContainer) authContainer.classList.add('content-hidden'); else console.error("authContainer is null");
+                console.log("authContainer classList after add:", authContainer ? authContainer.classList : 'N/A');
+                
+                if (mainContentWrapper) mainContentWrapper.classList.remove('content-hidden'); else console.error("mainContentWrapper is null");
+                console.log("mainContentWrapper classList after remove:", mainContentWrapper ? mainContentWrapper.classList : 'N/A');
+
+                if (userInfoHeader) userInfoHeader.classList.remove('content-hidden'); else console.error("userInfoHeader is null");
+                if (logoutButton) logoutButton.classList.remove('content-hidden'); else console.error("logoutButton is null");
+                
+                if (authErrorMessage) authErrorMessage.textContent = ''; 
+                console.log("UI elements updated for logged-in user.");
+
+                console.log("Calling loadDataFromFirestore...");
+                await loadDataFromFirestore();
+                console.log("loadDataFromFirestore finished.");
+            } else {
+                console.log("User is not authenticated. Showing login screen.");
+                if (userEmailDisplay) userEmailDisplay.textContent = '';
+                
+                if (authContainer) authContainer.classList.remove('content-hidden'); else console.error("authContainer is null for logout");
+                console.log("authContainer classList after remove (logout):", authContainer ? authContainer.classList : 'N/A');
+
+                if (mainContentWrapper) mainContentWrapper.classList.add('content-hidden'); else console.error("mainContentWrapper is null for logout");
+                 console.log("mainContentWrapper classList after add (logout):", mainContentWrapper ? mainContentWrapper.classList : 'N/A');
+
+                if (userInfoHeader) userInfoHeader.classList.add('content-hidden');
+                if (logoutButton) logoutButton.classList.add('content-hidden');
+                
+                allFirestoreData = []; 
+                currentFilteredProductsUI = []; 
+                renderTable([]); 
+                populateUiFilters([]); 
+                if (appLoader) appLoader.classList.add('content-hidden');
+                console.log("UI elements updated for logged-out user. App loader hidden.");
+            }
+        });
+
+        if (loginButton) {
+            loginButton.addEventListener('click', async () => {
+                console.log("Login button clicked.");
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                if (authErrorMessage) authErrorMessage.textContent = '';
+                if (appLoader) appLoader.classList.remove('content-hidden'); else console.error("appLoader is null on login click");
+
+                try {
+                    console.log(`Attempting login for: ${email}`);
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    console.log("Firebase signInWithEmailAndPassword successful:", userCredential.user ? userCredential.user.email : 'No user object');
+                    // onAuthStateChanged will handle UI changes and hiding the loader after data load
+                } catch (error) {
+                    console.error("Firebase signInWithEmailAndPassword error:", error.code, error.message);
+                    let friendlyMessage = "Errore di autenticazione.";
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                        friendlyMessage = "Credenziali non valide. Riprova.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        friendlyMessage = "Formato email non valido.";
+                    }
+                    if (authErrorMessage) authErrorMessage.textContent = friendlyMessage;
+                    if (appLoader) appLoader.classList.add('content-hidden');
+                    console.log("Login attempt failed, error message shown, loader hidden.");
+                }
+            });
+        } else {
+            console.error("Login button not found!");
+        }
+
+        if (logoutButton) {
+            logoutButton.addEventListener('click', async () => {
+                console.log("Logout button clicked.");
+                try {
+                    await auth.signOut();
+                    console.log("Firebase signOut successful.");
+                    showToast("Logout effettuato.");
+                    // onAuthStateChanged will handle UI changes
+                } catch (error) {
+                    console.error("Firebase signOut error:", error);
+                    showToast("Errore durante il logout.", 3000, true);
+                }
+            });
+        } else {
+            console.error("Logout button not found!");
+        }
+
 
         async function loadDataFromFirestore() {
-            showToast("Caricamento listino scaldabagni...", 2500); appLoader.classList.remove('content-hidden');
+            console.log("loadDataFromFirestore started.");
+            showToast("Caricamento listino scaldabagni...", 2500); 
+            if (appLoader) appLoader.classList.remove('content-hidden'); else console.error("appLoader is null in loadDataFromFirestore");
+            
             try {
                 const snapshot = await db.collection(SCALDABAGNO_COLLECTION).orderBy("marca").orderBy("modello").get();
                 allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                populateUiFilters(allFirestoreData); applyUiFilters();
-            } catch (error) { console.error("Firestore Read Err:", error); showToast(`Errore caricamento dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000); allFirestoreData = []; populateUiFilters([]); applyUiFilters(); }
-            finally { appLoader.classList.add('content-hidden'); }
+                console.log(`Fetched ${allFirestoreData.length} products from Firestore.`);
+                populateUiFilters(allFirestoreData); 
+                applyUiFilters();
+            } catch (error) { 
+                console.error("Firestore Read Error in loadDataFromFirestore:", error.code, error.message); 
+                showToast(`Errore caricamento dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000, true); 
+                allFirestoreData = []; 
+                populateUiFilters([]); 
+                applyUiFilters(); 
+            }
+            finally { 
+                if (appLoader) appLoader.classList.add('content-hidden');
+                console.log("loadDataFromFirestore finished. App loader hidden.");
+            }
         }
 
         function populateUiFilters(dataToUse = allFirestoreData) {
-            // Helper to populate a select element
+            console.log("populateUiFilters called with data count:", dataToUse.length);
             const populateSelect = (elementId, values, currentVal) => {
                 const selectEl = document.getElementById(elementId);
-                selectEl.innerHTML = '<option value="">Tutte</option>';
-                values.forEach(val => selectEl.add(new Option(val, val)));
-                if (values.includes(currentVal)) selectEl.value = currentVal;
-                else selectEl.value = "";
+                if (!selectEl) { console.warn(`Filter select element ${elementId} not found.`); return; }
+                const preservedValue = selectEl.value; // Preserve current value if it's from user interaction
+                selectEl.innerHTML = '<option value="">Tutte</option>'; // Use "Tutte" for brand/technology, "Tutti" for litri
+                
+                const uniqueSortedValues = [...new Set(values.filter(Boolean))].sort(); // Generic sort for strings
+
+                if (elementId === 'litri-filter') { // Special handling for litri if needed (e.g., numeric sort)
+                    uniqueSortedValues.sort((a, b) => Number(a) - Number(b));
+                    uniqueSortedValues.forEach(val => selectEl.add(new Option(`${val} L`, val)));
+                } else {
+                    uniqueSortedValues.forEach(val => selectEl.add(new Option(val, val)));
+                }
+                
+                // Try to restore preserved value, then currentVal from arguments, then default to ""
+                if (uniqueSortedValues.includes(preservedValue)) {
+                    selectEl.value = preservedValue;
+                } else if (uniqueSortedValues.includes(currentVal)) {
+                    selectEl.value = currentVal;
+                } else {
+                    selectEl.value = "";
+                }
             };
             
-            // Get current values before clearing
-            const currentBrandVal = document.getElementById('brand-filter').value;
-            const currentTecnologiaVal = document.getElementById('tecnologia-filter').value;
-            const currentLitriVal = document.getElementById('litri-filter').value;
-            const currentConfigVal = document.getElementById('configurazione-filter').value;
-            const currentInstallVal = document.getElementById('installazione-filter').value;
-            const currentOrientVal = document.getElementById('orientamento-filter').value;
+            const brands = dataToUse.map(p => p.marca);
+            const tecnologie = dataToUse.map(p => p.tecnologia);
+            const litriValues = dataToUse.map(p => p.litri);
+            const configurazioni = dataToUse.map(p => p.configurazione);
+            const installazioni = dataToUse.map(p => p.installazione);
+            const orientamenti = dataToUse.map(p => p.orientamento);
 
-            const brands = [...new Set(dataToUse.map(p => p.marca).filter(Boolean))].sort();
-            const tecnologie = [...new Set(dataToUse.map(p => p.tecnologia).filter(Boolean))].sort();
-            const litriValues = [...new Set(dataToUse.map(p => p.litri).filter(l => l !== null && l !== undefined))].sort((a, b) => a - b);
-            const configurazioni = [...new Set(dataToUse.map(p => p.configurazione).filter(Boolean))].sort();
-            const installazioni = [...new Set(dataToUse.map(p => p.installazione).filter(Boolean))].sort();
-            const orientamenti = [...new Set(dataToUse.map(p => p.orientamento).filter(Boolean))].sort();
+            // Get current values before repopulating, to try and preserve them
+            const currentBrandVal = document.getElementById('brand-filter') ? document.getElementById('brand-filter').value : "";
+            const currentTecnologiaVal = document.getElementById('tecnologia-filter') ? document.getElementById('tecnologia-filter').value : "";
+            const currentLitriVal = document.getElementById('litri-filter') ? document.getElementById('litri-filter').value : "";
+            const currentConfigVal = document.getElementById('configurazione-filter') ? document.getElementById('configurazione-filter').value : "";
+            const currentInstallVal = document.getElementById('installazione-filter') ? document.getElementById('installazione-filter').value : "";
+            const currentOrientVal = document.getElementById('orientamento-filter') ? document.getElementById('orientamento-filter').value : "";
 
             populateSelect('brand-filter', brands, currentBrandVal);
             populateSelect('tecnologia-filter', tecnologie, currentTecnologiaVal);
-            
-            const litriFilterEl = document.getElementById('litri-filter');
-            litriFilterEl.innerHTML = '<option value="">Tutti</option>';
-            litriValues.forEach(l => litriFilterEl.add(new Option(`${l} L`, l)));
-            if (litriValues.map(String).includes(currentLitriVal)) litriFilterEl.value = currentLitriVal; else litriFilterEl.value = "";
-            
+            populateSelect('litri-filter', litriValues, currentLitriVal);
             populateSelect('configurazione-filter', configurazioni, currentConfigVal);
             populateSelect('installazione-filter', installazioni, currentInstallVal);
             populateSelect('orientamento-filter', orientamenti, currentOrientVal);
+            console.log("UI Filters populated.");
         }
 
-        function triggerFilter() { applyUiFilters(); }
+        function triggerFilter() { 
+            console.log("triggerFilter called.");
+            applyUiFilters(); 
+        }
 
         function applyUiFilters() {
-            const brandValue = document.getElementById('brand-filter').value;
-            const tecnologiaValue = document.getElementById('tecnologia-filter').value;
-            const litriValue = document.getElementById('litri-filter').value; // This is string
-            const configurazioneValue = document.getElementById('configurazione-filter').value;
-            const installazioneValue = document.getElementById('installazione-filter').value;
-            const orientamentoValue = document.getElementById('orientamento-filter').value;
+            console.log("applyUiFilters called.");
+            const brandValue = document.getElementById('brand-filter') ? document.getElementById('brand-filter').value : "";
+            const tecnologiaValue = document.getElementById('tecnologia-filter') ? document.getElementById('tecnologia-filter').value : "";
+            const litriValue = document.getElementById('litri-filter') ? document.getElementById('litri-filter').value : "";
+            const configurazioneValue = document.getElementById('configurazione-filter') ? document.getElementById('configurazione-filter').value : "";
+            const installazioneValue = document.getElementById('installazione-filter') ? document.getElementById('installazione-filter').value : "";
+            const orientamentoValue = document.getElementById('orientamento-filter') ? document.getElementById('orientamento-filter').value : "";
+            
+            console.log("Current filter values:", { brandValue, tecnologiaValue, litriValue, configurazioneValue, installazioneValue, orientamentoValue });
 
             currentFilteredProductsUI = allFirestoreData.filter(product => {
                 const matchesBrand = !brandValue || product.marca === brandValue;
@@ -298,32 +426,41 @@
                 
                 return matchesBrand && matchesTecnologia && matchesLitri && matchesConfigurazione && matchesInstallazione && matchesOrientamento;
             });
+            console.log(`Filtering resulted in ${currentFilteredProductsUI.length} products.`);
             renderTable(currentFilteredProductsUI);
         }
 
         function resetFilters() {
-            document.getElementById('brand-filter').value = "";
-            document.getElementById('tecnologia-filter').value = "";
-            document.getElementById('litri-filter').value = "";
-            document.getElementById('configurazione-filter').value = "";
-            document.getElementById('installazione-filter').value = "";
-            document.getElementById('orientamento-filter').value = "";
-            applyUiFilters(); showToast("Filtri resettati.");
+            console.log("resetFilters called.");
+            const filterIds = ['brand-filter', 'tecnologia-filter', 'litri-filter', 'configurazione-filter', 'installazione-filter', 'orientamento-filter'];
+            filterIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = "";
+            });
+            applyUiFilters(); 
+            showToast("Filtri resettati.");
         }
 
         function renderTable(productsToRender) {
+            console.log("renderTable called with product count:", productsToRender.length);
             const tableBody = document.getElementById('products-table-body');
             const noDataMsg = document.getElementById('no-data-message');
             const tableElement = document.querySelector('.products-table');
+
+            if (!tableBody || !noDataMsg || !tableElement) {
+                console.error("Table rendering elements not found!");
+                return;
+            }
             tableBody.innerHTML = '';
 
             if (!productsToRender || productsToRender.length === 0) {
                 noDataMsg.style.display = 'block';
-                if (tableElement) tableElement.style.display = 'none';
+                tableElement.style.display = 'none';
+                console.log("No products to render, showing no-data message.");
                 return;
             }
             noDataMsg.style.display = 'none';
-            if (tableElement) tableElement.style.display = '';
+            tableElement.style.display = ''; // Or 'table' if it has display:table by default
 
             productsToRender.forEach(product => {
                 const row = tableBody.insertRow();
@@ -335,7 +472,7 @@
                 }
                 
                 let esaurimentoText = "";
-                if (product.articolo_in_esaurimento === true) { // Check for boolean true
+                if (product.articolo_in_esaurimento === true) {
                     esaurimentoText = '<span class="nearing-end-of-stock" title="Articolo in esaurimento">Esaurimento!</span>';
                 }
 
@@ -354,8 +491,9 @@
                     <td style="text-align: center;">${product.scheda_tecnica_url ? `<a href="${product.scheda_tecnica_url}" target="_blank" class="datasheet-link" title="Apri scheda tecnica"><i class="fas fa-file-pdf"></i></a>` : '-'}</td>
                 `;
             });
+            console.log("Table rendered with products.");
         }
-        // Calculator functions (if kept, if not, remove them and their listeners)
+        console.log("Script execution finished setup. Waiting for events.");
         // ----- FINE SCRIPT -----
     </script>
 </body>
