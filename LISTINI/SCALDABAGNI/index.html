@@ -96,46 +96,57 @@
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            margin-top: 10px; /* Similar to old table margin-top */
+            margin-top: 10px;
         }
 
         .product-card {
             background-color: var(--matrice-surface-color);
             border: 1px solid var(--matrice-border-color);
             border-radius: var(--border-radius);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Softer shadow for cards */
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
             padding: 16px;
             display: flex;
             flex-direction: column;
-            flex: 0 1 calc(33.333% - 20px); /* 3 columns, accounting for gap */
+            flex: 0 1 calc(33.333% - 20px); 
             min-width: 280px; 
             box-sizing: border-box;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
         .product-card:hover {
             transform: translateY(-3px);
-            box-shadow: var(--card-shadow); /* Use main card shadow on hover */
+            box-shadow: var(--card-shadow);
         }
 
-        .product-card-image-container {
-            text-align: center;
-            margin-bottom: 15px;
-            height: 120px; /* Increased height */
+        .product-card-body { /* New container for details and image */
             display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .product-card-image {
-            max-width: 100%;
-            max-height: 120px; /* Match container */
-            object-fit: contain;
-            border-radius: 4px;
+            gap: 16px; /* Space between details and image columns */
+            flex-grow: 1; /* Allows this section to fill available vertical space */
+            margin-bottom: 12px; /* Space before the footer */
         }
 
         .product-card-details {
-            flex-grow: 1; 
-            margin-bottom: 15px;
+            flex: 2; /* Takes more space */
+            display: flex;
+            flex-direction: column;
         }
+        
+        .product-card-image-container {
+            flex: 1; /* Takes less space */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px; /* Ensure image area doesn't get too small */
+            height: auto; /* Auto height, image will define it up to max-height */
+            padding-left: 10px; /* Add some space if details text is long */
+            border-left: 1px solid #eee; /* Separator */
+        }
+        .product-card-image {
+            max-width: 100%;
+            max-height: 160px; /* Max height for the image */
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        
         .product-card-brand {
             font-size: 1.1em;
             font-weight: 700;
@@ -154,7 +165,7 @@
         .product-card-details p {
             font-size: 0.85em;
             color: var(--matrice-text-secondary);
-            margin: 5px 0;
+            margin: 4px 0; /* Reduced margin */
             line-height: 1.4;
         }
         .product-card-details p strong {
@@ -179,7 +190,7 @@
             align-items: center;
             border-top: 1px solid var(--matrice-border-color);
             padding-top: 12px;
-            margin-top: auto; 
+            margin-top: auto; /* Pushes footer to the bottom of the card */
         }
         .product-card-price {
             font-size: 1.15em;
@@ -204,15 +215,14 @@
             color: white;
         }
         .product-card .datasheet-link i {
-            font-size: 1.1em; /* Icon size within link */
+            font-size: 1.1em; 
         }
         
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
-        /* Removed old datasheet link styles as they are now part of .product-card .datasheet-link */
-
+        
         @media (max-width: 1200px) {
             .product-card {
-                flex: 0 1 calc(50% - 20px); /* 2 columns */
+                flex: 0 1 calc(50% - 20px); 
             }
         }
         @media (max-width: 768px) {
@@ -220,11 +230,24 @@
                 gap: 15px;
             }
             .product-card {
-                flex: 0 1 100%; /* 1 column */
+                flex: 0 1 100%; 
                 min-width: unset; 
             }
-            .product-card-image-container { height: 100px; }
-            .product-card-image { max-height: 100px; }
+            .product-card-body { /* Stack image and details on mobile */
+                flex-direction: column-reverse; /* Image on top of details */
+                gap: 10px;
+            }
+            .product-card-image-container {
+                border-left: none; /* Remove left border */
+                padding-left: 0;
+                border-bottom: 1px solid #eee; /* Add border below image */
+                padding-bottom: 10px; /* Space below image */
+                margin-bottom: 10px; /* Space before details start */
+                height: 150px; /* Give image container a more defined height */
+            }
+             .product-card-image {
+                max-height: 140px; /* Image should fit in the container */
+            }
         }
         /* END CARD STYLES */
 
@@ -270,7 +293,8 @@
 
         <div class="content-card filters-container">
             <div class="filters">
-                <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
+                <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> 
+                </div>
                 <div> <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
                 <div> <label for="litri-filter">Litri:</label> <select id="litri-filter" onchange="triggerFilter()"><option value="">Tutti</option></select> </div>
                 <div> <label for="configurazione-filter">Conf.:</label> <select id="configurazione-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
@@ -280,7 +304,7 @@
             <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;"><i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri</button>
         </div>
 
-        <div class="content-card"> <!-- This content-card now wraps the card container -->
+        <div class="content-card"> 
             <div id="products-card-container" class="products-card-container">
                 <!-- Product cards will be dynamically inserted here -->
             </div>
@@ -363,7 +387,7 @@
                 
                 allFirestoreData = []; 
                 currentFilteredProductsUI = []; 
-                renderCards([]); // Changed from renderTable
+                renderCards([]); 
                 populateUiFilters([]); 
                 if (appLoader) appLoader.classList.add('content-hidden');
                 console.log("UI elements updated for logged-out user. App loader hidden.");
@@ -382,7 +406,6 @@
                     console.log(`Attempting login for: ${email}`);
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log("Firebase signInWithEmailAndPassword successful:", userCredential.user ? userCredential.user.email : 'No user object');
-                    // onAuthStateChanged will handle UI changes and hiding the loader after data load
                 } catch (error) {
                     console.error("Firebase signInWithEmailAndPassword error:", error.code, error.message);
                     let friendlyMessage = "Errore di autenticazione.";
@@ -407,7 +430,6 @@
                     await auth.signOut();
                     console.log("Firebase signOut successful.");
                     showToast("Logout effettuato.");
-                    // onAuthStateChanged will handle UI changes
                 } catch (error) {
                     console.error("Firebase signOut error:", error);
                     showToast("Errore durante il logout.", 3000, true);
@@ -521,7 +543,7 @@
                 return matchesBrand && matchesTecnologia && matchesLitri && matchesConfigurazione && matchesInstallazione && matchesOrientamento;
             });
             console.log(`Filtering resulted in ${currentFilteredProductsUI.length} products.`);
-            renderCards(currentFilteredProductsUI); // Changed from renderTable
+            renderCards(currentFilteredProductsUI);
         }
 
         function resetFilters() {
@@ -535,7 +557,7 @@
             showToast("Filtri resettati.");
         }
 
-        function renderCards(productsToRender) { // Renamed from renderTable
+        function renderCards(productsToRender) { 
             console.log("renderCards called with product count:", productsToRender.length);
             const cardsContainer = document.getElementById('products-card-container');
             const noDataMsg = document.getElementById('no-data-message');
@@ -544,24 +566,24 @@
                 console.error("Card rendering elements not found! (cardsContainer or noDataMsg)");
                 return;
             }
-            cardsContainer.innerHTML = ''; // Clear previous cards
+            cardsContainer.innerHTML = ''; 
 
             if (!productsToRender || productsToRender.length === 0) {
                 noDataMsg.style.display = 'block';
-                cardsContainer.style.display = 'none'; // Hide card container
+                cardsContainer.style.display = 'none'; 
                 console.log("No products to render, showing no-data message.");
                 return;
             }
             noDataMsg.style.display = 'none';
-            cardsContainer.style.display = 'flex'; // Show card container (it's a flex container)
+            cardsContainer.style.display = 'flex'; 
 
             productsToRender.forEach(product => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
 
-                const imageUrl = product.nome_immagine ? `${IMAGE_BASE_URL}${product.nome_immagine}` : 'https://via.placeholder.com/120x120.png?text=N/A';
+                const imageUrl = product.nome_immagine ? `${IMAGE_BASE_URL}${product.nome_immagine}` : 'https://via.placeholder.com/120x160.png?text=N/A';
                 
-                let prezzoDisplay = "N/D"; // N/D for Non Disponibile or Not Defined
+                let prezzoDisplay = "N/D"; 
                 if (product.prezzo !== null && product.prezzo !== undefined) {
                     prezzoDisplay = `${parseFloat(product.prezzo).toFixed(2)} €`;
                 }
@@ -571,20 +593,23 @@
                     esaurimentoText = '<span class="nearing-end-of-stock-card" title="Articolo in esaurimento">Esaurimento</span>';
                 }
 
+                // New structure: product-card > product-card-body > (details, image-container) + product-card-footer
                 card.innerHTML = `
-                    <div class="product-card-image-container">
-                        <img src="${imageUrl}" alt="${product.modello || 'Scaldabagno'}" class="product-card-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/120x120.png?text=Img Err';this.style.objectFit='scale-down';">
-                    </div>
-                    <div class="product-card-details">
-                        <h3 class="product-card-brand">${product.marca || 'N/A'} ${esaurimentoText}</h3>
-                        <p class="product-card-model">${product.modello || 'N/A'}</p>
-                        <p><strong>Codice:</strong> ${product.codice_prodotto || 'N/A'}</p>
-                        <p><strong>Tecnologia:</strong> ${product.tecnologia || 'N/A'}</p>
-                        <p><strong>Litri:</strong> ${product.litri !== null && product.litri !== undefined ? product.litri + ' L' : 'N/A'}</p>
-                        <p><strong>Config.:</strong> ${product.configurazione || 'N/A'}</p>
-                        <p><strong>Install.:</strong> ${product.installazione || 'N/A'}</p>
-                        <p><strong>Orient.:</strong> ${product.orientamento || 'N/A'}</p>
-                        <p><strong>Dimensioni:</strong> ${product.dimensioni || 'N/A'}</p>
+                    <div class="product-card-body">
+                        <div class="product-card-details">
+                            <h3 class="product-card-brand">${product.marca || 'N/A'} ${esaurimentoText}</h3>
+                            <p class="product-card-model">${product.modello || 'N/A'}</p>
+                            <p><strong>Codice:</strong> ${product.codice_prodotto || 'N/A'}</p>
+                            <p><strong>Tecnologia:</strong> ${product.tecnologia || 'N/A'}</p>
+                            <p><strong>Litri:</strong> ${product.litri !== null && product.litri !== undefined ? product.litri + ' L' : 'N/A'}</p>
+                            <p><strong>Config.:</strong> ${product.configurazione || 'N/A'}</p>
+                            <p><strong>Install.:</strong> ${product.installazione || 'N/A'}</p>
+                            <p><strong>Orient.:</strong> ${product.orientamento || 'N/A'}</p>
+                            <p><strong>Dimensioni:</strong> ${product.dimensioni || 'N/A'}</p>
+                        </div>
+                        <div class="product-card-image-container">
+                            <img src="${imageUrl}" alt="${product.modello || 'Scaldabagno'}" class="product-card-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/120x160.png?text=Img Err';this.style.objectFit='scale-down';">
+                        </div>
                     </div>
                     <div class="product-card-footer">
                         <p class="product-card-price">${prezzoDisplay}</p>
