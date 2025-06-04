@@ -14,14 +14,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       measurementId: "G-NNPV2607G7"
     };
 
-    firebase.initializeApp(firebaseConfig);
+    if (!firebase.apps.length) { // Evita reinizializzazione
+        firebase.initializeApp(firebaseConfig);
+    }
     const db = firebase.firestore();
     const auth = firebase.auth();
 
     // --- Constants for Caldaie Page ---
     const imageBaseUrl = 'img/'; 
     const brandLogoBaseUrl = 'img/logos/'; 
-    const placeholderImage = imageBaseUrl + 'placeholder.png'; // ASSICURATI CHE QUESTO FILE ESISTA!
+    const placeholderImage = imageBaseUrl + 'placeholder.png'; 
 
     // --- DOM Element References for Caldaie Page ---
     const boilerListContainer = document.getElementById('boiler-list-container');
@@ -65,7 +67,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         heatingPower: "Potenza Riscaldamento (kW)", eer: "EER", cop: "COP",
         datasheetUrl: "Scheda Tecnica",
         manualeUrl: "Manuale", 
-        wifi: "WiFi Presente"
+        wifi: "WiFi Presente",
+        novita: "Novità Prodotto" // Aggiunto per il popup se si vuole mostrare
     };
 
     // --- Utility Functions ---
@@ -74,10 +77,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             unsafeString = String(unsafeString || '');
         }
         return unsafeString
-            .replace(/&/g, "&") 
+            .replace(/&/g, "&") // Modificato per correttezza escaping
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, "'")
+            .replace(/"/g, """)
             .replace(/'/g, "'");
     }
 
@@ -93,16 +96,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         if(noResultsMessage) noResultsMessage.style.display = 'none';
         if(boilerListContainer) boilerListContainer.innerHTML = '';
         try {
-            const snapshot = await db.collection('prodottiCaldaie').get(); // Rimuovi .orderBy per ora
+            const snapshot = await db.collection('prodottiCaldaie').get();
             
             console.log(`Firestore snapshot size: ${snapshot.size}`);
             if (snapshot.empty) {
-                console.log("Snapshot is empty.");
+                console.log("Snapshot prodottiCaldaie is empty.");
             }
 
             const boilers = snapshot.docs.map(doc => {
                 const data = doc.data();
-                // console.log(`Boiler ID: ${doc.id}, Data:`, JSON.parse(JSON.stringify(data))); // Debug
+                // Aggiungi log per ogni documento se necessario per debug
+                // console.log(`Boiler ID: ${doc.id}, Data Firestore:`, JSON.parse(JSON.stringify(data)));
                 return {
                     id: doc.id,
                     ...data
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentFilters.economico) {
             filteredBoilers = filteredBoilers.filter(b => {
                 const priceToCompare = typeof b.price === 'number' ? b.price : Infinity;
-                return priceToCompare < 1000;
+                return priceToCompare < 1000; 
             });
         }
         if (currentFilters.searchTerm) {
@@ -238,76 +242,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             filteredBoilers = filteredBoilers.filter(b =>
                 (b.model || '').toLowerCase().includes(term) ||
                 (b.productCode || '').toLowerCase().includes(term) ||
-                (b.description || '').toLowerCase().includes(term)
+                (b.description || '').toLowerCase().includes(term) // Assicurati che description esista o aggiungi controllo
             );
         }
         displayBoilers(filteredBoilers);
         updateResetButtonVisibility();
     }
-// --- Boiler Card Creation and Display ---
+    // --- Boiler Card Creation and Display ---
     function createBoilerCard(boiler) {
-    const card = document.createElement('div');
-    card.classList.add('boiler-card');
-    card.dataset.boilerId = boiler.id;
+        const card = document.createElement('div');
+        card.classList.add('boiler-card');
+        card.dataset.boilerId = boiler.id;
 
-    if (boiler.brand) {
-        const brandClass = `brand-${boiler.brand.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}`;
-        card.classList.add(brandClass);
-    }
-
-    card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
-
-    const productImgName = boiler.imageName || 'placeholder.png';
-    const productImgUrl = imageBaseUrl + productImgName;
-
-    const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '') : '';
-    const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : '';
-    const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
-
-    const displayPriceVal = boiler.price;
-    const listPriceVal = boiler.listPrice;
-    const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
-
-    let priceHTML = '';
-    const formattedDisplayPrice = formatPrice(displayPriceVal);
-    if (formattedDisplayPrice) {
-        priceHTML += `<span class="price-discounted">${formattedDisplayPrice}</span>`;
-        if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
-            priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
+        if (boiler.brand) {
+            const brandClass = `brand-${boiler.brand.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '')}`;
+            card.classList.add(brandClass);
         }
-    } else {
-        priceHTML = `<span class="price-discounted no-discount">Prezzo su richiesta</span>`;
-    }
 
-        let disponibilityText = "SCONOSCIUTO";
-        let disponibilityClass = "unknown";
-        if (boiler.hasOwnProperty('nearingEndOfStock')) { 
-            if (boiler.nearingEndOfStock === true) {
-                disponibilityText = "In Esaurimento";
-                disponibilityClass = "in-esaurimento";
-            } else if (boiler.nearingEndOfStock === false) {
-                disponibilityText = "Disponibile";
-                disponibilityClass = "available";
+        card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
+
+        const productImgName = boiler.imageName || 'placeholder.png';
+        const productImgUrl = imageBaseUrl + productImgName;
+
+        const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '_') : ''; // Modificato per coerenza con scaldabagni
+        const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : ''; // Assicurati che i loghi delle caldaie seguano questa convenzione
+        const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
+
+        const displayPriceVal = boiler.price;
+        const listPriceVal = boiler.listPrice;
+        const isEconomico = typeof displayPriceVal === 'number' && displayPriceVal < 1000;
+
+        let priceHTML = '';
+        const formattedDisplayPrice = formatPrice(displayPriceVal);
+        if (formattedDisplayPrice) {
+            priceHTML += `<span class="price-discounted">${formattedDisplayPrice}</span>`;
+            if (listPriceVal && typeof listPriceVal === 'number' && listPriceVal > displayPriceVal) {
+                priceHTML = `<span class="price-list">${formatPrice(listPriceVal)}</span> ` + priceHTML;
             }
+        } else {
+            priceHTML = `<span class="price-discounted no-discount">Prezzo su richiesta</span>`;
+        }
+
+        let disponibilityText = "Disponibile"; // Default
+        let disponibilityClass = "available";
+        // MODIFICATO: La logica per "In Esaurimento" viene ora gestita dalla classe e testo,
+        // ma per questa pagina il testo del p sarà "Disponibile" o "In Esaurimento".
+        // La classe 'in-esaurimento' sarà stilata arancione dal CSS.
+        if (boiler.nearingEndOfStock === true) { // 'nearingEndOfStock' viene da Firestore
+            disponibilityText = "In Esaurimento";
+            disponibilityClass = "in-esaurimento";
         }
         
+        // NOVITÀ BADGE
+        let novitaBadgeHtml = "";
+        if (boiler.novita === true) { // 'novita' viene da Firestore
+            novitaBadgeHtml = '<span class="status-text status-novita-caldaie" title="Nuovo articolo!"><i class="fas fa-star"></i> Novità</span>';
+        }
+            
         let storageInfoHtmlBadge = '';
         let accumuloDetailHtmlInfo = '';
-
         const haAccumuloBooleano = boiler.con_accumulo; 
         const capacitaLitriNumero = boiler.litri_accumulo; 
-
         if (haAccumuloBooleano === true) {
             let badgeText = ''; 
             let detailText = 'Sì';
             let titleText = 'Accumulo Presente';
-
             if (typeof capacitaLitriNumero === 'number' && capacitaLitriNumero > 0) {
                 badgeText = `${capacitaLitriNumero}L`;
                 detailText = `${capacitaLitriNumero} Litri`;
                 titleText = `Accumulo: ${capacitaLitriNumero}L`;
             }
-            
             if (badgeText) { 
                 storageInfoHtmlBadge = `<span class="storage-badge" title="${titleText}">
                                         <i class="fas fa-box-archive"></i> ${badgeText}
@@ -316,7 +320,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             accumuloDetailHtmlInfo = `<p class="accumulo-info"><strong>Accumulo:</strong> ${detailText} ${!badgeText ? '<i class="fas fa-box-archive storage-icon-inline"></i>' : ''}</p>`;
         }
         
-        // MODIFICATO: Logica per generare i link ai documenti
         let documentsLinksHTML = '';
         const datasheetLink = boiler.datasheetUrl 
             ? `<a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer" class="product-link product-datasheet-link"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>` 
@@ -324,7 +327,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const manualeLink = boiler.manualeUrl 
             ? `<a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer" class="product-link product-manual-link"><i class="fas fa-book-open"></i> Manuale</a>`
             : '';
-
         if (datasheetLink || manualeLink) {
             documentsLinksHTML = `
                 <div class="product-documents-links">
@@ -332,10 +334,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${manualeLink}
                 </div>`;
         }
-        // FINE MODIFICA
 
         let dimensionsHTML = '';
-        if (boiler.dimensions) {
+        if (boiler.dimensions) { // Aggiungiamo AxLxP qui se la logica delle dimensioni per caldaie lo richiede
             dimensionsHTML = `<p><strong>Dimensioni (AxLxP):</strong> ${escapeHtml(boiler.dimensions)} mm</p>`;
         }
 
@@ -350,7 +351,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                   <div class="boiler-logo-placeholder" style="display:none; width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">Logo mancante</div>`
                                : `<div class="boiler-logo-placeholder" style="width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">(No Logo)</div>`}
                 <div class="boiler-title-brand">
-                    <h3 class="model">${escapeHtml(boiler.model || 'Modello non Specificato')}</h3>
+                    <h3 class="model">
+                        ${escapeHtml(boiler.model || 'Modello non Specificato')}
+                        ${novitaBadgeHtml} 
+                    </h3>
                     <span class="brand-text">${escapeHtml(boiler.brand || 'Marca non Specificata')}</span>
                 </div>
             </div>
@@ -359,7 +363,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="boiler-card-info-column">
                     <div class="boiler-info">
                         ${boiler.powerKw ? `<p><strong>Potenza:</strong> ${escapeHtml(String(boiler.powerKw))} kW</p>` : ''}
-                        ${dimensionsHTML}
+                        ${dimensionsHTML} 
                         ${boiler.productCode ? `<p><strong>Codice:</strong> ${escapeHtml(boiler.productCode)}</p>` : ''}
                         ${boiler.type ? `<p><strong>Tipologia:</strong> ${escapeHtml(boiler.type)}</p>` : ''}
                         <p class="availability ${disponibilityClass}"><strong>Disponibilità:</strong> ${escapeHtml(disponibilityText)}</p>
@@ -376,13 +380,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
 
             <div class="boiler-card-footer">
-                <div class="price-section">
+                <div class="price-section"> <!-- Modificato per raggruppare -->
                     ${priceHTML}
                 </div>
+                <!-- Il testo "in esaurimento" viene già mostrato sopra con la classe .in-esaurimento, 
+                     non lo duplichiamo nel footer a meno che non sia un design diverso.
+                     Se il testo di esaurimento dovesse essere solo nel footer, allora andrebbe qui. -->
             </div>
         `;
         return card;
     }
+
 
     function displayBoilers(boilersToDisplay) {
         if (!boilerListContainer) return;
@@ -393,10 +401,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (auth.currentUser && (currentFilters.brand || currentFilters.economico || currentFilters.searchTerm)) {
                     noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.';
                 } else if (auth.currentUser) {
+                    // Condizione di default se l'utente è loggato ma non ci sono caldaie
                     noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non conformi.';
                 }
+                // Il resto della logica per mostrare noResultsMessage rimane invariato...
                 const currentNoResultsText = noResultsMessage.textContent ? noResultsMessage.textContent.toLowerCase() : "";
-                if (auth.currentUser || (!auth.currentUser && currentNoResultsText !== 'devi essere autenticato per visualizzare i listini.')) {
+                 if (auth.currentUser || (!auth.currentUser && currentNoResultsText !== 'devi essere autenticato per visualizzare i listini.')) {
                      if (!currentNoResultsText.includes('configurazione database') && !currentNoResultsText.includes('accesso ai listini non autorizzato')) {
                         noResultsMessage.style.display = 'block';
                      }
@@ -436,12 +446,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 
                 let displayValueHtml; 
-                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "") || (typeof value === 'number' && value === 0 && fieldKeyInFirestore !== 'litri_accumulo') ) {
-                    if (['price', 'listPrice', 'nearingEndOfStock'].includes(fieldKeyInFirestore)) {
-                         displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
+                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "") || (typeof value === 'number' && value === 0 && fieldKeyInFirestore !== 'litri_accumulo' && fieldKeyInFirestore !== 'price' && fieldKeyInFirestore !== 'listPrice') ) {
+                     if (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice') {
+                        if (typeof value === 'number' && value === 0) {
+                             displayValueHtml = escapeHtml(formatPrice(0)); // Mostra 0,00 € se il prezzo è 0
+                        } else {
+                             displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
+                        }
+                    } else if (fieldKeyInFirestore === 'nearingEndOfStock' && value === false){
+                         displayValueHtml = 'No'; // Per "Articolo in Esaurimento: No"
+                    } else if (fieldKeyInFirestore === 'builtIn' && value === false) {
+                         displayValueHtml = 'No'; // Per "Incasso: No"
+                    } else if (fieldKeyInFirestore === 'wifi' && value === false) {
+                         displayValueHtml = 'No';
                     } else if (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo === true && value !== "Sì (capacità non specificata)") { 
                          displayValueHtml = '<span class="unknown-value">Non specificata</span>';
-                    } else {
+                    } else if (fieldKeyInFirestore === 'novita' && value === false){
+                         displayValueHtml = 'No';
+                    }
+                    
+                    else {
                         continue; 
                     }
                 } else if (typeof value === 'boolean') {
@@ -622,7 +646,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                      !currentNoResultsText.includes('configurazione database in corso'))) {
                     noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non trovati.';
                  }
-                 if (noResultsMessage.textContent.toLowerCase().includes('nessun listino caldaie')) {
+                 if (noResultsMessage.textContent.toLowerCase().includes('nessun listino caldaie')) { // Questa condizione sembra ridondante
                     noResultsMessage.style.display = 'block';
                  }
             }
