@@ -17,7 +17,7 @@
         apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
         projectId: "consorzio-artigiani-idraulici",
-        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app", 
+        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
         messagingSenderId: "136848104008",
         appId: "1:136848104008:web:2724f60607dbe91d09d67d",
         measurementId: "G-NNPV2607G7"
@@ -29,7 +29,7 @@
       } catch (e) {
           console.error("Error initializing Firebase:", e);
       }
-      
+
       const auth = firebase.auth();
       const db = firebase.firestore();
       const SCALDABAGNO_COLLECTION = "prodottiScaldabagno";
@@ -63,7 +63,7 @@
         .content-hidden { display: none !important; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
+
         .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0,86,168,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
         .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
         .app-header a { line-height: 0; }
@@ -73,7 +73,7 @@
         .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
         .button-logout { background: none; border: 1px solid var(--secondary-color); color: var(--secondary-color); font-size: 0.85em; padding: 6px 12px; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px; }
         .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
-        
+
         .main-container { max-width: 1600px; margin: 20px auto; padding: 20px; }
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
         .title-group { flex-grow: 1; }
@@ -84,7 +84,7 @@
         .button-secondary { background-color: var(--matrice-surface-color); color: var(--matrice-text-secondary); border: 1px solid var(--matrice-border-color); }
         .button-secondary:hover { background-color: #e9ecef; border-color: #ced4da; }
         .content-card { background-color: var(--matrice-surface-color); padding: 24px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); margin-bottom: 24px; box-shadow: var(--card-shadow); }
-        
+
         .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;}
         .filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
         .filters label { font-weight: 500; margin-right: 5px; color: var(--matrice-text-secondary); font-size: 0.9em;}
@@ -107,8 +107,8 @@
             padding: 16px;
             display: flex;
             flex-direction: column;
-            flex: 0 1 calc(33.333% - 20px); 
-            min-width: 280px; 
+            flex: 0 1 calc(33.333% - 20px);
+            min-width: 280px;
             box-sizing: border-box;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
@@ -117,43 +117,55 @@
             box-shadow: var(--card-shadow);
         }
 
-        .product-card-body { /* New container for details and image */
+        .product-card-body {
             display: flex;
-            gap: 16px; /* Space between details and image columns */
-            flex-grow: 1; /* Allows this section to fill available vertical space */
-            margin-bottom: 12px; /* Space before the footer */
+            gap: 16px;
+            flex-grow: 1;
+            margin-bottom: 12px;
         }
 
         .product-card-details {
-            flex: 2; /* Takes more space */
+            flex: 2;
             display: flex;
             flex-direction: column;
         }
-        
+
         .product-card-image-container {
-            flex: 1; /* Takes less space */
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 120px; /* Ensure image area doesn't get too small */
-            height: auto; /* Auto height, image will define it up to max-height */
-            padding-left: 10px; /* Add some space if details text is long */
-            border-left: 1px solid #eee; /* Separator */
+            min-width: 120px;
+            height: auto;
+            padding-left: 10px;
+            border-left: 1px solid #eee;
         }
         .product-card-image {
             max-width: 100%;
-            max-height: 160px; /* Max height for the image */
+            max-height: 160px;
             object-fit: contain;
             border-radius: 4px;
         }
-        
-        .product-card-brand {
-            font-size: 1.1em;
+
+        .product-card-brand { /* This is the H3 tag */
+            font-size: 1.1em; /* Will be applied to text if logo fails */
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--primary-color); /* Will be applied to text if logo fails */
             margin-top: 0;
             margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            min-height: 35px; /* To prevent layout shift while logo loads */
         }
+        .brand-logo {
+            max-height: 30px;
+            max-width: 100px;
+            object-fit: contain;
+        }
+        .brand-name-text { /* Fallback text span */
+            /* Inherits font styles from h3.product-card-brand */
+        }
+
         .product-card-model {
             font-size: 1em;
             font-weight: 500;
@@ -165,7 +177,7 @@
         .product-card-details p {
             font-size: 0.85em;
             color: var(--matrice-text-secondary);
-            margin: 4px 0; /* Reduced margin */
+            margin: 4px 0;
             line-height: 1.4;
         }
         .product-card-details p strong {
@@ -173,13 +185,13 @@
             font-weight: 500;
         }
         .nearing-end-of-stock-card {
-             color: var(--warning-color); 
-             font-weight: bold; 
-             font-size: 0.8em; 
+             color: var(--warning-color);
+             font-weight: bold;
+             font-size: 0.8em;
              display: inline-block;
-             background-color: #fff3cd; 
-             padding: 3px 8px; 
-             border-radius: 4px; 
+             background-color: #fff3cd;
+             padding: 3px 8px;
+             border-radius: 4px;
              margin-left: 8px;
              vertical-align: middle;
         }
@@ -190,7 +202,7 @@
             align-items: center;
             border-top: 1px solid var(--matrice-border-color);
             padding-top: 12px;
-            margin-top: auto; /* Pushes footer to the bottom of the card */
+            margin-top: auto;
         }
         .product-card-price {
             font-size: 1.15em;
@@ -215,14 +227,14 @@
             color: white;
         }
         .product-card .datasheet-link i {
-            font-size: 1.1em; 
+            font-size: 1.1em;
         }
-        
+
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
-        
+
         @media (max-width: 1200px) {
             .product-card {
-                flex: 0 1 calc(50% - 20px); 
+                flex: 0 1 calc(50% - 20px);
             }
         }
         @media (max-width: 768px) {
@@ -230,23 +242,23 @@
                 gap: 15px;
             }
             .product-card {
-                flex: 0 1 100%; 
-                min-width: unset; 
+                flex: 0 1 100%;
+                min-width: unset;
             }
-            .product-card-body { /* Stack image and details on mobile */
-                flex-direction: column-reverse; /* Image on top of details */
+            .product-card-body {
+                flex-direction: column-reverse;
                 gap: 10px;
             }
             .product-card-image-container {
-                border-left: none; /* Remove left border */
+                border-left: none;
                 padding-left: 0;
-                border-bottom: 1px solid #eee; /* Add border below image */
-                padding-bottom: 10px; /* Space below image */
-                margin-bottom: 10px; /* Space before details start */
-                height: 150px; /* Give image container a more defined height */
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+                height: 150px;
             }
              .product-card-image {
-                max-height: 140px; /* Image should fit in the container */
+                max-height: 140px;
             }
         }
         /* END CARD STYLES */
@@ -293,7 +305,7 @@
 
         <div class="content-card filters-container">
             <div class="filters">
-                <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> 
+                <div> <label for="brand-filter">Marca:</label> <select id="brand-filter" onchange="triggerFilter()"><option value="">Tutte</option></select>
                 </div>
                 <div> <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
                 <div> <label for="litri-filter">Litri:</label> <select id="litri-filter" onchange="triggerFilter()"><option value="">Tutti</option></select> </div>
@@ -304,7 +316,7 @@
             <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;"><i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri</button>
         </div>
 
-        <div class="content-card"> 
+        <div class="content-card">
             <div id="products-card-container" class="products-card-container">
                 <!-- Product cards will be dynamically inserted here -->
             </div>
@@ -318,33 +330,21 @@
         // ----- SCRIPT -----
         console.log("Script execution started.");
         let allFirestoreData = []; let currentFilteredProductsUI = [];
-        
-        const authContainer = document.getElementById('auth-container'); 
+
+        const authContainer = document.getElementById('auth-container');
         const mainContentWrapper = document.getElementById('main-content-wrapper');
-        const appLoader = document.getElementById('app-loader'); 
+        const appLoader = document.getElementById('app-loader');
         const loginButton = document.getElementById('login-button');
-        const logoutButton = document.getElementById('logout-button'); 
+        const logoutButton = document.getElementById('logout-button');
         const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password'); 
+        const passwordInput = document.getElementById('password');
         const authErrorMessage = document.getElementById('auth-error-message');
-        const userInfoHeader = document.getElementById('user-info-header'); 
+        const userInfoHeader = document.getElementById('user-info-header');
         const userEmailDisplay = document.getElementById('user-email-display');
         const toastElement = document.getElementById('toast-notification');
 
-        console.log("DOM elements selected:", {
-            authContainer: !!authContainer,
-            mainContentWrapper: !!mainContentWrapper,
-            appLoader: !!appLoader,
-            loginButton: !!loginButton
-        });
-
-
         function showToast(message, duration = 3000, isError = false) {
-            console.log(`showToast called: "${message}", error: ${isError}`);
-            if (!toastElement) {
-                console.error("Toast element not found!");
-                return;
-            }
+            if (!toastElement) { console.error("Toast element not found!"); return; }
             toastElement.textContent = message;
             toastElement.style.backgroundColor = isError ? 'var(--danger-color)' : 'var(--matrice-accent-success)';
             toastElement.classList.add('show');
@@ -352,62 +352,37 @@
         }
 
         auth.onAuthStateChanged(async (user) => {
-            console.log("onAuthStateChanged triggered. User:", user ? user.email : 'null');
             if (user) {
-                console.log("User is authenticated. Updating UI and preparing to load data.");
-                if (userEmailDisplay) userEmailDisplay.textContent = user.email; else console.error("userEmailDisplay is null");
-                
-                if (authContainer) authContainer.classList.add('content-hidden'); else console.error("authContainer is null");
-                console.log("authContainer classList after add:", authContainer ? authContainer.classList : 'N/A');
-                
-                if (mainContentWrapper) mainContentWrapper.classList.remove('content-hidden'); else console.error("mainContentWrapper is null");
-                console.log("mainContentWrapper classList after remove:", mainContentWrapper ? mainContentWrapper.classList : 'N/A');
-
-                if (userInfoHeader) userInfoHeader.classList.remove('content-hidden'); else console.error("userInfoHeader is null");
-                if (logoutButton) logoutButton.classList.remove('content-hidden'); else console.error("logoutButton is null");
-                
-                if (authErrorMessage) authErrorMessage.textContent = ''; 
-                console.log("UI elements updated for logged-in user.");
-
-                console.log("Calling loadDataFromFirestore...");
+                if (userEmailDisplay) userEmailDisplay.textContent = user.email;
+                if (authContainer) authContainer.classList.add('content-hidden');
+                if (mainContentWrapper) mainContentWrapper.classList.remove('content-hidden');
+                if (userInfoHeader) userInfoHeader.classList.remove('content-hidden');
+                if (logoutButton) logoutButton.classList.remove('content-hidden');
+                if (authErrorMessage) authErrorMessage.textContent = '';
                 await loadDataFromFirestore();
-                console.log("loadDataFromFirestore finished.");
             } else {
-                console.log("User is not authenticated. Showing login screen.");
                 if (userEmailDisplay) userEmailDisplay.textContent = '';
-                
-                if (authContainer) authContainer.classList.remove('content-hidden'); else console.error("authContainer is null for logout");
-                console.log("authContainer classList after remove (logout):", authContainer ? authContainer.classList : 'N/A');
-
-                if (mainContentWrapper) mainContentWrapper.classList.add('content-hidden'); else console.error("mainContentWrapper is null for logout");
-                 console.log("mainContentWrapper classList after add (logout):", mainContentWrapper ? mainContentWrapper.classList : 'N/A');
-
+                if (authContainer) authContainer.classList.remove('content-hidden');
+                if (mainContentWrapper) mainContentWrapper.classList.add('content-hidden');
                 if (userInfoHeader) userInfoHeader.classList.add('content-hidden');
                 if (logoutButton) logoutButton.classList.add('content-hidden');
-                
-                allFirestoreData = []; 
-                currentFilteredProductsUI = []; 
-                renderCards([]); 
-                populateUiFilters([]); 
+                allFirestoreData = [];
+                currentFilteredProductsUI = [];
+                renderCards([]);
+                populateUiFilters([]);
                 if (appLoader) appLoader.classList.add('content-hidden');
-                console.log("UI elements updated for logged-out user. App loader hidden.");
             }
         });
 
         if (loginButton) {
             loginButton.addEventListener('click', async () => {
-                console.log("Login button clicked.");
                 const email = emailInput.value;
                 const password = passwordInput.value;
                 if (authErrorMessage) authErrorMessage.textContent = '';
-                if (appLoader) appLoader.classList.remove('content-hidden'); else console.error("appLoader is null on login click");
-
+                if (appLoader) appLoader.classList.remove('content-hidden');
                 try {
-                    console.log(`Attempting login for: ${email}`);
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    console.log("Firebase signInWithEmailAndPassword successful:", userCredential.user ? userCredential.user.email : 'No user object');
+                    await auth.signInWithEmailAndPassword(email, password);
                 } catch (error) {
-                    console.error("Firebase signInWithEmailAndPassword error:", error.code, error.message);
                     let friendlyMessage = "Errore di autenticazione.";
                     if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                         friendlyMessage = "Credenziali non valide. Riprova.";
@@ -416,148 +391,100 @@
                     }
                     if (authErrorMessage) authErrorMessage.textContent = friendlyMessage;
                     if (appLoader) appLoader.classList.add('content-hidden');
-                    console.log("Login attempt failed, error message shown, loader hidden.");
                 }
             });
-        } else {
-            console.error("Login button not found!");
         }
 
         if (logoutButton) {
             logoutButton.addEventListener('click', async () => {
-                console.log("Logout button clicked.");
                 try {
                     await auth.signOut();
-                    console.log("Firebase signOut successful.");
                     showToast("Logout effettuato.");
                 } catch (error) {
-                    console.error("Firebase signOut error:", error);
                     showToast("Errore durante il logout.", 3000, true);
                 }
             });
-        } else {
-            console.error("Logout button not found!");
         }
 
-
         async function loadDataFromFirestore() {
-            console.log("loadDataFromFirestore started.");
-            showToast("Caricamento listino scaldabagni...", 2500); 
-            if (appLoader) appLoader.classList.remove('content-hidden'); else console.error("appLoader is null in loadDataFromFirestore");
-            
+            showToast("Caricamento listino scaldabagni...", 2500);
+            if (appLoader) appLoader.classList.remove('content-hidden');
             try {
                 const snapshot = await db.collection(SCALDABAGNO_COLLECTION).orderBy("marca").orderBy("modello").get();
                 allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                console.log(`Fetched ${allFirestoreData.length} products from Firestore.`);
-                populateUiFilters(allFirestoreData); 
+                populateUiFilters(allFirestoreData);
                 applyUiFilters();
-            } catch (error) { 
-                console.error("Firestore Read Error in loadDataFromFirestore:", error.code, error.message); 
-                showToast(`Errore caricamento dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000, true); 
-                allFirestoreData = []; 
-                populateUiFilters([]); 
-                applyUiFilters(); 
+            } catch (error) {
+                showToast(`Errore caricamento dati: ${error.code === 'permission-denied' ? 'Permessi insuff.' : error.message}`, 6000, true);
+                allFirestoreData = [];
+                populateUiFilters([]);
+                applyUiFilters();
             }
-            finally { 
+            finally {
                 if (appLoader) appLoader.classList.add('content-hidden');
-                console.log("loadDataFromFirestore finished. App loader hidden.");
             }
         }
 
         function populateUiFilters(dataToUse = allFirestoreData) {
-            console.log("populateUiFilters called with data count:", dataToUse.length);
             const populateSelect = (elementId, values, currentVal) => {
                 const selectEl = document.getElementById(elementId);
-                if (!selectEl) { console.warn(`Filter select element ${elementId} not found.`); return; }
-                const preservedValue = selectEl.value; 
+                if (!selectEl) { return; }
+                const preservedValue = selectEl.value;
                 selectEl.innerHTML = `<option value="">${elementId === 'litri-filter' ? 'Tutti' : 'Tutte'}</option>`;
-                
                 const uniqueSortedValues = [...new Set(values.filter(val => val !== null && val !== undefined && String(val).trim() !== ''))].sort((a, b) => {
-                    if (elementId === 'litri-filter') {
-                        return Number(a) - Number(b);
-                    }
+                    if (elementId === 'litri-filter') { return Number(a) - Number(b); }
                     return String(a).localeCompare(String(b));
                 });
-
                 uniqueSortedValues.forEach(val => {
                     const optionText = elementId === 'litri-filter' ? `${val} L` : val;
                     selectEl.add(new Option(optionText, val));
                 });
-                
-                if (uniqueSortedValues.includes(preservedValue)) {
-                    selectEl.value = preservedValue;
-                } else if (uniqueSortedValues.includes(currentVal)) {
-                    selectEl.value = currentVal;
-                } else {
-                    selectEl.value = "";
-                }
+                if (uniqueSortedValues.includes(preservedValue)) { selectEl.value = preservedValue;
+                } else if (uniqueSortedValues.includes(currentVal)) { selectEl.value = currentVal;
+                } else { selectEl.value = ""; }
             };
-            
-            const brands = dataToUse.map(p => p.marca);
-            const tecnologie = dataToUse.map(p => p.tecnologia);
-            const litriValues = dataToUse.map(p => p.litri);
-            const configurazioni = dataToUse.map(p => p.configurazione);
-            const installazioni = dataToUse.map(p => p.installazione);
-            const orientamenti = dataToUse.map(p => p.orientamento);
-
-            const currentBrandVal = document.getElementById('brand-filter') ? document.getElementById('brand-filter').value : "";
-            const currentTecnologiaVal = document.getElementById('tecnologia-filter') ? document.getElementById('tecnologia-filter').value : "";
-            const currentLitriVal = document.getElementById('litri-filter') ? document.getElementById('litri-filter').value : "";
-            const currentConfigVal = document.getElementById('configurazione-filter') ? document.getElementById('configurazione-filter').value : "";
-            const currentInstallVal = document.getElementById('installazione-filter') ? document.getElementById('installazione-filter').value : "";
-            const currentOrientVal = document.getElementById('orientamento-filter') ? document.getElementById('orientamento-filter').value : "";
-
-            populateSelect('brand-filter', brands, currentBrandVal);
-            populateSelect('tecnologia-filter', tecnologie, currentTecnologiaVal);
-            populateSelect('litri-filter', litriValues, currentLitriVal);
-            populateSelect('configurazione-filter', configurazioni, currentConfigVal);
-            populateSelect('installazione-filter', installazioni, currentInstallVal);
-            populateSelect('orientamento-filter', orientamenti, currentOrientVal);
-            console.log("UI Filters populated.");
+            const currentBrandVal = document.getElementById('brand-filter')?.value || "";
+            const currentTecnologiaVal = document.getElementById('tecnologia-filter')?.value || "";
+            const currentLitriVal = document.getElementById('litri-filter')?.value || "";
+            const currentConfigVal = document.getElementById('configurazione-filter')?.value || "";
+            const currentInstallVal = document.getElementById('installazione-filter')?.value || "";
+            const currentOrientVal = document.getElementById('orientamento-filter')?.value || "";
+            populateSelect('brand-filter', dataToUse.map(p => p.marca), currentBrandVal);
+            populateSelect('tecnologia-filter', dataToUse.map(p => p.tecnologia), currentTecnologiaVal);
+            populateSelect('litri-filter', dataToUse.map(p => p.litri), currentLitriVal);
+            populateSelect('configurazione-filter', dataToUse.map(p => p.configurazione), currentConfigVal);
+            populateSelect('installazione-filter', dataToUse.map(p => p.installazione), currentInstallVal);
+            populateSelect('orientamento-filter', dataToUse.map(p => p.orientamento), currentOrientVal);
         }
 
-        function triggerFilter() { 
-            console.log("triggerFilter called.");
-            applyUiFilters(); 
-        }
+        function triggerFilter() { applyUiFilters(); }
 
         function applyUiFilters() {
-            console.log("applyUiFilters called.");
-            const brandValue = document.getElementById('brand-filter') ? document.getElementById('brand-filter').value : "";
-            const tecnologiaValue = document.getElementById('tecnologia-filter') ? document.getElementById('tecnologia-filter').value : "";
-            const litriValue = document.getElementById('litri-filter') ? document.getElementById('litri-filter').value : "";
-            const configurazioneValue = document.getElementById('configurazione-filter') ? document.getElementById('configurazione-filter').value : "";
-            const installazioneValue = document.getElementById('installazione-filter') ? document.getElementById('installazione-filter').value : "";
-            const orientamentoValue = document.getElementById('orientamento-filter') ? document.getElementById('orientamento-filter').value : "";
-            
-            console.log("Current filter values:", { brandValue, tecnologiaValue, litriValue, configurazioneValue, installazioneValue, orientamentoValue });
-
-            currentFilteredProductsUI = allFirestoreData.filter(product => {
-                const matchesBrand = !brandValue || product.marca === brandValue;
-                const matchesTecnologia = !tecnologiaValue || product.tecnologia === tecnologiaValue;
-                const matchesLitri = !litriValue || (product.litri !== null && product.litri !== undefined && String(product.litri) === litriValue);
-                const matchesConfigurazione = !configurazioneValue || product.configurazione === configurazioneValue;
-                const matchesInstallazione = !installazioneValue || product.installazione === installazioneValue;
-                const matchesOrientamento = !orientamentoValue || product.orientamento === orientamentoValue;
-                
-                return matchesBrand && matchesTecnologia && matchesLitri && matchesConfigurazione && matchesInstallazione && matchesOrientamento;
-            });
-            console.log(`Filtering resulted in ${currentFilteredProductsUI.length} products.`);
+            const brandValue = document.getElementById('brand-filter')?.value || "";
+            const tecnologiaValue = document.getElementById('tecnologia-filter')?.value || "";
+            const litriValue = document.getElementById('litri-filter')?.value || "";
+            const configurazioneValue = document.getElementById('configurazione-filter')?.value || "";
+            const installazioneValue = document.getElementById('installazione-filter')?.value || "";
+            const orientamentoValue = document.getElementById('orientamento-filter')?.value || "";
+            currentFilteredProductsUI = allFirestoreData.filter(product =>
+                (!brandValue || product.marca === brandValue) &&
+                (!tecnologiaValue || product.tecnologia === tecnologiaValue) &&
+                (!litriValue || (String(product.litri) === litriValue)) &&
+                (!configurazioneValue || product.configurazione === configurazioneValue) &&
+                (!installazioneValue || product.installazione === installazioneValue) &&
+                (!orientamentoValue || product.orientamento === orientamentoValue)
+            );
             renderCards(currentFilteredProductsUI);
         }
 
         function resetFilters() {
-            console.log("resetFilters called.");
             const filterIds = ['brand-filter', 'tecnologia-filter', 'litri-filter', 'configurazione-filter', 'installazione-filter', 'orientamento-filter'];
-            filterIds.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = "";
-            });
-            applyUiFilters(); 
+            filterIds.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+            applyUiFilters();
             showToast("Filtri resettati.");
         }
 
-        function renderCards(productsToRender) { 
+        function renderCards(productsToRender) {
             console.log("renderCards called with product count:", productsToRender.length);
             const cardsContainer = document.getElementById('products-card-container');
             const noDataMsg = document.getElementById('no-data-message');
@@ -566,38 +493,72 @@
                 console.error("Card rendering elements not found! (cardsContainer or noDataMsg)");
                 return;
             }
-            cardsContainer.innerHTML = ''; 
+            cardsContainer.innerHTML = '';
 
             if (!productsToRender || productsToRender.length === 0) {
                 noDataMsg.style.display = 'block';
-                cardsContainer.style.display = 'none'; 
+                cardsContainer.style.display = 'none';
                 console.log("No products to render, showing no-data message.");
                 return;
             }
             noDataMsg.style.display = 'none';
-            cardsContainer.style.display = 'flex'; 
+            cardsContainer.style.display = 'flex';
 
             productsToRender.forEach(product => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
 
                 const imageUrl = product.nome_immagine ? `${IMAGE_BASE_URL}${product.nome_immagine}` : 'https://via.placeholder.com/120x160.png?text=N/A';
-                
-                let prezzoDisplay = "N/D"; 
+
+                let prezzoDisplay = "N/D";
                 if (product.prezzo !== null && product.prezzo !== undefined) {
                     prezzoDisplay = `${parseFloat(product.prezzo).toFixed(2)} €`;
                 }
-                
+
+                // --- START BRAND LOGO LOGIC ---
+                const brandNameFromFirestore = product.marca;
+                const brandNameForTextDisplay = (brandNameFromFirestore || 'N/A').toUpperCase();
+
+                let brandVisualHtml;
+                let logoFullUrl = '';
+
+                if (brandNameFromFirestore && typeof brandNameFromFirestore === 'string' && brandNameFromFirestore.trim() !== '') {
+                    // Generate lowercase filename. Replace spaces with underscores (if that's your convention).
+                    // If your filenames literally have spaces and are lowercase (e.g. "hermann saunier duval.png"), use:
+                    // const logoFileName = String(brandNameFromFirestore).toLowerCase() + ".png";
+                    const logoFileName = String(brandNameFromFirestore).toLowerCase().replace(/\s+/g, '_') + ".png";
+                    logoFullUrl = IMAGE_BASE_URL + logoFileName;
+
+                    console.log(`Processing brand: "${brandNameFromFirestore}" (from Firestore), Generated logo FILENAME: "${logoFileName}", Full URL: "${logoFullUrl}"`);
+
+                    brandVisualHtml = `
+                        <img src="${logoFullUrl}"
+                             alt="${brandNameForTextDisplay}"
+                             class="brand-logo"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; console.warn('Failed to load logo (onerror event): ${logoFullUrl}', this);">
+                        <span class="brand-name-text" style="display: none;">${brandNameForTextDisplay}</span>
+                    `;
+                } else {
+                    brandVisualHtml = `<span class="brand-name-text" style="display: inline;">${brandNameForTextDisplay}</span>`;
+                     if (brandNameFromFirestore !== undefined) {
+                        console.log(`Processing brand: "${brandNameFromFirestore}" (empty, null, or not a string), displaying as text: "${brandNameForTextDisplay}"`);
+                    }
+                }
+
                 let esaurimentoText = "";
                 if (product.articolo_in_esaurimento === true) {
                     esaurimentoText = '<span class="nearing-end-of-stock-card" title="Articolo in esaurimento">Esaurimento</span>';
                 }
+                // --- END BRAND LOGO LOGIC ---
 
-                // New structure: product-card > product-card-body > (details, image-container) + product-card-footer
+
                 card.innerHTML = `
                     <div class="product-card-body">
                         <div class="product-card-details">
-                            <h3 class="product-card-brand">${product.marca || 'N/A'} ${esaurimentoText}</h3>
+                            <h3 class="product-card-brand">
+                               ${brandVisualHtml}
+                               ${esaurimentoText}
+                            </h3>
                             <p class="product-card-model">${product.modello || 'N/A'}</p>
                             <p><strong>Codice:</strong> ${product.codice_prodotto || 'N/A'}</p>
                             <p><strong>Tecnologia:</strong> ${product.tecnologia || 'N/A'}</p>
