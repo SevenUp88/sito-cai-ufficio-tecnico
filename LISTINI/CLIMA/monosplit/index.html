@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listino Climatizzatori - C.A.I.</title>
-    <link rel="stylesheet" href="../../style.css"> <!-- Main global styles -->
-    <link rel="stylesheet" href="style.css">     <!-- Clima specific styles -->
-    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
@@ -21,7 +19,7 @@
         .content-hidden { display: none !important; }
         #password-panel:not(.visible) { transform: translateX(100%); }
         #password-panel.visible { transform: translateX(0); display: flex; }
-        #login-email-input-clima { 
+        #login-email-input-clima { /* Stile base per l'input email */
             width: 100%; padding: 10px; border: 1px solid #ccc;
             border-radius: 4px; box-sizing: border-box;
         }
@@ -36,36 +34,9 @@
         <div class="header-controls">
             <button id="print-button" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
             <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
-            <button id="admin-trigger" class="header-action-button" title="Accesso Admin / Profilo">
-                 <i class="fas fa-user-shield"></i>
-            </button>
-             <a href="../../configuratore/configuratore.html" class="header-action-button" title="Configuratore Climatizzatori">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"></path><path d="M15.061 9.061h.01"></path><path d="M8.939 9.061h.01"></path><path d="M15.061 15.061h.01"></path><path d="M8.939 15.061h.01"></path><path d="M18.121 12h.01"></path><path d="M5.879 12h.01"></path><path d="M12 18.121v.01"></path><path d="M12 5.879v.01"></path></svg>
-            </a>
             <button id="exit-admin-button" class="header-action-button" title="Logout" style="display: none;"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
-
-    <div id="login-modal-caldaie" class="modal" style="display: none;"> <!-- Rinominare ID se è per clima -->
-      <div class="modal-content">
-          <span class="close-btn-caldaie close-btn">×</span> <!-- Rinominare ID se è per clima -->
-          <h2 id="login-modal-title-caldaie">Accesso Riservato</h2> <!-- Rinominare ID se è per clima -->
-          <form id="login-form-caldaie"> <!-- Rinominare ID se è per clima -->
-              <div class="form-group">
-                  <label for="login-email-clima">Email:</label> <!-- ID cambiato -->
-                  <input type="email" id="login-email-clima" required class="form-control">
-              </div>
-              <div class="form-group">
-                  <label for="login-password-clima">Password:</label> <!-- ID cambiato -->
-                  <input type="password" id="login-password-clima" required class="form-control">
-              </div>
-              <div id="login-error-clima" class="error-message" style="display: none;"></div> <!-- ID cambiato -->
-              <button type="submit" class="btn btn-primary btn-block">Accedi</button>
-          </form>
-          <button id="logout-button-clima" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button> <!-- ID cambiato -->
-      </div>
-    </div>
-
 
     <div id="app-status-message" style="text-align: center; padding: 20px; font-size: 1.1em;">
         Inizializzazione applicazione...
@@ -75,7 +46,7 @@
         <div class="page-controls">
              <h1>Listino Climatizzatori</h1>
              <div class="filters">
-                 <span>Filtra per Marca:</span>
+                 <span>Filtra per:</span>
                  <button class="filter-btn active" data-filter-type="brand" data-brand="all">Tutte le Marche</button>
                  <button class="filter-btn" data-filter-type="brand" data-brand="DAIKIN">Daikin</button>
                  <button class="filter-btn" data-filter-type="brand" data-brand="HAIER">Haier</button>
@@ -89,23 +60,9 @@
                  <button class="filter-btn" data-filter-type="brand" data-brand="VIESSMANN">Viessmann</button>
                  <button class="filter-btn" data-filter-type="economic">Economici</button>
              </div>
-
-             <!-- NUOVO Contenitore per i Filtri Modello -->
-             <div id="model-specific-filters-container" class="filters model-filters" style="display: none; margin-top: 10px; border-top:1px solid #eee; padding-top:10px;">
-                <span id="model-filter-label">Filtra per Serie:</span>
-                <div id="model-filter-buttons" class="filter-button-group">
-                    <!-- I bottoni modello verranno inseriti qui da JS -->
-                </div>
-             </div>
-             <!-- FINE Nuovo Contenitore -->
-
              <div class="section-tabs">
-                 <button class="tab-btn active" data-section="monosplit">
-                     <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LISTINI/CLIMA/monosplit.png" alt="Monosplit" class="tab-icon"> Monosplit
-                 </button>
-                 <button class="tab-btn" data-section="multisplit">
-                     <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LISTINI/CLIMA/multisplit.png" alt="Multisplit" class="tab-icon"> Multisplit
-                 </button>
+                 <button class="tab-btn active" data-section="monosplit">Monosplit</button>
+                 <button class="tab-btn" data-section="multisplit">Multisplit</button>
              </div>
         </div>
         <main>
@@ -117,19 +74,16 @@
                 </section>
                 <section id="multisplit-section" class="content-section">
                      <div id="multisplit-grid" class="product-grid">
-                         <div class="loading-placeholder">Per il listino MULTISPLIT completo consulta il CATALOGO PDF. <br>Per un PREVENTIVO contattare Ufficio Tecnico.</div>
+                         <div class="loading-placeholder">Contenuto Multisplit (se implementato).</div>
                     </div>
                 </section>
             </div>
         </main>
-        <footer class="app-footer">
-            <p>© <span id="current-year-clima"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico.</p>
-            <p class="data-info">Listino Climatizzatori aggiornato al: <span id="data-update-date-clima">--/--/----</span></p>
-        </footer>
+        <footer class="app-footer"><p>© 2025 C.A.I - Consorzio Artigiani Idraulici</p></footer>
     </div>
 
-   <div id="password-panel"> 
-       <button id="close-panel-btn" title="Chiudi pannello">×</button>
+   <div id="password-panel"> <!-- ID Pannello Password Esistente -->
+       <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
        <h3>Accesso Area Riservata</h3>
        <p>Inserisci le tue credenziali per continuare.</p>
        <div class="form-group">
@@ -150,6 +104,8 @@
         <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Scripts -->
+    <!-- <script src="data.js"></script>  COMMENTATO O RIMOSSO - i dati ora dovrebbero venire da Firestore -->
+    <script src="script.js"></script>  <!-- <<< AGGIUNGI QUESTA RIGA SE MANCAVA -->
 </body>
 </html>
