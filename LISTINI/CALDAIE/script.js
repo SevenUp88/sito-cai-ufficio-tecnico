@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/&/g, "&") // Modificato per correttezza escaping
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, """)
+            .replace(/"/g, "'")
             .replace(/'/g, "'");
     }
 
