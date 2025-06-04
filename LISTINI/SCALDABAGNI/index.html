@@ -151,26 +151,24 @@
         .product-card-brand {
             font-size: 1.1em;
             font-weight: 700;
-            color: var(--primary-color);
+            color: var(--primary-color); 
             margin-top: 0;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
-            min-height: 38px; /* UPDATED to accommodate slightly taller Ariston logo */
+            min-height: 38px; 
         }
-        .brand-logo {
-            height: 22px;      /* UPDATED - General rule */
-            max-width: 110px;   /* UPDATED - General rule */
+        .brand-logo { 
+            height: 28px;
+            max-width: 130px;
             width: auto;
             object-fit: contain;
             margin-right: 8px;
         }
-        .brand-logo--ariston { /* ADDED - Specific rule for Ariston */
-            height: 28px;
-            max-width: 100px; /* Can be adjusted if Ariston's aspect ratio needs it */
-        }
+        /* .brand-logo--ariston can be re-added if needed for specific ariston tuning AFTER image crop */
+
         .brand-name-text {
-            /* Fallback text styles if needed, inherits from H3 by default */
+            /* Fallback text inherits styles */
         }
 
         .product-card-model {
@@ -178,7 +176,7 @@
             font-weight: bold;
             margin-top: 4px;
             margin-bottom: 12px;
-            color: var(--true-black); /* Explicitly black */
+            color: var(--true-black); 
             line-height: 1.3;
         }
         .product-card-details p {
@@ -188,20 +186,10 @@
             line-height: 1.4;
         }
         .product-card-details p strong {
-            color: var(--matrice-text-primary); /* This is a dark grey, if labels need to be true black, use var(--true-black) */
+            color: var(--matrice-text-primary); 
             font-weight: 500;
         }
-        .nearing-end-of-stock-card {
-             color: var(--warning-color);
-             font-weight: bold;
-             font-size: 0.8em;
-             display: inline-block;
-             background-color: #fff3cd;
-             padding: 3px 8px;
-             border-radius: 4px;
-             vertical-align: middle;
-        }
-
+        
         .product-card-footer {
             display: flex;
             justify-content: space-between;
@@ -210,11 +198,24 @@
             padding-top: 12px;
             margin-top: auto;
         }
+        .price-stock-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .product-card-price {
             font-size: 1.15em;
             font-weight: bold;
             color: var(--matrice-accent-success);
             margin: 0;
+        }
+        .nearing-end-of-stock-card-footer { 
+             color: var(--warning-color);
+             font-weight: bold;
+             font-size: 0.85em;
+             background-color: #fff3cd;
+             padding: 4px 8px;
+             border-radius: 4px;
         }
         .product-card .datasheet-link {
             font-size: 0.9em;
@@ -266,6 +267,11 @@
              .product-card-image {
                 max-height: 140px;
             }
+            .price-stock-group { /* Stack price and stock on small screens if desired */
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
         }
         /* END CARD STYLES */
 
@@ -277,7 +283,6 @@
     </style>
 </head>
 <body>
-
     <header class="app-header">
         <a href="/" title="C.A.I. - Home">
              <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
@@ -521,30 +526,29 @@
                     prezzoDisplay = `${parseFloat(product.prezzo).toFixed(2)} €`;
                 }
 
-                // --- START BRAND LOGO LOGIC ---
+                let esaurimentoTextForFooter = ""; 
+                if (product.articolo_in_esaurimento === true) {
+                    esaurimentoTextForFooter = '<span class="nearing-end-of-stock-card-footer" title="Articolo in esaurimento">Esaurimento</span>';
+                }
+                
                 const brandNameFromFirestore = product.marca;
                 const brandNameForTextDisplay = (brandNameFromFirestore || 'N/A').toUpperCase();
-
                 let brandVisualHtml;
                 let logoFullUrl = '';
-                let specificLogoClass = ''; // Variable for specific logo class
+                // No specific class for Ariston if the cropped image works well with general style
+                // const specificLogoClass = (String(brandNameFromFirestore).toLowerCase().replace(/\s+/g, '_') === 'ariston') ? ' brand-logo--ariston' : '';
 
                 if (brandNameFromFirestore && typeof brandNameFromFirestore === 'string' && brandNameFromFirestore.trim() !== '') {
                     const processedBrandNameForFile = String(brandNameFromFirestore).toLowerCase().replace(/\s+/g, '_');
                     const logoFileName = processedBrandNameForFile + ".png";
                     logoFullUrl = IMAGE_BASE_URL + logoFileName;
-
-                    // Check if this is Ariston to apply specific class
-                    if (processedBrandNameForFile === 'ariston') {
-                        specificLogoClass = ' brand-logo--ariston'; // Note the leading space for class attribute
-                    }
-
-                    console.log(`Processing brand: "${brandNameFromFirestore}", Filename: "${logoFileName}", SpecificClass: "${specificLogoClass.trim()}", URL: "${logoFullUrl}"`);
+                    
+                    console.log(`Processing brand: "${brandNameFromFirestore}", Filename: "${logoFileName}", URL: "${logoFullUrl}"`);
 
                     brandVisualHtml = `
                         <img src="${logoFullUrl}"
                              alt="${brandNameForTextDisplay}"
-                             class="brand-logo${specificLogoClass}"
+                             class="brand-logo" 
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; console.warn('Failed to load logo (onerror event): ${logoFullUrl}', this);">
                         <span class="brand-name-text" style="display: none;">${brandNameForTextDisplay}</span>
                     `;
@@ -554,20 +558,17 @@
                         console.log(`Processing brand: "${brandNameFromFirestore}" (empty, null, or not a string), displaying as text: "${brandNameForTextDisplay}"`);
                     }
                 }
-
-                let esaurimentoText = "";
-                if (product.articolo_in_esaurimento === true) {
-                    esaurimentoText = '<span class="nearing-end-of-stock-card" title="Articolo in esaurimento">Esaurimento</span>';
+                
+                let dimensioniDisplay = product.dimensioni || 'N/A';
+                if (product.dimensioni && product.dimensioni !== 'N/A') {
+                    dimensioniDisplay = `AxLxP: ${product.dimensioni}`;
                 }
-                // --- END BRAND LOGO LOGIC ---
-
 
                 card.innerHTML = `
                     <div class="product-card-body">
                         <div class="product-card-details">
                             <h3 class="product-card-brand">
                                ${brandVisualHtml}
-                               ${esaurimentoText}
                             </h3>
                             <p class="product-card-model">${product.modello || 'N/A'}</p>
                             <p><strong>Codice:</strong> ${product.codice_prodotto || 'N/A'}</p>
@@ -576,14 +577,17 @@
                             <p><strong>Config.:</strong> ${product.configurazione || 'N/A'}</p>
                             <p><strong>Install.:</strong> ${product.installazione || 'N/A'}</p>
                             <p><strong>Orient.:</strong> ${product.orientamento || 'N/A'}</p>
-                            <p><strong>Dimensioni:</strong> ${product.dimensioni || 'N/A'}</p>
+                            <p><strong>Dimensioni:</strong> ${dimensioniDisplay}</p>
                         </div>
                         <div class="product-card-image-container">
                             <img src="${imageUrl}" alt="${product.modello || 'Scaldabagno'}" class="product-card-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/120x160.png?text=Img Err';this.style.objectFit='scale-down';">
                         </div>
                     </div>
                     <div class="product-card-footer">
-                        <p class="product-card-price">${prezzoDisplay}</p>
+                        <div class="price-stock-group">
+                            <p class="product-card-price">${prezzoDisplay}</p>
+                            ${esaurimentoTextForFooter}
+                        </div>
                         ${product.scheda_tecnica_url ? `<a href="${product.scheda_tecnica_url}" target="_blank" class="datasheet-link" title="Apri scheda tecnica"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<span></span>'}
                     </div>
                 `;
@@ -592,7 +596,6 @@
             console.log("Cards rendered.");
         }
         console.log("Script execution finished setup. Waiting for events.");
-        // ----- FINE SCRIPT -----
     </script>
 </body>
 </html>
