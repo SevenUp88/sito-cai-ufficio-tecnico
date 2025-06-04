@@ -17,7 +17,7 @@
         apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
         projectId: "consorzio-artigiani-idraulici",
-        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app", // Corrected, though original might work too. Usually .appspot.com or .firebasestorage.app
+        storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app", 
         messagingSenderId: "136848104008",
         appId: "1:136848104008:web:2724f60607dbe91d09d67d",
         measurementId: "G-NNPV2607G7"
@@ -91,33 +91,142 @@
         .filters select { padding: 8px 10px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.85em; background-color: #fff; color: var(--matrice-text-primary); min-width: 130px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
         .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
 
-        .products-table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
-        .products-table th, .products-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.8em; vertical-align: middle; word-break: break-word; }
-        .products-table th { font-weight: 600; font-size: 0.75em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; white-space: nowrap;}
-        
-        .products-table th:nth-child(1), .products-table td:nth-child(1) { width: 5%; text-align: center;}
-        .products-table th:nth-child(2), .products-table td:nth-child(2) { width: 10%;}
-        .products-table th:nth-child(3), .products-table td:nth-child(3) { width: 15%;}
-        .products-table th:nth-child(4), .products-table td:nth-child(4) { width: 10%;}
-        .products-table th:nth-child(5), .products-table td:nth-child(5) { width: 10%;}
-        .products-table th:nth-child(6), .products-table td:nth-child(6) { width: 5%; text-align: right;} 
-        .products-table th:nth-child(7), .products-table td:nth-child(7) { width: 8%;} 
-        .products-table th:nth-child(8), .products-table td:nth-child(8) { width: 8%;} 
-        .products-table th:nth-child(9), .products-table td:nth-child(9) { width: 8%;} 
-        .products-table th:nth-child(10),.products-table td:nth-child(10){ width: 10%;}
-        .products-table th:nth-child(11),.products-table td:nth-child(11){ width: 6%; text-align: right; }
-        .products-table th:nth-child(12),.products-table td:nth-child(12){ width: 5%; text-align: center;}
+        /* CARD STYLES */
+        .products-card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 10px; /* Similar to old table margin-top */
+        }
 
-        .products-table tr:last-child td { border-bottom: none; }
-        .products-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
-        .products-table tbody tr:hover { background-color: #e9f5fd; }
-        .brand-name { font-weight: 600; color: var(--primary-color); }
-        .model-name { font-weight: 500; }
-        .product-image { max-width: 50px; max-height: 50px; object-fit: contain; border-radius: 4px; border: 1px solid #eee;}
+        .product-card {
+            background-color: var(--matrice-surface-color);
+            border: 1px solid var(--matrice-border-color);
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05); /* Softer shadow for cards */
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            flex: 0 1 calc(33.333% - 20px); /* 3 columns, accounting for gap */
+            min-width: 280px; 
+            box-sizing: border-box;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow); /* Use main card shadow on hover */
+        }
+
+        .product-card-image-container {
+            text-align: center;
+            margin-bottom: 15px;
+            height: 120px; /* Increased height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-card-image {
+            max-width: 100%;
+            max-height: 120px; /* Match container */
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        .product-card-details {
+            flex-grow: 1; 
+            margin-bottom: 15px;
+        }
+        .product-card-brand {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+        .product-card-model {
+            font-size: 1em;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: var(--matrice-text-primary);
+            line-height: 1.3;
+        }
+        .product-card-details p {
+            font-size: 0.85em;
+            color: var(--matrice-text-secondary);
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        .product-card-details p strong {
+            color: var(--matrice-text-primary);
+            font-weight: 500;
+        }
+        .nearing-end-of-stock-card {
+             color: var(--warning-color); 
+             font-weight: bold; 
+             font-size: 0.8em; 
+             display: inline-block;
+             background-color: #fff3cd; 
+             padding: 3px 8px; 
+             border-radius: 4px; 
+             margin-left: 8px;
+             vertical-align: middle;
+        }
+
+        .product-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--matrice-border-color);
+            padding-top: 12px;
+            margin-top: auto; 
+        }
+        .product-card-price {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: var(--matrice-accent-success);
+            margin: 0;
+        }
+        .product-card .datasheet-link {
+            font-size: 0.9em;
+            padding: 7px 12px;
+            text-decoration: none;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            transition: background-color 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .product-card .datasheet-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .product-card .datasheet-link i {
+            font-size: 1.1em; /* Icon size within link */
+        }
+        
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
-        .datasheet-link i { font-size: 1.3em; color: var(--primary-color); }
-        .datasheet-link:hover i { color: var(--matrice-accent-danger); }
-        .nearing-end-of-stock { color: var(--warning-color); font-weight: bold; font-size: 0.9em; display: block; margin-top: 3px;}
+        /* Removed old datasheet link styles as they are now part of .product-card .datasheet-link */
+
+        @media (max-width: 1200px) {
+            .product-card {
+                flex: 0 1 calc(50% - 20px); /* 2 columns */
+            }
+        }
+        @media (max-width: 768px) {
+            .products-card-container {
+                gap: 15px;
+            }
+            .product-card {
+                flex: 0 1 100%; /* 1 column */
+                min-width: unset; 
+            }
+            .product-card-image-container { height: 100px; }
+            .product-card-image { max-height: 100px; }
+        }
+        /* END CARD STYLES */
 
         .calculator-panel { display: none; padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
         .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
@@ -171,26 +280,10 @@
             <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;"><i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri</button>
         </div>
 
-        <div class="content-card">
-            <table class="products-table">
-                <thead>
-                    <tr>
-                        <th>Foto</th>
-                        <th>Marca</th>
-                        <th>Modello</th>
-                        <th>Codice Prod.</th>
-                        <th>Tecnologia</th>
-                        <th>Litri</th>
-                        <th>Config.</th>
-                        <th>Install.</th>
-                        <th>Orient.</th>
-                        <th>Dimensioni</th>
-                        <th>Prezzo</th>
-                        <th>Scheda</th>
-                    </tr>
-                </thead>
-                <tbody id="products-table-body"></tbody>
-            </table>
+        <div class="content-card"> <!-- This content-card now wraps the card container -->
+            <div id="products-card-container" class="products-card-container">
+                <!-- Product cards will be dynamically inserted here -->
+            </div>
             <div id="no-data-message" class="no-data" style="display: none;">Nessun prodotto trovato.</div>
         </div>
     </div>
@@ -270,7 +363,7 @@
                 
                 allFirestoreData = []; 
                 currentFilteredProductsUI = []; 
-                renderTable([]); 
+                renderCards([]); // Changed from renderTable
                 populateUiFilters([]); 
                 if (appLoader) appLoader.classList.add('content-hidden');
                 console.log("UI elements updated for logged-out user. App loader hidden.");
@@ -354,19 +447,21 @@
             const populateSelect = (elementId, values, currentVal) => {
                 const selectEl = document.getElementById(elementId);
                 if (!selectEl) { console.warn(`Filter select element ${elementId} not found.`); return; }
-                const preservedValue = selectEl.value; // Preserve current value if it's from user interaction
-                selectEl.innerHTML = '<option value="">Tutte</option>'; // Use "Tutte" for brand/technology, "Tutti" for litri
+                const preservedValue = selectEl.value; 
+                selectEl.innerHTML = `<option value="">${elementId === 'litri-filter' ? 'Tutti' : 'Tutte'}</option>`;
                 
-                const uniqueSortedValues = [...new Set(values.filter(Boolean))].sort(); // Generic sort for strings
+                const uniqueSortedValues = [...new Set(values.filter(val => val !== null && val !== undefined && String(val).trim() !== ''))].sort((a, b) => {
+                    if (elementId === 'litri-filter') {
+                        return Number(a) - Number(b);
+                    }
+                    return String(a).localeCompare(String(b));
+                });
 
-                if (elementId === 'litri-filter') { // Special handling for litri if needed (e.g., numeric sort)
-                    uniqueSortedValues.sort((a, b) => Number(a) - Number(b));
-                    uniqueSortedValues.forEach(val => selectEl.add(new Option(`${val} L`, val)));
-                } else {
-                    uniqueSortedValues.forEach(val => selectEl.add(new Option(val, val)));
-                }
+                uniqueSortedValues.forEach(val => {
+                    const optionText = elementId === 'litri-filter' ? `${val} L` : val;
+                    selectEl.add(new Option(optionText, val));
+                });
                 
-                // Try to restore preserved value, then currentVal from arguments, then default to ""
                 if (uniqueSortedValues.includes(preservedValue)) {
                     selectEl.value = preservedValue;
                 } else if (uniqueSortedValues.includes(currentVal)) {
@@ -383,7 +478,6 @@
             const installazioni = dataToUse.map(p => p.installazione);
             const orientamenti = dataToUse.map(p => p.orientamento);
 
-            // Get current values before repopulating, to try and preserve them
             const currentBrandVal = document.getElementById('brand-filter') ? document.getElementById('brand-filter').value : "";
             const currentTecnologiaVal = document.getElementById('tecnologia-filter') ? document.getElementById('tecnologia-filter').value : "";
             const currentLitriVal = document.getElementById('litri-filter') ? document.getElementById('litri-filter').value : "";
@@ -427,7 +521,7 @@
                 return matchesBrand && matchesTecnologia && matchesLitri && matchesConfigurazione && matchesInstallazione && matchesOrientamento;
             });
             console.log(`Filtering resulted in ${currentFilteredProductsUI.length} products.`);
-            renderTable(currentFilteredProductsUI);
+            renderCards(currentFilteredProductsUI); // Changed from renderTable
         }
 
         function resetFilters() {
@@ -441,57 +535,65 @@
             showToast("Filtri resettati.");
         }
 
-        function renderTable(productsToRender) {
-            console.log("renderTable called with product count:", productsToRender.length);
-            const tableBody = document.getElementById('products-table-body');
+        function renderCards(productsToRender) { // Renamed from renderTable
+            console.log("renderCards called with product count:", productsToRender.length);
+            const cardsContainer = document.getElementById('products-card-container');
             const noDataMsg = document.getElementById('no-data-message');
-            const tableElement = document.querySelector('.products-table');
 
-            if (!tableBody || !noDataMsg || !tableElement) {
-                console.error("Table rendering elements not found!");
+            if (!cardsContainer || !noDataMsg) {
+                console.error("Card rendering elements not found! (cardsContainer or noDataMsg)");
                 return;
             }
-            tableBody.innerHTML = '';
+            cardsContainer.innerHTML = ''; // Clear previous cards
 
             if (!productsToRender || productsToRender.length === 0) {
                 noDataMsg.style.display = 'block';
-                tableElement.style.display = 'none';
+                cardsContainer.style.display = 'none'; // Hide card container
                 console.log("No products to render, showing no-data message.");
                 return;
             }
             noDataMsg.style.display = 'none';
-            tableElement.style.display = ''; // Or 'table' if it has display:table by default
+            cardsContainer.style.display = 'flex'; // Show card container (it's a flex container)
 
             productsToRender.forEach(product => {
-                const row = tableBody.insertRow();
-                const imageUrl = product.nome_immagine ? `${IMAGE_BASE_URL}${product.nome_immagine}` : 'https://via.placeholder.com/50x50.png?text=N/A';
+                const card = document.createElement('div');
+                card.className = 'product-card';
+
+                const imageUrl = product.nome_immagine ? `${IMAGE_BASE_URL}${product.nome_immagine}` : 'https://via.placeholder.com/120x120.png?text=N/A';
                 
-                let prezzoDisplay = "N/A";
+                let prezzoDisplay = "N/D"; // N/D for Non Disponibile or Not Defined
                 if (product.prezzo !== null && product.prezzo !== undefined) {
                     prezzoDisplay = `${parseFloat(product.prezzo).toFixed(2)} €`;
                 }
                 
                 let esaurimentoText = "";
                 if (product.articolo_in_esaurimento === true) {
-                    esaurimentoText = '<span class="nearing-end-of-stock" title="Articolo in esaurimento">Esaurimento!</span>';
+                    esaurimentoText = '<span class="nearing-end-of-stock-card" title="Articolo in esaurimento">Esaurimento</span>';
                 }
 
-                row.innerHTML = `
-                    <td><img src="${imageUrl}" alt="${product.modello || 'Scaldabagno'}" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/50x50.png?text=Err';"></td>
-                    <td class="brand-name">${product.marca || 'N/A'} ${esaurimentoText}</td>
-                    <td class="model-name">${product.modello || 'N/A'}</td>
-                    <td>${product.codice_prodotto || 'N/A'}</td>
-                    <td>${product.tecnologia || 'N/A'}</td>
-                    <td style="text-align: right;">${product.litri !== null && product.litri !== undefined ? product.litri + ' L' : 'N/A'}</td>
-                    <td>${product.configurazione || 'N/A'}</td>
-                    <td>${product.installazione || 'N/A'}</td>
-                    <td>${product.orientamento || 'N/A'}</td>
-                    <td>${product.dimensioni || 'N/A'}</td>
-                    <td style="text-align: right;">${prezzoDisplay}</td>
-                    <td style="text-align: center;">${product.scheda_tecnica_url ? `<a href="${product.scheda_tecnica_url}" target="_blank" class="datasheet-link" title="Apri scheda tecnica"><i class="fas fa-file-pdf"></i></a>` : '-'}</td>
+                card.innerHTML = `
+                    <div class="product-card-image-container">
+                        <img src="${imageUrl}" alt="${product.modello || 'Scaldabagno'}" class="product-card-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/120x120.png?text=Img Err';this.style.objectFit='scale-down';">
+                    </div>
+                    <div class="product-card-details">
+                        <h3 class="product-card-brand">${product.marca || 'N/A'} ${esaurimentoText}</h3>
+                        <p class="product-card-model">${product.modello || 'N/A'}</p>
+                        <p><strong>Codice:</strong> ${product.codice_prodotto || 'N/A'}</p>
+                        <p><strong>Tecnologia:</strong> ${product.tecnologia || 'N/A'}</p>
+                        <p><strong>Litri:</strong> ${product.litri !== null && product.litri !== undefined ? product.litri + ' L' : 'N/A'}</p>
+                        <p><strong>Config.:</strong> ${product.configurazione || 'N/A'}</p>
+                        <p><strong>Install.:</strong> ${product.installazione || 'N/A'}</p>
+                        <p><strong>Orient.:</strong> ${product.orientamento || 'N/A'}</p>
+                        <p><strong>Dimensioni:</strong> ${product.dimensioni || 'N/A'}</p>
+                    </div>
+                    <div class="product-card-footer">
+                        <p class="product-card-price">${prezzoDisplay}</p>
+                        ${product.scheda_tecnica_url ? `<a href="${product.scheda_tecnica_url}" target="_blank" class="datasheet-link" title="Apri scheda tecnica"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<span></span>'}
+                    </div>
                 `;
+                cardsContainer.appendChild(card);
             });
-            console.log("Table rendered with products.");
+            console.log("Cards rendered.");
         }
         console.log("Script execution finished setup. Waiting for events.");
         // ----- FINE SCRIPT -----
