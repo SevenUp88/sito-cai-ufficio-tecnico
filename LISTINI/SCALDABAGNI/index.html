@@ -46,6 +46,7 @@
             --matrice-surface-color: var(--background-color); --matrice-bg-color: var(--light-color);
             --matrice-border-color: #e0e0e0; --matrice-accent-success: #198754;
             --matrice-accent-danger: #dc3545;
+            --true-black: #000000;
         }
         body { margin: 0; font-family: 'Roboto', sans-serif; background-color: var(--matrice-bg-color); color: var(--matrice-text-primary); line-height: 1.6; padding-top: var(--header-height); min-height: 100vh; font-weight: 400; }
         * { box-sizing: border-box; }
@@ -147,31 +148,37 @@
             border-radius: 4px;
         }
 
-        .product-card-brand { /* This is the H3 tag */
-            font-size: 1.1em; /* Will be applied to text if logo fails */
+        .product-card-brand {
+            font-size: 1.1em;
             font-weight: 700;
-            color: var(--primary-color); /* Will be applied to text if logo fails */
+            color: var(--primary-color);
             margin-top: 0;
             margin-bottom: 4px;
             display: flex;
             align-items: center;
-            min-height: 35px; /* To prevent layout shift while logo loads */
+            min-height: 38px; /* UPDATED to accommodate slightly taller Ariston logo */
         }
         .brand-logo {
-            max-height: 30px;
-            max-width: 100px;
+            height: 22px;      /* UPDATED - General rule */
+            max-width: 110px;   /* UPDATED - General rule */
+            width: auto;
             object-fit: contain;
+            margin-right: 8px;
         }
-        .brand-name-text { /* Fallback text span */
-            /* Inherits font styles from h3.product-card-brand */
+        .brand-logo--ariston { /* ADDED - Specific rule for Ariston */
+            height: 28px;
+            max-width: 100px; /* Can be adjusted if Ariston's aspect ratio needs it */
+        }
+        .brand-name-text {
+            /* Fallback text styles if needed, inherits from H3 by default */
         }
 
         .product-card-model {
             font-size: 1em;
-            font-weight: 500;
-            margin-top: 0;
+            font-weight: bold;
+            margin-top: 4px;
             margin-bottom: 12px;
-            color: var(--matrice-text-primary);
+            color: var(--true-black); /* Explicitly black */
             line-height: 1.3;
         }
         .product-card-details p {
@@ -181,7 +188,7 @@
             line-height: 1.4;
         }
         .product-card-details p strong {
-            color: var(--matrice-text-primary);
+            color: var(--matrice-text-primary); /* This is a dark grey, if labels need to be true black, use var(--true-black) */
             font-weight: 500;
         }
         .nearing-end-of-stock-card {
@@ -192,7 +199,6 @@
              background-color: #fff3cd;
              padding: 3px 8px;
              border-radius: 4px;
-             margin-left: 8px;
              vertical-align: middle;
         }
 
@@ -206,7 +212,7 @@
         }
         .product-card-price {
             font-size: 1.15em;
-            font-weight: 700;
+            font-weight: bold;
             color: var(--matrice-accent-success);
             margin: 0;
         }
@@ -521,20 +527,24 @@
 
                 let brandVisualHtml;
                 let logoFullUrl = '';
+                let specificLogoClass = ''; // Variable for specific logo class
 
                 if (brandNameFromFirestore && typeof brandNameFromFirestore === 'string' && brandNameFromFirestore.trim() !== '') {
-                    // Generate lowercase filename. Replace spaces with underscores (if that's your convention).
-                    // If your filenames literally have spaces and are lowercase (e.g. "hermann saunier duval.png"), use:
-                    // const logoFileName = String(brandNameFromFirestore).toLowerCase() + ".png";
-                    const logoFileName = String(brandNameFromFirestore).toLowerCase().replace(/\s+/g, '_') + ".png";
+                    const processedBrandNameForFile = String(brandNameFromFirestore).toLowerCase().replace(/\s+/g, '_');
+                    const logoFileName = processedBrandNameForFile + ".png";
                     logoFullUrl = IMAGE_BASE_URL + logoFileName;
 
-                    console.log(`Processing brand: "${brandNameFromFirestore}" (from Firestore), Generated logo FILENAME: "${logoFileName}", Full URL: "${logoFullUrl}"`);
+                    // Check if this is Ariston to apply specific class
+                    if (processedBrandNameForFile === 'ariston') {
+                        specificLogoClass = ' brand-logo--ariston'; // Note the leading space for class attribute
+                    }
+
+                    console.log(`Processing brand: "${brandNameFromFirestore}", Filename: "${logoFileName}", SpecificClass: "${specificLogoClass.trim()}", URL: "${logoFullUrl}"`);
 
                     brandVisualHtml = `
                         <img src="${logoFullUrl}"
                              alt="${brandNameForTextDisplay}"
-                             class="brand-logo"
+                             class="brand-logo${specificLogoClass}"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; console.warn('Failed to load logo (onerror event): ${logoFullUrl}', this);">
                         <span class="brand-name-text" style="display: none;">${brandNameForTextDisplay}</span>
                     `;
