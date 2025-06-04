@@ -5,38 +5,37 @@
 *::before,
 *::after {
     box-sizing: border-box;
-    margin: 0; /* Rimuovi margini di default del browser */
-    padding: 0; /* Rimuovi padding di default del browser */
+    margin: 0; 
+    padding: 0; 
 }
 
 html {
-    font-family: 'Roboto', sans-serif; /* Font di base per la pagina */
-    line-height: 1.5; /* Interlinea di base */
-    -webkit-font-smoothing: antialiased; /* Migliora rendering font su alcuni browser */
+    font-family: 'Roboto', sans-serif; 
+    line-height: 1.5; 
+    -webkit-font-smoothing: antialiased; 
     -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    background-color: var(--background-color, #f8f9fa); /* Sfondo fallback */
-    color: var(--dark-color, #343a40); /* Testo fallback */
+    background-color: var(--background-color, #f8f9fa); 
+    color: var(--dark-color, #343a40); 
 }
 /* --- FINE GLOBAL RESET --- */
 
 
-/* Assicurati che queste variabili siano definite, o nel tuo CSS globale
-   ../../style.css o decommentando e adattando questo blocco :root */
 :root {
-    --primary-color: #0056a8;        /* Blu primario */
-    --secondary-color: #6c757d;      /* Grigio secondario */
-    --light-color: #f8f9fa;          /* Colore chiaro */
-    --dark-color: #343a40;           /* Colore scuro */
-    --background-color: #ffffff;     /* Sfondo generale */
-    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Ombra card */
-    --border-radius: 8px;            /* Raggio bordo card */
-    --danger-color: #dc3545;         /* Rosso per avvisi/esaurimento */
-    --warning-color: #ffc107;       /* Giallo per badge "economico" */
-    --header-height: 65px;           /* Altezza del tuo header principale, da adattare se diversa */
-    /* --sticky-offset: calc(var(--header-height) + 10px); // Se definito globalmente */
+    --primary-color: #0056a8;       
+    --secondary-color: #6c757d;     
+    --light-color: #f8f9fa;         
+    --dark-color: #343a40;          
+    --background-color: #ffffff;    
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+    --border-radius: 8px;           
+    --danger-color: #dc3545;        
+    --warning-color: #ffc107; /* Orange */      
+    --header-height: 65px;    
+    --matrice-accent-success: #198754; /* Green, from other file */
+    --true-black: #000000; /* Added from other file */
 }
 
 .listini-page-container {
@@ -159,7 +158,6 @@ main {
     padding-top: 10px;
 }
 
-/* --- PRODUCT GRID CON MEDIA QUERIES PER COLONNE --- */
 .product-grid {
     display: grid;
     gap: 20px;
@@ -193,9 +191,7 @@ main {
         grid-template-columns: repeat(5, 1fr);
     }
 }
-/* --- FINE PRODUCT GRID --- */
 
-/* --- BOILER CARD STYLES --- */
 .boiler-card {
     background-color: var(--background-color);
     border: 1px solid #e0e0e0;
@@ -263,8 +259,8 @@ main {
     min-height: 40px;
 }
 .boiler-logo {
-    max-height: 40px;
-    max-width: 110px;
+    max-height: 40px; /* Può essere sovrascritto da JS per caldaie */
+    max-width: 110px; /* Può essere sovrascritto da JS per caldaie */
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -274,9 +270,10 @@ main {
 .boiler-card h3.model {
     margin: 0 0 1px 0;
     font-size: 1.05em;
-    color: var(--dark-color);
-    font-weight: 700;
+    color: var(--true-black); /* MODIFICATO A NERO ASSOLUTO */
+    font-weight: 700;       /* Confermato grassetto */
     line-height: 1.25;
+     /* display: flex; align-items: center; gap: 8px; */ /* Opzionale se il badge Novità non si allinea bene */
 }
 .boiler-card .brand-text {
     font-size: 0.8em;
@@ -335,30 +332,51 @@ main {
     flex-shrink: 0;
     width: 100px;
 }
-.boiler-card .availability.in-esaurimento {
-    color: var(--danger-color);
+
+/* STILI PER STATUS (Esaurimento, Novità) */
+.status-text {
+    font-weight: bold;
+    font-size: 0.8em; 
+    padding: 3px 7px;
+    border-radius: 4px;
+    vertical-align: middle;
+    line-height: 1.2;
+    display: inline-block;
+}
+
+/* Testo "In Esaurimento" arancione nella lista principale (dentro <p class="availability in-esaurimento">) */
+.boiler-card .boiler-info .availability.in-esaurimento {
+    color: var(--warning-color) !important; /* Forza il colore arancione */
     font-weight: bold;
 }
 
-/* === MODIFICHE PER LINK DOCUMENTI === */
+/* Badge "Novità" per CALDAIE, vicino al nome modello */
+.status-novita-caldaie {
+    background-color: var(--matrice-accent-success);
+    color: white;
+    /* border: 1px solid #107548; */
+    margin-left: 8px;
+    padding: 4px 8px; /* Coerente con scaldabagni se si vuole lo stesso aspetto */
+    font-size: 0.8em;
+}
+.status-novita-caldaie i {
+    margin-right: 4px;
+    font-size: 0.9em;
+}
+/* --- FINE STILI PER STATUS --- */
+
+
 .boiler-card .boiler-info .product-documents-links {
     display: flex;
     flex-wrap: wrap;
     gap: 15px; 
-    margin-top: 8px; /* Aggiunto margine sopra il gruppo di link */
-    margin-bottom: 5px; /* Aggiunto margine sotto il gruppo di link */
-    /* Rimuoviamo il margine dai singoli paragrafi se i link erano in <p> separati prima.
-       Se il div .product-documents-links sostituisce i <p>, questa regola non è più necessaria
-       o potrebbe essere necessario nascondere i vecchi <p> se coesistono:
-    */
+    margin-top: 8px; 
+    margin-bottom: 5px;
 }
-/* Nasconde i vecchi paragrafi se il nuovo div li sostituisce e se avevano classi specifiche */
 .boiler-card .boiler-info p.product-datasheet,
 .boiler-card .boiler-info p.product-manual {
     display: none; 
 }
-
-/* Stili per i link Scheda Tecnica e Manuale usando le classi aggiunte ai tag <a> */
 .boiler-card a.product-datasheet-link,
 .boiler-card a.product-manual-link {
     color: var(--primary-color);
@@ -372,15 +390,12 @@ main {
 .boiler-card a.product-manual-link:hover { 
     text-decoration: underline; 
 }
-
 .boiler-card a.product-datasheet-link i,
 .boiler-card a.product-manual-link i { 
     margin-right: 4px; 
 }
-/* === FINE MODIFICHE PER LINK DOCUMENTI === */
-
 .boiler-card .boiler-info p.accumulo-info {
-    /* Stili specifici se necessario */
+    /* Specific styles if needed */
 }
 .storage-icon-inline {
     margin-left: 5px;
@@ -398,6 +413,7 @@ main {
 }
 .boiler-card .price-section {
     margin:0; padding:0; border:0;
+    /* display: flex; align-items: center; gap: 8px; /* Per allineare prezzo e testo esaurimento */
 }
 .boiler-card .price-discounted,
 .boiler-card .price-discounted.no-discount {
@@ -412,176 +428,66 @@ main {
     margin-right: 5px;
 }
 
-/* ... (resto del CSS invariato: POPUP, LOADING, ADMIN, PRINT, BAXI) ... */
-
-/* POPUP STYLES - (mantenuti come da originale, assumendo siano corretti) */
+/* POPUP STYLES */
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); display: flex;
+    justify-content: center; align-items: center; z-index: 1000;
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
-.popup-overlay.visible {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease, visibility 0s linear 0s;
-}
+.popup-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s linear 0s; }
 .popup-content {
-    background-color: #fff;
-    padding: 25px 30px;
-    border-radius: var(--border-radius, 8px);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-    width: 90%;
-    max-width: 600px;
-    max-height: 85vh;
-    overflow-y: auto;
-    position: relative;
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
+    background-color: #fff; padding: 25px 30px; border-radius: var(--border-radius, 8px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); width: 90%; max-width: 600px;
+    max-height: 85vh; overflow-y: auto; position: relative;
+    transform: scale(0.9); transition: transform 0.3s ease;
 }
-.popup-overlay.visible .popup-content {
-    transform: scale(1);
-}
+.popup-overlay.visible .popup-content { transform: scale(1); }
 .popup-content h2#popup-boiler-title {
-    margin-top: 0;
-    margin-bottom: 20px;
-    color: var(--primary-color, #0056a8);
-    font-size: 1.5em;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+    margin-top: 0; margin-bottom: 20px; color: var(--primary-color, #0056a8);
+    font-size: 1.5em; border-bottom: 1px solid #eee; padding-bottom: 10px;
 }
 .close-popup-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 1.8em;
-    color: var(--secondary-color, #6c757d);
-    cursor: pointer;
-    line-height: 1;
+    position: absolute; top: 15px; right: 15px; background: none; border: none;
+    font-size: 1.8em; color: var(--secondary-color, #6c757d); cursor: pointer; line-height: 1;
 }
-.close-popup-btn:hover {
-    color: var(--dark-color, #343a40);
-}
-#popup-boiler-content-area p {
-    margin-bottom: 12px;
-    font-size: 0.95em;
-    line-height: 1.6;
-    color: var(--dark-color, #555);
-}
-#popup-boiler-content-area p:last-child {
-    margin-bottom: 0;
-}
-#popup-boiler-content-area strong {
-    font-weight: 600;
-    color: var(--dark-color, #343a40);
-    margin-right: 5px;
-}
-#popup-boiler-content-area .popup-value {
-    /* Stile specifico per i valori se necessario */
-}
-#popup-boiler-content-area .unknown-value {
-    color: var(--secondary-color, #6c757d);
-    font-style: italic;
-}
+.close-popup-btn:hover { color: var(--dark-color, #343a40); }
+#popup-boiler-content-area p { margin-bottom: 12px; font-size: 0.95em; line-height: 1.6; color: var(--dark-color, #555); }
+#popup-boiler-content-area p:last-child { margin-bottom: 0; }
+#popup-boiler-content-area strong { font-weight: 600; color: var(--dark-color, #343a40); margin-right: 5px; }
+#popup-boiler-content-area .unknown-value { color: var(--secondary-color, #6c757d); font-style: italic; }
 /* Fine Popup Styles */
 
-/* General loading/no-results */
-.loading-indicator, #loading-indicator,
-#no-results-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 30px 20px;
-    color: var(--secondary-color);
-    font-size: 1.05em;
+.loading-indicator, #loading-indicator, #no-results-message {
+    grid-column: 1 / -1; text-align: center; padding: 30px 20px;
+    color: var(--secondary-color); font-size: 1.05em;
 }
+#admin-section-caldaie { border-top: 2px solid var(--warning-color); }
 
-/* Admin section */
-#admin-section-caldaie {
-    border-top: 2px solid var(--warning-color);
-}
-
-/* Print Styles - (mantenuti come da originale, assumendo siano corretti) */
 @media print {
-    body {
-        font-size: 10pt;
-        background-color: #fff;
-        color: #000;
-    }
-    .listini-page-container {
-        max-width: none;
-        padding: 0;
-        margin: 0;
-    }
-    .page-controls, .filters-container, #reset-filters-btn, .boiler-card-footer .price-list, .boiler-card-footer .price-section > *:not(.price-discounted), .economico-badge, .storage-badge, .wifi-icon-display, 
-    .boiler-card .product-documents-links { /* Aggiornato per nascondere il nuovo contenitore in stampa */
+    body { font-size: 10pt; background-color: #fff; color: #000; }
+    .listini-page-container { max-width: none; padding: 0; margin: 0; }
+    .page-controls, .filters-container, #reset-filters-btn, 
+    .boiler-card-footer .price-list, .boiler-card-footer .price-section > *:not(.price-discounted), 
+    .economico-badge, .storage-badge, .wifi-icon-display, 
+    .boiler-card .product-documents-links, .status-novita-caldaie /* Nascondi badge novita in stampa */ {
         display: none !important; 
     }
-    .product-grid {
-        display: block; 
-    }
-    .boiler-card {
-        box-shadow: none;
-        border: 1px solid #ccc;
-        page-break-inside: avoid; 
-        margin-bottom: 15px;
-        padding: 10px;
-    }
-    .boiler-card-header {
-        margin-bottom: 8px;
-    }
+    .product-grid { display: block; }
+    .boiler-card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; margin-bottom: 15px; padding: 10px;}
+    .boiler-card-header { margin-bottom: 8px; }
     .boiler-logo { max-height: 30px; }
     .boiler-card h3.model { font-size: 1.1em; }
     .boiler-card .boiler-info p { font-size: 0.8em; margin: 3px 0; }
     .boiler-card .boiler-info p strong { width: auto; margin-right: 5px; } 
     .boiler-card-body-flex { margin-bottom: 8px; }
     .boiler-card .image-container img { max-height: 120px; }
-    .boiler-card-footer {
-        border-top: 1px solid #ccc;
-        padding-top: 8px;
-        justify-content: flex-start; 
-    }
-    .boiler-card .price-discounted,
-    .boiler-card .price-discounted.no-discount {
-        font-size: 1.3em;
-        color: #000; 
-    }
-    /* Se vuoi mostrare i link in stampa, dovresti rimuoverli da .product-documents-links sopra e aggiungere ::after qui */
-    /* .boiler-card a.product-datasheet-link::after {
-        content: " (Scheda Tecnica)"; 
-    } 
-    .boiler-card a.product-manual-link::after {
-        content: " (Manuale)"; 
-    } */
+    .boiler-card-footer { border-top: 1px solid #ccc; padding-top: 8px; justify-content: flex-start; }
+    .boiler-card .price-discounted, .boiler-card .price-discounted.no-discount { font-size: 1.3em; color: #000; }
      h1 { font-size: 1.5em; }
 }
 /* --- STILI SPECIFICI PER INGRANDIRE IMMAGINI ARTICOLI BAXI --- */
-
-.boiler-card.brand-baxi .boiler-card-image-column {
-    flex-grow: 0;    
-    flex-shrink: 0;  
-    flex-basis: 45%; 
-}
-.boiler-card.brand-baxi .boiler-card-info-column {
-    flex: 1;      
-    min-width: 0; 
-}
-.boiler-card.brand-baxi .image-container img {
-    max-height: 250px;  
-    display: block;     
-    width: 100%;        
-    max-width: 100%;    
-    object-fit: contain;
-    border-radius: 3px; 
-}
+.boiler-card.brand-baxi .boiler-card-image-column { flex-grow: 0; flex-shrink: 0; flex-basis: 45%; }
+.boiler-card.brand-baxi .boiler-card-info-column { flex: 1; min-width: 0; }
+.boiler-card.brand-baxi .image-container img { max-height: 250px; display: block; width: 100%; max-width: 100%; object-fit: contain; border-radius: 3px; }
 /* --- FINE STILI IMMAGINI BAXI --- */
