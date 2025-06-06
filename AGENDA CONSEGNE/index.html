@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agenda Consegne</title>
+<style>
+  /* Reset base */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    margin: 0; padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    color: #004d99;
+  }
+  #agenda {
+    max-width: 1100px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+    padding: 15px 25px;
+  }
+  label {
+    font-weight: 600;
+    margin-right: 10px;
+  }
+  select {
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 15px;
+    font-size: 14px;
+  }
+  .time-block {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .time-block > div {
+    flex: 1;
+  }
+  .time-label {
+    width: 70px;
+    font-weight: 700;
+    color: #004d99;
+    margin-top: 6px;
+  }
+  textarea, input[type=text] {
+    width: 100%;
+    font-size: 14px;
+    padding: 6px 8px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    resize: vertical;
+    font-family: inherit;
+  }
+  textarea {
+    min-height: 50px;
+  }
+  .separator {
+    height: 1px;
+    background: #ccc;
+    margin: 12px 0 15px 70px; /* align with inputs */
+  }
+  .btn-group {
+    text-align: center;
+    margin-top: 20px;
+  }
+  button {
+    background: #007acc;
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 0 8px;
+    font-size: 15px;
+    transition: background-color 0.25s ease;
+  }
+  button:hover {
+    background: #005f99;
+  }
+  /* Pause pranzo */
+  .pause-label {
+    margin-left: 70px;
+    font-style: italic;
+    color: #666;
+    margin-bottom: 15px;
+  }
+
+  /* Print styles */
+  #printable {
+    display: none;
+  }
+
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 10mm 10mm 10mm 10mm;
+    }
+    body * {
+      visibility: hidden;
+    }
+    #printable, #printable * {
+      visibility: visible;
+    }
+    #printable {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      font-size: 10pt;
+      color: black;
+      background: white;
+      padding: 0;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      page-break-inside: avoid;
+      font-size: 9pt;
+    }
+    th, td {
+      border: 1px solid #666;
+      padding: 3px 5px;
+      word-wrap: break-word;
+      vertical-align: top;
+    }
+    h2 {
+      margin-bottom: 0.5rem;
+      font-size: 14pt;
+      color: black;
+    }
+  }
+</style>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&libraries=places"></script>
+
+</head>
+<body>
+
+<h1>Agenda Consegne Programmate</h1>
+
+<div id="agenda">
+  <label for="daySelect">Seleziona Giorno:</label>
+  <select id="daySelect" onchange="buildAgenda()">
+    <option value="lun">Lunedì</option>
+    <option value="mar">Martedì</option>
+    <option value="mer">Mercoledì</option>
+    <option value="gio">Giovedì</option>
+    <option value="ven">Venerdì</option>
+  </select>
+
+  <div id="consegneContainer"></div>
+
+  <div class="btn-group">
+    <button onclick="saveData()">💾 Salva</button>
+    <button onclick="printDaily()">🖨️ Stampa Giornaliera</button>
+    <button onclick="printWeekly()">🖨️ Stampa Settimanale</button>
+  </div>
+</div>
+
+<div id="printable"></div>
+
+<script>
+  const dayLabels = { lun: "Lunedì", mar: "Martedì", mer: "Mercoledì", gio: "Giovedì", ven: "Venerdì" };
+
+  // Ore valide (mattina + pomeriggio con pausa pranzo)
+  const allHours = [
+    "08:00", "09:00", "10:00", "11:00",
+    "14:00", "15:00", "16:00", "17:00", "18:00"
+  ];
+
+  let autocompleteObjects = [];
+
+  function buildAgenda() {
+    const container = document.getElementById("consegneContainer");
+    container.innerHTML = "";
+
+    const selectedDay = document.getElementById("daySelect").value;
+
+    allHours.forEach(hour => {
+      // Costruisco blocco orario
+      const block = document.createElement("div");
+      block.className = "time-block";
+
+      // Label orario
+      const timeLabel = document.createElement("div");
+      timeLabel.className = "time-label";
+      timeLabel.textContent = hour;
+      block.appendChild(timeLabel);
+
+      // Note consegna
+      const noteDiv = document.createElement("div");
+      const noteTA = document.createElement("textarea");
+      noteTA.placeholder = "Note consegna";
+      noteTA.id = `${selectedDay}-${hour}-note`;
+      noteTA.value = localStorage.getItem(noteTA.id) || "";
+      noteDiv.appendChild(noteTA);
+      block.appendChild(noteDiv);
+
+      // Indirizzo
+      const indirizzoDiv = document.createElement("div");
+      const indirizzoInput = document.createElement("input");
+      indirizzoInput.type = "text";
+      indirizzoInput.placeholder = "Indirizzo consegna";
+      indirizzoInput.id = `${selectedDay}-${hour}-indirizzo`;
+      indirizzoInput.value = localStorage.getItem(indirizzoInput.id) || "";
+      indirizzoDiv.appendChild(indirizzoInput);
+      block.appendChild(indirizzoDiv);
+
+      // Contatto
+      const contattoDiv = document.createElement("div");
+      const contattoInput = document.createElement("input");
+      contattoInput.type = "text";
+      contattoInput.placeholder = "Contatto (nome)";
+      contattoInput.id = `${selectedDay}-${hour}-contatto`;
+      contattoInput.value = localStorage.getItem(contattoInput.id) || "";
+      contattoDiv.appendChild(contattoInput);
+      block.appendChild(contattoDiv);
+
+      container.appendChild(block);
+
+      // Pausa pranzo visiva dopo 11:00
+      if (hour === "11:00") {
+        const pauseLabel = document.createElement("div");
+        pauseLabel.className = "pause-label";
+        pauseLabel.textContent = "Pausa pranzo: 12:00 – 14:00 (nessuna consegna)";
+        container.appendChild(pauseLabel);
+      }
+    });
+
+    // Inizializzo autocomplete Google Places sugli indirizzi
+    initAutocomplete(selectedDay);
+  }
+
+  function saveData() {
+    allHours.forEach(hour => {
+      const selectedDay = document.getElementById("daySelect").value;
+      ["note", "indirizzo", "contatto"].forEach(field => {
+        const el = document.getElementById(`${selectedDay}-${hour}-${field}`);
+        if (el) {
+          localStorage.setItem(el.id, el.value.trim());
+        }
+      });
+    });
+    alert("Dati salvati localmente!");
+  }
+
+  function initAutocomplete(day) {
+    // Distruggi autocomplete vecchi
+    autocompleteObjects.forEach(ac => ac.unbindAll && ac.unbindAll());
+    autocompleteObjects = [];
+
+    allHours.forEach(hour => {
+      const id = `${day}-${hour}-indirizzo`;
+      const input = document.getElementById(id);
+      if (input) {
+        const ac = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: {country: 'it'} });
+        autocompleteObjects.push(ac);
+      }
+    });
+  }
+
+  function printDaily() {
+    const selectedDay = document.getElementById("daySelect").value;
+    let html = `<h2>📅 Consegne per ${dayLabels[selectedDay]}</h2>`;
+    html += `<table style="width:100%; border-collapse:collapse; font-size:10pt;">
+      <thead>
+        <tr style="background:#ddd;">
+          <th style="border:1px solid #999; padding:4px; width:10%;">Ora</th>
+          <th style="border:1px solid #999; padding:4px; width:40%;">Note consegna</th>
+          <th style="border:1px solid #999; padding:4px; width:30%;">Indirizzo</th>
+          <th style="border:1px solid #999; padding:4px; width:20%;">Contatto</th>
+        </tr>
+      </thead>
+      <tbody>`;
+    allHours.forEach(hour => {
+      const note = localStorage.getItem(`${selectedDay}-${hour}-note`) || "";
+      const indirizzo = localStorage.getItem(`${selectedDay}-${hour}-indirizzo`) || "";
+      const contatto = localStorage.getItem(`${selectedDay}-${hour}-contatto`) || "";
+      html += `<tr>
+        <td style="border:1px solid #999; padding:4px;">${hour}</td>
+        <td style="border:1px solid #999; padding:4px;">${note.replace(/\n/g, "<br>")}</td>
+        <td style="border:1px solid #999; padding:4px;">${indirizzo}</td>
+        <td style="border:1px solid #999; padding:4px;">${contatto}</td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+
+    const printable = document.getElementById("printable");
+    printable.innerHTML = html;
+    printable.style.display = "block";
+    window.print();
+    printable.style.display = "none";
+  }
+
+  function printWeekly() {
+    let html = `<h2>🗓️ Agenda Consegne Settimanale</h2>`;
+    html += `<table style="width:100%; border-collapse:collapse; font-size:9pt;">
+    <thead>
+      <tr>
+        <th style="border:1px solid #666; padding:3px; width:6%;">Ora</th>`;
+    ["lun", "mar", "mer"].forEach(day => {
+      html += `<th colspan="3" style="border:1px solid #666; padding:3px; text-align:center;">${dayLabels[day]}</th>`;
+    });
+    html += `</tr><tr><td></td>`;
+    for (let i = 0; i < 3; i++) {
+      html += `<td style="border:1px solid #666; padding:3px;">Note</td>
+               <td style="border:1px solid #666; padding:3px;">Indirizzo</td>
+               <td style="border:1px solid #666; padding:3px;">Contatto</td>`;
+    }
+    html += `</tr></thead><tbody>`;
+
+    allHours.forEach(hour => {
+      html += `<tr><td style="border:1px solid #666; padding:3px;">${hour}</td>`;
+      ["lun", "mar", "mer"].forEach(day => {
+        const note = localStorage.getItem(`${day}-${hour}-note`) || "";
+        const indirizzo = localStorage.getItem(`${day}-${hour}-indirizzo`) || "";
+        const contatto = localStorage.getItem(`${day}-${hour}-contatto`) || "";
+        html += `<td style="border:1px solid #666; padding:3px;">${note.replace(/\n/g, "<br>")}</td>
+                 <td style="border:1px solid #666; padding:3px;">${indirizzo}</td>
+                 <td style="border:1px solid #666; padding:3px;">${contatto}</td>`;
+      });
+      html += `</tr>`;
+    });
+
+    html += `<tr><td colspan="10" style="border:1px solid #666; padding:6px; font-weight:bold; text-align:center;">🕐 Pausa pranzo: 12:00 – 14:00</td></tr>`;
+
+    html += `<tr><th style="border:1px solid #666; padding:3px;">Ora</th>`;
+    ["gio", "ven"].forEach(day => {
+      html += `<th colspan="3" style="border:1px solid #666; padding:3px; text-align:center;">${dayLabels[day]}</th>`;
+    });
+    html += `</tr><tr><td></td>`;
+    for (let i = 0; i < 2; i++) {
+      html += `<td style="border:1px solid #666; padding:3px;">Note</td>
+               <td style="border:1px solid #666; padding:3px;">Indirizzo</td>
+               <td style="border:1px solid #666; padding:3px;">Contatto</td>`;
+    }
+    html += `</tr>`;
+
+    allHours.forEach(hour => {
+      html += `<tr><td style="border:1px solid #666; padding:3px;">${hour}</td>`;
+      ["gio", "ven"].forEach(day => {
+        const note = localStorage.getItem(`${day}-${hour}-note`) || "";
+        const indirizzo = localStorage.getItem(`${day}-${hour}-indirizzo`) || "";
+        const contatto = localStorage.getItem(`${day}-${hour}-contatto`) || "";
+        html += `<td style="border:1px solid #666; padding:3px;">${note.replace(/\n/g, "<br>")}</td>
+                 <td style="border:1px solid #666; padding:3px;">${indirizzo}</td>
+                 <td style="border:1px solid #666; padding:3px;">${contatto}</td>`;
+      });
+      html += `</tr>`;
+    });
+
+    html += `</tbody></table>`;
+
+    const printable = document.getElementById("printable");
+    printable.innerHTML = html;
+    printable.style.display = "block";
+    window.print();
+    printable.style.display = "none";
+  }
+
+  window.onload = buildAgenda;
+</script>
+
+</body>
+</html>
