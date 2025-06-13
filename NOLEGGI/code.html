@@ -23,6 +23,24 @@
         color: #555;
     }
     /* Rimosse regole specifiche per #login-modal */
+    
+    /* Stili per il layout a due colonne nel form */
+    .form-group-flex {
+        display: flex;
+        gap: 1.5rem;
+        align-items: flex-start; /* Allinea all'inizio per coerenza */
+    }
+    .form-group-flex > .form-group {
+        flex: 1;
+        margin-bottom: 0; /* Rimuove margine inferiore extra */
+    }
+    /* Responsive: su schermi piccoli, i campi vanno uno sotto l'altro */
+    @media (max-width: 576px) {
+        .form-group-flex {
+            flex-direction: column;
+            gap: 1.5rem; /* Ripristina lo spazio quando in colonna */
+        }
+    }
   </style>
 </head>
 <body class="logged-out"> <!-- Start in logged-out state -->
@@ -89,7 +107,19 @@
             <input type="hidden" id="rental-number-ongoing">
             <div class="form-group"> <label for="rental-operator">Operatore:</label> <select id="rental-operator" required class="form-control"> <option value="">-- Seleziona Operatore --</option> </select> </div>
             <div class="form-group"> <label for="rental-warehouse">Magazzino Origine:</label> <select id="rental-warehouse" required class="form-control"> <option value="">-- Seleziona Magazzino --</option> <option value="VILLALTA">VILLALTA</option> <option value="SAVIGNANO">SAVIGNANO</option> <option value="VILLAMARINA">VILLAMARINA</option> </select> </div>
-            <div class="form-group"> <label for="rental-client-name">Nome Cliente:</label> <input type="text" id="rental-client-name" required class="form-control"> </div >
+            
+            <!-- Modified Client/Collected By section -->
+            <div class="form-group-flex">
+              <div class="form-group">
+                <label for="rental-client-name">Nome Cliente:</label>
+                <input type="text" id="rental-client-name" required class="form-control">
+              </div>
+              <div class="form-group">
+                <label for="rental-collected-by">Ritirato Da:</label>
+                <input type="text" id="rental-collected-by" class="form-control" placeholder="(opzionale)">
+              </div>
+            </div>
+
             <div class="form-group"> <label for="rental-start-date">Data Inizio:</label> <input type="date" id="rental-start-date" required class="form-control"> </div>
             <hr style="margin: 1.5rem 0;">
             <h3 style="margin-bottom: 1rem; font-weight: 500;">Articolo da Noleggiare</h3>
@@ -120,6 +150,7 @@
             <hr style="margin: 1.5rem 0;">
             <h3 style="margin-bottom: 1rem; font-weight: 500;">Dati Modificabili</h3>
             <div class="form-group"> <label for="edit-rental-client-name">Nome Cliente:</label> <input type="text" id="edit-rental-client-name" required class="form-control" style="text-transform: uppercase;"> </div>
+            <div class="form-group"> <label for="edit-rental-collected-by">Ritirato Da:</label> <input type="text" id="edit-rental-collected-by" class="form-control" style="text-transform: uppercase;" placeholder="(opzionale)"> </div>
             <div class="form-group"> <label for="edit-rental-operator">Operatore:</label> <select id="edit-rental-operator" required class="form-control"> <option value="">-- Seleziona Operatore --</option> </select> </div>
             <hr style="margin: 1.5rem 0;">
             <h3 style="margin-bottom: 1rem; font-weight: 500;">Modifica Articolo (per questa riga)</h3>
