@@ -108,7 +108,34 @@
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
     
     // ** RESTORED ORIGINAL WORKING VERSION **
-    const applyInventoryFilters = (inventory) => { const inventorySearchInput = document.getElementById('inventory-search'); const filterBrandSelect = document.getElementById('filter-brand'); const filterStatusSelect = document.getElementById('filter-status'); const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : ''; const brandFilter = filterBrandSelect ? filterBrandSelect.value : ''; const statusFilter = filterStatusSelect ? filterStatusSelect.value : ''; return inventory.filter(item => { const matchesSearch = !searchTerm || item.name.toLowerCase().includes(searchTerm) || item.brand.toLowerCase().includes(searchTerm); const matchesBrand = !brandFilter || item.brand === brandFilter; const isAvailable = item.availableQuantity > 0; const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable); return matchesSearch && matchesBrand && matchesStatus; }); };
+    const applyInventoryFilters = (inventory) => {
+    const inventorySearchInput = document.getElementById('inventory-search');
+    const filterBrandSelect = document.getElementById('filter-brand');
+    const filterStatusSelect = document.getElementById('filter-status');
+    const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : '';
+    const brandFilter = filterBrandSelect ? filterBrandSelect.value : '';
+    const statusFilter = filterStatusSelect ? filterStatusSelect.value : '';
+
+    return inventory.filter(item => {
+        // Defensive coding: ensure properties exist and are strings before calling string methods.
+        const itemName = item.name || '';
+        const itemBrand = item.brand || '';
+
+        const matchesSearch = !searchTerm || 
+                              itemName.toLowerCase().includes(searchTerm) || 
+                              itemBrand.toLowerCase().includes(searchTerm);
+                              
+        const matchesBrand = !brandFilter || item.brand === brandFilter;
+        
+        const isAvailable = (item.availableQuantity || 0) > 0;
+        
+        const matchesStatus = !statusFilter || 
+                              (statusFilter === 'available' && isAvailable) || 
+                              (statusFilter === 'rented' && !isAvailable);
+
+        return matchesSearch && matchesBrand && matchesStatus;
+    });
+};
     
     // ** RESTORED ORIGINAL WORKING VERSION **
     const renderInventoryTable = (inventory) => {
