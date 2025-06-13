@@ -61,6 +61,7 @@
         const whSelect = getElement('rental-warehouse');
         const clientInput = getElement('rental-client-name');
         const dateInput = getElement('rental-start-date');
+        const collectedByInput = getElement('rental-collected-by');
         const title = getElement('rental-modal-title');
         const brandSelect = getElement('rental-brand-selection');
         const itemSelect = getElement('rental-item-selection');
@@ -72,6 +73,7 @@
         if (opSelect) { opSelect.value = ''; opSelect.disabled = false; }
         if (whSelect) { whSelect.value = ''; whSelect.disabled = false; }
         if (clientInput) { clientInput.value = ''; clientInput.disabled = false; }
+                if (collectedByInput) { collectedByInput.value = ''; collectedByInput.disabled = false; }
         if (dateInput) { dateInput.value = new Date().toISOString().split('T')[0]; dateInput.disabled = false; }
         if (title) title.textContent = "Nuovo Noleggio";
         if (brandSelect) brandSelect.value = '';
@@ -143,7 +145,7 @@
         const isAdminUser = isAdmin();
 
         if (rentals.length === 0) {
-            activeRentalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
+            activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
             return;
         }
         const fragment = document.createDocumentFragment();
@@ -158,7 +160,7 @@
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-rental" data-id="${rental.id}" title="Annulla Riga Noleggio"><i class="fas fa-times"></i></button>`;
             }
             actionsHtml += '</td>';
-            tr.innerHTML = `<td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)} (${rental.quantity})</td><td>${escapeHtml(rental.client)}</td><td>${escapeHtml(rental.warehouse || 'N/D')}</td><td>${formatDate(rental.startDate)}</td><td><span class="badge badge-warning">Attivo</span></td>${actionsHtml}`;
+                        tr.innerHTML = `<td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)} (${rental.quantity})</td><td>${escapeHtml(rental.client)}</td><td>${escapeHtml(rental.warehouse || 'N/D')}</td><td>${formatDate(rental.startDate)}</td><td>${escapeHtml(rental.notes || '')}</td><td><span class="badge badge-warning">Attivo</span></td>${actionsHtml}`;
             fragment.appendChild(tr);
         });
         activeRentalsTableBody.appendChild(fragment);
@@ -499,9 +501,123 @@
             rentalForm.addEventListener('submit', (e) => {
                 console.log("New rental form submitted.");
                 e.preventDefault();
-                try {
-                    const operator = rentalOperatorSelect.value; const warehouse = rentalWarehouseSelect.value; const clientName = rentalClientNameInput.value.trim().toUpperCase(); const startDate = rentalStartDateInput.value; const brand = rentalBrandSelect.value; const itemId = rentalItemSelect.value; const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0; const notes = rentalNotesTextarea.value.trim().toUpperCase(); if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) { showError('Completa tutti i campi richiesti.'); return; } if (!db) throw new Error("Firestore non inizializzato."); console.log("1. Attempting to rent Item ID:", itemId); db.collection("inventory").doc(itemId).get().then(async docSnap => { console.log("2. Firestore get() completed. Document exists:", docSnap.exists); if (!docSnap.exists) { console.error("   -> Error: Document ID not found in Firestore:", itemId); showError('Articolo selezionato non trovato nel database.'); return; } const selectedItem = { id: docSnap.id, ...docSnap.data() }; console.log("3. Item data retrieved:", selectedItem); if (selectedItem.availableQuantity < quantity) { showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`); return; } let currentRentalNumber; let isNewRental = true; if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) { currentRentalNumber = ongoingRentalInfo.rentalNumber; isNewRental = false; } else { currentRentalNumber = getNextRentalNumber(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate }; } console.log("4. Rental Number:", currentRentalNumber, "Is New:", isNewRental); const rentalData = { rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`, client: clientName, quantity: quantity, startDate: startDate, operator: operator, notes: notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse: warehouse }; const itemRef = db.collection("inventory").doc(selectedItem.id); const rentalCollectionRef = db.collection("activeRentals"); try { console.log("5. Starting Firestore transaction..."); await db.runTransaction(async (transaction) => { console.log("   -> Inside transaction"); const itemDoc = await transaction.get(itemRef); if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; } console.log("   -> Item refetched in transaction"); const currentAvail = itemDoc.data().availableQuantity; if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; } console.log("   -> Updating inventory in transaction..."); if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) }); } else { throw "Errore tecnico: Firebase FieldValue non disponibile." } console.log("   -> Setting new rental in transaction..."); transaction.set(rentalCollectionRef.doc(), rentalData); console.log("   -> transaction.set called for activeRentals"); }); console.log("6. Transaction successful."); await loadInventoryData(); await loadRentalData(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate }; console.log("7. Fetching rentals for receipt (from Firestore)..."); const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get(); const currentRentalItems = []; rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() })); console.log("   -> Found items for receipt:", currentRentalItems.length); printSingleRentalReceipt(currentRentalItems); if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) { prepareModalForAdditionalItem(ongoingRentalInfo); } else { resetOngoingRentalState(); closeModal(rentalModal); } } catch (err) { console.error("Transaction/Operation failed: ", err); showError("Errore DB durante creazione noleggio: " + err); resetOngoingRentalState(); } }).catch(err => { console.error("Error getting item details (initial get):", err); showError("Errore recupero dettagli articolo."); resetOngoingRentalState(); });
-                } catch (err) { console.error("Error in rentalForm submit setup:", err); showError("Errore imprevisto nel form."); resetOngoingRentalState(); }
+                                try {
+                    const operator = rentalOperatorSelect.value;
+                    const warehouse = rentalWarehouseSelect.value;
+                    const clientName = rentalClientNameInput.value.trim().toUpperCase();
+                    const collectedBy = document.getElementById('rental-collected-by').value.trim().toUpperCase(); // <<<--- NEW
+                    const startDate = rentalStartDateInput.value;
+                    const brand = rentalBrandSelect.value;
+                    const itemId = rentalItemSelect.value;
+                    const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0;
+                    const notes = rentalNotesTextarea.value.trim().toUpperCase();
+
+                    if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) {
+                        showError('Completa tutti i campi richiesti.');
+                        return;
+                    }
+
+                    if (!db) throw new Error("Firestore non inizializzato.");
+
+                    console.log("1. Attempting to rent Item ID:", itemId);
+                    db.collection("inventory").doc(itemId).get().then(async docSnap => {
+                        console.log("2. Firestore get() completed. Document exists:", docSnap.exists);
+                        if (!docSnap.exists) {
+                            console.error("   -> Error: Document ID not found in Firestore:", itemId);
+                            showError('Articolo selezionato non trovato nel database.');
+                            return;
+                        }
+                        const selectedItem = { id: docSnap.id, ...docSnap.data() };
+                        console.log("3. Item data retrieved:", selectedItem);
+                        if (selectedItem.availableQuantity < quantity) {
+                            showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`);
+                            return;
+                        }
+
+                        let currentRentalNumber;
+                        let isNewRental = true;
+                        if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) {
+                            currentRentalNumber = ongoingRentalInfo.rentalNumber;
+                            isNewRental = false;
+                        } else {
+                            currentRentalNumber = getNextRentalNumber();
+                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; // <<<--- MODIFIED
+                        }
+
+                        console.log("4. Rental Number:", currentRentalNumber, "Is New:", isNewRental);
+                        const rentalData = {
+                            rentalNumber: currentRentalNumber,
+                            itemId: selectedItem.id,
+                            itemName: `${selectedItem.brand} ${selectedItem.name}`,
+                            client: clientName,
+                            collectedBy: collectedBy, // <<<--- NEW
+                            quantity: quantity,
+                            startDate: startDate,
+                            operator: operator,
+                            notes: notes,
+                            status: "active",
+                            dailyRate: selectedItem.dailyRate,
+                            warehouse: warehouse
+                        };
+
+                        const itemRef = db.collection("inventory").doc(selectedItem.id);
+                        const rentalCollectionRef = db.collection("activeRentals");
+
+                        try {
+                            console.log("5. Starting Firestore transaction...");
+                            await db.runTransaction(async (transaction) => {
+                                console.log("   -> Inside transaction");
+                                const itemDoc = await transaction.get(itemRef);
+                                if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; }
+                                console.log("   -> Item refetched in transaction");
+                                const currentAvail = itemDoc.data().availableQuantity;
+                                if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; }
+                                console.log("   -> Updating inventory in transaction...");
+                                if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+                                    transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) });
+                                } else {
+                                    throw "Errore tecnico: Firebase FieldValue non disponibile.";
+                                }
+                                console.log("   -> Setting new rental in transaction...");
+                                transaction.set(rentalCollectionRef.doc(), rentalData);
+                                console.log("   -> transaction.set called for activeRentals");
+                            });
+                            console.log("6. Transaction successful.");
+
+                            await loadInventoryData();
+                            await loadRentalData();
+                            
+                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; // <<<--- MODIFIED
+
+                            console.log("7. Fetching rentals for receipt (from Firestore)...");
+                            const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get();
+                            const currentRentalItems = [];
+                            rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() }));
+                            console.log("   -> Found items for receipt:", currentRentalItems.length);
+                            printSingleRentalReceipt(currentRentalItems);
+
+                            if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) {
+                                prepareModalForAdditionalItem(ongoingRentalInfo);
+                            } else {
+                                resetOngoingRentalState();
+                                closeModal(rentalModal);
+                            }
+
+                        } catch (err) {
+                            console.error("Transaction/Operation failed: ", err);
+                            showError("Errore DB durante creazione noleggio: " + (err.message || err));
+                            resetOngoingRentalState();
+                        }
+                    }).catch(err => {
+                        console.error("Error getting item details (initial get):", err);
+                        showError("Errore recupero dettagli articolo.");
+                        resetOngoingRentalState();
+                    });
+                } catch (err) {
+                    console.error("Error in rentalForm submit setup:", err);
+                    showError("Errore imprevisto nel form.");
+                    resetOngoingRentalState();
+                }
             });
         }
 
