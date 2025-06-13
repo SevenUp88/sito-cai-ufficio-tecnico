@@ -143,7 +143,7 @@
         const isAdminUser = isAdmin();
 
         if (rentals.length === 0) {
-            activeRentalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
+            activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
             return;
         }
         const fragment = document.createDocumentFragment();
@@ -158,7 +158,7 @@
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-rental" data-id="${rental.id}" title="Annulla Riga Noleggio"><i class="fas fa-times"></i></button>`;
             }
             actionsHtml += '</td>';
-            tr.innerHTML = `<td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)} (${rental.quantity})</td><td>${escapeHtml(rental.client)}</td><td>${escapeHtml(rental.warehouse || 'N/D')}</td><td>${formatDate(rental.startDate)}</td><td><span class="badge badge-warning">Attivo</span></td>${actionsHtml}`;
+            tr.innerHTML = `<td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)} (${rental.quantity})</td><td>${escapeHtml(rental.client)}</td><td>${escapeHtml(rental.warehouse || 'N/D')}</td><td>${formatDate(rental.startDate)}</td><td>${escapeHtml(rental.notes || '')}</td><td><span class="badge badge-warning">Attivo</span></td>${actionsHtml}`;
             fragment.appendChild(tr);
         });
         activeRentalsTableBody.appendChild(fragment);
@@ -256,7 +256,7 @@
             } else {
                  console.warn("Permission error suppressed for active rentals load.");
             }
-            if (activeRentalsTableBody) activeRentalsTableBody.innerHTML = '<tr><td colspan="7" class="text-center">Errore caricamento noleggi.</td></tr>';
+            if (activeRentalsTableBody) activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">Errore caricamento noleggi.</td></tr>';
             activeRentals = []; // Ensure it's an empty array on error
         } finally {
              renderActiveRentalsTable(activeRentals);
