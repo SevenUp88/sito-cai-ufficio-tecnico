@@ -31,6 +31,7 @@
     const getDaysDifference = (startDate, endDate) => { if (!startDate || !endDate) return 1; try { const start = new Date(startDate + 'T00:00:00Z'); const end = new Date(endDate + 'T00:00:00Z'); if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1; const startUTC = Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()); const endUTC = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()); if (endUTC < startUTC) return 1; const diffTime = endUTC - startUTC; return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; } catch (e) { console.error("Error calculating date difference:", startDate, endDate, e); return 1; } };
     const getDaysElapsed = (startDateString) => { if (!startDateString) return 0; try { const startDate = new Date(startDateString + 'T00:00:00Z'); if (isNaN(startDate.getTime())) return 0; const today = new Date(); const todayUTCStart = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()); const startUTC = Date.UTC(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate()); const diffTime = todayUTCStart - startUTC; return Math.max(0, Math.floor(diffTime / (1000 * 60 * 60 * 24))); } catch (e) { console.error("Error calculating days elapsed:", startDateString, e); return 0; } };
     const showError = (message) => { console.error("SHOW_ERROR (Noleggi):", message); alert(`[ERRORE - NOLEGGI] ${message}`); };
+    // Login-specific error utilities (showLoginError, clearLoginError) have been removed
 
     // --- Role Check Helper ---
     const isAdmin = () => window.currentUserRole === 'admin';
@@ -50,6 +51,7 @@
         if (modalElement.id === 'rental-modal') {
             resetOngoingRentalState();
         }
+        // Removed conditional block for 'login-modal'
     };
     const resetOngoingRentalState = () => {
         ongoingRentalInfo = null;
@@ -58,7 +60,7 @@
         const opSelect = getElement('rental-operator');
         const whSelect = getElement('rental-warehouse');
         const clientInput = getElement('rental-client-name');
-        const collectedByInput = getElement('rental-collected-by');
+        const collectedByInput = getElement('rental-collected-by'); // <<<--- NEW
         const dateInput = getElement('rental-start-date');
         const title = getElement('rental-modal-title');
         const brandSelect = getElement('rental-brand-selection');
@@ -71,7 +73,7 @@
         if (opSelect) { opSelect.value = ''; opSelect.disabled = false; }
         if (whSelect) { whSelect.value = ''; whSelect.disabled = false; }
         if (clientInput) { clientInput.value = ''; clientInput.disabled = false; }
-        if (collectedByInput) { collectedByInput.value = ''; collectedByInput.disabled = false; }
+        if (collectedByInput) { collectedByInput.value = ''; collectedByInput.disabled = false; } // <<<--- NEW
         if (dateInput) { dateInput.value = new Date().toISOString().split('T')[0]; dateInput.disabled = false; }
         if (title) title.textContent = "Nuovo Noleggio";
         if (brandSelect) brandSelect.value = '';
@@ -105,29 +107,7 @@
     };
     const updateInventoryStats = (inventory = []) => { const totalItemsStat = document.getElementById('total-items'); const availableItemsStat = document.getElementById('available-items'); try { if (totalItemsStat) totalItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.totalQuantity || 0), 0); if (availableItemsStat) availableItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.availableQuantity || 0), 0); } catch (err) { console.error("Error updating inventory stats:", err); } };
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
-    
-    // ** THE FIX IS HERE **
-    const applyInventoryFilters = (inventory) => {
-        const inventorySearchInput = document.getElementById('inventory-search');
-        const filterBrandSelect = document.getElementById('filter-brand');
-        const filterStatusSelect = document.getElementById('filter-status');
-        const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : '';
-        const brandFilter = filterBrandSelect ? filterBrandSelect.value : '';
-        const statusFilter = filterStatusSelect ? filterStatusSelect.value : '';
-
-        return inventory.filter(item => {
-            // SAFE CHECKS: Ensure properties exist before calling methods on them.
-            const itemName = item.name || '';
-            const itemBrand = item.brand || '';
-            
-            const matchesSearch = !searchTerm || itemName.toLowerCase().includes(searchTerm) || itemBrand.toLowerCase().includes(searchTerm);
-            const matchesBrand = !brandFilter || item.brand === brandFilter;
-            const isAvailable = item.availableQuantity > 0;
-            const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable);
-            
-            return matchesSearch && matchesBrand && matchesStatus;
-        });
-    };
+    const applyInventoryFilters = (inventory) => { const inventorySearchInput = document.getElementById('inventory-search'); const filterBrandSelect = document.getElementById('filter-brand'); const filterStatusSelect = document.getElementById('filter-status'); const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : ''; const brandFilter = filterBrandSelect ? filterBrandSelect.value : ''; const statusFilter = filterStatusSelect ? filterStatusSelect.value : ''; return inventory.filter(item => { const matchesSearch = !searchTerm || (item.name && item.name.toLowerCase().includes(searchTerm)) || (item.brand && item.brand.toLowerCase().includes(searchTerm)); const matchesBrand = !brandFilter || item.brand === brandFilter; const isAvailable = item.availableQuantity > 0; const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable); return matchesSearch && matchesBrand && matchesStatus; }); };
 
     const renderInventoryTable = (inventory) => {
         const inventoryTableBody = document.getElementById('inventory-table')?.querySelector('tbody');
@@ -146,6 +126,7 @@
             tr.dataset.itemId = item.id;
             const status = item.availableQuantity > 0 ? '<span class="badge badge-success">Disponibile</span>' : '<span class="badge badge-danger">Esaurito</span>';
             let actionsHtml = `<td class="actions">`;
+            // "Modifica Articolo" disponibile per tutti gli utenti loggati
             actionsHtml += `<button class="btn btn-sm btn-warning btn-edit-item" data-id="${item.id}"><i class="fas fa-edit"></i> Modifica</button> `;
             if (isAdminUser) {
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i> Elimina</button>`;
@@ -164,7 +145,7 @@
         const isAdminUser = isAdmin();
 
         if (rentals.length === 0) {
-            activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>';
+            activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center" style="font-style:italic;">Nessun noleggio attivo.</td></tr>'; // MODIFIED: colspan="8"
             return;
         }
         const fragment = document.createDocumentFragment();
@@ -179,6 +160,7 @@
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-rental" data-id="${rental.id}" title="Annulla Riga Noleggio"><i class="fas fa-times"></i></button>`;
             }
             actionsHtml += '</td>';
+            // MODIFIED: Added notes column
             tr.innerHTML = `<td>${escapeHtml(rental.rentalNumber || 'N/A')}</td><td>${escapeHtml(rental.itemName)} (${rental.quantity})</td><td>${escapeHtml(rental.client)}</td><td>${escapeHtml(rental.warehouse || 'N/D')}</td><td>${formatDate(rental.startDate)}</td><td>${escapeHtml(rental.notes || '')}</td><td><span class="badge badge-warning">Attivo</span></td>${actionsHtml}`;
             fragment.appendChild(tr);
         });
@@ -261,8 +243,8 @@
         console.log("Attempting to load rental data...");
         const activeRentalsTableBody = document.getElementById('active-rentals-table')?.querySelector('tbody');
         let activeRentals = [];
-        await updateBillingStats(); 
-        await updateRentalStats([]); 
+        await updateBillingStats(); // This now also suppresses permission errors
+        await updateRentalStats([]); // Reset stats before loading
 
         if (!db) { console.warn("DB not ready for loadRentalData"); return; }
         try {
@@ -278,7 +260,7 @@
                  console.warn("Permission error suppressed for active rentals load.");
             }
             if (activeRentalsTableBody) activeRentalsTableBody.innerHTML = '<tr><td colspan="8" class="text-center">Errore caricamento noleggi.</td></tr>';
-            activeRentals = []; 
+            activeRentals = []; // Ensure it's an empty array on error
         } finally {
              renderActiveRentalsTable(activeRentals);
              renderOldestRentals(activeRentals);
@@ -302,11 +284,14 @@
         if (!rentalInfo) return; if (rentalNumberOngoingInput) rentalNumberOngoingInput.value = rentalInfo.rentalNumber; if (rentalOperatorSelect) { rentalOperatorSelect.value = rentalInfo.operator; rentalOperatorSelect.disabled = true; } if (rentalWarehouseSelect) { rentalWarehouseSelect.value = rentalInfo.warehouse; rentalWarehouseSelect.disabled = true; } if (rentalClientNameInput) { rentalClientNameInput.value = rentalInfo.client; rentalClientNameInput.disabled = true; } if (rentalCollectedByInput) { rentalCollectedByInput.value = rentalInfo.collectedBy || ''; rentalCollectedByInput.disabled = true; } if (rentalStartDateInput) { rentalStartDateInput.value = rentalInfo.startDate; rentalStartDateInput.disabled = true; } if (rentalBrandSelect) rentalBrandSelect.value = ""; populateItemDropdown(null, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput); if (rentalQuantityInput) rentalQuantityInput.value = 1; if (quantityAvailableInfo) quantityAvailableInfo.style.display = 'none'; if (rentalNotesTextarea) rentalNotesTextarea.value = ""; if (rentalModalTitle) rentalModalTitle.textContent = `Aggiungi Articolo a Noleggio #${rentalInfo.rentalNumber}`; openModal('rental-modal'); rentalBrandSelect?.focus();
     };
 
+
+    // --- Main Application Initialization (Accepts userRole from onAuthStateChanged) ---
     const initializeApp = async (userRole) => {
         if (window.appInitialized) { console.log("initializeApp: Already initialized."); return; }
         console.log(`Noleggi App: Initializing application UI and loading data for role: ${userRole}`);
-        window.appInitialized = true;
+        window.appInitialized = true; // Set flag when initialization starts
 
+        // --- DOM Element References ---
         const getElement = (id) => document.getElementById(id);
         const querySel = (selector) => document.querySelector(selector);
         const newItemBtn = getElement('new-item-btn');
@@ -317,37 +302,51 @@
         const rentalOperatorSelect = getElement('rental-operator');
         const editRentalOperatorSelect = getElement('edit-rental-operator');
 
+        // --- Apply Role-Based UI Visibility ---
         console.log("Noleggi App: Applying role-based UI visibility based on currentUserRole:", window.currentUserRole);
-        const isAdminUser = isAdmin();
+        const isAdminUser = isAdmin(); // Uses window.currentUserRole which should be set
 
+        // Display buttons that create new entries or export data for all authenticated users
         if (newItemBtn) newItemBtn.style.display = 'inline-block';
         if (exportInventoryBtn) exportInventoryBtn.style.display = 'inline-block';
+
+        // Admin-only destructive or bulk-import actions
         if (resetInventoryBtn) resetInventoryBtn.style.display = isAdminUser ? 'inline-block' : 'none';
         if (excelUploadLabel) excelUploadLabel.style.display = isAdminUser ? 'inline-block' : 'none';
         if (resetCompletedBtn) resetCompletedBtn.style.display = isAdminUser ? 'inline-block' : 'none';
 
+        // Actions columns headers are always visible, individual buttons inside are controlled by render functions
+        // if (inventoryActionsHeader) inventoryActionsHeader.style.display = 'table-cell';
+        // if (rentalActionsHeader) rentalActionsHeader.style.display = 'table-cell';
+
+
+        // --- Initial Load ---
         console.log("Noleggi App: Performing initial data load...");
         try {
             if(rentalOperatorSelect) populateOperatorDropdown(rentalOperatorSelect);
             if(editRentalOperatorSelect) populateOperatorDropdown(editRentalOperatorSelect);
-            await loadInventoryData();
+            await loadInventoryData(); // These functions now suppress permission errors for general users
             await loadRentalData();
             setDefaultPrintDate();
             console.log("Noleggi App: Application initialized successfully.");
         } catch (err) {
             console.error("Noleggi App: Error during initial data load:", err);
+            // Avoid showing permission errors here as access control is handled by onAuthStateChanged
             if (!err.message?.includes('permission')) {
                  showError("Errore critico durante il caricamento dati: " + err.message);
             }
         }
-    };
+    }; // End of initializeApp
 
+
+    // --- Setup Event Listeners ONCE on DOM Ready ---
     const setupEventListeners = () => {
         console.log("Noleggi App: Attaching event listeners ONCE...");
 
         const getElement = (id) => document.getElementById(id);
-        const inventoryTableBody = document.querySelector('#inventory-table tbody');
-        const activeRentalsTableBody = document.querySelector('#active-rentals-table tbody');
+        const querySel = (selector) => document.querySelector(selector);
+        const inventoryTableBody = querySel('#inventory-table tbody');
+        const activeRentalsTableBody = querySel('#active-rentals-table tbody');
         const inventorySearchInput = getElement('inventory-search');
         const filterBrandSelect = getElement('filter-brand');
         const filterStatusSelect = getElement('filter-status');
@@ -375,7 +374,7 @@
         const editRentalItemSelection = getElement('edit-rental-item-selection');
         const editRentalQuantityInput = getElement('edit-rental-quantity');
         const editQuantityAvailableInfo = getElement('edit-quantity-available-info');
-        const allModals = document.querySelectorAll('.modal');
+        const allModals = document.querySelectorAll('.modal'); // Select all modals, no exclusion needed
         const exportInventoryBtn = getElement('export-inventory-btn');
         const resetInventoryBtn = getElement('reset-inventory');
         const excelUploadInput = getElement('excel-upload');
@@ -384,9 +383,11 @@
         const printYearInput = getElement('print-year');
         const resetCompletedBtn = getElement('reset-completed-btn');
 
+        // General Modal Closers
         allModals.forEach(modal => { const closeBtn = modal.querySelector('.close-btn'); if (closeBtn) { closeBtn.addEventListener('click', () => closeModal(modal)); } else { console.warn(`Close button not found for modal: #${modal.id}`); }});
         window.addEventListener('click', (event) => { allModals.forEach(modal => { if (event.target == modal) closeModal(modal); }); });
 
+        // --- Inventory Actions ---
         if (excelUploadInput) {
              excelUploadInput.addEventListener('change', async function (e) {
                  if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); excelUploadInput.value = ''; return; }
@@ -401,7 +402,7 @@
                  reader.readAsArrayBuffer(file);
             });
         }
-        if (exportInventoryBtn) {
+        if (exportInventoryBtn) { // Available to all authenticated users
             exportInventoryBtn.addEventListener('click', async function () {
                 try {
                     if (!db) throw new Error("Firestore non inizializzato."); const snapshot = await db.collection("inventory").get(); const inventory = []; snapshot.forEach(doc => inventory.push({ id: doc.id, ...doc.data() })); if (inventory.length === 0) { showError("Inventario vuoto."); return; } const dataToExport = [ ["marca", "articolo", "quantita'", "costo", "Disponibili"] ]; inventory.forEach(item => { dataToExport.push([ item.brand, item.name, item.totalQuantity, item.dailyRate, item.availableQuantity ]); }); const worksheet = XLSX.utils.aoa_to_sheet(dataToExport); worksheet['!cols'] = [ { wch: 20 }, { wch: 35 }, { wch: 12 }, { wch: 12 }, { wch: 12 }]; const priceColRange = XLSX.utils.decode_range(worksheet['!ref']); for (let R = priceColRange.s.r + 1; R <= priceColRange.e.r; ++R) { const cellRef = XLSX.utils.encode_cell({ c: 3, r: R }); if(!worksheet[cellRef]) continue; worksheet[cellRef].t = 'n'; worksheet[cellRef].z = '#,##0.00 €'; } const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario"); const today = new Date().toISOString().slice(0, 10); XLSX.writeFile(workbook, `Inventario_CAI_${today}.xlsx`);
@@ -483,7 +484,7 @@
             rentalForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 try {
-                    const operator = rentalOperatorSelect.value; const warehouse = rentalWarehouseSelect.value; const clientName = rentalClientNameInput.value.trim().toUpperCase(); const collectedBy = rentalCollectedByInput.value.trim().toUpperCase(); const startDate = rentalStartDateInput.value; const brand = rentalBrandSelect.value; const itemId = rentalItemSelect.value; const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0; const notes = rentalNotesTextarea.value.trim().toUpperCase(); if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) { showError('Completa tutti i campi richiesti.'); return; } if (!db) throw new Error("Firestore non inizializzato."); db.collection("inventory").doc(itemId).get().then(async docSnap => { if (!docSnap.exists) { showError('Articolo selezionato non trovato nel database.'); return; } const selectedItem = { id: docSnap.id, ...docSnap.data() }; if (selectedItem.availableQuantity < quantity) { showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`); return; } let currentRentalNumber; let isNewRental = true; if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) { currentRentalNumber = ongoingRentalInfo.rentalNumber; isNewRental = false; } else { currentRentalNumber = getNextRentalNumber(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; } const rentalData = { rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`, client: clientName, collectedBy: collectedBy, quantity: quantity, startDate: startDate, operator: operator, notes: notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse: warehouse }; const itemRef = db.collection("inventory").doc(selectedItem.id); const rentalCollectionRef = db.collection("activeRentals"); try { await db.runTransaction(async (transaction) => { const itemDoc = await transaction.get(itemRef); if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; } const currentAvail = itemDoc.data().availableQuantity; if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; } if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) }); } else { throw "Errore tecnico: Firebase FieldValue non disponibile." } transaction.set(rentalCollectionRef.doc(), rentalData); }); await loadInventoryData(); await loadRentalData(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get(); const currentRentalItems = []; rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() })); printSingleRentalReceipt(currentRentalItems); if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) { prepareModalForAdditionalItem(ongoingRentalInfo); } else { resetOngoingRentalState(); closeModal(rentalModal); } } catch (err) { showError("Errore DB durante creazione noleggio: " + err); resetOngoingRentalState(); } }).catch(err => { showError("Errore recupero dettagli articolo."); resetOngoingRentalState(); });
+                    const operator = rentalOperatorSelect.value; const warehouse = rentalWarehouseSelect.value; const clientName = rentalClientNameInput.value.trim().toUpperCase(); const collectedBy = rentalCollectedByInput.value.trim().toUpperCase(); const startDate = rentalStartDateInput.value; const brand = rentalBrandSelect.value; const itemId = rentalItemSelect.value; const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0; const notes = rentalNotesTextarea.value.trim().toUpperCase(); if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) { showError('Completa tutti i campi richiesti.'); return; } if (!db) throw new Error("Firestore non inizializzato."); db.collection("inventory").doc(itemId).get().then(async docSnap => { if (!docSnap.exists) { showError('Articolo selezionato non trovato nel database.'); return; } const selectedItem = { id: docSnap.id, ...docSnap.data() }; if (selectedItem.availableQuantity < quantity) { showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`); return; } let currentRentalNumber; let isNewRental = true; if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) { currentRentalNumber = ongoingRentalInfo.rentalNumber; isNewRental = false; } else { currentRentalNumber = getNextRentalNumber(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; } const rentalData = { rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`, client: clientName, collectedBy: collectedBy, quantity: quantity, startDate: startDate, operator: operator, notes: notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse: warehouse }; const itemRef = db.collection("inventory").doc(selectedItem.id); const rentalCollectionRef = db.collection("activeRentals"); try { await db.runTransaction(async (transaction) => { const itemDoc = await transaction.get(itemRef); if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; } const currentAvail = itemDoc.data().availableQuantity; if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; } if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) }); } else { throw "Errore tecnico: Firebase FieldValue non disponibile." } transaction.set(rentalCollectionRef.doc(), rentalData); }); await loadInventoryData(); await loadRentalData(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get(); const currentRentalItems = []; rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() })); printSingleRentalReceipt(currentRentalItems); if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) { prepareModalForAdditionalItem(ongoingRentalInfo); } else { resetOngoingRentalState(); closeModal(rentalModal); } } catch (err) { showError("Errore DB durante creazione noleggio: " + (err.message || err)); resetOngoingRentalState(); } }).catch(err => { showError("Errore recupero dettagli articolo."); resetOngoingRentalState(); });
                 } catch (err) { showError("Errore imprevisto nel form."); resetOngoingRentalState(); }
             });
         }
