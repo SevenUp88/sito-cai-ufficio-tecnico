@@ -107,7 +107,29 @@
     };
     const updateInventoryStats = (inventory = []) => { const totalItemsStat = document.getElementById('total-items'); const availableItemsStat = document.getElementById('available-items'); try { if (totalItemsStat) totalItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.totalQuantity || 0), 0); if (availableItemsStat) availableItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.availableQuantity || 0), 0); } catch (err) { console.error("Error updating inventory stats:", err); } };
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
-    const applyInventoryFilters = (inventory) => { const inventorySearchInput = document.getElementById('inventory-search'); const filterBrandSelect = document.getElementById('filter-brand'); const filterStatusSelect = document.getElementById('filter-status'); const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : ''; const brandFilter = filterBrandSelect ? filterBrandSelect.value : ''; const statusFilter = filterStatusSelect ? filterStatusSelect.value : ''; return inventory.filter(item => { const matchesSearch = !searchTerm || (item.name && item.name.toLowerCase().includes(searchTerm)) || (item.brand && item.brand.toLowerCase().includes(searchTerm)); const matchesBrand = !brandFilter || item.brand === brandFilter; const isAvailable = item.availableQuantity > 0; const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable); return matchesSearch && matchesBrand && matchesStatus; }); };
+    const applyInventoryFilters = (inventory) => {
+        const inventorySearchInput = document.getElementById('inventory-search');
+        const filterBrandSelect = document.getElementById('filter-brand');
+        const filterStatusSelect = document.getElementById('filter-status');
+        const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : '';
+        const brandFilter = filterBrandSelect ? filterBrandSelect.value : '';
+        const statusFilter = filterStatusSelect ? filterStatusSelect.value : '';
+
+        return inventory.filter(item => {
+            // ** ROBUSTNESS FIX **
+            // Defensive check for properties before access.
+            const itemName = item.name || '';
+            const itemBrand = item.brand || '';
+
+            const matchesSearch = !searchTerm || itemName.toLowerCase().includes(searchTerm) || itemBrand.toLowerCase().includes(searchTerm);
+            const matchesBrand = !brandFilter || item.brand === brandFilter;
+            const isAvailable = item.availableQuantity > 0;
+            const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable);
+            
+            return matchesSearch && matchesBrand && matchesStatus;
+        });
+    };
+
 
     const renderInventoryTable = (inventory) => {
         const inventoryTableBody = document.getElementById('inventory-table')?.querySelector('tbody');
@@ -132,7 +154,8 @@
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i> Elimina</button>`;
             }
             actionsHtml += `</td>`;
-            tr.innerHTML = `<td><i class="fas fa-tag"></i> ${escapeHtml(item.brand)}</td><td>${escapeHtml(item.name)}</td><td class="text-center">${item.totalQuantity}</td><td class="text-center">${item.availableQuantity}</td><td class="text-right">${formatPrice(item.dailyRate)}</td><td>${status}</td>${actionsHtml}`;
+            // ** ROBUSTNESS FIX ** Using `|| ''` to prevent 'undefined' text from ever appearing
+            tr.innerHTML = `<td><i class="fas fa-tag"></i> ${escapeHtml(item.brand || '')}</td><td>${escapeHtml(item.name || '')}</td><td class="text-center">${item.totalQuantity || 0}</td><td class="text-center">${item.availableQuantity || 0}</td><td class="text-right">${formatPrice(item.dailyRate)}</td><td>${status}</td>${actionsHtml}`;
             fragment.appendChild(tr);
         });
         inventoryTableBody.appendChild(fragment);
@@ -185,7 +208,7 @@
         } catch (error) { console.error("Error getting items by brand from Firestore: ", error); showError("Errore nel caricare gli articoli per la marca selezionata."); itemSelectElement.innerHTML = `<option value="" disabled>Errore caricamento articoli</option>`; }
     };
     const updateBrandFilters = (inventory, brandSelectElement, itemSelectElement = null, availableInfoElement = null, quantityInputElement = null, currentItemId = null, currentItemQuantity = 0) => {
-        const brands = [...new Set(inventory.map(item => item.brand))].sort();
+        const brands = [...new Set(inventory.map(item => item.brand).filter(Boolean))].sort(); // filter(Boolean) removes null/undefined values
         if (brandSelectElement) {
             const currentValue = brandSelectElement.value;
             brandSelectElement.innerHTML = '<option value="">Tutte le marche</option>';
@@ -315,10 +338,6 @@
         if (excelUploadLabel) excelUploadLabel.style.display = isAdminUser ? 'inline-block' : 'none';
         if (resetCompletedBtn) resetCompletedBtn.style.display = isAdminUser ? 'inline-block' : 'none';
 
-        // Actions columns headers are always visible, individual buttons inside are controlled by render functions
-        // if (inventoryActionsHeader) inventoryActionsHeader.style.display = 'table-cell';
-        // if (rentalActionsHeader) rentalActionsHeader.style.display = 'table-cell';
-
 
         // --- Initial Load ---
         console.log("Noleggi App: Performing initial data load...");
@@ -370,6 +389,7 @@
         const rentalNotesTextarea = getElement('rental-notes');
         const editRentalModal = getElement('edit-rental-modal');
         const editRentalForm = getElement('edit-rental-form');
+        // const editRentalOperatorSelect = getElement('edit-rental-operator'); // Already referenced in initializeApp
         const editRentalBrandSelection = getElement('edit-rental-brand-selection');
         const editRentalItemSelection = getElement('edit-rental-item-selection');
         const editRentalQuantityInput = getElement('edit-rental-quantity');
@@ -420,50 +440,58 @@
         if(inventorySearchInput) inventorySearchInput.addEventListener('input', () => { loadInventoryData(); });
         if(filterBrandSelect) filterBrandSelect.addEventListener('input', () => { loadInventoryData(); });
         if(filterStatusSelect) filterStatusSelect.addEventListener('input', () => { loadInventoryData(); });
-        if (newItemBtn) {
-            newItemBtn.addEventListener('click', () => { if (newItemForm) newItemForm.reset(); openModal('new-item-modal'); getElement('new-item-brand')?.focus(); });
+
+        if (newItemBtn) { // Available to all authenticated users
+            newItemBtn.addEventListener('click', () => {
+                if (newItemForm) newItemForm.reset(); openModal('new-item-modal'); getElement('new-item-brand')?.focus();
+            });
         }
         if (newItemForm) {
             newItemForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 try {
-                    const brand = getElement('new-item-brand')?.value.trim(); const name = getElement('new-item-name')?.value.trim(); const quantityInput = getElement('new-item-quantity'); const rateInput = getElement('new-item-daily-rate'); const quantity = quantityInput ? parseInt(quantityInput.value) : null; const dailyRate = rateInput ? parseFloat(rateInput.value) : null; if (!brand || !name || quantity === null || isNaN(quantity) || quantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) { showError('Compila correttamente tutti i campi.'); return; } const newItemData = { brand: brand, name: name, totalQuantity: quantity, availableQuantity: quantity, dailyRate: dailyRate }; if (!db) throw new Error("Firestore non inizializzato."); await db.collection("inventory").add(newItemData); loadInventoryData(); closeModal(newItemModal); newItemForm.reset();
-                } catch (err) { showError("Errore durante l'aggiunta del nuovo articolo al database."); }
+                    const brand = getElement('new-item-brand')?.value.trim(); const name = getElement('new-item-name')?.value.trim(); const quantityInput = getElement('new-item-quantity'); const rateInput = getElement('new-item-daily-rate'); const quantity = quantityInput ? parseInt(quantityInput.value) : null; const dailyRate = rateInput ? parseFloat(rateInput.value) : null; if (!brand || !name || quantity === null || isNaN(quantity) || quantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) { showError('Compila correttamente tutti i campi.'); return; } const newItemData = { brand: brand, name: name, totalQuantity: quantity, availableQuantity: quantity, dailyRate: dailyRate }; if (!db) throw new Error("Firestore non inizializzato."); await db.collection("inventory").add(newItemData); console.log("New item added to Firestore"); loadInventoryData(); closeModal(newItemModal); newItemForm.reset();
+                } catch (err) { console.error("Error adding new item to Firestore:", err); showError("Errore durante l'aggiunta del nuovo articolo al database."); }
             });
         }
         if (inventoryTableBody) {
             inventoryTableBody.addEventListener('click', async (e) => {
                 const editButton = e.target.closest('.btn-edit-item');
                 const deleteButton = e.target.closest('.btn-delete-item');
-                if (editButton) {
+
+                if (editButton) { // Available to all authenticated users
                     const itemId = editButton.dataset.id;
+                    console.log(`Edit item button clicked for: ${itemId}`);
                     try {
                         if (!db) { showError("Firestore non inizializzato."); return; }
                         const docRef = db.collection("inventory").doc(itemId); const docSnap = await docRef.get();
                         if (docSnap.exists) {
                             const itemToEdit = { id: docSnap.id, ...docSnap.data() };
                             if (editItemModal && editItemForm) { getElement('edit-item-id').value = itemToEdit.id; getElement('edit-item-brand').value = itemToEdit.brand; getElement('edit-item-name').value = itemToEdit.name; getElement('edit-item-total-quantity').value = itemToEdit.totalQuantity; getElement('edit-item-available-quantity').value = itemToEdit.availableQuantity; getElement('edit-item-daily-rate').value = itemToEdit.dailyRate; openModal('edit-item-modal'); }
+                            else { showError("Errore apertura modal modifica."); }
                         } else { showError("Articolo non trovato."); loadInventoryData(); }
-                    } catch (err) { showError("Errore recupero dati articolo."); }
+                    } catch (err) { console.error("Error fetching item for edit:", err); showError("Errore recupero dati articolo."); }
                 } else if (deleteButton) {
                     if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); return; }
                     const itemId = deleteButton.dataset.id;
+                    console.log(`Attempting delete for item: ${itemId}`);
                     try {
                          if (!db) throw new Error("Firestore non inizializzato.");
-                         const itemRef = db.collection("inventory").doc(itemId); const docSnap = await itemRef.get(); if (!docSnap.exists) { showError("Articolo già eliminato."); loadInventoryData(); return; } const itemToDeleteData = docSnap.data(); let isRented = false; try { const activeRentalSnap = await db.collection("activeRentals").where("itemId", "==", itemId).limit(1).get(); isRented = !activeRentalSnap.empty; } catch(rentCheckErr) { showError("Errore verifica se articolo è noleggiato. Riprova."); return; } if (isRented) { showError(`Impossibile eliminare "${itemToDeleteData.brand} ${itemToDeleteData.name}": articolo attualmente noleggiato.`); return; } if (confirm(`Eliminare "${itemToDeleteData.brand} ${itemToDeleteData.name}"?`)) { await itemRef.delete(); loadInventoryData(); }
-                    } catch (err) { showError("Errore eliminazione articolo."); }
+                         const itemRef = db.collection("inventory").doc(itemId); const docSnap = await itemRef.get(); if (!docSnap.exists) { showError("Articolo già eliminato."); loadInventoryData(); return; } const itemToDeleteData = docSnap.data(); let isRented = false; try { const activeRentalSnap = await db.collection("activeRentals").where("itemId", "==", itemId).limit(1).get(); isRented = !activeRentalSnap.empty; } catch(rentCheckErr) { console.error("Error checking if item is rented:", rentCheckErr); showError("Errore verifica se articolo è noleggiato. Riprova."); return; } if (isRented) { showError(`Impossibile eliminare "${itemToDeleteData.brand} ${itemToDeleteData.name}": articolo attualmente noleggiato.`); return; } if (confirm(`Eliminare "${itemToDeleteData.brand} ${itemToDeleteData.name}"?`)) { await itemRef.delete(); console.log("Item deleted from Firestore:", itemId); loadInventoryData(); }
+                    } catch (err) { console.error("Error deleting item:", err); showError("Errore eliminazione articolo."); }
                 }
             });
         }
-        if (editItemForm) {
+        if (editItemForm) { // Form for editing item (available to all authenticated)
             editItemForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 try {
-                    const id = getElement('edit-item-id')?.value; const brand = getElement('edit-item-brand')?.value.trim(); const name = getElement('edit-item-name')?.value.trim(); const totalQuantityInput = getElement('edit-item-total-quantity'); const availableQuantityInput = getElement('edit-item-available-quantity'); const dailyRateInput = getElement('edit-item-daily-rate'); const totalQuantity = totalQuantityInput ? parseInt(totalQuantityInput.value) : null; const availableQuantity = availableQuantityInput ? parseInt(availableQuantityInput.value) : null; const dailyRate = dailyRateInput ? parseFloat(dailyRateInput.value) : null; if (!id || !brand || !name || totalQuantity === null || isNaN(totalQuantity) || totalQuantity < 0 || availableQuantity === null || isNaN(availableQuantity) || availableQuantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) { showError('Compila correttamente tutti i campi.'); return; } if (availableQuantity > totalQuantity) { showError('Disponibile non può superare Totale.'); return; } if (!db) throw new Error("Firestore non inizializzato."); const itemRef = db.collection("inventory").doc(id); const docSnap = await itemRef.get(); if (!docSnap.exists) { showError("Errore: Articolo originale non trovato nel DB."); return; } const originalItemData = docSnap.data(); const rentedQuantity = (originalItemData.totalQuantity || 0) - (originalItemData.availableQuantity || 0); if (totalQuantity < rentedQuantity) { showError(`Nuova Q.tà Totale (${totalQuantity}) < Q.tà Noleggiata (${rentedQuantity}). Non consentito.`); return; } const minAvailable = totalQuantity - rentedQuantity; if (availableQuantity < minAvailable) { showError(`Nuova Q.tà Disponibile (${availableQuantity}) deve essere almeno ${minAvailable} (Totale - Noleggiati). Non consentito.`); return; } const updatedItemData = { brand: brand, name: name, totalQuantity: totalQuantity, availableQuantity: availableQuantity, dailyRate: dailyRate }; await itemRef.update(updatedItemData); loadInventoryData(); closeModal(editItemModal);
-                } catch (err) { showError("Errore salvataggio modifiche articolo."); }
+                    const id = getElement('edit-item-id')?.value; const brand = getElement('edit-item-brand')?.value.trim(); const name = getElement('edit-item-name')?.value.trim(); const totalQuantityInput = getElement('edit-item-total-quantity'); const availableQuantityInput = getElement('edit-item-available-quantity'); const dailyRateInput = getElement('edit-item-daily-rate'); const totalQuantity = totalQuantityInput ? parseInt(totalQuantityInput.value) : null; const availableQuantity = availableQuantityInput ? parseInt(availableQuantityInput.value) : null; const dailyRate = dailyRateInput ? parseFloat(dailyRateInput.value) : null; if (!id || !brand || !name || totalQuantity === null || isNaN(totalQuantity) || totalQuantity < 0 || availableQuantity === null || isNaN(availableQuantity) || availableQuantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) { showError('Compila correttamente tutti i campi.'); return; } if (availableQuantity > totalQuantity) { showError('Disponibile non può superare Totale.'); return; } if (!db) throw new Error("Firestore non inizializzato."); const itemRef = db.collection("inventory").doc(id); const docSnap = await itemRef.get(); if (!docSnap.exists) { showError("Errore: Articolo originale non trovato nel DB."); return; } const originalItemData = docSnap.data(); const rentedQuantity = (originalItemData.totalQuantity || 0) - (originalItemData.availableQuantity || 0); if (totalQuantity < rentedQuantity) { showError(`Nuova Q.tà Totale (${totalQuantity}) < Q.tà Noleggiata (${rentedQuantity}). Non consentito.`); return; } const minAvailable = totalQuantity - rentedQuantity; if (availableQuantity < minAvailable) { showError(`Nuova Q.tà Disponibile (${availableQuantity}) deve essere almeno ${minAvailable} (Totale - Noleggiati). Non consentito.`); return; } const updatedItemData = { brand: brand, name: name, totalQuantity: totalQuantity, availableQuantity: availableQuantity, dailyRate: dailyRate }; await itemRef.update(updatedItemData); console.log("Item updated in Firestore:", id); loadInventoryData(); closeModal(editItemModal);
+                } catch (err) { console.error("Error saving item edits:", err); showError("Errore salvataggio modifiche articolo."); }
             });
         }
 
+        // --- Rental Actions (available to all authenticated users) ---
         if (newRentalBtn) {
             newRentalBtn.addEventListener('click', () => {
                 resetOngoingRentalState();
@@ -484,10 +512,11 @@
             rentalForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 try {
-                    const operator = rentalOperatorSelect.value; const warehouse = rentalWarehouseSelect.value; const clientName = rentalClientNameInput.value.trim().toUpperCase(); const collectedBy = rentalCollectedByInput.value.trim().toUpperCase(); const startDate = rentalStartDateInput.value; const brand = rentalBrandSelect.value; const itemId = rentalItemSelect.value; const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0; const notes = rentalNotesTextarea.value.trim().toUpperCase(); if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) { showError('Completa tutti i campi richiesti.'); return; } if (!db) throw new Error("Firestore non inizializzato."); db.collection("inventory").doc(itemId).get().then(async docSnap => { if (!docSnap.exists) { showError('Articolo selezionato non trovato nel database.'); return; } const selectedItem = { id: docSnap.id, ...docSnap.data() }; if (selectedItem.availableQuantity < quantity) { showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`); return; } let currentRentalNumber; let isNewRental = true; if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) { currentRentalNumber = ongoingRentalInfo.rentalNumber; isNewRental = false; } else { currentRentalNumber = getNextRentalNumber(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; } const rentalData = { rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`, client: clientName, collectedBy: collectedBy, quantity: quantity, startDate: startDate, operator: operator, notes: notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse: warehouse }; const itemRef = db.collection("inventory").doc(selectedItem.id); const rentalCollectionRef = db.collection("activeRentals"); try { await db.runTransaction(async (transaction) => { const itemDoc = await transaction.get(itemRef); if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; } const currentAvail = itemDoc.data().availableQuantity; if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; } if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) }); } else { throw "Errore tecnico: Firebase FieldValue non disponibile." } transaction.set(rentalCollectionRef.doc(), rentalData); }); await loadInventoryData(); await loadRentalData(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get(); const currentRentalItems = []; rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() })); printSingleRentalReceipt(currentRentalItems); if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) { prepareModalForAdditionalItem(ongoingRentalInfo); } else { resetOngoingRentalState(); closeModal(rentalModal); } } catch (err) { showError("Errore DB durante creazione noleggio: " + (err.message || err)); resetOngoingRentalState(); } }).catch(err => { showError("Errore recupero dettagli articolo."); resetOngoingRentalState(); });
-                } catch (err) { showError("Errore imprevisto nel form."); resetOngoingRentalState(); }
+                    const operator = rentalOperatorSelect.value; const warehouse = rentalWarehouseSelect.value; const clientName = rentalClientNameInput.value.trim().toUpperCase(); const collectedBy = rentalCollectedByInput.value.trim().toUpperCase(); const startDate = rentalStartDateInput.value; const brand = rentalBrandSelect.value; const itemId = rentalItemSelect.value; const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0; const notes = rentalNotesTextarea.value.trim().toUpperCase(); if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) { showError('Completa tutti i campi richiesti.'); return; } if (!db) throw new Error("Firestore non inizializzato."); db.collection("inventory").doc(itemId).get().then(async docSnap => { if (!docSnap.exists) { showError('Articolo selezionato non trovato nel database.'); return; } const selectedItem = { id: docSnap.id, ...docSnap.data() }; if (selectedItem.availableQuantity < quantity) { showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`); return; } let currentRentalNumber; let isNewRental = true; if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) { currentRentalNumber = ongoingRentalInfo.rentalNumber; isNewRental = false; } else { currentRentalNumber = getNextRentalNumber(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; } const rentalData = { rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`, client: clientName, collectedBy: collectedBy, quantity: quantity, startDate: startDate, operator: operator, notes: notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse: warehouse }; const itemRef = db.collection("inventory").doc(selectedItem.id); const rentalCollectionRef = db.collection("activeRentals"); try { console.log("5. Starting Firestore transaction..."); await db.runTransaction(async (transaction) => { console.log("   -> Inside transaction"); const itemDoc = await transaction.get(itemRef); if (!itemDoc.exists) { throw "Articolo non trovato durante la transazione."; } console.log("   -> Item refetched in transaction"); const currentAvail = itemDoc.data().availableQuantity; if (currentAvail < quantity) { throw `Disponibilità cambiata per ${itemDoc.data().name}. Disp: ${currentAvail}`; } console.log("   -> Updating inventory in transaction..."); if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) { transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) }); } else { throw "Errore tecnico: Firebase FieldValue non disponibile." } console.log("   -> Setting new rental in transaction..."); transaction.set(rentalCollectionRef.doc(), rentalData); console.log("   -> transaction.set called for activeRentals"); }); console.log("6. Transaction successful."); await loadInventoryData(); await loadRentalData(); ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; console.log("7. Fetching rentals for receipt (from Firestore)..."); const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get(); const currentRentalItems = []; rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() })); console.log("   -> Found items for receipt:", currentRentalItems.length); printSingleRentalReceipt(currentRentalItems); if (confirm(`Noleggio #${currentRentalNumber} per ${clientName}\nArticolo "${rentalData.itemName}" aggiunto.\n\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) { prepareModalForAdditionalItem(ongoingRentalInfo); } else { resetOngoingRentalState(); closeModal(rentalModal); } } catch (err) { console.error("Transaction/Operation failed: ", err); showError("Errore DB durante creazione noleggio: " + (err.message || err)); resetOngoingRentalState(); } }).catch(err => { console.error("Error getting item details (initial get):", err); showError("Errore recupero dettagli articolo."); resetOngoingRentalState(); });
+                } catch (err) { console.error("Error in rentalForm submit setup:", err); showError("Errore imprevisto nel form."); resetOngoingRentalState(); }
             });
         }
+
         if (activeRentalsTableBody) {
             activeRentalsTableBody.addEventListener('click', async (e) => {
                 if (!db) { showError("Firestore non inizializzato."); return; }
