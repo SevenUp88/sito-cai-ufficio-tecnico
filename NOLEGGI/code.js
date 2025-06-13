@@ -105,7 +105,29 @@
     };
     const updateInventoryStats = (inventory = []) => { const totalItemsStat = document.getElementById('total-items'); const availableItemsStat = document.getElementById('available-items'); try { if (totalItemsStat) totalItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.totalQuantity || 0), 0); if (availableItemsStat) availableItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.availableQuantity || 0), 0); } catch (err) { console.error("Error updating inventory stats:", err); } };
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
-    const applyInventoryFilters = (inventory) => { const inventorySearchInput = document.getElementById('inventory-search'); const filterBrandSelect = document.getElementById('filter-brand'); const filterStatusSelect = document.getElementById('filter-status'); const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : ''; const brandFilter = filterBrandSelect ? filterBrandSelect.value : ''; const statusFilter = filterStatusSelect ? filterStatusSelect.value : ''; return inventory.filter(item => { const matchesSearch = !searchTerm || item.name.toLowerCase().includes(searchTerm) || item.brand.toLowerCase().includes(searchTerm); const matchesBrand = !brandFilter || item.brand === brandFilter; const isAvailable = item.availableQuantity > 0; const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable); return matchesSearch && matchesBrand && matchesStatus; }); };
+    
+    // ** THE FIX IS HERE **
+    const applyInventoryFilters = (inventory) => {
+        const inventorySearchInput = document.getElementById('inventory-search');
+        const filterBrandSelect = document.getElementById('filter-brand');
+        const filterStatusSelect = document.getElementById('filter-status');
+        const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : '';
+        const brandFilter = filterBrandSelect ? filterBrandSelect.value : '';
+        const statusFilter = filterStatusSelect ? filterStatusSelect.value : '';
+
+        return inventory.filter(item => {
+            // SAFE CHECKS: Ensure properties exist before calling methods on them.
+            const itemName = item.name || '';
+            const itemBrand = item.brand || '';
+            
+            const matchesSearch = !searchTerm || itemName.toLowerCase().includes(searchTerm) || itemBrand.toLowerCase().includes(searchTerm);
+            const matchesBrand = !brandFilter || item.brand === brandFilter;
+            const isAvailable = item.availableQuantity > 0;
+            const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable);
+            
+            return matchesSearch && matchesBrand && matchesStatus;
+        });
+    };
 
     const renderInventoryTable = (inventory) => {
         const inventoryTableBody = document.getElementById('inventory-table')?.querySelector('tbody');
@@ -324,9 +346,8 @@
         console.log("Noleggi App: Attaching event listeners ONCE...");
 
         const getElement = (id) => document.getElementById(id);
-        const querySel = (selector) => document.querySelector(selector);
-        const inventoryTableBody = querySel('#inventory-table tbody');
-        const activeRentalsTableBody = querySel('#active-rentals-table tbody');
+        const inventoryTableBody = document.querySelector('#inventory-table tbody');
+        const activeRentalsTableBody = document.querySelector('#active-rentals-table tbody');
         const inventorySearchInput = getElement('inventory-search');
         const filterBrandSelect = getElement('filter-brand');
         const filterStatusSelect = getElement('filter-status');
@@ -504,8 +525,8 @@
             editRentalForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 try {
-                    const rentalDocId = getElement('edit-rental-id').value; const originalItemId = getElement('edit-rental-original-item-id').value; const originalQuantity = parseInt(getElement('edit-rental-original-quantity').value) || 0; const newClientName = getElement('edit-rental-client-name').value.trim().toUpperCase(); const newCollectedBy = getElement('edit-rental-collected-by').value.trim().toUpperCase(); const newOperator = getElement('edit-rental-operator').value; const newItemId = getElement('edit-rental-item-selection').value; const newQuantity = getElement('edit-rental-quantity') ? parseInt(getElement('edit-rental-quantity').value) : 0; const newNotes = getElement('edit-rental-notes').value.trim().toUpperCase(); if (!rentalDocId || !newClientName || !newOperator || !newItemId || isNaN(newQuantity) || newQuantity < 1) { showError("Cliente, Operatore, Articolo e Quantità obbligatori."); return; } if (!db) throw new Error("Firestore non inizializzato."); const rentalRef = db.collection("activeRentals").doc(rentalDocId); const newItemRef = db.collection("inventory").doc(newItemId); const originalItemRef = db.collection("inventory").doc(originalItemId); await db.runTransaction(async (transaction) => { const rentalDoc = await transaction.get(rentalRef); if (!rentalDoc.exists) throw "Noleggio originale non trovato."; const newItemDoc = await transaction.get(newItemRef); if (!newItemDoc.exists) throw "Nuovo articolo non trovato."; const newItemData = newItemDoc.data(); let originalItemDoc; if (originalItemId === newItemId) { const maxAllowed = newItemData.availableQuantity + originalQuantity; if(newQuantity > maxAllowed) { throw `Quantità non disponibile. Max: ${maxAllowed}.`; } transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity - newQuantity) }); } else { originalItemDoc = await transaction.get(originalItemRef); if(!originalItemDoc.exists) throw "Articolo inventario originale non trovato."; if(newQuantity > newItemData.availableQuantity) { throw `Quantità non disponibile per nuovo articolo. Max: ${newItemData.availableQuantity}.`; } transaction.update(originalItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity) }); transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-newQuantity) }); } if (typeof firebase === 'undefined' || !firebase.firestore || !firebase.firestore.FieldValue) { throw "Errore tecnico: Firebase FieldValue non disponibile." } transaction.update(rentalRef, { itemId: newItemId, itemName: `${newItemData.brand} ${newItemData.name}`, quantity: newQuantity, dailyRate: newItemData.dailyRate, client: newClientName, collectedBy: newCollectedBy, operator: newOperator, notes: newNotes }); }); loadInventoryData(); loadRentalData(); closeModal(editRentalModal); alert("Modifiche noleggio salvate.");
-                } catch(err) { showError("Errore salvataggio modifiche noleggio: " + err); }
+                    const rentalDocId = getElement('edit-rental-id').value; const originalItemId = getElement('edit-rental-original-item-id').value; const originalQuantity = parseInt(getElement('edit-rental-original-quantity').value) || 0; const newClientName = getElement('edit-rental-client-name').value.trim().toUpperCase(); const newCollectedBy = getElement('edit-rental-collected-by').value.trim().toUpperCase(); const newOperator = getElement('edit-rental-operator').value; const newItemId = getElement('edit-rental-item-selection').value; const newQuantity = getElement('edit-rental-quantity') ? parseInt(getElement('edit-rental-quantity').value) : 0; const newNotes = getElement('edit-rental-notes').value.trim().toUpperCase(); if (!rentalDocId || !newClientName || !newOperator || !newItemId || isNaN(newQuantity) || newQuantity < 1) { showError("Cliente, Operatore, Articolo e Quantità obbligatori."); return; } if (!db) throw new Error("Firestore non inizializzato."); const rentalRef = db.collection("activeRentals").doc(rentalDocId); const newItemRef = db.collection("inventory").doc(newItemId); const originalItemRef = db.collection("inventory").doc(originalItemId); await db.runTransaction(async (transaction) => { const rentalDoc = await transaction.get(rentalRef); if (!rentalDoc.exists) throw "Noleggio originale non trovato."; const newItemDoc = await transaction.get(newItemRef); if (!newItemDoc.exists) throw "Nuovo articolo non trovato."; const newItemData = newItemDoc.data(); if (originalItemId === newItemId) { const maxAllowed = (newItemData.availableQuantity || 0) + originalQuantity; if(newQuantity > maxAllowed) { throw `Quantità non disponibile. Max: ${maxAllowed}.`; } transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity - newQuantity) }); } else { const originalItemDoc = await transaction.get(originalItemRef); if(!originalItemDoc.exists) throw "Articolo inventario originale non trovato."; if(newQuantity > (newItemData.availableQuantity || 0)) { throw `Quantità non disponibile per nuovo articolo. Max: ${newItemData.availableQuantity || 0}.`; } transaction.update(originalItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(originalQuantity) }); transaction.update(newItemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-newQuantity) }); } transaction.update(rentalRef, { itemId: newItemId, itemName: `${newItemData.brand} ${newItemData.name}`, quantity: newQuantity, dailyRate: newItemData.dailyRate, client: newClientName, collectedBy: newCollectedBy, operator: newOperator, notes: newNotes }); }); loadInventoryData(); loadRentalData(); closeModal(editRentalModal); alert("Modifiche noleggio salvate.");
+                } catch(err) { showError("Errore salvataggio modifiche noleggio: " + (err.message || err)); }
             });
         }
         if (printRentalsBtn) {
