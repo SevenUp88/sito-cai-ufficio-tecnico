@@ -107,28 +107,10 @@
     const updateInventoryStats = (inventory = []) => { const totalItemsStat = document.getElementById('total-items'); const availableItemsStat = document.getElementById('available-items'); try { if (totalItemsStat) totalItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.totalQuantity || 0), 0); if (availableItemsStat) availableItemsStat.textContent = inventory.reduce((sum, item) => sum + (item.availableQuantity || 0), 0); } catch (err) { console.error("Error updating inventory stats:", err); } };
     const updateRentalStats = (activeRentals = []) => { const totalRentalsStat = document.getElementById('total-rentals'); const itemsRentedStat = document.getElementById('items-rented'); try { if (totalRentalsStat) totalRentalsStat.textContent = activeRentals.length; if (itemsRentedStat) itemsRentedStat.textContent = activeRentals.reduce((sum, rental) => sum + (rental.quantity || 0), 0); } catch (err) { console.error("Error updating rental stats:", err); } };
     
-    // <<< MODIFIED: Robust inventory filtering
-    const applyInventoryFilters = (inventory) => {
-        const inventorySearchInput = document.getElementById('inventory-search');
-        const filterBrandSelect = document.getElementById('filter-brand');
-        const filterStatusSelect = document.getElementById('filter-status');
-        const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : '';
-        const brandFilter = filterBrandSelect ? filterBrandSelect.value : '';
-        const statusFilter = filterStatusSelect ? filterStatusSelect.value : '';
-
-        return inventory.filter(item => {
-            const itemName = item.name || '';
-            const itemBrand = item.brand || '';
-            
-            const matchesSearch = !searchTerm || itemName.toLowerCase().includes(searchTerm) || itemBrand.toLowerCase().includes(searchTerm);
-            const matchesBrand = !brandFilter || item.brand === brandFilter;
-            const isAvailable = item.availableQuantity > 0;
-            const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable);
-            
-            return matchesSearch && matchesBrand && matchesStatus;
-        });
-    };
-
+    // ** RESTORED ORIGINAL WORKING VERSION **
+    const applyInventoryFilters = (inventory) => { const inventorySearchInput = document.getElementById('inventory-search'); const filterBrandSelect = document.getElementById('filter-brand'); const filterStatusSelect = document.getElementById('filter-status'); const searchTerm = inventorySearchInput ? inventorySearchInput.value.toLowerCase() : ''; const brandFilter = filterBrandSelect ? filterBrandSelect.value : ''; const statusFilter = filterStatusSelect ? filterStatusSelect.value : ''; return inventory.filter(item => { const matchesSearch = !searchTerm || item.name.toLowerCase().includes(searchTerm) || item.brand.toLowerCase().includes(searchTerm); const matchesBrand = !brandFilter || item.brand === brandFilter; const isAvailable = item.availableQuantity > 0; const matchesStatus = !statusFilter || (statusFilter === 'available' && isAvailable) || (statusFilter === 'rented' && !isAvailable); return matchesSearch && matchesBrand && matchesStatus; }); };
+    
+    // ** RESTORED ORIGINAL WORKING VERSION **
     const renderInventoryTable = (inventory) => {
         const inventoryTableBody = document.getElementById('inventory-table')?.querySelector('tbody');
         if (!inventoryTableBody) { console.error("Inventory table body not found"); return; }
@@ -151,7 +133,7 @@
                 actionsHtml += `<button class="btn btn-sm btn-danger btn-delete-item" data-id="${item.id}"><i class="fas fa-trash"></i> Elimina</button>`;
             }
             actionsHtml += `</td>`;
-            tr.innerHTML = `<td><i class="fas fa-tag"></i> ${escapeHtml(item.brand || '')}</td><td>${escapeHtml(item.name || '')}</td><td class="text-center">${item.totalQuantity || 0}</td><td class="text-center">${item.availableQuantity || 0}</td><td class="text-right">${formatPrice(item.dailyRate)}</td><td>${status}</td>${actionsHtml}`;
+            tr.innerHTML = `<td><i class="fas fa-tag"></i> ${escapeHtml(item.brand)}</td><td>${escapeHtml(item.name)}</td><td class="text-center">${item.totalQuantity}</td><td class="text-center">${item.availableQuantity}</td><td class="text-right">${formatPrice(item.dailyRate)}</td><td>${status}</td>${actionsHtml}`;
             fragment.appendChild(tr);
         });
         inventoryTableBody.appendChild(fragment);
@@ -302,11 +284,14 @@
         if (!rentalInfo) return; if (rentalNumberOngoingInput) rentalNumberOngoingInput.value = rentalInfo.rentalNumber; if (rentalOperatorSelect) { rentalOperatorSelect.value = rentalInfo.operator; rentalOperatorSelect.disabled = true; } if (rentalWarehouseSelect) { rentalWarehouseSelect.value = rentalInfo.warehouse; rentalWarehouseSelect.disabled = true; } if (rentalClientNameInput) { rentalClientNameInput.value = rentalInfo.client; rentalClientNameInput.disabled = true; } if (rentalCollectedByInput) { rentalCollectedByInput.value = rentalInfo.collectedBy || ''; rentalCollectedByInput.disabled = true; } if (rentalStartDateInput) { rentalStartDateInput.value = rentalInfo.startDate; rentalStartDateInput.disabled = true; } if (rentalBrandSelect) rentalBrandSelect.value = ""; populateItemDropdown(null, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput); if (rentalQuantityInput) rentalQuantityInput.value = 1; if (quantityAvailableInfo) quantityAvailableInfo.style.display = 'none'; if (rentalNotesTextarea) rentalNotesTextarea.value = ""; if (rentalModalTitle) rentalModalTitle.textContent = `Aggiungi Articolo a Noleggio #${rentalInfo.rentalNumber}`; openModal('rental-modal'); rentalBrandSelect?.focus();
     };
 
+
+    // --- Main Application Initialization (Accepts userRole from onAuthStateChanged) ---
     const initializeApp = async (userRole) => {
         if (window.appInitialized) { console.log("initializeApp: Already initialized."); return; }
         console.log(`Noleggi App: Initializing application UI and loading data for role: ${userRole}`);
-        window.appInitialized = true;
+        window.appInitialized = true; // Set flag when initialization starts
 
+        // --- DOM Element References ---
         const getElement = (id) => document.getElementById(id);
         const querySel = (selector) => document.querySelector(selector);
         const newItemBtn = getElement('new-item-btn');
@@ -317,11 +302,15 @@
         const rentalOperatorSelect = getElement('rental-operator');
         const editRentalOperatorSelect = getElement('edit-rental-operator');
 
+        // --- Apply Role-Based UI Visibility ---
         console.log("Noleggi App: Applying role-based UI visibility based on currentUserRole:", window.currentUserRole);
-        const isAdminUser = isAdmin();
+        const isAdminUser = isAdmin(); // Uses window.currentUserRole which should be set
 
+        // Display buttons that create new entries or export data for all authenticated users
         if (newItemBtn) newItemBtn.style.display = 'inline-block';
         if (exportInventoryBtn) exportInventoryBtn.style.display = 'inline-block';
+
+        // Admin-only destructive or bulk-import actions
         if (resetInventoryBtn) resetInventoryBtn.style.display = isAdminUser ? 'inline-block' : 'none';
         if (excelUploadLabel) excelUploadLabel.style.display = isAdminUser ? 'inline-block' : 'none';
         if (resetCompletedBtn) resetCompletedBtn.style.display = isAdminUser ? 'inline-block' : 'none';
@@ -385,6 +374,7 @@
         const printYearInput = getElement('print-year');
         const resetCompletedBtn = getElement('reset-completed-btn');
 
+        // General Modal Closers
         allModals.forEach(modal => { const closeBtn = modal.querySelector('.close-btn'); if (closeBtn) { closeBtn.addEventListener('click', () => closeModal(modal)); } else { console.warn(`Close button not found for modal: #${modal.id}`); }});
         window.addEventListener('click', (event) => { allModals.forEach(modal => { if (event.target == modal) closeModal(modal); }); });
 
@@ -487,7 +477,7 @@
                     const operator = rentalOperatorSelect.value;
                     const warehouse = rentalWarehouseSelect.value;
                     const clientName = rentalClientNameInput.value.trim().toUpperCase();
-                    const collectedBy = getElement('rental-collected-by').value.trim().toUpperCase(); // <<<--- MODIFIED
+                    const collectedBy = getElement('rental-collected-by').value.trim().toUpperCase(); // <<< MODIFIED
                     const startDate = rentalStartDateInput.value;
                     const brand = rentalBrandSelect.value;
                     const itemId = rentalItemSelect.value;
@@ -515,14 +505,14 @@
                             isNewRental = false;
                         } else {
                             currentRentalNumber = getNextRentalNumber();
-                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; // <<<--- MODIFIED
+                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, warehouse: warehouse, startDate: startDate, collectedBy: collectedBy }; // <<< MODIFIED
                         }
                         const rentalData = {
                             rentalNumber: currentRentalNumber,
                             itemId: selectedItem.id,
                             itemName: `${selectedItem.brand} ${selectedItem.name}`,
                             client: clientName,
-                            collectedBy: collectedBy, // <<<--- NEW
+                            collectedBy: collectedBy, // <<< NEW
                             quantity: quantity,
                             startDate: startDate,
                             operator: operator,
@@ -548,7 +538,7 @@
                             });
                             await loadInventoryData();
                             await loadRentalData();
-                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; // <<<--- MODIFIED
+                            ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator: operator, client: clientName, collectedBy: collectedBy, warehouse: warehouse, startDate: startDate }; // <<< MODIFIED
                             const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get();
                             const currentRentalItems = [];
                             rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() }));
