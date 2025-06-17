@@ -356,16 +356,17 @@
                 // Se rule.trasporto non esiste proprio, o è undefined, rimane "N/A"
 
                 // MODIFICATO: Riordino celle <td>
-                row.innerHTML = `
-                    <td class="category-name">${rule.categoria}</td> 
-                    <td class="brand-name">${rule.marca}</td>
-                    <td class="discounts-display">${formatDiscountString(rule.scontiAcquisto)}</td>
-                    <td>${trasportoDisplay}</td> <!-- CELLA PER TRASPORTO -->
-                    <td class="discounts-display">${formatDiscountString(rule.scontiVendita)}</td>
-                    <td>${rule.agente || 'N/A'}</td>
-                    <td class="service-centers-cell">${caDisplay}</td>`;
-            });
-        }
+               row.innerHTML = `
+            <td class="category-name">${rule.categoria || 'N/A'}</td> 
+            <td class="brand-name">${rule.marca || 'N/A'}</td>
+            <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
+            <td>${trasportoDisplay}</td>
+            <td class="discounts-display">${formattaArray(rule.scontiVendita)}</td>
+            <td>${rule.agente || 'N/A'}</td>
+            <td class="service-centers-cell">${formattaArray(rule.centriAssistenza)}</td>
+        `;
+    });
+}
 
         // Calcolatore Sconto
         function applyCascadingDiscounts(basePrice, discountsArray) { 
