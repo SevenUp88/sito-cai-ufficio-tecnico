@@ -304,42 +304,58 @@
      * Popola la tabella HTML.
      */
     function renderTable(rulesToRender) {
-        const tableBody = document.getElementById('discounts-matrix-body');
-        const noDataMsg = document.getElementById('no-data-message');
-        tableBody.innerHTML = ''; 
+    const tableBody = document.getElementById('discounts-matrix-body');
+    const noDataMsg = document.getElementById('no-data-message');
+    tableBody.innerHTML = ''; 
 
-        if (!rulesToRender || rulesToRender.length === 0) {
-            noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
-            noDataMsg.style.display = 'block';
-            return;
-        }
-        noDataMsg.style.display = 'none';
-
-        const sortedRules = [...rulesToRender].sort((a,b) => a.categoria.localeCompare(b.categoria) || a.marca.localeCompare(b.marca));
-
-        sortedRules.forEach(rule => {
-            const row = tableBody.insertRow();
-            
-            let trasportoDisplay = "N/A";
-            if (typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
-                trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
-            }
-            
-            row.innerHTML = `
-                <td class="category-name">${rule.categoria || 'N/A'}</td> 
-                <td class="brand-name">${rule.marca || 'N/A'}</td>
-                <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
-                <td>${trasportoDisplay}</td>
-                <td class="discounts-display">${formattaArray(rule.scontiVendita)}</td>
-                <td>${rule.agente || 'N/A'}</td>
-                <td class="service-centers-cell">${formattaArray(rule.centriAssistenza)}</td>
-            `;
-        });
+    if (!rulesToRender || rulesToRender.length === 0) {
+        noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
+        noDataMsg.style.display = 'block';
+        return;
     }
+    noDataMsg.style.display = 'none';
 
-    /**
-     * Popola i filtri (usa dati già fusi).
-     */
+    const sortedRules = [...rulesToRender].sort((a, b) => a.categoria.localeCompare(b.categoria) || a.marca.localeCompare(b.marca));
+
+    sortedRules.forEach(rule => {
+        const row = tableBody.insertRow();
+        
+        let trasportoDisplay = "N/A";
+        if (typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
+            trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
+        }
+
+        // --- NUOVA LOGICA PER FORMATTARE I CENTRI ASSISTENZA ---
+        let assistenzaDisplay = "N/A";
+        // L'array centriAssistenza contiene ['valoreCesena', 'valoreSavignano', 'valoreRimini']
+        if (rule.centriAssistenza && rule.centriAssistenza.length > 0) {
+            const citta = ['Cesena', 'Savignano', 'Rimini'];
+            const partiFormattate = [];
+            
+            // Cicliamo sull'array e aggiungiamo il nome della città solo se il valore non è vuoto
+            rule.centriAssistenza.forEach((valore, index) => {
+                if (valore && valore.toString().trim() !== '') {
+                    partiFormattate.push(`<strong>${citta[index]}:</strong> ${valore}`);
+                }
+            });
+            
+            if (partiFormattate.length > 0) {
+                // Uniamo le parti con un "a capo" HTML (<br>)
+                assistenzaDisplay = partiFormattate.join('<br>');
+            }
+        }
+        
+        row.innerHTML = `
+            <td class="category-name">${rule.categoria || 'N/A'}</td> 
+            <td class="brand-name">${rule.marca || 'N/A'}</td>
+            <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
+            <td>${trasportoDisplay}</td>
+            <td class="discounts-display">${formattaArray(rule.scontiVendita)}</td>
+            <td>${rule.agente || 'N/A'}</td>
+            <td class="service-centers-cell">${assistenzaDisplay}</td>
+        `;
+    });
+}
     function populateUiFilters(data) {
         const categories = [...new Set(data.map(rule => rule.categoria))].sort();
         const categoryFilterEl = document.getElementById('category-filter');
