@@ -313,50 +313,37 @@
         function resetFilters() { document.getElementById('category-filter').value = ""; document.getElementById('brand-filter').value = ""; applyUiFilters(); showToast("Filtri resettati."); }
         
         function renderTable(rulesToRender) {
-            const tableBody = document.getElementById('discounts-matrix-body');
-            const noDataMsg = document.getElementById('no-data-message');
-            const tableElement = document.querySelector('.discounts-matrix-table');
-            tableBody.innerHTML = ''; 
+    const tableBody = document.getElementById('discounts-matrix-body');
+    const noDataMsg = document.getElementById('no-data-message');
+    const tableElement = document.querySelector('.discounts-matrix-table');
+    tableBody.innerHTML = ''; 
 
-            if (!rulesToRender || rulesToRender.length === 0) {
-                noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
-                noDataMsg.style.display = 'block';
-                if(tableElement) tableElement.style.display = 'none';
-                return;
-            }
-            noDataMsg.style.display = 'none';
-            if(tableElement) tableElement.style.display = '';
+    if (!rulesToRender || rulesToRender.length === 0) {
+        noDataMsg.textContent = "Nessuna regola per i filtri selezionati.";
+        noDataMsg.style.display = 'block';
+        if (tableElement) tableElement.style.display = 'none';
+        return;
+    }
+    noDataMsg.style.display = 'none';
+    if (tableElement) tableElement.style.display = '';
 
-            const sortedRules = [...rulesToRender].sort((a,b) => {
-                 if (a.categoria < b.categoria) return -1; if (a.categoria > b.categoria) return 1;
-                 if (a.marca < b.marca) return -1; if (a.marca > b.marca) return 1;
-                 return 0;
-            });
+    // L'ordinamento va bene com'era
+    const sortedRules = [...rulesToRender].sort((a, b) => {
+         if (a.categoria < b.categoria) return -1; if (a.categoria > b.categoria) return 1;
+         if (a.marca < b.marca) return -1; if (a.marca > b.marca) return 1;
+         return 0;
+    });
 
-            sortedRules.forEach(rule => {
-                // console.log("Dati regola da Firestore:", rule);
-                const row = tableBody.insertRow();
-                let caDisplay = "N/A"; const ca = rule.centriAssistenza;
-                if (ca && typeof ca === 'object' && Object.keys(ca).length > 0) {
-                    const p = [];
-                    if (ca.cesena) p.push(`<strong>Cesena:</strong> ${ca.cesena.nome}${ca.cesena.telefono?' ('+ca.cesena.telefono+')':''}`);
-                    if (ca.savignano) p.push(`<strong>Savignano:</strong> ${ca.savignano.nome}${ca.savignano.telefono?' ('+ca.savignano.telefono+')':''}`);
-                    if (ca.rimini) p.push(`<strong>Rimini:</strong> ${ca.rimini.nome}${ca.rimini.telefono?' ('+ca.rimini.telefono+')':''}`);
-                    caDisplay = p.join('<br>');
-                }
-
-                let trasportoDisplay = "N/A";
-                // Controlla se rule.trasporto esiste, è un numero, e NON è NaN
-                if (rule.hasOwnProperty('trasporto') && typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
-                    trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
-                } else if (rule.hasOwnProperty('trasporto') && (rule.trasporto === null || isNaN(rule.trasporto))) {
-                    // Gestisce esplicitamente null o NaN (se per qualche motivo typeof fosse number ma il valore fosse NaN)
-                    trasportoDisplay = "N/A";
-                }
-                // Se rule.trasporto non esiste proprio, o è undefined, rimane "N/A"
-
-                // MODIFICATO: Riordino celle <td>
-               row.innerHTML = `
+    sortedRules.forEach(rule => {
+        const row = tableBody.insertRow();
+        
+        let trasportoDisplay = "N/A";
+        if (typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
+            trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
+        }
+        
+        // Ora la funzione formattaArray viene chiamata correttamente perché è globale
+        row.innerHTML = `
             <td class="category-name">${rule.categoria || 'N/A'}</td> 
             <td class="brand-name">${rule.marca || 'N/A'}</td>
             <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
