@@ -1,0 +1,8 @@
+[build]
+  # Cartella dove Netlify trova le funzioni
+  functions = "netlify/functions"
+  
+  # Cartella che Netlify deve pubblicare
+  # Poiché il tuo sito ha più "sezioni", probabilmente la radice è la cartella da pubblicare.
+  # Se invece pubblichi solo una sottocartella, specificala qui. Lasciamo la radice per ora.
+  publish = "." 
