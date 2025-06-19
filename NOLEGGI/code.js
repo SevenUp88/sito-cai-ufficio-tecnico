@@ -506,15 +506,7 @@
                 if (newItemForm) newItemForm.reset(); openModal('new-item-modal'); getElement('new-item-brand')?.focus();
             });
         }
-        if (newItemForm) {
-            newItemForm.addEventListener('submit', async (e) => {
-                console.log("New item form submitted.");
-                e.preventDefault();
-                try {
-                    const brand = getElement('new-item-brand')?.value.trim(); const name = getElement('new-item-name')?.value.trim(); const quantityInput = getElement('new-item-quantity'); const rateInput = getElement('new-item-daily-rate'); const quantity = quantityInput ? parseInt(quantityInput.value) : null; const dailyRate = rateInput ? parseFloat(rateInput.value) : null; if (!brand || !name || quantity === null || isNaN(quantity) || quantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) { showError('Compila correttamente tutti i campi.'); return; } const newItemData = { brand: brand, name: name, totalQuantity: quantity, availableQuantity: quantity, dailyRate: dailyRate }; if (!db) throw new Error("Firestore non inizializzato."); await db.collection("inventory").add(newItemData); console.log("New item added to Firestore"); loadInventoryData(); closeModal(newItemModal); newItemForm.reset();
-                } catch (err) { console.error("Error adding new item to Firestore:", err); showError("Errore durante l'aggiunta del nuovo articolo al database."); }
-            });
-        }
+        
         if (inventoryTableBody) {
             inventoryTableBody.addEventListener('click', async (e) => {
                 const editButton = e.target.closest('.btn-edit-item');
