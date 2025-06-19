@@ -351,7 +351,83 @@
         const filterStatusSelect = getElement('filter-status');
         const newItemBtn = getElement('new-item-btn');
         const newItemModal = getElement('new-item-modal');
-        const newItemForm = getElement('new-item-form');
+        if (newItemForm) {
+    newItemForm.addEventListener('submit', async (e) => {
+        console.log("New item form submitted.");
+        e.preventDefault();
+        try {
+            const brand = getElement('new-item-brand')?.value.trim();
+            const name = getElement('new-item-name')?.value.trim();
+            const quantityInput = getElement('new-item-quantity');
+            const rateInput = getElement('new-item-daily-rate');
+            const quantity = quantityInput ? parseInt(quantityInput.value) : null;
+            const dailyRate = rateInput ? parseFloat(rateInput.value) : null;
+
+            if (!brand || !name || quantity === null || isNaN(quantity) || quantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) {
+                showError('Compila correttamente tutti i campi.');
+                return;
+            }
+            
+            // Oggetto per Firestore
+            const newItemData = {
+                brand: brand,
+                name: name,
+                totalQuantity: quantity,
+                availableQuantity: quantity, // Inizializziamo disponibile = totale
+                dailyRate: dailyRate,
+                marcaLower: brand.toLowerCase(),
+                nomeLower: name.toLowerCase()
+            };
+
+            if (!db) throw new Error("Firestore non inizializzato.");
+
+            // 1. Aggiungi a Firestore come prima
+            const docRef = await db.collection("inventory").add(newItemData);
+            console.log("New item added to Firestore with ID:", docRef.id);
+            
+            // 2. Chiama la Netlify Function
+            const sheetData = {
+                id: docRef.id,
+                brand: brand,
+                name: name,
+                totalQuantity: quantity,
+                dailyRate: dailyRate
+            };
+
+            // L'endpoint è sempre relativo alla radice del sito
+            fetch('/.netlify/functions/addNewItemToSheet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(sheetData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // Se c'è un errore, proviamo a leggere il messaggio dal corpo della risposta
+                    return response.json().then(err => { throw new Error(err.error || 'Errore di rete dalla funzione Netlify') });
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log("Netlify Function success:", result.message);
+                // Qui potresti mostrare una notifica non bloccante di successo
+            })
+            .catch(error => {
+                console.error("Errore nella chiamata alla Netlify Function:", error);
+                // Mostra un errore non critico. L'articolo è stato creato, ma non sincronizzato.
+                alert(`ATTENZIONE: Articolo creato correttamente ma non è stato possibile scriverlo su Google Fogli. Errore: ${error.message}`);
+            });
+
+            // Aggiorna l'UI immediatamente, senza aspettare la funzione
+            loadInventoryData();
+            closeModal(newItemModal);
+            newItemForm.reset();
+
+        } catch (err) {
+            console.error("Error adding new item to Firestore:", err);
+            showError("Errore durante l'aggiunta del nuovo articolo al database.");
+        }
+    });
+}
         const editItemModal = getElement('edit-item-modal');
         const editItemForm = getElement('edit-item-form');
         const newRentalBtn = getElement('new-rental-btn');
