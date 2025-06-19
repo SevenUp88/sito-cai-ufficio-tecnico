@@ -350,17 +350,11 @@ const setupEventListeners = () => {
     const inventorySearchInput = getElement('inventory-search');
     const filterBrandSelect = getElement('filter-brand');
     const filterStatusSelect = getElement('filter-status');
-    
-    // New Item Modal
     const newItemBtn = getElement('new-item-btn');
     const newItemModal = getElement('new-item-modal');
     const newItemForm = getElement('new-item-form');
-    
-    // Edit Item Modal
     const editItemModal = getElement('edit-item-modal');
     const editItemForm = getElement('edit-item-form');
-
-    // New/Add Rental Modal
     const newRentalBtn = getElement('new-rental-btn');
     const rentalModal = getElement('rental-modal');
     const rentalForm = getElement('new-rental-form');
@@ -373,16 +367,12 @@ const setupEventListeners = () => {
     const rentalWarehouseSelect = getElement('rental-warehouse');
     const rentalClientNameInput = getElement('rental-client-name');
     const rentalNotesTextarea = getElement('rental-notes');
-
-    // Edit Rental Modal
     const editRentalModal = getElement('edit-rental-modal');
     const editRentalForm = getElement('edit-rental-form');
     const editRentalBrandSelection = getElement('edit-rental-brand-selection');
     const editRentalItemSelection = getElement('edit-rental-item-selection');
     const editRentalQuantityInput = getElement('edit-rental-quantity');
     const editQuantityAvailableInfo = getElement('edit-quantity-available-info');
-    
-    // Other Buttons & Inputs
     const allModals = document.querySelectorAll('.modal');
     const exportInventoryBtn = getElement('export-inventory-btn');
     const resetInventoryBtn = getElement('reset-inventory');
@@ -395,31 +385,96 @@ const setupEventListeners = () => {
     // --- General Listeners ---
     allModals.forEach(modal => {
         const closeBtn = modal.querySelector('.close-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => closeModal(modal));
-        }
+        if (closeBtn) closeBtn.addEventListener('click', () => closeModal(modal));
     });
     window.addEventListener('click', (event) => {
-        allModals.forEach(modal => {
-            if (event.target == modal) closeModal(modal);
-        });
+        allModals.forEach(modal => { if (event.target == modal) closeModal(modal); });
     });
 
     // --- Inventory Management Actions ---
-
     if (inventorySearchInput) inventorySearchInput.addEventListener('input', () => loadInventoryData());
     if (filterBrandSelect) filterBrandSelect.addEventListener('change', () => loadInventoryData());
     if (filterStatusSelect) filterStatusSelect.addEventListener('change', () => loadInventoryData());
 
     if (excelUploadInput) {
         excelUploadInput.addEventListener('change', async function (e) {
-            // ... (logica excel upload) ...
+            console.log("Excel upload changed.");
+            if (!isAdmin()) { showError("Azione non consentita. Privilegi di amministratore richiesti."); excelUploadInput.value = ''; return; }
+            const file = e.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(event) {
+                try {
+                    const data = new Uint8Array(event.target.result); const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0]; const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    if (jsonData.length < 2) throw new Error("File Excel vuoto o solo intestazione.");
+                    const header = jsonData[0].map(h => String(h).trim().toLowerCase());
+                    const brandIndex = header.indexOf('marca'); const nameIndex = header.indexOf('articolo');
+                    const quantityIndex = header.indexOf("quantita'"); const priceIndex = header.indexOf('costo');
+                    if ([brandIndex, nameIndex, quantityIndex, priceIndex].some(index => index === -1)) {
+                        throw new Error("Intestazioni mancanti/errate: servono 'marca', 'articolo', 'quantita'', 'costo'.");
+                    }
+                    const newInventory = jsonData.slice(1).map((row, rowIndex) => {
+                        const brand = row[brandIndex] ? String(row[brandIndex]).trim() : null;
+                        const name = row[nameIndex] ? String(row[nameIndex]).trim() : null;
+                        const totalQuantity = row[quantityIndex] !== undefined && row[quantityIndex] !== null ? parseInt(row[quantityIndex]) : null;
+                        const dailyRate = row[priceIndex] !== undefined && row[priceIndex] !== null ? parseFloat(String(row[priceIndex]).replace(',', '.')) : null;
+                        if (!brand || !name || totalQuantity === null || isNaN(totalQuantity) || totalQuantity < 0 || dailyRate === null || isNaN(dailyRate) || dailyRate < 0) {
+                            console.warn(`Riga ${rowIndex + 2}: Dati mancanti/invalidi. Ignorato.`);
+                            return null;
+                        }
+                        return { brand, name, totalQuantity, availableQuantity: totalQuantity, dailyRate };
+                    }).filter(item => item !== null);
+                    if (newInventory.length === 0) throw new Error("Nessun articolo valido trovato nel file Excel.");
+                    if (confirm(`Importare ${newInventory.length} articoli? L'inventario corrente verrà SOSTITUITO.`)) {
+                        if (!db) throw new Error("Firestore non inizializzato.");
+                        const batch = db.batch();
+                        const currentInvSnapshot = await db.collection("inventory").get();
+                        currentInvSnapshot.docs.forEach(doc => batch.delete(doc.ref));
+                        newInventory.forEach(item => {
+                            const docRef = db.collection("inventory").doc();
+                            batch.set(docRef, item);
+                        });
+                        await batch.commit();
+                        loadInventoryData();
+                        alert("Inventario importato con successo.");
+                    }
+                } catch (err) { console.error("Error processing Excel file:", err); showError(`Errore importazione Excel: ${err.message}`); }
+                finally { if (excelUploadInput) excelUploadInput.value = ''; }
+            };
+            reader.onerror = function(event) { console.error("File read error:", event.target.error.code); showError("Impossibile leggere il file."); if (excelUploadInput) excelUploadInput.value = ''; };
+            reader.readAsArrayBuffer(file);
         });
     }
 
+    // ### BLOCCO REINSERITO: ESPORTA INVENTARIO ###
     if (exportInventoryBtn) {
         exportInventoryBtn.addEventListener('click', async function () {
-            // ... (logica export inventario) ...
+            console.log("Export inventory clicked.");
+            try {
+                if (!db) throw new Error("Firestore non inizializzato.");
+                const snapshot = await db.collection("inventory").get();
+                const inventory = [];
+                snapshot.forEach(doc => inventory.push({ id: doc.id, ...doc.data() }));
+                if (inventory.length === 0) { showError("Inventario vuoto."); return; }
+                const dataToExport = [ ["marca", "articolo", "quantita'", "costo", "Disponibili"] ];
+                inventory.forEach(item => {
+                    dataToExport.push([ item.brand, item.name, item.totalQuantity, item.dailyRate, item.availableQuantity ]);
+                });
+                const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+                worksheet['!cols'] = [ { wch: 20 }, { wch: 35 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+                const priceColRange = XLSX.utils.decode_range(worksheet['!ref']);
+                for (let R = priceColRange.s.r + 1; R <= priceColRange.e.r; ++R) {
+                    const cellRef = XLSX.utils.encode_cell({ c: 3, r: R });
+                    if(!worksheet[cellRef]) continue;
+                    worksheet[cellRef].t = 'n';
+                    worksheet[cellRef].z = '#,##0.00 €';
+                }
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Inventario");
+                const today = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(workbook, `Inventario_CAI_${today}.xlsx`);
+            } catch (err) { console.error("Error exporting inventory:", err); showError("Errore esportazione inventario."); }
         });
     }
 
@@ -441,20 +496,16 @@ const setupEventListeners = () => {
                 const name = getElement('new-item-name')?.value.trim();
                 const quantity = parseInt(getElement('new-item-quantity')?.value);
                 const dailyRate = parseFloat(getElement('new-item-daily-rate')?.value);
-
                 if (!brand || !name || isNaN(quantity) || quantity < 0 || isNaN(dailyRate) || dailyRate < 0) {
                     return showError('Compila correttamente tutti i campi.');
                 }
-
                 const newItemData = {
                     brand, name, totalQuantity: quantity, availableQuantity: quantity,
                     dailyRate, marcaLower: brand.toLowerCase(), nomeLower: name.toLowerCase()
                 };
                 if (!db) throw new Error("Firestore non inizializzato.");
-
                 const docRef = await db.collection("inventory").add(newItemData);
                 console.log("New item added to Firestore with ID:", docRef.id);
-
                 const sheetData = { id: docRef.id, brand, name, totalQuantity: quantity, dailyRate };
                 fetch('/.netlify/functions/addNewItemToSheet', {
                     method: 'POST',
@@ -467,7 +518,6 @@ const setupEventListeners = () => {
                     console.error("Errore chiamata Netlify Function:", error);
                     alert(`ATTENZIONE: Articolo creato ma non sincronizzato su Google Fogli. Errore: ${error.message || 'Sconosciuto'}`);
                 });
-
                 loadInventoryData();
                 closeModal(newItemModal);
                 newItemForm.reset();
@@ -483,9 +533,27 @@ const setupEventListeners = () => {
             const editButton = e.target.closest('.btn-edit-item');
             const deleteButton = e.target.closest('.btn-delete-item');
 
+            // ### BLOCCO REINSERITO: MODIFICA ARTICOLO ###
             if (editButton) {
-                // ... (logica per il pulsante MODIFICA) ...
-                // Questa parte sembrava già corretta
+                const itemId = editButton.dataset.id;
+                console.log(`Edit item button clicked for: ${itemId}`);
+                try {
+                    if (!db) return showError("Firestore non inizializzato.");
+                    const docRef = db.collection("inventory").doc(itemId);
+                    const docSnap = await docRef.get();
+                    if (docSnap.exists) {
+                        const itemToEdit = { id: docSnap.id, ...docSnap.data() };
+                        if (editItemModal && editItemForm) {
+                            getElement('edit-item-id').value = itemToEdit.id;
+                            getElement('edit-item-brand').value = itemToEdit.brand;
+                            getElement('edit-item-name').value = itemToEdit.name;
+                            getElement('edit-item-total-quantity').value = itemToEdit.totalQuantity;
+                            getElement('edit-item-available-quantity').value = itemToEdit.availableQuantity;
+                            getElement('edit-item-daily-rate').value = itemToEdit.dailyRate;
+                            openModal('edit-item-modal');
+                        } else { showError("Errore apertura modal modifica."); }
+                    } else { showError("Articolo non trovato."); loadInventoryData(); }
+                } catch (err) { console.error("Error fetching item for edit:", err); showError("Errore recupero dati articolo."); }
             } 
             else if (deleteButton) {
                 const itemId = deleteButton.dataset.id;
@@ -495,18 +563,18 @@ const setupEventListeners = () => {
                     const docSnap = await itemRef.get();
                     if (!docSnap.exists) return showError("Articolo già eliminato.");
                     
-                    let isRented = false; 
-                    try { 
-                        const activeRentalSnap = await db.collection("activeRentals").where("itemId", "==", itemId).limit(1).get(); 
-                        isRented = !activeRentalSnap.empty; 
-                    } catch(rentCheckErr) { 
+                    let isRented = false;
+                    try {
+                        const activeRentalSnap = await db.collection("activeRentals").where("itemId", "==", itemId).limit(1).get();
+                        isRented = !activeRentalSnap.empty;
+                    } catch(rentCheckErr) {
                         return showError("Errore verifica se articolo è noleggiato. Riprova.");
-                    } 
-                    if (isRented) { 
-                        return showError(`Impossibile eliminare: articolo attualmente noleggiato.`);
+                    }
+                    if (isRented) {
+                        return showError(`Impossibile eliminare "${docSnap.data().brand} ${docSnap.data().name}": articolo attualmente noleggiato.`);
                     }
 
-                    if (confirm(`Eliminare l'articolo "${docSnap.data().name}"?`)) {
+                    if (confirm(`Eliminare "${docSnap.data().brand} ${docSnap.data().name}"?`)) {
                         await itemRef.delete();
                         console.log("Item deleted from Firestore:", itemId);
                         
@@ -525,25 +593,58 @@ const setupEventListeners = () => {
             }
         });
     }
-
+    
+    // ### BLOCCO REINSERITO: SUBMIT FORM MODIFICA ARTICOLO ###
     if (editItemForm) {
         editItemForm.addEventListener('submit', async (e) => {
-            // ... (tutta la logica per il submit del form di modifica) ...
+            console.log("Edit item form submitted.");
+            e.preventDefault();
+            try {
+                const id = getElement('edit-item-id')?.value;
+                const brand = getElement('edit-item-brand')?.value.trim();
+                const name = getElement('edit-item-name')?.value.trim();
+                const totalQuantity = parseInt(getElement('edit-item-total-quantity')?.value);
+                const availableQuantity = parseInt(getElement('edit-item-available-quantity')?.value);
+                const dailyRate = parseFloat(getElement('edit-item-daily-rate')?.value);
+                if (!id || !brand || !name || isNaN(totalQuantity) || totalQuantity < 0 || isNaN(availableQuantity) || availableQuantity < 0 || isNaN(dailyRate) || dailyRate < 0) {
+                    return showError('Compila correttamente tutti i campi.');
+                }
+                if (availableQuantity > totalQuantity) {
+                    return showError('Disponibile non può superare Totale.');
+                }
+                if (!db) throw new Error("Firestore non inizializzato.");
+                const itemRef = db.collection("inventory").doc(id);
+                const docSnap = await itemRef.get();
+                if (!docSnap.exists) { return showError("Errore: Articolo originale non trovato nel DB."); }
+                const originalItemData = docSnap.data();
+                const rentedQuantity = (originalItemData.totalQuantity || 0) - (originalItemData.availableQuantity || 0);
+                if (totalQuantity < rentedQuantity) {
+                    return showError(`Nuova Q.tà Totale (${totalQuantity}) < Q.tà Noleggiata (${rentedQuantity}). Non consentito.`);
+                }
+                const minAvailable = totalQuantity - rentedQuantity;
+                if (availableQuantity < minAvailable) {
+                    return showError(`Nuova Q.tà Disponibile (${availableQuantity}) deve essere almeno ${minAvailable}. Non consentito.`);
+                }
+                const updatedItemData = { brand, name, totalQuantity, availableQuantity, dailyRate };
+                await itemRef.update(updatedItemData);
+                console.log("Item updated in Firestore:", id);
+                loadInventoryData();
+                closeModal(editItemModal);
+            } catch (err) { console.error("Error saving item edits:", err); showError("Errore salvataggio modifiche articolo."); }
         });
     }
 
-    // --- Rental Actions (New, Edit, Complete) ---
-
+    // --- Rental Actions ---
     if (newRentalBtn) {
         newRentalBtn.addEventListener('click', () => {
             console.log("New rental button clicked.");
             resetOngoingRentalState();
             if (rentalForm) rentalForm.reset();
-            if(rentalOperatorSelect) populateOperatorDropdown(rentalOperatorSelect);
+            if (rentalOperatorSelect) populateOperatorDropdown(rentalOperatorSelect);
             populateRentalBrandDropdown();
-            if(rentalWarehouseSelect) rentalWarehouseSelect.value = '';
+            if (rentalWarehouseSelect) rentalWarehouseSelect.value = '';
             const today = new Date().toISOString().split('T')[0];
-            if(rentalStartDateInput) rentalStartDateInput.value = today;
+            if (rentalStartDateInput) rentalStartDateInput.value = today;
             openModal('rental-modal');
             rentalOperatorSelect?.focus();
         });
@@ -551,10 +652,80 @@ const setupEventListeners = () => {
 
     if (rentalForm) {
         rentalForm.addEventListener('submit', (e) => {
-             // ... (tutta la logica per il submit del form di noleggio) ...
+            e.preventDefault();
+            try {
+                const operator = rentalOperatorSelect.value;
+                const warehouse = rentalWarehouseSelect.value;
+                const clientName = rentalClientNameInput.value.trim().toUpperCase();
+                const startDate = rentalStartDateInput.value;
+                const brand = rentalBrandSelect.value;
+                const itemId = rentalItemSelect.value;
+                const quantity = rentalQuantityInput ? parseInt(rentalQuantityInput.value) : 0;
+                const notes = rentalNotesTextarea.value.trim().toUpperCase();
+                if (!operator || !warehouse || !clientName || !startDate || !brand || !itemId || isNaN(quantity) || quantity < 1) {
+                    return showError('Completa tutti i campi richiesti.');
+                }
+                if (!db) throw new Error("Firestore non inizializzato.");
+                db.collection("inventory").doc(itemId).get().then(async docSnap => {
+                    if (!docSnap.exists) { return showError('Articolo selezionato non trovato nel database.'); }
+                    const selectedItem = { id: docSnap.id, ...docSnap.data() };
+                    if (selectedItem.availableQuantity < quantity) {
+                        return showError(`Solo ${selectedItem.availableQuantity} di "${selectedItem.name}" disp.`);
+                    }
+                    let currentRentalNumber;
+                    if (ongoingRentalInfo && ongoingRentalInfo.rentalNumber) {
+                        currentRentalNumber = ongoingRentalInfo.rentalNumber;
+                    } else {
+                        currentRentalNumber = getNextRentalNumber();
+                        ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator, client: clientName, warehouse, startDate };
+                    }
+                    const rentalData = {
+                        rentalNumber: currentRentalNumber, itemId: selectedItem.id, itemName: `${selectedItem.brand} ${selectedItem.name}`,
+                        client: clientName, quantity, startDate, operator, notes, status: "active", dailyRate: selectedItem.dailyRate, warehouse
+                    };
+                    const itemRef = db.collection("inventory").doc(selectedItem.id);
+                    const rentalCollectionRef = db.collection("activeRentals");
+                    try {
+                        await db.runTransaction(async (transaction) => {
+                            const itemDoc = await transaction.get(itemRef);
+                            if (!itemDoc.exists) throw "Articolo non trovato durante la transazione.";
+                            const currentAvail = itemDoc.data().availableQuantity;
+                            if (currentAvail < quantity) throw `Disponibilità cambiata. Disp: ${currentAvail}`;
+                            if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+                                transaction.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(-quantity) });
+                            } else {
+                                throw "Errore tecnico: Firebase FieldValue non disponibile.";
+                            }
+                            transaction.set(rentalCollectionRef.doc(), rentalData);
+                        });
+                        await loadInventoryData();
+                        await loadRentalData();
+                        ongoingRentalInfo = { rentalNumber: currentRentalNumber, operator, client: clientName, warehouse, startDate };
+                        const rentalsSnapshot = await db.collection("activeRentals").where("rentalNumber", "==", currentRentalNumber).get();
+                        const currentRentalItems = [];
+                        rentalsSnapshot.forEach(doc => currentRentalItems.push({ id: doc.id, ...doc.data() }));
+                        printSingleRentalReceipt(currentRentalItems);
+                        if (confirm(`Noleggio #${currentRentalNumber} per ${clientName} aggiunto.\nVuoi aggiungere un altro articolo allo stesso noleggio?`)) {
+                            prepareModalForAdditionalItem(ongoingRentalInfo);
+                        } else {
+                            resetOngoingRentalState();
+                            closeModal(rentalModal);
+                        }
+                    } catch (err) {
+                        showError("Errore DB durante creazione noleggio: " + err);
+                        resetOngoingRentalState();
+                    }
+                }).catch(err => {
+                    showError("Errore recupero dettagli articolo.");
+                    resetOngoingRentalState();
+                });
+            } catch (err) {
+                showError("Errore imprevisto nel form.");
+                resetOngoingRentalState();
+            }
         });
     }
-
+    
     if (activeRentalsTableBody) {
         activeRentalsTableBody.addEventListener('click', async (e) => {
              // ... (tutta la logica per i pulsanti nella tabella noleggi attivi) ...
@@ -563,32 +734,114 @@ const setupEventListeners = () => {
 
     if (editRentalForm) {
         editRentalForm.addEventListener('submit', async (e) => {
-            // ... (tutta la logica per il submit del form di modifica noleggio) ...
+             // ... (tutta la logica per il submit del form di modifica noleggio) ...
         });
     }
-    
+
     // --- Admin & History Actions ---
 
+    // ### BLOCCO REINSERITO: RESET INVENTARIO ###
     if (resetInventoryBtn) {
         resetInventoryBtn.addEventListener('click', async function () {
-            // ... (logica per il pulsante reset inventario) ...
+            console.log("Reset inventory clicked.");
+            if (!isAdmin()) return showError("Azione non consentita. Privilegi di amministratore richiesti.");
+            try {
+                let activeRentalsCount = 0;
+                try {
+                    const activeSnapshot = await db.collection("activeRentals").limit(1).get();
+                    activeRentalsCount = activeSnapshot.size;
+                } catch(err) { return showError("Errore controllo noleggi attivi prima del reset."); }
+                
+                if (activeRentalsCount > 0) return showError("Impossibile resettare: ci sono noleggi attivi.");
+                
+                if (confirm("CANCELLARE tutto l'inventario dal database? Azione irreversibile.")) {
+                    try {
+                        const snapshot = await db.collection("inventory").get();
+                        const batch = db.batch();
+                        snapshot.docs.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                        saveDataLS(RENTAL_COUNTER_LS_KEY, 0);
+                        loadInventoryData();
+                        loadRentalData();
+                        alert("Inventario resettato dal database.");
+                    } catch (err) { showError("Errore durante il reset dell'inventario nel database."); }
+                }
+            } catch (err) { console.error("Reset inventory check error:", err); }
         });
     }
     
+    // ### BLOCCO REINSERITO: STAMPA SELEZIONE ###
     if (printRentalsBtn) {
         printRentalsBtn.addEventListener('click', async function () {
-            // ... (logica per il pulsante stampa selezione) ...
-            // Questo è un blocco molto lungo, assicurati di copiarlo tutto da un file precedente
+            console.log("Print history clicked.");
+            try {
+                const selectedMonth = printMonthSelect ? parseInt(printMonthSelect.value) : 0;
+                const selectedYear = printYearInput ? parseInt(printYearInput.value) : 0;
+                if (isNaN(selectedYear) || selectedYear < 1900 || selectedYear > 2100) return showError("Anno non valido.");
+                if (isNaN(selectedMonth) || selectedMonth < 1 || selectedMonth > 12) return showError("Mese non valido.");
+                
+                if (!db) throw new Error("Firestore non inizializzato.");
+                const startDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1));
+                const endDate = new Date(Date.UTC(selectedYear, selectedMonth, 1));
+                const startDateString = startDate.toISOString().split('T')[0];
+                const endDateString = endDate.toISOString().split('T')[0];
+                const snapshot = await db.collection("completedRentals").where("endDate", ">=", startDateString).where("endDate", "<", endDateString).orderBy("endDate").orderBy("rentalNumber").get();
+                const filteredRentals = [];
+                snapshot.forEach(doc => filteredRentals.push({ id: doc.id, ...doc.data() }));
+
+                if (filteredRentals.length === 0) return showError(`Nessun noleggio completato per ${printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || 'mese'} ${selectedYear}.`);
+
+                const clientRentals = filteredRentals.reduce((acc, rental) => {
+                    const clientKey = rental.client || "Cliente Sconosciuto";
+                    if (!acc[clientKey]) acc[clientKey] = [];
+                    acc[clientKey].push({ ...rental, dailyRate: rental.dailyRate ?? 0, quantity: rental.quantity ?? 1 });
+                    return acc;
+                }, {});
+                
+                const sortedClients = Object.keys(clientRentals).sort((a, b) => a.localeCompare(b));
+                const monthName = printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || `Mese ${selectedMonth}`;
+                let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>body{font-family:Arial,sans-serif;font-size:9pt;margin:15mm}h1{font-size:14pt}h2{font-size:12pt;margin-top:15px;border-bottom:1px solid #ccc;padding-bottom:4px}table{width:100%;border-collapse:collapse;margin-top:5px;font-size:8pt}th,td{border:1px solid #ddd;padding:4px 6px;text-align:left}th{background-color:#e9e9e9;font-weight:bold}.text-right{text-align:right}.text-center{text-align:center}.total-row td{font-weight:bold;border-top:2px solid #aaa;background-color:#f0f0f0}@page{size:A4;margin:15mm}</style></head><body><h1>Riepilogo Noleggi - ${monthName} ${selectedYear}</h1>`;
+                
+                sortedClients.forEach(client => {
+                    printHtml += `<h2>Cliente: ${escapeHtml(client)}</h2><table><thead><tr><th># Nol.</th><th>Articolo</th><th>Q.tà</th><th class="text-right">€/Giorn.</th><th>Inizio</th><th>Fine</th><th class="text-center">GG</th><th class="text-right">€ Tot.</th></tr></thead><tbody>`;
+                    let clientTotal = 0;
+                    clientRentals[client].forEach(rental => {
+                        const days = getDaysDifference(rental.startDate, rental.endDate);
+                        const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
+                        let totalCost = 0;
+                        if (isSpecialItem) {
+                            if (days === 1) totalCost = SPECIAL_ITEM_SAME_DAY_PRICE;
+                            else if (days > 1) totalCost = SPECIAL_ITEM_SAME_DAY_PRICE + (SPECIAL_ITEM_EXTRA_DAY_PRICE * (days - 1));
+                        } else {
+                            totalCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
+                        }
+                        clientTotal += totalCost;
+                        printHtml += `<tr><td>${escapeHtml(rental.rentalNumber||'N/A')}</td><td>${escapeHtml(rental.itemName)}</td><td class="text-center">${rental.quantity}</td><td class="text-right">${isSpecialItem ? 'Spec.' : formatPrice(rental.dailyRate)}</td><td>${formatDate(rental.startDate)}</td><td>${formatDate(rental.endDate)}</td><td class="text-center">${days}</td><td class="text-right">${formatPrice(totalCost)}</td></tr>`;
+                    });
+                    printHtml += `<tr class="total-row"><td colspan="7" class="text-right">Totale Cliente:</td><td class="text-right">${formatPrice(clientTotal)}</td></tr></tbody></table>`;
+                });
+                
+                printHtml += `<script>window.onload=()=>{try{window.print()}catch(e){console.error('Print failed:',e)}};<\/script></body></html>`;
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                    printWindow.document.open();
+                    printWindow.document.write(printHtml);
+                    printWindow.document.close();
+                } else {
+                    showError("Impossibile aprire finestra stampa.");
+                }
+            } catch (err) {
+                console.error("Error printing history:", err);
+                showError("Errore preparazione stampa storico.");
+            }
         });
     }
 
     if (resetCompletedBtn) {
         resetCompletedBtn.addEventListener('click', async function () {
-            console.log("Reset history clicked.");
             if (!isAdmin()) return showError("Azione non consentita.");
-            if (confirm("Eliminare TUTTO lo storico noleggi completati dal database? Azione irreversibile.")) {
+            if (confirm("Eliminare TUTTO lo storico noleggi completati? Azione irreversibile.")) {
                 try {
-                    if (!db) throw new Error("Firestore non inizializzato.");
                     const snapshot = await db.collection("completedRentals").get();
                     if (snapshot.empty) return alert("Lo storico è già vuoto.");
                     const batch = db.batch();
@@ -596,10 +849,7 @@ const setupEventListeners = () => {
                     await batch.commit();
                     updateBillingStats();
                     alert("Storico resettato dal database.");
-                } catch(err) {
-                    console.error("Error resetting completed rentals:", err);
-                    showError("Errore durante il reset dello storico.");
-                }
+                } catch(err) { showError("Errore durante il reset dello storico."); }
             }
         });
     }
@@ -607,20 +857,14 @@ const setupEventListeners = () => {
     console.log("Noleggi App: Event listeners attached successfully.");
 }; // End of setupEventListeners
 
+// --- Authentication and Global Setup ---
 
-    // --- Authentication UI Setup (REMOVED) ---
-    // const setupAuthUI = () => { ... }; // This entire function is removed.
+document.addEventListener("DOMContentLoaded", () => {
+    setupEventListeners();
+});
 
-    // Attach General Event Listeners when DOM is ready
-    document.addEventListener("DOMContentLoaded", () => {
-        // setupAuthUI(); // Call to setupAuthUI is removed
-        setupEventListeners(); // Attach the main app listeners once
-    });
-
-    // Make initializeApp globally accessible for the onAuthStateChanged listener in code.html
-    window.initializeApp = initializeApp;
-    // Expose data loading functions if needed by other parts or for debugging
-    window.loadInventoryData = loadInventoryData;
-    window.loadRentalData = loadRentalData;
+window.initializeApp = initializeApp;
+window.loadInventoryData = loadInventoryData;
+window.loadRentalData = loadRentalData;
 
 })(); // End IIFE
