@@ -500,11 +500,16 @@
         if(filterBrandSelect) filterBrandSelect.addEventListener('input', () => { loadInventoryData(); });
         if(filterStatusSelect) filterStatusSelect.addEventListener('input', () => { loadInventoryData(); });
 
-        if (newItemBtn) { // Available to all authenticated users
-            newItemBtn.addEventListener('click', () => {
-                console.log("New item button clicked.");
-            });
-        }
+if (newItemBtn) { // Available to all authenticated users
+    newItemBtn.addEventListener('click', () => {
+        console.log("New item button clicked.");
+        
+        // Questo codice resetta il form, apre il modal e mette il focus sul primo campo
+        if (newItemForm) newItemForm.reset(); 
+        openModal('new-item-modal'); 
+        getElement('new-item-brand')?.focus();
+    });
+}
         
         if (inventoryTableBody) {
             inventoryTableBody.addEventListener('click', async (e) => {
@@ -535,6 +540,32 @@
                 }
             });
         }
+        if (confirm(`Eliminare l'articolo?`)) { // Messaggio semplificato
+            // 1. Cancella da Firestore
+            await itemRef.delete(); 
+            console.log("Item deleted from Firestore:", itemId); 
+
+            // 2. Chiama la funzione Netlify per cancellare dal foglio
+            fetch('/.netlify/functions/deleteItemFromSheet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToDelete: itemId })
+            })
+            .then(response => response.json())
+            .then(result => console.log("Funzione di cancellazione foglio:", result.message))
+            .catch(err => {
+                console.error("Errore cancellazione da foglio:", err);
+                alert("ATTENZIONE: Articolo cancellato dall'app ma non da Google Fogli.");
+            });
+            
+            // 3. Ricarica i dati nell'interfaccia
+            loadInventoryData();
+        }
+    } catch (err) { 
+        console.error("Error deleting item:", err); 
+        showError("Errore eliminazione articolo."); 
+    }
+}
         if (editItemForm) { // Form for editing item (available to all authenticated)
             editItemForm.addEventListener('submit', async (e) => {
                 console.log("Edit item form submitted.");
