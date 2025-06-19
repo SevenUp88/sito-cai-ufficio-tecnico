@@ -351,6 +351,7 @@
         const filterStatusSelect = getElement('filter-status');
         const newItemBtn = getElement('new-item-btn');
         const newItemModal = getElement('new-item-modal');
+        const newItemForm = getElement('new-item-form');
         if (newItemForm) {
     newItemForm.addEventListener('submit', async (e) => {
         console.log("New item form submitted.");
