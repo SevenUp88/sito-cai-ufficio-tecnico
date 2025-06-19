@@ -265,7 +265,31 @@
         }
     };
     const populateOperatorDropdown = (selectElement) => { if (!selectElement) return; const currentValue = selectElement.value; selectElement.innerHTML = '<option value="">-- Seleziona Operatore --</option>'; const sortedOperators = [...OPERATORS].sort((a, b) => a.localeCompare(b)); sortedOperators.forEach(opName => { const option = document.createElement('option'); option.value = opName; option.textContent = opName; selectElement.appendChild(option); }); if (currentValue && sortedOperators.includes(currentValue)) { selectElement.value = currentValue; } };
-    const populateRentalBrandDropdown = async () => { const rentalBrandSelect = document.getElementById('rental-brand-selection'); const rentalItemSelect = document.getElementById('rental-item-selection'); const quantityAvailableInfo = document.getElementById('quantity-available-info'); const rentalQuantityInput = document.getElementById('rental-quantity'); if (!db) { console.warn("DB not ready for populateRentalBrandDropdown"); return; } try { const snapshot = await db.collection("inventory").get(); const inventory = []; snapshot.forEach(doc => inventory.push({ id: doc.id, ...doc.data() })); updateBrandFilters(inventory, rentalBrandSelect, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput); } catch (err) { console.error("Errore lettura inventario per popolare marche:", err); showError("Errore caricamento marche."); if (rentalBrandSelect) rentalBrandSelect.innerHTML = '<option value="">Errore</option>'; if (rentalItemSelect) { rentalItemSelect.innerHTML = '<option value="">-- Errore --</option>'; rentalItemSelect.disabled = true; } } };
+    const populateRentalBrandDropdown = async () => { const rentalBrandSelect = document.getElementById('rental-brand-selection'); const rentalItemSelect = document.getElementById('rental-item-selection'); const quantityAvailableInfo = document.getElementById('quantity-available-info'); const rentalQuantityInput = document.getElementById('rental-quantity'); if (!db) { console.warn("DB not ready for populateRentalBrandDropdown"); return; } try { const snapshot = await db.collection("inventory").get(); const inventory = []; snapshot.forEach(doc => inventory.push({ id: doc.id, ...doc.data() })); updateBrandFilters(inventory, rentalBrandSelect, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput); } catch (err) { console.error("Errore lettura inventario per popolare marche:", err); showError("Errore caricamento marche."); if (rentalBrandSelect) {
+    rentalBrandSelect.addEventListener('change', (e) => {
+        // Quando la marca cambia, popola il dropdown degli articoli
+        populateItemDropdown(e.target.value, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput);
+    });
+}
+
+if (rentalItemSelect) {
+    rentalItemSelect.addEventListener('change', (e) => {
+        // Quando l'articolo cambia, aggiorna le informazioni sulla quantità disponibile
+        const infoElement = quantityAvailableInfo;
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const maxQuantity = selectedOption?.dataset.max ? parseInt(selectedOption.dataset.max) : 0;
+        if (rentalQuantityInput) {
+            rentalQuantityInput.max = maxQuantity > 0 ? maxQuantity : null;
+            rentalQuantityInput.value = 1;
+            if (maxQuantity > 0 && infoElement) {
+                infoElement.textContent = `Disponibili: ${maxQuantity}`;
+                infoElement.style.display = 'block';
+            } else if (infoElement) {
+                infoElement.style.display = 'none';
+            }
+        }
+    });
+}
     const printSingleRentalReceipt = (rentalDataArray) => {
         if (!Array.isArray(rentalDataArray) || rentalDataArray.length === 0) { showError("Errore: Dati ricevuta non validi."); return; }
         const commonData = rentalDataArray[0]; let itemsHtml = '';
