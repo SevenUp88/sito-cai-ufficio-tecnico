@@ -503,7 +503,6 @@
         if (newItemBtn) { // Available to all authenticated users
             newItemBtn.addEventListener('click', () => {
                 console.log("New item button clicked.");
-                if (newItemForm) newItemForm.reset(); openModal('new-item-modal'); getElement('new-item-brand')?.focus();
             });
         }
         
