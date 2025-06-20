@@ -291,23 +291,6 @@
     }
 };
 
-if (rentalItemSelect) {
-    rentalItemSelect.addEventListener('change', (e) => {
-        // Quando l'articolo cambia, aggiorna le informazioni sulla quantità disponibile
-        const infoElement = quantityAvailableInfo;
-        const selectedOption = e.target.options[e.target.selectedIndex];
-        const maxQuantity = selectedOption?.dataset.max ? parseInt(selectedOption.dataset.max) : 0;
-        if (rentalQuantityInput) {
-            rentalQuantityInput.max = maxQuantity > 0 ? maxQuantity : null;
-            rentalQuantityInput.value = 1;
-            if (maxQuantity > 0 && infoElement) {
-                infoElement.textContent = `Disponibili: ${maxQuantity}`;
-                infoElement.style.display = 'block';
-            } else if (infoElement) {
-                infoElement.style.display = 'none';
-            }
-        }
-    });
 }
     const printSingleRentalReceipt = (rentalDataArray) => {
         if (!Array.isArray(rentalDataArray) || rentalDataArray.length === 0) { showError("Errore: Dati ricevuta non validi."); return; }
