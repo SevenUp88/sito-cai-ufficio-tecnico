@@ -374,3 +374,84 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
    e mettila in un media query più grande se necessario.
 .product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
 */
+/* === STILI PER PANNELLO DETTAGLI EXTRA === */
+
+/* Il pulsante per mostrare/nascondere i dettagli */
+.toggle-details-btn {
+    background-color: transparent;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 3px 10px;
+    font-size: 0.8em;
+    font-weight: 500;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px; /* Spazio dal prezzo/badge */
+}
+.toggle-details-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+/* Stile del pulsante quando il pannello è aperto */
+.toggle-details-btn.active {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: white;
+}
+
+/* Il contenitore dei dettagli extra. Nascosto di default */
+.product-extra-details {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding-top: 0;
+    margin-top: 0;
+    border-top: 1px solid transparent;
+    transition: max-height 0.5s ease-out, opacity 0.4s ease-out, margin-top 0.5s ease-out, padding-top 0.5s ease-out, border-color 0.5s ease;
+}
+
+/* Stile del contenitore quando è visibile (con la classe .active) */
+.product-extra-details.active {
+    max-height: 500px; /* Un valore sufficientemente grande per contenere tutto */
+    opacity: 1;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top-color: #eee;
+}
+
+/* La lista <ul> che contiene i dettagli */
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9em;
+    display: grid;
+    grid-template-columns: auto 1fr; /* Due colonne: una per le etichette, una per i valori */
+    gap: 6px 15px; /* Spazio tra righe e colonne */
+    align-items: center;
+}
+
+.details-list li {
+    display: contents; /* Fa sì che li si comporti come parte della griglia del suo genitore ul */
+}
+
+.details-list strong {
+    font-weight: 700;
+    color: var(--dark-color);
+    text-align: right; /* Allinea a destra le etichette */
+}
+
+.details-list span {
+    color: var(--secondary-color);
+    text-align: left; /* Allinea a sinistra i valori */
+}
+
+/* Un separatore visivo tra gruppi di dettagli */
+.details-list .details-separator {
+    grid-column: 1 / -1; /* Occupa tutta la larghezza */
+    height: 1px;
+    background-color: #f0f0f0;
+    margin: 4px 0;
+    display: block; /* Deve essere 'block' per funzionare come separatore */
+}
