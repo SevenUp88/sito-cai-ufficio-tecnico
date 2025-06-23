@@ -77,121 +77,136 @@
 
     // --- FUNZIONI CORE ---
     function createProductCard(product) {
-        if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
-        try {
-            const imageUrl = product.image_url || '../images/placeholder.png';
-            const brand = product.marca || 'N/D';
-            const model = product.modello || 'N/D';
-            const power = product.potenza || 'N/D';
-            const energyCooling = product.classe_energetica_raffrescamento || 'N/D';
-            const energyHeating = product.classe_energetica_riscaldamento || 'N/D';
-            const wifi = product.wifi;
-            const datasheetUrl = product.scheda_tecnica_url;
-            const productCode = product.codice_prodotto || 'N/D'; // Usato sotto
-            const uiDimensions = product.dimensioni_ui || "N/D";
-            const ueDimensions = product.dimensioni_ue || "N/D";
-            const isMonobloc = brand.toUpperCase() === 'INNOVA';
-            const modelDataAttribute = (model || 'nd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-            const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
-            const logoPath = `../images/logos/${safeBrandName}.png`;
-            const placeholderLogoPath = '../images/logos/placeholder_logo.png';
+    if (!product || typeof product !== 'object') return '<div class="product-card error-card">Errore dati prodotto.</div>';
+    try {
+        // --- 1. LETTURA DATI (TUTTI I DATI, ESISTENTI E NUOVI) ---
+        const imageUrl = product.image_url || '../images/placeholder.png';
+        const brand = product.marca || 'N/D';
+        const model = product.modello || 'N/D';
+        const power = product.potenza || 'N/D';
+        const energyCooling = product.classe_energetica_raffrescamento || 'N/D';
+        const energyHeating = product.classe_energetica_riscaldamento || 'N/D';
+        const wifi = product.wifi;
+        const datasheetUrl = product.scheda_tecnica_url;
+        const productCode = product.codice_prodotto || 'N/D';
+        const uiDimensions = product.dimensioni_ui || "N/D";
+        const ueDimensions = product.dimensioni_ue || "N/D";
+        const isMonobloc = brand.toUpperCase() === 'INNOVA';
 
-            // 1. BADGE ECONOMICO (da inserire nel footer)
-            let economicBadgeHTML_footer = ''; 
-            if (economicModels.includes(model.toUpperCase())) {
-                economicBadgeHTML_footer = `<span class="economic-badge economic-badge-footer" title="Prodotto linea economica">Economico</span>`;
-            }
+        // Preparazione utility, loghi, ecc (come nel tuo originale)
+        const modelDataAttribute = (model || 'nd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
+        const logoPath = `../images/logos/${safeBrandName}.png`;
+        const placeholderLogoPath = '../images/logos/placeholder_logo.png';
+        
+        // --- 2. LOGICA PRECEDENTE (BADGE, WIFI, DATASHEET, ECC.) MANTENUTA INTATTA ---
+        let economicBadgeHTML_footer = economicModels.includes(model.toUpperCase()) ? `<span class="economic-badge economic-badge-footer" title="Prodotto linea economica">Economico</span>` : '';
+        
+        const wifiString = String(wifi).toLowerCase().trim();
+        let wifiIconHTML = (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') ? `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>` : '';
+        const cardTopRightElementsHTML = `${wifiIconHTML}`; 
+        
+        let datasheetLink = ''; 
+        if (datasheetUrl && String(datasheetUrl).trim() !== '') {
+            datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
+        }
 
-            // 2. ICONA WIFI (rimane nel top-right, se il badge economico è stato rimosso da lì)
-            let wifiIconHTML = ''; 
-            const wifiString = String(wifi).toLowerCase().trim(); 
-            if (wifiString === 'sì' || wifiString === 'si' || wifiString === 'true') {
-                wifiIconHTML = `<i class="fas fa-wifi wifi-icon" title="Wi-Fi Integrato"></i>`;
-            }
-            // Se `economicBadgeHTML` era nel top-right e lo rimuovi da qui, non serve più la sua variabile qui.
-            // `cardTopRightElementsHTML` ora conterrà solo wifi (o sarà vuoto).
-            const cardTopRightElementsHTML = `${wifiIconHTML}`; 
+        let productCodeHTML = ''; 
+        if (productCode && productCode !== 'N/D') { 
+            let codeContent = ''; 
+            const hasComponentPrices = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number'; 
+            if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) { 
+                const uiMatch = productCode.match(/UI:\s*([^/]+)/); 
+                const ueMatch = productCode.match(/UE:\s*([^/]+)/); 
+                const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D'; 
+                const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D'; 
+                codeContent = `UI: ${uiCode}`; 
+                if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`;
+                codeContent += `<br>UE: ${ueCode}`; 
+                if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`; 
+            } else { 
+                codeContent = productCode; 
+            } 
+            productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><span class="code-value">${codeContent}</span></p>`;
+        }
 
+        let dimensionsDetailsStrings = [];
+        if (!isMonobloc && ueDimensions !== "N/D") {
+            dimensionsDetailsStrings.push(`<span class="dimension-item">Unità esterna: ${ueDimensions}</span>`);
+        }
+        if (uiDimensions !== "N/D") {
+            dimensionsDetailsStrings.push(`<span class="dimension-item">Unità interna: ${uiDimensions}</span>`);
+        }
+        let dimensionsHTML = '';
+        if (dimensionsDetailsStrings.length > 0) {
+            const joinedDetails = dimensionsDetailsStrings.join('');
+            dimensionsHTML = `<p class="product-info-text product-dimensions">
+                                <strong>Dimensioni AxLxP (mm):</strong>
+                                <span class="dimensions-values-wrapper">${joinedDetails}</span>
+                              </p>`;
+        }
+        const energyClassHTML = `<p class="energy-class product-info-text"><strong>Classe En.:</strong><span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>`;
 
-            let datasheetLink = ''; 
-            if (datasheetUrl && String(datasheetUrl).trim() !== '') {
-                datasheetLink = `<p class="product-datasheet"><a href="${datasheetUrl}" target="_blank" rel="noopener noreferrer" title="Apri scheda tecnica PDF per ${model}"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a></p>`;
-            }
-            
-            // 3. GESTIONE CODICI ARTICOLO (ripristinata la rimozione del <br> dopo <strong> se necessario)
-            let productCodeHTML = ''; 
-            if (productCode && productCode !== 'N/D') { 
-                let codeContent = ''; 
-                const hasComponentPrices = typeof product.prezzo_ui === 'number' && typeof product.prezzo_ue === 'number'; 
-                if (typeof productCode === 'string' && productCode.includes('UI:') && productCode.includes('UE:')) { 
-                    const uiMatch = productCode.match(/UI:\s*([^/]+)/); 
-                    const ueMatch = productCode.match(/UE:\s*([^/]+)/); 
-                    const uiCode = uiMatch ? uiMatch[1].trim() : 'N/D'; 
-                    const ueCode = ueMatch ? ueMatch[1].trim() : 'N/D'; 
-                    codeContent = `UI: ${uiCode}`; 
-                    if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ui)})</span>`; // nbsp per spazio non collassabile
-                    codeContent += `<br>UE: ${ueCode}`; 
-                    if (hasComponentPrices) codeContent += ` <span>(${formatPrice(product.prezzo_ue)})</span>`; 
-                } else { 
-                    codeContent = productCode; 
-                } 
-                // Se volevi "Articoli:" sulla sua riga e il codice sotto, CSS lo gestirà con "display: block" su strong
-                // Se il <br> era nel codice originale `script (6).js` *dopo* Articoli:, lo si rimuove
-                productCodeHTML = `<p class="product-info-text product-codes"><strong>Articoli:</strong><span class="code-value">${codeContent}</span></p>`;
-            }
-            
-            // 4. GESTIONE DIMENSIONI (con etichette e ordine corretto)
-            let dimensionsDetailsStrings = [];
-            // Ordine come da tua immagine: Esterna prima, poi Interna
-            if (!isMonobloc && ueDimensions !== "N/D") {
-                dimensionsDetailsStrings.push(`<span class="dimension-item">Unità esterna: ${ueDimensions}</span>`);
-            }
-            if (uiDimensions !== "N/D") {
-                dimensionsDetailsStrings.push(`<span class="dimension-item">Unità interna: ${uiDimensions}</span>`);
-            }
+        // --- 3. NUOVA LOGICA: CREAZIONE PANNELLO DETTAGLI NASCOSTO ---
+        const createDetailRow = (label, value, unit = '') => {
+            if (value === null || value === undefined || String(value).trim() === '') return '';
+            const displayValue = (typeof value === 'number') ? String(value).replace('.', ',') : value;
+            return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
+        };
 
-            let dimensionsHTML = '';
-            if (dimensionsDetailsStrings.length > 0) {
-                const joinedDetails = dimensionsDetailsStrings.join(''); // Ogni .dimension-item andrà a capo via CSS
-                dimensionsHTML = `<p class="product-info-text product-dimensions">
-                                    <strong>Dimensioni AxLxP (mm):</strong>
-                                    <span class="dimensions-values-wrapper">${joinedDetails}</span>
-                                  </p>`;
-            }
+        const extraDetailsHTML = `
+            <div class="product-extra-details">
+                <ul class="details-list">
+                    ${createDetailRow('Cod. Prodotto', product.codice_prodotto)}
+                    ${createDetailRow('Cod. Fornitore', product.articolo_fornitore)}
+                    <li class="details-separator"></li>
+                    ${createDetailRow('EER (Raffr.)', product.eer)}
+                    ${createDetailRow('COP (Risc.)', product.cop)}
+                    ${createDetailRow('Gas Refrigerante', product.gas)}
+                    ${createDetailRow('Quantità Gas', product.quantita_gas, ' g')}
+                    <li class="details-separator"></li>
+                    ${createDetailRow('Peso Unità Interna', product.peso_ui, ' kg')}
+                    ${createDetailRow('Peso Unità Esterna', product.peso_ue, ' kg')}
+                    <li class="details-separator"></li>
+                    ${createDetailRow('Prezzo solo UI', formatPrice(product.prezzo_ui))}
+                    ${createDetailRow('Prezzo solo UE', formatPrice(product.prezzo_ue))}
+                    ${createDetailRow('Prezzo Kit', formatPrice(product.prezzo_kit))}
+                </ul>
+            </div>
+        `;
+        
+        // --- 4. NUOVA LOGICA: BOTTONE "DETTAGLI" ---
+        const actionButtonsContainerContent = `<button class="toggle-details-btn">Dettagli</button>`;
 
-            // 5. CLASSE ENERGETICA (slash rimosso, spazio inserito)
-            // Rispetto a `script (6).js` originale, qui non c'è più lo '/' tra i due span.
-            const energyClassHTML = `<p class="energy-class product-info-text"><strong>Classe En.:</strong><span class="cooling product-energy-cooling" title="Raffrescamento">${energyCooling}</span> <span class="heating product-energy-heating" title="Riscaldamento">${energyHeating}</span></p>`;
-            
-            const actionButtonsContainerContent = ''; // Nessun bottone di modifica nella vista normale
-            
-            return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
-                        <div class="card-top-right-elements">${cardTopRightElementsHTML}</div>
-                        <div class="product-header">
-                            <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';">
-                            <div class="product-title-brand">
-                                <span class="product-brand-text">${brand}</span>
-                                <h3 class="product-model">${model}</h3>
-                            </div>
+        // --- 5. COMPOSIZIONE CARD FINALE (ORA CORRETTA E COMPLETA) ---
+        return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
+                    <div class="card-top-right-elements">${cardTopRightElementsHTML}</div>
+                    <div class="product-header">
+                        <img src="${logoPath}" alt="Logo ${brand}" class="product-logo" onerror="this.onerror=null; this.src='${placeholderLogoPath}';">
+                        <div class="product-title-brand">
+                            <span class="product-brand-text">${brand}</span>
+                            <h3 class="product-model">${model}</h3>
                         </div>
-                        <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
-                        <div class="product-info">
-                            <div class="product-details">
-                                <p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p>
-                                ${energyClassHTML} 
-                                ${productCodeHTML} 
-                                ${dimensionsHTML} 
-                                ${datasheetLink}
-                            </div>
-                            <div class="product-footer"> 
-                                <div class="product-price-value">${formatPrice(product.prezzo)}</div>
-                                ${economicBadgeHTML_footer} 
-                                <div class="action-buttons-container">${actionButtonsContainerContent}</div>
-                            </div>
+                    </div>
+                    <img src="${imageUrl}" alt="Immagine ${model}" class="product-image" onerror="this.onerror=null; this.src='../images/placeholder.png';">
+                    <div class="product-info">
+                        <div class="product-details">
+                            <p class="product-info-text"><strong>Potenza:</strong><span class="product-power">${power}</span></p>
+                            ${energyClassHTML}
+                            ${productCodeHTML}
+                            ${dimensionsHTML}
+                            ${datasheetLink}
                         </div>
-                    </div>`;
-        } catch(e){console.error(`Err card ID ${product?.id}`,e);return `<div class="product-card error-card">Errore creazione card ${product?.id}</div>`;}
-    }
+                        ${extraDetailsHTML} <!-- Il pannello nascosto è inserito qui -->
+                        <div class="product-footer"> 
+                            <div class="product-price-value">${formatPrice(product.prezzo)}</div>
+                            ${economicBadgeHTML_footer}
+                            <div class="action-buttons-container">${actionButtonsContainerContent}</div>
+                        </div>
+                    </div>
+                </div>`;
+    } catch(e){console.error(`Err card ID ${product?.id}`,e);return `<div class="product-card error-card">Errore creazione card ${product?.id}</div>`;}
+}
 
     async function loadProductsFromFirestore() {
         if (!db) { console.error("LPPFS: Firestore (db) non inizializzato."); if(monosplitGrid) monosplitGrid.innerHTML='<p class="no-results error-message">DB non disp.</p>'; return []; }
