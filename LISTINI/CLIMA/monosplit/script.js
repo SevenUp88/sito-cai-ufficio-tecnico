@@ -64,53 +64,69 @@
 
     // Funzione per gestire il modal
     function populateAndShowModal(product) {
-        if (!product || !detailsModalOverlay) return;
+    if (!product || !detailsModalOverlay) return;
 
-        const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : '';
-        modalProductLogo.src = `../images/logos/${safeBrandName}.png`;
-        modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
-        modalProductLogo.onerror = () => { modalProductLogo.src = '../images/logos/placeholder_logo.png'; }; // Fallback per logo
-        
-        modalProductBrand.textContent = product.marca || 'N/D';
-        modalProductModel.textContent = product.modello || 'N/D';
-        
-        modalProductImage.src = product.image_url || '../images/placeholder.png';
-        modalProductImage.onerror = () => { modalProductImage.src = '../images/placeholder.png'; }; // Fallback per immagine prodotto
-        modalProductImage.alt = `Immagine ${product.modello || 'N/D'}`;
-        
-        const createDetailRowHTML=(label,value,unit='') => {
-            if (value===null||value===undefined||String(value).trim()==='') return '';
-            const displayValue = (typeof value==='number'?String(value).replace('.',','):value);
-            return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
-        };
+    // Popola Header e Immagine (codice invariato)
+    const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : '';
+    modalProductLogo.src = `../images/logos/${safeBrandName}.png`;
+    modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
+    modalProductLogo.onerror = () => { modalProductLogo.src = '../images/logos/placeholder_logo.png'; };
+    
+    modalProductBrand.textContent = product.marca || 'N/D';
+    modalProductModel.textContent = product.modello || 'N/D';
+    
+    modalProductImage.src = product.image_url || '../images/placeholder.png';
+    modalProductImage.onerror = () => { modalProductImage.src = '../images/placeholder.png'; };
+    modalProductImage.alt = `Immagine ${product.modello || 'N/D'}`;
+    
+    const createDetailRowHTML=(label,value,unit='') => {
+        if (value===null||value===undefined||String(value).trim()==='') return '';
+        const displayValue = (typeof value==='number'?String(value).replace('.',','):value);
+        return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
+    };
 
-        let mainDetailsHTML = '';
-        mainDetailsHTML += createDetailRowHTML('Potenza', product.potenza);
-        mainDetailsHTML += createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento);
-        mainDetailsHTML += createDetailRowHTML('Classe Risc.', product.classe_energetica_riscaldamento);
-        mainDetailsHTML += createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui, ' mm');
-        mainDetailsHTML += createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm');
-        mainDetailsHTML += createDetailRowHTML('Codice Prodotto', product.codice_prodotto);
-        modalMainDetailsList.innerHTML = mainDetailsHTML;
+    // Popola Liste Dettagli (codice invariato)
+    let mainDetailsHTML = '';
+    mainDetailsHTML += createDetailRowHTML('Potenza', product.potenza);
+    mainDetailsHTML += createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento);
+    mainDetailsHTML += createDetailRowHTML('Classe Risc.', product.classe_energetica_riscaldamento);
+    mainDetailsHTML += createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui, ' mm');
+    mainDetailsHTML += createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm');
+    mainDetailsHTML += createDetailRowHTML('Codice Prodotto', product.codice_prodotto);
+    modalMainDetailsList.innerHTML = mainDetailsHTML;
 
-        let extraDetailsHTML = '';
-        extraDetailsHTML += createDetailRowHTML('EER (Raffr.)', product.eer);
-        extraDetailsHTML += createDetailRowHTML('COP (Risc.)', product.cop);
-        extraDetailsHTML += createDetailRowHTML('Gas Refrigerante', product.gas);
-        extraDetailsHTML += createDetailRowHTML('Quantità Gas', product.quantita_gas, ' g');
-        extraDetailsHTML += createDetailRowHTML('Peso UI', product.peso_ui, ' kg');
-        extraDetailsHTML += createDetailRowHTML('Peso UE', product.peso_ue, ' kg');
-        extraDetailsHTML += createDetailRowHTML('Prezzo Kit', formatPrice(product.prezzo_kit));
-        extraDetailsHTML += createDetailRowHTML('Prezzo solo UI', formatPrice(product.prezzo_ui));
-        extraDetailsHTML += createDetailRowHTML('Prezzo solo UE', formatPrice(product.prezzo_ue));
-        modalExtraDetailsList.innerHTML = extraDetailsHTML;
+    let extraDetailsHTML = '';
+    extraDetailsHTML += createDetailRowHTML('EER (Raffr.)', product.eer);
+    extraDetailsHTML += createDetailRowHTML('COP (Risc.)', product.cop);
+    extraDetailsHTML += createDetailRowHTML('Gas Refrigerante', product.gas);
+    extraDetailsHTML += createDetailRowHTML('Quantità Gas', product.quantita_gas, ' g');
+    extraDetailsHTML += createDetailRowHTML('Peso UI', product.peso_ui, ' kg');
+    extraDetailsHTML += createDetailRowHTML('Peso UE', product.peso_ue, ' kg');
+    extraDetailsHTML += createDetailRowHTML('Prezzo Kit', formatPrice(product.prezzo_kit));
+    extraDetailsHTML += createDetailRowHTML('Prezzo solo UI', formatPrice(product.prezzo_ui));
+    extraDetailsHTML += createDetailRowHTML('Prezzo solo UE', formatPrice(product.prezzo_ue));
+    modalExtraDetailsList.innerHTML = extraDetailsHTML;
 
-        modalProductPrice.textContent = formatPrice(product.prezzo);
-        
-        document.body.classList.add('modal-open');
-        detailsModalOverlay.classList.add('visible');
+    // Popola Footer (codice invariato)
+    modalProductPrice.textContent = formatPrice(product.prezzo);
+    
+    // --- NUOVA LOGICA PER IL LINK SCHEDA TECNICA ---
+    if (modalDatasheetLink) {
+        if (product.scheda_tecnica_url && product.scheda_tecnica_url.trim() !== '') {
+            // Se il link esiste, impostalo e mostra il bottone
+            modalDatasheetLink.href = product.scheda_tecnica_url;
+            modalDatasheetLink.classList.remove('hidden');
+        } else {
+            // Se il link NON esiste, nascondi il bottone
+            modalDatasheetLink.href = '#'; // Rimuovi il vecchio link per sicurezza
+            modalDatasheetLink.classList.add('hidden');
+        }
     }
-
+    
+    // Mostra il modal (codice invariato)
+    document.body.classList.add('modal-open');
+    detailsModalOverlay.classList.add('visible');
+}
     function closeModal() {
         if (!detailsModalOverlay) return;
         document.body.classList.remove('modal-open');
@@ -320,6 +336,8 @@
         modalExtraDetailsList = document.getElementById('modal-extra-details-list');
         modalProductPrice = document.getElementById('modal-product-price');
         closeModalBtn = document.getElementById('close-modal-btn');
+        modalDatasheetLink = document.getElementById('modal-datasheet-link');
+});
 
         console.log("DOM_LOADED: Elementi selezionati.");
 
