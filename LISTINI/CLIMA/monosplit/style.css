@@ -589,10 +589,52 @@ body.modal-open {
 
 
 .modal-footer {
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-    text-align: right;
-    margin-top: 20px;
+    /* Aggiorniamo il footer del modale per allineare correttamente i due elementi */
+    display: flex;
+    justify-content: space-between; /* Spinge gli elementi agli estremi */
+    align-items: center; /* Li allinea verticalmente */
+}
+
+.datasheet-link-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--danger-color);
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    font-size: 0.95em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.datasheet-link-button:hover {
+    background-color: #b02a37; /* Un rosso più scuro al passaggio del mouse */
+    transform: translateY(-2px);
+}
+
+.datasheet-link-button i {
+    font-size: 1.1em;
+}
+
+/* Nasconde il bottone se non c'è una scheda tecnica (gestito da JS) */
+.datasheet-link-button.hidden {
+    display: none;
+}
+
+/* Per smartphone, riduciamo un po' il bottone */
+@media (max-width: 480px) {
+    .modal-footer {
+        flex-direction: column-reverse; /* Prezzo sopra, bottone sotto */
+        align-items: flex-end; /* Allinea a destra */
+        gap: 10px;
+    }
+
+    .datasheet-link-button {
+        padding: 6px 12px;
+        font-size: 0.9em;
+    }
 }
 .modal-footer .product-price-value {
     font-size: 1.8em;
