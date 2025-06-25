@@ -337,7 +337,6 @@
         modalProductPrice = document.getElementById('modal-product-price');
         closeModalBtn = document.getElementById('close-modal-btn');
         modalDatasheetLink = document.getElementById('modal-datasheet-link');
-});
 
         console.log("DOM_LOADED: Elementi selezionati.");
 
