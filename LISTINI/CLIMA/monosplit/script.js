@@ -371,37 +371,36 @@
         }, 3500); 
 
         // Listeners UI
-        if (filterButtons.length > 0) {
-    filterButtons.forEach(b => {
-        b.addEventListener('click', e => {
+       if (filterButtons.length > 0) {
+    filterButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
             if (!currentUser) return;
-            const cb = e.currentTarget;
-            const ft = cb.dataset.filterType;
-            const bf = cb.dataset.brand;
 
-            // Se clicco un bottone di tipo 'brand' (es. Daikin, Haier, Tutte)
-            if (ft === 'brand' && bf) {
-                // Rimuovo la classe 'active' da tutti gli altri bottoni di tipo 'brand'
+            const clickedButton = event.currentTarget;
+            const filterType = clickedButton.dataset.filterType;
+            const brandFilter = clickedButton.dataset.brand;
+
+            // Logica per il filtro di marca
+            if (filterType === 'brand') {
+                // Rimuove 'active' da tutti i bottoni di marca
                 filterButtons.forEach(btn => {
                     if (btn.dataset.filterType === 'brand') {
                         btn.classList.remove('active');
                     }
                 });
-                // Aggiungo 'active' solo al bottone cliccato
-                cb.classList.add('active');
-                // Aggiorno il filtro della marca corrente
-                currentBrandFilter = bf.toLowerCase() === 'all' ? 'all' : bf.toUpperCase();
+                // Aggiunge 'active' a quello cliccato
+                clickedButton.classList.add('active');
+                // Imposta il filtro
+                currentBrandFilter = brandFilter.toLowerCase() === 'all' ? 'all' : brandFilter.toUpperCase();
             }
 
-            // Se clicco il bottone di tipo 'economic'
-            if (ft === 'economic') {
-                // Inverto lo stato del filtro 'economici'
+            // Logica separata per il filtro economico (toggle)
+            if (filterType === 'economic') {
                 showOnlyEconomic = !showOnlyEconomic;
-                // Aggiorno lo stato visivo del bottone
-                cb.classList.toggle('active', showOnlyEconomic);
+                clickedButton.classList.toggle('active', showOnlyEconomic);
             }
-            
-            // Applica sempre i filtri dopo ogni click
+
+            // Applica i filtri e ridisegna i prodotti
             applyFiltersAndSort();
         });
     });
