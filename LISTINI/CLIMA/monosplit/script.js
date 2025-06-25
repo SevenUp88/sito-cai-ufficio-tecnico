@@ -441,5 +441,5 @@
         console.log("DOM_LOADED: Listeners UI agganciati.");
     }); // Fine DOMContentLoaded
 
-})(); // Fine IIFE
+)(); // Fine IIFE
 console.log("SCRIPT: IIFE ESEGUITA.");
