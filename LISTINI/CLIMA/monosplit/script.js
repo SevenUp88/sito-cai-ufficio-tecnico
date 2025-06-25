@@ -489,9 +489,37 @@
             if(!currentUser){alert("Devi effettuare il login per stampare il listino.");return;}
             window.print();
         });
+
+        // Event Delegation per il bottone "Dettagli" nelle product card
+    if (monosplitGrid) {
+        monosplitGrid.addEventListener('click', function(event) {
+            // Cerca il pulsante "toggle-details-btn" tra gli elementi cliccati o i loro parenti
+            const toggleBtn = event.target.closest('.toggle-details-btn');
+            
+            if (!toggleBtn) return; // Se non abbiamo cliccato sul bottone, esci
+            
+            event.preventDefault(); // Impedisce altri comportamenti di default
+
+            const productCard = toggleBtn.closest('.product-card');
+            const extraDetailsPanel = productCard ? productCard.querySelector('.product-extra-details') : null;
+            
+            if (extraDetailsPanel) {
+                // Aggiungi o rimuovi la classe 'active' sia al pulsante che al pannello
+                toggleBtn.classList.toggle('active');
+                extraDetailsPanel.classList.toggle('active');
+                
+                // Aggiorna il testo del pulsante
+                if (toggleBtn.classList.contains('active')) {
+                    toggleBtn.textContent = 'Chiudi';
+                } else {
+                    toggleBtn.textContent = 'Dettagli';
+                }
+            }
+        });
+    }
         console.log("DOM_LOADED: Listeners UI agganciati.");
     });
     console.log("SCRIPT: Fine definizione DOMContentLoaded.");
-
+  
 })(); // Fine IIFE
 console.log("SCRIPT: IIFE ESEGUITA.");
