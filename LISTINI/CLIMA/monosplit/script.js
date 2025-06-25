@@ -371,19 +371,34 @@
         }, 3500); 
 
         // Listeners UI
-        if(filterButtons.length>0)filterButtons.forEach(b=>b.addEventListener('click',e=>{
-            if(!currentUser)return;
-            const cb=e.currentTarget,ft=cb.dataset.filterType,bf=cb.dataset.brand;
-            if(ft==='economic'){
-                showOnlyEconomic=!showOnlyEconomic;
-                cb.classList.toggle('active',showOnlyEconomic);
-            }else if(bf){
-                filterButtons.forEach(btn=>{if(btn.dataset.brand)btn.classList.remove('active');});
+        if (filterButtons.length > 0) {
+    filterButtons.forEach(b => {
+        b.addEventListener('click', e => {
+            if (!currentUser) return;
+
+            const cb = e.currentTarget;
+            const ft = cb.dataset.filterType;
+            const bf = cb.dataset.brand;
+
+            if (ft === 'economic') {
+                showOnlyEconomic = !showOnlyEconomic;
+                cb.classList.toggle('active', showOnlyEconomic);
+            } else if (bf) { // <<<<< QUI MANCAVA UN ELSE IF
+                // Rimuovi 'active' da tutti i bottoni di marca
+                filterButtons.forEach(btn => {
+                    if (btn.dataset.brand) {
+                        btn.classList.remove('active');
+                    }
+                });
+                // Aggiungi 'active' solo al bottone cliccato
                 cb.classList.add('active');
-                currentBrandFilter=bf.toLowerCase()==='all'?'all':bf.toUpperCase();
-            } 
+                currentBrandFilter = bf.toLowerCase() === 'all' ? 'all' : bf.toUpperCase();
+            }
+
             applyFiltersAndSort();
-        }));
+        });
+    });
+}
 
         if(sectionTabs.length > 0) sectionTabs.forEach(t => t.addEventListener('click', e => {
             if(t.dataset.section === 'multisplit') window.location.href = '../multisplit/index.html';
