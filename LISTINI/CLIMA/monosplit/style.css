@@ -455,3 +455,141 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
     margin: 4px 0;
     display: block; /* Deve essere 'block' per funzionare come separatore */
 }
+body.modal-open {
+    overflow: hidden; /* Blocca lo scroll della pagina quando il modal è aperto */
+}
+
+#product-details-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 1050;
+    display: none; /* Nascosto di default */
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+#product-details-modal-overlay.visible {
+    display: flex;
+    opacity: 1;
+}
+
+#product-details-modal {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 800px; /* Larghezza massima del modal */
+    max-height: 90vh; /* Altezza massima, per evitare che esca dallo schermo */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    transition: transform 0.3s ease-in-out;
+}
+#product-details-modal-overlay.visible #product-details-modal {
+    transform: scale(1);
+}
+
+#close-modal-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2.5em;
+    color: var(--secondary-color);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    z-index: 10;
+}
+#close-modal-btn:hover {
+    color: var(--danger-color);
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    padding: 30px;
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+.modal-header .product-logo {
+    max-height: 45px;
+    max-width: 150px;
+}
+.modal-title h2 { margin: 0; font-size: 1.6em; color: var(--dark-color); }
+.modal-title span { margin: 0; font-size: 1em; color: var(--secondary-color); text-transform: uppercase; }
+
+.modal-body {
+    flex-grow: 1;
+    overflow-y: auto; /* Abilita lo scroll solo nel corpo del modal se il contenuto è troppo lungo */
+    padding: 25px 5px;
+    display: grid;
+    grid-template-columns: 35% 1fr;
+    gap: 25px;
+    align-items: start;
+}
+.modal-body .product-image {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border: 1px solid #eee;
+    border-radius: var(--border-radius);
+}
+
+#modal-details-container .modal-section-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0 0 15px 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--primary-color);
+}
+#modal-details-container .modal-section-title:not(:first-child) {
+    margin-top: 25px;
+}
+#modal-details-container .details-list {
+    /* Riusiamo lo stesso stile della griglia del vecchio pannello dettagli */
+    list-style: none; padding: 0; margin: 0; font-size: 0.95em;
+    display: grid; grid-template-columns: 150px 1fr;
+    gap: 8px 15px; align-items: center;
+}
+#modal-details-container .details-list li { display: contents; }
+#modal-details-container .details-list strong { font-weight: 500; color: var(--dark-color); text-align: right;}
+#modal-details-container .details-list span { color: var(--secondary-color); text-align: left; word-break: break-word; }
+
+
+.modal-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: right;
+}
+.modal-footer .product-price-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+@media (max-width: 768px) {
+    #product-details-modal { padding: 15px; }
+    #close-modal-btn { top: 5px; right: 8px; }
+    .modal-body { grid-template-columns: 1fr; text-align: center;}
+    .modal-body .product-image { max-width: 250px; margin: 0 auto 20px auto; }
+    #modal-details-container .details-list { grid-template-columns: 120px 1fr; }
+    #modal-details-container .details-list strong,
+    #modal-details-container .details-list span { text-align: left; }
+}
