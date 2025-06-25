@@ -104,8 +104,37 @@
         <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
     </div>
 
-    <!-- Scripts -->
-    <!-- <script src="data.js"></script>  COMMENTATO O RIMOSSO - i dati ora dovrebbero venire da Firestore -->
-    <script src="script.js"></script>  <!-- <<< AGGIUNGI QUESTA RIGA SE MANCAVA -->
+<div id="product-details-modal-overlay">
+    <div id="product-details-modal">
+        <button id="close-modal-btn" title="Chiudi">×</button>
+        <div class="modal-content">
+            <!-- Il contenuto verrà inserito dinamicamente qui da JavaScript -->
+            <div class="modal-header">
+                 <img id="modal-product-logo" src="" alt="Logo marca" class="product-logo">
+                 <div class="modal-title">
+                     <span id="modal-product-brand"></span>
+                     <h2 id="modal-product-model"></h2>
+                 </div>
+            </div>
+            <div class="modal-body">
+                <img id="modal-product-image" src="" alt="Immagine prodotto" class="product-image">
+                <div id="modal-details-container">
+                    <h3 class="modal-section-title">Informazioni Principali</h3>
+                    <ul id="modal-main-details-list" class="details-list"></ul>
+
+                    <h3 class="modal-section-title">Dettagli Tecnici e Prezzi</h3>
+                    <ul id="modal-extra-details-list" class="details-list"></ul>
+                </div>
+            </div>
+             <div class="modal-footer">
+                <div id="modal-product-price" class="product-price-value"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- === FINE MODAL DETTAGLI PRODOTTO === -->
+
+<!-- Scripts -->
+<script src="script.js"></script>
 </body>
 </html>
