@@ -456,7 +456,7 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
     display: block; /* Deve essere 'block' per funzionare come separatore */
 }
 body.modal-open {
-    overflow: hidden; /* Blocca lo scroll della pagina quando il modal è aperto */
+    overflow: hidden; 
 }
 
 #product-details-modal-overlay {
@@ -467,10 +467,11 @@ body.modal-open {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
     z-index: 1050;
-    display: none; /* Nascosto di default */
+    display: none;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 15px; /* Padding su tutti i lati per mobile */
+    box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
 }
@@ -484,11 +485,12 @@ body.modal-open {
     border-radius: var(--border-radius);
     box-shadow: 0 5px 25px rgba(0,0,0,0.2);
     width: 100%;
-    max-width: 800px; /* Larghezza massima del modal */
-    max-height: 90vh; /* Altezza massima, per evitare che esca dallo schermo */
+    max-width: 800px;
+    max-height: 95vh; /* Leggermente aumentato per sfruttare meglio lo spazio */
     position: relative;
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* FONDAMENTALE: nasconde tutto ciò che esce dai bordi arrotondati */
     transform: scale(0.95);
     transition: transform 0.3s ease-in-out;
 }
@@ -496,47 +498,60 @@ body.modal-open {
     transform: scale(1);
 }
 
+/* 
+* MODIFICA CHIAVE #1: Rendiamo il bottone di chiusura indipendente e sempre visibile.
+* Usiamo 'position: absolute' relativo al modal bianco, e uno z-index alto.
+*/
 #close-modal-btn {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
+    top: 8px;
+    right: 10px;
+    background-color: rgba(240, 240, 240, 0.8);
     border: none;
-    font-size: 2.5em;
+    font-size: 1.8em;
     color: var(--secondary-color);
     cursor: pointer;
     line-height: 1;
-    padding: 0;
+    padding: 2px 8px;
     z-index: 10;
+    border-radius: 50%;
+    transition: all 0.2s ease;
 }
 #close-modal-btn:hover {
     color: var(--danger-color);
+    background-color: #f1f1f1;
 }
 
+/* 
+* MODIFICA CHIAVE #2: Adesso è `.modal-content` ad avere lo scroll, 
+* non più `.modal-body`. Questo è cruciale.
+*/
 .modal-content {
     display: flex;
     flex-direction: column;
+    padding: 25px;
     height: 100%;
-    overflow: hidden;
-    padding: 30px;
+    overflow-y: auto; /* PERMETTE LO SCROLL DEL CONTENUTO INTERNO */
+    box-sizing: border-box;
 }
+
 .modal-header {
     display: flex;
     align-items: center;
     gap: 15px;
     padding-bottom: 20px;
     border-bottom: 1px solid #eee;
+    /* Rimuoviamo 'flex-shrink: 0' perché adesso il content scorre tutto insieme */
 }
-.modal-header .product-logo {
-    max-height: 45px;
-    max-width: 150px;
-}
+.modal-header .product-logo { max-height: 45px; max-width: 150px; }
 .modal-title h2 { margin: 0; font-size: 1.6em; color: var(--dark-color); }
 .modal-title span { margin: 0; font-size: 1em; color: var(--secondary-color); text-transform: uppercase; }
 
+/* 
+* MODIFICA CHIAVE #3: .modal-body non ha più lo scroll né il flex-grow, 
+* perché fa parte del contenuto che scorre.
+*/
 .modal-body {
-    flex-grow: 1;
-    overflow-y: auto; /* Abilita lo scroll solo nel corpo del modal se il contenuto è troppo lungo */
     padding: 25px 5px;
     display: grid;
     grid-template-columns: 35% 1fr;
@@ -562,34 +577,58 @@ body.modal-open {
 #modal-details-container .modal-section-title:not(:first-child) {
     margin-top: 25px;
 }
-#modal-details-container .details-list {
-    /* Riusiamo lo stesso stile della griglia del vecchio pannello dettagli */
+/* Stili liste (invariati) */
+#modal-main-details-list, #modal-extra-details-list {
     list-style: none; padding: 0; margin: 0; font-size: 0.95em;
     display: grid; grid-template-columns: 150px 1fr;
     gap: 8px 15px; align-items: center;
 }
-#modal-details-container .details-list li { display: contents; }
-#modal-details-container .details-list strong { font-weight: 500; color: var(--dark-color); text-align: right;}
-#modal-details-container .details-list span { color: var(--secondary-color); text-align: left; word-break: break-word; }
+#modal-main-details-list li, #modal-extra-details-list li { display: contents; }
+#modal-main-details-list strong, #modal-extra-details-list strong { font-weight: 500; color: var(--dark-color); text-align: right;}
+#modal-main-details-list span, #modal-extra-details-list span { color: var(--secondary-color); text-align: left; word-break: break-word; }
 
 
 .modal-footer {
-    margin-top: auto;
     padding-top: 20px;
     border-top: 1px solid #eee;
     text-align: right;
+    margin-top: 20px;
 }
 .modal-footer .product-price-value {
     font-size: 1.8em;
     font-weight: 700;
     color: var(--primary-color);
 }
+
+/* 
+* MODIFICA CHIAVE #4: Media query semplificata e più robusta
+*/
 @media (max-width: 768px) {
-    #product-details-modal { padding: 15px; }
-    #close-modal-btn { top: 5px; right: 8px; }
-    .modal-body { grid-template-columns: 1fr; text-align: center;}
-    .modal-body .product-image { max-width: 250px; margin: 0 auto 20px auto; }
-    #modal-details-container .details-list { grid-template-columns: 120px 1fr; }
-    #modal-details-container .details-list strong,
-    #modal-details-container .details-list span { text-align: left; }
+    .modal-content {
+        padding: 20px 15px; /* Meno padding laterale su mobile */
+    }
+
+    .modal-header {
+        /* Riduce il padding del titolo per fare più spazio */
+        padding-bottom: 15px; 
+    }
+    
+    .modal-body {
+        grid-template-columns: 1fr; /* Una sola colonna */
+        text-align: center;
+    }
+
+    .modal-body .product-image {
+        max-width: 250px;
+        margin: 0 auto 20px auto;
+    }
+
+    /* Allinea tutto a sinistra per migliore leggibilità */
+    #modal-main-details-list, #modal-extra-details-list {
+        grid-template-columns: 120px 1fr; 
+        text-align: left;
+    }
+    #modal-main-details-list strong, #modal-extra-details-list strong {
+        text-align: left;
+    }
 }
