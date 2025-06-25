@@ -375,26 +375,33 @@
     filterButtons.forEach(b => {
         b.addEventListener('click', e => {
             if (!currentUser) return;
-
             const cb = e.currentTarget;
             const ft = cb.dataset.filterType;
             const bf = cb.dataset.brand;
 
-            if (ft === 'economic') {
-                showOnlyEconomic = !showOnlyEconomic;
-                cb.classList.toggle('active', showOnlyEconomic);
-            } else if (bf) { // <<<<< QUI MANCAVA UN ELSE IF
-                // Rimuovi 'active' da tutti i bottoni di marca
+            // Se clicco un bottone di tipo 'brand' (es. Daikin, Haier, Tutte)
+            if (ft === 'brand' && bf) {
+                // Rimuovo la classe 'active' da tutti gli altri bottoni di tipo 'brand'
                 filterButtons.forEach(btn => {
-                    if (btn.dataset.brand) {
+                    if (btn.dataset.filterType === 'brand') {
                         btn.classList.remove('active');
                     }
                 });
-                // Aggiungi 'active' solo al bottone cliccato
+                // Aggiungo 'active' solo al bottone cliccato
                 cb.classList.add('active');
+                // Aggiorno il filtro della marca corrente
                 currentBrandFilter = bf.toLowerCase() === 'all' ? 'all' : bf.toUpperCase();
             }
 
+            // Se clicco il bottone di tipo 'economic'
+            if (ft === 'economic') {
+                // Inverto lo stato del filtro 'economici'
+                showOnlyEconomic = !showOnlyEconomic;
+                // Aggiorno lo stato visivo del bottone
+                cb.classList.toggle('active', showOnlyEconomic);
+            }
+            
+            // Applica sempre i filtri dopo ogni click
             applyFiltersAndSort();
         });
     });
