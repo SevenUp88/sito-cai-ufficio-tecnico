@@ -42,12 +42,12 @@
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
         
-        /* --- MODAL FORM STYLES --- */
-        .modal-body .form-group { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
-        .modal-body .form-group.form-group-textarea { align-items: flex-start; }
-        .modal-body label { flex-basis: 120px; flex-shrink: 0; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
+        /* --- MODAL FORM STYLES (GRID LAYOUT) --- */
+        .modal-body .form-group { display: grid; grid-template-columns: 100px 1fr; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+        .modal-body .form-group.form-group-textarea { align-items: start; }
+        .modal-body label { text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
         .modal-body .form-group.form-group-textarea label { padding-top: 12px; }
-        .modal-body input, .modal-body textarea { flex-grow: 1; width: auto; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
         .modal-body textarea { min-height: 100px; resize: vertical; }
 
         .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
@@ -62,20 +62,19 @@
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; }
         #printable { display: none; }
         
-        /* --- PRINT STYLES --- */
+        /* --- PRINT STYLES (SINGLE PAGE) --- */
         @media print {
-            @page { size: A4 portrait; margin: 1.5cm; }
-            body, html { margin: 0 !important; padding: 0 !important; }
+            @page { size: A4 portrait; margin: 1cm; }
+            html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; }
             body * { visibility: hidden; }
             #printable, #printable * { visibility: visible; }
             #printable { display: block !important; position: static; width: 100%; margin: 0; padding: 0; }
-            #printable h2 { font-family: var(--font-family); color: #000; text-align: center; margin: 0 0 1rem 0; font-size: 14pt; }
+            #printable h2 { font-family: var(--font-family); color: #000; text-align: center; margin: 0 0 0.5rem 0; font-size: 14pt; }
             #printable table { width: 100%; border-collapse: collapse; font-size: 8pt; page-break-inside: auto; }
             #printable tr { page-break-inside: avoid; page-break-after: auto; }
-            #printable th, #printable td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
-            #printable td { height: auto; min-height: 40px; }
+            #printable th, #printable td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; height: auto; }
             #printable strong { text-transform: uppercase; font-weight: bold; }
-            #printable em { font-style: normal; color: #333; }
+            #printable em { font-style: normal; color: #333; font-size: 7pt; }
         }
     </style>
 </head>
