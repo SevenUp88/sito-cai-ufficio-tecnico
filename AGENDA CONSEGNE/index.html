@@ -42,14 +42,18 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
-        .modal-body .form-group { display: grid; grid-template-columns: 100px 1fr; gap: 1rem; align-items: center; margin-bottom: 1rem; }
-        .modal-body .form-group.form-group-textarea { align-items: start; }
-        .modal-body label { text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
-        .modal-body .form-group.form-group-textarea label { padding-top: 12px; }
-        .modal-body input, .modal-body textarea, gmp-place-autocomplete { width: 100%; }
-        .modal-body input, .modal-body textarea { font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+        
+        /* --- MODAL FORM STYLES (GRID LAYOUT - REFINED) --- */
+        .modal-body .form-group { display: grid; grid-template-columns: 100px 1fr; gap: 1rem; align-items: start; margin-bottom: 1rem; }
+        .modal-body label { padding-top: 12px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
+        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: var(--font-family); box-sizing: border-box; }
         .modal-body textarea { min-height: 100px; resize: vertical; }
-        gmp-place-autocomplete > input.gmp-input { padding: 12px !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; }
+        gmp-place-autocomplete { width: 100%; }
+        /* Style the input *inside* the gmp-place-autocomplete web component */
+        gmp-place-autocomplete::part(input) { box-sizing: border-box !important; width: 100% !important; padding: 12px !important; margin: 0 !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; font-family: var(--font-family) !important; font-size: 1rem !important; background-image: none !important; /* Hide the default search icon */ -webkit-appearance: none; appearance: none; }
+        /* Hide the "clear" button that appears on the right */
+        gmp-place-autocomplete::part(clear-button) { display: none !important; }
+
         .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
         .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -146,10 +150,7 @@
             };
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&loading=async`;
-            script.onload = () => {
-                isMapsScriptLoaded = true;
-                console.log("Google Maps API caricata.");
-            };
+            script.onload = () => { isMapsScriptLoaded = true; console.log("Google Maps API caricata."); };
             script.onerror = () => console.error("Errore nel caricamento dello script di Google Maps.");
             document.head.appendChild(script);
         }
@@ -177,11 +178,9 @@
             const table = document.getElementById('week-overview-table');
             const { weekDates, weekTitle } = getWeekInfo(currentDisplayedDate);
             document.getElementById('week-title').textContent = weekTitle;
-
             let header = `<thead><tr><th>Ora</th>`;
             Object.keys(dayLabels).forEach(key => header += `<th>${dayLabels[key].substring(0, 3)} ${weekDates[key].split('-')[2]}</th>`);
             header += `</tr></thead>`;
-            
             let body = '<tbody>';
             allHours.forEach(hour => {
                 if (hour === '14:00') body += `<tr><td class="pause-label-week" colspan="6">Pausa</td></tr>`;
@@ -195,7 +194,6 @@
                 });
                 body += '</tr>';
             });
-
             table.innerHTML = header + body;
             table.querySelectorAll('.slot').forEach(slot => {
                 slot.addEventListener('click', () => handleSlotClick(slot.dataset.date, slot.dataset.hour, slot.dataset.daykey));
@@ -210,50 +208,42 @@
             document.getElementById('modal-body').innerHTML = `
                 <div class="form-group">
                     <label for="modal-cliente">Cliente</label>
-                    <input type="text" id="modal-cliente" value="${agendaData[dataKey + '-cliente'] || ''}" placeholder="Nome Cliente">
+                    <input type="text" id="modal-cliente" placeholder="Nome Cliente">
                 </div>
                 <div class="form-group">
-                    <label for="indirizzo-input">Indirizzo</label>
-                    <gmp-place-autocomplete id="autocomplete" country-codes="it">
-                        <input id="indirizzo-input" class="gmp-input" type="text" placeholder="Via, numero, città" />
-                    </gmp-place-autocomplete>
+                    <label for="autocomplete">Indirizzo</label>
+                    <gmp-place-autocomplete id="autocomplete" country-codes="it" placeholder="Via, numero, città"></gmp-place-autocomplete>
                 </div>
-                <div class="form-group form-group-textarea">
+                <div class="form-group">
                     <label for="modal-note">Note</label>
-                    <textarea id="modal-note" placeholder="Materiale, dettagli, contatto...">${agendaData[dataKey + '-note'] || ''}</textarea>
+                    <textarea id="modal-note" placeholder="Materiale, dettagli, contatto..."></textarea>
                 </div>
             `;
             
-            ['cliente', 'note'].forEach(field => {
-                document.getElementById(`modal-${field}`).addEventListener('input', (e) => handleModalAutoSave(e, dataKey, field));
-            });
+            document.getElementById('modal-cliente').value = agendaData[dataKey + '-cliente'] || '';
+            document.getElementById('modal-note').value = agendaData[dataKey + '-note'] || '';
+            
+            document.getElementById('modal-cliente').addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'cliente'));
+            document.getElementById('modal-note').addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'note'));
 
             if (isMapsScriptLoaded && window.google?.maps?.places?.PlaceAutocompleteElement) {
                 const autocompleteElement = document.getElementById('autocomplete');
-                const inputElement = autocompleteElement.querySelector('input');
-
-                Promise.resolve().then(() => { inputElement.value = agendaData[dataKey + '-indirizzo'] || ''; });
-                
+                const inputElement = autocompleteElement.input; 
+                inputElement.value = agendaData[dataKey + '-indirizzo'] || '';
                 autocompleteElement.addEventListener('gmp-placechange', () => {
                     const place = autocompleteElement.place;
-                    if (!place) return;
-                    const address = place.formattedAddress || '';
-                    inputElement.value = address;
-                    const fakeEvent = { target: { value: address } };
-                    handleModalAutoSave(fakeEvent, dataKey, 'indirizzo');
+                    if (!place || !place.formattedAddress) return;
+                    const address = place.formattedAddress;
+                    inputElement.value = address; 
+                    handleModalAutoSave({ target: { value: address } }, dataKey, 'indirizzo');
                 });
-                
                 inputElement.addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'indirizzo'));
-            } else {
-                console.warn("Google Maps Autocomplete non disponibile. Verrà usato un campo di testo normale.");
-                document.getElementById('indirizzo-input').addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'indirizzo'));
             }
-
+            
             const navBtn = document.getElementById('modal-nav-btn');
             const hasAddress = agendaData[dataKey + '-indirizzo'] && agendaData[dataKey + '-indirizzo'].trim() !== '';
             navBtn.style.display = hasAddress ? 'inline-flex' : 'none';
             navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(agendaData[dataKey + '-indirizzo'] || '')}`;
-            
             document.getElementById('modal-delete-btn').onclick = () => deleteSlot(dataKey, dayLabels[dayKey], hour);
             
             modal.style.display = 'flex';
@@ -263,14 +253,12 @@
         function handleModalAutoSave(event, dataKey, field) {
             clearTimeout(saveTimeout);
             const value = event.target.value;
-            
             saveTimeout = setTimeout(async() => {
                 if (!currentUser) return;
                 const firestoreKey = `${dataKey}-${field}`;
                 const dataToSave = { [firestoreKey]: value.trim() };
                 await setDoc(doc(db, "agende", "principale"), dataToSave, { merge: true });
             }, 800);
-            
             if (field === 'indirizzo') {
                 const navBtn = document.getElementById('modal-nav-btn');
                 const indirizzo = value.trim();
@@ -281,22 +269,12 @@
         
         async function deleteSlot(dataKey, dayName, hour) {
             if (!confirm(`Cancellare la consegna delle ${hour} di ${dayName}?`)) return;
-            
             clearTimeout(saveTimeout);
             closeModal();
-
             const docRef = doc(db, 'agende', 'principale');
             const updates = {};
-            ['cliente', 'indirizzo', 'note'].forEach(f => {
-                updates[`${dataKey}-${f}`] = deleteField();
-            });
-            
-            try {
-                await updateDoc(docRef, updates);
-            } catch (error) {
-                console.error("Error deleting slot:", error);
-                alert("Errore durante l'eliminazione della consegna.");
-            }
+            ['cliente', 'indirizzo', 'note'].forEach(f => { updates[`${dataKey}-${f}`] = deleteField(); });
+            try { await updateDoc(docRef, updates); } catch (error) { console.error("Error deleting slot:", error); alert("Errore durante l'eliminazione della consegna."); }
         }
 
         function closeModal() {
@@ -332,8 +310,7 @@
                 tableHtml += `</tr>`;
             });
             const finalHtml = `<h2>Agenda ${weekTitle}</h2><table>${tableHtml}</tbody></table>`;
-            const printable = document.getElementById("printable");
-            printable.innerHTML = finalHtml;
+            document.getElementById("printable").innerHTML = finalHtml;
             window.print();
         }
     </script>
