@@ -1,144 +1,70 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Climatizzatori - C.A.I.</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agenda Consegne</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-    <!-- SDK Firebase v8 (Globale) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-     
-    <style>
-        .content-hidden { display: none !important; }
-        #password-panel:not(.visible) { transform: translateX(100%); }
-        #password-panel.visible { transform: translateX(0); display: flex; }
-        #login-email-input-clima { /* Stile base per l'input email */
-            width: 100%; padding: 10px; border: 1px solid #ccc;
-            border-radius: 4px; box-sizing: border-box;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="operator-mode">
+<body>
 
-    <header class="app-header content-hidden">
-        <a href="/" title="C.A.I. - Home">
-             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI" class="logo">
-        </a>
-        <div class="header-controls">
-            <button id="print-button" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
-            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
-            <button id="exit-admin-button" class="header-action-button" title="Logout" style="display: none;"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
+    <!-- Header Fisso (come da tuo esempio) -->
+    <header class="app-header">
+      <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link">
+        <img src="https://caiufficiotecnico.netlify.app/img/logo-cai-nav.png" alt="Logo CAI" class="logo">
+      </a>
+      <div class="header-controls">
+        <span id="user-info"></span>
+        <button id="logout-btn" title="Logout" class="header-action-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
     </header>
 
-    <div id="app-status-message" style="text-align: center; padding: 20px; font-size: 1.1em;">
-        Inizializzazione applicazione...
-    </div>
-
-    <div class="container content-hidden">
-        <div class="page-controls">
-             <h1>Listino Climatizzatori</h1>
-             <div class="filters">
-                 <span>Filtra per:</span>
-                 <button class="filter-btn active" data-filter-type="brand" data-brand="all">Tutte le Marche</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="DAIKIN">Daikin</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="HAIER">Haier</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="HITACHI">Hitachi</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="IMMERGAS">Immergas</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="INNOVA">Innova</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="LG">LG</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="MITSUBISHI">Mitsubishi</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="SAMSUNG">Samsung</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="TOSHIBA">Toshiba</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="VIESSMANN">Viessmann</button>
-                 <button class="filter-btn" data-filter-type="economic">Economici</button>
-             </div>
-             <div class="section-tabs">
-                 <button class="tab-btn active" data-section="monosplit">Monosplit</button>
-                 <button class="tab-btn" data-section="multisplit">Multisplit</button>
-             </div>
+    <!-- Overlay di Autenticazione -->
+    <div id="authOverlay" class="auth-overlay">
+        <div class="auth-box">
+            <h2>Accesso Agenda</h2><p>Effettua il login per continuare.</p><p id="authError" class="auth-error-message"></p>
+            <input type="email" id="email" placeholder="Email"><input type="password" id="password" placeholder="Password"><button id="login-btn">Accedi</button>
         </div>
+    </div>
+
+    <!-- Contenuto Principale dell'App -->
+    <div id="app" class="app-container" style="display:none">
+        <div class="page-controls">
+            <h1>Agenda Consegne</h1>
+            <div class="week-navigation">
+                <button id="prev-week-btn">‹ Sett. Prec.</button>
+                <h2 id="week-title"></h2>
+                <button id="next-week-btn">Sett. Succ. ›</button>
+            </div>
+        </div>
+        
         <main>
-            <div class="sections-wrapper">
-                <section id="monosplit-section" class="content-section active-section">
-                    <div id="monosplit-grid" class="product-grid">
-                        <div class="loading-placeholder">Caricamento prodotti in corso...</div>
-                    </div>
-                </section>
-                <section id="multisplit-section" class="content-section">
-                     <div id="multisplit-grid" class="product-grid">
-                         <div class="loading-placeholder">Contenuto Multisplit (se implementato).</div>
-                    </div>
-                </section>
-            </div>
-        </main>
-        <footer class="app-footer"><p>© 2025 C.A.I - Consorzio Artigiani Idraulici</p></footer>
-    </div>
-
-   <div id="password-panel"> <!-- ID Pannello Password Esistente -->
-       <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
-       <h3>Accesso Area Riservata</h3>
-       <p>Inserisci le tue credenziali per continuare.</p>
-       <div class="form-group">
-           <label for="login-email-input-clima">Email:</label>
-           <input type="email" id="login-email-input-clima" name="login-email-input-clima" required>
-       </div>
-       <div class="form-group">
-           <label for="admin-password">Password:</label>
-           <input type="password" id="admin-password" name="admin-password" placeholder="Password" required>
-       </div>
-       <button id="submit-password-btn">Accedi</button>
-       <p id="password-error" class="error-message"></p>
-   </div>
-
-    <div id="dimension-tooltip">
-        <img src="../images/dimensioni_blueprint.png" alt="Schema dimensioni UI/UE">
-        <div id="tooltip-ui-dimensions" class="tooltip-dimension-text"></div>
-        <div id="tooltip-ue-dimensions" class="tooltip-dimension-text"></div>
-    </div>
-
-<div id="product-details-modal-overlay">
-    <div id="product-details-modal">
-        <button id="close-modal-btn" title="Chiudi">×</button>
-        <div class="modal-content">
-            <!-- Il contenuto verrà inserito dinamicamente qui da JavaScript -->
-            <div class="modal-header">
-                 <img id="modal-product-logo" src="" alt="Logo marca" class="product-logo">
-                 <div class="modal-title">
-                     <span id="modal-product-brand"></span>
-                     <h2 id="modal-product-model"></h2>
-                 </div>
-            </div>
-            <div class="modal-body">
-                <img id="modal-product-image" src="" alt="Immagine prodotto" class="product-image">
-                <div id="modal-details-container">
-                    <h3 class="modal-section-title">Informazioni Principali</h3>
-                    <ul id="modal-main-details-list" class="details-list"></ul>
-
-                    <h3 class="modal-section-title">Dettagli Tecnici e Prezzi</h3>
-                    <ul id="modal-extra-details-list" class="details-list"></ul>
+            <div class="week-overview-column">
+                <table id="week-overview-table"></table>
+                <div class="btn-group">
+                    <button id="print-weekly-btn">🖨️ Stampa Settimana</button>
                 </div>
             </div>
-             <div class="modal-footer">
-    <a href="#" id="modal-datasheet-link" target="_blank" rel="noopener noreferrer" class="datasheet-link-button">
-        <i class="fas fa-file-pdf"></i>
-        <span>Scheda Tecnica</span>
-    </a>
-    <div id="modal-product-price" class="product-price-value"></div>
-</div>
+        </main>
+    </div>
+    
+    <!-- Finestra Modale -->
+    <div id="slot-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><h3 id="modal-title"></h3><button id="modal-close-btn" class="close-btn">×</button></div>
+            <div id="modal-body"></div>
+            <div class="modal-footer">
+                <div class="btn-group-left"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Naviga</a></div>
+                <button id="modal-done-btn" class="btn-primary-ghost">Fatto</button>
+            </div>
         </div>
     </div>
-</div>
-<!-- === FINE MODAL DETTAGLI PRODOTTO === -->
+    
+    <div id="printable"></div>
+    <script type="module" src="script.js"></script>
 
-<!-- Scripts -->
-<script src="script.js"></script>
 </body>
 </html>
