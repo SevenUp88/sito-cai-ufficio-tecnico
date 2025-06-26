@@ -1,24 +1,73 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda Consegne</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-color: #005A9C; --primary-light: #E6F0F8; --background-color: #f4f7fa; --card-background: #ffffff; --text-primary: #1a202c; --text-secondary: #5a6678; --border-color: #dce3eb; --shadow-color: rgba(45, 55, 71, 0.1); --font-family: 'Inter', sans-serif; --success-color: #28a745; --danger-color: #c82333; }
+        * { box-sizing: border-box; }
+        body { font-family: var(--font-family); background-color: var(--background-color); margin: 0; padding: 1.5rem; color: var(--text-primary); }
+        .app-container { max-width: 1200px; margin: 0 auto; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .logo-cai { height: 50px; }
+        .app-header h1 { margin: 0; font-size: 1.75rem; color: var(--text-primary); }
+        .user-info-container { display: flex; align-items: center; gap: 1rem; }
+        #user-info { font-weight: 500; }
+        #logout-btn { display: flex; align-items: center; gap: 8px; background-color: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .week-overview-column { background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 20px var(--shadow-color); margin-bottom: 2rem; }
+        .week-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .week-navigation h2 { margin: 0; font-size: 1.5rem; flex-grow: 1; text-align: center; }
+        .week-navigation button { padding: 8px 16px; background-color: #fff; border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-weight: 600; }
+        #week-overview-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        #week-overview-table th, #week-overview-table td { border: 1px solid #dce3eb; padding: 8px; text-align: center; font-size: 0.9rem; vertical-align: top; }
+        #week-overview-table th { background-color: #f8f9fa; font-weight: 600; padding: 12px 8px; }
+        #week-overview-table .time-col { font-weight: 600; color: var(--primary-color); width: 80px; }
+        #week-overview-table .slot { cursor: pointer; height: 80px; transition: background-color 0.2s; position: relative; }
+        #week-overview-table .slot:hover { background-color: var(--primary-light); }
+        #week-overview-table .slot.is-filled { background-color: var(--success-color); color: white; }
+        #week-overview-table .slot.is-filled .slot-summary strong { color: white; }
+        #week-overview-table .slot.is-filled .slot-summary { color: #f0f0f0; }
+        #week-overview-table .slot-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4; text-align: left; padding: 4px; }
+        .slot-summary strong { display: block; }
+        .pause-label-week { background: #f4f7fa; font-style: italic; font-size: 0.8rem; height: 40px; vertical-align: middle; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.visible { display: flex; opacity: 1; }
+        .modal-content { background: white; padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+        .modal-header h3 { margin: 0; font-size: 1.25rem; }
+        .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
+        .modal-body .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+        .modal-body label { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); text-align: left; font-size: 0.9rem;}
+        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+        .modal-body textarea { min-height: 100px; resize: vertical; }
+        .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
+        .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-navigate { background-color: var(--success-color); color: white; }
+        .btn-primary-ghost { background-color: transparent; color: var(--primary-color); }
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; }
+        .auth-box { background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
+        .auth-box input { display: block; width: 100%; margin-bottom: 1rem; }
+        .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; }
+        #printable { display: none; }
+        @media print { .page-break{page-break-after:always!important} body{padding:0} body *{visibility:hidden} #printable,#printable *{visibility:visible} #printable{position:absolute;top:0;left:0;width:100%}#printable h2{font-family:var(--font-family);color:#000;text-align:center;margin-bottom:1.5rem} #printable table{width:100%;border-collapse:collapse;font-size:9pt}#printable th,#printable td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}#printable td{height:60px}#printable strong{text-transform:uppercase}#printable em{font-style:normal;color:#333} }
+    </style>
 </head>
 <body>
     <div id="authOverlay" class="auth-overlay"><div class="auth-box"><h2>Accesso Agenda</h2><p>Effettua il login per continuare.</p><p id="authError" class="auth-error-message"></p><input type="email" id="email" placeholder="Email"><input type="password" id="password" placeholder="Password"><button id="login-btn">Accedi</button></div></div>
     <div id="app" class="app-container" style="display:none">
         <header class="app-header">
-            <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link">
-                <img src="https://caiufficiotecnico.netlify.app/img/logo-cai-nav.png" alt="Logo CAI" class="logo-cai">
-            </a>
+            <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link"><img src="https://caiufficiotecnico.netlify.app/img/logo-cai-nav.png" alt="Logo CAI" class="logo-cai"></a>
             <h1>Agenda Consegne</h1>
             <div class="user-info-container">
                 <span id="user-info"></span>
-                <button id="logout-btn" title="Logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                </button>
+                <button id="logout-btn" title="Logout"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
             </div>
         </header>
         <div class="week-overview-column">
@@ -28,22 +77,217 @@
                 <button id="next-week-btn">Sett. Succ. ›</button>
             </div>
             <table id="week-overview-table"></table>
-            <div class="btn-group">
-                <button id="print-weekly-btn">🖨️ Stampa Settimana</button>
-            </div>
+            <div class="btn-group" style="justify-content: flex-end;margin-top: 1.5rem;"><button id="print-weekly-btn">🖨️ Stampa Settimana</button></div>
         </div>
     </div>
-    <div id="slot-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header"><h3 id="modal-title"></h3><button id="modal-close-btn" class="close-btn">×</button></div>
-            <div id="modal-body"></div>
-            <div class="modal-footer">
-                <div class="btn-group-left"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Naviga</a></div>
-                <button id="modal-done-btn" class="btn-primary-ghost">Fatto</button>
-            </div>
-        </div>
-    </div>
+    <div id="slot-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3 id="modal-title"></h3><button id="modal-close-btn" class="close-btn">×</button></div><div id="modal-body"></div><div class="modal-footer"><div class="btn-group-left"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Naviga</a></div><button id="modal-done-btn" class="btn-primary-ghost">Fatto</button></div></div></div>
     <div id="printable"></div>
-    <script type="module" src="script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        
+        const firebaseConfig = { apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser, agendaData={}, unsubscribe, saveTimeout, isMapsScriptLoaded=!1;
+        let currentDisplayedDate = new Date();
+
+        const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"}, dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
+        const allHours=["08:00","09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00"];
+
+        // --- Punto d'ingresso ---
+        document.addEventListener('DOMContentLoaded', () => {
+            addEventListeners();
+            onAuthStateChanged(auth, handleAuthStateChange);
+        });
+
+        // --- Gestori di Eventi Globali ---
+        function addEventListeners() {
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            document.getElementById('prev-week-btn').addEventListener('click', () => navigateWeek(-7));
+            document.getElementById('next-week-btn').addEventListener('click', () => navigateWeek(7));
+            document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+            document.getElementById('modal-done-btn').addEventListener('click', closeModal);
+            document.getElementById('slot-modal').addEventListener('click', (e) => { if (e.target.id === 'slot-modal') closeModal(); });
+            document.getElementById('print-weekly-btn').addEventListener('click', printWeek);
+        }
+
+        // --- Logica Principale ---
+        async function handleAuthStateChange(user) {
+            document.getElementById('authOverlay').style.display = user ? 'none' : 'flex';
+            document.getElementById('app').style.display = user ? 'block' : 'none';
+            if (user) {
+                currentUser = user;
+                document.getElementById('user-info').textContent = user.email;
+                await setupRealtimeListener();
+                loadGoogleMapsScript();
+            } else {
+                if (unsubscribe) unsubscribe();
+                currentUser = null;
+            }
+        }
+        
+        const handleLogin = () => {
+            const [email, pass, errorP] = [document.getElementById('email').value, document.getElementById('password').value, document.getElementById('authError')];
+            errorP.textContent = '';
+            signInWithEmailAndPassword(auth, email, pass).catch(e => errorP.textContent = "Credenziali non valide.");
+        };
+
+        function loadGoogleMapsScript(){
+            if(isMapsScriptLoaded) return;
+            isMapsScriptLoaded = true;
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => console.log("Google Maps API caricata.");
+            document.head.appendChild(script);
+        }
+
+        async function setupRealtimeListener() {
+            if (unsubscribe) unsubscribe();
+            const docRef = doc(db, 'agende', 'principale');
+            unsubscribe = onSnapshot(docRef, (docSnap) => {
+                agendaData = docSnap.exists() ? docSnap.data() : {};
+                buildWeekOverview();
+            });
+        }
+        
+        // --- Costruzione UI ---
+        function getWeekInfo(baseDate) {
+            const startOfWeek=new Date(baseDate); const day=startOfWeek.getDay(); const diff=day===0?-6:1-day;
+            startOfWeek.setDate(startOfWeek.getDate() + diff);
+            const weekDates={}; const monthNames=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+            Object.keys(dayKeyMapping).forEach(key=>{const d=new Date(startOfWeek);d.setDate(startOfWeek.getDate()+(key-1));weekDates[dayKeyMapping[key]]=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`});
+            const endDate=new Date(startOfWeek);endDate.setDate(startOfWeek.getDate()+4);
+            const weekTitle=`Settimana ${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} - ${endDate.getDate()} ${monthNames[endDate.getMonth()]}, ${endDate.getFullYear()}`;
+            return{weekDates,weekTitle};
+        }
+        
+        function buildWeekOverview() {
+            const table = document.getElementById('week-overview-table');
+            const { weekDates, weekTitle } = getWeekInfo(currentDisplayedDate);
+            document.getElementById('week-title').textContent = weekTitle;
+
+            let header = `<thead><tr><th>Ora</th>`;
+            Object.keys(dayLabels).forEach(key => header += `<th>${dayLabels[key].substring(0, 3)} ${weekDates[key].split('-')[2]}</th>`);
+            header += `</tr></thead>`;
+            
+            let body = '<tbody>';
+            allHours.forEach(hour => {
+                if (hour === '14:00') body += `<tr><td class="pause-label-week" colspan="6">Pausa</td></tr>`;
+                body += `<tr><td class="time-col">${hour}</td>`;
+                Object.keys(dayLabels).forEach(dayKey => {
+                    const date = weekDates[dayKey];
+                    const dataKey = `${date}-${hour}`;
+                    const cliente = agendaData[dataKey + '-cliente'] || "";
+                    const indirizzo = agendaData[dataKey + '-indirizzo'] || "";
+                    body += `<td class="slot ${cliente || indirizzo ? 'is-filled' : ''}" data-date="${date}" data-hour="${hour}" data-daykey="${dayKey}"><div class="slot-summary"><strong>${cliente}</strong>${indirizzo}</div></td>`;
+                });
+                body += '</tr>';
+            });
+
+            table.innerHTML = header + body;
+            table.querySelectorAll('.slot').forEach(slot => {
+                slot.addEventListener('click', () => handleSlotClick(slot.dataset.date, slot.dataset.hour, slot.dataset.daykey));
+            });
+        }
+        
+        // --- Logica Modale ---
+        function handleSlotClick(date, hour, dayKey) {
+            const modal = document.getElementById('slot-modal');
+            const dataKey = `${date}-${hour}`;
+            
+            document.getElementById('modal-title').textContent = `Consegna: ${dayLabels[dayKey]} ${date.split('-')[2]}, ore ${hour}`;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="form-group"><label for="modal-cliente">Cliente</label><input type="text" id="modal-cliente" value="${agendaData[dataKey + '-cliente'] || ''}" placeholder="Nome Cliente"></div>
+                <div class="form-group"><label for="modal-indirizzo">Indirizzo</label><input type="text" id="modal-indirizzo" value="${agendaData[dataKey + '-indirizzo'] || ''}" placeholder="Via, numero, città"></div>
+                <div class="form-group"><label for="modal-note">Note (materiale, dettagli, contatto)</label><textarea id="modal-note" placeholder="Dettagli aggiuntivi...">${agendaData[dataKey + '-note'] || ''}</textarea></div>
+            `;
+            
+            ['cliente', 'indirizzo', 'note'].forEach(field => {
+                document.getElementById(`modal-${field}`).addEventListener('input', (e) => handleModalAutoSave(e, dataKey, field));
+            });
+            
+            if (isMapsScriptLoaded && window.google) new google.maps.places.Autocomplete(document.getElementById('modal-indirizzo'), { componentRestrictions: { country: 'it' } });
+
+            const navBtn = document.getElementById('modal-nav-btn');
+            const hasAddress = agendaData[dataKey + '-indirizzo'] && agendaData[dataKey + '-indirizzo'].trim() !== '';
+            navBtn.style.display = hasAddress ? 'inline-flex' : 'none';
+            navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(agendaData[dataKey + '-indirizzo'] || '')}`;
+            
+            document.getElementById('modal-delete-btn').onclick = () => deleteSlot(dataKey, dayLabels[dayKey], hour);
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('visible'), 10);
+        }
+
+        function handleModalAutoSave(event, dataKey, field) {
+            clearTimeout(saveTimeout);
+            const firestoreKey = `${dataKey}-${field}`;
+            agendaData[firestoreKey] = event.target.value.trim();
+            saveTimeout = setTimeout(async() => {
+                if (!currentUser) return;
+                await setDoc(doc(db, "agende", "principale"), agendaData, { merge: true });
+            }, 800);
+            if (field === 'indirizzo') {
+                const navBtn = document.getElementById('modal-nav-btn');
+                const indirizzo = event.target.value.trim();
+                navBtn.style.display = indirizzo ? 'inline-flex' : 'none';
+                navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`;
+            }
+        }
+        
+        function deleteSlot(dataKey, dayName, hour) {
+            if (confirm(`Cancellare la consegna delle ${hour} di ${dayName}?`)) {
+                ['cliente', 'indirizzo', 'note'].forEach(f => delete agendaData[`${dataKey}-${f}`]);
+                clearTimeout(saveTimeout);
+                handleModalAutoSave({target:{value:''}}, dataKey.substring(0, dataKey.lastIndexOf('-')), "fake");
+                closeModal();
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('slot-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        
+        function navigateWeek(days) {
+            currentDisplayedDate.setDate(currentDisplayedDate.getDate() + days);
+            buildWeekOverview();
+        }
+        
+        function printWeek() {
+            const { weekDates, weekTitle } = getWeekInfo(currentDisplayedDate);
+            let tableHtml = `<thead><tr><th>Ora</th>`;
+            Object.keys(dayLabels).forEach(dayKey => tableHtml += `<th>${dayLabels[dayKey]} ${weekDates[dayKey].split('-')[2]}</th>`);
+            tableHtml += `</tr></thead><tbody>`;
+            allHours.forEach(hour => {
+                if (hour === '14:00') tableHtml += `<tr><td colspan="6" style="text-align:center;font-style:italic;">Pausa</td></tr>`;
+                tableHtml += `<tr><td><b>${hour}</b></td>`;
+                Object.keys(dayLabels).forEach(dayKey => {
+                    const date = weekDates[dayKey];
+                    const cliente = agendaData[`${date}-${hour}-cliente`] || "";
+                    const indirizzo = agendaData[`${date}-${hour}-indirizzo`] || "";
+                    const note = agendaData[`${date}-${hour}-note`] || "";
+                    let content = '';
+                    if (cliente) content += `<strong>${cliente.toUpperCase()}</strong><br>`;
+                    if (indirizzo) content += `${indirizzo}<br>`;
+                    if (note) content += `<small><em>${note.replace(/\n/g, "<br>")}</em></small>`;
+                    tableHtml += `<td>${content || '-'}</td>`;
+                });
+                tableHtml += `</tr>`;
+            });
+            const finalHtml = `<h2>Agenda ${weekTitle}</h2><table>${tableHtml}</tbody></table>`;
+            const printable = document.getElementById("printable");
+            printable.innerHTML = finalHtml;
+            window.print();
+        }
+    </script>
 </body>
 </html>
