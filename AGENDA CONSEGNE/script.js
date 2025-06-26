@@ -42,7 +42,7 @@ function loadGoogleMapsScript(){
     isMapsScriptLoaded = true;
     const script = document.createElement('script');
     script.id = 'google-maps-script';
-    script.src = `https://maps.googleapis.com/maps/api/js?key=TUA_CHIAVE_API&libraries=places`; // SOSTITUISCI CON LA TUA CHIAVE
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540&libraries=places`;
     script.async = true;
     script.defer = true;
     script.onload = () => initAutocompleteForCurrentDay();
