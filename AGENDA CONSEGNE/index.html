@@ -42,7 +42,7 @@
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
         .modal-body .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
-        .modal-body label { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); text-align: left; font-size: 0.9rem;}
+        .modal-body label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); text-align: left; font-size: 0.9rem;}
         .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
         .modal-body textarea { min-height: 100px; resize: vertical; }
         .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
@@ -56,14 +56,14 @@
         .auth-box input { display: block; width: 100%; margin-bottom: 1rem; }
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; }
         #printable { display: none; }
-        @media print { .page-break{page-break-after:always!important} body{padding:0} body *{visibility:hidden} #printable,#printable *{visibility:visible} #printable{position:absolute;top:0;left:0;width:100%}#printable h2{font-family:var(--font-family);color:#000;text-align:center;margin-bottom:1.5rem} #printable table{width:100%;border-collapse:collapse;font-size:9pt}#printable th,#printable td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}#printable td{height:60px}#printable strong{text-transform:uppercase}#printable em{font-style:normal;color:#333} }
+        @media print { .page-break{page-break-after:always!important} body{padding:0} body *{visibility:hidden} #printable,#printable *{visibility:visible} #printable{display:block!important;position:absolute;top:0;left:0;width:100%}#printable h2{font-family:var(--font-family);color:#000;text-align:center;margin-bottom:1.5rem} #printable table{width:100%;border-collapse:collapse;font-size:9pt}#printable th,#printable td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}#printable td{height:60px}#printable strong{text-transform:uppercase}#printable em{font-style:normal;color:#333} }
     </style>
 </head>
 <body>
     <div id="authOverlay" class="auth-overlay"><div class="auth-box"><h2>Accesso Agenda</h2><p>Effettua il login per continuare.</p><p id="authError" class="auth-error-message"></p><input type="email" id="email" placeholder="Email"><input type="password" id="password" placeholder="Password"><button id="login-btn">Accedi</button></div></div>
     <div id="app" class="app-container" style="display:none">
         <header class="app-header">
-            <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link"><img src="https://caiufficiotecnico.netlify.app/img/logo-cai-nav.png" alt="Logo CAI" class="logo-cai"></a>
+            <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo-cai"></a>
             <h1>Agenda Consegne</h1>
             <div class="user-info-container">
                 <span id="user-info"></span>
@@ -85,7 +85,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
         const app = initializeApp(firebaseConfig);
@@ -229,25 +229,39 @@
         function handleModalAutoSave(event, dataKey, field) {
             clearTimeout(saveTimeout);
             const firestoreKey = `${dataKey}-${field}`;
-            agendaData[firestoreKey] = event.target.value.trim();
+            const value = event.target.value; // Don't trim here, might be mid-typing
+            
             saveTimeout = setTimeout(async() => {
                 if (!currentUser) return;
-                await setDoc(doc(db, "agende", "principale"), agendaData, { merge: true });
+                const dataToSave = { [firestoreKey]: value.trim() };
+                await setDoc(doc(db, "agende", "principale"), dataToSave, { merge: true });
             }, 800);
+            
             if (field === 'indirizzo') {
                 const navBtn = document.getElementById('modal-nav-btn');
-                const indirizzo = event.target.value.trim();
+                const indirizzo = value.trim();
                 navBtn.style.display = indirizzo ? 'inline-flex' : 'none';
                 navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`;
             }
         }
         
-        function deleteSlot(dataKey, dayName, hour) {
-            if (confirm(`Cancellare la consegna delle ${hour} di ${dayName}?`)) {
-                ['cliente', 'indirizzo', 'note'].forEach(f => delete agendaData[`${dataKey}-${f}`]);
-                clearTimeout(saveTimeout);
-                handleModalAutoSave({target:{value:''}}, dataKey.substring(0, dataKey.lastIndexOf('-')), "fake");
-                closeModal();
+        async function deleteSlot(dataKey, dayName, hour) {
+            if (!confirm(`Cancellare la consegna delle ${hour} di ${dayName}?`)) return;
+            
+            clearTimeout(saveTimeout);
+            closeModal();
+
+            const docRef = doc(db, 'agende', 'principale');
+            const updates = {};
+            ['cliente', 'indirizzo', 'note'].forEach(f => {
+                updates[`${dataKey}-${f}`] = deleteField();
+            });
+            
+            try {
+                await updateDoc(docRef, updates);
+            } catch (error) {
+                console.error("Error deleting slot:", error);
+                alert("Errore durante l'eliminazione della consegna.");
             }
         }
 
