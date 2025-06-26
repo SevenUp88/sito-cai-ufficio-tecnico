@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda Consegne Pro</title>
+  
+  <!-- Collegamento al file CSS esterno -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Font da Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Schermata di Autenticazione -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-box">
+      <h2>Accesso Agenda Consegne</h2>
+      <p>Effettua il login per continuare.</p>
+      <p id="authError" class="auth-error-message"></p>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button id="login-btn">Accedi</button>
+    </div>
+  </div>
+  
+  <!-- Contenuto Principale dell'Applicazione -->
+  <div id="app" class="app-container" style="display:none;">
+    <h1>Agenda Consegne Pro</h1>
+    <div class="user-header">
+      <span id="user-info"></span> | <button id="logout-btn">Logout</button>
+    </div>
+    
+    <div class="dashboard-layout">
+        <!-- Colonna Sinistra: Dettaglio Giorno -->
+        <div class="day-detail-column">
+            <div class="controls-header">
+               <div>
+                <label for="daySelect">Giorno in dettaglio:</label>
+                <select id="daySelect"></select>
+               </div>
+               <div>
+                <button id="clear-day-btn">🗑️ Svuota Giorno</button>
+               </div>
+            </div>
+            <div id="consegneContainer"></div>
+        </div>
+
+        <!-- Colonna Destra: Riepilogo Settimana -->
+        <div class="week-overview-column">
+            <h2>Riepilogo Settimanale</h2>
+            <table id="week-overview-table"></table>
+            <div class="btn-group">
+                <button id="print-weekly-btn">🖨️ Stampa Settimana</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Elemento per la stampa -->
+  <div id="printable"></div>
+
+  <!-- Collegamento al file JavaScript esterno come modulo -->
+  <script type="module" src="script.js"></script>
+
+</body>
+</html>
