@@ -256,7 +256,7 @@
         console.log(`Inizializzazione Autocomplete per il giorno: ${day}`);
         allHours.forEach(hour => {
             const input = document.getElementById(`${day}-${hour}-indirizzo`);
-            if (input) new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'it' } });
+            if (input) new google.maps.places.Autocomplete(input, { componentRestrictions: { country: 'it' } });
         });
     }
     
