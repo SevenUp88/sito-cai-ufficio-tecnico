@@ -36,15 +36,20 @@
         .pause-label-week { background: #f4f7fa; font-style: italic; font-size: 0.8rem; height: 40px; vertical-align: middle; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.visible { display: flex; opacity: 1; }
-        .modal-content { background: white; padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s; }
+        .modal-content { background: white; padding: 2rem; border-radius: 12px; width: 90%; max-width: 600px; transform: scale(0.95); transition: transform 0.3s; }
         .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
-        .modal-body .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
-        .modal-body label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); text-align: left; font-size: 0.9rem;}
-        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
+        
+        /* --- MODAL FORM STYLES --- */
+        .modal-body .form-group { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: center; }
+        .modal-body .form-group.form-group-textarea { align-items: flex-start; }
+        .modal-body label { flex-basis: 120px; flex-shrink: 0; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
+        .modal-body .form-group.form-group-textarea label { padding-top: 12px; }
+        .modal-body input, .modal-body textarea { flex-grow: 1; width: auto; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; }
         .modal-body textarea { min-height: 100px; resize: vertical; }
+
         .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
         .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -56,7 +61,22 @@
         .auth-box input { display: block; width: 100%; margin-bottom: 1rem; }
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; }
         #printable { display: none; }
-        @media print { .page-break{page-break-after:always!important} body{padding:0} body *{visibility:hidden} #printable,#printable *{visibility:visible} #printable{display:block!important;position:absolute;top:0;left:0;width:100%}#printable h2{font-family:var(--font-family);color:#000;text-align:center;margin-bottom:1.5rem} #printable table{width:100%;border-collapse:collapse;font-size:9pt}#printable th,#printable td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top}#printable td{height:60px}#printable strong{text-transform:uppercase}#printable em{font-style:normal;color:#333} }
+        
+        /* --- PRINT STYLES --- */
+        @media print {
+            @page { size: A4 portrait; margin: 1.5cm; }
+            body, html { margin: 0 !important; padding: 0 !important; }
+            body * { visibility: hidden; }
+            #printable, #printable * { visibility: visible; }
+            #printable { display: block !important; position: static; width: 100%; margin: 0; padding: 0; }
+            #printable h2 { font-family: var(--font-family); color: #000; text-align: center; margin: 0 0 1rem 0; font-size: 14pt; }
+            #printable table { width: 100%; border-collapse: collapse; font-size: 8pt; page-break-inside: auto; }
+            #printable tr { page-break-inside: avoid; page-break-after: auto; }
+            #printable th, #printable td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
+            #printable td { height: auto; min-height: 40px; }
+            #printable strong { text-transform: uppercase; font-weight: bold; }
+            #printable em { font-style: normal; color: #333; }
+        }
     </style>
 </head>
 <body>
@@ -85,7 +105,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
         const firebaseConfig = { apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
         const app = initializeApp(firebaseConfig);
@@ -206,7 +226,7 @@
             document.getElementById('modal-body').innerHTML = `
                 <div class="form-group"><label for="modal-cliente">Cliente</label><input type="text" id="modal-cliente" value="${agendaData[dataKey + '-cliente'] || ''}" placeholder="Nome Cliente"></div>
                 <div class="form-group"><label for="modal-indirizzo">Indirizzo</label><input type="text" id="modal-indirizzo" value="${agendaData[dataKey + '-indirizzo'] || ''}" placeholder="Via, numero, città"></div>
-                <div class="form-group"><label for="modal-note">Note (materiale, dettagli, contatto)</label><textarea id="modal-note" placeholder="Dettagli aggiuntivi...">${agendaData[dataKey + '-note'] || ''}</textarea></div>
+                <div class="form-group form-group-textarea"><label for="modal-note">Note</label><textarea id="modal-note" placeholder="Materiale, dettagli, contatto...">${agendaData[dataKey + '-note'] || ''}</textarea></div>
             `;
             
             ['cliente', 'indirizzo', 'note'].forEach(field => {
@@ -229,7 +249,7 @@
         function handleModalAutoSave(event, dataKey, field) {
             clearTimeout(saveTimeout);
             const firestoreKey = `${dataKey}-${field}`;
-            const value = event.target.value; // Don't trim here, might be mid-typing
+            const value = event.target.value;
             
             saveTimeout = setTimeout(async() => {
                 if (!currentUser) return;
