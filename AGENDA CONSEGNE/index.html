@@ -96,8 +96,8 @@
   <script type="module">
     import { auth, db, doc, setDoc, getDoc } from './firebase-config.js';
     import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-
-    // --- Dichiarazioni globali per il modulo ---
+    
+    // --- Dichiarazioni ---
     let currentUser = null;
     let agendaData = {};
     let saveTimeout = null;
@@ -110,19 +110,23 @@
       address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
       contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
     };
-
-    // --- ESPONI LA FUNZIONE A GOOGLE MAPS (LA CORREZIONE È QUI) ---
-    // Attaccando la funzione a "window", la rendiamo globale e richiamabile
+    
+    // =========================================================================
+    // === LA CORREZIONE FONDAMENTALE È QUI ===
+    // Questa funzione viene resa GLOBALE assegnandola a "window".
+    // Così, lo script di Google la può trovare e chiamare quando è pronto.
+    // =========================================================================
     window.initMaps = () => {
-      console.log("Google Maps API è pronta.");
+      console.log("Google Maps API callback eseguito: API è pronta.");
       isMapsApiReady = true;
-      if (currentUser) {
-          // Se siamo già loggati e l'agenda è visibile, rinfresca l'autocomplete
+      // Se l'app è già stata costruita (perché l'utente è loggato),
+      // inizializza l'autocomplete, che ora funzionerà.
+      if (currentUser && document.getElementById('consegneContainer').innerHTML) {
           initAutocomplete(document.getElementById('daySelect').value);
       }
     };
     
-    // --- Logica dell'applicazione ---
+    // --- Gestione Autenticazione e Flusso dell'App ---
     onAuthStateChanged(auth, async (user) => {
       const authOverlay = document.getElementById('authOverlay');
       const appDiv = document.getElementById('app');
@@ -134,7 +138,7 @@
         document.getElementById('user-info').textContent = `Utente: ${user.email}`;
         await loadAgendaData();
         populateDaySelector();
-        buildAgenda();
+        buildAgenda(); // Costruisce l'interfaccia principale
       } else {
         currentUser = null;
         agendaData = {};
@@ -143,137 +147,150 @@
       }
     });
 
-
     window.handleLogin = () => {
-      const [email, password, errorP] = [document.getElementById('email').value, document.getElementById('password').value, document.getElementById('authError')];
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorP = document.getElementById('authError');
       errorP.textContent = '';
-      signInWithEmailAndPassword(auth, email, password).catch(e => errorP.textContent = "Credenziali non valide.");
+      signInWithEmailAndPassword(auth, email, password)
+        .catch(error => {
+          console.error("Login fallito:", error);
+          errorP.textContent = "Credenziali non valide.";
+        });
     };
-
-    // --- Gestione Dati con Firestore ---
+    
     async function loadAgendaData() {
-      if (!currentUser) return;
-      const docRef = doc(db, 'agende', currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      agendaData = docSnap.exists() ? docSnap.data() : {};
+        if (!currentUser) return;
+        const docRef = doc(db, 'agende', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        agendaData = docSnap.exists() ? docSnap.data() : {};
     }
 
     function handleAutoSave(event) {
-      clearTimeout(saveTimeout);
-      const [day, hour, field] = event.target.id.split('-');
-      agendaData[`${day}-${hour}-${field}`] = event.target.value.trim();
-      checkCardFilledState(day, hour);
+        clearTimeout(saveTimeout);
+        const [day, hour, field] = event.target.id.split('-');
+        if (!day || !hour || !field) return;
+        agendaData[`${day}-${hour}-${field}`] = event.target.value.trim();
+        checkCardFilledState(day, hour);
 
-      saveTimeout = setTimeout(async () => {
-        if (!currentUser) return;
-        console.log("Salvataggio automatico su Firestore...");
-        try {
-          await setDoc(doc(db, 'agende', currentUser.uid), agendaData, { merge: true });
-        } catch (e) { console.error("Errore nel salvataggio dei dati: ", e); }
-      }, 1500);
+        saveTimeout = setTimeout(async () => {
+            if (!currentUser) return;
+            console.log("Salvataggio automatico su Firestore...");
+            try {
+                await setDoc(doc(db, 'agende', currentUser.uid), agendaData, { merge: true });
+            } catch (e) { console.error("Errore nel salvataggio dei dati:", e); }
+        }, 1500);
     }
     
-    // --- Costruzione UI ---
     function populateDaySelector() {
-      const select = document.getElementById('daySelect');
-      select.innerHTML = '';
-      Object.entries(dayLabels).forEach(([key, label]) => {
-          const option = document.createElement('option');
-          option.value = key;
-          option.textContent = label;
-          select.appendChild(option);
-      });
-      select.onchange = buildAgenda;
-    }
-
-    function buildAgenda() {
-      const container = document.getElementById("consegneContainer");
-      container.innerHTML = "";
-      const selectedDay = document.getElementById("daySelect").value;
-      
-      allHours.forEach(hour => {
-        if (hour === "14:00") container.insertAdjacentHTML('beforeend', `<div class="pause-label">🕐 Pausa pranzo</div>`);
-        const [note, indirizzo, contatto] = ['note', 'indirizzo', 'contatto'].map(f => agendaData[`${selectedDay}-${hour}-${f}`] || "");
-        
-        container.insertAdjacentHTML('beforeend', `
-          <div class="delivery-card" id="card-${selectedDay}-${hour}">
-            <div class="card-time">${hour}</div>
-            <div class="card-fields">
-              <div class="form-group">${ICONS.note}<textarea id="${selectedDay}-${hour}-note" placeholder="Materiale, dettagli...">${note}</textarea></div>
-              <div class="form-group row">
-                <div class="form-group">${ICONS.address}<input type="text" id="${selectedDay}-${hour}-indirizzo" value="${indirizzo}" placeholder="Indirizzo"></div>
-                <div class="form-group">${ICONS.contact}<input type="text" id="${selectedDay}-${hour}-contatto" value="${contatto}" placeholder="Contatto/Tel."></div>
-              </div>
-            </div>
-          </div>`);
-        
-        ['note', 'indirizzo', 'contatto'].forEach(f => document.getElementById(`${selectedDay}-${hour}-${f}`).addEventListener('input', handleAutoSave));
-        checkCardFilledState(selectedDay, hour);
-      });
-      initAutocomplete(selectedDay);
+        const select = document.getElementById('daySelect');
+        select.innerHTML = '';
+        Object.entries(dayLabels).forEach(([key, label]) => {
+            select.add(new Option(label, key));
+        });
+        select.onchange = buildAgenda;
     }
     
-    // --- Funzioni di Utilità e Autocomplete ---
+    function buildAgenda() {
+        const container = document.getElementById("consegneContainer");
+        const selectedDay = document.getElementById("daySelect").value;
+        container.innerHTML = "";
+        
+        allHours.forEach(hour => {
+            if (hour === "14:00") container.insertAdjacentHTML('beforeend', `<div class="pause-label">🕐 Pausa pranzo</div>`);
+            const [note, indirizzo, contatto] = ['note', 'indirizzo', 'contatto'].map(f => agendaData[`${selectedDay}-${hour}-${f}`] || "");
+            
+            container.insertAdjacentHTML('beforeend', `
+            <div class="delivery-card" id="card-${selectedDay}-${hour}">
+                <div class="card-time">${hour}</div>
+                <div class="card-fields">
+                <div class="form-group">${ICONS.note}<textarea id="${selectedDay}-${hour}-note" placeholder="Materiale, dettagli...">${note}</textarea></div>
+                <div class="form-group row">
+                    <div class="form-group">${ICONS.address}<input type="text" id="${selectedDay}-${hour}-indirizzo" value="${indirizzo}" placeholder="Indirizzo"></div>
+                    <div class="form-group">${ICONS.contact}<input type="text" id="${selectedDay}-${hour}-contatto" value="${contatto}" placeholder="Contatto/Tel."></div>
+                </div>
+                </div>
+            </div>`);
+            
+            ['note', 'indirizzo', 'contatto'].forEach(f => document.getElementById(`${selectedDay}-${hour}-${f}`).addEventListener('input', handleAutoSave));
+            checkCardFilledState(selectedDay, hour);
+        });
+        // La chiamata a initAutocomplete è qui, al termine della costruzione dell'interfaccia.
+        initAutocomplete(selectedDay);
+    }
+    
     function checkCardFilledState(day, hour) {
         const card = document.getElementById(`card-${day}-${hour}`);
         if (!card) return;
         const isFilled = ['note', 'indirizzo', 'contatto'].some(f => (agendaData[`${day}-${hour}-${f}`] || "").trim());
         card.classList.toggle('is-filled', isFilled);
     }
-
+    
     function initAutocomplete(day) {
-        if (!isMapsApiReady) return; // Non fare nulla se Google non è pronto
+        if (!isMapsApiReady) {
+            console.warn("initAutocomplete chiamata, ma Google Maps API non è pronta.");
+            return;
+        }
+        console.log(`Inizializzazione Autocomplete per il giorno: ${day}`);
         allHours.forEach(hour => {
-          const input = document.getElementById(`${day}-${hour}-indirizzo`);
-          if (input) new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'it' } });
+            const input = document.getElementById(`${day}-${hour}-indirizzo`);
+            if (input) new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'it' } });
         });
     }
-
-    // --- Gestione Pulsanti ---
+    
     document.getElementById('logout-btn').onclick = () => signOut(auth);
+    
     document.getElementById('clear-day-btn').onclick = () => {
         const daySelect = document.getElementById('daySelect');
         const selectedDay = daySelect.value;
         const dayName = daySelect.options[daySelect.selectedIndex].text;
         if (!confirm(`Sei sicuro di voler cancellare TUTTE le consegne di ${dayName}?`)) return;
         
-        allHours.forEach(h => ['note','indirizzo','contatto'].forEach(f => delete agendaData[`${selectedDay}-${h}-${f}`]));
+        allHours.forEach(h => ['note', 'indirizzo', 'contatto'].forEach(f => delete agendaData[`${selectedDay}-${h}-${f}`]));
         
-        clearTimeout(saveTimeout); // Ferma eventuali salvataggi in sospeso
-        handleAutoSave({ target: { id: `${selectedDay}-fake-event`, value: '' } }); // Forza il salvataggio
+        clearTimeout(saveTimeout);
+        handleAutoSave({ target: { id: `${selectedDay}-fake-event`, value: '' } });
         buildAgenda();
         alert(`${dayName} è stato svuotato.`);
     };
     
-    // --- Logica di Stampa (legge da agendaData) ---
+    // Logica di Stampa (legge da agendaData)
     function generatePrintTable(days) {
         let html = `<thead><tr><th style="width: 8%;">Ora</th>${days.map(day => `<th style="text-align:center;">${dayLabels[day]}</th>`).join('')}</tr></thead><tbody>`;
         allHours.forEach(hour => {
-            if(hour === "14:00") html += `<tr><td colspan="${days.length + 1}" style="text-align:center; background:#f0f0f0;">Pausa Pranzo</td></tr>`;
+            if (hour === "14:00") html += `<tr><td colspan="${days.length + 1}" style="text-align:center; background:#f0f0f0;">Pausa Pranzo</td></tr>`;
             html += `<tr><td style="font-weight:bold;">${hour}</td>`;
             days.forEach(day => {
                 const note = (agendaData[`${day}-${hour}-note`] || "").replace(/\n/g, "<br>");
                 const indirizzo = agendaData[`${day}-${hour}-indirizzo`] || "";
                 const contatto = agendaData[`${day}-${hour}-contatto`] || "";
                 let content = '';
-                if(note) content += `<strong>Note:</strong> ${note}<br>`;
-                if(indirizzo) content += `<strong>Ind.:</strong> ${indirizzo}<br>`;
-                if(contatto) content += `<strong>Cont.:</strong> ${contatto}`;
+                if (note) content += `<strong>Note:</strong> ${note}<br>`;
+                if (indirizzo) content += `<strong>Ind.:</strong> ${indirizzo}<br>`;
+                if (contatto) content += `<strong>Cont.:</strong> ${contatto}`;
                 html += `<td>${content || ' - '}</td>`;
             });
             html += `</tr>`;
         });
-        return html;
+        return `<table>${html}</tbody></table>`;
     }
     
-    document.getElementById('print-daily-btn').onclick = () => printContent(`<h2>Consegne del ${document.getElementById('daySelect').options[document.getElementById('daySelect').selectedIndex].text}</h2><table>${generatePrintTable([document.getElementById('daySelect').value])}</tbody></table>`);
-    document.getElementById('print-weekly-btn').onclick = () => printContent(`<h2>Agenda Settimanale</h2><table>${generatePrintTable(Object.keys(dayLabels))}</tbody></table>`);
+    document.getElementById('print-daily-btn').onclick = () => {
+        const daySelect = document.getElementById('daySelect');
+        const dayName = daySelect.options[daySelect.selectedIndex].text;
+        printContent(`<h2>Consegne del ${dayName}</h2>` + generatePrintTable([daySelect.value]));
+    };
+    
+    document.getElementById('print-weekly-btn').onclick = () => {
+        const part1 = generatePrintTable(['mon', 'tue', 'wed']).replace('<table>', '<table style="page-break-after: always;">');
+        const part2 = generatePrintTable(['thu', 'fri']);
+        printContent(`<h2>Agenda Settimanale</h2>` + part1 + `<br>` + part2);
+    };
     
     function printContent(html) {
-        const printable = document.getElementById("printable");
-        printable.innerHTML = html;
+        document.getElementById("printable").innerHTML = html;
         window.print();
     }
-  </script>
+</script>
 </body>
 </html>
