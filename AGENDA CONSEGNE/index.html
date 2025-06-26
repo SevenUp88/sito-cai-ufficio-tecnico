@@ -96,7 +96,8 @@
   <script type="module">
     import { auth, db, doc, setDoc, getDoc } from './firebase-config.js';
     import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-    
+
+    // --- Dichiarazioni globali per il modulo ---
     let currentUser = null;
     let agendaData = {};
     let saveTimeout = null;
@@ -105,23 +106,23 @@
     const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
     const allHours = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
     const ICONS = {
-      note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
-      address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-      contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+      note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
+      address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+      contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
     };
-    
-    // --- Funzione chiamata da Google Maps API quando è pronta ---
+
+    // --- ESPONI LA FUNZIONE A GOOGLE MAPS (LA CORREZIONE È QUI) ---
+    // Attaccando la funzione a "window", la rendiamo globale e richiamabile
     window.initMaps = () => {
       console.log("Google Maps API è pronta.");
       isMapsApiReady = true;
-      // Se l'app è già stata costruita (perché l'utente era già loggato),
-      // inizializza l'autocomplete.
-      if (document.getElementById('consegneContainer').innerHTML) {
+      if (currentUser) {
+          // Se siamo già loggati e l'agenda è visibile, rinfresca l'autocomplete
           initAutocomplete(document.getElementById('daySelect').value);
       }
     };
     
-    // --- Gestione Autenticazione ---
+    // --- Logica dell'applicazione ---
     onAuthStateChanged(auth, async (user) => {
       const authOverlay = document.getElementById('authOverlay');
       const appDiv = document.getElementById('app');
@@ -136,10 +137,12 @@
         buildAgenda();
       } else {
         currentUser = null;
+        agendaData = {};
         authOverlay.style.display = 'flex';
         appDiv.style.display = 'none';
       }
     });
+
 
     window.handleLogin = () => {
       const [email, password, errorP] = [document.getElementById('email').value, document.getElementById('password').value, document.getElementById('authError')];
