@@ -21,4 +21,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Esporta le istanze per renderle importabili
-export { auth, db, doc, setDoc, getDoc };
+export { auth, db, doc, setDoc, getDoc, onSnapshot };
