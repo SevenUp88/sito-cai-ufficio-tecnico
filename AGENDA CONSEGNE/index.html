@@ -31,6 +31,7 @@
         #week-overview-table .slot.is-filled { background-color: var(--success-color); color: white; }
         #week-overview-table .slot-summary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4; text-transform: uppercase; font-weight: 600; }
         .pause-label-week { background: #f4f7fa; font-style: italic; font-size: 0.8rem; }
+        .day-detail-column { padding: 1.5rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 20px var(--shadow-color); }
         .day-detail-column .controls-header { text-align: center; margin-bottom: 1.5rem; }
         #consegneContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.25rem; }
         .delivery-card { background: var(--card-background); border-left: 5px solid transparent; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); padding: 1rem 1.25rem; border: 1px solid var(--border-color); }
@@ -42,6 +43,8 @@
         .address-link { color: inherit; text-decoration: none; }
         .form-group { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; }
         .form-group svg { flex-shrink: 0; width: 20px; height: 20px; stroke: var(--text-secondary); margin-top: 10px; }
+        .form-group.address-group svg, .form-group.contact-group svg { margin-top: 0; }
+        .form-group.address-group, .form-group.contact-group { align-items: center; }
         input, textarea { width: 100%; font-size: 1rem; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; background: #f9fafb; }
         textarea { min-height: 80px; resize: vertical; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out; }
@@ -72,15 +75,13 @@
     <div id="slot-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">Dettagli Consegna</h3><button id="modal-close-btn" class="close-btn">×</button></div><div id="modal-body"></div><div class="modal-footer"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Vai all'indirizzo</a><button id="modal-edit-btn" class="btn-primary">✏️ Modifica</button></div></div></div>
     <div id="printable"></div>
 
-    <!-- SDK Firebase importati come moduli -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
-        // --- USARE LA CHIAVE CORRETTA QUI ---
         const firebaseConfig = {
-            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // LA TUA NUOVA CHIAVE
+            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
             projectId: "consorzio-artigiani-idraulici",
             storageBucket: "consorzio-artigiani-idraulici.appspot.com",
@@ -91,8 +92,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- Stato Globale e Costanti ---
-        let currentUser, agendaData={}, unsubscribe, saveTimeout, isMapsScriptLoaded=!1, currentDetailDayKey;
+        let currentUser, agendaData = {}, unsubscribe, saveTimeout, isMapsScriptLoaded = !1, currentDetailDayKey;
         const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"},dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
         const allHours=["08:00","09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00"];
         const ICONS = {
@@ -101,38 +101,34 @@
             contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
             delete: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
         };
+        let currentDisplayedDate = new Date();
         
-        // --- Inizializzazione ---
+        // --- Inizializzazione -- CORRETTA PER EVITARE L'ERRORE
         document.addEventListener('DOMContentLoaded', () => {
-            currentDetailDayKey = getDayFromDate(new Date());
-            addEventListeners();
+            currentDetailDayKey = getDayFromDate(currentDisplayedDate);
+            addEventListeners(); // Aggancia gli eventi dopo che l'HTML è pronto
             onAuthStateChanged(auth, handleAuthStateChange);
         });
 
-        // --- Funzioni Principali ---
+        // --- Le funzioni vengono definite PRIMA di essere agganciate
+        const handleLogin=()=>{const e=document.getElementById("email").value,t=document.getElementById("password").value,n=document.getElementById("authError");n.textContent="",signInWithEmailAndPassword(auth,e,t).catch(e=>{console.error("Login fallito:",e),n.textContent="Credenziali non valide."})};
         async function handleAuthStateChange(e){document.getElementById("authOverlay").style.display=e?"none":"flex",document.getElementById("app").style.display=e?"block":"none",e?(currentUser=e,document.getElementById("user-info").textContent=`Utente: ${e.email}`,await setupRealtimeListener(),loadGoogleMapsScript()):(unsubscribe&&unsubscribe(),currentUser=null)}
         function loadGoogleMapsScript(){if(isMapsScriptLoaded||document.getElementById("google-maps-script"))return;isMapsScriptLoaded=!0;const e=document.createElement("script");e.id="google-maps-script",e.src=`https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places`,e.async=!0,e.defer=!0,e.onload=()=>initAutocompleteForDay(currentDetailDayKey),document.head.appendChild(e)}
         async function setupRealtimeListener(){unsubscribe&&unsubscribe();const e=doc(db,"agende","principale");unsubscribe=onSnapshot(e,e=>{agendaData=e.exists()?e.data():{},updateAllViews()})}
         function updateAllViews(){buildWeekOverview(),buildDayDetailView(currentDetailDayKey)}
-        
-        // --- Costruzione UI ---
         function buildWeekOverview(){const e=document.getElementById("week-overview-table");const{weekDates:t,weekTitle:n}=getWeekInfo(currentDisplayedDate);document.getElementById("week-title").textContent=n;let o=`<thead><tr><th>Ora</th>`;Object.keys(dayLabels).forEach(e=>o+=`<th>${dayLabels[e].substring(0,3)} ${t[e].split("-")[2]}</th>`),o+="</tr></thead>";let d="<tbody>";allHours.forEach(e=>{e==="14:00"&&(d+='<tr><td class="pause-label-week" colspan="6">Pausa</td></tr>'),d+="<tr><td class='time-col'>"+e+"</td>",Object.keys(dayLabels).forEach(n=>{const o=t[n],i=`${o}-${e}`,l=agendaData[i+"-note"]||"",s=agendaData[i+"-indirizzo"]||"";d+=`<td class="slot ${l||s?"is-filled":""}" data-date="${o}" data-hour="${e}" data-daykey="${n}"><div class="slot-summary">${l||s}</div></td>`}),d+="</tr>"}),e.innerHTML=o+d,e.querySelectorAll(".slot").forEach(e=>e.addEventListener("click",()=>handleSlotClick(e.dataset.date,e.dataset.hour,e.dataset.daykey)))}
         function buildDayDetailView(e,t=!0){if(!e)return;currentDetailDayKey=e;const n=document.getElementById("consegneContainer");const{weekDates:o}=getWeekInfo(currentDisplayedDate);const d=o[e];document.getElementById("detail-day-title").textContent=`Dettaglio per ${dayLabels[e]} ${d.split("-")[2]}`;n.innerHTML="",allHours.forEach(e=>{const t=d+"-"+e,o=agendaData[t+"-note"]||"",i=agendaData[t+"-indirizzo"]||"",l=agendaData[t+"-contatto"]||"";n.insertAdjacentHTML("beforeend",createCardHTML(d,e,o,i,l))}),addCardEventListeners(d),isMapsScriptLoaded&&initAutocompleteForDay(e)}
-        function createCardHTML(e,t,n,o,d){const i=`${e}-${t}`,l=o?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o)}`:"#";return`<div class="delivery-card ${n||o?"is-filled":""}" id="card-${i}"><div class="card-header"><div class="card-time">${t}</div><button class="delete-slot-btn" data-date="${e}" data-hour="${t}" data-daykey="${getDayFromDate(new Date(e+"T00:00:00"))}" title="Cancella questa consegna">${ICONS.delete}</button></div><div class="form-group">${ICONS.note}<textarea id="${i}-note" placeholder="Note consegna...">${n}</textarea></div><div class="form-group address-group"><a href="${l}" target="_blank" class="address-link">${ICONS.address}</a><input type="text" id="${i}-indirizzo" value="${o}" placeholder="Indirizzo"></div><div class="form-group">${ICONS.contact}<input type="text" id="${i}-contatto" value="${d}" placeholder="Contatto/Tel."></div></div>`}
-        
-        // --- Funzioni di Supporto ---
-        function getWeekInfo(e){const t=new Date(e);const n=t.getDay(),o=0===n?-6:1-n;t.setDate(t.getDate()+o);const d={},i=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];return Object.keys(dayKeyMapping).forEach(e=>{const n=new Date(t);n.setDate(t.getDate()+e-1),d[dayKeyMapping[e]]=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}),{weekDates:d,weekTitle:`Settimana del ${t.getDate()} ${i[t.getMonth()]}, ${t.getFullYear()}`}}
+        function createCardHTML(e,t,n,o,d){const i=`${e}-${t}`,l=o?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o)}`:"#";return`<div class="delivery-card ${n||o?"is-filled":""}" id="card-${i}"><div class="card-header"><div class="card-time">${t}</div><button class="delete-slot-btn" data-date="${e}" data-hour="${t}" data-daykey="${getDayFromDate(new Date(e+"T00:00:00"))}">${ICONS.delete}</button></div><div class="form-group">${ICONS.note}<textarea id="${i}-note" placeholder="Note consegna...">${n}</textarea></div><div class="form-group address-group"><a href="${l}" target="_blank" class="address-link">${ICONS.address}</a><input type="text" id="${i}-indirizzo" value="${o}" placeholder="Indirizzo"></div><div class="form-group"><div class="form-group contact-group">${ICONS.contact}<input type="text" id="${i}-contatto" value="${d}" placeholder="Contatto/Tel."></div></div></div>`}
+        function getWeekInfo(e){const t=new Date(e);const n=t.getDay(),o=0===n?-6:1-n;t.setDate(t.getDate()+o);const d={},i=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];return Object.keys(dayKeyMapping).forEach(e=>{const n=new Date(t);n.setDate(t.getDate()+e-1),d[dayKeyMapping[e]]=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}),{weekDates:d,weekTitle:`Settimana del ${t.getDate()} ${i[t.getMonth()]} - ${new Date(t.getTime()+4*864e5).getDate()} ${i[new Date(t.getTime()+4*864e5).getMonth()]} ${t.getFullYear()}`}}
         function getDayFromDate(e){const t=e.getDay();return dayKeyMapping[0===t?7:t]}
         function handleAutoSave(e){clearTimeout(saveTimeout);const t=e.target.id;agendaData[t]=e.target.value.trim(),saveTimeout=setTimeout(async()=>{if(currentUser)try{await setDoc(doc(db,"agende","principale"),agendaData,{merge:!0})}catch(e){console.error("Errore salvataggio:",e)}},1200)}
         function initAutocompleteForDay(e){if(!window.google||!window.google.maps.places)return;const{weekDates:t}=getWeekInfo(currentDisplayedDate);const n=t[e];allHours.forEach(e=>{const t=document.getElementById(`${n}-${e}-indirizzo`);t&&new google.maps.places.Autocomplete(t,{componentRestrictions:{country:"it"}})})}
         function addCardEventListeners(e){allHours.forEach(t=>{const n=e+"-"+t;["note","indirizzo","contatto"].forEach(e=>{document.getElementById(n+"-"+e).addEventListener("input",handleAutoSave)});const o=document.querySelector(`#card-${n} .delete-slot-btn`);o&&o.addEventListener("click",e=>deleteSlot(e.currentTarget.dataset.date,e.currentTarget.dataset.hour,e.currentTarget.dataset.daykey))})}
-        
-        // --- Modale e Navigazione ---
         function handleSlotClick(e,t,n){const o=document.getElementById("slot-modal");const d=agendaData[`${e}-${t}-note`]||"Nessuna nota",i=agendaData[`${e}-${t}-indirizzo`]||"Nessun indirizzo",l=agendaData[`${e}-${t}-contatto`]||"Nessun contatto";document.getElementById("modal-title").textContent=`Consegna ${dayLabels[n]} ${e.split("-")[2]} ore ${t}`,document.getElementById("modal-body").innerHTML=`<p><strong>Note:</strong><br>${d}</p><p><strong>Indirizzo:</strong><br>${i}</p><p><strong>Contatto:</strong><br>${l}</p>`;const s=document.getElementById("modal-nav-btn");"Nessun indirizzo"!==i?(s.href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(i)}`,s.style.display="inline-flex"):s.style.display="none",document.getElementById("modal-delete-btn").onclick=()=>deleteSlot(e,t,n),document.getElementById("modal-edit-btn").onclick=()=>{currentDetailDayKey=n,buildDayDetailView(n),closeModal()},o.style.display="flex",setTimeout(()=>o.classList.add("visible"),10)}
         function deleteSlot(e,t,n){confirm(`Cancellare la consegna delle ${t} di ${dayLabels[n]}?`)&&(["note","indirizzo","contatto"].forEach(n=>delete agendaData[`${e}-${t}-${n}`]),clearTimeout(saveTimeout),handleAutoSave({target:{id:`${e}-fake`}}),closeModal())}
         function closeModal(){const e=document.getElementById("slot-modal");e.classList.remove("visible"),setTimeout(()=>e.style.display="none",300)}
         function addEventListeners(){document.getElementById("login-btn").addEventListener("click",handleLogin),document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth)),document.getElementById("prev-week-btn").addEventListener("click",()=>{currentDisplayedDate.setDate(currentDisplayedDate.getDate()-7),updateAllViews()}),document.getElementById("next-week-btn").addEventListener("click",()=>{currentDisplayedDate.setDate(currentDisplayedDate.getDate()+7),updateAllViews()}),document.getElementById("modal-close-btn").addEventListener("click",closeModal),document.getElementById("slot-modal").addEventListener("click",e=>{e.target.id==="slot-modal"&&closeModal()})}
-        
+    
     </script>
 </body>
 </html>
