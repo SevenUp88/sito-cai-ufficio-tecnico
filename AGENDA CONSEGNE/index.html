@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    /* ... TUTTO IL CSS È IDENTICO ... */
+    /* CSS Completo e Definitivo */
     :root { --primary-color: #005A9C; --primary-light: #E6F0F8; --background-color: #f4f7fa; --card-background: #ffffff; --text-primary: #1a202c; --text-secondary: #5a6678; --border-color: #dce3eb; --shadow-color: rgba(45, 55, 71, 0.1); --font-family: 'Inter', sans-serif; --success-color: #28a745; --danger-color: #c82333; }
     * { box-sizing: border-box; }
     body { font-family: var(--font-family); background-color: var(--background-color); margin: 0; padding: 24px; color: var(--text-primary); }
@@ -53,9 +53,6 @@
         #printable thead tr { background-color: #e9ecef; page-break-inside: avoid; }
     }
   </style>
-
-  <!-- RIMOZIONE DELLO SCRIPT DI GOOGLE MAPS DA QUI -->
-
 </head>
 <body>
 
@@ -71,7 +68,6 @@
   </div>
   
   <div id="app" class="app-container" style="display: none;">
-    <!-- Contenuto identico a prima -->
     <h1>Agenda Consegne Cloud</h1>
     <div class="controls-header">
        <div>
@@ -97,43 +93,34 @@
     import { auth, db, doc, setDoc, getDoc } from './firebase-config.js';
     import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
     
-    // --- Dichiarazioni ---
+    // --- Dichiarazioni Globali del Modulo ---
     let currentUser = null;
     let agendaData = {};
     let saveTimeout = null;
     let isMapsScriptLoaded = false;
-    // ... [Il resto delle dichiarazioni è identico]
     const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
     const allHours = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
-    const ICONS = { note: `...`, address: `...`, contact: `...`};
+    const ICONS = {
+      note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
+      address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+      contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+    };
     
-    // =========================================================================
-    // === NUOVA LOGICA DI CARICAMENTO SCRIPT GOOGLE MAPS ===
-    // =========================================================================
+    // --- Caricamento Dinamico Google Maps ---
     function loadGoogleMapsScript() {
-        if (isMapsScriptLoaded) {
-            return; // Non caricare lo script più di una volta
-        }
-        console.log("Caricamento dinamico dello script di Google Maps...");
-        isMapsScriptLoaded = true; // Impedisce caricamenti multipli
+        if (isMapsScriptLoaded || document.getElementById('google-maps-script')) return;
+        isMapsScriptLoaded = true;
         
         const script = document.createElement('script');
+        script.id = 'google-maps-script';
         script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y&libraries=places`;
         script.async = true;
         script.defer = true;
-        
-        // Quando lo script ha finito di caricare, possiamo inizializzare l'autocomplete
         script.onload = () => {
-            console.log("Script di Google Maps caricato con successo.");
-            // Inizializza l'autocomplete per il giorno attualmente visualizzato
-            initAutocomplete(document.getElementById('daySelect').value);
+            console.log("Script Google Maps caricato.");
+            if (currentUser) initAutocomplete(document.getElementById('daySelect').value);
         };
-
-        // In caso di errore
-        script.onerror = () => {
-            console.error("Errore nel caricamento dello script di Google Maps. Controllare API key e connessione.");
-        };
-
+        script.onerror = () => console.error("Errore caricamento script Google Maps.");
         document.head.appendChild(script);
     }
     
@@ -148,12 +135,9 @@
         appDiv.style.display = 'block';
         document.getElementById('user-info').textContent = `Utente: ${user.email}`;
         
-        // Carica i dati e POI costruisce l'agenda
         await loadAgendaData();
         populateDaySelector();
         buildAgenda();
-        
-        // Ora che l'utente è loggato e l'app è visibile, carica lo script di Maps
         loadGoogleMapsScript();
         
       } else {
@@ -164,10 +148,8 @@
       }
     });
 
-    window.handleLogin = () => { /* Identica a prima */
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorP = document.getElementById('authError');
+    window.handleLogin = () => {
+      const [email, password, errorP] = [document.getElementById('email').value, document.getElementById('password').value, document.getElementById('authError')];
       errorP.textContent = '';
       signInWithEmailAndPassword(auth, email, password)
         .catch(error => {
@@ -176,8 +158,7 @@
         });
     };
     
-    // ... [tutto il resto del codice da `loadAgendaData` a `printContent` rimane IDENTICO a prima] ...
-
+    // --- Funzioni Core dell'Agenda ---
     async function loadAgendaData() {
         if (!currentUser) return;
         const docRef = doc(db, 'agende', currentUser.uid);
@@ -193,7 +174,7 @@
         checkCardFilledState(day, hour);
         saveTimeout = setTimeout(async () => {
             if (!currentUser) return;
-            try { await setDoc(doc(db, 'agende', currentUser.uid), agendaData, { merge: true }); } 
+            try { await setDoc(doc(db, 'agende', currentUser.uid), agendaData, { merge: true }); console.log("Salvataggio automatico completato."); } 
             catch (e) { console.error("Errore salvataggio:", e); }
         }, 1500);
     }
@@ -212,24 +193,46 @@
         
         allHours.forEach(hour => {
             if (hour === "14:00") container.insertAdjacentHTML('beforeend', `<div class="pause-label">🕐 Pausa pranzo</div>`);
-            const [note, indirizzo, contatto] = ['note', 'indirizzo', 'contatto'].map(f => agendaData[`${selectedDay}-${hour}-${f}`] || "");
             
-            container.insertAdjacentHTML('beforeend', `
+            const note = agendaData[`${selectedDay}-${hour}-note`] || "";
+            const indirizzo = agendaData[`${selectedDay}-${hour}-indirizzo`] || "";
+            const contatto = agendaData[`${selectedDay}-${hour}-contatto`] || "";
+            
+            // RIPRISTINATO HTML CORRETTO DELLA CARD
+            const cardHTML = `
             <div class="delivery-card" id="card-${selectedDay}-${hour}">
-                <div class="card-time">${hour}</div><div class="card-fields">
-                <div class="form-group">${ICONS.note.replace('stroke="currentColor"','')}...</div>
-            </div>`);
+                <div class="card-time">${hour}</div>
+                <div class="card-fields">
+                    <div class="form-group">
+                        ${ICONS.note}
+                        <textarea id="${selectedDay}-${hour}-note" placeholder="Materiale, dettagli...">${note}</textarea>
+                    </div>
+                    <div class="form-group row">
+                        <div class="form-group">
+                            ${ICONS.address}
+                            <input type="text" id="${selectedDay}-${hour}-indirizzo" value="${indirizzo}" placeholder="Indirizzo e n. civico">
+                        </div>
+                        <div class="form-group">
+                            ${ICONS.contact}
+                            <input type="text" id="${selectedDay}-${hour}-contatto" value="${contatto}" placeholder="Contatto e tel.">
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            container.insertAdjacentHTML('beforeend', cardHTML);
             
-            ['note', 'indirizzo', 'contatto'].forEach(f => document.getElementById(`${selectedDay}-${hour}-${f}`).addEventListener('input', handleAutoSave));
+            // Questo ora troverà gli elementi senza problemi
+            ['note', 'indirizzo', 'contatto'].forEach(f => {
+                document.getElementById(`${selectedDay}-${hour}-${f}`).addEventListener('input', handleAutoSave);
+            });
             checkCardFilledState(selectedDay, hour);
         });
         
-        // Se lo script di Maps è già stato caricato, inizializza l'autocomplete subito
-        if (isMapsScriptLoaded) {
-            initAutocomplete(selectedDay);
-        }
+        if (isMapsScriptLoaded) initAutocomplete(selectedDay);
     }
     
+    // --- Funzioni di Utilità ---
     function checkCardFilledState(day, hour) {
         const card = document.getElementById(`card-${day}-${hour}`);
         if (!card) return;
@@ -239,7 +242,8 @@
     
     function initAutocomplete(day) {
         if (!window.google || !window.google.maps.places) {
-            console.warn("initAutocomplete chiamata, ma 'google.maps.places' non è disponibile.");
+            console.warn("initAutocomplete chiamata, ma 'google.maps.places' non è disponibile. Riprovo tra poco...");
+            setTimeout(() => initAutocomplete(day), 500); // Riprova tra mezzo secondo
             return;
         }
         console.log(`Inizializzazione Autocomplete per il giorno: ${day}`);
@@ -251,25 +255,56 @@
     
     document.getElementById('logout-btn').onclick = () => signOut(auth);
     
-    document.getElementById('clear-day-btn').onclick = () => { /* Identico a prima */
+    document.getElementById('clear-day-btn').onclick = () => {
         const daySelect = document.getElementById('daySelect');
         const selectedDay = daySelect.value;
         const dayName = daySelect.options[daySelect.selectedIndex].text;
         if (!confirm(`Sei sicuro di voler cancellare TUTTE le consegne di ${dayName}?`)) return;
+        
         allHours.forEach(h => ['note', 'indirizzo', 'contatto'].forEach(f => delete agendaData[`${selectedDay}-${h}-${f}`]));
+        
         clearTimeout(saveTimeout);
-        handleAutoSave({ target: { id: `${selectedDay}-fake-event`, value: '' } });
+        handleAutoSave({ target: { id: `${selectedDay}-fake-event`, value: '' } }); // Forza salvataggio
         buildAgenda();
         alert(`${dayName} è stato svuotato.`);
     };
     
-    // Logica di Stampa ... identica
-    function generatePrintTable(days) { /* ... */ return `<table><tbody>...</tbody></table>` }
-    document.getElementById('print-daily-btn').onclick = () => { /* ... */ };
-    document.getElementById('print-weekly-btn').onclick = () => { /* ... */ };
-    function printContent(html) { /* ... */ }
-
+    // --- Logica di Stampa ---
+    function generatePrintTable(days) {
+        let html = `<thead><tr><th style="width: 8%;">Ora</th>${days.map(day => `<th style="text-align:center;">${dayLabels[day]}</th>`).join('')}</tr></thead><tbody>`;
+        allHours.forEach(hour => {
+            if (hour === "14:00") html += `<tr><td colspan="${days.length + 1}" style="text-align:center; background:#f0f0f0;">Pausa Pranzo</td></tr>`;
+            html += `<tr><td style="font-weight:bold;">${hour}</td>`;
+            days.forEach(day => {
+                const note = (agendaData[`${day}-${hour}-note`] || "").replace(/\n/g, "<br>");
+                const indirizzo = agendaData[`${day}-${hour}-indirizzo`] || "";
+                const contatto = agendaData[`${day}-${hour}-contatto`] || "";
+                let content = '';
+                if (note) content += `<strong>Note:</strong> ${note}<br>`;
+                if (indirizzo) content += `<strong>Ind.:</strong> ${indirizzo}<br>`;
+                if (contatto) content += `<strong>Cont.:</strong> ${contatto}`;
+                html += `<td>${content || ' - '}</td>`;
+            });
+            html += `</tr>`;
+        });
+        return `<table>${html}</tbody></table>`;
+    }
+    
+    document.getElementById('print-daily-btn').onclick = () => {
+        const daySelect = document.getElementById('daySelect');
+        const dayName = daySelect.options[daySelect.selectedIndex].text;
+        printContent(`<h2>Consegne del ${dayName}</h2>` + generatePrintTable([daySelect.value]));
+    };
+    document.getElementById('print-weekly-btn').onclick = () => {
+        const part1 = generatePrintTable(['mon', 'tue', 'wed']).replace('<table>', '<table style="page-break-after: always;">');
+        const part2 = generatePrintTable(['thu', 'fri']);
+        printContent(`<h2>Agenda Settimanale</h2>` + part1 + `<br>` + part2);
+    };
+    
+    function printContent(html) {
+        document.getElementById("printable").innerHTML = html;
+        window.print();
+    }
   </script>
-
 </body>
 </html>
