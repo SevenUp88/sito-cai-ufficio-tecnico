@@ -102,7 +102,7 @@
       <h2>Accesso Agenda Consegne</h2><p>Effettua il login per continuare.</p>
       <p id="authError" style="color:var(--danger-color); font-weight: 500;"></p>
       <input type="email" id="email" placeholder="Email" style="margin-bottom: 10px;"><input type="password" id="password" placeholder="Password" style="margin-bottom: 20px;">
-      <button onclick="window.handleLogin()">Accedi</button>
+      <button id="login-btn">Accedi</button>
     </div>
   </div>
   
@@ -200,9 +200,20 @@
     });
 
     window.handleLogin = () => {
-      const [email, pass] = [document.getElementById('email').value, document.getElementById('password').value];
-      signInWithEmailAndPassword(auth, email, pass).catch(e => document.getElementById('authError').textContent = "Credenziali non valide.");
-    };
+      const handleLogin = () => { // Non serve più che sia su 'window'
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const errorP = document.getElementById('authError');
+  errorP.textContent = '';
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(error => {
+      console.error("Login fallito:", error);
+      errorP.textContent = "Credenziali non valide.";
+    });
+};
+
+// Aggancia l'evento al pulsante di login
+document.getElementById('login-btn').addEventListener('click', handleLogin);
 
     // --- Costruzione Viste (Dashboard e Dettaglio) ---
     function buildWeekOverview(activeDay) {
