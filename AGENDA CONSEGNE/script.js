@@ -1,16 +1,17 @@
-// File: script.js
+// File: script.js - Versione Corretta e Completa
+
 import { auth, db, doc, setDoc, getDoc, onSnapshot } from './firebase-config.js';
 import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
 
 // --- Dichiarazioni Globali del Modulo ---
 let currentUser = null, agendaData = {}, saveTimeout, isMapsScriptLoaded = false, unsubscribe;
-const dayKeyMapping = { 1:"mon", 2:"tue", 3:"wed", 4:"thu", 5:"fri" }; // Da indice a chiave
-const dayLabels = { mon:"Lunedì", tue:"Martedì", wed:"Mercoledì", thu:"Giovedì", fri:"Venerdì" };
+const dayKeyMapping = { 1: "mon", 2: "tue", 3: "wed", 4: "thu", 5: "fri" };
+const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
 const allHours = ["08:00", "09:00", "10:00", "11:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
 const ICONS = {
-    note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
-    address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-    contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
+    note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
+    address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
+    contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`
 };
 
 // --- Funzioni Principali di Avvio e Sincronizzazione ---
@@ -44,15 +45,15 @@ onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         document.getElementById('user-info').textContent = `Utente: ${user.email}`;
         populateDaySelector();
-        await setupRealtimeListener(); // Carica dati e avvia listener
+        await setupRealtimeListener();
         loadGoogleMapsScript();
     } else {
-        if (unsubscribe) unsubscribe(); // Ferma il listener al logout
+        if (unsubscribe) unsubscribe();
         currentUser = null;
     }
 });
 
-// --- Gestione Eventi ---
+// --- Gestione Eventi UI ---
 const handleLogin = () => {
     const [email, pass, errorP] = [document.getElementById('email').value, document.getElementById('password').value, document.getElementById('authError')];
     errorP.textContent = '';
@@ -60,6 +61,14 @@ const handleLogin = () => {
 };
 document.getElementById('login-btn').addEventListener('click', handleLogin);
 document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+document.getElementById('clear-day-btn').addEventListener('click', () => {
+    const sel = document.getElementById('daySelect');
+    const [dayKey, dayName] = [sel.value, sel.options[sel.selectedIndex].text];
+    if (!confirm(`Sei sicuro di voler cancellare TUTTE le consegne di ${dayName}?`)) return;
+    allHours.forEach(h => ['note','indirizzo','contatto'].forEach(f => delete agendaData[`${dayKey}-${h}-${f}`]));
+    clearTimeout(saveTimeout);
+    handleAutoSave({ target: { id: `${dayKey}-fake-event` } });
+});
 
 // --- Costruzione Viste (Dashboard e Dettaglio) ---
 function getWeekDays() {
@@ -100,7 +109,7 @@ function buildWeekOverview(activeDayKey) {
         body += '</tr>';
     });
     
-    table.innerHTML = header + body + '</tbody>';
+    table.innerHTML = header + body;
     
     table.querySelectorAll('.slot').forEach(slot => {
         slot.addEventListener('click', () => {
@@ -122,26 +131,34 @@ function buildDayDetailView(dayKey, scrollToTop = true) {
         const cardId = `card-${dayKey}-${hour}`;
         const addressLink = indirizzo ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}` : '#';
 
-        const cardHTML = `<div class="delivery-card" id="${cardId}">
-            <div class="card-fields">
-                <div class="card-header">
-                    <div class="card-time">${hour}</div>
-                    <button class="delete-slot-btn" data-day="${dayKey}" data-hour="${hour}" title="Cancella questa consegna">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                    </button>
-                </div>
-                <div class="form-group">${ICONS.note}<textarea id="${dayKey}-${hour}-note" placeholder="Materiale, dettagli...">${note}</textarea></div>
-                <div class="form-group row">
-                    <div class="form-group address-group">
-                        <a href="${addressLink}" target="_blank" class="address-link">${ICONS.address}</a>
-                        <input type="text" id="${dayKey}-${hour}-indirizzo" value="${indirizzo}" placeholder="Indirizzo">
+        // *** QUESTA È LA PARTE CHE CAUSAVA L'ERRORE DI SINTASSI ***
+        const cardHTML = `
+            <div class="delivery-card" id="${cardId}">
+                <div class="card-fields">
+                    <div class="card-header">
+                        <div class="card-time">${hour}</div>
+                        <button class="delete-slot-btn" data-day="${dayKey}" data-hour="${hour}" title="Cancella questa consegna">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
                     </div>
-                    <div class="form-group">${ICONS.contact}<input type="text" id="${dayKey}-${hour}-contatto" value="${contatto}" placeholder="Contatto/Tel."></div>
+                    <div class="form-group">
+                        ${ICONS.note}
+                        <textarea id="${dayKey}-${hour}-note" placeholder="Materiale, dettagli...">${note}</textarea>
+                    </div>
+                    <div class="form-group row">
+                        <div class="form-group address-group">
+                            <a href="${addressLink}" target="_blank" class="address-link">${ICONS.address}</a>
+                            <input type="text" id="${dayKey}-${hour}-indirizzo" value="${indirizzo}" placeholder="Indirizzo">
+                        </div>
+                        <div class="form-group">
+                           ${ICONS.contact}
+                           <input type="text" id="${dayKey}-${hour}-contatto" value="${contatto}" placeholder="Contatto/Tel.">
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>`;
+            </div>`;
         container.insertAdjacentHTML('beforeend', cardHTML);
-
+        
         document.querySelector(`#${cardId} .delete-slot-btn`).addEventListener('click', deleteSingleSlot);
         ['note', 'indirizzo', 'contatto'].forEach(f => document.getElementById(`${dayKey}-${hour}-${f}`).addEventListener('input', handleAutoSave));
     });
@@ -191,15 +208,6 @@ function deleteSingleSlot(event) {
     }
 }
 
-document.getElementById('clear-day-btn').onclick = () => {
-    const sel = document.getElementById('daySelect');
-    const [dayKey, dayName] = [sel.value, sel.options[sel.selectedIndex].text];
-    if (!confirm(`Cancellare TUTTE le consegne di ${dayName}?`)) return;
-    allHours.forEach(h => ['note','indirizzo','contatto'].forEach(f => delete agendaData[`${dayKey}-${h}-${f}`]));
-    clearTimeout(saveTimeout);
-    handleAutoSave({ target: { id: `${dayKey}-fake-event` } });
-};
-
 // --- Logica di Stampa ---
 function generatePrintTable(days) {
     const weekDates = getWeekDays();
@@ -207,7 +215,7 @@ function generatePrintTable(days) {
     days.forEach(dayKey => html += `<th>${dayLabels[dayKey]} ${weekDates[dayKey]}</th>`);
     html += `</tr></thead><tbody>`;
     allHours.forEach(hour => {
-        if(hour === '14:00') html += `<tr><td colspan="${days.length+1}" style="background:#f0f0f0; text-align:center;">Pausa Pranzo</td></tr>`;
+        if(hour === '14:00') html += `<tr><td colspan="${days.length+1}" style="background:#f0f0f0; text-align:center; font-style:italic;">Pausa Pranzo</td></tr>`;
         html += `<tr><td><b>${hour}</b></td>`;
         days.forEach(dayKey => {
             const note = (agendaData[`${dayKey}-${hour}-note`] || "").replace(/\n/g, "<br>");
@@ -224,18 +232,14 @@ function generatePrintTable(days) {
     return `<table>${html}</tbody></table>`;
 }
 
-document.getElementById('print-weekly-btn').onclick = () => {
+document.getElementById('print-weekly-btn').addEventListener('click', () => {
     const part1 = generatePrintTable(['mon', 'tue', 'wed']).replace('<table>', '<table class="page-break">');
     const part2 = generatePrintTable(['thu', 'fri']);
     printContent(`<h2>Agenda Settimanale</h2>${part1}${part2}`);
-};
+});
 
 function printContent(html) {
     const printable = document.getElementById("printable");
     printable.innerHTML = html;
     window.print();
 }
-
-</script>
-</body>
-</html>
