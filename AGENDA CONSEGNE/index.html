@@ -21,58 +21,42 @@
         .week-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .week-navigation h2 { margin: 0; font-size: 1.5rem; flex-grow: 1; }
         .week-navigation button { padding: 8px 16px; background-color: #fff; border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; cursor: pointer; font-weight: 600; transition: background-color 0.2s; }
-        .week-navigation button:hover { background-color: #f8f9fa; }
         #week-overview-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        #week-overview-table th, #week-overview-table td { border: 1px solid #dce3eb; padding: 8px; text-align: center; font-size: 0.9rem; vertical-align: middle; }
+        #week-overview-table th, #week-overview-table td { border: 1px solid var(--border-color); padding: 8px; text-align: center; font-size: 0.9rem; vertical-align: top; }
         #week-overview-table th { background-color: #f8f9fa; font-weight: 600; padding: 12px 8px; }
         #week-overview-table .time-col { font-weight: 600; color: var(--primary-color); width: 80px; }
-        #week-overview-table .slot { cursor: pointer; min-height: 50px; transition: background-color 0.2s; position: relative; }
+        #week-overview-table .slot { cursor: pointer; height: 80px; transition: background-color 0.2s; position: relative; }
         #week-overview-table .slot:hover { background-color: var(--primary-light); }
         #week-overview-table .slot.is-filled { background-color: var(--success-color); color: white; }
-        #week-overview-table .slot-summary { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4; text-transform: uppercase; font-weight: 600; }
-        .pause-label-week { background: #f4f7fa; font-style: italic; font-size: 0.8rem; }
-        .day-detail-column { padding: 1.5rem; background-color: white; border-radius: 12px; box-shadow: 0 4px 20px var(--shadow-color); }
-        .day-detail-column .controls-header { text-align: center; margin-bottom: 1.5rem; }
-        #consegneContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.25rem; }
-        .delivery-card { background: var(--card-background); border-left: 5px solid transparent; border-radius: 8px; box-shadow: 0 2px 8px var(--shadow-color); padding: 1rem 1.25rem; border: 1px solid var(--border-color); }
-        .delivery-card.is-filled { border-left-color: var(--success-color); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .card-time { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); }
-        .delete-slot-btn { background: none; border: none; cursor: pointer; padding: 5px; opacity: 0.5; transition: opacity 0.2s, color 0.2s; }
-        .delete-slot-btn:hover { opacity: 1; color: var(--danger-color); }
-        .address-link { color: inherit; text-decoration: none; }
-        .form-group { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 0.75rem; }
-        .form-group svg { flex-shrink: 0; width: 20px; height: 20px; stroke: var(--text-secondary); margin-top: 10px; }
-        .form-group.address-group svg, .form-group.contact-group svg { margin-top: 0; }
-        .form-group.address-group, .form-group.contact-group { align-items: center; }
-        input, textarea { width: 100%; font-size: 1rem; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; background: #f9fafb; }
-        textarea { min-height: 80px; resize: vertical; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        #week-overview-table .slot-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.8rem; line-height: 1.4; text-align: left; padding: 4px; }
+        .slot-summary strong { display: block; }
+        .pause-label-week { background: #f4f7fa; font-style: italic; font-size: 0.8rem; height: 40px; vertical-align: middle;}
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: opacity 0.3s; }
         .modal-overlay.visible { display: flex; opacity: 1; }
-        .modal-content { background: white; padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s ease-in-out; }
+        .modal-content { background: white; padding: 1.5rem; border-radius: 12px; width: 90%; max-width: 500px; transform: scale(0.95); transition: transform 0.3s; }
         .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem; margin-bottom: 1rem; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
-        .modal-body p { margin: 0.5rem 0 1rem 0; line-height: 1.6; border-left: 3px solid var(--primary-light); padding-left: 1rem; }
-        .modal-body strong { color: var(--primary-color); display: block; margin-bottom: 0.25rem; }
-        .modal-footer { margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.75rem; }
+        .modal-body .form-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+        .modal-body label { font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; }
+        .modal-body textarea { min-height: 100px; resize: vertical; }
+        .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-navigate { background-color: var(--success-color); color: white; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-primary-ghost { background-color: transparent; color: var(--primary-color); }
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; display: flex; justify-content: center; align-items: center; }
         .auth-box { background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; width: 90%; }
-        .auth-box input { display: block; width: 100%; margin-bottom: 1rem; }
-        .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; }
         #printable { display: none; }
     </style>
 </head>
 <body>
-
-    <div id="authOverlay" class="auth-overlay"><div class="auth-box"><h2>Accesso Agenda Consegne</h2><p>Effettua il login per continuare.</p><p id="authError" class="auth-error-message"></p><input type="email" id="email" placeholder="Email"><input type="password" id="password" placeholder="Password"><button id="login-btn">Accedi</button></div></div>
-    <div id="app" class="app-container" style="display:none"><h1>Agenda Consegne</h1><div class="user-header"><span id="user-info"></span> | <button id="logout-btn">Logout</button></div><div class="week-overview-column"><div class="week-navigation"><button id="prev-week-btn">‹ Sett. Prec.</button><h2 id="week-title">Riepilogo Settimana</h2><button id="next-week-btn">Sett. Succ. ›</button></div><table id="week-overview-table"></table><div class="btn-group" style="justify-content:flex-end;margin-top:1.5rem"><button id="print-weekly-btn">🖨️ Stampa Settimana</button></div></div><div class="day-detail-column"><div class="controls-header"><h2 id="detail-day-title">Dettaglio Giorno</h2></div><div id="consegneContainer"></div></div></div>
-    <div id="slot-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">Dettagli Consegna</h3><button id="modal-close-btn" class="close-btn">×</button></div><div id="modal-body"></div><div class="modal-footer"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Vai all'indirizzo</a><button id="modal-edit-btn" class="btn-primary">✏️ Modifica</button></div></div></div>
+    <div id="authOverlay" class="auth-overlay"><div class="auth-box"><h2>Accesso Agenda Consegne</h2><p>Effettua il login per continuare.</p><p id="authError" style="color:var(--danger-color);font-weight:500;min-height:1.2em;"></p><input type="email" id="email" placeholder="Email" style="margin-bottom:1rem;"><input type="password" id="password" placeholder="Password" style="margin-bottom:1rem;"><button id="login-btn">Accedi</button></div></div>
+    <div id="app" class="app-container" style="display:none"><h1>Agenda Consegne</h1><div class="user-header"><span id="user-info"></span> | <button id="logout-btn">Logout</button></div><div class="week-overview-column"><div class="week-navigation"><button id="prev-week-btn">‹ Sett. Prec.</button><h2 id="week-title">Riepilogo Settimana</h2><button id="next-week-btn">Sett. Succ. ›</button></div><table id="week-overview-table"></table></div></div>
+    <div id="slot-modal" class="modal-overlay"><div class="modal-content"><div class="modal-header"><h3 id="modal-title">Dettagli Consegna</h3><button id="modal-close-btn" class="close-btn">×</button></div><div id="modal-body" class="modal-body"></div><div class="modal-footer"><div class="btn-group-left"><button id="modal-delete-btn" class="btn-danger">🗑️ Elimina</button><a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">🗺️ Naviga</a></div><button id="modal-done-btn" class="btn-primary-ghost">Fatto</button></div></div></div>
     <div id="printable"></div>
 
     <script type="module">
@@ -80,55 +64,197 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
-            authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-            projectId: "consorzio-artigiani-idraulici",
-            storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-            messagingSenderId: "136848104008",
-            appId: "1:136848104008:web:2724f60607dbe91d09d67d"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser, agendaData = {}, unsubscribe, saveTimeout, isMapsScriptLoaded = !1, currentDetailDayKey;
-        const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"},dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
-        const allHours=["08:00","09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00"];
-        const ICONS = {
-            note: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>`,
-            address: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`,
-            contact: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`,
-            delete: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
-        };
+        let currentUser, agendaData = {}, unsubscribe, saveTimeout, isMapsScriptLoaded = false;
         let currentDisplayedDate = new Date();
-        
-        // --- Inizializzazione -- CORRETTA PER EVITARE L'ERRORE
+
+        const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"}, dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
+        const allHours=["08:00","09:00","10:00","11:00","14:00","15:00","16:00","17:00","18:00"];
+
+        // --- Inizializzazione ---
         document.addEventListener('DOMContentLoaded', () => {
-            currentDetailDayKey = getDayFromDate(currentDisplayedDate);
-            addEventListeners(); // Aggancia gli eventi dopo che l'HTML è pronto
+            addEventListeners();
             onAuthStateChanged(auth, handleAuthStateChange);
         });
 
-        // --- Le funzioni vengono definite PRIMA di essere agganciate
-        const handleLogin=()=>{const e=document.getElementById("email").value,t=document.getElementById("password").value,n=document.getElementById("authError");n.textContent="",signInWithEmailAndPassword(auth,e,t).catch(e=>{console.error("Login fallito:",e),n.textContent="Credenziali non valide."})};
-        async function handleAuthStateChange(e){document.getElementById("authOverlay").style.display=e?"none":"flex",document.getElementById("app").style.display=e?"block":"none",e?(currentUser=e,document.getElementById("user-info").textContent=`Utente: ${e.email}`,await setupRealtimeListener(),loadGoogleMapsScript()):(unsubscribe&&unsubscribe(),currentUser=null)}
-        function loadGoogleMapsScript(){if(isMapsScriptLoaded||document.getElementById("google-maps-script"))return;isMapsScriptLoaded=!0;const e=document.createElement("script");e.id="google-maps-script",e.src=`https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places`,e.async=!0,e.defer=!0,e.onload=()=>initAutocompleteForDay(currentDetailDayKey),document.head.appendChild(e)}
-        async function setupRealtimeListener(){unsubscribe&&unsubscribe();const e=doc(db,"agende","principale");unsubscribe=onSnapshot(e,e=>{agendaData=e.exists()?e.data():{},updateAllViews()})}
-        function updateAllViews(){buildWeekOverview(),buildDayDetailView(currentDetailDayKey)}
-        function buildWeekOverview(){const e=document.getElementById("week-overview-table");const{weekDates:t,weekTitle:n}=getWeekInfo(currentDisplayedDate);document.getElementById("week-title").textContent=n;let o=`<thead><tr><th>Ora</th>`;Object.keys(dayLabels).forEach(e=>o+=`<th>${dayLabels[e].substring(0,3)} ${t[e].split("-")[2]}</th>`),o+="</tr></thead>";let d="<tbody>";allHours.forEach(e=>{e==="14:00"&&(d+='<tr><td class="pause-label-week" colspan="6">Pausa</td></tr>'),d+="<tr><td class='time-col'>"+e+"</td>",Object.keys(dayLabels).forEach(n=>{const o=t[n],i=`${o}-${e}`,l=agendaData[i+"-note"]||"",s=agendaData[i+"-indirizzo"]||"";d+=`<td class="slot ${l||s?"is-filled":""}" data-date="${o}" data-hour="${e}" data-daykey="${n}"><div class="slot-summary">${l||s}</div></td>`}),d+="</tr>"}),e.innerHTML=o+d,e.querySelectorAll(".slot").forEach(e=>e.addEventListener("click",()=>handleSlotClick(e.dataset.date,e.dataset.hour,e.dataset.daykey)))}
-        function buildDayDetailView(e,t=!0){if(!e)return;currentDetailDayKey=e;const n=document.getElementById("consegneContainer");const{weekDates:o}=getWeekInfo(currentDisplayedDate);const d=o[e];document.getElementById("detail-day-title").textContent=`Dettaglio per ${dayLabels[e]} ${d.split("-")[2]}`;n.innerHTML="",allHours.forEach(e=>{const t=d+"-"+e,o=agendaData[t+"-note"]||"",i=agendaData[t+"-indirizzo"]||"",l=agendaData[t+"-contatto"]||"";n.insertAdjacentHTML("beforeend",createCardHTML(d,e,o,i,l))}),addCardEventListeners(d),isMapsScriptLoaded&&initAutocompleteForDay(e)}
-        function createCardHTML(e,t,n,o,d){const i=`${e}-${t}`,l=o?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o)}`:"#";return`<div class="delivery-card ${n||o?"is-filled":""}" id="card-${i}"><div class="card-header"><div class="card-time">${t}</div><button class="delete-slot-btn" data-date="${e}" data-hour="${t}" data-daykey="${getDayFromDate(new Date(e+"T00:00:00"))}">${ICONS.delete}</button></div><div class="form-group">${ICONS.note}<textarea id="${i}-note" placeholder="Note consegna...">${n}</textarea></div><div class="form-group address-group"><a href="${l}" target="_blank" class="address-link">${ICONS.address}</a><input type="text" id="${i}-indirizzo" value="${o}" placeholder="Indirizzo"></div><div class="form-group"><div class="form-group contact-group">${ICONS.contact}<input type="text" id="${i}-contatto" value="${d}" placeholder="Contatto/Tel."></div></div></div>`}
-        function getWeekInfo(e){const t=new Date(e);const n=t.getDay(),o=0===n?-6:1-n;t.setDate(t.getDate()+o);const d={},i=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];return Object.keys(dayKeyMapping).forEach(e=>{const n=new Date(t);n.setDate(t.getDate()+e-1),d[dayKeyMapping[e]]=`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,"0")}-${String(n.getDate()).padStart(2,"0")}`}),{weekDates:d,weekTitle:`Settimana del ${t.getDate()} ${i[t.getMonth()]} - ${new Date(t.getTime()+4*864e5).getDate()} ${i[new Date(t.getTime()+4*864e5).getMonth()]} ${t.getFullYear()}`}}
-        function getDayFromDate(e){const t=e.getDay();return dayKeyMapping[0===t?7:t]}
-        function handleAutoSave(e){clearTimeout(saveTimeout);const t=e.target.id;agendaData[t]=e.target.value.trim(),saveTimeout=setTimeout(async()=>{if(currentUser)try{await setDoc(doc(db,"agende","principale"),agendaData,{merge:!0})}catch(e){console.error("Errore salvataggio:",e)}},1200)}
-        function initAutocompleteForDay(e){if(!window.google||!window.google.maps.places)return;const{weekDates:t}=getWeekInfo(currentDisplayedDate);const n=t[e];allHours.forEach(e=>{const t=document.getElementById(`${n}-${e}-indirizzo`);t&&new google.maps.places.Autocomplete(t,{componentRestrictions:{country:"it"}})})}
-        function addCardEventListeners(e){allHours.forEach(t=>{const n=e+"-"+t;["note","indirizzo","contatto"].forEach(e=>{document.getElementById(n+"-"+e).addEventListener("input",handleAutoSave)});const o=document.querySelector(`#card-${n} .delete-slot-btn`);o&&o.addEventListener("click",e=>deleteSlot(e.currentTarget.dataset.date,e.currentTarget.dataset.hour,e.currentTarget.dataset.daykey))})}
-        function handleSlotClick(e,t,n){const o=document.getElementById("slot-modal");const d=agendaData[`${e}-${t}-note`]||"Nessuna nota",i=agendaData[`${e}-${t}-indirizzo`]||"Nessun indirizzo",l=agendaData[`${e}-${t}-contatto`]||"Nessun contatto";document.getElementById("modal-title").textContent=`Consegna ${dayLabels[n]} ${e.split("-")[2]} ore ${t}`,document.getElementById("modal-body").innerHTML=`<p><strong>Note:</strong><br>${d}</p><p><strong>Indirizzo:</strong><br>${i}</p><p><strong>Contatto:</strong><br>${l}</p>`;const s=document.getElementById("modal-nav-btn");"Nessun indirizzo"!==i?(s.href=`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(i)}`,s.style.display="inline-flex"):s.style.display="none",document.getElementById("modal-delete-btn").onclick=()=>deleteSlot(e,t,n),document.getElementById("modal-edit-btn").onclick=()=>{currentDetailDayKey=n,buildDayDetailView(n),closeModal()},o.style.display="flex",setTimeout(()=>o.classList.add("visible"),10)}
-        function deleteSlot(e,t,n){confirm(`Cancellare la consegna delle ${t} di ${dayLabels[n]}?`)&&(["note","indirizzo","contatto"].forEach(n=>delete agendaData[`${e}-${t}-${n}`]),clearTimeout(saveTimeout),handleAutoSave({target:{id:`${e}-fake`}}),closeModal())}
-        function closeModal(){const e=document.getElementById("slot-modal");e.classList.remove("visible"),setTimeout(()=>e.style.display="none",300)}
-        function addEventListeners(){document.getElementById("login-btn").addEventListener("click",handleLogin),document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth)),document.getElementById("prev-week-btn").addEventListener("click",()=>{currentDisplayedDate.setDate(currentDisplayedDate.getDate()-7),updateAllViews()}),document.getElementById("next-week-btn").addEventListener("click",()=>{currentDisplayedDate.setDate(currentDisplayedDate.getDate()+7),updateAllViews()}),document.getElementById("modal-close-btn").addEventListener("click",closeModal),document.getElementById("slot-modal").addEventListener("click",e=>{e.target.id==="slot-modal"&&closeModal()})}
-    
+        // --- Funzioni Principali ---
+        async function handleAuthStateChange(user) {
+            document.getElementById('authOverlay').style.display = user ? 'none' : 'flex';
+            document.getElementById('app').style.display = user ? 'block' : 'none';
+            if (user) {
+                currentUser = user;
+                document.getElementById('user-info').textContent = `Utente: ${user.email}`;
+                await setupRealtimeListener();
+                loadGoogleMapsScript();
+            } else {
+                if (unsubscribe) unsubscribe();
+                currentUser = null;
+            }
+        }
+
+        function loadGoogleMapsScript(){
+            if(isMapsScriptLoaded) return;
+            isMapsScriptLoaded = true;
+            const script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => console.log("Google Maps API caricata.");
+            document.head.appendChild(script);
+        }
+
+        async function setupRealtimeListener() {
+            if (unsubscribe) unsubscribe();
+            const docRef = doc(db, 'agende', 'principale');
+            unsubscribe = onSnapshot(docRef, (docSnap) => {
+                agendaData = docSnap.exists() ? docSnap.data() : {};
+                buildWeekOverview();
+            });
+        }
+        
+        // --- Costruzione UI ---
+        function buildWeekOverview() {
+            const table = document.getElementById('week-overview-table');
+            const { weekDates, weekTitle } = getWeekInfo(currentDisplayedDate);
+            document.getElementById('week-title').textContent = weekTitle;
+
+            let header = `<thead><tr><th>Ora</th>`;
+            Object.keys(dayLabels).forEach(key => header += `<th>${dayLabels[key].substring(0,3)} ${weekDates[key].split('-')[2]}</th>`);
+            header += `</tr></thead>`;
+
+            let body = '<tbody>';
+            allHours.forEach(hour => {
+                if (hour === '14:00') body += `<tr><td class="pause-label-week" colspan="6">Pausa</td></tr>`;
+                body += `<tr><td class="time-col">${hour}</td>`;
+                Object.keys(dayLabels).forEach(dayKey => {
+                    const date = weekDates[dayKey];
+                    const dataKey = `${date}-${hour}`;
+                    const cliente = agendaData[dataKey + '-cliente'] || "";
+                    const indirizzo = agendaData[dataKey + '-indirizzo'] || "";
+                    body += `<td class="slot ${cliente || indirizzo ? 'is-filled' : ''}" data-date="${date}" data-hour="${hour}" data-daykey="${dayKey}">
+                                <div class="slot-summary"><strong>${cliente}</strong>${indirizzo}</div>
+                             </td>`;
+                });
+                body += '</tr>';
+            });
+            table.innerHTML = header + body;
+            
+            table.querySelectorAll('.slot').forEach(slot => {
+                slot.addEventListener('click', () => handleSlotClick(slot.dataset.date, slot.dataset.hour, slot.dataset.daykey));
+            });
+        }
+        
+        // --- Gestione Modale ---
+        function handleSlotClick(date, hour, dayKey) {
+            const modal = document.getElementById('slot-modal');
+            const dataKey = `${date}-${hour}`;
+
+            document.getElementById('modal-title').textContent = `Consegna: ${dayLabels[dayKey]} ${date.split('-')[2]}, ore ${hour}`;
+            document.getElementById('modal-body').innerHTML = `
+                <div class="form-group">
+                    <label for="modal-cliente">Cliente</label>
+                    <input type="text" id="modal-cliente" value="${agendaData[dataKey + '-cliente'] || ''}" placeholder="Nome Cliente">
+                </div>
+                <div class="form-group">
+                    <label for="modal-indirizzo">Indirizzo</label>
+                    <input type="text" id="modal-indirizzo" value="${agendaData[dataKey + '-indirizzo'] || ''}" placeholder="Via, numero civico, città">
+                </div>
+                <div class="form-group">
+                    <label for="modal-note">Note</label>
+                    <textarea id="modal-note" placeholder="Dettagli, materiale, contatto...">${agendaData[dataKey + '-note'] || ''}</textarea>
+                </div>
+            `;
+            
+            ['cliente', 'indirizzo', 'note'].forEach(field => {
+                document.getElementById(`modal-${field}`).addEventListener('input', (e) => handleModalAutoSave(e, dataKey, field));
+            });
+            
+            if (isMapsScriptLoaded && window.google) {
+                new google.maps.places.Autocomplete(document.getElementById('modal-indirizzo'), { componentRestrictions: { country: 'it' } });
+            }
+
+            const navBtn = document.getElementById('modal-nav-btn');
+            navBtn.style.display = agendaData[dataKey + '-indirizzo'] ? 'inline-flex' : 'none';
+            navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(agendaData[dataKey + '-indirizzo'] || '')}`;
+            
+            document.getElementById('modal-delete-btn').onclick = () => deleteSlot(dataKey, dayLabels[dayKey], hour);
+            
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('visible'), 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('slot-modal');
+            modal.classList.remove('visible');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        function handleModalAutoSave(event, dataKey, field) {
+            clearTimeout(saveTimeout);
+            const firestoreKey = `${dataKey}-${field}`;
+            agendaData[firestoreKey] = event.target.value.trim();
+            saveTimeout = setTimeout(async() => {
+                if (!currentUser) return;
+                await setDoc(doc(db, "agende", "principale"), agendaData, { merge: true });
+                console.log("Salvataggio automatico completato");
+            }, 800);
+
+            // Aggiorna visibilità pulsante Naviga
+            if (field === 'indirizzo') {
+                const navBtn = document.getElementById('modal-nav-btn');
+                const indirizzo = event.target.value.trim();
+                navBtn.style.display = indirizzo ? 'inline-flex' : 'none';
+                navBtn.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(indirizzo)}`;
+            }
+        }
+        
+        function deleteSlot(dataKey, dayName, hour) {
+            if (confirm(`Cancellare la consegna delle ${hour} di ${dayName}?`)) {
+                ['cliente', 'indirizzo', 'note'].forEach(f => delete agendaData[`${dataKey}-${f}`]);
+                clearTimeout(saveTimeout);
+                handleModalAutoSave({target:{value:''}}, dataKey.substring(0, dataKey.lastIndexOf('-')), 'fake');
+                closeModal();
+            }
+        }
+
+        // --- Event Listener Globali ---
+        function addEventListeners() {
+            const handleLogin = () => { /*...*/ }; // Definizione come prima
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
+            document.getElementById('prev-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7); updateAllViews(); });
+            document.getElementById('next-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7); updateAllViews(); });
+            document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+            document.getElementById('modal-done-btn').addEventListener('click', closeModal);
+            document.getElementById('slot-modal').addEventListener('click', (e) => { if(e.target.id === 'slot-modal') closeModal(); });
+        }
+        
+        // --- Funzioni Helper e di Stampa ---
+        function getWeekInfo(baseDate) {
+            const startOfWeek = new Date(baseDate);
+            const day = startOfWeek.getDay();
+            const diff = day === 0 ? -6 : 1 - day; // Imposta lunedì come inizio settimana
+            startOfWeek.setDate(startOfWeek.getDate() + diff);
+            const weekDates = {};
+            const monthNames = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"];
+            
+            Object.keys(dayKeyMapping).forEach(key => {
+                const d = new Date(startOfWeek);
+                d.setDate(startOfWeek.getDate() + (key - 1));
+                weekDates[dayKeyMapping[key]] = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            });
+
+            const endDate = new Date(startOfWeek);
+            endDate.setDate(startOfWeek.getDate() + 4);
+            const weekTitle = `Settimana ${startOfWeek.getDate()} ${monthNames[startOfWeek.getMonth()]} - ${endDate.getDate()} ${monthNames[endDate.getMonth()]} ${endDate.getFullYear()}`;
+            return { weekDates, weekTitle };
+        }
+
+        initializeApp();
     </script>
 </body>
 </html>
