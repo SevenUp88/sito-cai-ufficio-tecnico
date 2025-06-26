@@ -160,24 +160,31 @@
     
     // --- Funzioni Core dell'Agenda ---
     async function loadAgendaData() {
-        if (!currentUser) return;
-        const docRef = doc(db, 'agende', currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        agendaData = docSnap.exists() ? docSnap.data() : {};
-    }
+    if (!currentUser) return;
+    console.log("Caricamento dati dall'agenda CONDIVISA...");
+    const docRef = doc(db, 'agende', 'principale'); // <-- MODIFICA QUI
+    const docSnap = await getDoc(docRef);
+    agendaData = docSnap.exists() ? docSnap.data() : {};
+}
 
     function handleAutoSave(event) {
-        clearTimeout(saveTimeout);
-        const [day, hour, field] = event.target.id.split('-');
-        if (!day || !hour || !field) return;
-        agendaData[`${day}-${hour}-${field}`] = event.target.value.trim();
-        checkCardFilledState(day, hour);
-        saveTimeout = setTimeout(async () => {
-            if (!currentUser) return;
-            try { await setDoc(doc(db, 'agende', currentUser.uid), agendaData, { merge: true }); console.log("Salvataggio automatico completato."); } 
-            catch (e) { console.error("Errore salvataggio:", e); }
-        }, 1500);
-    }
+    clearTimeout(saveTimeout);
+    const [day, hour, field] = event.target.id.split('-');
+    if (!day || !hour || !field) return;
+    agendaData[`${day}-${hour}-${field}`] = event.target.value.trim();
+    checkCardFilledState(day, hour);
+
+    saveTimeout = setTimeout(async () => {
+        if (!currentUser) return;
+        console.log("Salvataggio automatico su agenda CONDIVISA...");
+        const docRef = doc(db, 'agende', 'principale'); // <-- MODIFICA QUI
+        try {
+            await setDoc(docRef, agendaData, { merge: true });
+        } catch (e) {
+            console.error("Errore salvataggio dati:", e);
+        }
+    }, 1500);
+}
     
     function populateDaySelector() {
         const select = document.getElementById('daySelect');
