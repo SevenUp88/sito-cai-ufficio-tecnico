@@ -374,303 +374,273 @@ body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { dis
    e mettila in un media query più grande se necessario.
 .product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
 */
-/* === STILI PER PANNELLO DETTAGLI EXTRA === */
+/* ================================================= */
+/*             STILI PER IL MODAL DETTAGLI           */
+/*          (VERSÍONE UNICA E CORRETTA)            */
+/* ================================================= */
 
-/* Il pulsante per mostrare/nascondere i dettagli */
-.toggle-details-btn {
-    background-color: transparent;
-    border: 1px solid var(--secondary-color);
-    color: var(--secondary-color);
-    padding: 3px 10px;
-    font-size: 0.8em;
-    font-weight: 500;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-left: 10px; /* Spazio dal prezzo/badge */
-}
-.toggle-details-btn:hover {
-    background-color: var(--secondary-color);
-    color: white;
-}
-/* Stile del pulsante quando il pannello è aperto */
-.toggle-details-btn.active {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-    color: white;
-}
-
-/* Il contenitore dei dettagli extra. Nascosto di default */
-.product-extra-details {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    padding-top: 0;
-    margin-top: 0;
-    border-top: 1px solid transparent;
-    transition: max-height 0.5s ease-out, opacity 0.4s ease-out, margin-top 0.5s ease-out, padding-top 0.5s ease-out, border-color 0.5s ease;
-}
-
-/* Stile del contenitore quando è visibile (con la classe .active) */
-.product-extra-details.active {
-    max-height: 500px; /* Un valore sufficientemente grande per contenere tutto */
-    opacity: 1;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top-color: #eee;
-}
-
-/* La lista <ul> che contiene i dettagli */
-.details-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.9em;
-    display: grid;
-    grid-template-columns: auto 1fr; /* Due colonne: una per le etichette, una per i valori */
-    gap: 6px 15px; /* Spazio tra righe e colonne */
-    align-items: center;
-}
-
-.details-list li {
-    display: contents; /* Fa sì che li si comporti come parte della griglia del suo genitore ul */
-}
-
-.details-list strong {
-    font-weight: 700;
-    color: var(--dark-color);
-    text-align: right; /* Allinea a destra le etichette */
-}
-
-.details-list span {
-    color: var(--secondary-color);
-    text-align: left; /* Allinea a sinistra i valori */
-}
-
-/* Un separatore visivo tra gruppi di dettagli */
-.details-list .details-separator {
-    grid-column: 1 / -1; /* Occupa tutta la larghezza */
-    height: 1px;
-    background-color: #f0f0f0;
-    margin: 4px 0;
-    display: block; /* Deve essere 'block' per funzionare come separatore */
-}
+/* Contesto: questa classe viene aggiunta al <body> quando il modal è aperto
+   per impedire lo scorrimento della pagina sottostante. */
 body.modal-open {
-    overflow: hidden; 
+    overflow: hidden;
 }
 
+/* 1. L'OVERLAY (SFONDO GRIGIO)
+   Questo è il div con id="product-details-modal-overlay". Copre tutto lo schermo. */
 #product-details-modal-overlay {
-    position: fixed;
+    position: fixed; /* Si posiziona rispetto alla finestra del browser, non alla pagina */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1050;
-    display: none;
+    background-color: rgba(0, 0, 0, 0.65); /* Sfondo nero semi-trasparente */
+    z-index: 1000; /* Assicura che sia sopra ogni altro elemento della pagina */
+
+    /* Usa Flexbox per centrare il suo figlio diretto (il .modal-container) */
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 15px; /* Padding su tutti i lati per mobile */
+
+    padding: 20px; /* Lascia un po' di spazio sui bordi per schermi piccoli */
     box-sizing: border-box;
+
+    /* Per l'animazione di apparizione */
+    visibility: hidden;
     opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-}
-#product-details-modal-overlay.visible {
-    display: flex;
-    opacity: 1;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
 }
 
-#product-details-modal {
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 25px rgba(0,0,0,0.2);
-    width: 100%;
-    max-width: 800px;
-    max-height: 95vh; /* Leggermente aumentato per sfruttare meglio lo spazio */
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* FONDAMENTALE: nasconde tutto ciò che esce dai bordi arrotondati */
-    transform: scale(0.95);
-    transition: transform 0.3s ease-in-out;
+/* Quando JS aggiunge la classe 'visible', l'overlay diventa visibile. */
+#product-details-modal-overlay.visible {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.3s ease;
 }
-#product-details-modal-overlay.visible #product-details-modal {
+
+/* 2. IL CONTENITORE DEL MODAL
+   Questo è il div con class="modal-container". È il riquadro bianco. */
+.modal-container {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 850px; /* Larghezza massima su schermi grandi */
+    max-height: 90vh; /* Altezza massima (90% dell'altezza dello schermo) */
+    
+    position: relative; /* Cruciale per posizionare la X di chiusura all'interno */
+    
+    display: flex; /* Usa Flexbox per la struttura interna (header, body, footer) */
+    flex-direction: column;
+    
+    overflow: hidden; /* FONDAMENTALE: l'overflow va gestito DENTRO (sul modal-body) */
+
+    /* Animazione di entrata "zoom-in" */
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Quando l'overlay è visibile, il modal fa l'animazione di entrata. */
+#product-details-modal-overlay.visible .modal-container {
     transform: scale(1);
 }
 
-/* 
-* MODIFICA CHIAVE #1: Rendiamo il bottone di chiusura indipendente e sempre visibile.
-* Usiamo 'position: absolute' relativo al modal bianco, e uno z-index alto.
-*/
-#close-modal-btn {
-    position: absolute;
-    top: 8px;
-    right: 10px;
-    background-color: rgba(240, 240, 240, 0.8);
+/* 3. IL BOTTONE DI CHIUSURA
+   Questo è il button con id="close-modal-btn". */
+.modal-close-btn {
+    position: absolute; /* Si posiziona relativo al .modal-container */
+    top: 10px;
+    right: 15px;
+    background: transparent;
     border: none;
-    font-size: 1.8em;
-    color: var(--secondary-color);
+    font-size: 2.2rem;
+    font-weight: 300;
+    color: #888;
     cursor: pointer;
     line-height: 1;
-    padding: 2px 8px;
     z-index: 10;
-    border-radius: 50%;
-    transition: all 0.2s ease;
+    padding: 0;
 }
-#close-modal-btn:hover {
-    color: var(--danger-color);
-    background-color: #f1f1f1;
+.modal-close-btn:hover {
+    color: #333;
 }
 
-/* 
-* MODIFICA CHIAVE #2: Adesso è `.modal-content` ad avere lo scroll, 
-* non più `.modal-body`. Questo è cruciale.
-*/
-.modal-content {
-    display: flex;
-    flex-direction: column;
-    padding: 25px;
-    height: 100%;
-    overflow-y: auto; /* PERMETTE LO SCROLL DEL CONTENUTO INTERNO */
-    box-sizing: border-box;
-}
 
+/* --- LAYOUT INTERNO DEL MODAL --- */
+
+/* 4. HEADER (Logo e Titoli) */
 .modal-header {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    /* Rimuoviamo 'flex-shrink: 0' perché adesso il content scorre tutto insieme */
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e9e9e9;
+    flex-shrink: 0; /* Impedisce all'header di rimpicciolirsi */
 }
-.modal-header .product-logo { max-height: 45px; max-width: 150px; }
-.modal-title h2 { margin: 0; font-size: 1.6em; color: var(--dark-color); }
-.modal-title span { margin: 0; font-size: 1em; color: var(--secondary-color); text-transform: uppercase; }
 
-/* 
-* MODIFICA CHIAVE #3: .modal-body non ha più lo scroll né il flex-grow, 
-* perché fa parte del contenuto che scorre.
-*/
-.modal-body {
-    padding: 25px 5px;
-    display: grid;
-    grid-template-columns: 35% 1fr;
-    gap: 25px;
-    align-items: start;
+#modal-product-logo {
+    height: 50px;
+    width: auto;
+    max-width: 160px;
+    margin-right: 20px;
+    object-fit: contain; /* Mantiene le proporzioni del logo */
 }
-.modal-body .product-image {
+
+#modal-product-brand {
+    font-size: 1.1rem;
+    color: #6c757d;
+    display: block;
+}
+
+#modal-product-model {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* 5. CORPO (Immagine e Liste di Dettagli)
+   Questa sezione è quella che deve scrollare se il contenuto è troppo. */
+.modal-body {
+    display: flex;
+    gap: 30px;
+    overflow-y: auto; /* Abilita lo scroll VERTICALE SOLO per questa sezione */
+    padding-right: 15px; /* Crea spazio per la barra di scorrimento */
+    margin-right: -15px; /* "Nasconde" lo spazio creato dal padding */
+}
+
+.modal-image-container {
+    flex-basis: 35%; /* L'immagine occupa circa 1/3 dello spazio */
+    flex-shrink: 0;
+}
+
+#modal-product-image {
     width: 100%;
     height: auto;
-    object-fit: contain;
-    border: 1px solid #eee;
-    border-radius: var(--border-radius);
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
 }
 
-#modal-details-container .modal-section-title {
-    font-size: 1.1em;
-    font-weight: 700;
+.modal-details-container {
+    flex-basis: 65%; /* I dettagli occupano il resto dello spazio */
+}
+
+.modal-details-container h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
     color: var(--primary-color);
-    margin: 0 0 15px 0;
     padding-bottom: 5px;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid #e0e0e0;
 }
-#modal-details-container .modal-section-title:not(:first-child) {
-    margin-top: 25px;
+.modal-details-container h3:not(:first-of-type) {
+    margin-top: 25px; /* Spazio tra le due liste di dettagli */
 }
-/* Stili liste (invariati) */
-#modal-main-details-list, #modal-extra-details-list {
-    list-style: none; padding: 0; margin: 0; font-size: 0.95em;
-    display: grid; grid-template-columns: 150px 1fr;
-    gap: 8px 15px; align-items: center;
-}
-#modal-main-details-list li, #modal-extra-details-list li { display: contents; }
-#modal-main-details-list strong, #modal-extra-details-list strong { font-weight: 500; color: var(--dark-color); text-align: right;}
-#modal-main-details-list span, #modal-extra-details-list span { color: var(--secondary-color); text-align: left; word-break: break-word; }
 
+/* Liste di dettagli (ul, li, strong, span) */
+#modal-main-details-list,
+#modal-extra-details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95em;
+}
 
-.modal-footer {
-    /* Aggiorniamo il footer del modale per allineare correttamente i due elementi */
+#modal-main-details-list li,
+#modal-extra-details-list li {
     display: flex;
-    justify-content: space-between; /* Spinge gli elementi agli estremi */
-    align-items: center; /* Li allinea verticalmente */
+    justify-content: space-between;
+    padding: 10px 5px;
+    border-bottom: 1px dotted #dcdcdc;
 }
 
-.datasheet-link-button {
-    display: inline-flex;
+#modal-main-details-list li strong,
+#modal-extra-details-list li strong {
+    color: #333;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+#modal-main-details-list li span,
+#modal-extra-details-list li span {
+    color: #555;
+    text-align: right;
+    word-break: break-word; /* Va a capo se il valore è molto lungo */
+}
+
+/* 6. FOOTER (Scheda Tecnica e Prezzo) */
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    border-top: 1px solid #e9e9e9;
+    padding-top: 20px;
+    margin-top: auto; /* Spinge il footer in fondo al modal */
+    flex-shrink: 0;
+}
+
+#modal-datasheet-link {
     background-color: var(--danger-color);
     color: white;
+    padding: 10px 18px;
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: var(--border-radius);
+    border-radius: 5px;
+    transition: background-color 0.2s;
     font-weight: 500;
-    font-size: 0.95em;
-    transition: background-color 0.3s ease, transform 0.2s ease;
 }
-
-.datasheet-link-button:hover {
-    background-color: #b02a37; /* Un rosso più scuro al passaggio del mouse */
-    transform: translateY(-2px);
+#modal-datasheet-link i {
+    margin-right: 8px;
 }
-
-.datasheet-link-button i {
-    font-size: 1.1em;
+#modal-datasheet-link:hover {
+    background-color: #b82c39;
 }
-
-/* Nasconde il bottone se non c'è una scheda tecnica (gestito da JS) */
-.datasheet-link-button.hidden {
+#modal-datasheet-link.hidden {
     display: none;
 }
 
-/* Per smartphone, riduciamo un po' il bottone */
-@media (max-width: 480px) {
-    .modal-footer {
-        flex-direction: column-reverse; /* Prezzo sopra, bottone sotto */
-        align-items: flex-end; /* Allinea a destra */
-        gap: 10px;
-    }
-
-    .datasheet-link-button {
-        padding: 6px 12px;
-        font-size: 0.9em;
-    }
+.modal-price-container span:first-child {
+    font-size: 1.1rem;
+    color: #6c757d;
 }
-.modal-footer .product-price-value {
-    font-size: 1.8em;
+
+#modal-product-price {
+    font-size: 2.2rem;
     font-weight: 700;
     color: var(--primary-color);
+    margin-left: 10px;
 }
 
-/* 
-* MODIFICA CHIAVE #4: Media query semplificata e più robusta
-*/
+
+/* --- RESPONSIVE DESIGN PER IL MODAL --- */
+
 @media (max-width: 768px) {
-    .modal-content {
-        padding: 20px 15px; /* Meno padding laterale su mobile */
+    .modal-container {
+        padding: 15px;
+        max-height: 95vh;
     }
 
-    .modal-header {
-        /* Riduce il padding del titolo per fare più spazio */
-        padding-bottom: 15px; 
-    }
-    
     .modal-body {
-        grid-template-columns: 1fr; /* Una sola colonna */
+        flex-direction: column;
+        padding-right: 5px;
+        margin-right: -5px;
+    }
+
+    .modal-image-container {
+        max-width: 280px;
+        margin: 0 auto 15px auto;
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse; /* Bottone sopra, prezzo sotto */
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    #modal-datasheet-link {
         text-align: center;
     }
 
-    .modal-body .product-image {
-        max-width: 250px;
-        margin: 0 auto 20px auto;
-    }
-
-    /* Allinea tutto a sinistra per migliore leggibilità */
-    #modal-main-details-list, #modal-extra-details-list {
-        grid-template-columns: 120px 1fr; 
-        text-align: left;
-    }
-    #modal-main-details-list strong, #modal-extra-details-list strong {
-        text-align: left;
+    .modal-price-container {
+        text-align: right;
     }
 }
