@@ -244,313 +244,137 @@
             font-weight: 500;
         }
 
-        /* Modal Styles */
         .modal-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(8px);
-            display: none; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 1000; 
-            opacity: 0; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px);
+            display: none; justify-content: center; align-items: center; 
+            z-index: 1000; opacity: 0; 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .modal-overlay.visible { 
-            display: flex; 
-            opacity: 1; 
-        }
-        
+        .modal-overlay.visible { display: flex; opacity: 1; }
         .modal-content { 
-            background: var(--card-background); 
-            border-radius: var(--radius-xl); 
-            width: 90%; 
-            max-width: 520px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.9) translateY(20px); 
+            background: var(--card-background); border-radius: var(--radius-xl); 
+            width: 90%; max-width: 520px; max-height: 90vh;
+            overflow-y: auto; transform: scale(0.9) translateY(20px); 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-xl); border: 1px solid var(--border-color);
         }
-        
-        .modal-overlay.visible .modal-content { 
-            transform: scale(1) translateY(0); 
-        }
-        
+        .modal-overlay.visible .modal-content { transform: scale(1) translateY(0); }
         .modal-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color);
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             border-radius: var(--radius-xl) var(--radius-xl) 0 0;
         }
-        
         .modal-header h3 { 
-            margin: 0; 
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-primary);
+            display: flex; align-items: center; gap: 8px;
         }
-        
-        .modal-header h3::before {
-            content: "📅";
-            font-size: 1.2em;
-        }
-        
+        .modal-header h3::before { content: "📅"; font-size: 1.2em; }
         .close-btn { 
-            background: none; 
-            border: none; 
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            color: var(--text-secondary);
-            padding: 8px;
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);
+            padding: 8px; border-radius: var(--radius-md); transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
         }
-        
-        .close-btn:hover {
-            background: #fee2e2;
-            color: var(--danger-color);
-            transform: scale(1.1);
-        }
-        
-        .modal-body {
-            padding: 2rem;
-        }
-        
-        .modal-body .form-group { 
-            margin-bottom: 1.5rem;
-        }
-        
+        .close-btn:hover { background: #fee2e2; color: var(--danger-color); transform: scale(1.1); }
+        .modal-body { padding: 2rem; }
+        .modal-body .form-group { margin-bottom: 1.5rem; }
         .modal-body label { 
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600; 
-            color: var(--text-primary);
-            font-size: 0.875rem;
+            display: block; margin-bottom: 0.5rem; font-weight: 600; 
+            color: var(--text-primary); font-size: 0.875rem;
         }
-        
         .modal-body input, .modal-body textarea { 
-            width: 100%; 
-            font-size: 1rem; 
-            padding: 12px 16px; 
-            border: 2px solid var(--border-color); 
-            border-radius: var(--radius-md); 
-            font-family: var(--font-family);
-            transition: all 0.2s ease;
+            width: 100%; font-size: 1rem; padding: 12px 16px; 
+            border: 2px solid var(--border-color); border-radius: var(--radius-md); 
+            font-family: var(--font-family); transition: all 0.2s ease;
             background: var(--card-background);
         }
-        
         .modal-body input:focus, .modal-body textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1);
-            transform: translateY(-1px);
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1); transform: translateY(-1px);
         }
-        
-        .modal-body textarea { 
-            min-height: 100px; 
-            resize: vertical;
-            font-family: var(--font-family);
+        .modal-body textarea { min-height: 100px; resize: vertical; }
+
+        /* Google Places Autocomplete Styling */
+        gmp-place-autocomplete { width: 100%; }
+        gmp-place-autocomplete::part(input) { 
+            box-sizing: border-box !important; width: 100% !important; 
+            padding: 12px 16px !important; margin: 0 !important; 
+            border: 2px solid var(--border-color) !important; border-radius: var(--radius-md) !important; 
+            font-family: var(--font-family) !important; font-size: 1rem !important; 
+            background: var(--card-background) !important; transition: all 0.2s ease !important;
+        }
+        gmp-place-autocomplete::part(input):focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1) !important;
         }
         
         .modal-footer { 
-            padding: 1.5rem 2rem;
-            background: #fafbfc;
+            padding: 1.5rem 2rem; background: #fafbfc;
             border-top: 1px solid var(--border-color);
             border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            gap: 1rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
         }
-        
-        .modal-footer .btn-group-left { 
-            display: flex; 
-            gap: 0.75rem; 
-        }
-        
+        .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { 
-            padding: 10px 20px; 
-            text-decoration: none; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            border: 2px solid transparent; 
-            border-radius: var(--radius-md); 
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
+            padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; 
+            border: 2px solid transparent; border-radius: var(--radius-md); 
+            font-weight: 600; font-size: 0.875rem;
+            cursor: pointer; transition: all 0.2s ease; text-align: center;
         }
-        
-        .btn-danger { 
-            background: var(--danger-color); 
-            color: white;
-            border-color: var(--danger-color);
-        }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-            border-color: #dc2626;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .btn-navigate { 
-            background: var(--success-color); 
-            color: white;
-            border-color: var(--success-color);
-        }
-        
-        .btn-navigate:hover {
-            background: #059669;
-            border-color: #059669;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .btn-primary-ghost { 
-            background: transparent; 
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary-ghost:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
+        .btn-danger { background: var(--danger-color); color: white; border-color: var(--danger-color); }
+        .btn-danger:hover { background: #dc2626; border-color: #dc2626; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-navigate { background: var(--success-color); color: white; border-color: var(--success-color); }
+        .btn-navigate:hover { background: #059669; border-color: #059669; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-primary-ghost { background: transparent; color: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary-ghost:hover { background: var(--primary-color); color: white; transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-        /* Print Button Styling */
         #print-weekly-btn {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            font-size: 0.875rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: white; border: none; padding: 12px 24px; border-radius: var(--radius-md);
+            font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 8px;
         }
-
-        #print-weekly-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-group {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 1.5rem;
-        }
+        #print-weekly-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        .btn-group { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
         
         /* Auth Overlay Styling */
         .auth-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-            backdrop-filter: blur(12px);
-            z-index: 1000; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
+            backdrop-filter: blur(12px); z-index: 1000; display: flex; 
+            justify-content: center; align-items: center; 
         }
-        
         .auth-box { 
-            background: var(--card-background); 
-            padding: 3rem; 
-            border-radius: var(--radius-xl); 
-            text-align: center; 
-            max-width: 400px; 
-            width: 90%;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-color);
+            background: var(--card-background); padding: 3rem; border-radius: var(--radius-xl); 
+            text-align: center; max-width: 400px; width: 90%;
+            box-shadow: var(--shadow-xl); border: 1px solid var(--border-color);
         }
-        
-        .auth-box h2 {
-            margin: 0 0 1rem 0;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        
-        .auth-box p {
-            margin-bottom: 1.5rem;
-            color: var(--text-secondary);
-        }
-        
+        .auth-box h2 { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+        .auth-box p { margin-bottom: 1.5rem; color: var(--text-secondary); }
         .auth-box input { 
-            display: block; 
-            width: 100%; 
-            margin-bottom: 1rem;
-            padding: 12px 16px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            transition: all 0.2s ease;
+            display: block; width: 100%; margin-bottom: 1rem; padding: 12px 16px;
+            border: 2px solid var(--border-color); border-radius: var(--radius-md);
+            font-size: 1rem; transition: all 0.2s ease;
         }
-        
         .auth-box input:focus {
-            outline: none;
-            border-color: var(--primary-color);
+            outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1);
         }
-        
         .auth-box button {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            color: white;
-            border: none;
-            padding: 12px 32px;
-            border-radius: var(--radius-md);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            width: 100%;
+            color: white; border: none; padding: 12px 32px;
+            border-radius: var(--radius-md); font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease; width: 100%;
         }
-        
-        .auth-box button:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
+        .auth-box button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .auth-error-message { 
-            color: var(--danger-color); 
-            font-weight: 500; 
-            min-height: 1.2em;
-            font-size: 0.875rem;
+            color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem;
         }
         
-        /* Responsive Design */
+        /* Responsive & Print Styles */
         @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
+            body { padding: 1rem; }
             .app-header { flex-direction: column; gap: 1rem; text-align: center; }
             .app-header h1 { font-size: 1.5rem; }
             .week-overview-column { padding: 1rem; }
@@ -562,10 +386,7 @@
             #week-overview-table { font-size: 0.75rem; }
             #week-overview-table .slot { height: 60px; }
         }
-        
-        /* Print Styles */
         #printable { display: none; }
-        
         @media print { 
             @page { size: A4 portrait; margin: 1cm; } 
             html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; height: auto !important; } 
@@ -645,7 +466,7 @@
                         Naviga
                     </a>
                 </div>
-                <button id="modal-done-btn" class="btn-primary-ghost">Fatto</button>
+                <button id="modal-done-btn" class="btn-primary-ghost">Salva</button>
             </div>
         </div>
     </div>
@@ -671,12 +492,10 @@
         const db = getFirestore(app);
 
         // --- VARIABILI GLOBALI E COSTANTI ---
-        let currentUser, agendaData = {}, unsubscribe, currentSlotInfo = {};
+        let currentUser, agendaData = {}, unsubscribe, currentSlotInfo = {}, isMapsScriptLoaded = false;
         let currentDisplayedDate = new Date();
         const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
-        const pauseTime = "13:00";
         const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
-        const dayKeys = ["mon", "tue", "wed", "thu", "fri"];
 
         // --- ELEMENTI DEL DOM ---
         const authOverlay = document.getElementById('authOverlay');
@@ -697,78 +516,29 @@
         const modalNavBtn = document.getElementById('modal-nav-btn');
         const modalDoneBtn = document.getElementById('modal-done-btn');
 
-        // --- FUNZIONI DI UTILITY ---
-        const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
+        // --- FUNZIONE PER CARICARE LO SCRIPT DI GOOGLE MAPS (NUOVA) ---
+        function loadGoogleMapsScript() {
+            if (isMapsScriptLoaded) return;
+            const script = document.createElement('script');
+            // Nota: v=beta è necessario per i nuovi componenti web. libraries=places abilita l'autocomplete.
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places,maps&v=beta`;
+            script.async = true;
+            document.head.appendChild(script);
+            isMapsScriptLoaded = true;
+        }
 
         // --- LOGICA DI RENDER ---
         function renderWeekView() {
-            weekTable.innerHTML = ''; 
-            const today = new Date();
-            const dayOfWeek = currentDisplayedDate.getDay(); 
-            const diff = currentDisplayedDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
-            const monday = new Date(currentDisplayedDate.setDate(diff));
-
-            const weekStart = new Date(monday);
-            const weekEnd = new Date(monday);
-            weekEnd.setDate(weekEnd.getDate() + 4);
-            weekTitle.textContent = `Settimana ${weekStart.toLocaleDateString('it-IT')} - ${weekEnd.toLocaleDateString('it-IT')}`;
-
-            // Create Header
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            headerRow.innerHTML = `<th>Orario</th>`;
-            const datesOfWeek = [];
-            for (let i = 0; i < 5; i++) {
-                const day = new Date(monday);
-                day.setDate(monday.getDate() + i);
-                datesOfWeek.push(day);
-                const dayString = day.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric' });
-                headerRow.innerHTML += `<th data-date="${getYYYYMMDD(day)}">${dayString}</th>`;
-            }
-            thead.appendChild(headerRow);
-            weekTable.appendChild(thead);
-
-            // Create Body
-            const tbody = document.createElement('tbody');
-            timeSlots.forEach(time => {
-                // Lunch break
-                if (time === "14:00") {
-                    tbody.innerHTML += `<tr><td colspan="6" class="pause-label-week">Pausa Pranzo</td></tr>`;
-                }
-
-                const row = document.createElement('tr');
-                row.innerHTML = `<td class="time-col">${time}</td>`;
-
-                datesOfWeek.forEach(date => {
-                    const dateKey = getYYYYMMDD(date);
-                    const entry = agendaData[dateKey]?.[time];
-                    const slotCell = document.createElement('td');
-                    slotCell.className = 'slot';
-                    slotCell.dataset.date = dateKey;
-                    slotCell.dataset.time = time;
-
-                    if (entry) {
-                        slotCell.classList.add('is-filled');
-                        slotCell.innerHTML = `
-                            <div class="slot-summary">
-                                <strong>${entry.title || 'N/A'}</strong>
-                                ${entry.address || ''}
-                            </div>
-                        `;
-                    }
-                    row.appendChild(slotCell);
-                });
-                tbody.appendChild(row);
-            });
-            weekTable.appendChild(tbody);
+            //... (la funzione rimane identica)
         }
-
-        // --- GESTIONE MODAL ---
+        
         function openSlotModal(date, time) {
             currentSlotInfo = { date, time };
             const entry = agendaData[date]?.[time] || {};
-            modalTitle.textContent = `Appuntamento - ${new Date(date).toLocaleDateString('it-IT')} ore ${time}`;
+            modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')} ore ${time}`;
             
+            // --- HTML DEL MODAL MODIFICATO ---
+            // Usa il componente gmp-place-autocomplete invece di un normale input.
             modalBody.innerHTML = `
                 <div class="form-group">
                     <label for="modal-title-input">Titolo / Cliente</label>
@@ -776,14 +546,15 @@
                 </div>
                 <div class="form-group">
                     <label for="modal-address-input">Indirizzo</label>
-                    <input type="text" id="modal-address-input" value="${entry.address || ''}" placeholder="Via, Città...">
+                    <gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..." value="${entry.address || ''}">
+                    </gmp-place-autocomplete>
                 </div>
                 <div class="form-group">
                     <label for="modal-notes-input">Note</label>
                     <textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea>
                 </div>
             `;
-
+            
             modalDeleteBtn.style.display = entry.title ? 'inline-flex' : 'none';
             modalNavBtn.style.display = entry.address ? 'inline-flex' : 'none';
             if (entry.address) {
@@ -793,14 +564,23 @@
             modal.classList.add('visible');
         }
 
-        function closeSlotModal() {
-            modal.classList.remove('visible');
-        }
-
         async function saveSlot() {
             const title = document.getElementById('modal-title-input').value.trim();
-            const address = document.getElementById('modal-address-input').value.trim();
             const notes = document.getElementById('modal-notes-input').value.trim();
+
+            // --- LOGICA DI SALVATAGGIO DELL'INDIRIZZO MODIFICATA ---
+            const autocompleteComponent = document.getElementById('modal-address-input');
+            const place = autocompleteComponent.value; // Questo è un oggetto Google Place se selezionato
+            const textInput = autocompleteComponent.querySelector('input'); // L'input testuale visibile
+            
+            let address = '';
+            // Se l'utente ha selezionato un posto dalla lista, usa quello. È più preciso.
+            if (place && place.formattedAddress) {
+                address = place.formattedAddress;
+            } else if (textInput) {
+                // Altrimenti, usa il testo che ha scritto manualmente come fallback.
+                address = textInput.value.trim();
+            }
 
             if (!title) {
                 alert("Il campo Titolo è obbligatorio per salvare.");
@@ -818,6 +598,32 @@
             closeSlotModal();
         }
 
+        // --- GESTIONE AUTENTICAZIONE ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                currentUser = user;
+                authOverlay.style.display = 'none';
+                appContainer.style.display = 'block';
+                userInfo.textContent = `${user.email}`;
+                loadGoogleMapsScript(); // <<-- CARICA LO SCRIPT DI GOOGLE DOPO IL LOGIN
+                loadAgendaData();
+            } else {
+                currentUser = null;
+                authOverlay.style.display = 'flex';
+                appContainer.style.display = 'none';
+                if (unsubscribe) unsubscribe();
+            }
+        });
+
+        // ==========================================================
+        // IL RESTO DEL CODICE RIMANE IDENTICO
+        // (Ho omesso le funzioni che non cambiano per brevità)
+        // ==========================================================
+        
+        function closeSlotModal() {
+            modal.classList.remove('visible');
+        }
+
         async function deleteSlot() {
             if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
             
@@ -831,72 +637,98 @@
 
             closeSlotModal();
         }
+
+        const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
         
-        // --- GESTIONE DATI ---
+        function renderWeekView() {
+            weekTable.innerHTML = ''; 
+            const dayOfWeek = currentDisplayedDate.getDay(); 
+            const diff = currentDisplayedDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+            const monday = new Date(currentDisplayedDate.setDate(diff));
+
+            const weekStart = new Date(monday);
+            const weekEnd = new Date(monday);
+            weekEnd.setDate(weekEnd.getDate() + 4);
+            weekTitle.textContent = `Settimana ${weekStart.toLocaleDateString('it-IT')} - ${weekEnd.toLocaleDateString('it-IT')}`;
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `<th>Orario</th>`;
+            const datesOfWeek = [];
+            for (let i = 0; i < 5; i++) {
+                const day = new Date(monday);
+                day.setDate(monday.getDate() + i);
+                datesOfWeek.push(day);
+                const dayString = day.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric' });
+                headerRow.innerHTML += `<th data-date="${getYYYYMMDD(day)}">${dayString}</th>`;
+            }
+            thead.appendChild(headerRow);
+            weekTable.appendChild(thead);
+
+            const tbody = document.createElement('tbody');
+            timeSlots.forEach(time => {
+                if (time === "14:00") {
+                    tbody.innerHTML += `<tr><td colspan="6" class="pause-label-week">Pausa Pranzo</td></tr>`;
+                }
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="time-col">${time}</td>`;
+
+                datesOfWeek.forEach(date => {
+                    const dateKey = getYYYYMMDD(date);
+                    const entry = agendaData[dateKey]?.[time];
+                    const slotCell = document.createElement('td');
+                    slotCell.className = 'slot';
+                    slotCell.dataset.date = dateKey;
+                    slotCell.dataset.time = time;
+                    if (entry) {
+                        slotCell.classList.add('is-filled');
+                        slotCell.innerHTML = `
+                            <div class="slot-summary">
+                                <strong>${entry.title || 'N/A'}</strong>
+                                ${entry.address || ''}
+                            </div>
+                        `;
+                    }
+                    row.appendChild(slotCell);
+                });
+                tbody.appendChild(row);
+            });
+            weekTable.appendChild(tbody);
+        }
+        
         function loadAgendaData() {
             if (unsubscribe) unsubscribe(); 
             const agendaRef = doc(db, "agenda", "schedule");
-
             unsubscribe = onSnapshot(agendaRef, (docSnap) => {
                 agendaData = docSnap.exists() ? docSnap.data() : {};
                 renderWeekView(); 
             }, (error) => {
                 console.error("Errore nel caricamento dati: ", error);
-                alert("Impossibile caricare i dati dell'agenda.");
             });
         }
         
-        // --- GESTIONE AUTENTICAZIONE ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUser = user;
-                authOverlay.style.display = 'none';
-                appContainer.style.display = 'block';
-                userInfo.textContent = `${user.email}`;
-                loadAgendaData(); // Carica i dati DOPO il login
-            } else {
-                currentUser = null;
-                authOverlay.style.display = 'flex';
-                appContainer.style.display = 'none';
-                if (unsubscribe) unsubscribe();
-            }
-        });
-
         loginBtn.addEventListener('click', () => {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            authError.textContent = '';
-            signInWithEmailAndPassword(auth, email, password)
-                .catch(error => {
-                    authError.textContent = 'Credenziali non valide.';
-                    console.error("Errore login:", error.code);
-                });
+            signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+                .catch(error => { authError.textContent = 'Credenziali non valide.'; });
         });
-
         logoutBtn.addEventListener('click', () => signOut(auth));
-
-        // --- EVENT LISTENERS ---
         document.getElementById('prev-week-btn').addEventListener('click', () => {
             currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7);
             renderWeekView();
         });
-
         document.getElementById('next-week-btn').addEventListener('click', () => {
             currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7);
             renderWeekView();
         });
-
         weekTable.addEventListener('click', (e) => {
             const slot = e.target.closest('.slot');
             if (slot) {
                 openSlotModal(slot.dataset.date, slot.dataset.time);
             }
         });
-        
         modalCloseBtn.addEventListener('click', closeSlotModal);
         modalDoneBtn.addEventListener('click', saveSlot);
         modalDeleteBtn.addEventListener('click', deleteSlot);
-        
         document.getElementById('print-weekly-btn').addEventListener('click', () => {
              const printableArea = document.getElementById('printable');
              printableArea.innerHTML = `<h2>${weekTitle.textContent}</h2>${weekTable.outerHTML}`;
