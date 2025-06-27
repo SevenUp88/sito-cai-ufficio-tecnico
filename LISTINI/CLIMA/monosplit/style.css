@@ -142,22 +142,28 @@ main { padding-top: 10px; }
 /* --- Footer della Card Prodotto (con Prezzo, Badge e Pulsante Dettagli) --- */
 .product-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
+    justify-content: space-between; /* Mantiene la logica di spingere ai lati */
+    align-items: center; /* Allinea tutto verticalmente */
+    margin-top: auto; /* Spinge il footer in fondo alla card */
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
+
 .product-price-value {
     font-size: 1.3em;
     font-weight: 700;
     color: var(--primary-color);
+    flex-shrink: 0; /* Impedisce al prezzo di andare a capo se lo spazio è poco */
+    margin-right: 15px; /* Aggiunge uno spazio minimo garantito a destra del prezzo */
 }
+
 .action-buttons-container {
-    margin-left: auto; /* SPINGE TUTTO IL BLOCCO A DESTRA */
+    /* Rimuoviamo margin-left: auto qui, perché la gestione dello spazio è
+       affidata a justify-content: space-between e al margin del prezzo. */
     display: flex;
     align-items: center;
 }
+
 .economic-badge-footer {
     background-color: var(--warning-color);
     color: #333;
@@ -167,6 +173,7 @@ main { padding-top: 10px; }
     font-weight: bold;
     white-space: nowrap;
 }
+
 .toggle-details-btn {
     background-color: transparent;
     border: 2px solid var(--primary-color);
@@ -177,8 +184,9 @@ main { padding-top: 10px; }
     border-radius: 20px; /* Effetto ovale/pillola */
     cursor: pointer;
     transition: all 0.3s ease;
-    margin-left: 10px; /* Spazio dal badge */
+    margin-left: 10px; /* Spazio TRA il badge e il pulsante */
 }
+
 .toggle-details-btn:hover {
     background-color: var(--primary-color);
     color: white;
