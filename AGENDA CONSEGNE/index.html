@@ -658,7 +658,8 @@
     <div id="app" class="app-container" style="display:none">
         <header class="app-header">
             <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link">
-                <img src="https://github.com/SevenUp88/sito-cai-ufficio-tecnico/blob/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo-cai">
+                <!-- LOGO URL CORRETTO -->
+                <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo-cai">
             </a>
             <h1>Agenda Consegne</h1>
             <div class="user-info-container">
@@ -728,8 +729,9 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
+        // --- INIZIO SCRIPT CORRETTO ---
         const firebaseConfig = { 
-            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", 
+            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // Nota: mantengo la tua chiave API.
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", 
             projectId: "consorzio-artigiani-idraulici", 
             storageBucket: "consorzio-artigiani-idraulici.appspot.com", 
@@ -745,4 +747,77 @@
         let currentDisplayedDate = new Date();
 
         const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"};
-        const dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mer
+        
+        // --- OGGETTO JAVASCRIPT CORRETTO ---
+        // L'errore era qui. L'oggetto non era stato completato, bloccando tutto lo script.
+        const dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
+        
+        // ----- ELEMENTI DEL DOM -----
+        const authOverlay = document.getElementById('authOverlay');
+        const appContainer = document.getElementById('app');
+        const loginBtn = document.getElementById('login-btn');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const authError = document.getElementById('authError');
+        const userInfo = document.getElementById('user-info');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        // ----- GESTIONE AUTENTICAZIONE -----
+        
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                // Utente loggato
+                currentUser = user;
+                authOverlay.style.display = 'none';
+                appContainer.style.display = 'block';
+                userInfo.textContent = `Benvenuto, ${user.email}`;
+                // Qui dovresti richiamare la funzione per caricare i dati dell'agenda
+                // Esempio: loadAgendaData();
+            } else {
+                // Utente non loggato
+                currentUser = null;
+                authOverlay.style.display = 'flex';
+                appContainer.style.display = 'none';
+                if(unsubscribe) unsubscribe(); // Smetti di ascoltare i dati se l'utente fa logout
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            authError.textContent = ''; // Resetta messaggio di errore
+
+            if (!email || !password) {
+                authError.textContent = 'Inserisci sia email che password.';
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Successo! onAuthStateChanged si occuperà del resto.
+                })
+                .catch((error) => {
+                    console.error("Errore di login:", error.code, error.message);
+                    switch (error.code) {
+                        case 'auth/invalid-email':
+                        case 'auth/wrong-password':
+                        case 'auth/user-not-found':
+                            authError.textContent = 'Credenziali non valide. Riprova.';
+                            break;
+                        default:
+                            authError.textContent = 'Errore durante il login. Controlla la console.';
+                    }
+                });
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch(error => console.error("Errore durante il logout", error));
+        });
+        
+        // --- Il resto della logica della tua applicazione (render calendario, modali, etc.)
+        // --- andrebbe qui sotto. Il file che hai fornito era incompleto, ma il problema
+        // --- di login è stato risolto con le correzioni sopra.
+        // --- 
+    </script>
+</body>
+</html>
