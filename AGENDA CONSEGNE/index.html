@@ -42,18 +42,13 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem; }
         .modal-header h3 { margin: 0; font-size: 1.25rem; }
         .close-btn { background: none; border: none; font-size: 2rem; cursor: pointer; opacity: 0.6; padding: 0 .5rem; line-height: 1; }
-        
-        /* --- MODAL FORM STYLES (GRID LAYOUT - REFINED) --- */
         .modal-body .form-group { display: grid; grid-template-columns: 100px 1fr; gap: 1rem; align-items: start; margin-bottom: 1rem; }
         .modal-body label { padding-top: 12px; text-align: right; font-weight: 600; color: var(--text-secondary); font-size: 0.9rem; }
         .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px; border: 1px solid var(--border-color); border-radius: 6px; font-family: var(--font-family); box-sizing: border-box; }
         .modal-body textarea { min-height: 100px; resize: vertical; }
         gmp-place-autocomplete { width: 100%; }
-        /* Style the input *inside* the gmp-place-autocomplete web component */
-        gmp-place-autocomplete::part(input) { box-sizing: border-box !important; width: 100% !important; padding: 12px !important; margin: 0 !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; font-family: var(--font-family) !important; font-size: 1rem !important; background-image: none !important; /* Hide the default search icon */ -webkit-appearance: none; appearance: none; }
-        /* Hide the "clear" button that appears on the right */
+        gmp-place-autocomplete::part(input) { box-sizing: border-box !important; width: 100% !important; padding: 12px !important; margin: 0 !important; border: 1px solid var(--border-color) !important; border-radius: 6px !important; font-family: var(--font-family) !important; font-size: 1rem !important; background-image: none !important; -webkit-appearance: none; appearance: none; }
         gmp-place-autocomplete::part(clear-button) { display: none !important; }
-
         .modal-footer { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
         .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
@@ -145,8 +140,7 @@
 
         function loadGoogleMapsScript(){
             if(isMapsScriptLoaded || window.google?.maps?.places?.PlaceAutocompleteElement) {
-                isMapsScriptLoaded = true;
-                return;
+                isMapsScriptLoaded = true; return;
             };
             const script = document.createElement('script');
             script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&loading=async`;
@@ -206,38 +200,30 @@
             
             document.getElementById('modal-title').textContent = `Consegna: ${dayLabels[dayKey]} ${date.split('-')[2]}, ore ${hour}`;
             document.getElementById('modal-body').innerHTML = `
-                <div class="form-group">
-                    <label for="modal-cliente">Cliente</label>
-                    <input type="text" id="modal-cliente" placeholder="Nome Cliente">
-                </div>
-                <div class="form-group">
-                    <label for="autocomplete">Indirizzo</label>
-                    <gmp-place-autocomplete id="autocomplete" country-codes="it" placeholder="Via, numero, città"></gmp-place-autocomplete>
-                </div>
-                <div class="form-group">
-                    <label for="modal-note">Note</label>
-                    <textarea id="modal-note" placeholder="Materiale, dettagli, contatto..."></textarea>
-                </div>
+                <div class="form-group"><label for="modal-cliente">Cliente</label><input type="text" id="modal-cliente" placeholder="Nome Cliente"></div>
+                <div class="form-group"><label for="autocomplete">Indirizzo</label><gmp-place-autocomplete id="autocomplete" country-codes="it" placeholder="Via, numero, città"></gmp-place-autocomplete></div>
+                <div class="form-group"><label for="modal-note">Note</label><textarea id="modal-note" placeholder="Materiale, dettagli, contatto..."></textarea></div>
             `;
             
             document.getElementById('modal-cliente').value = agendaData[dataKey + '-cliente'] || '';
             document.getElementById('modal-note').value = agendaData[dataKey + '-note'] || '';
-            
             document.getElementById('modal-cliente').addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'cliente'));
             document.getElementById('modal-note').addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'note'));
 
-            if (isMapsScriptLoaded && window.google?.maps?.places?.PlaceAutocompleteElement) {
-                const autocompleteElement = document.getElementById('autocomplete');
-                const inputElement = autocompleteElement.input; 
-                inputElement.value = agendaData[dataKey + '-indirizzo'] || '';
-                autocompleteElement.addEventListener('gmp-placechange', () => {
-                    const place = autocompleteElement.place;
-                    if (!place || !place.formattedAddress) return;
-                    const address = place.formattedAddress;
-                    inputElement.value = address; 
-                    handleModalAutoSave({ target: { value: address } }, dataKey, 'indirizzo');
-                });
-                inputElement.addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'indirizzo'));
+            const autocompleteElement = document.getElementById('autocomplete');
+            if (window.customElements && autocompleteElement) {
+                customElements.whenDefined('gmp-place-autocomplete').then(() => {
+                    const inputElement = autocompleteElement.input;
+                    if (inputElement) {
+                        inputElement.value = agendaData[dataKey + '-indirizzo'] || '';
+                        autocompleteElement.addEventListener('gmp-placechange', () => {
+                            const place = autocompleteElement.place;
+                            const address = (place && place.formattedAddress) ? place.formattedAddress : inputElement.value;
+                            handleModalAutoSave({ target: { value: address } }, dataKey, 'indirizzo');
+                        });
+                        inputElement.addEventListener('input', (e) => handleModalAutoSave(e, dataKey, 'indirizzo'));
+                    }
+                }).catch(err => console.error("Errore nell'attesa di gmp-place-autocomplete:", err));
             }
             
             const navBtn = document.getElementById('modal-nav-btn');
