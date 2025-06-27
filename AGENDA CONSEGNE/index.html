@@ -43,7 +43,6 @@
             line-height: 1.6;
         }
         
-        /* [ ... Stili CSS invariati ... ] */
         .app-container { max-width: 1200px; margin: 0 auto; }
         .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--card-background); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .logo-cai { height: 50px; }
@@ -75,19 +74,20 @@
         .modal-overlay.visible { display: flex; opacity: 1; }
         .modal-content { background: var(--card-background); border-radius: var(--radius-xl); width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-xl); border: 1px solid var(--border-color); }
         .modal-overlay.visible .modal-content { transform: scale(1) translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-color); background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border-color); background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
         .modal-header h3 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
         .modal-header h3::before { content: "📅"; font-size: 1.2em; }
         .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary); padding: 8px; border-radius: var(--radius-md); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
         .close-btn:hover { background: #fee2e2; color: var(--danger-color); transform: scale(1.1); }
-        .modal-body { padding: 2rem; }
-        .modal-body .form-group { margin-bottom: 1.5rem; }
+        .modal-body { padding: 1.5rem; }
+        .modal-body .form-group { margin-bottom: 1rem; }
         .modal-body label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--text-primary); font-size: 0.875rem; }
-        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 12px 16px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-family: var(--font-family); transition: all 0.2s ease; background: var(--card-background); }
+        .modal-body input, .modal-body textarea { width: 100%; font-size: 1rem; padding: 10px 14px; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-family: var(--font-family); transition: all 0.2s ease; background: var(--card-background); }
+        .modal-body #modal-title-input { text-transform: uppercase; }
         .modal-body input[type="time"] { cursor: pointer; }
         .modal-body input:focus, .modal-body textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1); transform: translateY(-1px); }
-        .modal-body textarea { min-height: 100px; resize: vertical; font-family: var(--font-family); }
-        .modal-footer { padding: 1.5rem 2rem; background: #fafbfc; border-top: 1px solid var(--border-color); border-radius: 0 0 var(--radius-xl) var(--radius-xl); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+        .modal-body textarea { min-height: 80px; resize: vertical; font-family: var(--font-family); }
+        .modal-footer { padding: 1.25rem 1.5rem; background: #fafbfc; border-top: 1px solid var(--border-color); border-radius: 0 0 var(--radius-xl) var(--radius-xl); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
         .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; text-align: center; }
         .btn-danger { background: var(--danger-color); color: white; border-color: var(--danger-color); }
@@ -108,7 +108,21 @@
         .auth-box button { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none; padding: 12px 32px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.2s ease; width: 100%; }
         .auth-box button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem; }
+        
         @media (max-width: 768px) { body { padding: 1rem; } .app-header { flex-direction: column; gap: 1rem; text-align: center; } .app-header h1 { font-size: 1.5rem; } .week-overview-column { padding: 1rem; } .week-navigation { flex-direction: column; gap: 1rem; } .modal-content { width: 95%; margin: 1rem; } .modal-body { padding: 1.5rem; } .modal-footer { flex-direction: column; gap: 1rem; } .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; } #week-overview-table { font-size: 0.75rem; } #week-overview-table .slot { height: 60px; } }
+
+        @media print { 
+            @page { size: A4 landscape; margin: 0.8cm; }
+            body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { text-align: center; font-size: 14pt; margin: 0 0 10px 0; }
+            table { width: 100%; border-collapse: collapse; font-size: 8pt; }
+            th, td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
+            em { font-style: normal; color: #333; }
+            .time-col { font-weight: bold; }
+            .pause-label-week { background-color: #f0f0f0 !important; text-align: center; font-style: italic; }
+            .slot.is-filled { background: white !important; color: black !important; }
+            .slot.is-filled strong, .slot.is-filled em { color: black !important; }
+        }
     </style>
 </head>
 <body>
@@ -186,19 +200,17 @@
             const entry = agendaData[date]?.[time] || {};
             const displayTime = entry.customTime || time;
             modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')}`;
-            // --- FIX: Usa un input di testo normale, l'autocomplete verrà attivato via JS ---
             modalBody.innerHTML = `
                 <div class="form-group"><label for="modal-time-input">Orario</label><input type="time" id="modal-time-input" value="${displayTime}"></div>
                 <div class="form-group"><label for="modal-title-input">Titolo / Cliente</label><input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi"></div>
                 <div class="form-group"><label for="modal-address-input">Indirizzo</label><input type="text" id="modal-address-input" value="${entry.address || ''}" placeholder="Inizia a digitare un indirizzo..."></div>
                 <div class="form-group"><label for="modal-notes-input">Note</label><textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea></div>`;
             
-            // Attiva l'autocomplete di Google Places sull'input di testo
             if (isMapsScriptLoaded && google.maps.places) {
                 const addressInput = document.getElementById('modal-address-input');
-                const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                new google.maps.places.Autocomplete(addressInput, {
                     componentRestrictions: { country: "it" },
-                    fields: ["formatted_address", "name"],
+                    fields: ["formatted_address"],
                 });
             }
 
@@ -220,18 +232,17 @@
         const getSlotFromTime = (timeStr) => {
             if (!timeStr) return null;
             const hour = parseInt(timeStr.split(':')[0], 10);
-            if (hour >= 13 && hour < 14) return null; // Pausa pranzo
+            if (hour >= 13 && hour < 14) return null; 
             const slotHour = String(hour).padStart(2, '0');
-            const foundSlot = timeSlots.find(slot => slot.startsWith(slotHour));
-            return foundSlot;
+            return timeSlots.find(slot => slot.startsWith(slotHour)) || null;
         }
 
         async function saveSlot() {
             const docRef = doc(db, 'agenda', 'schedule');
             const customTime = document.getElementById('modal-time-input').value;
-            const title = document.getElementById('modal-title-input').value.trim();
+            const title = document.getElementById('modal-title-input').value.trim().toUpperCase();
             const notes = document.getElementById('modal-notes-input').value.trim();
-            const address = document.getElementById('modal-address-input').value; // Leggi semplicemente dal campo di testo.
+            const address = document.getElementById('modal-address-input').value.trim();
             
             if (!title) { alert("Il campo Titolo è obbligatorio per salvare."); return; }
 
@@ -248,7 +259,7 @@
             updates[`${date}.${newSlotTime}`] = appointmentData;
             
             try {
-                if (Object.keys(agendaData).length === 0 && !isEditing) { await setDoc(docRef, {}); }
+                if (Object.keys(agendaData).length === 0) { await setDoc(docRef, {}); }
                 await updateDoc(docRef, updates);
                 closeSlotModal(); 
             } catch (error) { 
@@ -300,6 +311,7 @@
         modalCloseBtn.addEventListener('click', closeSlotModal);
         modalDoneBtn.addEventListener('click', saveSlot);
         modalDeleteBtn.addEventListener('click', deleteSlot);
+        
         document.getElementById('print-weekly-btn').addEventListener('click', () => {
             const printFrame = document.createElement('iframe');
             printFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;';
@@ -320,7 +332,7 @@
             const printDoc = printFrame.contentWindow.document;
             printDoc.open();
             printDoc.write(`<html><head><title>Stampa Agenda</title><style>
-                            @page { size: A4 portrait; margin: 0.8cm; }
+                            @page { size: A4 landscape; margin: 0.8cm; }
                             body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                             h2 { text-align: center; font-size: 14pt; margin: 0 0 10px 0; }
                             table { width: 100%; border-collapse: collapse; font-size: 8pt; }
@@ -337,8 +349,10 @@
             printDoc.close();
             
             printFrame.contentWindow.focus();
-            printFrame.contentWindow.print();
-            setTimeout(() => { document.body.removeChild(printFrame); }, 500);
+            setTimeout(() => {
+                printFrame.contentWindow.print();
+                document.body.removeChild(printFrame);
+            }, 250);
         });
     </script>
 </body>
