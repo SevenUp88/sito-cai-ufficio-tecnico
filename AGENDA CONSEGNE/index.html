@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Agenda Consegne</title>
-    <link rel="icon" type="image/png" href="https://caiufficiotecnico.netlify.app/img/LOGO_CAI.png">
+    <!-- LOGO URL CORRETTO -->
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -293,7 +294,7 @@
             outline: none; border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1); transform: translateY(-1px);
         }
-        .modal-body textarea { min-height: 100px; resize: vertical; }
+        .modal-body textarea { min-height: 100px; resize: vertical; font-family: var(--font-family); }
 
         /* Google Places Autocomplete Styling */
         gmp-place-autocomplete { width: 100%; }
@@ -357,10 +358,7 @@
             border: 2px solid var(--border-color); border-radius: var(--radius-md);
             font-size: 1rem; transition: all 0.2s ease;
         }
-        .auth-box input:focus {
-            outline: none; border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1);
-        }
+        .auth-box input:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1); }
         .auth-box button {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white; border: none; padding: 12px 32px;
@@ -368,9 +366,7 @@
             cursor: pointer; transition: all 0.2s ease; width: 100%;
         }
         .auth-box button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .auth-error-message { 
-            color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem;
-        }
+        .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem; }
         
         /* Responsive & Print Styles */
         @media (max-width: 768px) {
@@ -417,17 +413,14 @@
     <div id="app" class="app-container" style="display:none">
         <header class="app-header">
             <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link">
+                <!-- LOGO URL CORRETTO -->
                 <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo-cai">
             </a>
             <h1>Agenda Consegne</h1>
             <div class="user-info-container">
                 <span id="user-info"></span>
                 <button id="logout-btn" title="Logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                     Esci
                 </button>
             </div>
@@ -476,7 +469,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
         const firebaseConfig = { 
             apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
@@ -491,13 +484,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- VARIABILI GLOBALI E COSTANTI ---
         let currentUser, agendaData = {}, unsubscribe, currentSlotInfo = {}, isMapsScriptLoaded = false;
         let currentDisplayedDate = new Date();
         const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
-        const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
 
-        // --- ELEMENTI DEL DOM ---
         const authOverlay = document.getElementById('authOverlay');
         const appContainer = document.getElementById('app');
         const loginBtn = document.getElementById('login-btn');
@@ -516,130 +506,17 @@
         const modalNavBtn = document.getElementById('modal-nav-btn');
         const modalDoneBtn = document.getElementById('modal-done-btn');
 
-        // --- FUNZIONE PER CARICARE LO SCRIPT DI GOOGLE MAPS (NUOVA) ---
         function loadGoogleMapsScript() {
             if (isMapsScriptLoaded) return;
             const script = document.createElement('script');
-            // Nota: v=beta è necessario per i nuovi componenti web. libraries=places abilita l'autocomplete.
             script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places,maps&v=beta`;
             script.async = true;
             document.head.appendChild(script);
             isMapsScriptLoaded = true;
         }
 
-        // --- LOGICA DI RENDER ---
-        function renderWeekView() {
-            //... (la funzione rimane identica)
-        }
-        
-        function openSlotModal(date, time) {
-            currentSlotInfo = { date, time };
-            const entry = agendaData[date]?.[time] || {};
-            modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')} ore ${time}`;
-            
-            // --- HTML DEL MODAL MODIFICATO ---
-            // Usa il componente gmp-place-autocomplete invece di un normale input.
-            modalBody.innerHTML = `
-                <div class="form-group">
-                    <label for="modal-title-input">Titolo / Cliente</label>
-                    <input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi">
-                </div>
-                <div class="form-group">
-                    <label for="modal-address-input">Indirizzo</label>
-                    <gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..." value="${entry.address || ''}">
-                    </gmp-place-autocomplete>
-                </div>
-                <div class="form-group">
-                    <label for="modal-notes-input">Note</label>
-                    <textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea>
-                </div>
-            `;
-            
-            modalDeleteBtn.style.display = entry.title ? 'inline-flex' : 'none';
-            modalNavBtn.style.display = entry.address ? 'inline-flex' : 'none';
-            if (entry.address) {
-                modalNavBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(entry.address)}`;
-            }
-            
-            modal.classList.add('visible');
-        }
-
-        async function saveSlot() {
-            const title = document.getElementById('modal-title-input').value.trim();
-            const notes = document.getElementById('modal-notes-input').value.trim();
-
-            // --- LOGICA DI SALVATAGGIO DELL'INDIRIZZO MODIFICATA ---
-            const autocompleteComponent = document.getElementById('modal-address-input');
-            const place = autocompleteComponent.value; // Questo è un oggetto Google Place se selezionato
-            const textInput = autocompleteComponent.querySelector('input'); // L'input testuale visibile
-            
-            let address = '';
-            // Se l'utente ha selezionato un posto dalla lista, usa quello. È più preciso.
-            if (place && place.formattedAddress) {
-                address = place.formattedAddress;
-            } else if (textInput) {
-                // Altrimenti, usa il testo che ha scritto manualmente come fallback.
-                address = textInput.value.trim();
-            }
-
-            if (!title) {
-                alert("Il campo Titolo è obbligatorio per salvare.");
-                return;
-            }
-
-            const { date, time } = currentSlotInfo;
-            const docRef = doc(db, 'agenda', 'schedule');
-            const fieldPath = `${date}.${time}`;
-
-            await updateDoc(docRef, {
-                [fieldPath]: { title, address, notes }
-            }).catch(error => console.error("Error saving slot:", error));
-            
-            closeSlotModal();
-        }
-
-        // --- GESTIONE AUTENTICAZIONE ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUser = user;
-                authOverlay.style.display = 'none';
-                appContainer.style.display = 'block';
-                userInfo.textContent = `${user.email}`;
-                loadGoogleMapsScript(); // <<-- CARICA LO SCRIPT DI GOOGLE DOPO IL LOGIN
-                loadAgendaData();
-            } else {
-                currentUser = null;
-                authOverlay.style.display = 'flex';
-                appContainer.style.display = 'none';
-                if (unsubscribe) unsubscribe();
-            }
-        });
-
-        // ==========================================================
-        // IL RESTO DEL CODICE RIMANE IDENTICO
-        // (Ho omesso le funzioni che non cambiano per brevità)
-        // ==========================================================
-        
-        function closeSlotModal() {
-            modal.classList.remove('visible');
-        }
-
-        async function deleteSlot() {
-            if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
-            
-            const { date, time } = currentSlotInfo;
-            const docRef = doc(db, 'agenda', 'schedule');
-            const fieldPath = `${date}.${time}`;
-
-            await updateDoc(docRef, {
-                [fieldPath]: deleteField()
-            }).catch(error => console.error("Error deleting slot:", error));
-
-            closeSlotModal();
-        }
-
         const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
-        
+
         function renderWeekView() {
             weekTable.innerHTML = ''; 
             const dayOfWeek = currentDisplayedDate.getDay(); 
@@ -672,7 +549,6 @@
                 }
                 const row = document.createElement('tr');
                 row.innerHTML = `<td class="time-col">${time}</td>`;
-
                 datesOfWeek.forEach(date => {
                     const dateKey = getYYYYMMDD(date);
                     const entry = agendaData[dateKey]?.[time];
@@ -686,14 +562,90 @@
                             <div class="slot-summary">
                                 <strong>${entry.title || 'N/A'}</strong>
                                 ${entry.address || ''}
-                            </div>
-                        `;
+                            </div>`;
                     }
                     row.appendChild(slotCell);
                 });
                 tbody.appendChild(row);
             });
             weekTable.appendChild(tbody);
+        }
+
+        function openSlotModal(date, time) {
+            currentSlotInfo = { date, time };
+            const entry = agendaData[date]?.[time] || {};
+            modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')} ore ${time}`;
+            
+            modalBody.innerHTML = `
+                <div class="form-group">
+                    <label for="modal-title-input">Titolo / Cliente</label>
+                    <input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi">
+                </div>
+                <div class="form-group">
+                    <label for="modal-address-input">Indirizzo</label>
+                    <gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..." value="${entry.address || ''}">
+                    </gmp-place-autocomplete>
+                </div>
+                <div class="form-group">
+                    <label for="modal-notes-input">Note</label>
+                    <textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea>
+                </div>`;
+            
+            modalDeleteBtn.style.display = entry.title ? 'inline-flex' : 'none';
+            modalNavBtn.style.display = entry.address ? 'inline-flex' : 'none';
+            if (entry.address) {
+                modalNavBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(entry.address)}`;
+            }
+            modal.classList.add('visible');
+        }
+        
+        function closeSlotModal() {
+            modal.classList.remove('visible');
+        }
+
+        async function saveSlot() {
+            const title = document.getElementById('modal-title-input').value.trim();
+            const notes = document.getElementById('modal-notes-input').value.trim();
+            const autocompleteComponent = document.getElementById('modal-address-input');
+            const place = autocompleteComponent.value; 
+            const textInput = autocompleteComponent.querySelector('input');
+            
+            let address = '';
+            if (place && place.formattedAddress) {
+                address = place.formattedAddress;
+            } else if (textInput) {
+                address = textInput.value.trim();
+            }
+
+            if (!title) {
+                alert("Il campo Titolo è obbligatorio per salvare.");
+                return;
+            }
+
+            const { date, time } = currentSlotInfo;
+            const docRef = doc(db, 'agenda', 'schedule');
+            const fieldPath = `${date}.${time}`;
+
+            try {
+                await updateDoc(docRef, { [fieldPath]: { title, address, notes } });
+                closeSlotModal();
+            } catch (error) {
+                console.error("Errore nel salvataggio dello slot:", error);
+                alert("Errore nel salvataggio. Controlla la console per i dettagli.");
+            }
+        }
+
+        async function deleteSlot() {
+            if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
+            const { date, time } = currentSlotInfo;
+            const docRef = doc(db, 'agenda', 'schedule');
+            const fieldPath = `${date}.${time}`;
+            try {
+                await updateDoc(docRef, { [fieldPath]: deleteField() });
+                closeSlotModal();
+            } catch (error) {
+                console.error("Errore nell'eliminazione dello slot:", error);
+            }
         }
         
         function loadAgendaData() {
@@ -703,32 +655,54 @@
                 agendaData = docSnap.exists() ? docSnap.data() : {};
                 renderWeekView(); 
             }, (error) => {
-                console.error("Errore nel caricamento dati: ", error);
+                console.error("Errore nel caricamento dati:", error);
             });
         }
+        
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                currentUser = user;
+                authOverlay.style.display = 'none';
+                appContainer.style.display = 'block';
+                userInfo.textContent = `${user.email}`;
+                loadGoogleMapsScript();
+                loadAgendaData();
+            } else {
+                currentUser = null;
+                authOverlay.style.display = 'flex';
+                appContainer.style.display = 'none';
+                if (unsubscribe) unsubscribe();
+            }
+        });
         
         loginBtn.addEventListener('click', () => {
             signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
                 .catch(error => { authError.textContent = 'Credenziali non valide.'; });
         });
+        
         logoutBtn.addEventListener('click', () => signOut(auth));
+        
         document.getElementById('prev-week-btn').addEventListener('click', () => {
             currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7);
             renderWeekView();
         });
+        
         document.getElementById('next-week-btn').addEventListener('click', () => {
             currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7);
             renderWeekView();
         });
+        
         weekTable.addEventListener('click', (e) => {
             const slot = e.target.closest('.slot');
             if (slot) {
                 openSlotModal(slot.dataset.date, slot.dataset.time);
             }
         });
+        
         modalCloseBtn.addEventListener('click', closeSlotModal);
         modalDoneBtn.addEventListener('click', saveSlot);
         modalDeleteBtn.addEventListener('click', deleteSlot);
+        
         document.getElementById('print-weekly-btn').addEventListener('click', () => {
              const printableArea = document.getElementById('printable');
              printableArea.innerHTML = `<h2>${weekTitle.textContent}</h2>${weekTable.outerHTML}`;
