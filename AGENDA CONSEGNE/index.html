@@ -43,217 +43,34 @@
             line-height: 1.6;
         }
         
-        .app-container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-        }
-        
-        .app-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 2rem; 
-            padding: 1.5rem;
-            background: var(--card-background);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border-color);
-        }
-        
+        /* [ ... Stili CSS invariati ... ] */
+        .app-container { max-width: 1200px; margin: 0 auto; }
+        .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding: 1.5rem; background: var(--card-background); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .logo-cai { height: 50px; }
-        
-        .app-header h1 { 
-            margin: 0; 
-            font-size: 1.875rem; 
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.025em;
-        }
-        
-        .user-info-container { 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-        }
-        
-        #user-info { 
-            font-weight: 500;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
-        }
-        
-        #logout-btn { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            background: transparent;
-            border: 1px solid var(--danger-color); 
-            color: var(--danger-color); 
-            padding: 8px 16px; 
-            border-radius: var(--radius-md); 
-            cursor: pointer; 
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-        }
-        
-        #logout-btn:hover {
-            background: var(--danger-color);
-            color: white;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        .week-overview-column { 
-            background: var(--card-background); 
-            border-radius: var(--radius-xl); 
-            padding: 2rem; 
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-        }
-        
-        .week-navigation { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .week-navigation h2 { 
-            margin: 0; 
-            font-size: 1.5rem; 
-            font-weight: 600;
-            flex-grow: 1; 
-            text-align: center;
-            color: var(--text-primary);
-        }
-        
-        .week-navigation button { 
-            padding: 10px 16px; 
-            background: var(--card-background); 
-            border: 1px solid var(--border-color); 
-            color: var(--text-primary); 
-            border-radius: var(--radius-md); 
-            cursor: pointer; 
-            font-weight: 500;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-        }
-        
-        .week-navigation button:hover {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-md);
-        }
-        
-        #week-overview-table { 
-            width: 100%; 
-            border-collapse: separate;
-            border-spacing: 0;
-            table-layout: fixed;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        #week-overview-table th, #week-overview-table td { 
-            border: 1px solid var(--border-color); 
-            padding: 12px 8px; 
-            text-align: center; 
-            font-size: 0.875rem; 
-            vertical-align: top;
-        }
-        
-        #week-overview-table th { 
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            font-weight: 600; 
-            color: var(--text-primary);
-            border-bottom: 2px solid var(--border-color);
-            padding: 1rem 0.5rem;
-        }
-        
-        #week-overview-table .time-col { 
-            font-weight: 600; 
-            color: var(--primary-color); 
-            width: 80px;
-            background: #fafbfc;
-        }
-        
-        #week-overview-table .slot { 
-            cursor: pointer; 
-            height: 100px; 
-            transition: all 0.2s ease; 
-            position: relative;
-            background: var(--card-background);
-        }
-        
-        #week-overview-table .slot:hover { 
-            background: var(--primary-light);
-            transform: scale(1.02);
-            box-shadow: inset 0 0 0 2px var(--primary-color);
-            z-index: 10;
-        }
-        
-        #week-overview-table .slot.is-filled { 
-            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
-            color: white;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        #week-overview-table .slot.is-filled:hover {
-            transform: scale(1.02);
-            box-shadow: var(--shadow-md);
-        }
-        
-        #week-overview-table .slot.is-filled .slot-summary strong { 
-            color: white; 
-        }
-        
-        #week-overview-table .slot.is-filled .slot-summary { 
-            color: rgba(255, 255, 255, 0.9); 
-        }
-        
-        #week-overview-table .slot-summary { 
-            display: -webkit-box; 
-            -webkit-line-clamp: 4; 
-            -webkit-box-orient: vertical; 
-            overflow: hidden; 
-            font-size: 0.75rem; 
-            line-height: 1.4; 
-            text-align: left; 
-            padding: 4px;
-        }
-        
-        .slot-summary strong { 
-            display: block;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .custom-time-badge {
-            background-color: rgba(0,0,0,0.2);
-            color: white;
-            padding: 2px 6px;
-            border-radius: var(--radius-sm);
-            font-size: 0.7rem;
-            font-weight: 700;
-            display: inline-block;
-            margin-left: 6px;
-        }
-        
-        .pause-label-week { 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            font-style: italic; 
-            font-size: 0.875rem; 
-            height: 40px; 
-            vertical-align: middle;
-            color: var(--warning-color);
-            font-weight: 500;
-        }
+        .app-header h1 { margin: 0; font-size: 1.875rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.025em; }
+        .user-info-container { display: flex; align-items: center; gap: 1rem; }
+        #user-info { font-weight: 500; color: var(--text-secondary); font-size: 0.875rem; }
+        #logout-btn { display: flex; align-items: center; gap: 8px; background: transparent; border: 1px solid var(--danger-color); color: var(--danger-color); padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; font-weight: 500; font-size: 0.875rem; transition: all 0.2s ease; }
+        #logout-btn:hover { background: var(--danger-color); color: white; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .week-overview-column { background: var(--card-background); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
+        .week-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .week-navigation h2 { margin: 0; font-size: 1.5rem; font-weight: 600; flex-grow: 1; text-align: center; color: var(--text-primary); }
+        .week-navigation button { padding: 10px 16px; background: var(--card-background); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: var(--radius-md); cursor: pointer; font-weight: 500; font-size: 0.875rem; transition: all 0.2s ease; }
+        .week-navigation button:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        #week-overview-table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        #week-overview-table th, #week-overview-table td { border: 1px solid var(--border-color); padding: 12px 8px; text-align: center; font-size: 0.875rem; vertical-align: top; }
+        #week-overview-table th { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); font-weight: 600; color: var(--text-primary); border-bottom: 2px solid var(--border-color); padding: 1rem 0.5rem; }
+        #week-overview-table .time-col { font-weight: 600; color: var(--primary-color); width: 80px; background: #fafbfc; }
+        #week-overview-table .slot { cursor: pointer; height: 100px; transition: all 0.2s ease; position: relative; background: var(--card-background); }
+        #week-overview-table .slot:hover { background: var(--primary-light); transform: scale(1.02); box-shadow: inset 0 0 0 2px var(--primary-color); z-index: 10; }
+        #week-overview-table .slot.is-filled { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); color: white; box-shadow: var(--shadow-sm); }
+        #week-overview-table .slot.is-filled:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
+        #week-overview-table .slot.is-filled .slot-summary strong { color: white; }
+        #week-overview-table .slot.is-filled .slot-summary { color: rgba(255, 255, 255, 0.9); }
+        #week-overview-table .slot-summary { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.75rem; line-height: 1.4; text-align: left; padding: 4px; }
+        .slot-summary strong { display: block; font-weight: 600; margin-bottom: 2px; }
+        .custom-time-badge { background-color: rgba(0,0,0,0.2); color: white; padding: 2px 6px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 700; display: inline-block; margin-left: 6px; }
+        .pause-label-week { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); font-style: italic; font-size: 0.875rem; height: 40px; vertical-align: middle; color: var(--warning-color); font-weight: 500; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-overlay.visible { display: flex; opacity: 1; }
         .modal-content { background: var(--card-background); border-radius: var(--radius-xl); width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-xl); border: 1px solid var(--border-color); }
@@ -270,9 +87,6 @@
         .modal-body input[type="time"] { cursor: pointer; }
         .modal-body input:focus, .modal-body textarea:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1); transform: translateY(-1px); }
         .modal-body textarea { min-height: 100px; resize: vertical; font-family: var(--font-family); }
-        gmp-place-autocomplete { width: 100%; }
-        gmp-place-autocomplete::part(input) { box-sizing: border-box !important; width: 100% !important; padding: 12px 16px !important; margin: 0 !important; border: 2px solid var(--border-color) !important; border-radius: var(--radius-md) !important; font-family: var(--font-family) !important; font-size: 1rem !important; background: var(--card-background) !important; transition: all 0.2s ease !important; }
-        gmp-place-autocomplete::part(input):focus { border-color: var(--primary-color) !important; box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1) !important; }
         .modal-footer { padding: 1.5rem 2rem; background: #fafbfc; border-top: 1px solid var(--border-color); border-radius: 0 0 var(--radius-xl) var(--radius-xl); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
         .modal-footer .btn-group-left { display: flex; gap: 0.75rem; }
         .modal-footer button, .modal-footer a { padding: 10px 20px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; border: 2px solid transparent; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; text-align: center; }
@@ -319,12 +133,12 @@
         const authOverlay = document.getElementById('authOverlay'),appContainer = document.getElementById('app'),loginBtn = document.getElementById('login-btn'),emailInput = document.getElementById('email'),passwordInput = document.getElementById('password'),authError = document.getElementById('authError'),userInfo = document.getElementById('user-info'),logoutBtn = document.getElementById('logout-btn'),weekTitle = document.getElementById('week-title'),weekTable = document.getElementById('week-overview-table'),modal = document.getElementById('slot-modal'),modalTitle = document.getElementById('modal-title'),modalBody = document.getElementById('modal-body'),modalCloseBtn = document.getElementById('modal-close-btn'),modalDeleteBtn = document.getElementById('modal-delete-btn'),modalNavBtn = document.getElementById('modal-nav-btn'),modalDoneBtn = document.getElementById('modal-done-btn');
 
         function loadGoogleMapsScript() {
-            if (isMapsScriptLoaded) return;
+            if (isMapsScriptLoaded || window.google) return;
             const script = document.createElement('script');
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places,maps&v=beta`;
-            script.loading = "async"; script.defer = true;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${firebaseConfig.apiKey}&libraries=places&callback=initAutocomplete`;
+            script.defer = true;
+            window.initAutocomplete = () => { isMapsScriptLoaded = true; };
             document.head.appendChild(script);
-            isMapsScriptLoaded = true;
         }
 
         const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
@@ -372,16 +186,20 @@
             const entry = agendaData[date]?.[time] || {};
             const displayTime = entry.customTime || time;
             modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')}`;
+            // --- FIX: Usa un input di testo normale, l'autocomplete verrà attivato via JS ---
             modalBody.innerHTML = `
                 <div class="form-group"><label for="modal-time-input">Orario</label><input type="time" id="modal-time-input" value="${displayTime}"></div>
                 <div class="form-group"><label for="modal-title-input">Titolo / Cliente</label><input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi"></div>
-                <div class="form-group"><label for="modal-address-input">Indirizzo</label><gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..."></gmp-place-autocomplete></div>
+                <div class="form-group"><label for="modal-address-input">Indirizzo</label><input type="text" id="modal-address-input" value="${entry.address || ''}" placeholder="Inizia a digitare un indirizzo..."></div>
                 <div class="form-group"><label for="modal-notes-input">Note</label><textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea></div>`;
             
-            // --- FIX CORRETTO PER PRE-COMPILARE L'INDIRIZZO ---
-            const autocomplete = document.getElementById('modal-address-input');
-            if (autocomplete) {
-                 autocomplete.setAttribute('value', entry.address || '');
+            // Attiva l'autocomplete di Google Places sull'input di testo
+            if (isMapsScriptLoaded && google.maps.places) {
+                const addressInput = document.getElementById('modal-address-input');
+                const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+                    componentRestrictions: { country: "it" },
+                    fields: ["formatted_address", "name"],
+                });
             }
 
             modalDeleteBtn.style.display = currentSlotInfo.isEditing ? 'inline-flex' : 'none';
@@ -413,11 +231,7 @@
             const customTime = document.getElementById('modal-time-input').value;
             const title = document.getElementById('modal-title-input').value.trim();
             const notes = document.getElementById('modal-notes-input').value.trim();
-            
-            const autocompleteComponent = document.getElementById('modal-address-input');
-            const placeResult = autocompleteComponent.value;
-            const manualAddress = autocompleteComponent.querySelector('input')?.value;
-            const address = placeResult?.formattedAddress || manualAddress || '';
+            const address = document.getElementById('modal-address-input').value; // Leggi semplicemente dal campo di testo.
             
             if (!title) { alert("Il campo Titolo è obbligatorio per salvare."); return; }
 
@@ -434,16 +248,14 @@
             updates[`${date}.${newSlotTime}`] = appointmentData;
             
             try {
-                if (Object.keys(agendaData).length === 0 && !isEditing) {
-                    await setDoc(docRef, {});
-                }
+                if (Object.keys(agendaData).length === 0 && !isEditing) { await setDoc(docRef, {}); }
                 await updateDoc(docRef, updates);
                 closeSlotModal(); 
             } catch (error) { 
                 console.error("Errore nel salvataggio:", error); 
-                 if (error.code === 'not-found') {
+                if (error.code === 'not-found' || (error.message && error.message.includes("No document to update"))) {
                     const newData = { [date]: { [newSlotTime]: appointmentData } };
-                    await setDoc(docRef, newData);
+                    await setDoc(docRef, newData, { merge: true });
                     closeSlotModal();
                 } else {
                     alert("Errore nel salvataggio. Riprova.");
