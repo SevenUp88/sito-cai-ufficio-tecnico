@@ -1,11 +1,12 @@
-/* File: script.js (Listino Climatizzatori - Auth, Firestore, e MODAL DETTAGLI - VERSIONE CORRETTA) */
+/* File: script.js (Listino Climatizzatori - Auth, Firestore, e MODAL DETTAGLI - VERSIONE CORRETTA E FUNZIONANTE) */
 
 (function() { // Inizio IIFE
     console.log("SCRIPT: IIFE Iniziata.");
 
     // --- CONFIGURAZIONE FIREBASE ---
+    // !!! ASSICURATI CHE QUESTA SIA LA CHIAVE CORRETTA DEL TUO PROGETTO !!!
     const firebaseConfig = {
-        apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // MASCHERA SE CONDIVIDI PUBBLICAMENTE
+        apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", 
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
         projectId: "consorzio-artigiani-idraulici",
         storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
@@ -20,15 +21,12 @@
             auth = firebase.auth();
             db = firebase.firestore();
             console.log("SCRIPT: Firebase App, Auth e Firestore inizializzati (SDK v8).");
-            if (typeof firebase.analytics === 'function') firebase.analytics();
         } else {
             throw new Error("SDK Firebase (v8) non trovato o non caricato correttamente.");
         }
     } catch (error) {
         console.error("SCRIPT: ERRORE FATALE init Firebase:", error);
-        const statusMsgInitErr = document.getElementById('app-status-message');
-        if (statusMsgInitErr) statusMsgInitErr.innerHTML = '<p style="color:red;font-weight:bold;">Errore critico inizializzazione. Controlla console.</p>';
-        else { document.addEventListener('DOMContentLoaded', () => { document.body.innerHTML = '<p style="color:red;font-weight:bold;text-align:center;padding:20px;">Errore critico.</p>'; }); }
+        document.addEventListener('DOMContentLoaded', () => { document.body.innerHTML = '<p style="color:red;font-weight:bold;text-align:center;padding:20px;">Errore critico inizializzazione.</p>'; });
         return;
     }
 
@@ -49,7 +47,7 @@
         // NUOVI RIFERIMENTI PER IL MODAL
         detailsModalOverlay, modalProductLogo, modalProductBrand, modalProductModel,
         modalProductImage, modalMainDetailsList, modalExtraDetailsList,
-        modalProductPrice, closeModalBtn, modalDatasheetLink; // <-- *** CORREZIONE APPLICATA QUI ***
+        modalProductPrice, closeModalBtn, modalDatasheetLink;
 
     // --- FUNZIONI UTILITY E MODAL ---
     function formatPrice(price) {
@@ -62,11 +60,24 @@
         return !isNaN(numPrice) ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numPrice) : 'N/D';
     }
 
-    // Funzione per gestire il modal
+    // Funzione per gestire il modal (VERSIONE CON CONTROLLI DI SICUREZZA)
     function populateAndShowModal(product) {
-        if (!product || !detailsModalOverlay) return;
-
-        // Popola Header e Immagine (codice invariato)
+        console.log("Dentro populateAndShowModal, cerco di popolare per:", product.modello);
+    
+        const requiredElements = { detailsModalOverlay, modalProductLogo, modalProductBrand, modalProductModel, modalProductImage, modalMainDetailsList, modalExtraDetailsList, modalProductPrice, modalDatasheetLink };
+        for (const key in requiredElements) {
+            if (!requiredElements[key]) {
+                console.error(`ERRORE FATALE: L'elemento del modal '${key}' non è stato trovato nel DOM. Controlla l'ID nel file HTML.`);
+                alert(`Errore: Manca un pezzo del modal (${key}). Controlla la console.`);
+                return;
+            }
+        }
+    
+        if (!product) {
+            console.error("populateAndShowModal è stata chiamata senza un prodotto valido.");
+            return;
+        }
+    
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : '';
         modalProductLogo.src = `../images/logos/${safeBrandName}.png`;
         modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
@@ -84,8 +95,7 @@
             const displayValue = (typeof value==='number'?String(value).replace('.',','):value);
             return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
         };
-
-        // Popola Liste Dettagli (codice invariato)
+    
         let mainDetailsHTML = '';
         mainDetailsHTML += createDetailRowHTML('Potenza', product.potenza);
         mainDetailsHTML += createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento);
@@ -94,7 +104,7 @@
         mainDetailsHTML += createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm');
         mainDetailsHTML += createDetailRowHTML('Codice Prodotto', product.codice_prodotto);
         modalMainDetailsList.innerHTML = mainDetailsHTML;
-
+    
         let extraDetailsHTML = '';
         extraDetailsHTML += createDetailRowHTML('EER (Raffr.)', product.eer);
         extraDetailsHTML += createDetailRowHTML('COP (Risc.)', product.cop);
@@ -106,28 +116,24 @@
         extraDetailsHTML += createDetailRowHTML('Prezzo solo UI', formatPrice(product.prezzo_ui));
         extraDetailsHTML += createDetailRowHTML('Prezzo solo UE', formatPrice(product.prezzo_ue));
         modalExtraDetailsList.innerHTML = extraDetailsHTML;
-
-        // Popola Footer (codice invariato)
+    
         modalProductPrice.textContent = formatPrice(product.prezzo);
         
-        // --- LOGICA PER IL LINK SCHEDA TECNICA ---
         if (modalDatasheetLink) {
             if (product.scheda_tecnica_url && product.scheda_tecnica_url.trim() !== '') {
-                // Se il link esiste, impostalo e mostra il bottone
                 modalDatasheetLink.href = product.scheda_tecnica_url;
                 modalDatasheetLink.classList.remove('hidden');
             } else {
-                // Se il link NON esiste, nascondi il bottone
-                modalDatasheetLink.href = '#'; // Rimuovi il vecchio link per sicurezza
+                modalDatasheetLink.href = '#';
                 modalDatasheetLink.classList.add('hidden');
             }
         }
         
-        // Mostra il modal (codice invariato)
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
+        console.log("Modal popolato e reso visibile.");
     }
-
+    
     function closeModal() {
         if (!detailsModalOverlay) return;
         document.body.classList.remove('modal-open');
@@ -177,7 +183,6 @@
             const dimensionsHTML = `<p class="product-info-text product-dimensions"><strong>Dimensioni AxLxP (mm):</strong><span class="dimensions-values-wrapper"><span class="dimension-item">UI: ${uiDimensions}</span><span class="dimension-item">UE: ${ueDimensions}</span></span></p>`;
             const energyClassHTML = `<p class="energy-class product-info-text"><strong>Classe En.:</strong><span class="cooling product-energy-cooling">${energyCooling}</span> <span class="heating product-energy-heating">${energyHeating}</span></p>`;
 
-            // Sostituiamo la logica del pannello a scomparsa con il solo pulsante "Dettagli"
             const actionButtonsContainerContent = `<button class="toggle-details-btn">Dettagli</button>`;
             
             return `<div class="product-card" data-product-id="${product.id}" data-brand="${brand.toUpperCase()}" data-model="${modelDataAttribute}">
@@ -226,7 +231,6 @@
         }
     }
     
-    // Funzioni `updateAvailableBrandFilters`, `applyFiltersAndSort`, `displayProducts` mantengono la logica originale
     function updateAvailableBrandFilters(sourceProducts) {
         if (!filterButtons || filterButtons.length === 0) { console.warn("UPDATE_FILTERS: Bottoni non trovati."); return; }
         if (!Array.isArray(sourceProducts)) { filterButtons.forEach(b=>{if(b.dataset.brand&&b.dataset.brand!=='all')b.style.display='none';}); console.warn("UPDATE_FILTERS: sourceProducts non è array."); return; }
@@ -350,12 +354,10 @@
 
             submitLoginBtn.addEventListener('click', () => {
                 const e=loginEmailInput.value.trim(), p=loginPasswordInput.value;
-                loginErrorMsg.textContent = '';
                 if(!e||!p) { loginErrorMsg.textContent='Email e Password sono obbligatori.'; return; }
+                loginErrorMsg.textContent = '';
                 auth.signInWithEmailAndPassword(e, p).catch(err => {
                     loginErrorMsg.textContent = mapFirebaseAuthError(err.code);
-                    if(loginPasswordInput) loginPasswordInput.classList.add('input-error');
-                    if(loginEmailInput) loginEmailInput.classList.add('input-error');
                 });
             });
             loginEmailInput.addEventListener('input', () => { loginErrorMsg.textContent=''; });
@@ -365,8 +367,8 @@
         }
 
         setTimeout(() => {
-            if (!firebaseAuthInitialized && auth) {
-                if (!auth.currentUser) performLogoutCleanup(); else initializeAppForUser(auth.currentUser);
+            if (!firebaseAuthInitialized && auth && !auth.currentUser) {
+                performLogoutCleanup();
             }
         }, 3500); 
 
@@ -380,27 +382,17 @@
                     const filterType = clickedButton.dataset.filterType;
                     const brandFilter = clickedButton.dataset.brand;
 
-                    // Logica per il filtro di marca
                     if (filterType === 'brand') {
-                        // Rimuove 'active' da tutti i bottoni di marca
                         filterButtons.forEach(btn => {
-                            if (btn.dataset.filterType === 'brand') {
-                                btn.classList.remove('active');
-                            }
+                            if (btn.dataset.filterType === 'brand') btn.classList.remove('active');
                         });
-                        // Aggiunge 'active' a quello cliccato
                         clickedButton.classList.add('active');
-                        // Imposta il filtro
                         currentBrandFilter = brandFilter.toLowerCase() === 'all' ? 'all' : brandFilter.toUpperCase();
                     }
-
-                    // Logica separata per il filtro economico (toggle)
                     if (filterType === 'economic') {
                         showOnlyEconomic = !showOnlyEconomic;
                         clickedButton.classList.toggle('active', showOnlyEconomic);
                     }
-
-                    // Applica i filtri e ridisegna i prodotti
                     applyFiltersAndSort();
                 });
             });
@@ -417,65 +409,37 @@
 
         // --- NUOVI LISTENER PER IL MODAL ---
         if (monosplitGrid) {
-    monosplitGrid.addEventListener('click', (event) => {
-        console.log("Evento 'click' registrato sulla griglia."); // DEBUG: Conferma che il listener è attivo
-
-        const toggleBtn = event.target.closest('.toggle-details-btn');
-
-        // Se l'elemento cliccato non è il bottone o un suo figlio, interrompi
-        if (!toggleBtn) {
-            // Questo è normale se si clicca altrove sulla card, quindi non serve un log
-            return;
+            monosplitGrid.addEventListener('click', (event) => {
+                const toggleBtn = event.target.closest('.toggle-details-btn');
+                if (!toggleBtn) return;
+                
+                event.preventDefault();
+                const card = toggleBtn.closest('.product-card');
+                if (!card) return;
+                
+                const productId = card.dataset.productId;
+                if (!productId) return;
+                
+                const product = allProductsFromFirestore.find(p => p.id === productId);
+                if (product) {
+                    populateAndShowModal(product);
+                } else {
+                    console.error('Prodotto non trovato con ID:', productId);
+                }
+            });
         }
-
-        console.log("Pulsante 'Dettagli' cliccato."); // DEBUG: Conferma che il bottone è stato identificato
-
-        event.preventDefault(); // Previene qualsiasi comportamento di default
-
-        const card = toggleBtn.closest('.product-card');
         
-        // Se per qualche motivo non troviamo la card genitore, segnala un errore ed esci
-        if (!card) {
-            console.error("ERRORE: Impossibile trovare l'elemento '.product-card' genitore del bottone.");
-            return;
-        }
-
-        const productId = card.dataset.productId;
-        console.log(`Ricerca prodotto con ID: "${productId}"`); // DEBUG: Mostra l'ID che stiamo cercando
-
-        if (!productId) {
-            console.error("ERRORE: L'attributo 'data-product-id' non è stato trovato sulla card.", card);
-            return;
-        }
-
-        const product = allProductsFromFirestore.find(p => p.id === productId);
-
-        if (product) {
-            console.log("Prodotto trovato:", product); // DEBUG: Mostra l'oggetto prodotto trovato
-            populateAndShowModal(product);
-        } else {
-            console.error('Prodotto NON trovato in `allProductsFromFirestore` con ID:', productId);
-        }
-    });
-} else {
-    console.error("ERRORE CRITICO: Elemento 'monosplit-grid' non trovato nel DOM. I listener non possono essere aggiunti.");
-}
-
-if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-
-if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => {
-    // Chiudi solo se si clicca sullo sfondo (l'overlay stesso) e non sul contenuto
-    if (event.target === detailsModalOverlay) {
-        closeModal();
-    }
-});
-
-window.addEventListener('keydown', (event) => {
-    // Chiudi con il tasto 'Escape' se il modal è visibile
-    if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
-        closeModal();
-    }
-});
+        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+        
+        if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => {
+            if (event.target === detailsModalOverlay) closeModal();
+        });
+        
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
+                closeModal();
+            }
+        });
         
         console.log("DOM_LOADED: Listeners UI agganciati.");
     }); // Fine DOMContentLoaded
