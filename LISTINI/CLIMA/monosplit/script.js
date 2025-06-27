@@ -417,33 +417,65 @@
 
         // --- NUOVI LISTENER PER IL MODAL ---
         if (monosplitGrid) {
-            monosplitGrid.addEventListener('click', (event) => {
-                const toggleBtn = event.target.closest('.toggle-details-btn');
-                if (!toggleBtn) return;
-                event.preventDefault();
-                const card = toggleBtn.closest('.product-card');
-                if (!card) return;
-                const productId = card.dataset.productId;
-                const product = allProductsFromFirestore.find(p => p.id === productId);
-                if (product) {
-                    populateAndShowModal(product);
-                } else {
-                    console.error('Prodotto non trovato con ID:', productId);
-                }
-            });
+    monosplitGrid.addEventListener('click', (event) => {
+        console.log("Evento 'click' registrato sulla griglia."); // DEBUG: Conferma che il listener è attivo
+
+        const toggleBtn = event.target.closest('.toggle-details-btn');
+
+        // Se l'elemento cliccato non è il bottone o un suo figlio, interrompi
+        if (!toggleBtn) {
+            // Questo è normale se si clicca altrove sulla card, quindi non serve un log
+            return;
         }
+
+        console.log("Pulsante 'Dettagli' cliccato."); // DEBUG: Conferma che il bottone è stato identificato
+
+        event.preventDefault(); // Previene qualsiasi comportamento di default
+
+        const card = toggleBtn.closest('.product-card');
         
-        if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-        
-        if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => {
-            if (event.target === detailsModalOverlay) closeModal();
-        });
-        
-        window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
-                closeModal();
-            }
-        });
+        // Se per qualche motivo non troviamo la card genitore, segnala un errore ed esci
+        if (!card) {
+            console.error("ERRORE: Impossibile trovare l'elemento '.product-card' genitore del bottone.");
+            return;
+        }
+
+        const productId = card.dataset.productId;
+        console.log(`Ricerca prodotto con ID: "${productId}"`); // DEBUG: Mostra l'ID che stiamo cercando
+
+        if (!productId) {
+            console.error("ERRORE: L'attributo 'data-product-id' non è stato trovato sulla card.", card);
+            return;
+        }
+
+        const product = allProductsFromFirestore.find(p => p.id === productId);
+
+        if (product) {
+            console.log("Prodotto trovato:", product); // DEBUG: Mostra l'oggetto prodotto trovato
+            populateAndShowModal(product);
+        } else {
+            console.error('Prodotto NON trovato in `allProductsFromFirestore` con ID:', productId);
+        }
+    });
+} else {
+    console.error("ERRORE CRITICO: Elemento 'monosplit-grid' non trovato nel DOM. I listener non possono essere aggiunti.");
+}
+
+if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+
+if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => {
+    // Chiudi solo se si clicca sullo sfondo (l'overlay stesso) e non sul contenuto
+    if (event.target === detailsModalOverlay) {
+        closeModal();
+    }
+});
+
+window.addEventListener('keydown', (event) => {
+    // Chiudi con il tasto 'Escape' se il modal è visibile
+    if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
+        closeModal();
+    }
+});
         
         console.log("DOM_LOADED: Listeners UI agganciati.");
     }); // Fine DOMContentLoaded
