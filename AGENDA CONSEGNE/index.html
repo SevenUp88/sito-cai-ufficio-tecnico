@@ -213,7 +213,7 @@
             color: white; 
         }
         
-        #week-overview-table .slot.is-filled .slot-summary { 
+        #week-overview-table .slot.is-filled .slot- summarisedy { 
             color: rgba(255, 255, 255, 0.9); 
         }
         
@@ -294,20 +294,7 @@
         .auth-box button { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none; padding: 12px 32px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.2s ease; width: 100%; }
         .auth-box button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem; }
-        
-        @media (max-width: 768px) {
-            body { padding: 1rem; }
-            .app-header { flex-direction: column; gap: 1rem; text-align: center; }
-            .app-header h1 { font-size: 1.5rem; }
-            .week-overview-column { padding: 1rem; }
-            .week-navigation { flex-direction: column; gap: 1rem; }
-            .modal-content { width: 95%; margin: 1rem; }
-            .modal-body { padding: 1.5rem; }
-            .modal-footer { flex-direction: column; gap: 1rem; }
-            .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; }
-            #week-overview-table { font-size: 0.75rem; }
-            #week-overview-table .slot { height: 60px; }
-        }
+        @media (max-width: 768px) { body { padding: 1rem; } .app-header { flex-direction: column; gap: 1rem; text-align: center; } .app-header h1 { font-size: 1.5rem; } .week-overview-column { padding: 1rem; } .week-navigation { flex-direction: column; gap: 1rem; } .modal-content { width: 95%; margin: 1rem; } .modal-body { padding: 1.5rem; } .modal-footer { flex-direction: column; gap: 1rem; } .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; } #week-overview-table { font-size: 0.75rem; } #week-overview-table .slot { height: 60px; } }
     </style>
 </head>
 <body>
@@ -328,7 +315,7 @@
         let currentUser, agendaData = {}, unsubscribe, currentSlotInfo = {}, isMapsScriptLoaded = false;
         let currentDisplayedDate = new Date();
         const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
-
+        
         const authOverlay = document.getElementById('authOverlay'),appContainer = document.getElementById('app'),loginBtn = document.getElementById('login-btn'),emailInput = document.getElementById('email'),passwordInput = document.getElementById('password'),authError = document.getElementById('authError'),userInfo = document.getElementById('user-info'),logoutBtn = document.getElementById('logout-btn'),weekTitle = document.getElementById('week-title'),weekTable = document.getElementById('week-overview-table'),modal = document.getElementById('slot-modal'),modalTitle = document.getElementById('modal-title'),modalBody = document.getElementById('modal-body'),modalCloseBtn = document.getElementById('modal-close-btn'),modalDeleteBtn = document.getElementById('modal-delete-btn'),modalNavBtn = document.getElementById('modal-nav-btn'),modalDoneBtn = document.getElementById('modal-done-btn');
 
         function loadGoogleMapsScript() {
@@ -381,55 +368,70 @@
         }
 
         function openSlotModal(date, time) {
-            currentSlotInfo = { date, time };
-            const entry = agendaData[date]?.[time] || {};
+            currentSlotInfo = { date, time, originalEntry: agendaData[date]?.[time] };
+            const entry = currentSlotInfo.originalEntry || {};
             const displayTime = entry.customTime || time;
             modalTitle.textContent = `Appuntamento - ${new Date(date + 'T00:00:00').toLocaleDateString('it-IT')}`;
             modalBody.innerHTML = `
                 <div class="form-group"><label for="modal-time-input">Orario</label><input type="time" id="modal-time-input" value="${displayTime}"></div>
                 <div class="form-group"><label for="modal-title-input">Titolo / Cliente</label><input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi"></div>
-                <div class="form-group"><label for="modal-address-input">Indirizzo</label><gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..." value="${entry.address || ''}"></gmp-place-autocomplete></div>
+                <div class="form-group"><label for="modal-address-input">Indirizzo</label><gmp-place-autocomplete id="modal-address-input" country="it" placeholder="Inizia a digitare un indirizzo..."></gmp-place-autocomplete></div>
                 <div class="form-group"><label for="modal-notes-input">Note</label><textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea></div>`;
+            
+            const autocomplete = document.getElementById('modal-address-input');
+            if (autocomplete) {
+                 autocomplete.value = entry.address || '';
+            }
+
             modalDeleteBtn.style.display = entry.title ? 'inline-flex' : 'none';
-            modalNavBtn.style.display = entry.address ? 'inline-flex' : 'none';
-            if (entry.address) { modalNavBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(entry.address)}`; }
+            const navLink = document.getElementById('modal-nav-btn');
+            navLink.style.display = 'none';
+
+            if (entry.address) {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                if (isMobile) {
+                    navLink.href = `geo:?q=${encodeURIComponent(entry.address)}`;
+                } else {
+                    navLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(entry.address)}`;
+                }
+                navLink.style.display = 'inline-flex';
+            }
             modal.classList.add('visible');
         }
         
         function closeSlotModal() { modal.classList.remove('visible'); }
 
+        const getSlotFromTime = (timeStr) => timeSlots.find(slot => timeStr >= slot && timeStr < `${String(parseInt(slot.split(':')[0]) + 1).padStart(2, '0')}:00`) || null;
+
         async function saveSlot() {
+            const docRef = doc(db, 'agenda', 'schedule');
             const customTime = document.getElementById('modal-time-input').value;
             const title = document.getElementById('modal-title-input').value.trim();
             const notes = document.getElementById('modal-notes-input').value.trim();
             const autocompleteComponent = document.getElementById('modal-address-input');
-            const place = autocompleteComponent.value; 
-            const textInput = autocompleteComponent.querySelector('input');
-            let address = '';
-            if (place && place.formattedAddress) { address = place.formattedAddress; } 
-            else if (textInput) { address = textInput.value.trim(); }
-
+            let address = autocompleteComponent.value?.formattedAddress || autocompleteComponent.querySelector('input')?.value || '';
+            
             if (!title) { alert("Il campo Titolo è obbligatorio per salvare."); return; }
 
-            const { date, time } = currentSlotInfo;
-            const docRef = doc(db, 'agenda', 'schedule');
-            const fieldPath = `${date}.${time}`;
+            const { date, time, originalEntry } = currentSlotInfo;
+            const newSlotTime = getSlotFromTime(customTime) || time;
+            const hasMoved = newSlotTime !== time;
+
             const appointmentData = { title, address, notes, customTime };
+            const updates = {};
+            
+            if (hasMoved && originalEntry) {
+                updates[`${date}.${time}`] = deleteField();
+            }
+            updates[`${date}.${newSlotTime}`] = appointmentData;
             
             try {
-                if (Object.keys(agendaData).length === 0) {
-                    await setDoc(docRef, {});
-                }
-                await updateDoc(docRef, { [fieldPath]: appointmentData });
+                if (Object.keys(agendaData).length === 0) { await setDoc(docRef, {}); }
+                await updateDoc(docRef, updates);
                 closeSlotModal(); 
             } catch (error) { 
                 console.error("Errore nel salvataggio:", error); 
-                if (error.code === 'not-found') { // Documento non esiste, lo creiamo
-                     await setDoc(docRef, { [date]: { [time]: appointmentData } });
-                     closeSlotModal();
-                } else {
-                    alert("Errore nel salvataggio. Controlla la console."); 
-                }
+                alert("Errore nel salvataggio. Riprova.");
             }
         }
 
@@ -475,32 +477,35 @@
             printFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;';
             document.body.appendChild(printFrame);
             
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `<table>${weekTable.innerHTML}</table>`;
+            const filledSlots = tempDiv.querySelectorAll('.slot.is-filled .slot-summary');
+             filledSlots.forEach(summary => {
+                 const badge = summary.querySelector('.custom-time-badge');
+                 const titleStrong = summary.querySelector('strong');
+                 if(badge && titleStrong) {
+                    const timeText = `<strong>[${badge.textContent}]</strong> `;
+                    titleStrong.innerHTML = timeText + titleStrong.innerHTML.replace(badge.outerHTML, '').trim();
+                 }
+             });
+
             const printDoc = printFrame.contentWindow.document;
-            let tableHTML = weekTable.innerHTML.replace(/<span class="custom-time-badge">(.*?)<\/span>/g, '<strong>[$1]</strong>');
-            
             printDoc.open();
-            printDoc.write(`
-                <html>
-                    <head>
-                        <title>Stampa Agenda</title>
-                        <style>
+            printDoc.write(`<html><head><title>Stampa Agenda</title><style>
                             @page { size: A4 portrait; margin: 0.8cm; }
-                            body { font-family: sans-serif; }
+                            body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                             h2 { text-align: center; font-size: 14pt; margin: 0 0 10px 0; }
                             table { width: 100%; border-collapse: collapse; font-size: 8pt; }
                             th, td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
                             em { font-style: normal; color: #333; }
                             .time-col { font-weight: bold; }
-                            .pause-label-week { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; text-align: center; font-style: italic; }
-                            strong { -webkit-print-color-adjust: exact; } /* Forza la stampa del grassetto se necessario */
-                        </style>
-                    </head>
-                    <body>
+                            .pause-label-week { background-color: #f0f0f0 !important; text-align: center; font-style: italic; }
+                            .slot.is-filled { background: white !important; color: black !important; }
+                            .slot.is-filled strong, .slot.is-filled em { color: black !important; }
+                        </style></head><body>
                         <h2>${weekTitle.textContent}</h2>
-                        <table>${tableHTML}</table>
-                    </body>
-                </html>
-            `);
+                        ${tempDiv.innerHTML}
+                    </body></html>`);
             printDoc.close();
 
             printFrame.contentWindow.focus();
