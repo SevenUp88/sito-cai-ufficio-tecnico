@@ -5,7 +5,7 @@
 
     // --- CONFIGURAZIONE FIREBASE ---
     const firebaseConfig = {
-        apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", // MASCHERA SE CONDIVIDI PUBBLICAMENTE
+        apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // MASCHERA SE CONDIVIDI PUBBLICAMENTE
         authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
         projectId: "consorzio-artigiani-idraulici",
         storageBucket: "consorzio-artigiani-idraulici.firebasestorage.app",
