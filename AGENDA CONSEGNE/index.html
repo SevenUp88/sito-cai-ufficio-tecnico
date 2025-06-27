@@ -295,7 +295,19 @@
         .auth-box button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .auth-error-message { color: var(--danger-color); font-weight: 500; min-height: 1.2em; font-size: 0.875rem; }
         
-        @media (max-width: 768px) { body { padding: 1rem; } .app-header { flex-direction: column; gap: 1rem; text-align: center; } .app-header h1 { font-size: 1.5rem; } .week-overview-column { padding: 1rem; } .week-navigation { flex-direction: column; gap: 1rem; } .modal-content { width: 95%; margin: 1rem; } .modal-body { padding: 1.5rem; } .modal-footer { flex-direction: column; gap: 1rem; } .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; } #week-overview-table { font-size: 0.75rem; } #week-overview-table .slot { height: 60px; } }
+        @media (max-width: 768px) {
+            body { padding: 1rem; }
+            .app-header { flex-direction: column; gap: 1rem; text-align: center; }
+            .app-header h1 { font-size: 1.5rem; }
+            .week-overview-column { padding: 1rem; }
+            .week-navigation { flex-direction: column; gap: 1rem; }
+            .modal-content { width: 95%; margin: 1rem; }
+            .modal-body { padding: 1.5rem; }
+            .modal-footer { flex-direction: column; gap: 1rem; }
+            .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; }
+            #week-overview-table { font-size: 0.75rem; }
+            #week-overview-table .slot { height: 60px; }
+        }
     </style>
 </head>
 <body>
@@ -401,20 +413,23 @@
 
             const { date, time } = currentSlotInfo;
             const docRef = doc(db, 'agenda', 'schedule');
-            // --- FIX DEFINITIVO: Usa la dot notation con updateDoc. È il metodo corretto.
             const fieldPath = `${date}.${time}`;
             const appointmentData = { title, address, notes, customTime };
             
             try {
-                 // Per sicurezza, se il doc principale non esiste lo creiamo con un set vuoto.
-                if (!Object.keys(agendaData).length) {
+                if (Object.keys(agendaData).length === 0) {
                     await setDoc(docRef, {});
                 }
                 await updateDoc(docRef, { [fieldPath]: appointmentData });
                 closeSlotModal(); 
             } catch (error) { 
                 console.error("Errore nel salvataggio:", error); 
-                alert("Errore nel salvataggio. Controlla la console."); 
+                if (error.code === 'not-found') { // Documento non esiste, lo creiamo
+                     await setDoc(docRef, { [date]: { [time]: appointmentData } });
+                     closeSlotModal();
+                } else {
+                    alert("Errore nel salvataggio. Controlla la console."); 
+                }
             }
         }
 
@@ -457,11 +472,11 @@
         modalDeleteBtn.addEventListener('click', deleteSlot);
         document.getElementById('print-weekly-btn').addEventListener('click', () => {
             const printFrame = document.createElement('iframe');
-            printFrame.style.display = 'none';
+            printFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;';
             document.body.appendChild(printFrame);
             
             const printDoc = printFrame.contentWindow.document;
-            const tableHTML = weekTable.innerHTML.replace(/<span class="custom-time-badge">(.*?)<\/span>/g, '<strong>[$1]</strong>');
+            let tableHTML = weekTable.innerHTML.replace(/<span class="custom-time-badge">(.*?)<\/span>/g, '<strong>[$1]</strong>');
             
             printDoc.open();
             printDoc.write(`
@@ -470,13 +485,14 @@
                         <title>Stampa Agenda</title>
                         <style>
                             @page { size: A4 portrait; margin: 0.8cm; }
-                            body { font-family: 'Inter', sans-serif; }
+                            body { font-family: sans-serif; }
                             h2 { text-align: center; font-size: 14pt; margin: 0 0 10px 0; }
                             table { width: 100%; border-collapse: collapse; font-size: 8pt; }
                             th, td { border: 1px solid #999; padding: 4px; text-align: left; vertical-align: top; }
                             em { font-style: normal; color: #333; }
                             .time-col { font-weight: bold; }
-                            .pause-label-week { background-color: #f0f0f0; text-align: center; font-style: italic; }
+                            .pause-label-week { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; text-align: center; font-style: italic; }
+                            strong { -webkit-print-color-adjust: exact; } /* Forza la stampa del grassetto se necessario */
                         </style>
                     </head>
                     <body>
@@ -489,7 +505,7 @@
 
             printFrame.contentWindow.focus();
             printFrame.contentWindow.print();
-            document.body.removeChild(printFrame);
+            setTimeout(() => { document.body.removeChild(printFrame); }, 500);
         });
     </script>
 </body>
