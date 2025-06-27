@@ -1,4 +1,4 @@
-/* File: LISTINI/CLIMA/style.css */
+/* File: LISTINI/CLIMA/style.css (VERSIONE FINALE E CORRETTA) */
 
 :root {
     --primary-color: #0056a8;
@@ -11,171 +11,140 @@
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --header-height: 65px;
-    --sticky-offset: calc(var(--header-height) + 10px);
 }
 
-/* Print specific variables */
-@media print {
-    :root {
-        --primary-color: #000000; /* Nero per stampa */
-        --secondary-color: #555555;
-        --dark-color: #000000;
-        --background-color: #ffffff;
-        --card-shadow: none;
-        --danger-color: #555555;
-    }
+body { 
+    font-family: 'Roboto', sans-serif; 
+    margin: 0; 
+    padding-top: var(--header-height); 
+    background-color: var(--light-color); 
+    color: var(--dark-color); 
+    line-height: 1.6; 
+    position: relative; 
+    min-height: 100vh; 
 }
 
-
-body { font-family: 'Roboto', sans-serif; margin: 0; padding-top: var(--header-height); background-color: var(--light-color); color: var(--dark-color); line-height: 1.6; position: relative; min-height: 100vh; }
-
-/* === Header Standard Styles === */
-.app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
-.app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
+/* === Header === */
+.app-header { 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    padding: 10px 30px; 
+    background-color: var(--background-color); 
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    z-index: 1000; 
+    height: var(--header-height); 
+    box-sizing: border-box; 
+}
+.app-header .logo { height: 45px; width: auto; }
 .app-header a { line-height: 0; }
 .header-controls { display: flex; align-items: center; gap: 15px; }
-.header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease, opacity 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; text-decoration: none; }
 .header-action-button:hover { color: var(--danger-color); }
-body.operator-mode #admin-trigger { display: inline-flex; } /* Questa regola potrebbe non essere più usata se il trigger è stato rimosso */
 body.operator-mode #exit-admin-button { display: none; }
-body.admin-mode #admin-trigger { display: none; } /* Anche questa */
 body.admin-mode #exit-admin-button { display: inline-flex; color: var(--danger-color); }
-body.admin-mode #exit-admin-button:hover { color: #a51826; }
-/* === END Header Standard Styles === */
 
-.container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: var(--background-color); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); border-radius: var(--border-radius); }
+/* === Layout & Contenitori === */
+.container { 
+    max-width: 1200px; 
+    margin: 20px auto; 
+    padding: 20px; 
+    background-color: var(--background-color); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); 
+    border-radius: var(--border-radius); 
+}
 
-/* === Styles per Controlli Pagina e Filtri Sticky === */
-.page-controls { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; position: sticky; top: var(--header-height); background-color: var(--background-color); z-index: 990; padding-top: 15px; margin-left: -20px; margin-right: -20px; padding-left: 20px; padding-right: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.page-controls h1 { color: var(--primary-color); margin: 0 0 15px 0; font-weight: 700; font-size: 2em; line-height: 1.2; }
-.filters { margin-top: 0; margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
-.filters span { margin-right: 10px; font-weight: 500; color: var(--secondary-color); align-self: center; margin-bottom: 5px; }
-.filter-btn { background-color: #e9ecef; border: 1px solid #ced4da; color: var(--dark-color); padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-size: 0.85em; white-space: nowrap; }
+.page-controls { 
+    text-align: center; 
+    margin-bottom: 30px; 
+    border-bottom: 1px solid #eee; 
+    position: sticky; 
+    top: var(--header-height); 
+    background-color: var(--background-color); 
+    z-index: 990; 
+    padding-top: 15px; 
+    margin-left: -20px; 
+    margin-right: -20px; 
+    padding-left: 20px; 
+    padding-right: 20px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+}
+.page-controls h1 { color: var(--primary-color); margin: 0 0 15px 0; font-weight: 700; font-size: 2em; }
+
+/* === Filtri & Tabs === */
+.filters { 
+    margin-top: 0; margin-bottom: 15px; 
+    display: flex; flex-wrap: wrap; 
+    justify-content: center; 
+    gap: 8px; 
+    align-items: center;
+}
+.filters span { margin-right: 10px; font-weight: 500; color: var(--secondary-color); }
+.filter-btn { background-color: #e9ecef; border: 1px solid #ced4da; color: var(--dark-color); padding: 7px 14px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease; font-size: 0.85em; }
 .filter-btn:hover { background-color: #d1d5db; border-color: #adb5bd; }
 .filter-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: bold; }
 .filter-btn[data-filter-type="economic"] { background-color: var(--warning-color); border-color: #e6a007; color: #333; }
 .filter-btn[data-filter-type="economic"].active { background-color: #c68b00; border-color: #a06d00; color: white; }
-/* === Fine Stili Filtri === */
 
-/* === Stili Tabs Sezioni === */
-.section-tabs { display: flex; justify-content: center; margin-top: 10px; padding-bottom: 15px; border-top: 1px solid #eee; padding-top: 15px; }
+.section-tabs { display: flex; justify-content: center; border-top: 1px solid #eee; padding-top: 15px; }
 .tab-btn { padding: 8px 25px; margin: 0 5px; font-size: 1em; font-weight: 500; color: var(--secondary-color); background-color: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; transition: color 0.3s ease, border-bottom-color 0.3s ease; }
-.tab-btn:hover { color: var(--dark-color); }
 .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); font-weight: 700; }
-/* === Fine Stili Tabs === */
 
-/* === Stili Contenuto Principale === */
 main { padding-top: 10px; }
-.sections-wrapper { display: flex; flex-wrap: wrap; gap: 30px; align-items: stretch; }
-.content-section { flex: 1; min-width: 300px; display: none; }
+.content-section { display: none; }
 .content-section.active-section { display: block; }
-@media (max-width: 992px) { .sections-wrapper { flex-direction: column; gap: 40px; align-items: stretch; } .content-section { min-width: 100%; } }
-/* === Fine Stili Layout Colonne === */
 
-/* Griglia Prodotti */
+/* === Griglia e Card Prodotti === */
 .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 25px; margin-bottom: 40px; }
 
-/* Card Prodotto */
-.product-card { background-color: var(--background-color); border: 1px solid #e0e0e0; border-radius: var(--border-radius); padding: 20px; box-shadow: var(--card-shadow); transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-.product-card.error-card { background-color: #f8d7da; border-color: var(--danger-color); color: #842029; padding: 20px; text-align: center; }
-
-.card-top-right-elements { position: absolute; top: 10px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; z-index: 5; }
-/* Stile per il badge economico generale. Usato solo se non è .economic-badge-footer */
-.economic-badge { 
-    display: inline-block; background-color: var(--warning-color); color: #333; 
-    font-size: 0.7em; padding: 2px 8px; border-radius: 10px; 
-    font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; 
-    white-space: nowrap; 
+.product-card { 
+    background-color: var(--background-color); 
+    border: 1px solid #e0e0e0; 
+    border-radius: var(--border-radius); 
+    padding: 20px; 
+    box-shadow: var(--card-shadow); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    display: flex; flex-direction: column; 
+    overflow: hidden; 
+    position: relative; 
 }
+.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+
+.card-top-right-elements { position: absolute; top: 10px; right: 15px; display: flex; align-items: flex-end; gap: 5px; z-index: 5; }
 .wifi-icon { font-size: 1.1em; color: var(--primary-color); }
 
-.product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 60px; /* Padding per fare spazio a .card-top-right-elements */}
-.product-logo { max-height: 50px; max-width: 140px; width: auto; object-fit: contain; flex-shrink: 1; min-width: 60px; }
-.product-title-brand { flex-grow: 1; min-width: 0; }
-.product-title-brand h3 {
-    margin: 0 0 2px 0; font-size: 1.15em; color: var(--dark-color);
-    font-weight: 700; line-height: 1.35; display: -webkit-box;
-    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden; text-overflow: ellipsis; min-height: calc(1.35em * 2);
-    overflow-wrap: break-word; word-break: break-word;
-}
-.product-title-brand .product-brand-text {
-    font-size: 0.9em; color: var(--secondary-color); font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.5px; display: block;
-    overflow-wrap: break-word; word-break: break-word;
-}
+.product-header { display: flex; align-items: center; margin-bottom: 15px; gap: 10px; min-height: 65px; padding-right: 40px; }
+.product-logo { max-height: 50px; max-width: 140px; width: auto; object-fit: contain; }
+.product-title-brand h3 { margin: 0 0 2px 0; font-size: 1.15em; font-weight: 700; line-height: 1.35; }
+.product-title-brand .product-brand-text { font-size: 0.9em; color: var(--secondary-color); text-transform: uppercase; }
 
-.product-image { display: block; width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 4px; box-sizing: border-box; }
-
+.product-image { display: block; width: 100%; height: 180px; object-fit: contain; margin-bottom: 15px; border-radius: 4px; }
 .product-info { display: flex; flex-direction: column; flex-grow: 1; }
 .product-details { margin-bottom: 15px; flex-grow: 1; }
-
 .product-info-text { margin: 6px 0; line-height: 1.5; font-size: 0.95em; color: #495057; }
-.product-info-text strong { color: var(--dark-color); margin-right: 5px; display: inline-block; } /* Regola generale per strong */
+.product-info-text strong { color: var(--dark-color); margin-right: 5px; }
 
-.product-power { font-weight: 700; }
-
-/* Classi energetiche senza slash (spazio gestito in JS, qui solo stile base e colori) */
-.energy-class span { 
-    display: inline-block; padding: 2px 6px; border-radius: 4px; 
-    font-size: 0.9em; font-weight: bold; color: white; 
-    margin-right: 2px; /* Spazio a destra del primo span (Cooling) */
-    line-height: 1.2; 
-}
-.energy-class span.heating { 
-    margin-left: 2px; /* Spazio a sinistra del secondo span (Heating) */
-}
-.energy-class .cooling { background-color: #0d6efd; }
+.energy-class span { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; font-weight: bold; color: white; }
+.energy-class .cooling { background-color: #0d6efd; margin-right: 4px; }
 .energy-class .heating { background-color: var(--danger-color); }
 
-/* Etichette che devono stare su una riga a sé */
-.product-dimensions strong,
-.product-codes strong {
-    display: block; /* Forza l'etichetta ("Dimensioni...", "Articoli:") a prendere tutta la larghezza */
-    margin-bottom: 2px; /* Spazio tra l'etichetta e i valori sottostanti. Aggiusta se serve più o meno spazio. */
-}
-
-/* Valori dei codici articolo */
-.product-codes .code-value {
-    display: block; /* Fa sì che i codici stiano sotto l'etichetta "Articoli:" */
-    color: var(--dark-color); font-family: inherit; font-size: 0.93em; /* Consistenza con dimensioni */
-    line-height: 1.4; margin-top: 0px; 
-}
-.product-codes .code-value span { color: var(--secondary-color); font-size: 0.9em; margin-left: 4px; }
-
-
-/* Wrapper per i valori delle dimensioni (Unità esterna/interna) */
-.product-dimensions .dimensions-values-wrapper {
-    display: block; /* Fa sì che l'intero blocco dei valori vada a capo sotto l'etichetta "Dimensioni..." */
-    line-height: 1.35;
-    margin-top: 0px; 
-}
-
-/* Singoli item di dimensione (ognuno su una riga) */
-.product-dimensions .dimension-item {
-    display: block;       /* FONDAMENTALE: fa andare a capo "Unità esterna: ..." e "Unità interna: ..." */
-    margin-bottom: 0px;   /* Spazio tra Unità Esterna e Unità Interna se entrambe presenti. Usa 1px o 2px se serve. */
-    font-size: 0.93em;    /* Leggermente più piccolo per consistenza */
-    /* line-height è ereditato da .dimensions-values-wrapper o .product-info-text */
-}
-
-/* Rimuovi il separatore "/" perché ora sono su righe diverse */
-.product-dimensions .dimension-item + .dimension-item::before {
-    content: ""; /* Nessun contenuto per il separatore */
-}
-
+.product-dimensions strong, .product-codes strong { display: block; margin-bottom: 2px; }
+.product-dimensions .dimension-item, .product-codes .code-value { display: block; }
 .product-datasheet { margin-top: 12px; }
-.product-datasheet a { color: var(--primary-color); text-decoration: none; font-weight: 500; transition: color 0.2s ease; font-size: 0.95em; }
+.product-datasheet a { color: var(--primary-color); text-decoration: none; font-weight: 500; font-size: 0.95em; }
 .product-datasheet a:hover { color: var(--dark-color); text-decoration: underline; }
 .product-datasheet i { margin-right: 5px; }
 
-/* === PRODUCT CARD FOOTER MODIFICATO PER BADGE ECONOMICO === */
+/* --- Footer della Card Prodotto (con Prezzo, Badge e Pulsante Dettagli) --- */
 .product-footer {
-    display: flex; /* Abilita Flexbox per allineare prezzo e badge */
-    justify-content: space-between; /* Spinge gli elementi agli estremi o distribuisce lo spazio */
-    align-items: center; /* Allinea verticalmente prezzo e badge */
-    margin-top: auto; /* Spinge il footer in basso se c'è spazio */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
@@ -183,274 +152,107 @@ main { padding-top: 10px; }
     font-size: 1.3em;
     font-weight: 700;
     color: var(--primary-color);
-    white-space: nowrap;
-    margin-right: 10px; /* Spazio tra prezzo e badge/bottoni */
 }
-
-/* Stile per il badge economico QUANDO È NEL FOOTER */
-.economic-badge.economic-badge-footer {
-    /* Usa gli stili di .economic-badge (definito sopra vicino a .card-top-right-elements)
-       e aggiunge/sovrascrive ciò che serve. */
-    margin-left: auto; /* Spinge il badge a destra, dopo il prezzo */
-    /* Se ci sono action-buttons, potresti voler che il badge stia prima.
-       In tal caso, `margin-left: auto` andrebbe sull' `.action-buttons-container`
-       e qui `margin-right: 10px` per separare dal bottone.
-       Con la configurazione JS attuale (actionButtonsContainer è vuoto per utenti normali),
-       questo posiziona il badge a destra del prezzo.
-    */
-}
-
 .action-buttons-container {
+    margin-left: auto; /* SPINGE TUTTO IL BLOCCO A DESTRA */
     display: flex;
     align-items: center;
-    gap: 5px;
-    /* Se il badge deve stare tra prezzo e bottoni:
-    margin-left: 10px; (invece di auto sul badge)
-    Se i bottoni devono stare all'estrema destra dopo prezzo e badge:
-    margin-left: auto; (qui)
-    */
 }
-/* Per i bottoni (Edit, Save, Cancel - usati in modalità admin che non è implementata nel createProductCard attuale) */
-.action-buttons-container button { padding: 5px 8px; font-size: 1.1em; line-height: 1; cursor: pointer; border: 1px solid var(--secondary-color); background-color: var(--light-color); color: var(--secondary-color); border-radius: 4px; transition: all 0.2s ease; white-space: nowrap; }
-.action-buttons-container button i { margin-right: 0; }
-.action-buttons-container button:hover { background-color: #e2e6ea; border-color: #adb5bd; }
-.action-buttons-container .edit-btn:hover { background-color: #ddeeff; color: var(--primary-color); border-color: var(--primary-color); }
-.action-buttons-container .save-btn { border-color: #198754; background-color: #d1e7dd; color: #0f5132; }
-.action-buttons-container .save-btn:hover { background-color: #a3cfbb; border-color: #146c43; color: #0a3622; }
-.action-buttons-container .cancel-btn { border-color: var(--danger-color); background-color: #f8d7da; color: #842029; }
-.action-buttons-container .cancel-btn:hover { background-color: #f1aeb5; border-color: #b02a37; color:#58151c; }
+.economic-badge-footer {
+    background-color: var(--warning-color);
+    color: #333;
+    font-size: 0.8em;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.toggle-details-btn {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 5px 15px;
+    font-size: 0.85em;
+    font-weight: 700;
+    border-radius: 20px; /* Effetto ovale/pillola */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px; /* Spazio dal badge */
+}
+.toggle-details-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
 
-.edit-price-input, .edit-model-input { padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9em; font-family: 'Roboto', sans-serif; }
-.edit-price-input { width: 90px; text-align: right; }
-.edit-model-input { width: calc(100% - 18px); font-weight: bold; }
-body.operator-mode .action-buttons-container button:not(.btn-compare) { display: none; } /* Nascondi solo i bottoni admin */
-body.operator-mode .edit-price-input, body.operator-mode .edit-model-input { display: none !important; }
-
+/* === Messaggi di caricamento/nessun risultato === */
 .loading-placeholder, .no-results { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--secondary-color); font-size: 1.1em; }
 
-/* === Password Panel (Login) Styles === */
-#password-panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%; background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); padding: 25px; padding-top: 50px; z-index: 1010; transform: translateX(100%); transition: transform 0.3s ease-in-out; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
+/* === Pannello di Login === */
+#password-panel { position: fixed; top: 0; right: 0; width: 300px; height: 100%; background-color: #ffffff; box-shadow: -5px 0 15px rgba(0, 0, 0, 0.15); padding: 25px; z-index: 1010; transform: translateX(100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; gap: 15px; }
 #password-panel.visible { transform: translateX(0); }
 #password-panel h3 { margin-top: 0; margin-bottom: 10px; color: var(--primary-color); text-align: center; }
-#password-panel p { font-size: 0.9em; color: var(--secondary-color); margin-bottom: 15px; text-align: center; }
-#password-panel .form-group { margin-bottom: 15px; }
-#password-panel label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 0.9em; }
-#password-panel input[type="password"],
-#password-panel input[type="email"] /* Aggiunto per consistenza con HTML se l'input email ha stili simili */
-{ width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-#password-panel input[type="password"]:focus,
-#password-panel input[type="email"]:focus
-{ border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
-#password-panel input[type="password"].input-error,
-#password-panel input[type="email"].input-error
-{ border-color: var(--danger-color); }
-#submit-password-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; transition: background-color 0.3s ease; }
-#submit-password-btn:hover { background-color: #004182; }
-#close-panel-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; color: var(--secondary-color); cursor: pointer; line-height: 1; padding: 0; }
-#close-panel-btn:hover { color: var(--dark-color); }
+#password-panel input[type="password"], #password-panel input[type="email"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+#password-panel input[type="password"]:focus, #password-panel input[type="email"]:focus { border-color: var(--primary-color); outline: none; }
+#submit-password-btn { width: 100%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
 .error-message { color: var(--danger-color); font-size: 0.85em; text-align: center; min-height: 1.2em; margin-top: 10px; }
+#close-panel-btn { display: none; }
 
-/* === App Footer === */
+/* === Footer Pagina === */
 .app-footer { text-align: center; margin-top: 40px; padding: 20px 0; border-top: 1px solid #eee; font-size: 0.9em; color: var(--secondary-color); }
-.app-footer .data-info { font-style: italic; font-size: 0.85em; margin-top: 5px; }
 
-/* === Dimension Tooltip (se ancora usato, era per il mouse hover sui codici) === */
-#dimension-tooltip { position: absolute; display: none; background-color: rgba(255, 255, 255, 0.98); border: 1px solid #aaa; box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.25); padding: 0; z-index: 1001; width: 300px; border-radius: 4px; pointer-events: none; overflow: hidden; transition: padding 0.2s ease; }
-#dimension-tooltip img { display: block; width: 100%; height: auto; transition: display 0.2s ease; }
-.tooltip-dimension-text { position: absolute; background-color: rgba(240, 240, 240, 0.85); padding: 3px 6px; border-radius: 3px; font-size: 0.9em; line-height: 1.3; color: #000; font-family: 'Courier New', Courier, monospace; white-space: nowrap; font-weight: bold; }
-#dimension-tooltip.no-blueprint img { display: none; }
-#dimension-tooltip.no-blueprint { padding: 10px; }
-#dimension-tooltip.no-blueprint #tooltip-ue-dimensions { display: none; }
-#dimension-tooltip.no-blueprint #tooltip-ui-dimensions { position: static; margin-bottom: 0; bottom: auto; left: auto; top: auto; right: auto; background: none; }
-#dimension-tooltip:not(.no-blueprint) img { display: block; }
-#dimension-tooltip:not(.no-blueprint) { padding: 0; }
-#dimension-tooltip:not(.no-blueprint) #tooltip-ue-dimensions { display: block; position: absolute; top: 10%; left: 15%; }
-#dimension-tooltip:not(.no-blueprint) #tooltip-ui-dimensions { display: block; position: absolute; bottom: 8%; left: 15%; background-color: rgba(240, 240, 240, 0.85); }
-
-/* === Print Styles (V4 - CON IMMAGINE e 2 Colonne) === */
-@media print {
-    @page { margin: 1cm; size: A4; }
-    body { padding-top: 0; font-size: 8.5pt; color: #000; background-color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .app-header, .page-controls, .app-footer, #password-panel, #dimension-tooltip, .action-buttons-container, .product-datasheet, .compare-bar, .compare-popup-overlay { display: none !important; }
-    .container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; border: none; }
-    main { padding-top: 0; }
-    .sections-wrapper { display: block; }
-    .content-section { display: block !important; page-break-inside: avoid; margin-bottom: 10px; }
-    .content-section::before { content: attr(id) == 'monosplit-section' ? 'Listino Monosplit' : (attr(id) == 'multisplit-section' ? 'Listino Multisplit' : ''); display: block; font-size: 14pt; font-weight: bold; margin: 15px 0 10px 0; padding-bottom: 5px; border-bottom: 1px solid #999; color: #000; page-break-after: avoid; text-align: left; }
-
-    .product-grid { display: block; column-count: 2; column-gap: 1cm; }
-
-    .product-card {
-        display: flex; flex-direction: column;
-        width: 100%; box-shadow: none; border: 1px solid #ccc; margin-bottom: 0.7cm; padding: 8px;
-        page-break-inside: avoid; -webkit-column-break-inside: avoid; break-inside: avoid;
-    }
-
-    .product-header { order: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; width: 100%; min-height: auto; padding: 0; margin: 0 0 5px 0; }
-    .product-logo { order: 1; max-height: 20px; max-width: 70px; flex-shrink: 0; margin-right: 5px;}
-    .product-title-brand { order: 2; flex-grow: 1; text-align: left; }
-    .product-title-brand h3 { font-size: 9pt; font-weight: bold; line-height: 1.1; -webkit-line-clamp: unset; min-height: auto; margin:0; display: inline;}
-    .product-title-brand .product-brand-text { font-size: 7.5pt; margin-right: 4px; display: inline;}
-    .card-top-right-elements { order: 3; position: static; display: flex; flex-direction: row; gap: 6px; margin-left: auto; align-items: center; padding-left: 10px; }
-    .economic-badge { display: none !important; } /* Rimuove il badge Economico in stampa, inclusi quelli nel footer. Se vuoi il badge nel footer in stampa, questa riga andrebbe specificata meglio */
-    .wifi-icon { font-size: 0.8em; color: #000; display: inline-block;}
-    .wifi-icon::before { content: " (WiFi)"; font-size: 0.85em; font-family: sans-serif; vertical-align: baseline;}
-
-    .product-image { order: 2; display: block !important; width: auto; max-width: 60%; height: auto; max-height: 70px; margin: 5px auto 8px auto; object-fit: contain; }
-
-    .product-info { order: 3; width: 100%; }
-    .product-details { margin-bottom: 3px; }
-    .product-info-text { font-size: 8pt; line-height: 1.25; margin: 1px 0; }
-    .energy-class span { font-size: 0.7em; padding: 1px 3px; color: #000 !important; border: 1px solid #555; background-color: #fff !important; margin-right: 2px !important; }
-    .energy-class .cooling::before { content:"Raffr.: "; font-weight: normal;}
-    .energy-class .heating::before { content:"Risc.: "; font-weight: normal;}
-
-    .product-dimensions { display: block !important; font-size: 8pt; line-height: 1.25; margin: 1px 0;}
-    .product-dimensions strong { display: block; margin-bottom: 1px; margin-right: 3px;} /* 'inline' non va bene qui per stampa se le vuoi sopra */
-    /* Se 'strong' è block, .dimensions-values-wrapper e .dimension-item dovrebbero comportarsi di conseguenza */
-    .product-dimensions .dimensions-values-wrapper { display: block; }
-    .product-dimensions .dimension-item { display: block; font-size: 7.5pt; }
-
-
-    .product-codes { font-size: 7.5pt; }
-    .product-codes strong { margin-bottom: 0; display: inline; } /* In linea per la stampa è ok se i valori sono block */
-    .product-codes .code-value { display: block; font-size: 7pt; } /* I codici UI/UE (se ci sono) sono già block con <br> in JS */
-    .product-codes .code-value span { font-size: 0.9em; }
-    .product-footer { display: block; border-top: none; padding-top: 3px; margin-top: 3px; text-align: left; }
-    .product-price-value { font-size: 9.5pt; color: #000; font-weight: bold; }
-}
-/* === Fine Print Styles === */
-
-/* === Stili per Funzionalità di Confronto (Non modificati in quest'ultima richiesta, lasciati com'erano) === */
-.product-card .btn-compare { background-color: #6c757d; color: white; border: none; padding: 5px 8px; border-radius: 4px; cursor: pointer; font-size: 0.85em; transition: background-color 0.2s ease; margin-left: 5px; }
-.product-card .btn-compare:hover { background-color: #5a6268; }
-.product-card .btn-compare.selected { background-color: #28a745; }
-.product-card .btn-compare.selected:hover { background-color: #218838; }
-.compare-bar { position: fixed; bottom: -100px; left: 0; width: 100%; background-color: var(--dark-color); color: var(--light-color); padding: 12px 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.15); z-index: 999; display: flex; align-items: center; justify-content: space-between; transition: bottom 0.3s ease-in-out; }
-.compare-bar.visible { bottom: 0; }
-.compare-bar span { font-size: 0.9em; }
-.compare-bar .btn-show-compare { background-color: var(--primary-color); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 500; }
-.compare-bar .btn-show-compare:disabled { background-color: #adb5bd; cursor: not-allowed; }
-.compare-popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); z-index: 1050; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease-in-out; }
-.compare-popup-overlay.visible { display: flex; opacity: 1; }
-.compare-popup { background-color: var(--background-color); padding: 25px; border-radius: var(--border-radius); box-shadow: 0 8px 25px rgba(0,0,0,0.2); width: 90%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; transform: scale(0.95); transition: transform 0.3s ease-in-out; position: relative; }
-.compare-popup-overlay.visible .compare-popup { transform: scale(1); }
-.compare-popup h2 { margin-top: 0; margin-bottom: 20px; color: var(--primary-color); text-align: center; font-size: 1.8em; }
-.close-compare-popup-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 2.2em; color: var(--secondary-color); cursor: pointer; line-height: 1; padding: 5px; }
-.close-compare-popup-btn:hover { color: var(--danger-color); }
-.compare-popup-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; overflow-y: auto; flex-grow: 1; padding: 10px 5px; margin-bottom: 20px; }
-.compare-popup-content .product-card { padding: 15px; border: 1px solid #ddd; }
-.compare-popup-content .product-card .product-image { height: 150px; }
-.compare-popup-content .product-card .product-footer { padding-top: 10px; }
-.compare-popup-content .product-card .btn-compare,
-.compare-popup-content .product-card .edit-btn,
-.compare-popup-content .product-card .save-btn,
-.compare-popup-content .product-card .cancel-btn { display: none !important; }
-.compare-popup-actions { text-align: center; padding-top: 15px; border-top: 1px solid #eee; }
-.compare-popup-actions .btn-clear-compare { background-color: var(--danger-color); color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: 500; }
-.compare-popup-actions .btn-clear-compare:hover { background-color: #c82333; }
-/* === Fine Stili per Funzionalità di Confronto === */
-
-
-/* === Responsive Design (esistente, modifiche minori se servono) === */
-@media (max-width: 992px) { /* Stili esistenti per 992px... */ }
-@media (max-width: 768px) {
-    /* Mantiene le modifiche specifiche di HAIER per la min-height se ancora pertinenti */
-    .product-card[data-brand="HAIER"] .product-header { min-height: auto; }
-    
-    /* Responsive per il popup di confronto */
-    .compare-popup { width: 95%; padding: 15px; }
-    .compare-popup h2 { font-size: 1.5em; }
-    .close-compare-popup-btn { top: 10px; right: 10px; }
-    .compare-popup-content { grid-template-columns: 1fr; gap: 15px; }
-}
-@media (max-width: 480px) { /* Stili esistenti per 480px... */ }
-
-/* Specifiche per HAIER (se ancora usate globalmente e non solo in responsive) */
-.product-card[data-brand="HAIER"] .product-logo { max-height: 40px; max-width: 110px; }
-/* Questa regola per .product-header di HAIER potrebbe non essere più necessaria
-   se .product-header globale ha già una min-height adeguata, o se la si vuole uguale per tutti.
-   Se vuoi una min-height specifica per HAIER solo su schermi grandi, toglila da qui
-   e mettila in un media query più grande se necessario.
-.product-card[data-brand="HAIER"] .product-header { min-height: 65px; }
-*/
 /* ================================================= */
 /*             STILI PER IL MODAL DETTAGLI           */
-/*          (VERSÍONE UNICA E CORRETTA)            */
 /* ================================================= */
 
-/* Contesto: questa classe viene aggiunta al <body> quando il modal è aperto
-   per impedire lo scorrimento della pagina sottostante. */
 body.modal-open {
     overflow: hidden;
 }
 
-/* 1. L'OVERLAY (SFONDO GRIGIO)
-   Questo è il div con id="product-details-modal-overlay". Copre tutto lo schermo. */
 #product-details-modal-overlay {
-    position: fixed; /* Si posiziona rispetto alla finestra del browser, non alla pagina */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.65); /* Sfondo nero semi-trasparente */
-    z-index: 1000; /* Assicura che sia sopra ogni altro elemento della pagina */
-
-    /* Usa Flexbox per centrare il suo figlio diretto (il .modal-container) */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 20px; /* Lascia un po' di spazio sui bordi per schermi piccoli */
+    padding: 20px;
     box-sizing: border-box;
-
-    /* Per l'animazione di apparizione */
     visibility: hidden;
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0s 0.3s;
 }
 
-/* Quando JS aggiunge la classe 'visible', l'overlay diventa visibile. */
 #product-details-modal-overlay.visible {
     visibility: visible;
     opacity: 1;
     transition: opacity 0.3s ease;
 }
 
-/* 2. IL CONTENITORE DEL MODAL
-   Questo è il div con class="modal-container". È il riquadro bianco. */
 .modal-container {
     background: #ffffff;
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
     width: 100%;
-    max-width: 850px; /* Larghezza massima su schermi grandi */
-    max-height: 90vh; /* Altezza massima (90% dell'altezza dello schermo) */
-    
-    position: relative; /* Cruciale per posizionare la X di chiusura all'interno */
-    
-    display: flex; /* Usa Flexbox per la struttura interna (header, body, footer) */
+    max-width: 850px;
+    max-height: 90vh;
+    position: relative;
+    display: flex;
     flex-direction: column;
-    
-    overflow: hidden; /* FONDAMENTALE: l'overflow va gestito DENTRO (sul modal-body) */
-
-    /* Animazione di entrata "zoom-in" */
+    overflow: hidden;
     transform: scale(0.9);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-/* Quando l'overlay è visibile, il modal fa l'animazione di entrata. */
 #product-details-modal-overlay.visible .modal-container {
     transform: scale(1);
 }
 
-/* 3. IL BOTTONE DI CHIUSURA
-   Questo è il button con id="close-modal-btn". */
 .modal-close-btn {
-    position: absolute; /* Si posiziona relativo al .modal-container */
-    top: 10px;
-    right: 15px;
+    position: absolute;
+    top: 10px; right: 15px;
     background: transparent;
     border: none;
     font-size: 2.2rem;
@@ -461,186 +263,81 @@ body.modal-open {
     z-index: 10;
     padding: 0;
 }
-.modal-close-btn:hover {
-    color: #333;
-}
+.modal-close-btn:hover { color: #333; }
 
-
-/* --- LAYOUT INTERNO DEL MODAL --- */
-
-/* 4. HEADER (Logo e Titoli) */
 .modal-header {
     display: flex;
     align-items: center;
     padding-bottom: 15px;
     margin-bottom: 20px;
     border-bottom: 1px solid #e9e9e9;
-    flex-shrink: 0; /* Impedisce all'header di rimpicciolirsi */
+    flex-shrink: 0;
 }
+#modal-product-logo { height: 50px; width: auto; max-width: 160px; margin-right: 20px; object-fit: contain; }
+#modal-product-brand { font-size: 1.1rem; color: #6c757d; display: block; }
+#modal-product-model { font-size: 1.8rem; font-weight: 700; color: var(--dark-color); margin: 0; line-height: 1.2; }
 
-#modal-product-logo {
-    height: 50px;
-    width: auto;
-    max-width: 160px;
-    margin-right: 20px;
-    object-fit: contain; /* Mantiene le proporzioni del logo */
-}
-
-#modal-product-brand {
-    font-size: 1.1rem;
-    color: #6c757d;
-    display: block;
-}
-
-#modal-product-model {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--dark-color);
-    margin: 0;
-    line-height: 1.2;
-}
-
-/* 5. CORPO (Immagine e Liste di Dettagli)
-   Questa sezione è quella che deve scrollare se il contenuto è troppo. */
 .modal-body {
     display: flex;
     gap: 30px;
-    overflow-y: auto; /* Abilita lo scroll VERTICALE SOLO per questa sezione */
-    padding-right: 15px; /* Crea spazio per la barra di scorrimento */
-    margin-right: -15px; /* "Nasconde" lo spazio creato dal padding */
+    overflow-y: auto;
+    padding-right: 15px;
+    margin-right: -15px;
 }
+.modal-image-container { flex-basis: 35%; flex-shrink: 0; }
+#modal-product-image { width: 100%; height: auto; border: 1px solid #f0f0f0; border-radius: 4px; }
+.modal-details-container { flex-basis: 65%; }
 
-.modal-image-container {
-    flex-basis: 35%; /* L'immagine occupa circa 1/3 dello spazio */
-    flex-shrink: 0;
-}
+.modal-details-container h3 { margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: var(--primary-color); padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
+.modal-details-container h3:not(:first-of-type) { margin-top: 25px; }
 
-#modal-product-image {
-    width: 100%;
-    height: auto;
-    border: 1px solid #f0f0f0;
-    border-radius: 4px;
-}
+#modal-main-details-list, #modal-extra-details-list { list-style: none; padding: 0; margin: 0; font-size: 0.95em; }
+#modal-main-details-list li, #modal-extra-details-list li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
+#modal-main-details-list li strong, #modal-extra-details-list li strong { color: #333; flex-shrink: 0; margin-right: 15px; }
+#modal-main-details-list li span, #modal-extra-details-list li span { color: #555; text-align: right; word-break: break-word; }
 
-.modal-details-container {
-    flex-basis: 65%; /* I dettagli occupano il resto dello spazio */
-}
-
-.modal-details-container h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-    padding-bottom: 5px;
-    border-bottom: 2px solid #e0e0e0;
-}
-.modal-details-container h3:not(:first-of-type) {
-    margin-top: 25px; /* Spazio tra le due liste di dettagli */
-}
-
-/* Liste di dettagli (ul, li, strong, span) */
-#modal-main-details-list,
-#modal-extra-details-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    font-size: 0.95em;
-}
-
-#modal-main-details-list li,
-#modal-extra-details-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 5px;
-    border-bottom: 1px dotted #dcdcdc;
-}
-
-#modal-main-details-list li strong,
-#modal-extra-details-list li strong {
-    color: #333;
-    flex-shrink: 0;
-    margin-right: 15px;
-}
-#modal-main-details-list li span,
-#modal-extra-details-list li span {
-    color: #555;
-    text-align: right;
-    word-break: break-word; /* Va a capo se il valore è molto lungo */
-}
-
-/* 6. FOOTER (Scheda Tecnica e Prezzo) */
 .modal-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid #e9e9e9;
     padding-top: 20px;
-    margin-top: auto; /* Spinge il footer in fondo al modal */
+    margin-top: auto;
     flex-shrink: 0;
 }
+#modal-datasheet-link { background-color: var(--danger-color); color: white; padding: 10px 18px; text-decoration: none; border-radius: 5px; transition: background-color 0.2s; font-weight: 500; }
+#modal-datasheet-link i { margin-right: 8px; }
+#modal-datasheet-link:hover { background-color: #b82c39; }
+#modal-datasheet-link.hidden { display: none; }
+.modal-price-container span:first-child { font-size: 1.1rem; color: #6c757d; }
+#modal-product-price { font-size: 2.2rem; font-weight: 700; color: var(--primary-color); margin-left: 10px; }
 
-#modal-datasheet-link {
-    background-color: var(--danger-color);
-    color: white;
-    padding: 10px 18px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.2s;
-    font-weight: 500;
-}
-#modal-datasheet-link i {
-    margin-right: 8px;
-}
-#modal-datasheet-link:hover {
-    background-color: #b82c39;
-}
-#modal-datasheet-link.hidden {
-    display: none;
-}
-
-.modal-price-container span:first-child {
-    font-size: 1.1rem;
-    color: #6c757d;
-}
-
-#modal-product-price {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin-left: 10px;
-}
-
-
-/* --- RESPONSIVE DESIGN PER IL MODAL --- */
-
+/* === Stili Responsive (Modal & Altro) === */
 @media (max-width: 768px) {
-    .modal-container {
-        padding: 15px;
-        max-height: 95vh;
+    .modal-container { padding: 15px; max-height: 95vh; }
+    .modal-body { flex-direction: column; padding-right: 5px; margin-right: -5px; }
+    .modal-image-container { max-width: 280px; margin: 0 auto 15px auto; }
+    .modal-footer { flex-direction: column-reverse; align-items: stretch; gap: 15px; }
+    #modal-datasheet-link { text-align: center; }
+    .modal-price-container { text-align: right; }
+}
+
+/* === Stili di Stampa === */
+@media print {
+    :root { --primary-color: #000; --secondary-color: #555; --dark-color: #000; --background-color: #fff; --card-shadow: none; }
+    @page { margin: 1cm; size: A4; }
+    body { padding-top: 0; font-size: 8.5pt; color: #000; background-color: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    
+    .app-header, .page-controls, .app-footer, #password-panel, .action-buttons-container, .product-datasheet, .modal-close-btn { display: none !important; }
+    .container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; border: none; }
+    
+    .content-section::before { 
+        content: attr(id) == 'monosplit-section' ? 'Listino Monosplit' : 'Listino Multisplit'; 
+        display: block; font-size: 14pt; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #999;
     }
 
-    .modal-body {
-        flex-direction: column;
-        padding-right: 5px;
-        margin-right: -5px;
-    }
-
-    .modal-image-container {
-        max-width: 280px;
-        margin: 0 auto 15px auto;
-    }
-
-    .modal-footer {
-        flex-direction: column-reverse; /* Bottone sopra, prezzo sotto */
-        align-items: stretch;
-        gap: 15px;
-    }
-
-    #modal-datasheet-link {
-        text-align: center;
-    }
-
-    .modal-price-container {
-        text-align: right;
-    }
+    .product-grid { display: block; column-count: 2; column-gap: 1cm; }
+    .product-card { border: 1px solid #ccc; margin-bottom: 0.7cm; padding: 8px; page-break-inside: avoid; break-inside: avoid; }
+    .product-image { max-height: 70px; margin: 5px auto 8px auto; }
+    /* ... altri stili specifici per la stampa che ottimizzano lo spazio ... */
 }
