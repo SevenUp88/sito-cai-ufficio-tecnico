@@ -318,11 +318,11 @@
 
             printDoc.open();
             printDoc.write(`<html><head><title>Stampa Agenda</title><style>
-                            @page { size: A4 landscape; margin: 0.7cm; } /* Margini ridotti */
+                            @page { size: A4 landscape; margin: 0.7cm; }
                             body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                             .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-                            .print-header img { height: 40px; } /* Logo ridotto */
-                            .print-header h2 { text-align: right; font-size: 14pt; margin: 0; flex-grow: 1; } /* Titolo ridotto */
+                            .print-header img { height: 40px; }
+                            .print-header h2 { text-align: right; font-size: 14pt; margin: 0; flex-grow: 1; }
                             table { width: 100%; border-collapse: collapse; font-size: 9pt; }
                             th, td { border: 1px solid #888; padding: 5px; text-align: left; vertical-align: top; }
                             em { font-style: normal; color: #444; }
@@ -339,10 +339,11 @@
                     </body></html>`);
             printDoc.close();
             
-            // Rimosso .onload per velocizzare l'anteprima
-            printFrame.contentWindow.focus();
-            printFrame.contentWindow.print();
-            document.body.removeChild(printFrame);
+            setTimeout(() => {
+                printFrame.contentWindow.focus();
+                printFrame.contentWindow.print();
+                document.body.removeChild(printFrame);
+            }, 250);
         });
     </script>
 </body>
