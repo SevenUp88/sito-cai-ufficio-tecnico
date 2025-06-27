@@ -318,11 +318,11 @@
 
             printDoc.open();
             printDoc.write(`<html><head><title>Stampa Agenda</title><style>
-                            @page { size: A4 landscape; margin: 1cm; }
+                            @page { size: A4 landscape; margin: 0.7cm; } /* Margini ridotti */
                             body { font-family: sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                            .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-                            .print-header img { height: 50px; }
-                            .print-header h2 { text-align: right; font-size: 16pt; margin: 0; flex-grow: 1; }
+                            .print-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+                            .print-header img { height: 40px; } /* Logo ridotto */
+                            .print-header h2 { text-align: right; font-size: 14pt; margin: 0; flex-grow: 1; } /* Titolo ridotto */
                             table { width: 100%; border-collapse: collapse; font-size: 9pt; }
                             th, td { border: 1px solid #888; padding: 5px; text-align: left; vertical-align: top; }
                             em { font-style: normal; color: #444; }
@@ -339,17 +339,10 @@
                     </body></html>`);
             printDoc.close();
             
-            const logoImage = printDoc.querySelector('img');
-            logoImage.onload = () => {
-                printFrame.contentWindow.focus();
-                printFrame.contentWindow.print();
-                document.body.removeChild(printFrame);
-            };
-            logoImage.onerror = () => { // Failsafe in case logo doesn't load
-                printFrame.contentWindow.focus();
-                printFrame.contentWindow.print();
-                document.body.removeChild(printFrame);
-            }
+            // Rimosso .onload per velocizzare l'anteprima
+            printFrame.contentWindow.focus();
+            printFrame.contentWindow.print();
+            document.body.removeChild(printFrame);
         });
     </script>
 </body>
