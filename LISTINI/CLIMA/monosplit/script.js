@@ -81,13 +81,13 @@
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : '';
         modalProductLogo.src = `../images/logos/${safeBrandName}.png`;
         modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
-        modalProductLogo.onerror = () => { modalProductLogo.src = '../images/logos/placeholder_logo.png'; };
+        modalProductLogo.onerror = () => { modalProductLogo.src = '..images/logos/placeholder_logo.png'; };
         
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
         
-        modalProductImage.src = product.image_url || '../images/placeholder.png';
-        modalProductImage.onerror = () => { modalProductImage.src = '../images/placeholder.png'; };
+        modalProductImage.src = product.image_url || '..images/placeholder.png';
+        modalProductImage.onerror = () => { modalProductImage.src = '..images/placeholder.png'; };
         modalProductImage.alt = `Immagine ${product.modello || 'N/D'}`;
         
         const createDetailRowHTML=(label,value,unit='') => {
@@ -171,7 +171,7 @@
             const modelDataAttribute = (model || 'nd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
             const safeBrandName = brand.toLowerCase().replace(/\s+/g, '');
             const logoPath = `../images/logos/${safeBrandName}.png`;
-            const placeholderLogoPath = '../images/logos/placeholder_logo.png';
+            const placeholderLogoPath = '..images/logos/placeholder_logo.png';
             
             let economicBadgeHTML_footer = economicModels.includes(model.toUpperCase()) ? `<span class="economic-badge economic-badge-footer" title="Prodotto linea economica">Economico</span>` : '';
             const wifiString = String(wifi).toLowerCase().trim();
