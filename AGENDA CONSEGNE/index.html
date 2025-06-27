@@ -173,6 +173,7 @@
             font-weight: 600; 
             color: var(--text-primary);
             border-bottom: 2px solid var(--border-color);
+            padding: 1rem 0.5rem;
         }
         
         #week-overview-table .time-col { 
@@ -194,6 +195,7 @@
             background: var(--primary-light);
             transform: scale(1.02);
             box-shadow: inset 0 0 0 2px var(--primary-color);
+            z-index: 10;
         }
         
         #week-overview-table .slot.is-filled { 
@@ -242,7 +244,7 @@
             font-weight: 500;
         }
 
-        /* Modal Styles - Completamente ridisegnato */
+        /* Modal Styles */
         .modal-overlay { 
             position: fixed; 
             top: 0; 
@@ -366,33 +368,6 @@
             min-height: 100px; 
             resize: vertical;
             font-family: var(--font-family);
-        }
-        
-        /* Google Places Autocomplete Styling */
-        gmp-place-autocomplete { 
-            width: 100%; 
-        }
-        
-        gmp-place-autocomplete::part(input) { 
-            box-sizing: border-box !important; 
-            width: 100% !important; 
-            padding: 12px 16px !important; 
-            margin: 0 !important; 
-            border: 2px solid var(--border-color) !important; 
-            border-radius: var(--radius-md) !important; 
-            font-family: var(--font-family) !important; 
-            font-size: 1rem !important; 
-            background: var(--card-background) !important;
-            transition: all 0.2s ease !important;
-        }
-        
-        gmp-place-autocomplete::part(input):focus {
-            border-color: var(--primary-color) !important;
-            box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1) !important;
-        }
-        
-        gmp-place-autocomplete::part(clear-button) { 
-            display: none !important; 
         }
         
         .modal-footer { 
@@ -576,53 +551,16 @@
             body {
                 padding: 1rem;
             }
-            
-            .app-header {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .app-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .week-overview-column {
-                padding: 1rem;
-            }
-            
-            .week-navigation {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .modal-content {
-                width: 95%;
-                margin: 1rem;
-            }
-            
-            .modal-body {
-                padding: 1.5rem;
-            }
-            
-            .modal-footer {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            .modal-footer .btn-group-left {
-                order: 2;
-                width: 100%;
-                justify-content: center;
-            }
-            
-            #week-overview-table {
-                font-size: 0.75rem;
-            }
-            
-            #week-overview-table .slot {
-                height: 60px;
-            }
+            .app-header { flex-direction: column; gap: 1rem; text-align: center; }
+            .app-header h1 { font-size: 1.5rem; }
+            .week-overview-column { padding: 1rem; }
+            .week-navigation { flex-direction: column; gap: 1rem; }
+            .modal-content { width: 95%; margin: 1rem; }
+            .modal-body { padding: 1.5rem; }
+            .modal-footer { flex-direction: column; gap: 1rem; }
+            .modal-footer .btn-group-left { order: 2; width: 100%; justify-content: center; }
+            #week-overview-table { font-size: 0.75rem; }
+            #week-overview-table .slot { height: 60px; }
         }
         
         /* Print Styles */
@@ -658,7 +596,6 @@
     <div id="app" class="app-container" style="display:none">
         <header class="app-header">
             <a href="https://caiufficiotecnico.netlify.app/index.html" class="logo-link">
-                <!-- LOGO URL CORRETTO -->
                 <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo-cai">
             </a>
             <h1>Agenda Consegne</h1>
@@ -700,20 +637,11 @@
             <div class="modal-footer">
                 <div class="btn-group-left">
                     <button id="modal-delete-btn" class="btn-danger">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                        </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                         Elimina
                     </button>
                     <a id="modal-nav-btn" href="#" target="_blank" class="btn-navigate">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/>
-                            <line x1="9" x2="9" y1="3" y2="18"/>
-                            <line x1="15" x2="15" y1="6" y2="21"/>
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
                         Naviga
                     </a>
                 </div>
@@ -729,9 +657,8 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
         
-        // --- INIZIO SCRIPT CORRETTO ---
         const firebaseConfig = { 
-            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // Nota: mantengo la tua chiave API.
+            apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", 
             projectId: "consorzio-artigiani-idraulici", 
             storageBucket: "consorzio-artigiani-idraulici.appspot.com", 
@@ -743,16 +670,15 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        let currentUser, agendaData={}, unsubscribe, saveTimeout, isMapsScriptLoaded=false;
+        // --- VARIABILI GLOBALI E COSTANTI ---
+        let currentUser, agendaData = {}, unsubscribe, currentSlotInfo = {};
         let currentDisplayedDate = new Date();
+        const timeSlots = ["08:00", "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
+        const pauseTime = "13:00";
+        const dayLabels = { mon: "Lunedì", tue: "Martedì", wed: "Mercoledì", thu: "Giovedì", fri: "Venerdì" };
+        const dayKeys = ["mon", "tue", "wed", "thu", "fri"];
 
-        const dayKeyMapping={1:"mon",2:"tue",3:"wed",4:"thu",5:"fri"};
-        
-        // --- OGGETTO JAVASCRIPT CORRETTO ---
-        // L'errore era qui. L'oggetto non era stato completato, bloccando tutto lo script.
-        const dayLabels={mon:"Lunedì",tue:"Martedì",wed:"Mercoledì",thu:"Giovedì",fri:"Venerdì"};
-        
-        // ----- ELEMENTI DEL DOM -----
+        // --- ELEMENTI DEL DOM ---
         const authOverlay = document.getElementById('authOverlay');
         const appContainer = document.getElementById('app');
         const loginBtn = document.getElementById('login-btn');
@@ -761,63 +687,222 @@
         const authError = document.getElementById('authError');
         const userInfo = document.getElementById('user-info');
         const logoutBtn = document.getElementById('logout-btn');
+        const weekTitle = document.getElementById('week-title');
+        const weekTable = document.getElementById('week-overview-table');
+        const modal = document.getElementById('slot-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalDeleteBtn = document.getElementById('modal-delete-btn');
+        const modalNavBtn = document.getElementById('modal-nav-btn');
+        const modalDoneBtn = document.getElementById('modal-done-btn');
 
-        // ----- GESTIONE AUTENTICAZIONE -----
+        // --- FUNZIONI DI UTILITY ---
+        const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
+
+        // --- LOGICA DI RENDER ---
+        function renderWeekView() {
+            weekTable.innerHTML = ''; 
+            const today = new Date();
+            const dayOfWeek = currentDisplayedDate.getDay(); 
+            const diff = currentDisplayedDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+            const monday = new Date(currentDisplayedDate.setDate(diff));
+
+            const weekStart = new Date(monday);
+            const weekEnd = new Date(monday);
+            weekEnd.setDate(weekEnd.getDate() + 4);
+            weekTitle.textContent = `Settimana ${weekStart.toLocaleDateString('it-IT')} - ${weekEnd.toLocaleDateString('it-IT')}`;
+
+            // Create Header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `<th>Orario</th>`;
+            const datesOfWeek = [];
+            for (let i = 0; i < 5; i++) {
+                const day = new Date(monday);
+                day.setDate(monday.getDate() + i);
+                datesOfWeek.push(day);
+                const dayString = day.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric' });
+                headerRow.innerHTML += `<th data-date="${getYYYYMMDD(day)}">${dayString}</th>`;
+            }
+            thead.appendChild(headerRow);
+            weekTable.appendChild(thead);
+
+            // Create Body
+            const tbody = document.createElement('tbody');
+            timeSlots.forEach(time => {
+                // Lunch break
+                if (time === "14:00") {
+                    tbody.innerHTML += `<tr><td colspan="6" class="pause-label-week">Pausa Pranzo</td></tr>`;
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="time-col">${time}</td>`;
+
+                datesOfWeek.forEach(date => {
+                    const dateKey = getYYYYMMDD(date);
+                    const entry = agendaData[dateKey]?.[time];
+                    const slotCell = document.createElement('td');
+                    slotCell.className = 'slot';
+                    slotCell.dataset.date = dateKey;
+                    slotCell.dataset.time = time;
+
+                    if (entry) {
+                        slotCell.classList.add('is-filled');
+                        slotCell.innerHTML = `
+                            <div class="slot-summary">
+                                <strong>${entry.title || 'N/A'}</strong>
+                                ${entry.address || ''}
+                            </div>
+                        `;
+                    }
+                    row.appendChild(slotCell);
+                });
+                tbody.appendChild(row);
+            });
+            weekTable.appendChild(tbody);
+        }
+
+        // --- GESTIONE MODAL ---
+        function openSlotModal(date, time) {
+            currentSlotInfo = { date, time };
+            const entry = agendaData[date]?.[time] || {};
+            modalTitle.textContent = `Appuntamento - ${new Date(date).toLocaleDateString('it-IT')} ore ${time}`;
+            
+            modalBody.innerHTML = `
+                <div class="form-group">
+                    <label for="modal-title-input">Titolo / Cliente</label>
+                    <input type="text" id="modal-title-input" value="${entry.title || ''}" placeholder="Es: Mario Rossi">
+                </div>
+                <div class="form-group">
+                    <label for="modal-address-input">Indirizzo</label>
+                    <input type="text" id="modal-address-input" value="${entry.address || ''}" placeholder="Via, Città...">
+                </div>
+                <div class="form-group">
+                    <label for="modal-notes-input">Note</label>
+                    <textarea id="modal-notes-input" placeholder="Dettagli aggiuntivi...">${entry.notes || ''}</textarea>
+                </div>
+            `;
+
+            modalDeleteBtn.style.display = entry.title ? 'inline-flex' : 'none';
+            modalNavBtn.style.display = entry.address ? 'inline-flex' : 'none';
+            if (entry.address) {
+                modalNavBtn.href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(entry.address)}`;
+            }
+            
+            modal.classList.add('visible');
+        }
+
+        function closeSlotModal() {
+            modal.classList.remove('visible');
+        }
+
+        async function saveSlot() {
+            const title = document.getElementById('modal-title-input').value.trim();
+            const address = document.getElementById('modal-address-input').value.trim();
+            const notes = document.getElementById('modal-notes-input').value.trim();
+
+            if (!title) {
+                alert("Il campo Titolo è obbligatorio per salvare.");
+                return;
+            }
+
+            const { date, time } = currentSlotInfo;
+            const docRef = doc(db, 'agenda', 'schedule');
+            const fieldPath = `${date}.${time}`;
+
+            await updateDoc(docRef, {
+                [fieldPath]: { title, address, notes }
+            }).catch(error => console.error("Error saving slot:", error));
+            
+            closeSlotModal();
+        }
+
+        async function deleteSlot() {
+            if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
+            
+            const { date, time } = currentSlotInfo;
+            const docRef = doc(db, 'agenda', 'schedule');
+            const fieldPath = `${date}.${time}`;
+
+            await updateDoc(docRef, {
+                [fieldPath]: deleteField()
+            }).catch(error => console.error("Error deleting slot:", error));
+
+            closeSlotModal();
+        }
         
+        // --- GESTIONE DATI ---
+        function loadAgendaData() {
+            if (unsubscribe) unsubscribe(); 
+            const agendaRef = doc(db, "agenda", "schedule");
+
+            unsubscribe = onSnapshot(agendaRef, (docSnap) => {
+                agendaData = docSnap.exists() ? docSnap.data() : {};
+                renderWeekView(); 
+            }, (error) => {
+                console.error("Errore nel caricamento dati: ", error);
+                alert("Impossibile caricare i dati dell'agenda.");
+            });
+        }
+        
+        // --- GESTIONE AUTENTICAZIONE ---
         onAuthStateChanged(auth, user => {
             if (user) {
-                // Utente loggato
                 currentUser = user;
                 authOverlay.style.display = 'none';
                 appContainer.style.display = 'block';
-                userInfo.textContent = `Benvenuto, ${user.email}`;
-                // Qui dovresti richiamare la funzione per caricare i dati dell'agenda
-                // Esempio: loadAgendaData();
+                userInfo.textContent = `${user.email}`;
+                loadAgendaData(); // Carica i dati DOPO il login
             } else {
-                // Utente non loggato
                 currentUser = null;
                 authOverlay.style.display = 'flex';
                 appContainer.style.display = 'none';
-                if(unsubscribe) unsubscribe(); // Smetti di ascoltare i dati se l'utente fa logout
+                if (unsubscribe) unsubscribe();
             }
         });
 
         loginBtn.addEventListener('click', () => {
             const email = emailInput.value;
             const password = passwordInput.value;
-            authError.textContent = ''; // Resetta messaggio di errore
-
-            if (!email || !password) {
-                authError.textContent = 'Inserisci sia email che password.';
-                return;
-            }
-
+            authError.textContent = '';
             signInWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
-                    // Successo! onAuthStateChanged si occuperà del resto.
-                })
-                .catch((error) => {
-                    console.error("Errore di login:", error.code, error.message);
-                    switch (error.code) {
-                        case 'auth/invalid-email':
-                        case 'auth/wrong-password':
-                        case 'auth/user-not-found':
-                            authError.textContent = 'Credenziali non valide. Riprova.';
-                            break;
-                        default:
-                            authError.textContent = 'Errore durante il login. Controlla la console.';
-                    }
+                .catch(error => {
+                    authError.textContent = 'Credenziali non valide.';
+                    console.error("Errore login:", error.code);
                 });
         });
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).catch(error => console.error("Errore durante il logout", error));
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        // --- EVENT LISTENERS ---
+        document.getElementById('prev-week-btn').addEventListener('click', () => {
+            currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7);
+            renderWeekView();
+        });
+
+        document.getElementById('next-week-btn').addEventListener('click', () => {
+            currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7);
+            renderWeekView();
+        });
+
+        weekTable.addEventListener('click', (e) => {
+            const slot = e.target.closest('.slot');
+            if (slot) {
+                openSlotModal(slot.dataset.date, slot.dataset.time);
+            }
         });
         
-        // --- Il resto della logica della tua applicazione (render calendario, modali, etc.)
-        // --- andrebbe qui sotto. Il file che hai fornito era incompleto, ma il problema
-        // --- di login è stato risolto con le correzioni sopra.
-        // --- 
+        modalCloseBtn.addEventListener('click', closeSlotModal);
+        modalDoneBtn.addEventListener('click', saveSlot);
+        modalDeleteBtn.addEventListener('click', deleteSlot);
+        
+        document.getElementById('print-weekly-btn').addEventListener('click', () => {
+             const printableArea = document.getElementById('printable');
+             printableArea.innerHTML = `<h2>${weekTitle.textContent}</h2>${weekTable.outerHTML}`;
+             window.print();
+        });
+
     </script>
 </body>
 </html>
