@@ -48,8 +48,8 @@
         sectionTabs, monosplitSection, exitAdminButton, printButton, appStatusMessageElement,
         // NUOVI RIFERIMENTI PER IL MODAL
         detailsModalOverlay, modalProductLogo, modalProductBrand, modalProductModel,
-        modalProductImage, modalMainDetailsList, modalExtraDetailsList,
-        modalProductPrice, closeModalBtn;
+modalProductImage, modalMainDetailsList, modalExtraDetailsList,
+modalProductPrice, closeModalBtn, modalDatasheetLink;
 
     // --- FUNZIONI UTILITY E MODAL ---
     function formatPrice(price) {
