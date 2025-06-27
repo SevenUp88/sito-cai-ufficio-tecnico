@@ -322,12 +322,71 @@ body.modal-open {
 
 /* === Stili Responsive (Modal & Altro) === */
 @media (max-width: 768px) {
-    .modal-container { padding: 15px; max-height: 95vh; }
-    .modal-body { flex-direction: column; padding-right: 5px; margin-right: -5px; }
-    .modal-image-container { max-width: 280px; margin: 0 auto 15px auto; }
-    .modal-footer { flex-direction: column-reverse; align-items: stretch; gap: 15px; }
-    #modal-datasheet-link { text-align: center; }
-    .modal-price-container { text-align: right; }
+    /* 1. Riduci il padding generale del modal per guadagnare spazio */
+    .modal-container {
+        padding: 15px;
+        max-height: 95vh; /* Permetti al modal di essere quasi a tutto schermo in altezza */
+    }
+
+    /* 2. Riduci leggermente la grandezza del titolo del modello */
+    #modal-product-model {
+        font-size: 1.5rem;
+    }
+
+    /* 3. CAMBIO DI LAYOUT PRINCIPALE:
+       L'immagine va sopra, i dettagli sotto. */
+    .modal-body {
+        flex-direction: column; /* Da affiancato a impilato */
+        padding-right: 5px; /* Spazio per la scrollbar */
+        margin-right: -5px;
+    }
+
+    .modal-image-container {
+        max-width: 250px;
+        margin: 0 auto 20px auto; /* Centra l'immagine orizzontalmente */
+    }
+
+    /* 4. LA MODIFICA PIÙ IMPORTANTE:
+       Cambia il layout delle liste di dettagli da orizzontale a verticale. */
+    #modal-main-details-list li,
+    #modal-extra-details-list li {
+        flex-direction: column;   /* Impila etichetta (strong) e valore (span) */
+        align-items: flex-start;  /* Allinea tutto a sinistra */
+        gap: 2px;                 /* Piccolo spazio tra etichetta e valore */
+        padding-bottom: 12px;     /* Aumenta lo spazio verticale tra le righe */
+        margin-bottom: 8px;
+    }
+    
+    #modal-main-details-list li strong,
+    #modal-extra-details-list li strong {
+        text-align: left; /* Assicura allineamento a sx */
+        margin-right: 0;
+        color: var(--primary-color); /* Rendi l'etichetta più visibile */
+        font-size: 0.85em; /* Riduci leggermente l'etichetta */
+    }
+    #modal-main-details-list li span,
+    #modal-extra-details-list li span {
+        text-align: left; /* Assicura allineamento a sx */
+        font-size: 1em;
+        font-weight: 500; /* Rendi il valore più leggibile */
+    }
+
+
+    /* 5. SISTEMAZIONE DEL FOOTER:
+       Il bottone va sopra, il prezzo sotto e tutto è largo quanto il modal. */
+    .modal-footer {
+        flex-direction: column-reverse; /* Inverte l'ordine: bottone sopra, prezzo sotto */
+        align-items: stretch;           /* Estende gli elementi a tutta larghezza */
+        gap: 15px;
+    }
+    
+    #modal-datasheet-link {
+        text-align: center; /* Centra il testo nel bottone */
+    }
+
+    .modal-price-container {
+        text-align: right; /* Mantiene il prezzo allineato a destra */
+    }
 }
 
 /* === Stili di Stampa === */
