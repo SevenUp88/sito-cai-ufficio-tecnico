@@ -884,7 +884,7 @@ const setupEventListeners = () => {
             let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>
                 body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15mm; } 
                 .print-page-header { display: flex; gap: 20px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px; } 
-                .print-page-header img { max-height: 100px; width: auto; flex-shrink: 0; } 
+                .print-page-header img { max-height: 50px; width: auto; flex-shrink: 0; } 
                 .print-page-header h1 { flex-grow: 1; display: flex; align-items: center; margin: 0; font-size: 16pt; text-align: left; } 
                 h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } 
                 table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } 
