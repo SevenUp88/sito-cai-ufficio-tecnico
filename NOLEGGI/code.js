@@ -10,7 +10,7 @@
     const MIN_DAYS_FOR_ATTENTION = 5;
 
     // --- Special Pricing Constants ---
-    const SPECIAL_ITEM_IDS = ['TAnSRPuHwm64QoZCzBe0', 'bsQV3qBAgCBXvkGJHHPK']; // Example IDs
+    const SPECIAL_ITEM_IDS = ['TAnSRPuHwm64QoZCzBe0', 'bsQV3qBAgCBXvkGJHHPK', '53']; // Example IDs
     const SPECIAL_ITEM_SAME_DAY_PRICE = 15.00;
     const SPECIAL_ITEM_EXTRA_DAY_PRICE = 25.00;
 
