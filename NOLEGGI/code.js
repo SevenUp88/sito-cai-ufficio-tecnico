@@ -977,6 +977,111 @@
     });
 }
 
+        // --- Gestione Storico (Nuova Funzionalità) ---
+const manageHistoryBtn = getElement('manage-history-btn');
+const manageHistoryModal = getElement('manage-history-modal');
+const historySearchBtn = getElement('history-search-btn');
+const historySearchInput = getElement('history-search-input');
+const historyResultsContainer = getElement('history-results-container');
+
+if (manageHistoryBtn) {
+    manageHistoryBtn.addEventListener('click', () => {
+        if (!isAdmin()) {
+            return showError("Azione riservata agli amministratori.");
+        }
+        historyResultsContainer.innerHTML = '<p class="info-text">Nessun risultato. Effettua una ricerca.</p>';
+        historySearchInput.value = '';
+        openModal('manage-history-modal');
+    });
+}
+
+if (historySearchBtn) {
+    const searchHistory = async () => {
+        const searchTerm = historySearchInput.value.trim();
+        if (!searchTerm) {
+            historyResultsContainer.innerHTML = '<p class="info-text">Inserisci un termine di ricerca.</p>';
+            return;
+        }
+
+        historyResultsContainer.innerHTML = '<p class="info-text"><i class="fas fa-spinner fa-spin"></i> Ricerca in corso...</p>';
+        
+        try {
+            let rentals = [];
+            // Controlla se il termine di ricerca è un numero (per rentalNumber)
+            const searchAsNumber = parseInt(searchTerm);
+            if (!isNaN(searchAsNumber)) {
+                const snapshot = await db.collection("completedRentals").where("rentalNumber", "==", searchAsNumber).get();
+                snapshot.forEach(doc => rentals.push({ id: doc.id, ...doc.data() }));
+            }
+
+            // Cerca anche per cliente (aggiunge ai risultati, non sovrascrive)
+            const clientSnapshot = await db.collection("completedRentals").where("client", "==", searchTerm.toUpperCase()).get();
+            clientSnapshot.forEach(doc => {
+                // Evita duplicati se un noleggio matcha sia per numero che per cliente
+                if (!rentals.some(r => r.id === doc.id)) {
+                    rentals.push({ id: doc.id, ...doc.data() });
+                }
+            });
+
+            if (rentals.length === 0) {
+                historyResultsContainer.innerHTML = '<p class="info-text">Nessun noleggio trovato per questo termine.</p>';
+                return;
+            }
+
+            // Renderizza i risultati
+            let resultsHtml = '<ul>';
+            rentals.forEach(rental => {
+                resultsHtml += `<li style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
+                    <div>
+                        <strong>#${rental.rentalNumber}</strong> - ${escapeHtml(rental.client)}<br>
+                        <small>${escapeHtml(rental.itemName)} - Chiuso il: ${formatDate(rental.endDate)}</small>
+                    </div>
+                    <button class="btn btn-sm btn-danger btn-delete-completed" data-id="${rental.id}" title="Elimina Definitivamente">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </li>`;
+            });
+            resultsHtml += '</ul>';
+            historyResultsContainer.innerHTML = resultsHtml;
+
+        } catch (err) {
+            console.error("Errore ricerca storico:", err);
+            showError("Errore durante la ricerca nello storico.");
+            historyResultsContainer.innerHTML = '<p style="color:red;">Errore durante la ricerca.</p>';
+        }
+    };
+    
+    historySearchBtn.addEventListener('click', searchHistory);
+    historySearchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            searchHistory();
+        }
+    });
+}
+
+if (historyResultsContainer) {
+    historyResultsContainer.addEventListener('click', async (e) => {
+        const deleteButton = e.target.closest('.btn-delete-completed');
+        if (deleteButton) {
+            if (!isAdmin()) return showError("Azione riservata agli amministratori.");
+
+            const docId = deleteButton.dataset.id;
+            if (confirm("Sei sicuro di voler eliminare DEFINITIVAMENTE questa riga di noleggio dallo storico? L'azione è irreversibile.")) {
+                try {
+                    await db.collection("completedRentals").doc(docId).delete();
+                    // Rimuovi l'elemento dalla lista per un feedback immediato
+                    deleteButton.closest('li').remove();
+                    alert("Riga noleggio eliminata dallo storico.");
+                    // Aggiorna le statistiche nella dashboard
+                    updateBillingStats();
+                } catch (err) {
+                    console.error("Errore eliminazione da storico:", err);
+                    showError("Errore durante l'eliminazione del noleggio.");
+                }
+            }
+        }
+    });
+}
         
         console.log("Noleggi App: Event listeners attached successfully.");
     }; // End of setupEventListeners
