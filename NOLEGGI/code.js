@@ -853,130 +853,169 @@ const setupEventListeners = () => {
     
     // GESTIONE STAMPA STORICO (CON NUOVA LOGICA PREZZI)
     if (printRentalsBtn) {
-        printRentalsBtn.addEventListener('click', async function () {
-            console.log("Print history clicked with new pricing logic.");
-            try {
-                const selectedMonth = printMonthSelect ? parseInt(printMonthSelect.value) : 0;
-                const selectedYear = printYearInput ? parseInt(printYearInput.value) : 0;
-                if (isNaN(selectedYear) || selectedYear < 1900 || selectedYear > 2100) { showError("Anno non valido."); printYearInput?.focus(); return; }
-                if (isNaN(selectedMonth) || selectedMonth < 1 || selectedMonth > 12) { showError("Mese non valido."); printMonthSelect?.focus(); return; }
-                if (!db) throw new Error("Firestore non inizializzato.");
+    printRentalsBtn.addEventListener('click', async function () {
+        console.log("Print history clicked with new logo layout.");
+        try {
+            const selectedMonth = printMonthSelect ? parseInt(printMonthSelect.value) : 0;
+            const selectedYear = printYearInput ? parseInt(printYearInput.value) : 0;
+            if (isNaN(selectedYear) || selectedYear < 1900 || selectedYear > 2100) { showError("Anno non valido."); printYearInput?.focus(); return; }
+            if (isNaN(selectedMonth) || selectedMonth < 1 || selectedMonth > 12) { showError("Mese non valido."); printMonthSelect?.focus(); return; }
+            if (!db) throw new Error("Firestore non inizializzato.");
+            
+            const startDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1));
+            const endDate = new Date(Date.UTC(selectedYear, selectedMonth, 1));
+            const startDateString = startDate.toISOString().split('T')[0];
+            const endDateString = endDate.toISOString().split('T')[0];
+            
+            const snapshot = await db.collection("completedRentals").where("endDate", ">=", startDateString).where("endDate", "<", endDateString).orderBy("endDate").orderBy("rentalNumber").get();
+            const filteredRentals = []; snapshot.forEach(doc => filteredRentals.push({ id: doc.id, ...doc.data() }));
+            
+            if (filteredRentals.length === 0) { showError(`Nessun noleggio completato per ${printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || 'mese'} ${selectedYear}.`); return; }
+            
+            const clientRentals = filteredRentals.reduce((acc, rental) => { const clientKey = rental.client || "Cliente Sconosciuto"; if (!acc[clientKey]) acc[clientKey] = []; rental.dailyRate = rental.dailyRate ?? 0; rental.quantity = rental.quantity ?? 1; rental.warehouse = rental.warehouse || 'N/D'; rental.operator = rental.operator || 'N/D'; rental.itemId = rental.itemId || null; acc[clientKey].push(rental); return acc; }, {});
+            
+            const sortedClients = Object.keys(clientRentals).sort((a, b) => a.localeCompare(b));
+            const monthName = printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || `Mese ${selectedMonth}`;
+            
+            let grandStandardTotal = 0;
+            let grandChargeableTotal = 0;
+            
+            // --- MODIFICHE CSS QUI ---
+            const LOGO_STAMPA_URL = "https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png"; // URL del logo corretto
+            let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>
+                body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15mm; } 
+                .print-page-header { 
+                    display: flex; 
+                    gap: 20px; /* Aumentato un po' lo spazio */
+                    margin-bottom: 10px; 
+                    border-bottom: 2px solid #000; 
+                    padding-bottom: 8px; 
+                } 
+                .print-page-header img { 
+                    max-height: 100px; /* Logo grande */
+                    width: auto; 
+                    flex-shrink: 0; 
+                } 
+                .print-page-header h1 { 
+                    padding-top: 40px; /* Spinge il testo in basso. Modifica questo valore per l'allineamento perfetto */
+                    margin: 0; 
+                    font-size: 16pt; /* Titolo leggermente più grande */
+                    text-align: left; 
+                    flex-grow: 1; 
+                } 
+                h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } 
+                table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } 
+                th, td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; } 
+                th { background-color: #e9e9e9; font-weight: bold; white-space: nowrap; } 
+                tbody tr:nth-child(odd) { background-color: #f9f9f9; } 
+                tbody tr:hover { background-color: #f1f1f1; } 
+                .text-right { text-align: right; } 
+                .text-center { text-align: center; } 
+                .total-row td { font-weight: bold; border-top: 2px solid #aaa; background-color: #f0f0f0; } 
+                .grand-total-table { width: 50%; margin-top: 30px; border: 2px solid #333; } 
+                .grand-total-table td { font-size: 1.1em; } 
+                .print-info { text-align: center; font-size: 8pt; color: #666; margin-bottom: 15px; } 
+                tr { page-break-inside: avoid; page-break-after: auto; } 
+                thead { display: table-header-group; } 
+                @page { size: A4; margin: 15mm; } 
+                @media print { body { margin: 10mm; font-size: 9pt; } h2 { page-break-before: auto; } button { display: none; } }
+            </style></head><body><div class="print-page-header"><img src="${LOGO_STAMPA_URL}" alt="Logo CAI Idraulica"><h1>Riepilogo Noleggi Completati - ${monthName} ${selectedYear}</h1></div><div class="print-info">Generato il: ${new Date().toLocaleString('it-IT')}</div>`;
+            
+            sortedClients.forEach(client => {
+                printHtml += `<h2>Cliente: ${escapeHtml(client)}</h2><table>
+                <colgroup>
+                    <col style="width: 6%;"><col style="width: 25%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 5%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 6%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%; text-align: right;"><col style="width: auto;">
+                </colgroup>
+                <thead>
+                    <tr><th># Nol.</th><th>Articolo Noleggiato</th><th>Mag. Orig.</th><th>Operatore</th><th class="text-center">Q.tà</th><th class="text-right">€/Giorn.</th><th>Inizio</th><th>Fine</th><th class="text-center">GG Tot.</th><th class="text-right">€ Tot. Standard</th><th class="text-right">€ Tot. Imponibile</th><th>Note</th></tr>
+                </thead>
+                <tbody>`;
                 
-                const startDate = new Date(Date.UTC(selectedYear, selectedMonth - 1, 1));
-                const endDate = new Date(Date.UTC(selectedYear, selectedMonth, 1));
-                const startDateString = startDate.toISOString().split('T')[0];
-                const endDateString = endDate.toISOString().split('T')[0];
-                
-                const snapshot = await db.collection("completedRentals").where("endDate", ">=", startDateString).where("endDate", "<", endDateString).orderBy("endDate").orderBy("rentalNumber").get();
-                const filteredRentals = []; snapshot.forEach(doc => filteredRentals.push({ id: doc.id, ...doc.data() }));
-                
-                if (filteredRentals.length === 0) { showError(`Nessun noleggio completato per ${printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || 'mese'} ${selectedYear}.`); return; }
-                
-                const clientRentals = filteredRentals.reduce((acc, rental) => { const clientKey = rental.client || "Cliente Sconosciuto"; if (!acc[clientKey]) acc[clientKey] = []; rental.dailyRate = rental.dailyRate ?? 0; rental.quantity = rental.quantity ?? 1; rental.warehouse = rental.warehouse || 'N/D'; rental.operator = rental.operator || 'N/D'; rental.itemId = rental.itemId || null; acc[clientKey].push(rental); return acc; }, {});
-                
-                const sortedClients = Object.keys(clientRentals).sort((a, b) => a.localeCompare(b));
-                const monthName = printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || `Mese ${selectedMonth}`;
-                
-                let grandStandardTotal = 0;
-                let grandChargeableTotal = 0;
-                
-                let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15mm; } .print-page-header { display: flex; align-items: flex-end; gap: 15px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px; } .print-page-header img { max-height: 100px; width: auto; flex-shrink: 0; } .print-page-header h1 { margin: 0; font-size: 14pt; text-align: left; flex-grow: 1; } h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } th, td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; } th { background-color: #e9e9e9; font-weight: bold; white-space: nowrap; } tbody tr:nth-child(odd) { background-color: #f9f9f9; } tbody tr:hover { background-color: #f1f1f1; } .text-right { text-align: right; } .text-center { text-align: center; } .total-row td { font-weight: bold; border-top: 2px solid #aaa; background-color: #f0f0f0; } .grand-total-table { width: 50%; margin-top: 30px; border: 2px solid #333; } .grand-total-table td { font-size: 1.1em; } .print-info { text-align: center; font-size: 8pt; color: #666; margin-bottom: 15px; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } @page { size: A4; margin: 15mm; } @media print { body { margin: 10mm; font-size: 9pt; } h2 { page-break-before: auto; } button { display: none; } }</style></head><body><div class="print-page-header"><img src="${LOGO_URL}" alt="Logo CAI Idraulica"><h1>Riepilogo Noleggi Completati - ${monthName} ${selectedYear}</h1></div><div class="print-info">Generato il: ${new Date().toLocaleString('it-IT')}</div>`;
-                
-                sortedClients.forEach(client => {
-                    printHtml += `<h2>Cliente: ${escapeHtml(client)}</h2><table>
-                    <colgroup>
-                        <col style="width: 6%;"><col style="width: 25%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 5%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 6%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%; text-align: right;"><col style="width: auto;">
-                    </colgroup>
-                    <thead>
-                        <tr><th># Nol.</th><th>Articolo Noleggiato</th><th>Mag. Orig.</th><th>Operatore</th><th class="text-center">Q.tà</th><th class="text-right">€/Giorn.</th><th>Inizio</th><th>Fine</th><th class="text-center">GG Tot.</th><th class="text-right">€ Tot. Standard</th><th class="text-right">€ Tot. Imponibile</th><th>Note</th></tr>
-                    </thead>
-                    <tbody>`;
+                let clientStandardTotal = 0;
+                let clientChargeableTotal = 0;
+
+                const rentalsForClient = clientRentals[client];
+                rentalsForClient.forEach(rental => {
+                    const days = getDaysDifference(rental.startDate, rental.endDate);
+                    const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
                     
-                    let clientStandardTotal = 0;
-                    let clientChargeableTotal = 0;
+                    let standardCost = 0;
 
-                    const rentalsForClient = clientRentals[client];
-                    rentalsForClient.forEach(rental => {
-                        const days = getDaysDifference(rental.startDate, rental.endDate);
-                        const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
-                        
-                        let standardCost = 0;
-
-                        if (isSpecialItem) {
-                            if (days === 1) {
-                                standardCost = 15.00;
-                            } else {
-                                standardCost = 25.00 * days;
-                            }
+                    if (isSpecialItem) {
+                        if (days === 1) {
+                            standardCost = 15.00;
                         } else {
-                            standardCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
+                            standardCost = 25.00 * days;
                         }
-                        
-                        let chargeableCost = standardCost;
-                        if (!isSpecialItem && days <= 2) {
-                            chargeableCost = 0;
-                        }
+                    } else {
+                        standardCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
+                    }
+                    
+                    let chargeableCost = standardCost;
+                    if (!isSpecialItem && days <= 2) {
+                        chargeableCost = 0;
+                    }
 
-                        clientStandardTotal += standardCost;
-                        clientChargeableTotal += chargeableCost;
-                        
-                        printHtml += `<tr>
-                            <td>${escapeHtml(rental.rentalNumber || 'N/A')}</td>
-                            <td>${escapeHtml(rental.itemName)}</td>
-                            <td>${escapeHtml(rental.warehouse)}</td>
-                            <td>${escapeHtml(rental.operator)}</td>
-                            <td class="text-center">${rental.quantity}</td>
-                            <td class="text-right">${isSpecialItem ? 'Spec.' : formatPrice(rental.dailyRate)}</td>
-                            <td>${formatDate(rental.startDate)}</td>
-                            <td>${formatDate(rental.endDate)}</td>
-                            <td class="text-center">${days}</td>
-                            <td class="text-right">${formatPrice(standardCost)}</td>
-                            <td class="text-right">${formatPrice(chargeableCost)}</td>
-                            <td>${escapeHtml(rental.notes || '')}</td>
-                        </tr>`;
-                    });
-
-                    printHtml += `<tr class="total-row">
-                        <td colspan="9" class="text-right">Totale Cliente (${escapeHtml(client)}):</td>
-                        <td class="text-right">${formatPrice(clientStandardTotal)}</td>
-                        <td class="text-right">${formatPrice(clientChargeableTotal)}</td>
-                        <td></td>
-                    </tr></tbody></table>`;
-
-                    grandStandardTotal += clientStandardTotal;
-                    grandChargeableTotal += clientChargeableTotal;
+                    clientStandardTotal += standardCost;
+                    clientChargeableTotal += chargeableCost;
+                    
+                    printHtml += `<tr>
+                        <td>${escapeHtml(rental.rentalNumber || 'N/A')}</td>
+                        <td>${escapeHtml(rental.itemName)}</td>
+                        <td>${escapeHtml(rental.warehouse)}</td>
+                        <td>${escapeHtml(rental.operator)}</td>
+                        <td class="text-center">${rental.quantity}</td>
+                        <td class="text-right">${isSpecialItem ? 'Spec.' : formatPrice(rental.dailyRate)}</td>
+                        <td>${formatDate(rental.startDate)}</td>
+                        <td>${formatDate(rental.endDate)}</td>
+                        <td class="text-center">${days}</td>
+                        <td class="text-right">${formatPrice(standardCost)}</td>
+                        <td class="text-right">${formatPrice(chargeableCost)}</td>
+                        <td>${escapeHtml(rental.notes || '')}</td>
+                    </tr>`;
                 });
 
-                printHtml += `<h2 style="margin-top: 30px; border-top: 2px solid black; padding-top: 15px;">Riepilogo Generale Mese</h2>
-                              <table class="grand-total-table">
-                                <tbody>
-                                    <tr class="total-row">
-                                        <td>IMPORTO TOTALE STANDARD</td>
-                                        <td class="text-right">${formatPrice(grandStandardTotal)}</td>
-                                    </tr>
-                                    <tr class="total-row">
-                                        <td>IMPORTO TOTALE IMPONIBILE</td>
-                                        <td class="text-right">${formatPrice(grandChargeableTotal)}</td>
-                                    </tr>
-                                </tbody>
-                              </table>`;
+                printHtml += `<tr class="total-row">
+                    <td colspan="9" class="text-right">Totale Cliente (${escapeHtml(client)}):</td>
+                    <td class="text-right">${formatPrice(clientStandardTotal)}</td>
+                    <td class="text-right">${formatPrice(clientChargeableTotal)}</td>
+                    <td></td>
+                </tr></tbody></table>`;
 
-                printHtml += `<script>window.onload=function(){ try { window.print(); } catch(e) { console.error('Print failed:', e); } };<\/script></body></html>`;
-                
-                const printWindow = window.open('', '_blank'); 
-                if (printWindow) { 
-                    printWindow.document.open(); 
-                    printWindow.document.write(printHtml); 
-                    printWindow.document.close(); 
-                } else { 
-                    showError("Impossibile aprire finestra stampa."); 
-                }
-            } catch (err) { 
-                console.error("Error printing history:", err); 
-                showError("Errore preparazione stampa storico."); 
+                grandStandardTotal += clientStandardTotal;
+                grandChargeableTotal += clientChargeableTotal;
+            });
+
+            printHtml += `<h2 style="margin-top: 30px; border-top: 2px solid black; padding-top: 15px;">Riepilogo Generale Mese</h2>
+                          <table class="grand-total-table">
+                            <tbody>
+                                <tr class="total-row">
+                                    <td>IMPORTO TOTALE STANDARD</td>
+                                    <td class="text-right">${formatPrice(grandStandardTotal)}</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>IMPORTO TOTALE IMPONIBILE</td>
+                                    <td class="text-right">${formatPrice(grandChargeableTotal)}</td>
+                                </tr>
+                            </tbody>
+                          </table>`;
+
+            printHtml += `<script>window.onload=function(){ try { window.print(); } catch(e) { console.error('Print failed:', e); } };<\/script></body></html>`;
+            
+            const printWindow = window.open('', '_blank'); 
+            if (printWindow) { 
+                printWindow.document.open(); 
+                printWindow.document.write(printHtml); 
+                printWindow.document.close(); 
+            } else { 
+                showError("Impossibile aprire finestra stampa."); 
             }
-        });
-    }
+        } catch (err) { 
+            console.error("Error printing history:", err); 
+            showError("Errore preparazione stampa storico."); 
+        }
+    });
+}
     
     // GESTIONE CANCELLAZIONE SINGOLO NOLEGGIO DALLO STORICO (NUOVA FUNZIONALITA')
     const manageHistoryBtn = getElement('manage-history-btn');
