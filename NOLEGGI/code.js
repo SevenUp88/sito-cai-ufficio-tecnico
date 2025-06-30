@@ -892,7 +892,7 @@ const setupEventListeners = () => {
                     padding-bottom: 8px; 
                 } 
                 .print-page-header img { 
-                    max-height: 45px; /* Logo grande */
+                    max-height: 30px; /* Logo grande */
                     width: auto; 
                     flex-shrink: 0; 
                 } 
