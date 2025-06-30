@@ -847,7 +847,7 @@
             });
         }
         
-        if (printRentalsBtn) {
+       if (printRentalsBtn) {
     printRentalsBtn.addEventListener('click', async function () {
         console.log("Print history clicked with new pricing logic.");
         try {
@@ -872,14 +872,12 @@
             const sortedClients = Object.keys(clientRentals).sort((a, b) => a.localeCompare(b));
             const monthName = printMonthSelect?.options[printMonthSelect.selectedIndex]?.text || `Mese ${selectedMonth}`;
             
-            // --- MODIFICA 1: Preparazione HTML e Totali Generali ---
             let grandStandardTotal = 0;
             let grandChargeableTotal = 0;
             
             let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15mm; } .print-page-header { display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px; } .print-page-header img { max-height: 50px; width: auto; flex-shrink: 0; } .print-page-header h1 { margin: 0; font-size: 14pt; text-align: left; flex-grow: 1; } h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } th, td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; } th { background-color: #e9e9e9; font-weight: bold; white-space: nowrap; } tbody tr:nth-child(odd) { background-color: #f9f9f9; } tbody tr:hover { background-color: #f1f1f1; } .text-right { text-align: right; } .text-center { text-align: center; } .total-row td { font-weight: bold; border-top: 2px solid #aaa; background-color: #f0f0f0; } .grand-total-table { width: 50%; margin-top: 30px; border: 2px solid #333; } .grand-total-table td { font-size: 1.1em; } .print-info { text-align: center; font-size: 8pt; color: #666; margin-bottom: 15px; } tr { page-break-inside: avoid; page-break-after: auto; } thead { display: table-header-group; } @page { size: A4; margin: 15mm; } @media print { body { margin: 10mm; font-size: 9pt; } h2 { page-break-before: auto; } button { display: none; } }</style></head><body><div class="print-page-header"><img src="${LOGO_URL}" alt="Logo CAI Idraulica"><h1>Riepilogo Noleggi Completati - ${monthName} ${selectedYear}</h1></div><div class="print-info">Generato il: ${new Date().toLocaleString('it-IT')}</div>`;
             
             sortedClients.forEach(client => {
-                // --- MODIFICA 2: Aggiunta colonna per l'imponibile e sistemazione larghezze ---
                 printHtml += `<h2>Cliente: ${escapeHtml(client)}</h2><table>
                 <colgroup>
                     <col style="width: 6%;"><col style="width: 25%;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 5%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%;"><col style="width: 8%;"><col style="width: 6%; text-align: center;"><col style="width: 8%; text-align: right;"><col style="width: 8%; text-align: right;"><col style="width: auto;">
@@ -889,7 +887,6 @@
                 </thead>
                 <tbody>`;
                 
-                // --- MODIFICA 3: Totali separati per ogni cliente ---
                 let clientStandardTotal = 0;
                 let clientChargeableTotal = 0;
 
@@ -898,25 +895,33 @@
                     const days = getDaysDifference(rental.startDate, rental.endDate);
                     const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
                     
-                    // --- MODIFICA 4: Calcolo separato per costo standard e imponibile ---
                     let standardCost = 0;
+
+                    // --- NUOVA LOGICA DI PREZZO ---
                     if (isSpecialItem) {
-                        if (days === 1) { standardCost = SPECIAL_ITEM_SAME_DAY_PRICE; }
-                        else if (days > 1) { standardCost = SPECIAL_ITEM_SAME_DAY_PRICE + (SPECIAL_ITEM_EXTRA_DAY_PRICE * (days - 1)); }
+                        // Se è un articolo speciale, applica le nuove regole
+                        if (days === 1) {
+                            // Regola 1: Noleggio in giornata
+                            standardCost = 15.00;
+                        } else {
+                            // Regola 2: Noleggio di più giorni
+                            standardCost = 25.00 * days;
+                        }
                     } else {
+                        // Se è un articolo normale, usa il prezzo giornaliero
                         standardCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
                     }
+                    // --- FINE NUOVA LOGICA DI PREZZO ---
                     
-                    // Applica la nuova regola per il costo imponibile
-                    let chargeableCost = standardCost; // Di base, l'imponibile è uguale allo standard
+                    // La logica per l'imponibile rimane invariata
+                    let chargeableCost = standardCost;
                     if (!isSpecialItem && days <= 2) {
-                        chargeableCost = 0; // Se non è speciale e dura 2 giorni o meno, l'imponibile è zero
+                        chargeableCost = 0;
                     }
 
                     clientStandardTotal += standardCost;
                     clientChargeableTotal += chargeableCost;
                     
-                    // --- MODIFICA 5: Aggiunta della nuova colonna nella riga della tabella ---
                     printHtml += `<tr>
                         <td>${escapeHtml(rental.rentalNumber || 'N/A')}</td>
                         <td>${escapeHtml(rental.itemName)}</td>
@@ -933,7 +938,6 @@
                     </tr>`;
                 });
 
-                // --- MODIFICA 6: Visualizzazione di entrambi i totali per il cliente ---
                 printHtml += `<tr class="total-row">
                     <td colspan="9" class="text-right">Totale Cliente (${escapeHtml(client)}):</td>
                     <td class="text-right">${formatPrice(clientStandardTotal)}</td>
@@ -945,7 +949,6 @@
                 grandChargeableTotal += clientChargeableTotal;
             });
 
-            // --- MODIFICA 7: Aggiunta di una tabella riepilogativa finale con i totali generali ---
             printHtml += `<h2 style="margin-top: 30px; border-top: 2px solid black; padding-top: 15px;">Riepilogo Generale Mese</h2>
                           <table class="grand-total-table">
                             <tbody>
@@ -973,112 +976,6 @@
         } catch (err) { 
             console.error("Error printing history:", err); 
             showError("Errore preparazione stampa storico."); 
-        }
-    });
-}
-
-        // --- Gestione Storico (Nuova Funzionalità) ---
-const manageHistoryBtn = getElement('manage-history-btn');
-const manageHistoryModal = getElement('manage-history-modal');
-const historySearchBtn = getElement('history-search-btn');
-const historySearchInput = getElement('history-search-input');
-const historyResultsContainer = getElement('history-results-container');
-
-if (manageHistoryBtn) {
-    manageHistoryBtn.addEventListener('click', () => {
-        if (!isAdmin()) {
-            return showError("Azione riservata agli amministratori.");
-        }
-        historyResultsContainer.innerHTML = '<p class="info-text">Nessun risultato. Effettua una ricerca.</p>';
-        historySearchInput.value = '';
-        openModal('manage-history-modal');
-    });
-}
-
-if (historySearchBtn) {
-    const searchHistory = async () => {
-        const searchTerm = historySearchInput.value.trim();
-        if (!searchTerm) {
-            historyResultsContainer.innerHTML = '<p class="info-text">Inserisci un termine di ricerca.</p>';
-            return;
-        }
-
-        historyResultsContainer.innerHTML = '<p class="info-text"><i class="fas fa-spinner fa-spin"></i> Ricerca in corso...</p>';
-        
-        try {
-            let rentals = [];
-            // Controlla se il termine di ricerca è un numero (per rentalNumber)
-            const searchAsNumber = parseInt(searchTerm);
-            if (!isNaN(searchAsNumber)) {
-                const snapshot = await db.collection("completedRentals").where("rentalNumber", "==", searchAsNumber).get();
-                snapshot.forEach(doc => rentals.push({ id: doc.id, ...doc.data() }));
-            }
-
-            // Cerca anche per cliente (aggiunge ai risultati, non sovrascrive)
-            const clientSnapshot = await db.collection("completedRentals").where("client", "==", searchTerm.toUpperCase()).get();
-            clientSnapshot.forEach(doc => {
-                // Evita duplicati se un noleggio matcha sia per numero che per cliente
-                if (!rentals.some(r => r.id === doc.id)) {
-                    rentals.push({ id: doc.id, ...doc.data() });
-                }
-            });
-
-            if (rentals.length === 0) {
-                historyResultsContainer.innerHTML = '<p class="info-text">Nessun noleggio trovato per questo termine.</p>';
-                return;
-            }
-
-            // Renderizza i risultati
-            let resultsHtml = '<ul>';
-            rentals.forEach(rental => {
-                resultsHtml += `<li style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee;">
-                    <div>
-                        <strong>#${rental.rentalNumber}</strong> - ${escapeHtml(rental.client)}<br>
-                        <small>${escapeHtml(rental.itemName)} - Chiuso il: ${formatDate(rental.endDate)}</small>
-                    </div>
-                    <button class="btn btn-sm btn-danger btn-delete-completed" data-id="${rental.id}" title="Elimina Definitivamente">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </li>`;
-            });
-            resultsHtml += '</ul>';
-            historyResultsContainer.innerHTML = resultsHtml;
-
-        } catch (err) {
-            console.error("Errore ricerca storico:", err);
-            showError("Errore durante la ricerca nello storico.");
-            historyResultsContainer.innerHTML = '<p style="color:red;">Errore durante la ricerca.</p>';
-        }
-    };
-    
-    historySearchBtn.addEventListener('click', searchHistory);
-    historySearchInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            searchHistory();
-        }
-    });
-}
-
-if (historyResultsContainer) {
-    historyResultsContainer.addEventListener('click', async (e) => {
-        const deleteButton = e.target.closest('.btn-delete-completed');
-        if (deleteButton) {
-            if (!isAdmin()) return showError("Azione riservata agli amministratori.");
-
-            const docId = deleteButton.dataset.id;
-            if (confirm("Sei sicuro di voler eliminare DEFINITIVAMENTE questa riga di noleggio dallo storico? L'azione è irreversibile.")) {
-                try {
-                    await db.collection("completedRentals").doc(docId).delete();
-                    // Rimuovi l'elemento dalla lista per un feedback immediato
-                    deleteButton.closest('li').remove();
-                    alert("Riga noleggio eliminata dallo storico.");
-                    // Aggiorna le statistiche nella dashboard
-                    updateBillingStats();
-                } catch (err) {
-                    console.error("Errore eliminazione da storico:", err);
-                    showError("Errore durante l'eliminazione del noleggio.");
-                }
-            }
         }
     });
 }
