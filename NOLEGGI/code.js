@@ -854,7 +854,7 @@ const setupEventListeners = () => {
     // GESTIONE STAMPA STORICO (CON NUOVA LOGICA PREZZI)
     if (printRentalsBtn) {
     printRentalsBtn.addEventListener('click', async function () {
-        console.log("Print history clicked with new logo layout.");
+        console.log("Print history clicked with correct special item pricing.");
         try {
             const selectedMonth = printMonthSelect ? parseInt(printMonthSelect.value) : 0;
             const selectedYear = printYearInput ? parseInt(printYearInput.value) : 0;
@@ -880,30 +880,12 @@ const setupEventListeners = () => {
             let grandStandardTotal = 0;
             let grandChargeableTotal = 0;
             
-            // --- MODIFICHE CSS QUI ---
-            const LOGO_STAMPA_URL = "https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png"; // URL del logo corretto
+            const LOGO_STAMPA_URL = "https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png";
             let printHtml = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Stampa Noleggi - ${monthName} ${selectedYear}</title><style>
                 body { font-family: Arial, sans-serif; font-size: 9pt; margin: 15mm; } 
-                .print-page-header { 
-                    display: flex; 
-                    gap: 20px; /* Aumentato un po' lo spazio */
-                    margin-bottom: 10px; 
-                    border-bottom: 2px solid #000; 
-                    padding-bottom: 8px; 
-                } 
-                .print-page-header img { 
-                    max-height: 50px; /* Logo grande */
-                    width: auto; 
-                    flex-shrink: 0; 
-                } 
-                .print-page-header h1 { 
-                    flex-grow: 1; /* Occupa lo spazio rimanente */
-    display: flex; /* Trasforma h1 in un contenitore flex */
-    align-items: center; /* Centra il suo contenuto (il testo) verticalmente */
-    margin: 0;
-    font-size: 16pt;
-    text-align: left;
-} 
+                .print-page-header { display: flex; gap: 20px; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 8px; } 
+                .print-page-header img { max-height: 100px; width: auto; flex-shrink: 0; } 
+                .print-page-header h1 { flex-grow: 1; display: flex; align-items: center; margin: 0; font-size: 16pt; text-align: left; } 
                 h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } 
                 table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } 
                 th, td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; } 
@@ -941,22 +923,30 @@ const setupEventListeners = () => {
                     const isSpecialItem = SPECIAL_ITEM_IDS.includes(rental.itemId);
                     
                     let standardCost = 0;
+                    let chargeableCost = 0;
 
+                    // --- LOGICA DI CALCOLO CORRETTA ---
                     if (isSpecialItem) {
+                        // Per gli articoli speciali:
+                        // 15€ il primo giorno, 25€ i successivi.
                         if (days === 1) {
                             standardCost = 15.00;
-                        } else {
-                            standardCost = 25.00 * days;
+                        } else if (days > 1) {
+                            standardCost = 15.00 + (25.00 * (days - 1));
                         }
-                    } else {
-                        standardCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
-                    }
-                    
-                    let chargeableCost = standardCost;
-                    if (!isSpecialItem && days <= 2) {
-                        chargeableCost = 0;
-                    }
+                        // Per gli articoli speciali, l'imponibile è sempre uguale allo standard
+                        chargeableCost = standardCost;
 
+                    } else {
+                        // Per gli articoli normali:
+                        // Costo standard è il calcolo pieno
+                        standardCost = (rental.dailyRate || 0) * (rental.quantity || 1) * days;
+                        // Imponibile ha il primo giorno gratis
+                        const chargeableDays = Math.max(0, days - 1);
+                        chargeableCost = (rental.dailyRate || 0) * (rental.quantity || 1) * chargeableDays;
+                    }
+                    // --- FINE LOGICA DI CALCOLO ---
+                    
                     clientStandardTotal += standardCost;
                     clientChargeableTotal += chargeableCost;
                     
@@ -1000,7 +990,7 @@ const setupEventListeners = () => {
                                 </tr>
                             </tbody>
                           </table>`;
-
+            
             printHtml += `<script>window.onload=function(){ try { window.print(); } catch(e) { console.error('Print failed:', e); } };<\/script></body></html>`;
             
             const printWindow = window.open('', '_blank'); 
