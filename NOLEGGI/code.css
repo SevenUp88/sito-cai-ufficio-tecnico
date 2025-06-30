@@ -1,5 +1,6 @@
 :root {
-    --primary: #4361ee; /* Colore primario originale Noleggi */
+    /* Variabili dalla pagina Noleggi */
+    --primary: #4361ee;
     --primary-dark: #3a56d4;
     --secondary: #3f37c9;
     --success: #28a745;
@@ -12,8 +13,9 @@
     --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --transition: all 0.3s ease;
 
-    /* === Variabili Aggiunte per Coerenza Header === */
+    /* Variabili dall'Header della pagina Scontistiche (Home) */
     --primary-color: #0056a8; /* Blu CAI standard header */
+    --secondary-color: #6c757d; /* Duplicato ma lo teniamo per coerenza */
     --header-height: 65px; /* Altezza header standard */
 }
 
@@ -21,39 +23,39 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #f5f7fa; /* Sfondo originale Noleggi */
+    background-color: #f5f7fa;
     color: var(--dark);
     line-height: 1.6;
-    padding-top: var(--header-height); /* Aggiunto spazio per header fisso */
+    padding-top: var(--header-height);
 }
 
-/* === START: Nuovi Stili Header Standard === */
+/* === START: Stili Header Standard Unificati === */
 .app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 30px; /* Spaziatura standard */
-    background-color: #ffffff; /* Sfondo bianco standard */
-    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); /* Ombra standard */
+    padding: 10px 30px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     z-index: 1000;
-    height: var(--header-height); /* Usa la variabile globale definita */
+    height: var(--header-height);
     box-sizing: border-box;
 }
 
-.app-header a.logo-link { /* Specifica per il link del logo */
-    line-height: 0; /* Rimuove spazio extra se l'immagine è inline */
-    display: block; /* Assicura che il link prenda le dimensioni dell'immagine */
-}
-
-.app-header .logo { /* Stile per l'immagine del logo */
-    height: 45px; /* Altezza logo standardizzata */
+.app-header .logo {
+    height: 45px;
     width: auto;
     flex-shrink: 0;
-    display: block; /* Assicura corretto rendering */
+    display: block;
+}
+
+.app-header a {
+    line-height: 0;
+    text-decoration: none;
 }
 
 .header-controls {
@@ -64,36 +66,31 @@ body {
 
 .header-user-info {
     font-size: 0.85em;
-    color: var(--gray); /* Usa la tua variabile --gray */
+    color: var(--secondary-color);
     margin-right: 10px;
 }
 
 .header-user-info strong {
-    color: var(--dark); /* Usa la tua variabile --dark */
+    color: var(--dark);
 }
 
 .header-action-button {
     background: none;
     border: none;
-    color: var(--primary-color); /* Blu CAI standard header */
-    font-size: 1.8em; /* Dimensione icone come da matrice */
+    color: var(--primary-color);
+    font-size: 1.8em;
     cursor: pointer;
     padding: 5px;
     transition: color 0.3s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    text-decoration: none;
 }
 
-.header-action-button:hover {
-    color: var(--danger); /* Rosso per hover standard */
-}
-
-.button-logout { /* Stile specifico per il bottone logout */
+.button-logout {
     background: none;
-    border: 1px solid var(--gray); /* Usa la tua variabile --gray */
-    color: var(--gray);
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
     font-size: 0.85em;
     padding: 6px 12px;
     border-radius: var(--border-radius);
@@ -104,31 +101,28 @@ body {
     gap: 5px;
 }
 
-.button-logout:hover {
-    color: var(--danger); /* Rosso per hover standard */
-    border-color: var(--danger); /* Rosso per hover standard */
+.header-action-button:hover, .button-logout:hover {
+    color: var(--danger);
+    border-color: var(--danger);
 }
 
-/* Classe per nascondere elementi (usata da JS) */
 .content-hidden {
     display: none !important;
 }
-/* === END: Nuovi Stili Header Standard === */
+/* === END: Stili Header Standard Unificati === */
 
-/* Stile per titolo pagina spostato */
 .page-title {
-    font-size: 1.8rem; /* Ripristina dimensione originale titolo */
+    font-size: 1.8rem;
     font-weight: 500;
-    color: var(--dark); /* Colore originale titolo */
-    margin-bottom: 1.5rem; /* Spazio sotto */
-    text-align: center; /* O left, come preferisci */
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+    text-align: center;
 }
 
-/* Stili generali (in gran parte invariati) */
 h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); font-weight: 500; }
 h3 { font-weight: 500; }
 
-.container { width: 95%; max-width: 1600px; margin: 2rem auto 0 auto; /* Aggiunto margine sopra */ padding: 0 1rem; }
+.container { width: 95%; max-width: 1600px; margin: 2rem auto 0 auto; padding: 0 1rem; }
 .dashboard { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem; }
 @media (min-width: 992px) { .dashboard { grid-template-columns: 2fr 1fr; } }
 
@@ -177,8 +171,7 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 @media (max-width: 1200px) { .container { max-width: 1140px; } }
 @media (max-width: 992px) {
     .container { max-width: 960px; }
-    /* .header-logo { max-height: 70px; } */ /* Vecchio stile logo */
-    :root { --header-height: 60px; } /* Adatta altezza header */
+    :root { --header-height: 60px; }
     .app-header { padding: 5px 15px; }
     .logo { height: 40px; }
     .header-controls { gap: 10px; }
@@ -186,10 +179,7 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 }
 @media (max-width: 768px) {
     .container { max-width: 720px; width: 100%; padding: 0 0.5rem; margin-top: 1.5rem;}
-    /* header { padding: 0.2rem 1rem; gap: 1rem; } */ /* Vecchio stile header */
-    /* .header-logo { max-height: 60px; } */ /* Vecchio stile logo */
-    /* header h1 { font-size: 1.5rem; } */ /* Vecchio stile titolo */
-    .page-title { font-size: 1.5rem; margin-bottom: 1rem;} /* Adatta titolo spostato */
+    .page-title { font-size: 1.5rem; margin-bottom: 1rem;}
     h2 { font-size: 1.3rem; }
     .card { padding: 1rem; }
     .card-header { align-items: flex-start; }
@@ -201,15 +191,12 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
     .print-filters { width: 100%; margin-left: 0; }
 }
 @media (max-width: 480px) {
-    /* header { flex-direction: column; align-items: flex-start; gap: 0.3rem; text-align: left; padding: 0.2rem 1rem;} */ /* Vecchio stile header */
-    /* .header-logo { max-height: 50px; align-self: center; margin-bottom: 0.2rem;} */ /* Vecchio stile logo */
-    /* header h1 { font-size: 1.3rem; text-align: center; width: 100%; } */ /* Vecchio stile titolo */
-    :root { --header-height: 55px; } /* Header ancora più basso */
+    :root { --header-height: 55px; }
     .app-header { padding: 5px 10px; }
     .logo { height: 35px; }
     .header-controls { gap: 8px; }
     .header-action-button { font-size: 1.5em; }
-    .page-title { font-size: 1.3rem; text-align: center; width: 100%; } /* Adatta titolo spostato */
+    .page-title { font-size: 1.3rem; text-align: center; width: 100%; }
     .container { margin-top: 1rem; }
     .print-filters select, .print-filters input, .print-filters button { flex-basis: 100%; }
     th, td { font-size: 0.85rem; }
@@ -217,7 +204,7 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
     td.actions .btn { margin-right: 0.3rem; }
 }
 
-/* --- Modal Styles (invariati) --- */
+/* --- Modal Styles --- */
 .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
 .modal-content { background-color: #fefefe; margin: 8% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 800px; border-radius: var(--border-radius); position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s; }
 @keyframes modalFadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
@@ -225,18 +212,10 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 .close-btn:hover, .close-btn:focus { color: #333; text-decoration: none; }
 .form-group { margin-bottom: 1.5rem; } .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); }
 .form-control { width: 100%; padding: 0.75rem; border-radius: var(--border-radius); border: 1px solid #ced4da; font-size: 1rem; box-sizing: border-box; line-height: 1.5; }
-.form-group input[type="text"].form-control,
-.form-group input[type="number"].form-control,
-.form-group input[type="date"].form-control,
-.form-group select.form-control,
-.form-group textarea.form-control { /* Base styles applied via .form-control */ }
-
-/* Uppercase specific inputs */
 #rental-modal #rental-client-name,
 #rental-modal #rental-notes,
 #edit-rental-modal #edit-rental-client-name,
 #edit-rental-modal #edit-rental-notes { text-transform: uppercase; }
-
 .form-group input[type="number"] { text-align: right; }
 .form-group textarea { min-height: 80px; resize: vertical; }
 .form-group select:disabled,
@@ -245,14 +224,14 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 .form-group textarea:disabled { background-color: #e9ecef; cursor: not-allowed; opacity: 0.7; }
 #edit-rental-modal fieldset[disabled] input.form-control { background-color: #f8f9fa; border-color: #dee2e6; color: #495057; }
 
-/* --- Filtri Stampa (invariati) --- */
+/* --- Filtri Stampa --- */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
 .print-filters { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .print-filters select.form-control { flex: 0 1 150px; min-width: 100px; }
 .print-filters input[type="number"].form-control { flex: 0 1 100px; min-width: 80px; }
 .print-filters button { flex-shrink: 0; }
 
-/* --- Noleggi da Verificare (invariati) --- */
+/* --- Noleggi da Verificare --- */
 .attention-rentals { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
 .attention-rentals h3 { font-size: 1.1rem; color: #856404; margin-bottom: 0.8rem; display: flex; align-items: center; font-weight: 500; }
 .attention-icon { margin-right: 0.6rem; color: var(--warning); font-size: 1.2em; }
@@ -265,3 +244,29 @@ tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
 #oldest-rentals-list li .rental-date span { font-weight: bold; color: var(--danger); }
 #oldest-rentals-list li:last-child { margin-bottom: 0; }
 #oldest-rentals-list li:only-child { background-color: #f8f9fa; border-left-color: var(--gray); color: var(--gray); font-style: italic; box-shadow: none; }
+
+/* --- Stili per la Gestione dello Storico --- */
+#history-results-container ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+#history-results-container li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+#history-results-container li:hover {
+    background-color: #f8f9fa;
+}
+#history-results-container li > div {
+    flex-grow: 1;
+    padding-right: 1rem;
+}
+#history-results-container li small {
+    color: var(--gray);
+    font-size: 0.9em;
+}
