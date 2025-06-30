@@ -892,17 +892,18 @@ const setupEventListeners = () => {
                     padding-bottom: 8px; 
                 } 
                 .print-page-header img { 
-                    max-height: 30px; /* Logo grande */
+                    max-height: 50px; /* Logo grande */
                     width: auto; 
                     flex-shrink: 0; 
                 } 
                 .print-page-header h1 { 
-                    padding-top: 40px; /* Spinge il testo in basso. Modifica questo valore per l'allineamento perfetto */
-                    margin: 0; 
-                    font-size: 16pt; /* Titolo leggermente più grande */
-                    text-align: left; 
-                    flex-grow: 1; 
-                } 
+                    flex-grow: 1; /* Occupa lo spazio rimanente */
+    display: flex; /* Trasforma h1 in un contenitore flex */
+    align-items: center; /* Centra il suo contenuto (il testo) verticalmente */
+    margin: 0;
+    font-size: 16pt;
+    text-align: left;
+} 
                 h2 { font-size: 12pt; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; page-break-before: avoid; page-break-after: avoid; } 
                 table { width: 100%; border-collapse: collapse; margin-top: 5px; margin-bottom: 15px; font-size: 8pt; page-break-inside: auto; border: 1px solid #ccc; } 
                 th, td { border: 1px solid #ddd; padding: 4px 6px; text-align: left; vertical-align: top; word-wrap: break-word; } 
