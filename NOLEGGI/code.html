@@ -72,13 +72,13 @@
     </div>
      <!-- Sezione Storico/Stampa Noleggi -->
      <div class="card">
-         <div class="card-header"> <h2>Storico Noleggi per Cliente</h2> <div class="actions print-filters"> <label for="print-month" class="sr-only">Mese:</label> <select id="print-month" class="form-control"> <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option> </select> <label for="print-year" class="sr-only">Anno:</label> <input type="number" id="print-year" class="form-control" placeholder="Anno"> <button class="btn btn-primary" id="print-rentals-btn"> <i class="fas fa-print btn-icon"></i> Stampa Selez. </button> <button class="btn btn-warning btn-sm" id="reset-completed-btn" title="Rimuove storico completati"> <i class="fas fa-trash-alt btn-icon"></i> Azzera Storico </button> </div> </div>
+         <div class="card-header"> <h2>Storico Noleggi per Cliente</h2> <div class="actions print-filters"> <label for="print-month" class="sr-only">Mese:</label> <select id="print-month" class="form-control"> <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option> </select> <label for="print-year" class="sr-only">Anno:</label> <input type="number" id="print-year" class="form-control" placeholder="Anno"> <button class="btn btn-primary" id="print-rentals-btn"> <i class="fas fa-print btn-icon"></i> Stampa Selez. </button> <button class="btn btn-secondary" id="manage-history-btn"> <i class="fas fa-tasks btn-icon"></i> Gestisci Storico </button> <button class="btn btn-warning btn-sm" id="reset-completed-btn" title="Rimuove storico completati"> <i class="fas fa-trash-alt btn-icon"></i> Azzera Storico </button> </div> </div>
          <div class="stats"> <div class="stat-card"> <div class="stat-value" id="total-completed">0</div> <div class="stat-label">Noleggi Completati (Righe)</div> </div> <div class="stat-card"> <div class="stat-value" id="total-clients">0</div> <div class="stat-label">Clienti Unici (Storico)</div> </div> </div>
          <div class="info-text"> Seleziona mese e anno per generare un resoconto. </div>
      </div>
   </div><!-- end container -->
 
-  <!-- Modals (IL LOGIN MODAL E' STATO RIMOSSO) -->
+  <!-- Modals -->
 
   <!-- New/Add Rental Modal -->
   <div id="rental-modal" class="modal">
@@ -162,6 +162,27 @@
           </form>
       </div>
   </div>
+  
+  <!-- Manage History Modal -->
+  <div id="manage-history-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">×</span>
+        <h2>Gestione Storico Noleggi</h2>
+        <p>Cerca un noleggio completato per cliente o numero noleggio per eliminarlo. L'azione è irreversibile.</p>
+        <div class="form-group">
+            <label for="history-search-input">Cerca Cliente o # Noleggio:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="history-search-input" class="form-control" placeholder="Es: ROSSI MARIO oppure 123">
+                <button id="history-search-btn" class="btn btn-primary">Cerca</button>
+            </div>
+        </div>
+        <hr>
+        <div id="history-results-container" style="max-height: 400px; overflow-y: auto;">
+            <p class="info-text">Nessun risultato. Effettua una ricerca.</p>
+        </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
