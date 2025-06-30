@@ -1,340 +1,272 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gestione Noleggi Attrezzature Idrauliche</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="code.css"/>
-  <style>
-    /* --- CSS for Login State --- */
-    body.logged-out #main-content-container {
-      display: none;
-    }
-    body.logged-in #loading-indicator {
-      display: none;
-    }
-    body.logged-out #loading-indicator {
-        display: block;
-        text-align: center;
-        padding: 40px;
-        font-size: 1.1em;
-        color: #555;
-    }
-    /* Rimosse regole specifiche per #login-modal */
-  </style>
-</head>
-<body class="logged-out"> <!-- Start in logged-out state -->
+:root {
+    /* Variabili dalla pagina Noleggi */
+    --primary: #4361ee;
+    --primary-dark: #3a56d4;
+    --secondary: #3f37c9;
+    --success: #28a745;
+    --danger: #dc3545;
+    --warning: #ffc107;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --gray: #6c757d;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
 
-  <!-- === Header === -->
-  <header class="app-header">
-      <a href="../index.html" title="C.A.I. - Home" class="logo-link"> <!-- Aggiunto class logo-link -->
-           <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
-      </a>
-      <div class="header-controls">
-          <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
-          <a href="../index.html" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
-          <button id="logout-button" class="button-logout content-hidden" title="Esci"><i class="fas fa-sign-out-alt"></i> Logout</button>
-      </div>
-  </header>
-  <!-- === Fine Header === -->
+    /* Variabili dall'Header della pagina Scontistiche (Home) */
+    --primary-color: #0056a8; /* Blu CAI standard header */
+    --secondary-color: #6c757d; /* Duplicato ma lo teniamo per coerenza */
+    --header-height: 65px; /* Altezza header standard */
+}
 
-  <!-- Loading Indicator -->
-  <div id="loading-indicator">
-     <i class="fas fa-spinner fa-spin"></i> Verifica autenticazione e permessi...
-     <!-- Questo messaggio verrà sovrascritto dallo script se l'utente non è loggato -->
-  </div>
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  <!-- Main Content Container (Hidden initially by CSS via body.logged-out) -->
-  <div class="container" id="main-content-container">
-    <h1 class="page-title">Gestione Noleggi Attrezzature Idrauliche</h1>
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f7fa;
+    color: var(--dark);
+    line-height: 1.6;
+    padding-top: var(--header-height);
+}
 
-    <div class="dashboard">
-      <!-- Sezione Noleggi Attivi -->
-      <div class="card">
-         <div class="card-header"> <h2>Noleggi Attivi</h2> <button class="btn btn-primary" id="new-rental-btn"> <i class="fas fa-plus btn-icon"></i> Nuovo Noleggio </button> </div>
-         <div class="stats"> <div class="stat-card"> <div class="stat-value" id="total-rentals">0</div> <div class="stat-label">Noleggi Attivi</div> </div> <div class="stat-card"> <div class="stat-value" id="items-rented">0</div> <div class="stat-label">Articoli Noleggiati</div> </div> </div>
-         <div class="inventory-container"> <table id="active-rentals-table"> <thead> <tr> <th># Noleggio</th> <th>Articolo</th> <th>Cliente</th> <th>Magazzino</th> <th>Data Inizio</th> <th>Stato</th> <th>Azioni</th> </tr> </thead> <tbody></tbody> </table> </div>
-      </div>
-      <!-- Sezione Inventario Rapido -->
-      <div class="card">
-          <div class="card-header"> <h2>Inventario Rapido</h2> <div class="actions"> <button class="btn btn-warning" id="reset-inventory"> <i class="fas fa-sync-alt btn-icon"></i> Reset </button> <label for="excel-upload" class="btn btn-success"> <i class="fas fa-file-excel btn-icon"></i> Carica Excel <input type="file" id="excel-upload" accept=".xlsx, .xls" hidden> </label> </div> </div>
-          <div class="stats"> <div class="stat-card"> <div class="stat-value" id="total-items">0</div> <div class="stat-label">Articoli Totali</div> </div> <div class="stat-card"> <div class="stat-value" id="available-items">0</div> <div class="stat-label">Disponibili</div> </div> </div>
-          <div class="attention-rentals"> <h3><i class="fas fa-exclamation-triangle attention-icon"></i> Noleggi da Verificare (da 5+ giorni)</h3> <ul id="oldest-rentals-list"> <li>Nessun noleggio attivo da verificare.</li> </ul> </div>
-      </div>
-    </div>
-    <!-- Sezione Inventario Completo -->
-    <div class="card">
-        <div class="card-header"> <h2>Inventario Completo</h2> <div class="actions"> <button class="btn btn-success" id="new-item-btn"> <i class="fas fa-plus btn-icon"></i> Nuovo Articolo </button> <button class="btn btn-primary" id="export-inventory-btn"> <i class="fas fa-file-export btn-icon"></i> Esporta Inventario </button> </div> </div>
-        <div class="search-filter"> <input type="text" id="inventory-search" placeholder="Cerca articolo..."> <select id="filter-brand"> <option value="">Tutte le marche</option> </select> <select id="filter-status"> <option value="">Tutti gli stati</option> <option value="available">Disponibili</option> <option value="rented">Esauriti</option> </select> </div>
-        <div class="inventory-container"> <table id="inventory-table"> <thead> <tr> <th>Marca</th> <th>Articolo</th> <th class="text-center">Q.tà Totale</th> <th class="text-center">Disponibili</th> <th class="text-right">Prezzo Giorn. (€)</th> <th>Stato</th> <th>Azioni</th> </tr> </thead> <tbody></tbody> </table> </div>
-    </div>
-     <!-- Sezione Storico/Stampa Noleggi -->
-     <div class="card">
-         <div class="card-header"> <h2>Storico Noleggi per Cliente</h2> <div class="actions print-filters"> <label for="print-month" class="sr-only">Mese:</label> <select id="print-month" class="form-control"> <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option> </select> <label for="print-year" class="sr-only">Anno:</label> <input type="number" id="print-year" class="form-control" placeholder="Anno"> <button class="btn btn-primary" id="print-rentals-btn"> <i class="fas fa-print btn-icon"></i> Stampa Selez. </button> <button class="btn btn-secondary" id="manage-history-btn"> <i class="fas fa-tasks btn-icon"></i> Gestisci Storico </button> <button class="btn btn-warning btn-sm" id="reset-completed-btn" title="Rimuove storico completati"> <i class="fas fa-trash-alt btn-icon"></i> Azzera Storico </button> </div> </div>
-         <div class="stats"> <div class="stat-card"> <div class="stat-value" id="total-completed">0</div> <div class="stat-label">Noleggi Completati (Righe)</div> </div> <div class="stat-card"> <div class="stat-value" id="total-clients">0</div> <div class="stat-label">Clienti Unici (Storico)</div> </div> </div>
-         <div class="info-text"> Seleziona mese e anno per generare un resoconto. </div>
-     </div>
-  </div><!-- end container -->
+/* === START: Stili Header Standard Unificati === */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    height: var(--header-height);
+    box-sizing: border-box;
+}
 
-  <!-- Modals -->
+.app-header .logo {
+    height: 45px;
+    width: auto;
+    flex-shrink: 0;
+    display: block;
+}
 
-  <!-- New/Add Rental Modal -->
-  <div id="rental-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">×</span>
-        <h2 id="rental-modal-title">Nuovo Noleggio</h2>
-        <form id="new-rental-form">
-            <input type="hidden" id="rental-number-ongoing">
-            <div class="form-group"> <label for="rental-operator">Operatore:</label> <select id="rental-operator" required class="form-control"> <option value="">-- Seleziona Operatore --</option> </select> </div>
-            <div class="form-group"> <label for="rental-warehouse">Magazzino Origine:</label> <select id="rental-warehouse" required class="form-control"> <option value="">-- Seleziona Magazzino --</option> <option value="VILLALTA">VILLALTA</option> <option value="SAVIGNANO">SAVIGNANO</option> <option value="VILLAMARINA">VILLAMARINA</option> </select> </div>
-            <div class="form-group"> <label for="rental-client-name">Nome Cliente:</label> <input type="text" id="rental-client-name" required class="form-control"> </div >
-            <div class="form-group"> <label for="rental-start-date">Data Inizio:</label> <input type="date" id="rental-start-date" required class="form-control"> </div>
-            <hr style="margin: 1.5rem 0;">
-            <h3 style="margin-bottom: 1rem; font-weight: 500;">Articolo da Noleggiare</h3>
-            <div class="form-group"> <label for="rental-brand-selection">Marca:</label> <select id="rental-brand-selection" required class="form-control"> <option value="">-- Prima Seleziona Marca --</option> </select> </div>
-            <div class="form-group"> <label for="rental-item-selection">Articolo:</label> <select id="rental-item-selection" required disabled class="form-control"> <option value="">-- Seleziona Marca Prima --</option> </select> </div>
-            <div class="form-group"> <label for="rental-quantity">Quantità:</label> <input type="number" id="rental-quantity" min="1" value="1" required class="form-control"> <small id="quantity-available-info" style="display: none; color: var(--gray); margin-top: 4px;"></small> </div>
-            <div class="form-group"> <label for="rental-notes">Note (Opzionale):</label> <textarea id="rental-notes" class="form-control"></textarea> </div>
-            <button type="submit" class="btn btn-primary btn-block">Conferma Noleggio</button>
-        </form>
-    </div>
-  </div>
+.app-header a {
+    line-height: 0;
+    text-decoration: none;
+}
 
-  <!-- Edit Active Rental Modal -->
-  <div id="edit-rental-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">×</span>
-        <h2>Modifica Riga Noleggio Attivo</h2>
-        <form id="edit-rental-form">
-            <input type="hidden" id="edit-rental-id">
-            <input type="hidden" id="edit-rental-original-item-id">
-            <input type="hidden" id="edit-rental-original-quantity">
-            <fieldset disabled style="border: none; padding: 0; margin: 0 0 1rem 0;">
-                <legend style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; padding: 0;">Info Noleggio (Non Modificabili)</legend>
-                <div class="form-group"> <label>Numero Noleggio:</label> <input type="text" id="edit-rental-number-display" readonly class="form-control"> </div>
-                <div class="form-group"> <label>Magazzino:</label> <input type="text" id="edit-rental-warehouse-display" readonly class="form-control"> </div>
-                <div class="form-group"> <label>Data Inizio:</label> <input type="text" id="edit-rental-startdate-display" readonly class="form-control"> </div>
-            </fieldset>
-            <hr style="margin: 1.5rem 0;">
-            <h3 style="margin-bottom: 1rem; font-weight: 500;">Dati Modificabili</h3>
-            <div class="form-group"> <label for="edit-rental-client-name">Nome Cliente:</label> <input type="text" id="edit-rental-client-name" required class="form-control" style="text-transform: uppercase;"> </div>
-            <div class="form-group"> <label for="edit-rental-operator">Operatore:</label> <select id="edit-rental-operator" required class="form-control"> <option value="">-- Seleziona Operatore --</option> </select> </div>
-            <hr style="margin: 1.5rem 0;">
-            <h3 style="margin-bottom: 1rem; font-weight: 500;">Modifica Articolo (per questa riga)</h3>
-            <div class="form-group"> <label for="edit-rental-brand-selection">Nuova Marca:</label> <select id="edit-rental-brand-selection" required class="form-control"> <option value="">-- Seleziona Marca --</option> </select> </div>
-            <div class="form-group"> <label for="edit-rental-item-selection">Nuovo Articolo:</label> <select id="edit-rental-item-selection" required class="form-control" disabled> <option value="">-- Seleziona Marca Prima --</option> </select> </div>
-            <div class="form-group"> <label for="edit-rental-quantity">Nuova Quantità:</label> <input type="number" id="edit-rental-quantity" min="1" required class="form-control"> <small id="edit-quantity-available-info" style="display: none; color: var(--gray); margin-top: 4px;"></small> </div>
-            <div class="form-group"> <label for="edit-rental-notes">Note Articolo:</label> <textarea id="edit-rental-notes" class="form-control" style="text-transform: uppercase;"></textarea> </div>
-            <button type="submit" class="btn btn-primary">Salva Modifiche Noleggio</button>
-        </form>
-    </div>
-  </div>
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
 
-  <!-- New Inventory Item Modal -->
-  <div id="new-item-modal" class="modal">
-      <div class="modal-content">
-          <span class="close-btn">×</span>
-          <h2>Nuovo Articolo Inventario</h2>
-          <form id="new-item-form">
-              <div class="form-group"> <label for="new-item-brand">Marca:</label> <input type="text" id="new-item-brand" required class="form-control"> </div>
-              <div class="form-group"> <label for="new-item-name">Nome Articolo:</label> <input type="text" id="new-item-name" required class="form-control"> </div>
-              <div class="form-group"> <label for="new-item-quantity">Quantità Totale (per tutta l'azienda):</label> <input type="number" id="new-item-quantity" min="1" value="1" required class="form-control"> </div>
-              <div class="form-group"> <label for="new-item-daily-rate">Costo Noleggio Giornaliero (€):</label> <input type="number" id="new-item-daily-rate" min="0" step="0.01" value="0.00" required class="form-control"> </div>
-              <button type="submit" class="btn btn-primary">Aggiungi Articolo</button>
-          </form>
-      </div>
-  </div>
-  <!-- Edit Inventory Item Modal -->
-  <div id="edit-item-modal" class="modal">
-      <div class="modal-content">
-          <span class="close-btn">×</span>
-          <h2>Modifica Articolo Inventario</h2>
-          <form id="edit-item-form">
-              <input type="hidden" id="edit-item-id">
-              <div class="form-group"> <label for="edit-item-brand">Marca:</label> <input type="text" id="edit-item-brand" required class="form-control"> </div>
-              <div class="form-group"> <label for="edit-item-name">Nome Articolo:</label> <input type="text" id="edit-item-name" required class="form-control"> </div>
-              <div class="form-group"> <label for="edit-item-total-quantity">Quantità Totale:</label> <input type="number" id="edit-item-total-quantity" min="0" required class="form-control"> </div>
-              <div class="form-group"> <label for="edit-item-available-quantity">Quantità Disponibile:</label> <input type="number" id="edit-item-available-quantity" min="0" required class="form-control"> </div>
-              <div class="form-group"> <label for="edit-item-daily-rate">Costo Noleggio Giornaliero (€):</label> <input type="number" id="edit-item-daily-rate" min="0" step="0.01" required class="form-control"> </div>
-              <button type="submit" class="btn btn-primary">Salva Modifiche</button>
-          </form>
-      </div>
-  </div>
-  
-  <!-- Manage History Modal -->
-  <div id="manage-history-modal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">×</span>
-        <h2>Gestione Storico Noleggi</h2>
-        <p>Cerca un noleggio completato per cliente o numero noleggio per eliminarlo. L'azione è irreversibile.</p>
-        <div class="form-group">
-            <label for="history-search-input">Cerca Cliente o # Noleggio:</label>
-            <div style="display: flex; gap: 10px;">
-                <input type="text" id="history-search-input" class="form-control" placeholder="Es: ROSSI MARIO oppure 123">
-                <button id="history-search-btn" class="btn btn-primary">Cerca</button>
-            </div>
-        </div>
-        <hr>
-        <div id="history-results-container" style="max-height: 400px; overflow-y: auto;">
-            <p class="info-text">Nessun risultato. Effettua una ricerca.</p>
-        </div>
-    </div>
-  </div>
+.header-user-info {
+    font-size: 0.85em;
+    color: var(--secondary-color);
+    margin-right: 10px;
+}
 
-  <!-- Scripts -->
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+.header-user-info strong {
+    color: var(--dark);
+}
 
-  <script>
-    // --------------- FIREBASE CONFIGURATION ---------------
-    const firebaseConfig = {
-  apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", 
-  authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-  projectId: "consorzio-artigiani-idraulici", // <<<--- IL PROGETTO CORRETTO E CENTRALIZZATO
-  storageBucket: "consorzio-artigiani-idraulici.appspot.com", // Assicurati sia il valore corretto per QUESTO progetto
-  messagingSenderId: "136848104008",
-  appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-  measurementId: "G-NNPV2607G7"                    // VERIFICA
-    };
-    // ------------------------------------------------------
+.header-action-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.8em;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    try {
-      // Utilizza l'SDK compatibile v9
-      if (!firebase.apps.length) {
-          firebase.initializeApp(firebaseConfig);
-          console.log("Noleggi Page: Firebase App Initialized (compat).");
-      } else {
-          firebase.app(); // if already initialized, use that one
-          console.log("Noleggi Page: Firebase App Already Initialized (compat), using existing.");
-      }
+.button-logout {
+    background: none;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    font-size: 0.85em;
+    padding: 6px 12px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
 
-      window.db = firebase.firestore();
-      window.auth = firebase.auth();
-      console.log("Noleggi Page: Firebase Services (db, auth) set on window (compat).");
+.header-action-button:hover, .button-logout:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+}
 
-      // !!! AGGIUNTA FONDAMENTALE: Imposta la persistenza !!!
-      if (window.auth) {
-          window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-              .then(() => {
-                  console.log("Noleggi Page: Firebase Auth persistence set to LOCAL.");
-                  initializeAuthListenerForNoleggi(); // Chiama il listener DOPO che la persistenza è impostata
-              })
-              .catch((error) => {
-                  console.error("Noleggi Page: Error setting Firebase Auth persistence:", error);
-                  initializeAuthListenerForNoleggi(); // Chiama comunque il listener, potrebbe funzionare con la default (ma è meno affidabile)
-              });
-      } else {
-           console.error("Noleggi Page: window.auth not defined before attempting to set persistence! Check Firebase initialization.");
-           // Fallback: prova ad inizializzare il listener comunque, ma l'auth potrebbe non funzionare.
-           // Sarebbe meglio mostrare un errore qui se auth non si inizializza.
-           // initializeAuthListenerForNoleggi(); 
-      }
+.content-hidden {
+    display: none !important;
+}
+/* === END: Stili Header Standard Unificati === */
 
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--dark);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
 
-      function initializeAuthListenerForNoleggi() {
-          let authStateChangeCountNoleggi = 0;
-          // Ora window.auth dovrebbe essere definito qui
-          if (!window.auth) {
-              console.error("Noleggi Page: FATAL - window.auth is still not defined in initializeAuthListenerForNoleggi. Cannot proceed.");
-              // Mostra un messaggio di errore critico all'utente
-              const loadingIndicator = document.getElementById('loading-indicator');
-              if (loadingIndicator) {
-                  loadingIndicator.innerHTML = "<p style='color:red;'>Errore critico: servizio di autenticazione non disponibile.</p>";
-              }
-              return; // Non registrare il listener se auth non c'è
-          }
+h2 { font-size: 1.5rem; color: var(--primary); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary); font-weight: 500; }
+h3 { font-weight: 500; }
 
-          window.auth.onAuthStateChanged(user => {
-              authStateChangeCountNoleggi++;
-              console.log(`Noleggi Page: onAuthStateChanged triggered (Count: ${authStateChangeCountNoleggi}). User object:`, user ? user.email : 'Not authenticated');
+.container { width: 95%; max-width: 1600px; margin: 2rem auto 0 auto; padding: 0 1rem; }
+.dashboard { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-bottom: 2rem; }
+@media (min-width: 992px) { .dashboard { grid-template-columns: 2fr 1fr; } }
 
-              const loadingIndicator = document.getElementById('loading-indicator');
-              const mainContent = document.getElementById('main-content-container');
+.card { background: white; border-radius: var(--border-radius); box-shadow: var(--box-shadow); padding: 1.5rem; transition: var(--transition); position: relative; overflow: hidden; margin-bottom: 2rem; }
+.card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+.card-header h2 { margin-bottom: 0; border-bottom: none; padding-bottom: 0; flex-shrink: 0; }
 
-              if (user) {
-                  console.log("Noleggi Page: User IS authenticated:", user.email, user.uid);
-                  if (loadingIndicator) {
-                      loadingIndicator.style.display = 'block';
-                      loadingIndicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Caricamento permessi utente...';
-                  }
-                  if (mainContent) mainContent.style.display = 'none';
+.btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1.2rem; border-radius: var(--border-radius); border: none; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: var(--transition); text-align: center; white-space: nowrap; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); opacity: 0.9; }
+.btn-primary { background-color: var(--primary); color: white; } .btn-primary:hover { background-color: var(--primary-dark); }
+.btn-success { background-color: var(--success); color: white; } .btn-success:hover { background-color: #218838; }
+.btn-danger { background-color: var(--danger); color: white; } .btn-danger:hover { background-color: #c82333; }
+.btn-warning { background-color: var(--warning); color: var(--dark); } .btn-warning:hover { background-color: #e0a800; }
+.btn-secondary { background-color: var(--gray); color: white; } .btn-secondary:hover { background-color: #5a6268; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+.btn-lg { padding: 0.8rem 1.6rem; font-size: 1.1rem; }
+.btn-block { display: block; width: 100%; }
+.btn-icon { margin-right: 0.5rem; }
 
-                  const userDocRef = db.collection('users').doc(user.uid);
-                  userDocRef.get().then(doc => {
-                      let userRole = 'user';
-                      if (doc.exists && doc.data().role) {
-                          userRole = doc.data().role;
-                      } else {
-                          console.warn(`Noleggi Page: User document or role not found in Firestore for UID ${user.uid}. Assigning default 'user' role. Access to admin features will be restricted.`);
-                      }
-                      window.currentUserRole = userRole;
-                      console.log("Noleggi Page: User role set to:", window.currentUserRole);
+.actions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+td.actions { white-space: nowrap; }
+table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+th, td { padding: 0.8rem; text-align: left; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+th { background-color: var(--light); color: var(--dark); font-weight: 500; position: sticky; top: 0; z-index: 10; white-space: nowrap; border-top: 1px solid #dee2e6; }
+tbody tr:nth-child(odd) { background-color: rgba(0, 0, 0, 0.02); }
+tbody tr:hover { background-color: rgba(67, 97, 238, 0.08); }
+.inventory-container { max-height: 500px; overflow-y: auto; margin-top: 1rem; border: 1px solid #dee2e6; border-radius: var(--border-radius); position: relative; }
 
-                      document.body.classList.remove('logged-out');
-                      document.body.classList.add('logged-in');
-                      if (loadingIndicator) loadingIndicator.style.display = 'none';
-                      if (mainContent) mainContent.style.display = 'block';
+.search-filter { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.search-filter input[type="text"], .search-filter select { padding: 0.6rem; border-radius: var(--border-radius); border: 1px solid #ced4da; font-size: 0.95rem; flex: 1; min-width: 180px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat-card { background: white; border: 1px solid #e9ecef; border-radius: var(--border-radius); padding: 1rem; text-align: center; }
+.stat-value { font-size: 1.8rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+.stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+.badge { display: inline-flex; align-items: center; padding: 0.3rem 0.7rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.badge-success { background-color: var(--success); color: white; }
+.badge-warning { background-color: var(--warning); color: var(--dark); }
+.badge-danger { background-color: var(--danger); color: white; }
+.fa-tag { color: var(--primary); margin-right: 0.5rem; width: 1.1em; text-align: center; }
 
-                      if (typeof window.initializeApp === 'function') {
-                         window.initializeApp(window.currentUserRole);
-                      } else {
-                         console.error("Noleggi Page: initializeApp function not found (is code.js loaded?)!");
-                      }
-                  }).catch(error => {
-                      console.error("Noleggi Page: Error fetching user role from Firestore:", error);
-                      if (loadingIndicator) {
-                          loadingIndicator.innerHTML = `
-                              <p style="color:red;">Errore nel recupero dei permessi utente.</p>
-                              <p>L'app potrebbe non funzionare correttamente. Torna alla <a href="../index.html">Home</a> e riprova.</p>
-                          `;
-                      }
-                      window.currentUserRole = 'user';
-                      document.body.classList.remove('logged-out');
-                      document.body.classList.add('logged-in');
-                      if (loadingIndicator) loadingIndicator.style.display = 'none';
-                      if (mainContent) mainContent.style.display = 'block';
-                      if (typeof window.initializeApp === 'function') {
-                         window.initializeApp(window.currentUserRole);
-                      }
-                  });
+.text-center { text-align: center; } .text-right { text-align: right; }
+.info-text { margin-top: 1rem; font-size: 0.9em; color: var(--gray); }
 
-              } else {
-                  console.log("Noleggi Page: User IS NOT authenticated.");
-                  window.currentUserRole = null;
-                  document.body.classList.add('logged-out');
-                  document.body.classList.remove('logged-in');
-                  if (mainContent) mainContent.style.display = 'none';
-                  if (loadingIndicator) {
-                      loadingIndicator.style.display = 'block';
-                      loadingIndicator.innerHTML = `
-                          <i class="fas fa-exclamation-circle"></i> Accesso Richiesto
-                          <p style="font-size: 0.9em; margin-top: 10px;">
-                              Per utilizzare questa sezione, per favore effettua il login dalla
-                              <a href="../index.html" style="text-decoration: underline; color: var(--primary);">Pagina Principale</a>.
-                          </p>`;
-                  }
-                  if (window.appInitialized) {
-                       window.appInitialized = false;
-                  }
-              }
-          });
-      } // Fine initializeAuthListenerForNoleggi
+/* --- Responsive Design --- */
+@media (max-width: 1200px) { .container { max-width: 1140px; } }
+@media (max-width: 992px) {
+    .container { max-width: 960px; }
+    :root { --header-height: 60px; }
+    .app-header { padding: 5px 15px; }
+    .logo { height: 40px; }
+    .header-controls { gap: 10px; }
+    .header-action-button { font-size: 1.6em; }
+}
+@media (max-width: 768px) {
+    .container { max-width: 720px; width: 100%; padding: 0 0.5rem; margin-top: 1.5rem;}
+    .page-title { font-size: 1.5rem; margin-bottom: 1rem;}
+    h2 { font-size: 1.3rem; }
+    .card { padding: 1rem; }
+    .card-header { align-items: flex-start; }
+    .search-filter input[type="text"], .search-filter select { min-width: 100%; }
+    .btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
+    .btn-sm { font-size: 0.8rem; padding: 0.3rem 0.6rem;}
+    th, td { padding: 0.6rem; font-size: 0.9rem; }
+    td.actions .btn { margin-bottom: 0.3rem; display: inline-flex; }
+    .print-filters { width: 100%; margin-left: 0; }
+}
+@media (max-width: 480px) {
+    :root { --header-height: 55px; }
+    .app-header { padding: 5px 10px; }
+    .logo { height: 35px; }
+    .header-controls { gap: 8px; }
+    .header-action-button { font-size: 1.5em; }
+    .page-title { font-size: 1.3rem; text-align: center; width: 100%; }
+    .container { margin-top: 1rem; }
+    .print-filters select, .print-filters input, .print-filters button { flex-basis: 100%; }
+    th, td { font-size: 0.85rem; }
+    td.actions { white-space: normal; }
+    td.actions .btn { margin-right: 0.3rem; }
+}
 
-  } catch (error) {
-      console.error("Noleggi Page: Firebase Initialization Failed:", error);
-      const loadingIndicator = document.getElementById('loading-indicator');
-      if (loadingIndicator) loadingIndicator.innerHTML = "ERRORE CRITICO: Impossibile caricare Firebase.";
-      // Non usare alert() qui perché potrebbe bloccare altri script o il rendering
-  }
-</script>
+/* --- Modal Styles --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+.modal-content { background-color: #fefefe; margin: 8% auto; padding: 25px; border: 1px solid #888; width: 90%; max-width: 800px; border-radius: var(--border-radius); position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s; }
+@keyframes modalFadeIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+.close-btn { color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px; font-weight: bold; cursor: pointer; transition: color 0.3s; }
+.close-btn:hover, .close-btn:focus { color: #333; text-decoration: none; }
+.form-group { margin-bottom: 1.5rem; } .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); }
+.form-control { width: 100%; padding: 0.75rem; border-radius: var(--border-radius); border: 1px solid #ced4da; font-size: 1rem; box-sizing: border-box; line-height: 1.5; }
+#rental-modal #rental-client-name,
+#rental-modal #rental-notes,
+#edit-rental-modal #edit-rental-client-name,
+#edit-rental-modal #edit-rental-notes { text-transform: uppercase; }
+.form-group input[type="number"] { text-align: right; }
+.form-group textarea { min-height: 80px; resize: vertical; }
+.form-group select:disabled,
+.form-group input:disabled,
+.form-group input:read-only,
+.form-group textarea:disabled { background-color: #e9ecef; cursor: not-allowed; opacity: 0.7; }
+#edit-rental-modal fieldset[disabled] input.form-control { background-color: #f8f9fa; border-color: #dee2e6; color: #495057; }
 
-  <!-- Libreria Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <!-- Your application script -->
-  <script src="code.js"></script>
-</body>
-</html>
+/* --- Filtri Stampa --- */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+.print-filters { margin-left: auto; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.print-filters select.form-control { flex: 0 1 150px; min-width: 100px; }
+.print-filters input[type="number"].form-control { flex: 0 1 100px; min-width: 80px; }
+.print-filters button { flex-shrink: 0; }
+
+/* --- Noleggi da Verificare --- */
+.attention-rentals { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee; }
+.attention-rentals h3 { font-size: 1.1rem; color: #856404; margin-bottom: 0.8rem; display: flex; align-items: center; font-weight: 500; }
+.attention-icon { margin-right: 0.6rem; color: var(--warning); font-size: 1.2em; }
+#oldest-rentals-list { list-style: none; padding-left: 0; max-height: 250px; overflow-y: auto; margin-top: 0.5rem; }
+#oldest-rentals-list li { background-color: #fff3cd; border: 1px solid #ffeeba; border-left: 5px solid var(--warning); padding: 0.7rem 1rem; margin-bottom: 0.6rem; border-radius: 4px; font-size: 0.9rem; color: #5f4c00; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: background-color 0.2s ease; }
+#oldest-rentals-list li:hover { background-color: #ffeeba; }
+#oldest-rentals-list li .rental-details { flex-grow: 1; min-width: 200px; }
+#oldest-rentals-list li .rental-details .fa-user { margin-right: 0.4rem; color: var(--gray); cursor: help; }
+#oldest-rentals-list li .rental-date { font-weight: 500; flex-shrink: 0; text-align: right; font-size: 0.85rem; white-space: nowrap; color: #665100; }
+#oldest-rentals-list li .rental-date span { font-weight: bold; color: var(--danger); }
+#oldest-rentals-list li:last-child { margin-bottom: 0; }
+#oldest-rentals-list li:only-child { background-color: #f8f9fa; border-left-color: var(--gray); color: var(--gray); font-style: italic; box-shadow: none; }
+
+/* --- Stili per la Gestione dello Storico --- */
+#history-results-container ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+#history-results-container li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease;
+}
+#history-results-container li:hover {
+    background-color: #f8f9fa;
+}
+#history-results-container li > div {
+    flex-grow: 1;
+    padding-right: 1rem;
+}
+#history-results-container li small {
+    color: var(--gray);
+    font-size: 0.9em;
+}
