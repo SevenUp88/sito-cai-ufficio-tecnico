@@ -11,6 +11,7 @@
             --primary-hover: #004182;
             --success-color: #28a745;
             --danger-color: #dc3545;
+            --warning-color: #ffc107;
             --light-bg: #f8f9fa;
             --white: #ffffff;
             --border-color: #dee2e6;
@@ -63,10 +64,19 @@
         .table-container { overflow-x: auto; width: 100%; }
         table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
         thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
-        th, td { padding: 12px 15px; border: 1px solid var(--border-color); }
+        th, td { padding: 12px 15px; border: 1px solid var(--border-color); vertical-align: middle; }
         tbody tr:nth-child(even) { background-color: var(--light-bg); }
         tbody tr:hover { background-color: #e9ecef; }
         .loading-message, #no-results-message { text-align: center; padding: 20px; font-style: italic; color: var(--text-secondary); }
+        
+        .actions-cell { text-align: center; white-space: nowrap; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; transition: color 0.2s, transform 0.2s; }
+        .action-btn:hover { transform: scale(1.15); }
+        .btn-edit { color: var(--primary-color); }
+        .btn-delete { color: var(--danger-color); }
+        .btn-edit:hover { color: var(--primary-hover); }
+        .btn-delete:hover { color: #a51826; }
+
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
@@ -77,7 +87,7 @@
         .modal-content {
             background: var(--white); padding: 25px 30px; border-radius: 8px;
             width: 90%; max-width: 550px; box-shadow: var(--shadow-md);
-            transform: scale(0.95); transition: transform 0.3s ease;
+            transform: scale(0.95); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
         }
         .modal-overlay.visible .modal-content { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
@@ -85,8 +95,8 @@
         .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-secondary); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
         .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-size: 1em; font-weight: 500; cursor: pointer; }
-        #save-quote-btn { background-color: var(--success-color); color: white; }
-        #save-quote-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+        #save-quote-btn, #update-quote-btn { background-color: var(--success-color); color: white; }
+        #save-quote-btn:disabled, #update-quote-btn:disabled { background-color: #aaa; cursor: not-allowed; }
         #cancel-quote-btn { background-color: #f1f1f1; }
         .hidden { display: none !important; }
         @media (max-width: 768px) {
@@ -129,7 +139,7 @@
             <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato..."></div>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th></tr></thead>
+                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
                     <tbody id="preventivi-table-body"></tbody>
                 </table>
             </div>
@@ -137,43 +147,82 @@
         </div>
     </main>
 
-    <!-- Modal per inserimento nuovo preventivo -->
+    <!-- Modal per NUOVO preventivo -->
     <div id="add-quote-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Nuovo Preventivo</h2>
                 <button class="close-modal-btn">×</button>
             </div>
-            <form id="quote-form" novalidate>
-                <div class="form-group"><label for="cliente">Cliente</label><input type="text" id="cliente" required></div>
-                <div class="form-group"><label for="riferimento">Riferimento</label><input type="text" id="riferimento"></div>
-                <div class="form-group"><label for="numero">Numero Preventivo</label><input type="text" id="numero"></div>
-                <div class="form-group"><label for="stato">Stato</label>
-                    <select id="stato" required>
+            <form id="add-quote-form" novalidate>
+                <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
+                <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
+                <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
+                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
+                <div class="form-group"><label for="add-stato">Stato</label>
+                    <select id="add-stato" required>
                         <option value="Inviato">Inviato</option>
                         <option value="In attesa">In attesa</option>
                         <option value="Approvato">Approvato</option>
                         <option value="Rifiutato">Rifiutato</option>
                     </select>
                 </div>
-                <div class="form-group"><label for="esito">Esito Offerta</label>
-                    <select id="esito">
+                <div class="form-group"><label for="add-esito">Esito Offerta</label>
+                    <select id="add-esito">
                         <option value="">-- Seleziona --</option>
                         <option value="Da definire">Da definire</option>
                         <option value="Vinta">Vinta</option>
                         <option value="Persa">Persa</option>
                     </select>
                 </div>
-                <div class="form-group"><label for="note">Note</label><textarea id="note"></textarea></div>
+                <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
                 <div class="modal-footer">
-                    <button type="button" id="cancel-quote-btn" class="modal-button">Annulla</button>
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
                     <button type="submit" id="save-quote-btn" class="modal-button">Salva</button>
                 </div>
             </form>
         </div>
     </div>
+    
+    <!-- Modal per MODIFICA preventivo -->
+    <div id="edit-quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifica Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="edit-quote-form" novalidate>
+                <input type="hidden" id="edit-quote-id">
+                <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
+                <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
+                <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
+                <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
+                <div class="form-group"><label for="edit-stato">Stato</label>
+                    <select id="edit-stato" required>
+                        <option value="Inviato">Inviato</option>
+                        <option value="In attesa">In attesa</option>
+                        <option value="Approvato">Approvato</option>
+                        <option value="Rifiutato">Rifiutato</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="edit-esito">Esito Offerta</label>
+                    <select id="edit-esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
+                    <button type="submit" id="update-quote-btn" class="modal-button">Salva Modifiche</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <!-- Firebase SDKs v8 (Globale) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -189,7 +238,6 @@
                 appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
 
-            // Aspetta che l'oggetto firebase sia disponibile
             const firebaseCheck = setInterval(() => {
                 if (typeof firebase !== 'undefined') {
                     clearInterval(firebaseCheck);
@@ -198,99 +246,147 @@
             }, 100);
 
             function initializeApp(config) {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(config);
-                }
+                if (!firebase.apps.length) firebase.initializeApp(config);
                 
                 const auth = firebase.auth();
                 const db = firebase.firestore();
                 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
 
+                // --- Riferimenti DOM Generali ---
                 const loginSection = document.getElementById('login-section');
                 const loginForm = document.getElementById('login-form');
                 const loginError = document.getElementById('login-error');
                 const logoutButton = document.getElementById('logout-button');
                 const appContent = document.getElementById('app-content');
                 const addQuoteBtn = document.getElementById('add-quote-btn');
+                const preventiviTableBody = document.getElementById('preventivi-table-body');
                 
-                const modal = document.getElementById('add-quote-modal');
-                const quoteForm = document.getElementById('quote-form');
-                const closeModalBtn = modal.querySelector('.close-modal-btn');
-                const cancelQuoteBtn = document.getElementById('cancel-quote-btn');
+                // --- Riferimenti Modale AGGIUNGI ---
+                const addModal = document.getElementById('add-quote-modal');
+                const addQuoteForm = document.getElementById('add-quote-form');
+                
+                // --- Riferimenti Modale MODIFICA ---
+                const editModal = document.getElementById('edit-quote-modal');
+                const editQuoteForm = document.getElementById('edit-quote-form');
 
                 let allPreventivi = [];
                 let appListenersAttached = false;
 
+                // --- LOGICA DI BASE E AUTENTICAZIONE ---
                 loginForm.addEventListener('submit', (e) => { 
                     e.preventDefault();
                     loginError.textContent = '';
                     auth.signInWithEmailAndPassword(loginForm.email.value, loginForm.password.value)
                         .catch(err => {
-                            console.error("Errore di login:", err.code, err.message);
                             loginError.textContent = "Email o password errati.";
                         });
                 });
                 logoutButton.addEventListener('click', () => auth.signOut());
 
-                function setupAppEventListeners() {
-                    if (appListenersAttached) return;
-                    console.log("Setup dei listener dell'app.");
-
-                    addQuoteBtn.addEventListener('click', () => {
-                        console.log("Click su 'Nuovo Preventivo'.");
-                        quoteForm.reset();
-                        document.getElementById('save-quote-btn').disabled = false;
-                        document.getElementById('save-quote-btn').textContent = 'Salva';
-                        modal.classList.add('visible');
-                        document.getElementById('cliente').focus();
-                    });
-
-                    const closeTheModal = () => modal.classList.remove('visible');
-                    closeModalBtn.addEventListener('click', closeTheModal);
-                    cancelQuoteBtn.addEventListener('click', closeTheModal);
-                    
-                    appListenersAttached = true;
-                }
-
                 auth.onAuthStateChanged(user => {
                     if (user) {
-                        console.log("Utente autenticato:", user.uid);
                         loginSection.classList.add('hidden');
                         appContent.classList.remove('hidden');
                         addQuoteBtn.classList.remove('hidden');
                         logoutButton.classList.remove('hidden');
-                        
                         fetchPreventivi(db); 
                         setupAppEventListeners();
                     } else {
-                        console.log("Nessun utente loggato.");
                         loginSection.classList.remove('hidden');
                         appContent.classList.add('hidden');
                         addQuoteBtn.classList.add('hidden');
                         logoutButton.classList.add('hidden');
-                        document.getElementById('preventivi-table-body').innerHTML = '';
+                        preventiviTableBody.innerHTML = '';
                         appListenersAttached = false;
                     }
                 });
 
+                // --- SETUP DEI LISTENER (una sola volta) ---
+                function setupAppEventListeners() {
+                    if (appListenersAttached) return;
+                    console.log("Setup dei listener dell'app.");
+
+                    // Apre il modale per AGGIUNGERE un preventivo
+                    addQuoteBtn.addEventListener('click', () => {
+                        addQuoteForm.reset();
+                        addModal.classList.add('visible');
+                        document.getElementById('add-cliente').focus();
+                    });
+
+                    // Logica per i pulsanti ANNULLA e chiusura X di TUTTI i modali
+                    document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            btn.closest('.modal-overlay').classList.remove('visible');
+                        });
+                    });
+
+                    // Delega eventi per pulsanti MODIFICA e CANCELLA nella tabella
+                    preventiviTableBody.addEventListener('click', handleTableActions);
+
+                    appListenersAttached = true;
+                }
+
+                // --- GESTIONE AZIONI SULLA TABELLA (Modifica/Cancella) ---
+                async function handleTableActions(e) {
+                    const target = e.target.closest('.action-btn');
+                    if (!target) return;
+
+                    const quoteId = target.dataset.id;
+                    
+                    // --- Azione CANCELLA ---
+                    if (target.classList.contains('btn-delete')) {
+                        if (confirm('Sei sicuro di voler eliminare questo preventivo? L\'azione è irreversibile.')) {
+                            try {
+                                await db.collection("preventivi").doc(quoteId).delete();
+                                alert('Preventivo eliminato con successo.');
+                                fetchPreventivi(db); // Ricarica la tabella
+                            } catch (error) {
+                                console.error("Errore durante l'eliminazione:", error);
+                                alert("Si è verificato un errore durante l'eliminazione.");
+                            }
+                        }
+                    }
+                    // --- Azione MODIFICA ---
+                    else if (target.classList.contains('btn-edit')) {
+                        const quoteToEdit = allPreventivi.find(p => p.id === quoteId);
+                        if (quoteToEdit) {
+                            // Popola il form di modifica
+                            document.getElementById('edit-quote-id').value = quoteToEdit.id;
+                            document.getElementById('edit-cliente').value = quoteToEdit.cliente || '';
+                            // Converte il timestamp di firestore in formato YYYY-MM-DD per l'input
+                            if (quoteToEdit.data?.seconds) {
+                                document.getElementById('edit-data').value = new Date(quoteToEdit.data.seconds * 1000).toISOString().split('T')[0];
+                            } else {
+                                document.getElementById('edit-data').value = '';
+                            }
+                            document.getElementById('edit-riferimento').value = quoteToEdit.riferimento || '';
+                            document.getElementById('edit-numero').value = quoteToEdit.numero || '';
+                            document.getElementById('edit-stato').value = quoteToEdit.stato || 'Inviato';
+                            document.getElementById('edit-esito').value = quoteToEdit.esitoOfferta || '';
+                            document.getElementById('edit-note').value = quoteToEdit.note || '';
+
+                            editModal.classList.add('visible');
+                        }
+                    }
+                }
+                
+                // --- CARICAMENTO E RENDERIZZAZIONE DATI ---
                 function fetchPreventivi(db) {
-                    const preventiviTableBody = document.getElementById('preventivi-table-body');
-                    preventiviTableBody.innerHTML = `<tr><td colspan="7" class="loading-message">Caricamento...</td></tr>`;
+                    preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message">Caricamento...</td></tr>`;
                     db.collection("preventivi").orderBy("data", "desc").get()
                       .then(snapshot => {
                           allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                           renderTable(allPreventivi);
                       }).catch(error => {
                           console.error("Errore caricamento preventivi:", error);
-                          preventiviTableBody.innerHTML = `<tr><td colspan="7" class="loading-message" style="color:red;">Errore caricamento.</td></tr>`;
+                          preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message" style="color:red;">Errore caricamento.</td></tr>`;
                       });
                 }
 
                 function renderTable(data) {
-                    const preventiviTableBody = document.getElementById('preventivi-table-body');
-                    const noResultsMessage = document.getElementById('no-results-message');
                     preventiviTableBody.innerHTML = '';
-                    noResultsMessage.classList.toggle('hidden', data.length > 0);
+                    document.getElementById('no-results-message').classList.toggle('hidden', data.length > 0);
+                    
                     data.forEach(p => {
                         const row = preventiviTableBody.insertRow();
                         row.insertCell().textContent = p.cliente || '';
@@ -300,56 +396,108 @@
                         row.insertCell().textContent = p.stato || '';
                         row.insertCell().textContent = p.esitoOfferta || '';
                         row.insertCell().textContent = p.note || '';
+                        
+                        // Aggiungi cella con pulsanti di azione
+                        const actionsCell = row.insertCell();
+                        actionsCell.classList.add('actions-cell');
+                        actionsCell.innerHTML = `
+                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        `;
                     });
                 }
 
-                quoteForm.addEventListener('submit', async (e) => {
+                // --- GESTIONE SUBMIT FORM (Aggiungi e Modifica) ---
+                // Salva un NUOVO preventivo
+                addQuoteForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!quoteForm.checkValidity()) {
-                        alert('Compila i campi obbligatori (Cliente e Stato).');
+                    if (!addQuoteForm.checkValidity()) {
+                        alert('Compila i campi obbligatori.');
                         return;
                     }
-                    const saveQuoteBtn = document.getElementById('save-quote-btn');
-                    saveQuoteBtn.disabled = true;
-                    saveQuoteBtn.textContent = 'Salvataggio...';
+                    const saveBtn = document.getElementById('save-quote-btn');
+                    saveBtn.disabled = true;
+
+                    const dateString = document.getElementById('add-data').value;
+                    const quoteDate = dateString 
+                        ? firebase.firestore.Timestamp.fromDate(new Date(dateString + 'T00:00:00')) 
+                        : firebase.firestore.FieldValue.serverTimestamp();
 
                     const quoteData = {
-                        cliente: document.getElementById('cliente').value.trim(),
-                        riferimento: document.getElementById('riferimento').value.trim(),
-                        numero: document.getElementById('numero').value.trim(),
-                        stato: document.getElementById('stato').value,
-                        esitoOfferta: document.getElementById('esito').value,
-                        note: document.getElementById('note').value.trim(),
-                        data: firebase.firestore.FieldValue.serverTimestamp()
+                        cliente: document.getElementById('add-cliente').value.trim(),
+                        riferimento: document.getElementById('add-riferimento').value.trim(),
+                        numero: document.getElementById('add-numero').value.trim(),
+                        stato: document.getElementById('add-stato').value,
+                        esitoOfferta: document.getElementById('add-esito').value,
+                        note: document.getElementById('add-note').value.trim(),
+                        data: quoteDate
                     };
                     
-                    const quoteDataForSheet = { ...quoteData, data: new Date().toISOString() };
-
+                    const quoteDataForSheet = { ...quoteData, data: (dateString ? new Date(dateString) : new Date()).toISOString() };
+                    
                     try {
-                        const firestorePromise = db.collection("preventivi").add(quoteData);
-                        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('INCOLLA_QUI')) {
-                            console.warn("URL Script Google non configurato.");
-                            await firestorePromise;
-                        } else {
-                            const googleSheetPromise = fetch(GOOGLE_SCRIPT_URL, {
+                        await db.collection("preventivi").add(quoteData);
+                        // Invia a Google Sheets senza attendere (fire-and-forget) per non rallentare la UI
+                        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('INCOLLA_QUI')) {
+                             fetch(GOOGLE_SCRIPT_URL, {
                                 method: 'POST', mode: 'no-cors',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify(quoteDataForSheet)
                             });
-                            await Promise.all([firestorePromise, googleSheetPromise]);
                         }
                         alert('Preventivo salvato!');
-                        modal.classList.remove('visible');
+                        addModal.classList.remove('visible');
                         fetchPreventivi(db);
                     } catch (error) {
                         console.error("Errore salvataggio preventivo:", error);
-                        alert("Errore durante il salvataggio.");
                     } finally {
-                        saveQuoteBtn.disabled = false;
-                        saveQuoteBtn.textContent = 'Salva';
+                        saveBtn.disabled = false;
+                    }
+                });
+                
+                // Aggiorna un preventivo ESISTENTE
+                editQuoteForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    if (!editQuoteForm.checkValidity()) {
+                        alert('Compila i campi obbligatori.');
+                        return;
+                    }
+                    const updateBtn = document.getElementById('update-quote-btn');
+                    updateBtn.disabled = true;
+
+                    const quoteId = document.getElementById('edit-quote-id').value;
+                    const dateString = document.getElementById('edit-data').value;
+                    // Conversione necessaria per l'update
+                    const quoteDate = firebase.firestore.Timestamp.fromDate(new Date(dateString + 'T00:00:00'));
+
+                    const updatedData = {
+                        cliente: document.getElementById('edit-cliente').value.trim(),
+                        riferimento: document.getElementById('edit-riferimento').value.trim(),
+                        numero: document.getElementById('edit-numero').value.trim(),
+                        stato: document.getElementById('edit-stato').value,
+                        esitoOfferta: document.getElementById('edit-esito').value,
+                        note: document.getElementById('edit-note').value.trim(),
+                        data: quoteDate
+                    };
+
+                    try {
+                        await db.collection("preventivi").doc(quoteId).update(updatedData);
+                        alert('Preventivo aggiornato con successo!');
+                        editModal.classList.remove('visible');
+                        fetchPreventivi(db);
+                    } catch (error) {
+                        console.error("Errore aggiornamento preventivo:", error);
+                        alert("Si è verificato un errore durante l'aggiornamento.");
+                    } finally {
+                        updateBtn.disabled = false;
                     }
                 });
 
+                // --- Logica Ricerca ---
                 document.getElementById('search-input').addEventListener('input', (e) => {
                     const term = e.target.value.toLowerCase();
                     const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val).toLowerCase().includes(term)));
