@@ -318,7 +318,6 @@
                             try {
                                 await db.collection("preventivi").doc(quoteId).delete();
                                 
-                                // Invia comando di cancellazione a Google Sheets
                                 if(quote.numero){
                                     fetch(GOOGLE_SCRIPT_URL, {
                                         method: 'POST', mode: 'no-cors',
@@ -329,6 +328,7 @@
                                 alert('Preventivo eliminato.');
                                 fetchPreventivi(db);
                             } catch (error) {
+                                console.error("Errore durante l'eliminazione:", error);
                                 alert("Errore durante l'eliminazione.");
                             }
                         }
@@ -348,10 +348,14 @@
                 
                 function fetchPreventivi(db) {
                     preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message">Caricamento...</td></tr>`;
+                    // ORDINAMENTO CRONOLOGICO (più recente in alto)
                     db.collection("preventivi").orderBy("data", "desc").get()
                       .then(snapshot => {
                           allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                           renderTable(allPreventivi);
+                      }).catch(err => {
+                          console.error("Errore fetchPreventivi:", err);
+                          preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message" style="color:red;">Errore caricamento.</td></tr>`;
                       });
                 }
 
@@ -360,6 +364,7 @@
                     document.getElementById('no-results-message').classList.toggle('hidden', data.length > 0);
                     data.forEach(p => {
                         const row = preventiviTableBody.insertRow();
+                        // Uso innerHTML per efficienza e semplicità
                         row.innerHTML = `
                             <td>${p.cliente || ''}</td>
                             <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
@@ -378,10 +383,13 @@
 
                 addQuoteForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                    if(!e.target.checkValidity()) { alert("Il campo Cliente è obbligatorio."); return; }
+                    
                     const saveBtn = document.getElementById('save-quote-btn');
                     saveBtn.disabled = true;
 
                     const dateString = document.getElementById('add-data').value;
+                    // Se la data non è inserita, usa oggi. Altrimenti, usa la data specificata.
                     const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
 
                     const quoteData = {
@@ -397,7 +405,6 @@
                     try {
                         await db.collection("preventivi").add(quoteData);
                         
-                        // Invia ad Google Sheet
                         const sheetData = { ...quoteData, action: 'add', data: quoteDate.toISOString() };
                         fetch(GOOGLE_SCRIPT_URL, {
                             method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
@@ -406,6 +413,9 @@
                         alert('Preventivo salvato!');
                         addModal.classList.remove('visible');
                         fetchPreventivi(db);
+                    } catch(err) {
+                        console.error("Errore salvataggio:", err);
+                        alert("Errore durante il salvataggio.");
                     } finally {
                         saveBtn.disabled = false;
                     }
@@ -413,6 +423,8 @@
                 
                 editQuoteForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
+                     if(!e.target.checkValidity()) { alert("Tutti i campi sono obbligatori in modifica."); return; }
+
                     const updateBtn = document.getElementById('update-quote-btn');
                     updateBtn.disabled = true;
 
@@ -433,7 +445,6 @@
                     try {
                         await db.collection("preventivi").doc(quoteId).update(updatedData);
                         
-                        // Invia ad Google Sheet
                          const sheetData = { ...updatedData, action: 'update', data: quoteDate.toISOString() };
                          fetch(GOOGLE_SCRIPT_URL, {
                             method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
@@ -442,6 +453,9 @@
                         alert('Preventivo aggiornato!');
                         editModal.classList.remove('visible');
                         fetchPreventivi(db);
+                    } catch(err) {
+                        console.error("Errore aggiornamento:", err);
+                        alert("Errore durante l'aggiornamento.");
                     } finally {
                         updateBtn.disabled = false;
                     }
