@@ -129,7 +129,6 @@
 
     <main>
         <section id="login-section">
-            <!-- Contenuto login invariato -->
             <h2>Accesso Riservato</h2>
             <form id="login-form">
                 <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
@@ -140,7 +139,6 @@
         </section>
 
         <div id="app-content" class="hidden">
-            <!-- Contenuto tabella invariato -->
             <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato..."></div>
             <div class="table-container">
                 <table>
@@ -159,16 +157,16 @@
                 <h2>Nuovo Preventivo</h2>
                 <button class="close-modal-btn">×</button>
             </div>
-            <form id="quote-form">
+            <form id="quote-form" novalidate>
                 <div class="form-group"><label for="cliente">Cliente</label><input type="text" id="cliente" required></div>
                 <div class="form-group"><label for="riferimento">Riferimento</label><input type="text" id="riferimento"></div>
                 <div class="form-group"><label for="numero">Numero Preventivo</label><input type="text" id="numero"></div>
                 <div class="form-group"><label for="stato">Stato</label>
                     <select id="stato" required>
+                        <option value="Inviato">Inviato</option>
                         <option value="In attesa">In attesa</option>
                         <option value="Approvato">Approvato</option>
                         <option value="Rifiutato">Rifiutato</option>
-                        <option value="Inviato">Inviato</option>
                     </select>
                 </div>
                 <div class="form-group"><label for="esito">Esito Offerta</label>
@@ -198,7 +196,9 @@
             apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
             projectId: "consorzio-artigiani-idraulici",
-            // ... resto della config
+            storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+            messagingSenderId: "367198758830",
+            appId: "1:367198758830:web:71e2195f1712a832e01b3a"
         };
 
         function initializeAppAndListeners() {
@@ -213,6 +213,7 @@
             // Riferimenti DOM
             const loginSection = document.getElementById('login-section');
             const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
             const appContent = document.getElementById('app-content');
             const addQuoteBtn = document.getElementById('add-quote-btn');
             const logoutButton = document.getElementById('logout-button');
@@ -222,7 +223,6 @@
             const modal = document.getElementById('add-quote-modal');
             const quoteForm = document.getElementById('quote-form');
             const saveQuoteBtn = document.getElementById('save-quote-btn');
-            const cancelQuoteBtn = document.getElementById('cancel-quote-btn');
             const closeModalBtns = document.querySelectorAll('.close-modal-btn, #cancel-quote-btn');
             
             let allPreventivi = [];
@@ -245,28 +245,32 @@
                 }
             });
 
-            // Funzione per recuperare e mostrare i dati
+            // Funzione per recuperare i dati da Firestore
             function fetchPreventivi() {
-                // ... codice fetchPreventivi invariato...
-                preventiviTableBody.innerHTML = '<tr><td colspan="7" class="loading-message">Caricamento...</td></tr>';
+                preventiviTableBody.innerHTML = `<tr><td colspan="7" class="loading-message">Caricamento in corso...</td></tr>`;
                 db.collection("preventivi").orderBy("data", "desc").get()
                   .then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
-                  }).catch(error => console.error("Errore caricamento preventivi:", error));
+                  }).catch(error => {
+                        console.error("Errore caricamento preventivi:", error)
+                        preventiviTableBody.innerHTML = `<tr><td colspan="7" class="loading-message" style="color:red;">Errore nel caricamento.</td></tr>`;
+                  });
             }
 
+            // Funzione per mostrare i dati nella tabella
             function renderTable(data) {
-                // ... codice renderTable aggiornato per la nuova colonna ...
                 preventiviTableBody.innerHTML = '';
                 if (data.length === 0) {
-                     preventiviTableBody.innerHTML = '<tr><td colspan="7" id="no-results-message">Nessun preventivo trovato.</td></tr>';
+                     document.getElementById('no-results-message').classList.remove('hidden');
                      return;
                 }
+                document.getElementById('no-results-message').classList.add('hidden');
+                
                 data.forEach(p => {
                     const row = preventiviTableBody.insertRow();
                     row.insertCell().textContent = p.cliente || '';
-                    row.insertCell().textContent = p.data ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
+                    row.insertCell().textContent = p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
                     row.insertCell().textContent = p.riferimento || '';
                     row.insertCell().textContent = p.numero || '';
                     row.insertCell().textContent = p.stato || '';
@@ -276,48 +280,67 @@
             }
 
             // Gestione eventi per la Modal
-            addQuoteBtn.addEventListener('click', () => modal.classList.add('visible'));
-            closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.remove('visible')));
+            addQuoteBtn.addEventListener('click', () => {
+                quoteForm.reset(); // Pulisce il form ogni volta che si apre
+                modal.classList.add('visible');
+                document.getElementById('cliente').focus(); // Focus sul primo campo
+            });
+
+            closeModalBtns.forEach(btn => btn.addEventListener('click', () => {
+                modal.classList.remove('visible');
+            }));
             
             // Gestione salvataggio nuovo preventivo
             quoteForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if (!quoteForm.checkValidity()) {
+                    alert('Per favore, compila tutti i campi obbligatori (Cliente e Stato).');
+                    return;
+                }
                 saveQuoteBtn.disabled = true;
                 saveQuoteBtn.textContent = 'Salvataggio...';
 
                 const quoteData = {
-                    cliente: document.getElementById('cliente').value,
-                    riferimento: document.getElementById('riferimento').value,
-                    numero: document.getElementById('numero').value,
+                    cliente: document.getElementById('cliente').value.trim(),
+                    riferimento: document.getElementById('riferimento').value.trim(),
+                    numero: document.getElementById('numero').value.trim(),
                     stato: document.getElementById('stato').value,
                     esitoOfferta: document.getElementById('esito').value,
-                    note: document.getElementById('note').value,
-                    data: new Date() // Data attuale
+                    note: document.getElementById('note').value.trim(),
+                    data: firebase.firestore.FieldValue.serverTimestamp() // Usa il timestamp del server per coerenza
                 };
+                
+                // Crea una copia dei dati per Google Sheets, risolvendo subito la data
+                const quoteDataForSheet = { ...quoteData, data: new Date().toISOString() };
 
                 try {
                     // Step 1: Salva su Firestore
                     const firestorePromise = db.collection("preventivi").add(quoteData);
 
                     // Step 2: Salva su Google Sheets
-                    const googleSheetPromise = fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors', // Necessario per chiamare Apps Script da web
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(quoteData)
-                    });
-                    
-                    // Attendi che entrambe le operazioni finiscano
-                    await Promise.all([firestorePromise, googleSheetPromise]);
+                    // Controlla che l'URL sia stato inserito
+                    if (GOOGLE_SCRIPT_URL === 'INCOLLA_QUI_IL_TUO_URL_APPLICAZIONE_WEB' || !GOOGLE_SCRIPT_URL) {
+                        console.warn("URL di Google Apps Script non configurato. Salto il salvataggio su Fogli.");
+                        // Se l'URL non è presente, consideriamo la promise come già risolta per non bloccare il salvataggio su Firestore
+                        await firestorePromise; 
+                    } else {
+                        const googleSheetPromise = fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST',
+                            mode: 'no-cors', // Necessario per chiamare Apps Script da web
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(quoteDataForSheet)
+                        });
+                        // Attendi che entrambe le operazioni finiscano
+                        await Promise.all([firestorePromise, googleSheetPromise]);
+                    }
 
                     alert('Preventivo salvato con successo!');
                     modal.classList.remove('visible');
-                    quoteForm.reset();
-                    fetchPreventivi(); // Ricarica la tabella
+                    fetchPreventivi(); // Ricarica la tabella con i dati aggiornati
 
                 } catch (error) {
-                    console.error("Errore durante il salvataggio:", error);
-                    alert("Si è verificato un errore. Controlla la console per i dettagli.");
+                    console.error("Errore durante il salvataggio del preventivo:", error);
+                    alert("Si è verificato un errore durante il salvataggio. Controlla la console per i dettagli.");
                 } finally {
                     saveQuoteBtn.disabled = false;
                     saveQuoteBtn.textContent = 'Salva';
@@ -329,21 +352,30 @@
             logoutButton.addEventListener('click', () => auth.signOut());
             document.getElementById('search-input').addEventListener('input', (e) => {
                 const term = e.target.value.toLowerCase();
-                const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val).toLowerCase().includes(term)));
+                if (!term) {
+                    renderTable(allPreventivi);
+                    return;
+                }
+                const filtered = allPreventivi.filter(p => 
+                    Object.values(p).some(val => 
+                        String(val).toLowerCase().includes(term)
+                    )
+                );
                 renderTable(filtered);
             });
 
         }
         
-        // Meccanismo di avvio
+        // Meccanismo di avvio (invariato)
         let checkIntervalCount = 0;
         function checkFirebaseSDKAndRun() {
-            if (typeof firebase !== 'undefined') {
+            if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
                 document.addEventListener('DOMContentLoaded', initializeAppAndListeners);
             } else if (checkIntervalCount++ < 100) {
                 setTimeout(checkFirebaseSDKAndRun, 100);
             } else {
-                alert("Errore critico: Firebase SDK non caricato.");
+                console.error("Errore critico: Firebase SDK non caricato correttamente.");
+                alert("Impossibile caricare le funzionalità del database. Ricarica la pagina.");
             }
         }
         checkFirebaseSDKAndRun();
