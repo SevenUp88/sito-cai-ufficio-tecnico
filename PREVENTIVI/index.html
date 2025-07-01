@@ -252,256 +252,206 @@
                 const db = firebase.firestore();
                 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
 
-                // --- Riferimenti DOM Generali ---
                 const loginSection = document.getElementById('login-section');
                 const loginForm = document.getElementById('login-form');
-                const loginError = document.getElementById('login-error');
                 const logoutButton = document.getElementById('logout-button');
                 const appContent = document.getElementById('app-content');
                 const addQuoteBtn = document.getElementById('add-quote-btn');
                 const preventiviTableBody = document.getElementById('preventivi-table-body');
                 
-                // --- Riferimenti Modale AGGIUNGI ---
                 const addModal = document.getElementById('add-quote-modal');
                 const addQuoteForm = document.getElementById('add-quote-form');
-                
-                // --- Riferimenti Modale MODIFICA ---
                 const editModal = document.getElementById('edit-quote-modal');
                 const editQuoteForm = document.getElementById('edit-quote-form');
 
                 let allPreventivi = [];
                 let appListenersAttached = false;
 
-                // --- LOGICA DI BASE E AUTENTICAZIONE ---
                 loginForm.addEventListener('submit', (e) => { 
                     e.preventDefault();
-                    loginError.textContent = '';
-                    auth.signInWithEmailAndPassword(loginForm.email.value, loginForm.password.value)
-                        .catch(err => {
-                            loginError.textContent = "Email o password errati.";
-                        });
+                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value)
+                        .catch(err => { document.getElementById('login-error').textContent = "Email o password errati."; });
                 });
                 logoutButton.addEventListener('click', () => auth.signOut());
 
                 auth.onAuthStateChanged(user => {
+                    appContent.classList.toggle('hidden', !user);
+                    loginSection.classList.toggle('hidden', !!user);
+                    addQuoteBtn.classList.toggle('hidden', !user);
+                    logoutButton.classList.toggle('hidden', !user);
                     if (user) {
-                        loginSection.classList.add('hidden');
-                        appContent.classList.remove('hidden');
-                        addQuoteBtn.classList.remove('hidden');
-                        logoutButton.classList.remove('hidden');
                         fetchPreventivi(db); 
                         setupAppEventListeners();
                     } else {
-                        loginSection.classList.remove('hidden');
-                        appContent.classList.add('hidden');
-                        addQuoteBtn.classList.add('hidden');
-                        logoutButton.classList.add('hidden');
-                        preventiviTableBody.innerHTML = '';
                         appListenersAttached = false;
+                        preventiviTableBody.innerHTML = '';
                     }
                 });
 
-                // --- SETUP DEI LISTENER (una sola volta) ---
                 function setupAppEventListeners() {
                     if (appListenersAttached) return;
-                    console.log("Setup dei listener dell'app.");
-
-                    // Apre il modale per AGGIUNGERE un preventivo
+                    
                     addQuoteBtn.addEventListener('click', () => {
                         addQuoteForm.reset();
                         addModal.classList.add('visible');
                         document.getElementById('add-cliente').focus();
                     });
 
-                    // Logica per i pulsanti ANNULLA e chiusura X di TUTTI i modali
                     document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                        btn.addEventListener('click', () => {
-                            btn.closest('.modal-overlay').classList.remove('visible');
-                        });
+                        btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
                     });
-
-                    // Delega eventi per pulsanti MODIFICA e CANCELLA nella tabella
+                    
                     preventiviTableBody.addEventListener('click', handleTableActions);
-
                     appListenersAttached = true;
                 }
 
-                // --- GESTIONE AZIONI SULLA TABELLA (Modifica/Cancella) ---
                 async function handleTableActions(e) {
                     const target = e.target.closest('.action-btn');
                     if (!target) return;
 
                     const quoteId = target.dataset.id;
+                    const quote = allPreventivi.find(p => p.id === quoteId);
+                    if (!quote) return;
                     
-                    // --- Azione CANCELLA ---
                     if (target.classList.contains('btn-delete')) {
-                        if (confirm('Sei sicuro di voler eliminare questo preventivo? L\'azione è irreversibile.')) {
+                        if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
                             try {
                                 await db.collection("preventivi").doc(quoteId).delete();
-                                alert('Preventivo eliminato con successo.');
-                                fetchPreventivi(db); // Ricarica la tabella
+                                
+                                // Invia comando di cancellazione a Google Sheets
+                                if(quote.numero){
+                                    fetch(GOOGLE_SCRIPT_URL, {
+                                        method: 'POST', mode: 'no-cors',
+                                        body: JSON.stringify({ action: 'delete', numero: quote.numero })
+                                    }).catch(err => console.error("Errore invio cancellazione a Sheets:", err));
+                                }
+
+                                alert('Preventivo eliminato.');
+                                fetchPreventivi(db);
                             } catch (error) {
-                                console.error("Errore durante l'eliminazione:", error);
-                                alert("Si è verificato un errore durante l'eliminazione.");
+                                alert("Errore durante l'eliminazione.");
                             }
                         }
                     }
-                    // --- Azione MODIFICA ---
                     else if (target.classList.contains('btn-edit')) {
-                        const quoteToEdit = allPreventivi.find(p => p.id === quoteId);
-                        if (quoteToEdit) {
-                            // Popola il form di modifica
-                            document.getElementById('edit-quote-id').value = quoteToEdit.id;
-                            document.getElementById('edit-cliente').value = quoteToEdit.cliente || '';
-                            // Converte il timestamp di firestore in formato YYYY-MM-DD per l'input
-                            if (quoteToEdit.data?.seconds) {
-                                document.getElementById('edit-data').value = new Date(quoteToEdit.data.seconds * 1000).toISOString().split('T')[0];
-                            } else {
-                                document.getElementById('edit-data').value = '';
-                            }
-                            document.getElementById('edit-riferimento').value = quoteToEdit.riferimento || '';
-                            document.getElementById('edit-numero').value = quoteToEdit.numero || '';
-                            document.getElementById('edit-stato').value = quoteToEdit.stato || 'Inviato';
-                            document.getElementById('edit-esito').value = quoteToEdit.esitoOfferta || '';
-                            document.getElementById('edit-note').value = quoteToEdit.note || '';
-
-                            editModal.classList.add('visible');
-                        }
+                        document.getElementById('edit-quote-id').value = quote.id;
+                        document.getElementById('edit-cliente').value = quote.cliente || '';
+                        document.getElementById('edit-data').value = quote.data?.seconds ? new Date(quote.data.seconds * 1000).toISOString().split('T')[0] : '';
+                        document.getElementById('edit-riferimento').value = quote.riferimento || '';
+                        document.getElementById('edit-numero').value = quote.numero || '';
+                        document.getElementById('edit-stato').value = quote.stato || 'Inviato';
+                        document.getElementById('edit-esito').value = quote.esitoOfferta || '';
+                        document.getElementById('edit-note').value = quote.note || '';
+                        editModal.classList.add('visible');
                     }
                 }
                 
-                // --- CARICAMENTO E RENDERIZZAZIONE DATI ---
                 function fetchPreventivi(db) {
                     preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message">Caricamento...</td></tr>`;
                     db.collection("preventivi").orderBy("data", "desc").get()
                       .then(snapshot => {
                           allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                           renderTable(allPreventivi);
-                      }).catch(error => {
-                          console.error("Errore caricamento preventivi:", error);
-                          preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message" style="color:red;">Errore caricamento.</td></tr>`;
                       });
                 }
 
                 function renderTable(data) {
                     preventiviTableBody.innerHTML = '';
                     document.getElementById('no-results-message').classList.toggle('hidden', data.length > 0);
-                    
                     data.forEach(p => {
                         const row = preventiviTableBody.insertRow();
-                        row.insertCell().textContent = p.cliente || '';
-                        row.insertCell().textContent = p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
-                        row.insertCell().textContent = p.riferimento || '';
-                        row.insertCell().textContent = p.numero || '';
-                        row.insertCell().textContent = p.stato || '';
-                        row.insertCell().textContent = p.esitoOfferta || '';
-                        row.insertCell().textContent = p.note || '';
-                        
-                        // Aggiungi cella con pulsanti di azione
-                        const actionsCell = row.insertCell();
-                        actionsCell.classList.add('actions-cell');
-                        actionsCell.innerHTML = `
-                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        row.innerHTML = `
+                            <td>${p.cliente || ''}</td>
+                            <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
+                            <td>${p.riferimento || ''}</td>
+                            <td>${p.numero || ''}</td>
+                            <td>${p.stato || ''}</td>
+                            <td>${p.esitoOfferta || ''}</td>
+                            <td>${p.note || ''}</td>
+                            <td class="actions-cell">
+                                <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
+                                <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
+                            </td>
                         `;
                     });
                 }
 
-                // --- GESTIONE SUBMIT FORM (Aggiungi e Modifica) ---
-                // Salva un NUOVO preventivo
                 addQuoteForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!addQuoteForm.checkValidity()) {
-                        alert('Compila i campi obbligatori.');
-                        return;
-                    }
                     const saveBtn = document.getElementById('save-quote-btn');
                     saveBtn.disabled = true;
 
                     const dateString = document.getElementById('add-data').value;
-                    const quoteDate = dateString 
-                        ? firebase.firestore.Timestamp.fromDate(new Date(dateString + 'T00:00:00')) 
-                        : firebase.firestore.FieldValue.serverTimestamp();
+                    const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
 
                     const quoteData = {
                         cliente: document.getElementById('add-cliente').value.trim(),
+                        data: firebase.firestore.Timestamp.fromDate(quoteDate),
                         riferimento: document.getElementById('add-riferimento').value.trim(),
                         numero: document.getElementById('add-numero').value.trim(),
                         stato: document.getElementById('add-stato').value,
                         esitoOfferta: document.getElementById('add-esito').value,
                         note: document.getElementById('add-note').value.trim(),
-                        data: quoteDate
                     };
-                    
-                    const quoteDataForSheet = { ...quoteData, data: (dateString ? new Date(dateString) : new Date()).toISOString() };
                     
                     try {
                         await db.collection("preventivi").add(quoteData);
-                        // Invia a Google Sheets senza attendere (fire-and-forget) per non rallentare la UI
-                        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('INCOLLA_QUI')) {
-                             fetch(GOOGLE_SCRIPT_URL, {
-                                method: 'POST', mode: 'no-cors',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify(quoteDataForSheet)
-                            });
-                        }
+                        
+                        // Invia ad Google Sheet
+                        const sheetData = { ...quoteData, action: 'add', data: quoteDate.toISOString() };
+                        fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
+                        }).catch(err => console.error("Errore invio a Sheets:", err));
+                        
                         alert('Preventivo salvato!');
                         addModal.classList.remove('visible');
                         fetchPreventivi(db);
-                    } catch (error) {
-                        console.error("Errore salvataggio preventivo:", error);
                     } finally {
                         saveBtn.disabled = false;
                     }
                 });
                 
-                // Aggiorna un preventivo ESISTENTE
                 editQuoteForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (!editQuoteForm.checkValidity()) {
-                        alert('Compila i campi obbligatori.');
-                        return;
-                    }
                     const updateBtn = document.getElementById('update-quote-btn');
                     updateBtn.disabled = true;
 
                     const quoteId = document.getElementById('edit-quote-id').value;
                     const dateString = document.getElementById('edit-data').value;
-                    // Conversione necessaria per l'update
-                    const quoteDate = firebase.firestore.Timestamp.fromDate(new Date(dateString + 'T00:00:00'));
+                    const quoteDate = new Date(dateString + 'T00:00:00');
 
                     const updatedData = {
                         cliente: document.getElementById('edit-cliente').value.trim(),
+                        data: firebase.firestore.Timestamp.fromDate(quoteDate),
                         riferimento: document.getElementById('edit-riferimento').value.trim(),
                         numero: document.getElementById('edit-numero').value.trim(),
                         stato: document.getElementById('edit-stato').value,
                         esitoOfferta: document.getElementById('edit-esito').value,
-                        note: document.getElementById('edit-note').value.trim(),
-                        data: quoteDate
+                        note: document.getElementById('edit-note').value.trim()
                     };
 
                     try {
                         await db.collection("preventivi").doc(quoteId).update(updatedData);
-                        alert('Preventivo aggiornato con successo!');
+                        
+                        // Invia ad Google Sheet
+                         const sheetData = { ...updatedData, action: 'update', data: quoteDate.toISOString() };
+                         fetch(GOOGLE_SCRIPT_URL, {
+                            method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
+                        }).catch(err => console.error("Errore invio aggiornamento a Sheets:", err));
+                        
+                        alert('Preventivo aggiornato!');
                         editModal.classList.remove('visible');
                         fetchPreventivi(db);
-                    } catch (error) {
-                        console.error("Errore aggiornamento preventivo:", error);
-                        alert("Si è verificato un errore durante l'aggiornamento.");
                     } finally {
                         updateBtn.disabled = false;
                     }
                 });
 
-                // --- Logica Ricerca ---
                 document.getElementById('search-input').addEventListener('input', (e) => {
                     const term = e.target.value.toLowerCase();
-                    const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val).toLowerCase().includes(term)));
-                    renderTable(filtered);
+                    renderTable(allPreventivi.filter(p => 
+                        Object.values(p).some(val => String(val).toLowerCase().includes(term))
+                    ));
                 });
             }
         });
