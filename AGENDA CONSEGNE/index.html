@@ -46,83 +46,70 @@
         
         .app-container { max-width: 1200px; margin: 0 auto; }
 
-        /* --- UPDATED HEADER STYLES --- */
         .app-header {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 10px 20px;
-            background-color: var(--card-background);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-            border-radius: var(--radius-xl);
-            border: 1px solid var(--border-color);
-            margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 20px; padding: 10px 20px;
+            background-color: var(--card-background); box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 2rem;
         }
-        .app-header .logo {
-            height: 45px;
-            width: auto;
-            flex-shrink: 0;
-        }
-        .app-header a.logo-link {
-            line-height: 0;
-        }
-        .header-user-info {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-        }
-        .header-user-info strong {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-        .header-controls {
-            margin-left: auto;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .app-header .logo { height: 45px; width: auto; flex-shrink: 0; }
+        .app-header a.logo-link { line-height: 0; }
+        .header-user-info { font-size: 0.9em; color: var(--text-secondary); }
+        .header-user-info strong { color: var(--text-primary); font-weight: 600; }
+        .header-controls { margin-left: auto; display: flex; align-items: center; gap: 15px; }
         .header-action-button {
-            background: none;
-            border: none;
-            color: var(--primary-color);
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 5px;
-            transition: color 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
+            background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer;
+            padding: 5px; transition: color 0.3s ease; display: inline-flex;
+            align-items: center; justify-content: center; text-decoration: none;
         }
-        .header-action-button:hover {
-            color: var(--primary-dark);
-        }
+        .header-action-button:hover { color: var(--primary-dark); }
         .button-logout {
-            background: none;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-size: 0.9em;
-            padding: 8px 16px;
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
+            background: none; border: 1px solid var(--border-color); color: var(--text-primary);
+            font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer;
+            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; font-weight: 500;
         }
-        .button-logout:hover {
-            border-color: var(--danger-color);
-            color: var(--danger-color);
-        }
-        /* --- END HEADER STYLES --- */
+        .button-logout:hover { border-color: var(--danger-color); color: var(--danger-color); }
 
         .page-title {
-            text-align: center;
-            font-size: 2.25rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin: 0 0 2rem 0;
+            text-align: center; font-size: 2.25rem; font-weight: 700;
+            color: var(--text-primary); margin: 0 0 1rem 0;
         }
+
+        /* --- NEW: Top actions container --- */
+        .top-actions-container {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .top-actions-container button {
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+        #print-weekly-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        #print-weekly-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+        #clear-week-btn {
+            background: transparent;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+        #clear-week-btn:hover {
+            background: var(--danger-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        /* --- END: Top actions container --- */
 
         .week-overview-column { background: var(--card-background); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-lg); border: 1px solid var(--border-color); }
         .week-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
@@ -135,7 +122,7 @@
         #week-overview-table .time-col { font-weight: 600; color: var(--primary-color); width: 80px; background: #fafbfc; }
         #week-overview-table .slot { cursor: pointer; height: 100px; transition: all 0.2s ease; position: relative; background: var(--card-background); }
         #week-overview-table .slot:hover { background: var(--primary-light); transform: scale(1.02); box-shadow: inset 0 0 0 2px var(--primary-color); z-index: 10; }
-        #week-overview-table .slot.is-filled { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); color: white; box-shadow: var(--shadow-sm); }
+        #week-overview-table .slot.is-filled { background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%); color: white; box-shadow: var(--shadow-sm); cursor: pointer; }
         #week-overview-table .slot.is-filled:hover { transform: scale(1.02); box-shadow: var(--shadow-md); }
         #week-overview-table .slot.is-filled .slot-summary strong { color: white; }
         #week-overview-table .slot.is-filled .slot-summary { color: rgba(255, 255, 255, 0.9); }
@@ -143,6 +130,28 @@
         .slot-summary strong { display: block; font-weight: 600; margin-bottom: 2px; }
         .custom-time-badge { background-color: rgba(0,0,0,0.2); color: white; padding: 2px 6px; border-radius: var(--radius-sm); font-size: 0.7rem; font-weight: 700; display: inline-block; margin-left: 6px; }
         .pause-label-week { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); font-style: italic; font-size: 0.875rem; height: 40px; vertical-align: middle; color: var(--warning-color); font-weight: 500; }
+        
+        /* --- NEW: Inline delete button --- */
+        .inline-delete-btn {
+            position: absolute; top: 5px; right: 5px;
+            width: 28px; height: 28px;
+            background: rgba(0,0,0,0.3);
+            border: none; border-radius: 50%;
+            color: white; font-size: 14px;
+            display: none; /* Hidden by default */
+            align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease;
+            z-index: 11;
+        }
+        .slot.is-filled:hover .inline-delete-btn {
+            display: inline-flex; /* Show on hover */
+        }
+        .inline-delete-btn:hover {
+            background: var(--danger-color);
+            transform: scale(1.1);
+        }
+        /* --- END: Inline delete button --- */
+
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; opacity: 0; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .modal-overlay.visible { display: flex; opacity: 1; }
         .modal-content { background: var(--card-background); border-radius: var(--radius-xl); width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: var(--shadow-xl); border: 1px solid var(--border-color); }
@@ -169,9 +178,6 @@
         .btn-navigate:hover { background: #059669; border-color: #059669; transform: translateY(-1px); box-shadow: var(--shadow-md); }
         .btn-primary-ghost { background: transparent; color: var(--primary-color); border-color: var(--primary-color); }
         .btn-primary-ghost:hover { background: var(--primary-color); color: white; transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        #print-weekly-btn { background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none; padding: 12px 24px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; }
-        #print-weekly-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        .btn-group { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%); backdrop-filter: blur(12px); z-index: 1000; display: flex; justify-content: center; align-items: center; }
         .auth-box { background: var(--card-background); padding: 3rem; border-radius: var(--radius-xl); text-align: center; max-width: 400px; width: 90%; box-shadow: var(--shadow-xl); border: 1px solid var(--border-color); }
         .auth-box h2 { margin: 0 0 1rem 0; font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
@@ -188,6 +194,7 @@
             .header-user-info { width: 100%; order: 3; text-align: center; margin-top: 10px; }
             .header-controls { margin-left: 0; }
             .page-title { font-size: 1.8rem; }
+            .top-actions-container { flex-direction: column; }
             .week-overview-column { padding: 1rem; } 
             .week-navigation { flex-direction: column; gap: 1rem; } 
             .modal-content { width: 95%; margin: 1rem; } 
@@ -218,6 +225,11 @@
         </header>
 
         <h1 class="page-title">Agenda Consegne</h1>
+        
+        <div class="top-actions-container">
+            <button id="print-weekly-btn"><i class="fas fa-print"></i> Stampa Settimana</button>
+            <button id="clear-week-btn"><i class="fas fa-trash-alt"></i> Pulisci Settimana</button>
+        </div>
 
         <div class="week-overview-column">
             <div class="week-navigation">
@@ -226,9 +238,6 @@
                 <button id="next-week-btn">Settimana Successiva ›</button>
             </div>
             <table id="week-overview-table"></table>
-            <div class="btn-group">
-                <button id="print-weekly-btn">🖨️ Stampa Settimana</button>
-            </div>
         </div>
     </div>
 
@@ -260,6 +269,20 @@
         }
 
         const getYYYYMMDD = (date) => date.toISOString().split('T')[0];
+        
+        // --- NEW: Helper function to get dates of the current week view
+        function getDatesForCurrentView() {
+            const dayOfWeek = currentDisplayedDate.getDay(); 
+            const diff = currentDisplayedDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
+            const monday = new Date(new Date(currentDisplayedDate).setDate(diff));
+            const dates = [];
+            for (let i = 0; i < 5; i++) {
+                const day = new Date(monday);
+                day.setDate(monday.getDate() + i);
+                dates.push(getYYYYMMDD(day));
+            }
+            return dates;
+        }
 
         function renderWeekView() {
             weekTable.innerHTML = ''; 
@@ -290,7 +313,8 @@
                     if (entry && entry.title) {
                         slotCell.classList.add('is-filled');
                         const timeBadge = entry.customTime ? `<span class="custom-time-badge">${entry.customTime}</span>` : '';
-                        slotCell.innerHTML = `<div class="slot-summary"><strong>${entry.title || 'N/A'} ${timeBadge}</strong><em>${entry.address || ''}</em></div>`;
+                        const deleteButton = `<button class="inline-delete-btn" title="Elimina"><i class="fas fa-trash-alt"></i></button>`;
+                        slotCell.innerHTML = `<div class="slot-summary"><strong>${entry.title || 'N/A'} ${timeBadge}</strong><em>${entry.address || ''}</em></div>${deleteButton}`;
                     }
                     row.appendChild(slotCell);
                 });
@@ -374,16 +398,17 @@
                 }
             }
         }
-
-        async function deleteSlot() {
-            if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
-            const { date, time } = currentSlotInfo;
+        
+        // --- UPDATED: Now can be called from modal or directly
+        async function deleteSlot(date, time) {
             const docRef = doc(db, 'agenda', 'schedule');
             const fieldPath = `${date}.${time}`;
-            try { await updateDoc(docRef, { [fieldPath]: deleteField() }); closeSlotModal(); } 
-            catch (error) { console.error("Errore nell'eliminazione:", error); }
+            try { 
+                await updateDoc(docRef, { [fieldPath]: deleteField() }); 
+                closeSlotModal(); 
+            } catch (error) { console.error("Errore nell'eliminazione:", error); }
         }
-        
+
         function loadAgendaData() {
             if (unsubscribe) unsubscribe(); 
             const agendaRef = doc(db, "agenda", "schedule");
@@ -408,13 +433,60 @@
         logoutBtn.addEventListener('click', () => signOut(auth));
         document.getElementById('prev-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7); renderWeekView(); });
         document.getElementById('next-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7); renderWeekView(); });
-        weekTable.addEventListener('click', (e) => { const slot = e.target.closest('.slot'); if (slot) { openSlotModal(slot.dataset.date, slot.dataset.time); } });
+        
+        // --- UPDATED: Main click listener for the table
+        weekTable.addEventListener('click', (e) => { 
+            const inlineDeleteBtn = e.target.closest('.inline-delete-btn');
+            if (inlineDeleteBtn) {
+                e.stopPropagation(); // Prevents opening the modal
+                const slot = inlineDeleteBtn.closest('.slot');
+                if (confirm("Sei sicuro di voler eliminare questo appuntamento?")) {
+                    deleteSlot(slot.dataset.date, slot.dataset.time);
+                }
+                return;
+            }
+            const slot = e.target.closest('.slot'); 
+            if (slot) { openSlotModal(slot.dataset.date, slot.dataset.time); } 
+        });
+
         modalCloseBtn.addEventListener('click', closeSlotModal);
         modalDoneBtn.addEventListener('click', saveSlot);
-        modalDeleteBtn.addEventListener('click', deleteSlot);
+        modalDeleteBtn.addEventListener('click', () => deleteSlot(currentSlotInfo.date, currentSlotInfo.time)); // Use the generic delete function
+        
+        // --- NEW: Clear week button listener
+        document.getElementById('clear-week-btn').addEventListener('click', async () => {
+            if (!confirm("Sei sicuro di voler eliminare TUTTI gli appuntamenti di questa settimana?\nL'azione è irreversibile.")) return;
+
+            const datesToClear = getDatesForCurrentView();
+            const updates = {};
+            let hasAppointments = false;
+
+            datesToClear.forEach(dateKey => {
+                if (agendaData[dateKey]) {
+                    Object.keys(agendaData[dateKey]).forEach(timeKey => {
+                        updates[`${dateKey}.${timeKey}`] = deleteField();
+                        hasAppointments = true;
+                    });
+                }
+            });
+
+            if (!hasAppointments) {
+                alert("Nessun appuntamento da eliminare in questa settimana.");
+                return;
+            }
+            
+            try {
+                const docRef = doc(db, 'agenda', 'schedule');
+                await updateDoc(docRef, updates);
+                alert("Tutti gli appuntamenti della settimana sono stati eliminati.");
+            } catch (error) {
+                console.error("Errore nella pulizia della settimana:", error);
+                alert("Si è verificato un errore durante l'eliminazione.");
+            }
+        });
         
         document.getElementById('print-weekly-btn').addEventListener('click', () => {
-            const logoBase64 = "data:image/png;base64,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IgGBAAgGBAAACEIAABAEEAgACGEAEAQgAACAwIEAggwDGEggAAAQBhAIMIQAAGAQgGAQhCAQAIggAIQwACCEABAACBBAEYACAAEMAhGMQAACAYACCAAAAQwCEAEYQAAMgAAAAAEMIAAEQgACCMIgQCAAwQwAAAQAQAGAYAABAIEwIAAACEAIAGAQgwACEIAAAYwgAAhGAIEYEAEMIYQCCA4ACCAAARCMIAQQCAAIAAACCEAEYBAggQjAgAABCMEAAYACAYBhAAYAAhBAAhCACAQwAwjAAAAIAABGMEEYAAAAAIAQQAEAEIwAAECkAAIAQwQgCEAhAYwjAAAIBhCABCMIYAABCMAYxhAIMAAAAAYACAQAQwIEMIYAAMhAACGAQgAIEMIMABCAAABCEAAAICggQwIEBCAAARCMhAAAAAwAAAARAAAEIAgCMYAAAARhCBCAACEAwIAEEIBhAAEABgAAIEAAABCEAABCAAQwBCEAxhAYwgAAAAwAGCAwCGEYyggcEIxgAMYQCAGwAIADBAACCAADIAQAwgAAAAhBAAQAIhGME4IEBBAMAAMIhhAYQDAggCEIAgAMAABCEIAYAwICGEAAAAABCMcIAgDCAABCAIARCMABAMAwhAwQAIMgYAgGMYxgACMEIAAIEEYAMBgQwBCEAABhGEYBhAAEABkIgACAYAACBAGAADAMIGgAIICCMQAAAAMAACAYRCAAgAYwgAAGAYBhAAAABAIAIAABAIAYAMgwAAAEMAhAAEACAYAACGAAAwIAAwIABAIAAAGBAGAEDAEgGMMAQAAACAIIACAQBhAYwgAAAAACCMBhCAGEIAwhAwAIQwACAQBmAAAIBCAAAAADIAEAwhgCAQwYAwAEYQBAGEABAwQAhCEAABAABAACEMgAAAAACAAAABCGEBhAADAEIBAIARgQAEAIYRgwAEwIAAMAgCMgRAEIxhCACMAAAAABCAIEBCMAwhAQwgAgAQCAAMAQAAGMEAYADCMARhAAgQwAACYBgEYgEAQgAAAABAQBACCAwhCAMIQBAAIYDAAAAIEIYwAGCEAAGAQggQIAAhAGAQwgAwAACCQgAMIAAACAIAABCEAhCMcIAgDGAIAAMgAAAwhAEIwAAIYQAACAwAEwIAIARCGCEAwhAYQgAGBgDCMABAAYQAAGACCCABAAGEAEAggwAAYxhAABAACAABAIGwAgQwGEAhAGEIYAjAgAwAGBgAEIBmGEAxhCBCAAABCAAwQAAAIEwxgCEIADAIYAACAQAAAAEYyAMIBACEAwACAEAACEIADAMAAMIMABABAAwhAAIAxDAAQCAQAghAACEAyBCAAwhgAAQQAAGEEACBCAAxhAADgAAAgDCMAYAAAEDAhAAAIAAIGCEgEACIAABGACMYxgQIAIAwAEACAYAACEAYACGAAAAEMQwAGAghGEYAAEAADAEAgwgAEAIQAGAACBAMgAMEYAIEAACAYAACEIYyAAAyCAAAAAAYABCCMAAEAwAAAAgAwAGCEIwAIICCEAghAEAIEwIAwIEIwAAAwhAAAAACCMABAAGAEYQAEMIYECAEYRgAAAAIAARhAAAgAIBAAEAIQCEAABkEAEEYQBAGEYAADAMIRiAYAwBGIxhAAAACBCEIAghGEIAhgAEAYhgBAGAADAIwhAAEwhCAAQwCMEYyAAQCEEIAAABCAAwCGMAYQwhCBBAAYAEYAAIIxDCAIIADAMABDAAACGEEABAIIADCAMYxgAgwCGAAEAQADIAIAYAAQBhGAgAGAwxgCGEAAAAAAghCAAQAAmGEAEIAAEAyAYAxhAQggAEAIBCAAIIwgAEIQCEIYEAIADCEIAAEYRgAAAAwhAAAIAwhGEAhCAAQAggBAADGMAIAYAwhAAAIAAhAAEAAAARhAEAQDAEIAhgBACAEAhgACCEIYQwAACMIIAMghCAIAAEMIYxCAAQCAAIAADAMAwCEAIGEYBCAAyCMIQxAAARgAYhgCAMIABCEAYADIIhDAIQACEABhDCEAAAmIYRAAAhgAAAAGAYAgYAAAAwhAAAAACCMACEAIAAIAADAIAAADAEYgCAGEYAgAAAAQwQAhAwgAwCEAAYQCAIEBCAGEcIgYyAACAAIAAhGEAIARgIEAIGAQBAAEAwxgAQAhgCABCMIEAIABCCABCEAARAAQjCMCBggwhAwAYABCEEAIAwIAQQBACAEwCEAABCCEIQBhjAAEYCAACCAEwIEBCACAcAYQgDAEYxhAEYxAAABgAAghCBAQAMYwgCMIAxgAEIABDAACCMIAggCEYAAIMARCMQwAAAEBACEcIIhgAMgwEAAQwjGAIxjCAYxjAYYBhAAQARhCCAEAIAYACEMAgCAQYAAARgAAAADCAAAAhCAMAhAADCCAYhgCBAMABAADCAGAIAAABAGEBhCBDAIxgGEEAIGCEAAYQAACAEAIBAGEIBhgAwhBAEEYwCEAygCAMIAAEYAwhAABAAAABAGEAIABCGMAQAAYBAMYAACEAYwhjAACCAAIEADCAAAAMYAgAwBCAAygQCEAxgCAMAQAhAMAgBACBAEAwDAGAQwACAAEIxjACEAwCACMIRAIIhgBCAAQgAAIABAMAwhAABggAIBjCGAAAAhCEAACCEIAADCEAAAIEQwAIAADCEACBAIIQAAEAYEAEAYwgAGEYRhDGAIxAIhgAAAAYBgAEBhGACBAMEBhGMAAAAAYQAGAACACABCMIADDAIYADIIQCAAxCCEYBhAMQCAMQwhCACAAABCMIIQBgIAwhhCCAIQgGEAEYhgAwQAAQwAEYxjAAAAAYhgCAMgwQAGEAwjCGAAEYQgCMAAgEIAAgEAYxgAGEEIYQgAACAAAghAAEBCMcAAAAIEAEACCEAACEIIAyAAAAYAAEYAhCBAQwBAIAAgCAQQAEYAQAAAAEAAMIRAIQAACCCGEAAAwAIYhgAAgCAGEYhgAEAQgCAMEACCAACEAgCBAAYAAACEIAxhAADAYxgCAwCBCEBgAAEIwxhCAAwDAAAgABCAAIAMIYEIQBgABCMgCAwhCBAEYwjCAAwhAMARAIQwACEBgCAIQxhCMIYQCAMAhCAAAYBAIAAAMAhAAAgwDAAAEAAAABMIQEAAMQhAAEAAxhGEAAAwBACAYAEYYAMAABCCEYxgAIBAIADIBAIBBAIEwgAAGAYQAADAMIRgAwDAAAAAAAAIBhGAQAMARjAMIRCAAYAEAwAwQAAwhgBAGAQwAACEYRgAEABBAAIQgBACGEAIARjAMAARAIQQCACAAAAAEcIQBAEAAAAAghCAEIBAIhAAAAgCAMAAMIAADAIGCMEAAAIAAgCAMgQAgGMAABjCCBCAIEADCMIRAIIBACAYAACIAAAAADAIAjGMYDAIAAxgAAEAMAQAADAGAMAjCECAMIQCBAADCAYQwAEAADAIIBAAgDAIwhGEIQwjAAAARDAIAIAAgBAGAIAABAAAADAIAQBgIAQwjGEBgCCMAwAIQxhAYAAAICwGEAAEIyAgABGMEAwAYQAACEYAwCGAYBACAAxjCEIAAhCEMIEEYQAYAAAAgCBAEYgAIABAEEAYxgAAAAghCABhGAIQAhgCAMIABgAIEAEIACAAAQgABAIBAAEAQAADAGEIAABAwhAQhAIIQDCAGEEAEYQACEAAxDAEAQBhCAMIwAMgwCEAwBACMIAwhCAAIAARjCEABAEAQhCGAIxgCMIRhGACgAIxjAMAQABMIYAgDAAhCAEEYAADAGAIAxgAMAIQAIgAACEYAADAMEAAAAIwAAACAgCAQwDACMABDCCAGEAQgEIAADAMAYACCEBAEAQwAEIgDAABCBMIABCEACAAEEYBCEAIARjEAAAIAQBAEEBhCCBgDCAAARgCMIAxjCAIxCAMYBAAAAQDGEYACMEEYwjAMgwjCAMAxAgAAAhAEAQRgAMYxDCCMEEYAwCMARCEBhCEAADGEIwjAMABAACBACEBAIEEAQgGGEAhCACMAQwCMgAAEEYACAEAACAMAghAAAQACCMBhAADCAIAQABCAwBCAIAAADAACBggQgAAEAQwAAEIAgQAEAMAwjAAAAEAIBBgAAEACAGEYRjAGAABiAAAAAAEAAAIARCAEIhAYwjGMAQAAGAgBACMAABCEAYBABAAAAAAEAjDAAgwCMYhgAAAIEAQCMQAhAAAgDCGEBhAAAAAgGEAhCAAACMYADIIxgAQAIBAIhAIICAAAAAEIBjCECBgwCAIQAIwhEIAAACEQBAAIYAghAMgwDCECBgCAAAACCMACMAxCEAADAAAgAAAQAgAEAIIBAIAQgAACAIEBAAAEADCAMIACAAIAADAABAMAgCBAIEYAjGMACAIACMIwBCCAQAwjCEAQAwCAMYAgCEIAxAAghAABAMAwgGAYwjCAGEYACMYAAgAIGEEAYAhAAEMABCMhGEAAAMAAABAwgEYwhCACMEYxgCAAACAAAAwCAAhDAAAIARAAAAAIEEYAgAAwDACAYwAACAIwAGAAAhABAAAARjAAAAAAEIEIAAAGEEAIAAQDAABBgCEEYQAGAMQwAGMAwBCAAxhAEAQACEYxjAGEBgAAABhBCAAxgAAIQCAAEAIAADGEIIwAAAAMACAAQBhCBAAQhCMYgCEABAMIAAxhGEYRgCAAAAxhGEEYAADAIACAIQBGEIABgAQADgDCAIIQDAAQCEIxhGAYxjAEAxCEAwhAACAYBAgIwhCMAAxAIACEYRhgCGIwjCMIADAYwgAMABAAEAwABAMAEYxgGEAwhCEYwgEAAACAcAYQAADAAAAAhCAIBACAIBBAAQAgAAABAAEYBgAEAIAxgAAIIxjACEIhhjCEIAAxhCAAxDAIYACEYxgCAAIEAAAAABAwCMIwAEAQwgEIEBCIIBgAAQCEAQRhAAAADAIAQAQCAAYABCEEADAMARjAAAAEAQgGAAwAEIAAxgCAIAADIAAxAwAgjAIAADGAAAADIIhCGEIxhDCCAIBAEAxDAQQAyCAYACAYAIAgEAMAQAADEAwAADcAMAADCMIAIAxAwQAGQCAMgwYRgCEAxDAIAAAMYxhAAAAghAACAIAxhhAwCCAAAAACAEAQjAEAhCAMBACCMQwCEAIDAGEBhCACMAwjAgAYwhEACAMAQEAxAAAAAhGEAIACAQQCACMYBAIQBhjGEIYAMAYAAABAAEAhCCMAQAwgAAAAAAEwDCAMAQwBAAAAAwhCABBAADCAABAMAIAxgAAIQwhCMEIEAAAARAAAAEAIAxAACMIABCCAGEQwgCABBAACAYhABAAAwhgGEIEAEIEAgEAAAARCMIRiAYBBDGAARAIBAIYxgAwCEQCMARCMYAgGMEAADCIIhAAAEQAhgABCEAIEAADCEAADIAQwhDAIACEIBiBAAQAAAAwjCEAACEIYwgGEEAAAAwCEBACAYAACEIYAwAABAAMAjAAMAACEIAghAMEAxgCAEwCAACCAQwBACAYAAGEIBBACEgAIAAxCEIwAIADBAEAwACBAAQCEAACAAMQAADIIADCEAACCEAwhAQDAIEACBgACEAjAAAhCEAAABAIhAAAAwhiMAAEAACAwhAAEEYhBAEIADAIQBAMEAgAIAADCEYEAADIIQCEYhgAIwhAAAghAwCGAGEAhAwCACCMYEAIAAICAcwAAGIwhAADIAAIDAIwhCEAwhiAAgCMBAIBjBAAwhgCMIIAwCCIAwhAACAGEBhgEAwhhAIAAAAEDCABAAAAgDACMIwhCACGEIQCAIQjGMEYQgEMIYAwACAgBAAgDCEAARAAAAwCCAYAAAIMQAgAACYBge9BwAAkI2mCACEACMAAMbE/wFzC0p/W+CehQAAAABJRU5ErkJggg==";
+            const logoBase64 = "data:image/png;base64,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IgGBAAgGBAAACEIAABAEEAgACGEAEAQgAACAwIEAggwDGEggAAAQBhAIMIQAAGAQgGAQhCAQAIggAIQwACCEABAACBBAEYACAAEMAhGMQAACAYACCAAAAQwCEAEYQAAMgAAAAAEMIAAEQgACCMIgQCAAwQwAAAQAQAGAYAABAIEwIAAACEAIAGAQgwACEIAAAYwgAAhGAIEYEAEMIYQCCA4ACCAAARCMIAQQCAAIAAACCEAEYBAggQjAgAABCMEAAYACAYBhAAYAAhBAAhCACAQwAwjAAAAIAABGMEEYAAAAAIAQQAEAEIwAAECkAAIAQwQgCEAhAYwjAAAIBhCABCMIYAABCMAYxhAIMAAAAAYACAQAQwIEMIYAAMhAACGAQgAIEMIMABCAAABCEAAAICggQwIEBCAAARCMhAAAAAwAAAARAAAEIAgCMYAAAARhCBCAACEAwIAEEIBhAAEABgAAIEAAABCEAABCAAQwBCEAxhAYwgAAAAwAGCAwCGEYyggcEIxgAMYQCAGwAIADBAACCAADIAQAwgAAAAhBAAQAIhGME4IEBBAMAAMIhhAYQDAggCEIAgAMAABCEIAYAwICGEAAAAABCMcIAgDCAABCAIARCMABAMAwhAwQAIMgYAgGMYxgACMEIAAIEEYAMBgQwBCEAABhGEYBhAAEABkIgACAYAACBAGAADAMIGgAIICCMQAAAAMAACAYRCAAgAYwgAAGAYBhAAAABAIAIAABAIAYAMgwAAAEMAhAAEACAYAACGAAAwIAAwIABAIAAAGBAGAEDAEgGMMAQAAACAIIACAQBhAYwgAAAAACCMBhCAGEIAwhAwAIQwACAQBmAAAIBCAAAAADIAEAwhgCAQwYAwAEYQBAGEABAwQAhCEAABAABAACEMgAAAAACAAAABCGEBhAADAEIBAIARgQAEAIYRgwAEwIAAMAgCMgRAEIxhCACMAAAAABCAIEBCMAwhAQwgAgAQCAAMAQAAGMEAYADCMARhAAgQwAACYBgEYgEAQgAAAABAQBACCAwhCAMIQBAAIYDAAAAIEIYwAGCEAAGAQggQIAAhAGAQwgAwAACCQgAMIAAACAIAABCEAhCMcIAgDGAIAAMgAAAwhAEIwAAIYQAACAwAEwIAIARCGCEAwhAYQgAGBgDCMABAAYQAAGACCCABAAGEAEAggwAAYxhAABAACAABAIGwAgQwGEAhAGEIYAjAgAwAGBgAEIBmGEAxhCBCAAABCAAwQAAAIEwxgCEIADAIYAACAQAAAAEYyAMIBACEAwACAEAACEIADAMAAMIMABABAAwhAAIAxDAAQCAQAghAACEAyBCAAwhgAAQQAAGEEACBCAAxhAADgAAAgDCMAYAAAEDAhAAAIAAIGCEgEACIAABGACMYxgQIAIAwAEACAYAACEAYACGAAAAEMQwAGAghGEYAAEAADAEAgwgAEAIQAGAACBAMgAMEYAIEAACAYAACEIYyAAAyCAAAAAAYABCCMAAEAwAAAAgAwAGCEIwAIICCEAghAEAIEwIAwIEIwAAAwhAAAAACCMABAAGAEYQAEMIYECAEYRgAAAAIAARhAAAgAIBAAEAIQCEAABkEAEEYQBAGEYAADAMIRiAYAwBGIxhAAAACBCEIAghGEIAhgAEAYhgBAGAADAIwhAAEwhCAAQwCMEYyAAQCEEIAAABCAAwCGMAYQwhCBBAAYAEYAAIIxDCAIIADAMABDAAACGEEABAIIADCAMYxgAgwCGAAEAQADIAIAYAAQBhGAgAGAwxgCGEAAAAAAghCAAQAAmGEAEIAAEAyAYAxhAQggAEAIBCAAIIwgAEIQCEIYEAIADCEIAAEYRgAAAAwhAAAIAwhGEAhCAAQAggBAADGMAIAYAwhAAAIAAhAAEAAAARhAEAQDAEIAhgBACAEAhgACCEIYQwAACMIIAMghCAIAAEMIYxCAAQCAAIAADAMAwCEAIGEYBCAAyCMIQxAAARgAYhgCAMIABCEAYADIIhDAIQACEABhDCEAAAmIYRAAAhgAAAAGAYAgYAAAAwhAAAAACCMACEAIAAIAADAIAAADAEYgCAGEYAgAAAAQwQAhAwgAwCEAAYQCAIEBCAGEcIgYyAACAAIAAhGEAIARgIEAIGAQBAAEAwxgAQAhgCABCMIEAIABCCABCEAARAAQjCMCBggwhAwAYABCEEAIAwIAQQBACAEwCEAABCCEIQBhjAAEYCAACCAEwIEBCACAcAYQgDAEYxhAEYxAAABgAAghcBAQAMYwgCMIAxgAEIABDAACCMIAggCEYAAIMARCMQwAAAEBACEcIIhgAMgwEAAQwjGAIxjCAYxjAYYBhAAQARhCCAEAIAYACEMAgCAQYAAARgAAAADCAAAAhCAMAhAADCCAYhgCBAMABAADCAGAIAAABAGEBhCBDAIxgGEEAIGCEAAYQAACAEAIBAGEIBhgAwhBAEEYwCEAygCAMIAAEYAwhAABAAAABAGEAIABCGMAQAAYBAMYAACEAYwhjAACCAAIEADCAAAAMYAgAwBCAAygQCEAxgCAMAQAhAMAgBACBAEAwDAGAQwACAAEIxjACEAwCACMIRAIIhgBCAAQgAAIABAMAwhAABggAIBjCGAAAAhCEAACCEIAADCEAAAIEQwAIAADCEACBAIIQAAEAYEAEAYwgAGEYRhDGAIxAIhgAAAAYBgAEBhGACBAMEBhGMAAAAAYQAGAACACABCMIADDAIYADIIQCAAxCCEYBhAMQCAMQwhCACAAABCMIIQBgIAwhhCCAIQgGEAEYhgAwQAAQwAEYxjAAAAAYhgCAMgwQAGEAwjCGAAEYQgCMAAgEIAAgEAYxgAGEEIYQgAACAAAghAAEBCMcAAAAIEAEACCEAACEIIAyAAAAYAAEYAhCBAQwBAIAAgCAQQAEYAQAAAAEAAMIRAIQAACCCGEAAAwAIYhgAAgCAGEYhgAEAQgCAMEACCAACEAgCBAAYAAACEIAxhAADAYxgCAwCBCEBgAAEIwxhCAAwDAAAgABCAAIAMIYEIQBgABCMgCAwhCBAEYwjCAAwhAMARAIQwACEBgCAIQxhCMIYQCAMAhCAAAYBAIAAAMAhAAAgwDAAAEAAAABMIQEAAMQhAAEAAxhGEAAAwBACAYAEYYAMAABCCEYxgAIBAIADIBAIBBAIEwgAAGAYQAADAMIRgAwDAAAAAAAAIBhGAQAMARjAMIRCAAYAEAwAwQAAwhgBAGAQwAACEYRgAEABBAAIQgBACGEAIARjAMAARAIQQCACAAAAAEcIQBAEAAAAAghCAEIBAIhAAAAgCAMAAMIAADAIGCMEAAAIAAgCAMgQAgGMAABjCCBCAIEADCMIRAIIBACAYAACIAAAAADAIAjGMYDAIAAxgAAEAMAQAADAGAMAjCECAMIQCBAADCAYQwAEAADAIIBAAgDAIwhGEIQwjAAAARDAIAIAAgBAGAIAABAAAADAIAQBgIAQwjGEBgCCMAwAIQxhAYAAAICwGEAAEIyAgABGMEAwAYQAACEYAwCGAYBACAAxjCEIAAhCEMIEEYQAYAAAAgCBAEYgAIABAEEAYxgAAAAghCABhGAIQAhgCAMIABgAIEAEIACAAAQgABAIBAAEAQAADAGEIAABAwhAQhAIIQDCAGEEAEYQACEAAxDAEAQBhCAMIwAMgwCEAwBACMIAwhCAAIAARjCEABAEAQhCGAIxgCMIRhGACgAIxjAMAQABMIYAgDAAhCAEEYAADAGAIAxgAMAIQAIgAACEYAADAMEAAAAIwAAACAgCAQwDACMABDCCAGEAQgEIAADAMAYACCEBAEAQwAEIgDAABCBMIABCEACAAEEYBCEAIARjEAAAIAQBAEEBhCCBgDCAAARgCMIAxjCAIxCAMYBAAAAQDGEYACMEEYwjAMgwjCAMAxAgAAAhAEAQRgAMYxDCCMEEYAwCMARCEBhCEAADGEIwjAMABAACBACEBAIEEAQgGGEAhCACMAQwCMgAAEEYACAEAACAMAghAAAQACCMBhAADCAIAQABCAwBCAIAAADAACBggQgAAEAQwAAEIAgQAEAMAwjAAAAEAIBBgAAEACAGEYRjAGAABiAAAAAAEAAAIARCAEIhAYwjGMAQAAGAgBACMAABCEAYBABAAAAAAEAjDAAgwCMYhgAAAIEAQCMQAhAAAgDCGEBhAAAAAgGEAhCAAACMYADIIxgAQAIBAIhAIICAAAAAEIBjCECBgwCAIQAIwhEIAAACEQBAAIYAghAMgwDCECBgCAAAACCMACMAxCEAADAAAgAAAQAgAEAIIBAIAQgAACAIEBAAAEADCAMIACAAIAADAABAMAgCBAIEYAjGMACAIACMIwBCCAQAwjCEAQAwCAMYAgCEIAxAAghAABAMAwgGAYwjCAGEYACMYAAgAIGEEAYAhAAEMABCMhGEAAAMAAABAwgEYwhCACMEYxgCAAACAAAAwCAAhDAAAIARAAAAAIEEYAgAAwDACAYwAACAIwAGAAAhABAAAARjAAAAAAEIEIAAAGEEAIAAQDAABBgCEEYQAGAMQwAGMAwBCAAxhAEAQACEYxjAGEBgAAABhBCAAxgAAIQCAAEAIAADGEIIwAAAAMACAAQBhCBAAQhCMYgCEABAMIAAxhGEYRgCAAAAxhGEEYAADAIACAIQBGEIABgAQADgDCAIIQDAAQCEIxhGAYxjAEAxCEAwhAACAYBAgIwhCMAAxAIACEYRhgCGIwjCMIADAYwgAMABAAEAwABAMAEYxgGEAwhCEYwgEAAACAcAYQAADAAAAAhCAIBACAIBBAAQAgAAABAAEYBgAEAIAxgAAIIxjACEIhhjCEIAAxhCAAxDAIYACEYxgCAAIEAAAAABAwCMIwAEAQwgEIEBCIIBgAAQCEAQRhAAAADAIAQAQCAAYABCEEADAMARjAAAAEAQgGAAwAEIAAxgCAIAADIAAxAwAgjAIAADGAAAADIIhCGEIxhDCCAIBAEAxDAQQAyCAYACAYAIAgEAMAQAADEAwAADcAMAADCMIAIAxAwQAGQCAMgwYRgCEAxDAIAAAMYxhAAAAghAACAIAxhhAwCCAAAAACAEAQjAEAhCAMBACCMQwCEAIDAGEBhCACMAwjAgAYwhEACAMAQEAxAAAAAhGEAIACAQQCACMYBAIQBhjGEIYAMAYAAABAAEAhCCMAQAwgAAAAAAEwDCAMAQwBAAAAAwhCABBAADCAABAMAIAxgAAIQwhCMEIEAAAARAAAAEAIAxAACMIABCCAGEQwgCABBAACAYhABAAAwhgGEIEAEIEAgEAAAARCMIRiAYBBDGAARAIBAIYxgAwCEQCMARCMYAgGMEAADCIIhAAAEQAhgABCEAIEAADCEAADIAQwhDAIACEIBiBAAQAAAAwjCEAACEIYwgGEEAAAAwCEBACAYAACEIYAwAABAAMAjAAMAACEIAghAMEAxgCAEwCAACCAQwBACAYAAGEIBBACEgAIAAxCEIwAIADBAEAwACBAAQCEAACAAMQAADIIADCEAACCEAwhAQDAIEACBgACEAjAAAhCEAAABAIhAAAAwhiMAAEAACAwhAAEEYhBAEIADAIQBAMEAgAIAADCEYEAADIIQCEYhgAIwhAAAghAwCGAGEAhAwCACCMYEAIAAICAcwAAGIwhAADIAAIDAIwhCEAwhiAAgCMBAIBjBAAwhgCMIIAwCCIAwhAACAGEBhgEAwhhAIAAAAEDCABAAAAgDACMIwhCACGEIQCAIQjGMEYQgEMIYAwACAgBAAgDCEAARAAAAwCCAYAAAIMQAgAACYBge9BwAAkI2mCACEACMAAMbE/wFzC0p/W+CehQAAAABJRU5ErkJggg==";
 
             const printFrame = document.createElement('iframe');
             printFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;';
@@ -422,6 +494,10 @@
             
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = `<table>${weekTable.innerHTML}</table>`;
+
+            // Remove the inline delete buttons before printing
+            tempDiv.querySelectorAll('.inline-delete-btn').forEach(btn => btn.remove());
+            
             const filledSlots = tempDiv.querySelectorAll('.slot.is-filled .slot-summary');
              filledSlots.forEach(summary => {
                  const badge = summary.querySelector('.custom-time-badge');
@@ -457,10 +533,12 @@
                     </body></html>`);
             printDoc.close();
             
-            // L'uso di Base64 rende questo quasi istantaneo.
             printFrame.contentWindow.focus();
             printFrame.contentWindow.print();
-            document.body.removeChild(printFrame);
+            
+            setTimeout(() => {
+                document.body.removeChild(printFrame);
+            }, 1000);
         });
     </script>
 </body>
