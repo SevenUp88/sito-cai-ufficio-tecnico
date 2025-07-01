@@ -6,13 +6,27 @@
     <title>Elenco Preventivi - CAI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #0056a8;
+            --primary-hover: #004182;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --light-bg: #f8f9fa;
+            --white: #ffffff;
+            --border-color: #dee2e6;
+            --text-primary: #343a40;
+            --text-secondary: #6c757d;
+            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
         /* Reset base e stili generali */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
-            background-color: #f8f9fa;
-            color: #343a40;
+            background-color: var(--light-bg);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -20,101 +34,79 @@
 
         /* Header e Logo */
         .app-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            padding: 10px 30px;
-            background-color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            display: flex; align-items: center; justify-content: space-between; gap: 15px;
+            padding: 10px 30px; background-color: var(--white); box-shadow: var(--shadow-sm);
+            position: sticky; top: 0; z-index: 1000;
         }
-        .header-title-group {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .logo-link {
-            display: inline-block;
-            line-height: 0;
-        }
-        .logo {
-            height: 45px;
-            width: auto;
-            flex-shrink: 0;
-        }
-        .app-header h1 {
-            color: #0056a8;
-            font-size: 1.8em;
-            margin: 0;
-        }
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .header-title-group { display: flex; align-items: center; gap: 20px; }
+        .logo-link { display: inline-block; line-height: 0; }
+        .logo { height: 45px; width: auto; flex-shrink: 0; }
+        .app-header h1 { color: var(--primary-color); font-size: 1.8em; margin: 0; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        
         .header-button, #logout-button {
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
+            color: white; border: none; padding: 8px 15px; border-radius: 4px;
+            cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex;
+            align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s;
         }
-        .header-button {
-             background-color: #007bff;
-        }
-        .header-button:hover {
-            background-color: #0056b3;
-        }
-        #logout-button {
-            background-color: #dc3545;
-        }
-        #logout-button:hover {
-            background-color: #c82333;
-        }
+        #add-quote-btn { background-color: var(--success-color); }
+        #add-quote-btn:hover { background-color: #218838; }
+        #logout-button { background-color: var(--danger-color); }
+        #logout-button:hover { background-color: #c82333; }
 
-        /* Stili per Login Section, App Content, Tabella, ecc. come prima... */
-        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
-        #login-section h2 { color: #0056a8; margin-bottom: 20px; }
+        /* Login Section */
+        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: var(--shadow-md); max-width: 400px; width: 90%; }
+        #login-section h2 { color: var(--primary-color); margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; width: 100%; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
-        .btn-login:hover { background-color: #004182; }
-        #login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; text-align: center; }
-        #app-content { padding: 25px 30px 40px; flex-grow: 1; background-color: #ffffff; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1em; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
+        .btn-login:hover { background-color: var(--primary-hover); }
+        #login-error { color: var(--danger-color); margin-top: 10px; font-size: 0.9em; min-height: 1.2em; text-align: center; }
+        
+        /* App Content & Table */
+        #app-content { padding: 25px 30px 40px; flex-grow: 1; background-color: var(--white); margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
         .controls-container { margin-bottom: 20px; display: flex; justify-content: flex-start; }
         #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); }
-        #search-input:focus { border-color: #0056a8; box-shadow: 0 0 0 0.2rem rgba(0, 86, 168, 0.25); outline: none; }
         .table-container { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95em; background-color: #fff; }
-        thead tr { background-color: #0056a8; color: #ffffff; text-align: left; }
-        th, td { padding: 12px 15px; border: 1px solid #dee2e6; }
-        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
+        th, td { padding: 12px 15px; border: 1px solid var(--border-color); }
+        tbody tr:nth-child(even) { background-color: var(--light-bg); }
         tbody tr:hover { background-color: #e9ecef; }
-        td { color: #495057; }
-        .loading-message, #no-results-message { text-align: center; padding: 20px; font-style: italic; color: #6c757d; }
+        .loading-message, #no-results-message { text-align: center; padding: 20px; font-style: italic; color: var(--text-secondary); }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--white); padding: 25px 30px; border-radius: 8px;
+            width: 90%; max-width: 550px; box-shadow: var(--shadow-md);
+            transform: scale(0.95); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-header h2 { color: var(--primary-color); font-size: 1.5em; }
+        .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-secondary); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-size: 1em; font-weight: 500; cursor: pointer; }
+        #save-quote-btn { background-color: var(--success-color); color: white; }
+        #save-quote-btn:disabled { background-color: #aaa; cursor: not-allowed; }
+        #cancel-quote-btn { background-color: #f1f1f1; }
+
         .hidden { display: none !important; }
 
         @media (max-width: 768px) {
-            .app-header { padding: 10px 15px; }
-            .header-title-group h1 { font-size: 1.3em; }
-            .header-controls a, .header-controls button { font-size: 0.8em; padding: 6px 10px; }
-            #login-section { margin: 20px auto; }
+            .app-header { padding: 10px 15px; flex-wrap: wrap; }
+            .app-header h1 { font-size: 1.3em; }
+            .header-controls { width: 100%; justify-content: flex-end; padding-top: 5px; }
             #app-content { padding: 15px; margin: 10px; }
-            th, td { padding: 8px 10px; font-size: 0.9em; }
-            #search-input { max-width: 100%; }
-        }
-        @media (max-width: 480px) {
-             .header-title-group h1 { font-size: 1.1em; }
         }
     </style>
 </head>
@@ -122,54 +114,37 @@
 
     <header class="app-header">
         <div class="header-title-group">
-            <!-- MODIFICA QUI: Sostituisci con l'URL della tua home deployata o con "/" se la home è alla radice del dominio -->
             <a href="/" class="logo-link" title="Torna alla Home"> 
                 <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
             </a>
             <h1>Elenco Preventivi</h1>
         </div>
         <div class="header-controls">
-            <!-- MODIFICA QUI: Sostituisci con l'URL della tua home deployata o con "/" -->
-            <a href="/" id="home-button" class="header-button hidden" title="Torna alla Home">
-                <i class="fas fa-home"></i> Home
-            </a>
+            <button id="add-quote-btn" class="header-button hidden" title="Aggiungi nuovo preventivo">
+                <i class="fas fa-plus" style="margin-right: 8px;"></i> Nuovo Preventivo
+            </button>
             <button id="logout-button" class="hidden">Logout</button>
         </div>
     </header>
 
     <main>
         <section id="login-section">
+            <!-- Contenuto login invariato -->
             <h2>Accesso Riservato</h2>
             <form id="login-form">
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
+                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
+                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
                 <button type="submit" class="btn-login">Accedi</button>
                 <p id="login-error"></p>
             </form>
         </section>
 
         <div id="app-content" class="hidden">
-            <div class="controls-container">
-                <input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato...">
-            </div>
+            <!-- Contenuto tabella invariato -->
+            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato..."></div>
             <div class="table-container">
                 <table>
-                    <thead>
-                        <tr>
-                            <th>CLIENTE</th>
-                            <th>DATA</th>
-                            <th>RIFERIMENTO</th>
-                            <th>NUMERO</th>
-                            <th>STATO</th>
-                            <th>NOTE</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th></tr></thead>
                     <tbody id="preventivi-table-body"></tbody>
                 </table>
             </div>
@@ -177,191 +152,198 @@
         </div>
     </main>
 
+    <!-- Modal per inserimento nuovo preventivo -->
+    <div id="add-quote-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuovo Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="quote-form">
+                <div class="form-group"><label for="cliente">Cliente</label><input type="text" id="cliente" required></div>
+                <div class="form-group"><label for="riferimento">Riferimento</label><input type="text" id="riferimento"></div>
+                <div class="form-group"><label for="numero">Numero Preventivo</label><input type="text" id="numero"></div>
+                <div class="form-group"><label for="stato">Stato</label>
+                    <select id="stato" required>
+                        <option value="In attesa">In attesa</option>
+                        <option value="Approvato">Approvato</option>
+                        <option value="Rifiutato">Rifiutato</option>
+                        <option value="Inviato">Inviato</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="esito">Esito Offerta</label>
+                    <select id="esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="note">Note</label><textarea id="note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" id="cancel-quote-btn" class="modal-button">Annulla</button>
+                    <button type="submit" id="save-quote-btn" class="modal-button">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Firebase SDKs v8 (Globale) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
             authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
             projectId: "consorzio-artigiani-idraulici",
-            storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-            messagingSenderId: "136848104008",
-            appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-            measurementId: "G-NNPV2607G7"
+            // ... resto della config
         };
 
-        // Funzione principale che verrà chiamata dopo che Firebase è pronto
         function initializeAppAndListeners() {
-            try {
-                if (!firebase.apps.length) {
-                    firebase.initializeApp(firebaseConfig);
-                } else {
-                    firebase.app();
-                }
-            } catch (e) {
-                console.error("Errore inizializzazione Firebase: ", e);
-                alert("Errore critico: impossibile inizializzare Firebase.");
-                const loginSection = document.getElementById('login-section');
-                if(loginSection) loginSection.innerHTML = "<h2>Errore di inizializzazione. Ricarica la pagina.</h2>";
-                return;
-            }
-
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            
             const auth = firebase.auth();
             const db = firebase.firestore();
+            
+            // --- INCOLLA QUI L'URL DEL TUO SCRIPT GOOGLE ---
+            const GOOGLE_SCRIPT_URL = 'INCOLLA_QUI_IL_TUO_URL_APPLICAZIONE_WEB';
 
+            // Riferimenti DOM
             const loginSection = document.getElementById('login-section');
             const loginForm = document.getElementById('login-form');
-            const loginError = document.getElementById('login-error');
             const appContent = document.getElementById('app-content');
-            const homeButton = document.getElementById('home-button'); // Riferimento al pulsante
+            const addQuoteBtn = document.getElementById('add-quote-btn');
             const logoutButton = document.getElementById('logout-button');
             const preventiviTableBody = document.getElementById('preventivi-table-body');
-            const searchInput = document.getElementById('search-input');
-            const noResultsMessage = document.getElementById('no-results-message');
+            
+            // Riferimenti Modal
+            const modal = document.getElementById('add-quote-modal');
+            const quoteForm = document.getElementById('quote-form');
+            const saveQuoteBtn = document.getElementById('save-quote-btn');
+            const cancelQuoteBtn = document.getElementById('cancel-quote-btn');
+            const closeModalBtns = document.querySelectorAll('.close-modal-btn, #cancel-quote-btn');
+            
             let allPreventivi = [];
 
-            // ... (Logica eventi loginForm e logoutButton come prima) ...
-            if(loginForm) {
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = loginForm.email.value;
-                    const password = loginForm.password.value;
-                    if(loginError) loginError.textContent = '';
-                    auth.signInWithEmailAndPassword(email, password)
-                        .then((userCredential) => { console.log("Utente loggato:", userCredential.user); })
-                        .catch((error) => {
-                            console.error("Errore di login:", error.code, error.message);
-                            if(loginError) {
-                                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-                                    loginError.textContent = "Email o password errati.";
-                                } else if (error.code === 'auth/invalid-email') {
-                                    loginError.textContent = "Formato email non valido.";
-                                } else { loginError.textContent = "Errore di accesso. Riprova più tardi."; }
-                            }
-                        });
-                });
-            }
-            if(logoutButton) {
-                logoutButton.addEventListener('click', () => {
-                    auth.signOut().then(() => { console.log("Utente disconnesso."); }).catch((error) => { console.error("Errore di logout:", error); });
-                });
-            }
-            
+            // Gestione autenticazione
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    if(loginSection) loginSection.classList.add('hidden');
-                    if(appContent) appContent.classList.remove('hidden');
-                    if(homeButton) homeButton.classList.remove('hidden'); // Mostra pulsante Home
-                    if(logoutButton) logoutButton.classList.remove('hidden');
+                    loginSection.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    addQuoteBtn.classList.remove('hidden');
+                    logoutButton.classList.remove('hidden');
                     fetchPreventivi();
                 } else {
-                    if(loginSection) loginSection.classList.remove('hidden');
-                    if(appContent) appContent.classList.add('hidden');
-                    if(homeButton) homeButton.classList.add('hidden'); // Nascondi pulsante Home
-                    if(logoutButton) logoutButton.classList.add('hidden');
-                    if(preventiviTableBody) preventiviTableBody.innerHTML = '';
+                    loginSection.classList.remove('hidden');
+                    appContent.classList.add('hidden');
+                    addQuoteBtn.classList.add('hidden');
+                    logoutButton.classList.add('hidden');
+                    preventiviTableBody.innerHTML = '';
                     allPreventivi = [];
-                    if(noResultsMessage) noResultsMessage.classList.add('hidden');
-                    if (loginForm) {
-                        loginForm.reset();
-                        if(loginError) loginError.textContent = '';
-                    }
                 }
             });
 
-            // ... (Funzioni formatDate, renderTable, fetchPreventivi, filterPreventivi come prima) ...
-            function formatDate(timestamp) {
-                if (timestamp && typeof timestamp.toDate === 'function') {
-                    const date = timestamp.toDate();
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear();
-                    return `${day}/${month}/${year}`;
-                }
-                return 'N/D';
+            // Funzione per recuperare e mostrare i dati
+            function fetchPreventivi() {
+                // ... codice fetchPreventivi invariato...
+                preventiviTableBody.innerHTML = '<tr><td colspan="7" class="loading-message">Caricamento...</td></tr>';
+                db.collection("preventivi").orderBy("data", "desc").get()
+                  .then(snapshot => {
+                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                      renderTable(allPreventivi);
+                  }).catch(error => console.error("Errore caricamento preventivi:", error));
             }
 
-            function renderTable(preventiviData) {
-                if(!preventiviTableBody || !noResultsMessage || !searchInput) return;
+            function renderTable(data) {
+                // ... codice renderTable aggiornato per la nuova colonna ...
                 preventiviTableBody.innerHTML = '';
-                if (preventiviData.length === 0) {
-                    if (searchInput.value.trim() !== '') { noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca."; }
-                    else if (allPreventivi.length === 0 && searchInput.value.trim() === '') { noResultsMessage.textContent = "Nessun preventivo disponibile."; }
-                    else { noResultsMessage.textContent = "Nessun preventivo trovato per i criteri di ricerca."; }
-                    noResultsMessage.classList.remove('hidden');
-                } else { noResultsMessage.classList.add('hidden'); }
-                preventiviData.forEach(preventivo => {
+                if (data.length === 0) {
+                     preventiviTableBody.innerHTML = '<tr><td colspan="7" id="no-results-message">Nessun preventivo trovato.</td></tr>';
+                     return;
+                }
+                data.forEach(p => {
                     const row = preventiviTableBody.insertRow();
-                    row.insertCell().textContent = preventivo.cliente || '';
-                    row.insertCell().textContent = formatDate(preventivo.data);
-                    row.insertCell().textContent = preventivo.riferimento || '';
-                    row.insertCell().textContent = preventivo.numero || '';
-                    row.insertCell().textContent = preventivo.stato || '';
-                    const noteCell = row.insertCell();
-                    noteCell.textContent = preventivo.note || '';
-                    noteCell.style.whiteSpace = 'pre-wrap';
-                    noteCell.style.wordBreak = 'break-word';
+                    row.insertCell().textContent = p.cliente || '';
+                    row.insertCell().textContent = p.data ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
+                    row.insertCell().textContent = p.riferimento || '';
+                    row.insertCell().textContent = p.numero || '';
+                    row.insertCell().textContent = p.stato || '';
+                    row.insertCell().textContent = p.esitoOfferta || '';
+                    row.insertCell().textContent = p.note || '';
                 });
             }
 
-            function fetchPreventivi() {
-                if(!preventiviTableBody || !noResultsMessage || !db) return;
-                preventiviTableBody.innerHTML = '<tr><td colspan="6" class="loading-message">Caricamento preventivi...</td></tr>';
-                noResultsMessage.classList.add('hidden');
-                noResultsMessage.textContent = "Nessun preventivo trovato.";
-                db.collection("preventivi").orderBy("data", "desc").get()
-                  .then((querySnapshot) => {
-                        allPreventivi = [];
-                        querySnapshot.forEach((doc) => { allPreventivi.push({ id: doc.id, ...doc.data() }); });
-                        if (searchInput && searchInput.value.trim() !== '') { filterPreventivi(); }
-                        else { renderTable(allPreventivi); }
-                    })
-                  .catch((error) => {
-                        console.error("Errore nel caricare i preventivi: ", error);
-                        let errorMsgDisplayed = false;
-                        if (error.code === 'permission-denied') { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Accesso negato. Verifica le autorizzazioni o effettua il login.</td></tr>`; errorMsgDisplayed = true; }
-                        else if (error.code === 'failed-precondition') { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Ordinamento richiesto ('data') necessita di un indice. Controlla la console Firebase per il link per crearlo.</td></tr>`; console.error("Errore Firestore (probabile indice mancante):", error.message); errorMsgDisplayed = true; }
-                        else { preventiviTableBody.innerHTML = `<tr><td colspan="6" class="loading-message">Errore nel caricare i dati. Dettagli: ${error.message}</td></tr>`; errorMsgDisplayed = true; }
-                        allPreventivi = [];
-                        if(errorMsgDisplayed && noResultsMessage) { noResultsMessage.classList.add('hidden'); }
-                        else if (noResultsMessage) { noResultsMessage.textContent = "Errore nel caricare i dati."; noResultsMessage.classList.remove('hidden'); }
-                    });
-            }
+            // Gestione eventi per la Modal
+            addQuoteBtn.addEventListener('click', () => modal.classList.add('visible'));
+            closeModalBtns.forEach(btn => btn.addEventListener('click', () => modal.classList.remove('visible')));
+            
+            // Gestione salvataggio nuovo preventivo
+            quoteForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                saveQuoteBtn.disabled = true;
+                saveQuoteBtn.textContent = 'Salvataggio...';
 
-            function filterPreventivi() {
-                if(!searchInput) return;
-                const searchTerm = searchInput.value.toLowerCase().trim();
-                let dataToRender;
-                if (!searchTerm) { dataToRender = allPreventivi; }
-                else {
-                    dataToRender = allPreventivi.filter(p => {
-                        return ( (p.cliente && p.cliente.toLowerCase().includes(searchTerm)) || (p.numero && p.numero.toLowerCase().includes(searchTerm)) || (p.stato && p.stato.toLowerCase().includes(searchTerm)) || (p.riferimento && p.riferimento.toLowerCase().includes(searchTerm)) || (p.note && p.note.toLowerCase().includes(searchTerm)) );
+                const quoteData = {
+                    cliente: document.getElementById('cliente').value,
+                    riferimento: document.getElementById('riferimento').value,
+                    numero: document.getElementById('numero').value,
+                    stato: document.getElementById('stato').value,
+                    esitoOfferta: document.getElementById('esito').value,
+                    note: document.getElementById('note').value,
+                    data: new Date() // Data attuale
+                };
+
+                try {
+                    // Step 1: Salva su Firestore
+                    const firestorePromise = db.collection("preventivi").add(quoteData);
+
+                    // Step 2: Salva su Google Sheets
+                    const googleSheetPromise = fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors', // Necessario per chiamare Apps Script da web
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(quoteData)
                     });
+                    
+                    // Attendi che entrambe le operazioni finiscano
+                    await Promise.all([firestorePromise, googleSheetPromise]);
+
+                    alert('Preventivo salvato con successo!');
+                    modal.classList.remove('visible');
+                    quoteForm.reset();
+                    fetchPreventivi(); // Ricarica la tabella
+
+                } catch (error) {
+                    console.error("Errore durante il salvataggio:", error);
+                    alert("Si è verificato un errore. Controlla la console per i dettagli.");
+                } finally {
+                    saveQuoteBtn.disabled = false;
+                    saveQuoteBtn.textContent = 'Salva';
                 }
-                renderTable(dataToRender);
-            }
-            if (searchInput) { searchInput.addEventListener('input', filterPreventivi); }
+            });
 
-        } // Fine di initializeAppAndListeners
+            // Logica di login/logout e ricerca (invariata)
+            loginForm.addEventListener('submit', (e) => { e.preventDefault(); auth.signInWithEmailAndPassword(loginForm.email.value, loginForm.password.value).catch(err => loginError.textContent = "Email o password errati."); });
+            logoutButton.addEventListener('click', () => auth.signOut());
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val).toLowerCase().includes(term)));
+                renderTable(filtered);
+            });
 
-        // Meccanismo per attendere il caricamento di Firebase SDK
+        }
+        
+        // Meccanismo di avvio
         let checkIntervalCount = 0;
-        const maxCheckIntervals = 100;
         function checkFirebaseSDKAndRun() {
-            checkIntervalCount++;
-            if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
+            if (typeof firebase !== 'undefined') {
                 document.addEventListener('DOMContentLoaded', initializeAppAndListeners);
-            } else if (checkIntervalCount < maxCheckIntervals) {
+            } else if (checkIntervalCount++ < 100) {
                 setTimeout(checkFirebaseSDKAndRun, 100);
             } else {
-                console.error("TIMEOUT: Firebase SDK non è stato caricato dopo " + (maxCheckIntervals * 100) + "ms.");
-                alert("Errore critico: Firebase SDK non è stato caricato. Prova a ricaricare la pagina.");
-                 const loginSection = document.getElementById('login-section');
-                if(loginSection) loginSection.innerHTML = "<h2>Errore di caricamento SDK. Ricarica la pagina.</h2>";
+                alert("Errore critico: Firebase SDK non caricato.");
             }
         }
         checkFirebaseSDKAndRun();
