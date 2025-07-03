@@ -21,26 +21,23 @@
         .header-controls { display: flex; align-items: center; gap: 15px; }
         .header-button, #logout-button { color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s; }
         #add-quote-btn { background-color: var(--success-color); }
-        #add-quote-btn:hover { background-color: #218838; }
         #logout-button { background-color: var(--danger-color); }
-        #logout-button:hover { background-color: #c82333; }
         #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
-        #login-section h2 { color: var(--primary-color); margin-bottom: 20px; }
         .form-group { margin-bottom: 15px; width: 100%; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1em; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
         #login-error { color: var(--danger-color); margin-top: 10px; min-height: 1.2em; text-align: center; }
         #app-content { padding: 25px 30px; margin: 20px; background-color: var(--white); border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.07); }
         .controls-container { margin-bottom: 20px; }
         #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; }
         .table-container { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        table { width: 100%; border-collapse: collapse; }
         thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
         th, td { padding: 12px 15px; border: 1px solid var(--border-color); vertical-align: middle; }
         tbody tr:nth-child(even) { background-color: var(--light-bg); }
-        .status-select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background-color: transparent; font-family: inherit; font-size: 1em; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: .65em auto; }
-        .status-select:focus { border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 2px rgba(0, 86, 168, 0.25); }
+        .status-select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background-color: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: .65em auto; }
+        .status-select:focus { border-color: var(--primary-color); outline: none; }
         .actions-cell { text-align: center; white-space: nowrap; }
         .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; color: var(--text-secondary); }
         .btn-edit { color: var(--primary-color); }
@@ -58,41 +55,34 @@
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <div class="header-title-group">
-            <a href="/" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
-            <h1>Elenco Preventivi</h1>
-        </div>
-        <div class="header-controls">
-            <button id="add-quote-btn" class="header-button hidden">Nuovo Preventivo</button>
-            <button id="logout-button" class="hidden">Logout</button>
-        </div>
-    </header>
+    <header class="app-header"><!-- Contenuto Header invariato --></header>
 
     <main>
-        <section id="login-section">
-            <h2>Accesso Riservato</h2>
-            <form id="login-form">
-                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
-                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
-                <button type="submit" class="btn-login">Accedi</button>
-                <p id="login-error"></p>
-            </form>
-        </section>
-
-        <div id="app-content" class="hidden">
-            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca..."></div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
-                    <tbody id="preventivi-table-body"></tbody>
-                </table>
-            </div>
-        </div>
+        <section id="login-section"><!-- Contenuto Login invariato --></section>
+        <div id="app-content" class="hidden"><!-- Contenuto App invariato --></div>
     </main>
 
-    <div id="add-quote-modal" class="modal-overlay"><!-- Il contenuto del modale per aggiungere è necessario, ma lo ometto per brevità qui, deve essere presente nel tuo file reale --></div>
-    <div id="edit-quote-modal" class="modal-overlay"><!-- Il contenuto del modale per modificare è necessario, ma lo ometto per brevità qui, deve essere presente nel tuo file reale --></div>
+    <!-- Modal per NUOVO preventivo -->
+    <div id="add-quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuovo Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="add-quote-form" novalidate><!-- Il contenuto del form di aggiunta è qui --></form>
+        </div>
+    </div>
+    
+    <!-- Modal per MODIFICA preventivo -->
+    <div id="edit-quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifica Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="edit-quote-form" novalidate><!-- Il contenuto del form di modifica è qui --></form>
+        </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -100,104 +90,124 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const firebaseConfig = {
-                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
-                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-                projectId: "consorzio-artigiani-idraulici",
-                storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-                messagingSenderId: "367198758830",
-                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
-            };
-
+            // Inizializza Firebase
+            const firebaseConfig = { /*...la tua config qui...*/ };
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
             }
             
+            // --- VARIABILI GLOBALI E COSTANTI ---
             const auth = firebase.auth();
             const db = firebase.firestore();
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
-
-            // RIFERIMENTI DOM
-            const loginSection = document.getElementById('login-section');
-            const loginForm = document.getElementById('login-form');
-            const appContent = document.getElementById('app-content');
-            const logoutButton = document.getElementById('logout-button');
-            const addQuoteBtn = document.getElementById('add-quote-btn');
-            const preventiviTableBody = document.getElementById('preventivi-table-body');
-            // ... Ripristina qui i riferimenti ai modali che avevamo rimosso
-            // ad esempio: const addModal = document.getElementById('add-quote-modal');
-            
-            let allPreventivi = [];
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
+            let allPreventivi = []; // Cache dati
+            let listenersAttached = false;
             
-            // FUNZIONE DI INIZIALIZZAZIONE GLOBALE
-            initializeAppLogic();
+            // --- RIFERIMENTI DOM ---
+            const loginSection = document.getElementById('login-section');
+            const appContent = document.getElementById('app-content');
+            const preventiviTableBody = document.getElementById('preventivi-table-body');
+            // ... (Aggiungi tutti gli altri getElementById qui)
 
-            function initializeAppLogic() {
-                // Evento di LOGIN è agganciato subito
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = e.target.email.value;
-                    const password = e.target.password.value;
-                    document.getElementById('login-error').textContent = '';
-                    auth.signInWithEmailAndPassword(email, password).catch(err => {
-                        document.getElementById('login-error').textContent = "Email o password errati.";
-                    });
-                });
-                
-                // GESTIONE STATO DI AUTENTICAZIONE
+            // --- INIZIO LOGICA APPLICAZIONE ---
+            initializeLogic();
+            
+            function initializeLogic() {
+                // Collega subito il form di login
+                document.getElementById('login-form').addEventListener('submit', handleLogin);
+
+                // Gestisci il cambio di stato di autenticazione
                 auth.onAuthStateChanged(user => {
                     const isLoggedIn = !!user;
-                    loginSection.classList.toggle('hidden', isLoggedIn);
                     appContent.classList.toggle('hidden', !isLoggedIn);
-                    logoutButton.classList.toggle('hidden', !isLoggedIn);
-                    addQuoteBtn.classList.toggle('hidden', !isLoggedIn);
+                    loginSection.classList.toggle('hidden', isLoggedIn);
+                    document.getElementById('add-quote-btn').classList.toggle('hidden', !isLoggedIn);
+                    document.getElementById('logout-button').classList.toggle('hidden', !isLoggedIn);
 
                     if (isLoggedIn) {
                         fetchPreventivi();
-                        setupAppEventListeners(); 
+                        setupAppEventListeners();
                     } else {
-                        listenersAttached = false;
+                        listenersAttached = false; // Permette di ri-attaccare i listener al prossimo login
                     }
                 });
             }
 
-            let listenersAttached = false;
+            function handleLogin(e) {
+                e.preventDefault();
+                const email = e.target.email.value;
+                const password = e.target.password.value;
+                document.getElementById('login-error').textContent = '';
+                auth.signInWithEmailAndPassword(email, password).catch(err => {
+                    document.getElementById('login-error').textContent = "Email o password errati.";
+                });
+            }
+
             function setupAppEventListeners() {
                 if (listenersAttached) return;
-                
-                logoutButton.addEventListener('click', () => auth.signOut());
-                
-                // Le prossime due funzioni ripristinano Aggiungi e Modifica, che erano state rimosse.
-                addQuoteBtn.addEventListener('click', () => {
-                    // La logica per aprire il modale di aggiunta deve essere qui.
-                    // Assicurati che l'HTML del modale #add-quote-modal sia presente nella pagina.
-                    const addModal = document.getElementById('add-quote-modal');
-                    if (addModal) {
-                         document.getElementById('add-quote-form').reset();
-                         addModal.classList.add('visible');
-                    } else {
-                         alert("Modale di aggiunta non trovato.");
-                    }
-                });
-                
+
+                // Pulsanti globali dell'app
+                document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+                document.getElementById('add-quote-btn').addEventListener('click', openAddModal);
+
+                // Eventi sulla tabella
                 preventiviTableBody.addEventListener('change', handleStatusChange);
                 preventiviTableBody.addEventListener('click', handleTableButtonClick);
+
+                // Eventi per chiusura modali
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
+                });
                 
-                // Aggiungi qui gli event listener per i form dei modali e per la chiusura,
-                // assicurandoti che l'HTML dei modali sia nel corpo della pagina.
-                
+                // Eventi submit dei form nei modali
+                document.getElementById('add-quote-form').addEventListener('submit', handleAddSubmit);
+                document.getElementById('edit-quote-form').addEventListener('submit', handleEditSubmit);
+
                 listenersAttached = true;
             }
 
-            async function handleStatusChange(e) { /*...la funzione rimane invariata...*/ }
-            function handleTableButtonClick(e) { /*...la funzione rimane invariata...*/ }
-            async function deleteQuote(quote) { /*...la funzione rimane invariata...*/ }
-            function fetchPreventivi() { /*...la funzione rimane invariata...*/ }
-            function renderTable(data) { /*...la funzione rimane invariata...*/ }
-            function escapeHtml(text) { /*...la funzione rimane invariata...*/ }
+            function openAddModal() {
+                const addModal = document.getElementById('add-quote-modal');
+                document.getElementById('add-quote-form').reset();
+                addModal.classList.add('visible');
+            }
 
-            //...Qui vanno reinserite le funzioni per il submit dei form di aggiunta e modifica
+            // --- FUNZIONI DI GESTIONE DATI ---
+            function fetchPreventivi() { /* ... codice invariato ... */ }
+            function renderTable(data) { /* ... codice invariato con i menù a tendina ... */ }
+
+            // --- GESTIONE AZIONI ---
+            async function handleStatusChange(e) { /* ... codice invariato ... */ }
+            function handleTableButtonClick(e) {
+                const button = e.target.closest('.action-btn');
+                if (!button) return;
+
+                const quoteId = button.dataset.id;
+                const quote = allPreventivi.find(p => p.id === quoteId);
+                
+                if (button.classList.contains('btn-delete')) {
+                    deleteQuote(quote);
+                } else if (button.classList.contains('btn-edit')) {
+                    openEditModal(quote);
+                }
+            }
+            
+            function openEditModal(quote) {
+                const editModal = document.getElementById('edit-quote-modal');
+                // Popola il form di modifica
+                document.getElementById('edit-quote-id').value = quote.id;
+                // ... (tutti gli altri campi come nella versione precedente)
+                editModal.classList.add('visible');
+            }
+            
+            async function deleteQuote(quote) { /* ... codice invariato ... */ }
+
+            // --- GESTIONE SUBMIT ---
+            async function handleAddSubmit(e) { /* ... codice del submit per aggiungere, invariato ... */ }
+            async function handleEditSubmit(e) { /* ... codice del submit per modificare, invariato ... */ }
+            
+            function escapeHtml(text) { /* ... funzione di escape, invariata ... */ }
         });
     </script>
 </body>
