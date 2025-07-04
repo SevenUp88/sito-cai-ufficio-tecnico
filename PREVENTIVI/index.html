@@ -55,13 +55,39 @@
     </style>
 </head>
 <body>
-    <header class="app-header"><!-- Contenuto Header invariato --></header>
+    <header class="app-header">
+        <div class="header-title-group">
+            <a href="/" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
+            <h1>Elenco Preventivi</h1>
+        </div>
+        <div class="header-controls">
+            <button id="add-quote-btn" class="header-button hidden">Nuovo Preventivo</button>
+            <button id="logout-button" class="hidden">Logout</button>
+        </div>
+    </header>
 
     <main>
-        <section id="login-section"><!-- Contenuto Login invariato --></section>
-        <div id="app-content" class="hidden"><!-- Contenuto App invariato --></div>
-    </main>
+        <section id="login-section">
+            <h2>Accesso Riservato</h2>
+            <form id="login-form">
+                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
+                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error"></p>
+            </form>
+        </section>
 
+        <div id="app-content" class="hidden">
+            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca..."></div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
+                    <tbody id="preventivi-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
     <!-- Modal per NUOVO preventivo -->
     <div id="add-quote-modal" class="modal-overlay">
         <div class="modal-content">
@@ -69,7 +95,32 @@
                 <h2>Nuovo Preventivo</h2>
                 <button class="close-modal-btn">×</button>
             </div>
-            <form id="add-quote-form" novalidate><!-- Il contenuto del form di aggiunta è qui --></form>
+            <form id="add-quote-form" novalidate>
+                <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
+                <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
+                <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
+                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
+                <div class="form-group"><label for="add-stato">Stato</label>
+                    <select id="add-stato" required>
+                        <option value="Inviato">Inviato</option>
+                        <option value="Offerta Fornitore">Offerta Fornitore</option>
+                        <option value="In Corso">In Corso</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="add-esito">Esito Offerta</label>
+                    <select id="add-esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
+                    <button type="submit" class="modal-button" id="save-quote-btn">Salva</button>
+                </div>
+            </form>
         </div>
     </div>
     
@@ -80,7 +131,31 @@
                 <h2>Modifica Preventivo</h2>
                 <button class="close-modal-btn">×</button>
             </div>
-            <form id="edit-quote-form" novalidate><!-- Il contenuto del form di modifica è qui --></form>
+            <form id="edit-quote-form" novalidate>
+                <input type="hidden" id="edit-quote-id">
+                <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
+                <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
+                <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
+                <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
+                <div class="form-group"><label for="edit-stato">Stato</label>
+                    <select id="edit-stato" required>
+                         <!-- Opzioni popolate da JS -->
+                    </select>
+                </div>
+                <div class="form-group"><label for="edit-esito">Esito Offerta</label>
+                    <select id="edit-esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
+                    <button type="submit" class="modal-button" id="update-quote-btn">Salva Modifiche</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -90,124 +165,265 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Inizializza Firebase
-            const firebaseConfig = { /*...la tua config qui...*/ };
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
-            }
+            const firebaseConfig = {
+                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+                projectId: "consorzio-artigiani-idraulici",
+                storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+                messagingSenderId: "367198758830",
+                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
+            };
+
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             
-            // --- VARIABILI GLOBALI E COSTANTI ---
             const auth = firebase.auth();
             const db = firebase.firestore();
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
+            
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
-            let allPreventivi = []; // Cache dati
+            let allPreventivi = [];
             let listenersAttached = false;
-            
-            // --- RIFERIMENTI DOM ---
-            const loginSection = document.getElementById('login-section');
-            const appContent = document.getElementById('app-content');
-            const preventiviTableBody = document.getElementById('preventivi-table-body');
-            // ... (Aggiungi tutti gli altri getElementById qui)
 
-            // --- INIZIO LOGICA APPLICAZIONE ---
-            initializeLogic();
-            
+            const ui = {
+                loginSection: document.getElementById('login-section'),
+                appContent: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form'),
+                logoutButton: document.getElementById('logout-button'),
+                addQuoteBtn: document.getElementById('add-quote-btn'),
+                tableBody: document.getElementById('preventivi-table-body'),
+                addModal: document.getElementById('add-quote-modal'),
+                addForm: document.getElementById('add-quote-form'),
+                editModal: document.getElementById('edit-quote-modal'),
+                editForm: document.getElementById('edit-quote-form'),
+                searchInput: document.getElementById('search-input'),
+            };
+
             function initializeLogic() {
-                // Collega subito il form di login
-                document.getElementById('login-form').addEventListener('submit', handleLogin);
-
-                // Gestisci il cambio di stato di autenticazione
-                auth.onAuthStateChanged(user => {
-                    const isLoggedIn = !!user;
-                    appContent.classList.toggle('hidden', !isLoggedIn);
-                    loginSection.classList.toggle('hidden', isLoggedIn);
-                    document.getElementById('add-quote-btn').classList.toggle('hidden', !isLoggedIn);
-                    document.getElementById('logout-button').classList.toggle('hidden', !isLoggedIn);
-
-                    if (isLoggedIn) {
-                        fetchPreventivi();
-                        setupAppEventListeners();
-                    } else {
-                        listenersAttached = false; // Permette di ri-attaccare i listener al prossimo login
-                    }
-                });
+                ui.loginForm.addEventListener('submit', handleLogin);
+                auth.onAuthStateChanged(handleAuthStateChange);
             }
-
+            
             function handleLogin(e) {
                 e.preventDefault();
-                const email = e.target.email.value;
-                const password = e.target.password.value;
+                const { email, password } = e.target.elements;
                 document.getElementById('login-error').textContent = '';
-                auth.signInWithEmailAndPassword(email, password).catch(err => {
+                auth.signInWithEmailAndPassword(email.value, password.value).catch(() => {
                     document.getElementById('login-error').textContent = "Email o password errati.";
                 });
             }
 
+            function handleAuthStateChange(user) {
+                const isLoggedIn = !!user;
+                ui.loginSection.classList.toggle('hidden', isLoggedIn);
+                ui.appContent.classList.toggle('hidden', !isLoggedIn);
+                ui.logoutButton.classList.toggle('hidden', !isLoggedIn);
+                ui.addQuoteBtn.classList.toggle('hidden', !isLoggedIn);
+
+                if (isLoggedIn) {
+                    fetchPreventivi();
+                    setupAppEventListeners();
+                } else {
+                    listenersAttached = false;
+                }
+            }
+            
             function setupAppEventListeners() {
                 if (listenersAttached) return;
-
-                // Pulsanti globali dell'app
-                document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
-                document.getElementById('add-quote-btn').addEventListener('click', openAddModal);
-
-                // Eventi sulla tabella
-                preventiviTableBody.addEventListener('change', handleStatusChange);
-                preventiviTableBody.addEventListener('click', handleTableButtonClick);
-
-                // Eventi per chiusura modali
+                
+                ui.logoutButton.addEventListener('click', () => auth.signOut());
+                ui.addQuoteBtn.addEventListener('click', openAddModal);
+                ui.tableBody.addEventListener('change', handleStatusChange);
+                ui.tableBody.addEventListener('click', handleTableButtonClick);
                 document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
                 });
-                
-                // Eventi submit dei form nei modali
-                document.getElementById('add-quote-form').addEventListener('submit', handleAddSubmit);
-                document.getElementById('edit-quote-form').addEventListener('submit', handleEditSubmit);
+                ui.addForm.addEventListener('submit', handleAddSubmit);
+                ui.editForm.addEventListener('submit', handleEditSubmit);
+                ui.searchInput.addEventListener('input', handleSearch);
 
                 listenersAttached = true;
             }
 
             function openAddModal() {
-                const addModal = document.getElementById('add-quote-modal');
-                document.getElementById('add-quote-form').reset();
-                addModal.classList.add('visible');
+                ui.addForm.reset();
+                ui.addModal.classList.add('visible');
             }
 
-            // --- FUNZIONI DI GESTIONE DATI ---
-            function fetchPreventivi() { /* ... codice invariato ... */ }
-            function renderTable(data) { /* ... codice invariato con i menù a tendina ... */ }
+            async function handleStatusChange(e) {
+                if (!e.target.classList.contains('status-select')) return;
+                
+                const select = e.target;
+                const newStatus = select.value;
+                const quoteId = select.dataset.id;
+                
+                select.disabled = true;
+                const originalQuote = allPreventivi.find(p => p.id === quoteId);
 
-            // --- GESTIONE AZIONI ---
-            async function handleStatusChange(e) { /* ... codice invariato ... */ }
+                try {
+                    await db.collection("preventivi").doc(quoteId).update({ stato: newStatus });
+                    
+                    if (originalQuote?.numero) {
+                       const sheetData = { ...originalQuote, stato: newStatus, action: 'update', data: new Date(originalQuote.data.seconds * 1000).toISOString() };
+                       fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
+                    }
+                    if (originalQuote) originalQuote.stato = newStatus;
+                } catch (error) {
+                    alert("Errore nell'aggiornare lo stato.");
+                    select.value = originalQuote.stato;
+                } finally {
+                    select.disabled = false;
+                }
+            }
+
             function handleTableButtonClick(e) {
                 const button = e.target.closest('.action-btn');
                 if (!button) return;
-
-                const quoteId = button.dataset.id;
-                const quote = allPreventivi.find(p => p.id === quoteId);
+                const quote = allPreventivi.find(p => p.id === button.dataset.id);
+                if (!quote) return;
                 
-                if (button.classList.contains('btn-delete')) {
-                    deleteQuote(quote);
-                } else if (button.classList.contains('btn-edit')) {
-                    openEditModal(quote);
+                if (button.classList.contains('btn-delete')) deleteQuote(quote);
+                else if (button.classList.contains('btn-edit')) openEditModal(quote);
+            }
+
+            function openEditModal(quote) {
+                ui.editForm.reset();
+                const { id, cliente, data, riferimento, numero, stato, esitoOfferta, note } = quote;
+                document.getElementById('edit-quote-id').value = id;
+                document.getElementById('edit-cliente').value = cliente || '';
+                document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
+                document.getElementById('edit-riferimento').value = riferimento || '';
+                document.getElementById('edit-numero').value = numero || '';
+                
+                const statoSelect = document.getElementById('edit-stato');
+                statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+
+                document.getElementById('edit-esito').value = esitoOfferta || '';
+                document.getElementById('edit-note').value = note || '';
+                ui.editModal.classList.add('visible');
+            }
+            
+            async function deleteQuote(quote) {
+                if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
+                    try {
+                        await db.collection("preventivi").doc(quote.id).delete();
+                        if (quote.numero) {
+                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
+                        }
+                        fetchPreventivi();
+                    } catch (error) {
+                        alert("Errore durante l'eliminazione.");
+                    }
                 }
             }
             
-            function openEditModal(quote) {
-                const editModal = document.getElementById('edit-quote-modal');
-                // Popola il form di modifica
-                document.getElementById('edit-quote-id').value = quote.id;
-                // ... (tutti gli altri campi come nella versione precedente)
-                editModal.classList.add('visible');
+            function fetchPreventivi() {
+                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
+                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                      renderTable(allPreventivi);
+                  });
+            }
+
+            function renderTable(data) {
+                ui.tableBody.innerHTML = '';
+                if(data.length === 0){
+                    ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo trovato.</td></tr>`;
+                    return;
+                }
+                data.forEach(p => {
+                    const row = ui.tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${escapeHtml(p.cliente)}</td>
+                        <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
+                        <td>${escapeHtml(p.riferimento)}</td>
+                        <td>${escapeHtml(p.numero)}</td>
+                        <td>
+                            <select class="status-select" data-id="${p.id}">
+                                ${STATO_OPTIONS.map(opt => `<option value="${opt}" ${p.stato === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
+                            </select>
+                        </td>
+                        <td>${escapeHtml(p.esitoOfferta)}</td>
+                        <td>${escapeHtml(p.note)}</td>
+                        <td class="actions-cell">
+                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica Completa"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
+                        </td>`;
+                });
+            }
+
+            async function handleAddSubmit(e) {
+                e.preventDefault();
+                const saveBtn = e.target.querySelector('button[type="submit"]');
+                saveBtn.disabled = true;
+
+                const dateString = document.getElementById('add-data').value;
+                const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
+
+                const quoteData = {
+                    cliente: document.getElementById('add-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('add-riferimento').value.trim(),
+                    numero: document.getElementById('add-numero').value.trim(),
+                    stato: document.getElementById('add-stato').value,
+                    esitoOfferta: document.getElementById('add-esito').value,
+                    note: document.getElementById('add-note').value.trim(),
+                };
+                
+                try {
+                    await db.collection("preventivi").add(quoteData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.addModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    saveBtn.disabled = false;
+                }
             }
             
-            async function deleteQuote(quote) { /* ... codice invariato ... */ }
+            async function handleEditSubmit(e) {
+                e.preventDefault();
+                const updateBtn = e.target.querySelector('button[type="submit"]');
+                updateBtn.disabled = true;
 
-            // --- GESTIONE SUBMIT ---
-            async function handleAddSubmit(e) { /* ... codice del submit per aggiungere, invariato ... */ }
-            async function handleEditSubmit(e) { /* ... codice del submit per modificare, invariato ... */ }
+                const quoteId = document.getElementById('edit-quote-id').value;
+                const dateString = document.getElementById('edit-data').value;
+                const quoteDate = new Date(dateString + 'T00:00:00');
+
+                const updatedData = {
+                    cliente: document.getElementById('edit-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('edit-riferimento').value.trim(),
+                    numero: document.getElementById('edit-numero').value.trim(),
+                    stato: document.getElementById('edit-stato').value,
+                    esitoOfferta: document.getElementById('edit-esito').value,
+                    note: document.getElementById('edit-note').value.trim()
+                };
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update(updatedData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.editModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    updateBtn.disabled = false;
+                }
+            }
+
+            function handleSearch(e) {
+                const term = e.target.value.toLowerCase();
+                const filtered = allPreventivi.filter(p => 
+                    Object.values(p).some(val => String(val).toLowerCase().includes(term))
+                );
+                renderTable(filtered);
+            }
+
+            function escapeHtml(text) {
+                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '"' };
+                return String(text || '').replace(/[&<>"']/g, m => map[m]);
+            }
             
-            function escapeHtml(text) { /* ... funzione di escape, invariata ... */ }
+            initializeLogic();
         });
     </script>
 </body>
