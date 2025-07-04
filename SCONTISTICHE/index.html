@@ -111,7 +111,7 @@
         }
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
         
-        /* Calcolatore Sconto */
+        /* Calcolatori */
         .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
         .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
         .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; }
@@ -121,7 +121,8 @@
         .sconto-fields-calculator input[type="number"] { width: 100%; padding: 8px; font-size: 0.9em; text-align: center; border: 1px solid #ced4da; border-radius: 4px; }
         .calculator-panel .form-group { margin-bottom: 15px; }
         .calculator-panel .form-group label { font-size: 0.85em; font-weight: 500; margin-bottom: 5px; color: var(--secondary-color); }
-        .calculator-panel #calc-base-price { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px; }
+        .calculator-panel input[type="number"] { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; }
+        .calculator-panel .form-group input[type="number"] { margin-bottom: 0; }
         .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; border-radius: var(--border-radius); cursor:pointer; }
         .calculator-panel .button-primary-calc { background-color: var(--matrice-accent-success); }
         .calculator-panel .button-primary-calc:hover { background-color: #147543; }
@@ -130,7 +131,14 @@
         .result-section p { margin-top: 0; margin-bottom: 5px; color: var(--secondary-color); font-size: 0.9em; }
         .calculated-price-display { font-size: 1.8em; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block; }
         .total-discount-display { font-size: 1.3em; font-weight: 500; color: var(--dark-color); }
-        @media (max-width: 768px) { .calculator-layout { flex-direction: column; } .sconto-fields-calculator { grid-template-columns: repeat(3, 1fr); } .calculator-panel #calc-base-price { max-width: none; } }
+        .color-positive { color: var(--matrice-accent-success) !important; }
+        .color-negative { color: var(--matrice-accent-danger) !important; }
+
+        @media (max-width: 768px) { 
+            .calculator-layout { flex-direction: column; } 
+            .sconto-fields-calculator { grid-template-columns: repeat(3, 1fr); } 
+            .calculator-panel input[type="number"] { max-width: none; }
+        }
         @media (max-width: 480px) { .sconto-fields-calculator { grid-template-columns: repeat(2, 1fr); } }
 
         /* Toast */
@@ -191,6 +199,31 @@
                 </div>
             </div>
         </div>
+        
+        <!-- NUOVA SEZIONE: CALCOLATORE VARIAZIONE PERCENTUALE -->
+        <div id="variation-calculator" class="content-card calculator-panel">
+            <h2><i class="fas fa-percent"></i> Calcolatore Variazione Percentuale</h2>
+            <div class="calculator-layout">
+                <div class="input-section">
+                    <div class="form-group">
+                        <label for="var-initial-value">Valore Iniziale (€):</label>
+                        <input type="number" id="var-initial-value" placeholder="Es. 912" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="var-final-value">Valore Finale (€):</label>
+                        <input type="number" id="var-final-value" placeholder="Es. 571" step="0.01">
+                    </div>
+                    <button id="calculate-variation-button" class="button button-primary-calc"><i class="fas fa-cogs"></i> Calcola</button>
+                    <button id="reset-variation-button" class="button button-secondary-calc" style="margin-left: 10px;"><i class="fas fa-undo"></i> Reset</button>
+                </div>
+                <div class="result-section">
+                    <p>Variazione (Var. %):</p>
+                    <div id="variation-percentage" class="calculated-price-display" style="border-color: var(--warning-color);">0.00 %</div>
+                    <p style="margin-top:10px;">Differenza (€):</p>
+                    <div id="variation-difference" class="total-discount-display">0.00 €</div>
+                </div>
+            </div>
+        </div>
 
         <div class="content-card filters-container">
             <div class="filters">
@@ -233,12 +266,22 @@
     const userInfoHeader = document.getElementById('user-info-header');
     const userEmailDisplay = document.getElementById('user-email-display');
     const toastElement = document.getElementById('toast-notification');
+    
+    // Riferimenti DOM Calcolatore Sconti
     const calcBasePriceInput = document.getElementById('calc-base-price');
     const calcScontoInputs = Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`));
     const calculateButton = document.getElementById('calculate-button');
     const resetCalculatorButton = document.getElementById('reset-calculator-button');
     const calculatedPriceDisplay = document.getElementById('calculated-price');
     const totalDiscountPercentageDisplay = document.getElementById('total-discount-percentage');
+
+    // NUOVI RIFERIMENTI DOM Calcolatore Variazione
+    const initialValueInput = document.getElementById('var-initial-value');
+    const finalValueInput = document.getElementById('var-final-value');
+    const calculateVariationButton = document.getElementById('calculate-variation-button');
+    const resetVariationButton = document.getElementById('reset-variation-button');
+    const variationPercentageDisplay = document.getElementById('variation-percentage');
+    const variationDifferenceDisplay = document.getElementById('variation-difference');
 
     
     // ----- 2. FUNZIONI HELPER -----
@@ -288,7 +331,6 @@
             } else {
                 const existing = merged[key];
                 
-                // Unisce i dati: la riga con più "dettagli" (più campi pieni) vince
                 if (rule.scontiAcquisto && rule.scontiAcquisto.length > 0) existing.scontiAcquisto = rule.scontiAcquisto;
                 if (rule.scontiVendita && rule.scontiVendita.length > 0) existing.scontiVendita = rule.scontiVendita;
                 if (rule.agente) existing.agente = rule.agente;
@@ -325,14 +367,11 @@
             trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
         }
 
-        // --- NUOVA LOGICA PER FORMATTARE I CENTRI ASSISTENZA ---
         let assistenzaDisplay = "N/A";
-        // L'array centriAssistenza contiene ['valoreCesena', 'valoreSavignano', 'valoreRimini']
         if (rule.centriAssistenza && rule.centriAssistenza.length > 0) {
             const citta = ['Cesena', 'Savignano', 'Rimini'];
             const partiFormattate = [];
             
-            // Cicliamo sull'array e aggiungiamo il nome della città solo se il valore non è vuoto
             rule.centriAssistenza.forEach((valore, index) => {
                 if (valore && valore.toString().trim() !== '') {
                     partiFormattate.push(`<strong>${citta[index]}:</strong> ${valore}`);
@@ -340,7 +379,6 @@
             });
             
             if (partiFormattate.length > 0) {
-                // Uniamo le parti con un "a capo" HTML (<br>)
                 assistenzaDisplay = partiFormattate.join('<br>');
             }
         }
@@ -365,9 +403,6 @@
         categoryFilterEl.value = categories.includes(catVal) ? catVal : "";
     }
     
-    /**
-     * Applica i filtri (usa dati già fusi).
-     */
     function applyUiFilters() {
         const categoryValue = document.getElementById('category-filter').value;
         const brandFilterEl = document.getElementById('brand-filter');
@@ -396,9 +431,6 @@
     function resetFilters() { document.getElementById('category-filter').value = ""; document.getElementById('brand-filter').value = ""; applyUiFilters(); showToast("Filtri resettati."); }
     function triggerFilter() { applyUiFilters(); }
 
-    /**
-     * Carica e processa i dati da Firestore.
-     */
     async function loadDataFromFirestore() {
         showToast("Caricamento dati...", 2500); 
         appLoader.classList.remove('content-hidden');
@@ -446,7 +478,7 @@
         appLoader.classList.add('content-hidden');
     });
 
-    // Listener eventi (invariati)
+    // Listener eventi Auth
     loginButton.addEventListener('click', async () => {
         const email = emailInput.value; const password = passwordInput.value; authErrorMessage.textContent = '';
         if (!email || !password) { authErrorMessage.textContent = 'Email e Password obbligatori.'; return; }
@@ -457,6 +489,8 @@
         try { appLoader.classList.remove('content-hidden'); await auth.signOut(); showToast("Logout.", 2000); } 
         catch (error) { console.error("Logout Err:", error); showToast("Errore logout.", 3000); appLoader.classList.add('content-hidden'); }
     });
+
+    // Listener Calcolatore Sconti
     calculateButton.addEventListener('click', () => {
         const base = parseFloat(calcBasePriceInput.value); if(isNaN(base) || base <= 0){ showToast("Prezzo base non valido.",3000); return; }
         const discounts = calcScontoInputs.map(input => parseFloat(input.value)).filter(val => !isNaN(val) && val > 0 && val <= 100);
@@ -469,9 +503,57 @@
         calculatedPriceDisplay.textContent = "0.00 €"; totalDiscountPercentageDisplay.textContent = "0.00 %"; 
         showToast("Calcolatore resettato.",2000);
     });
+    
+    // NUOVI LISTENER PER CALCOLATORE VARIAZIONE
+    const doCalculateVariation = () => {
+        const initial = parseFloat(initialValueInput.value);
+        const final = parseFloat(finalValueInput.value);
+        if(isNaN(initial) || isNaN(final)) {
+            showToast("Inserire entrambi i valori (Iniziale e Finale).", 3000);
+            return;
+        }
+        if(initial === 0) {
+            showToast("Il Valore Iniziale non può essere zero.", 3000);
+            return;
+        }
+        const difference = final - initial;
+        const percentage = (difference / Math.abs(initial)) * 100;
+
+        variationPercentageDisplay.textContent = percentage.toFixed(2) + " %";
+        variationDifferenceDisplay.textContent = difference.toFixed(2) + " €";
+
+        // Rimuovi classi colore vecchie
+        variationPercentageDisplay.classList.remove('color-positive', 'color-negative');
+        variationDifferenceDisplay.classList.remove('color-positive', 'color-negative');
+        
+        // Applica classi colore nuove
+        if(percentage > 0) {
+            variationPercentageDisplay.classList.add('color-positive');
+            variationDifferenceDisplay.classList.add('color-positive');
+        } else if (percentage < 0) {
+            variationPercentageDisplay.classList.add('color-negative');
+            variationDifferenceDisplay.classList.add('color-negative');
+        }
+    };
+    
+    calculateVariationButton.addEventListener('click', doCalculateVariation);
+
+    resetVariationButton.addEventListener('click', () => {
+        initialValueInput.value = '';
+        finalValueInput.value = '';
+        variationPercentageDisplay.textContent = "0.00 %";
+        variationDifferenceDisplay.textContent = "0.00 €";
+        variationPercentageDisplay.classList.remove('color-positive', 'color-negative');
+        variationDifferenceDisplay.classList.remove('color-positive', 'color-negative');
+        showToast("Calcolatore Variazione resettato.", 2000);
+    });
+
+    // Listener per tasto Invio su tutti i calcolatori
     calcBasePriceInput.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); calculateButton.click(); }});
     calcScontoInputs.forEach(input => { input.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); calculateButton.click(); }})});
-    
+    initialValueInput.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); doCalculateVariation(); }});
+    finalValueInput.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); doCalculateVariation(); }});
+
     </script>
 </body>
 </html>
