@@ -1,15 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Elementi DOM ---
+    // =================================================================
+    // 1. SELEZIONE DEGLI ELEMENTI DOM
+    // =================================================================
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
-    
-    // Elementi per il nuovo sottomenu Configuratori
     const btnConfiguratori = document.getElementById('btn-configuratori');
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
-
-    const mainNav = document.getElementById('mainNav'); // Assicurati che <nav class="main-nav"> abbia id="mainNav"
-
-    // Elementi Pannello Aggiungi Categoria
+    const mainNav = document.getElementById('mainNav');
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -19,15 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
     const addCategoryFeedback = document.getElementById('add-category-feedback');
     const adminOverlay = document.getElementById('admin-overlay');
+    const appContent = document.getElementById('app-content');
 
-    // --- Logica Sottomenu Generica ---
+    // Elementi per la nuova funzionalità di ricerca
+    const searchInput = document.getElementById('search-input');
+    const searchResultsContainer = document.getElementById('search-results');
+    
+    // =================================================================
+    // 2. VARIABILI DI STATO E CONFIGURAZIONE
+    // =================================================================
+    const db = firebase.firestore();
+    let allSearchableData = []; // Array che conterrà tutti i dati per la ricerca
+    let isDataFetched = false;   // Flag per evitare di ricaricare i dati più volte
     const currentlyOpenSubmenu = { btn: null, menu: null };
 
+    // =================================================================
+    // 3. LOGICA DI BUSINESS (FUNZIONI)
+    // =================================================================
+
+    // --- Funzioni per la gestione dei Sottomenu ---
     const toggleSubmenu = (button, submenu) => {
-        if (!button || !submenu) {
-            console.error("Pulsante o sottomenu non trovato per toggle:", button, submenu);
-            return;
-        }
+        if (!button || !submenu) return;
         const isCurrentlyVisible = submenu.classList.contains('visible');
 
         // Chiudi qualsiasi altro sottomenu aperto
@@ -50,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
             submenu.classList.remove('visible');
             button.setAttribute('aria-expanded', 'false');
             button.classList.remove('active');
-            // Se stiamo chiudendo il sottomenu attualmente registrato come aperto
             if (currentlyOpenSubmenu.menu === submenu) {
                 currentlyOpenSubmenu.btn = null;
                 currentlyOpenSubmenu.menu = null;
@@ -58,39 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Event Listener per Sottomenu Listini
-    if (btnListini && submenuListini) {
-        btnListini.addEventListener('click', (event) => {
-            event.stopPropagation();
-            toggleSubmenu(btnListini, submenuListini);
-        });
-    }
-
-    // Event Listener per Sottomenu Configuratori
-    if (btnConfiguratori && submenuConfiguratori) {
-        btnConfiguratori.addEventListener('click', (event) => {
-            event.stopPropagation();
-            toggleSubmenu(btnConfiguratori, submenuConfiguratori);
-        });
-    }
-
-    // Chiudi i sottomenu se si clicca altrove nel documento
-    document.addEventListener('click', (event) => {
-        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.btn) {
-            // Controlla se il click è avvenuto fuori dal pulsante attivo E fuori dal sottomenu attivo
-            const isClickInsideButton = currentlyOpenSubmenu.btn.contains(event.target);
-            const isClickInsideSubmenu = currentlyOpenSubmenu.menu.contains(event.target);
-
-            if (!isClickInsideButton && !isClickInsideSubmenu) {
-                toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu); // Chiude quello aperto
-            }
-        }
-    });
-
-
-    // --- Logica Pannello "Aggiungi Categoria" ---
-    // (La visibilità di addCategoryTriggerBtn è gestita da auth.js)
-
+    // --- Funzioni per il pannello "Aggiungi Categoria" ---
     const showAddCategoryPanel = () => {
         if (!addCategoryPanel || !adminOverlay || !categoryNameInput) return;
         addCategoryPanel.classList.remove('hidden');
@@ -105,67 +81,209 @@ document.addEventListener('DOMContentLoaded', () => {
     const hideAddCategoryPanel = () => {
          if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.add('hidden');
-        adminOverlay.classList.add('hidden'); // Nasconde l'overlay generale
+        adminOverlay.classList.add('hidden');
     };
-    
-    if (addCategoryTriggerBtn) {
-        addCategoryTriggerBtn.addEventListener('click', () => {
-            if (addCategoryPanel && !addCategoryPanel.classList.contains('hidden')) return; 
-            showAddCategoryPanel();
-        });
-    }
 
-    if (addCategorySubmitBtn) {
-        addCategorySubmitBtn.addEventListener('click', () => {
-            if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav || !addCategoryFeedback) return;
-            
-            const name = categoryNameInput.value.trim();
-            const path = categoryPathInput.value.trim();
-            const iconClassRaw = categoryIconInput.value.trim() || 'folder'; 
-            
-            if (!name || !path) {
-                addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!';
-                addCategoryFeedback.className = 'feedback-message error'; 
-                addCategoryFeedback.classList.remove('hidden');
-                return;
-            }
-            
-            const newLink = document.createElement('a'); 
-            newLink.href = path; 
-            newLink.className = 'nav-button';
-            
-            const newIcon = document.createElement('i');
-            if (iconClassRaw.startsWith('fa-') || iconClassRaw.startsWith('fas ') || iconClassRaw.startsWith('far ') || iconClassRaw.startsWith('fab ')) {
-                 newIcon.className = iconClassRaw;
-            } else {
-                 newIcon.className = `fas fa-${iconClassRaw}`; 
-            }
-
-            const linkText = document.createTextNode(` ${name}`); 
-            newLink.appendChild(newIcon);
-            newLink.appendChild(linkText);
-            
-            mainNav.appendChild(newLink);
-            
-            categoryNameInput.value = ''; categoryPathInput.value = ''; categoryIconInput.value = '';
-            addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`;
-            addCategoryFeedback.className = 'feedback-message success';
+    const handleAddCategorySubmit = () => {
+        if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav || !addCategoryFeedback) return;
+        
+        const name = categoryNameInput.value.trim();
+        const path = categoryPathInput.value.trim();
+        const iconClassRaw = categoryIconInput.value.trim() || 'folder'; 
+        
+        if (!name || !path) {
+            addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!';
+            addCategoryFeedback.className = 'feedback-message error'; 
             addCategoryFeedback.classList.remove('hidden');
-            
-            setTimeout(() => {
-                addCategoryFeedback.classList.add('hidden');
-                // hideAddCategoryPanel(); // Opzionale: chiudi il pannello dopo successo
-            }, 3000);
-            categoryNameInput.focus(); // Per aggiungere un'altra categoria subito
+            return;
+        }
+        
+        const newLink = document.createElement('a'); 
+        newLink.href = path; 
+        newLink.className = 'nav-button';
+        
+        const newIcon = document.createElement('i');
+        newIcon.className = `fas fa-${iconClassRaw}`;
+
+        const linkText = document.createTextNode(` ${name}`); 
+        newLink.appendChild(newIcon);
+        newLink.appendChild(linkText);
+        
+        mainNav.appendChild(newLink);
+        
+        categoryNameInput.value = ''; categoryPathInput.value = ''; categoryIconInput.value = '';
+        addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`;
+        addCategoryFeedback.className = 'feedback-message success';
+        addCategoryFeedback.classList.remove('hidden');
+        
+        setTimeout(() => {
+            addCategoryFeedback.classList.add('hidden');
+        }, 3000);
+        categoryNameInput.focus();
+    };
+
+
+    // --- Funzioni per la Ricerca Globale ---
+
+    /**
+     * Carica i dati da tutte le collezioni ricercabili in Firestore.
+     * Questa funzione viene chiamata una sola volta dopo il login.
+     */
+    async function fetchAllSearchableData() {
+        if (isDataFetched) return; // Non ricaricare se i dati sono già presenti
+
+        console.log("Inizio caricamento dati per la ricerca...");
+        if (searchInput) {
+            searchInput.disabled = true;
+            searchInput.placeholder = 'Caricamento dati in corso...';
+        }
+        
+        // ===========================================================================
+        // !!! IMPORTANTE: PERSONALIZZA QUESTA SEZIONE CON LE TUE COLLEZIONI !!!
+        // ===========================================================================
+        const collectionsToFetch = [
+            { name: 'listino-clima', category: 'Clima', fields: { code: 'Codice', name: 'Descrizione' }, link: 'LISTINI/CLIMA/monosplit/index.html' },
+            { name: 'listino-caldaie', category: 'Caldaie', fields: { code: 'Codice', name: 'Modello' }, link: 'LISTINI/CALDAIE/index.html' },
+            { name: 'listino-scaldabagni', category: 'Scaldabagni', fields: { code: 'CODICE', name: 'DESCRIZIONE' }, link: 'LISTINI/SCALDABAGNI/index.html' },
+            { name: 'listino-sanitari', category: 'Sanitari', fields: { code: 'Codice', name: 'Descrizione' }, link: 'LISTINI/SANITARI/index.html' },
+            { name: 'noleggi', category: 'Noleggi', fields: { code: 'ID_Articolo', name: 'Descrizione' }, link: 'NOLEGGI/code.html' },
+            // Esempio per aggiungere una nuova collezione:
+            // { name: 'nome-collezione-in-firestore', category: 'Nome da Mostrare', fields: { code: 'nome_campo_codice', name: 'nome_campo_descrizione' }, link: 'percorso/alla/pagina.html' },
+        ];
+
+        const promises = collectionsToFetch.map(async (col) => {
+            try {
+                const snapshot = await db.collection(col.name).get();
+                return snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    // Normalizza i dati in un formato comune
+                    return {
+                        code: data[col.fields.code] || '',
+                        name: data[col.fields.name] || '',
+                        category: col.category,
+                        link: col.link
+                    };
+                });
+            } catch (error) {
+                console.error(`Errore nel caricare la collezione ${col.name}:`, error);
+                return []; // Ritorna un array vuoto in caso di errore per non bloccare tutto
+            }
+        });
+
+        const results = await Promise.all(promises);
+        allSearchableData = results.flat(); // Unisce tutti gli array di risultati in un unico grande array
+        isDataFetched = true;
+        
+        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
+        if(searchInput) {
+            searchInput.disabled = false;
+            searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
+        }
+    }
+
+    /**
+     * Filtra i dati in memoria e chiama la funzione per visualizzarli.
+     */
+    function handleSearch() {
+        if (!searchInput) return;
+        const query = searchInput.value.toLowerCase().trim();
+
+        if (query.length < 2) { // Non cercare se la query è troppo corta
+            displayResults([]);
+            return;
+        }
+
+        const filteredResults = allSearchableData.filter(item => 
+            (item.name && item.name.toLowerCase().includes(query)) || 
+            (item.code && item.code.toLowerCase().includes(query))
+        );
+
+        displayResults(filteredResults);
+    }
+
+    /**
+     * Mostra i risultati filtrati nel contenitore HTML.
+     * @param {Array} results - L'array di oggetti risultato da mostrare.
+     */
+    function displayResults(results) {
+        if (!searchResultsContainer) return;
+        searchResultsContainer.innerHTML = ''; // Pulisce i risultati precedenti
+
+        if (results.length === 0) {
+            searchResultsContainer.style.display = 'none';
+            return;
+        }
+
+        searchResultsContainer.style.display = 'block';
+
+        results.slice(0, 20).forEach(item => { // Mostra un massimo di 20 risultati
+            const resultItem = document.createElement('a');
+            resultItem.href = item.link; 
+            resultItem.className = 'result-item';
+            resultItem.innerHTML = `
+                <span class="item-category">${item.category}</span>
+                <span class="item-code">${item.code}</span>
+                ${item.name}
+            `;
+            searchResultsContainer.appendChild(resultItem);
         });
     }
 
-    if (addCategoryCloseBtn) { addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel); }
-    if (adminOverlay) { adminOverlay.addEventListener('click', () => { hideAddCategoryPanel(); }); }
 
-    // Nota: la logica di admin login (showAdminLoginPopup, hideAdminLoginPopup, adminLoginSubmit ecc.)
-    // sembra essere gestita primariamente da auth.js. Ho rimosso le chiamate dirette a show/hideAdminLoginPopup
-    // da questo script se non strettamente necessarie per il flusso "Aggiungi Categoria",
-    // dato che addCategoryTriggerBtn è controllato da auth.js.
+    // =================================================================
+    // 4. EVENT LISTENERS E INTEGRAZIONE
+    // =================================================================
+
+    // --- Listeners per i sottomenu ---
+    if (btnListini) btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); });
+    if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); });
+
+    // --- Listeners per il pannello "Aggiungi Categoria" ---
+    if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
+    if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
+    if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
+    if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
+
+    // --- Listeners per la Ricerca ---
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+    
+    // --- Listener Globale per chiudere popup/menu ---
+    document.addEventListener('click', (event) => {
+        // Chiudi sottomenu se si clicca fuori
+        if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(event.target) && !currentlyOpenSubmenu.btn.contains(event.target)) {
+            toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
+        }
+        // Chiudi risultati ricerca se si clicca fuori
+        if (searchResultsContainer && !searchResultsContainer.contains(event.target) && event.target !== searchInput) {
+            searchResultsContainer.style.display = 'none';
+        }
+    });
+
+    // --- Observer per attivare la ricerca dopo il login ---
+    // Questo observer "ascolta" quando l'area principale dell'app (#app-content) diventa visibile.
+    // È il modo più pulito per avviare il caricamento dei dati senza dover modificare auth.js.
+    if (appContent) {
+        const observer = new MutationObserver((mutationsList) => {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    // Se la classe 'hidden' viene rimossa -> l'utente ha fatto il login
+                    if (!appContent.classList.contains('hidden')) {
+                        fetchAllSearchableData();
+                    } else {
+                        // Se la classe 'hidden' viene aggiunta -> l'utente ha fatto logout
+                        allSearchableData = [];
+                        isDataFetched = false;
+                        if(searchResultsContainer) searchResultsContainer.style.display = 'none';
+                        if(searchInput) searchInput.value = '';
+                    }
+                }
+            }
+        });
+
+        // Avvia l'osservazione delle modifiche agli attributi di #app-content
+        observer.observe(appContent, { attributes: true });
+    }
 
 }); // Fine DOMContentLoaded
