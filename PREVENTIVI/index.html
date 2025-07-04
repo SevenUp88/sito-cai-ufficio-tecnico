@@ -7,119 +7,61 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --primary-color: #0056a8;
-            --primary-hover: #004182;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --warning-color: #ffc107;
-            --light-bg: #f8f9fa;
-            --white: #ffffff;
-            --border-color: #dee2e6;
-            --text-primary: #343a40;
-            --text-secondary: #6c757d;
-            --shadow-sm: 0 2px 5px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+            --primary-color: #0056a8; --primary-hover: #004182;
+            --success-color: #28a745; --danger-color: #dc3545;
+            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6;
+            --text-primary: #343a40; --text-secondary: #6c757d;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            background-color: var(--light-bg);
-            color: var(--text-primary);
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        .app-header {
-            display: flex; align-items: center; justify-content: space-between; gap: 15px;
-            padding: 10px 30px; background-color: var(--white); box-shadow: var(--shadow-sm);
-            position: sticky; top: 0; z-index: 1000;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: var(--light-bg); color: var(--text-primary); }
+        .app-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 30px; background-color: var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         .header-title-group { display: flex; align-items: center; gap: 20px; }
-        .logo-link { display: inline-block; line-height: 0; }
-        .logo { height: 45px; width: auto; flex-shrink: 0; }
-        .app-header h1 { color: var(--primary-color); font-size: 1.8em; margin: 0; }
+        .logo { height: 45px; width: auto; }
+        .app-header h1 { color: var(--primary-color); font-size: 1.8em; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
-        .header-button, #logout-button {
-            color: white; border: none; padding: 8px 15px; border-radius: 4px;
-            cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex;
-            align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s;
-        }
+        .header-button, #logout-button { color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s; }
         #add-quote-btn { background-color: var(--success-color); }
-        #add-quote-btn:hover { background-color: #218838; }
         #logout-button { background-color: var(--danger-color); }
-        #logout-button:hover { background-color: #c82333; }
-        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: var(--shadow-md); max-width: 400px; width: 90%; }
-        #login-section h2 { color: var(--primary-color); margin-bottom: 20px; }
+        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
         .form-group { margin-bottom: 15px; width: 100%; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 1em; }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
-        .btn-login:hover { background-color: var(--primary-hover); }
-        #login-error { color: var(--danger-color); margin-top: 10px; font-size: 0.9em; min-height: 1.2em; text-align: center; }
-        #app-content { padding: 25px 30px 40px; flex-grow: 1; background-color: var(--white); margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
-        .controls-container { margin-bottom: 20px; display: flex; justify-content: flex-start; }
-        #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.075); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
+        #login-error { color: var(--danger-color); margin-top: 10px; min-height: 1.2em; text-align: center; }
+        #app-content { padding: 25px 30px; margin: 20px; background-color: var(--white); border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.07); }
+        .controls-container { margin-bottom: 20px; }
+        #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; }
         .table-container { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        table { width: 100%; border-collapse: collapse; }
         thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
         th, td { padding: 12px 15px; border: 1px solid var(--border-color); vertical-align: middle; }
         tbody tr:nth-child(even) { background-color: var(--light-bg); }
-        tbody tr:hover { background-color: #e9ecef; }
-        .loading-message, #no-results-message { text-align: center; padding: 20px; font-style: italic; color: var(--text-secondary); }
-        
+        .status-select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background-color: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: .65em auto; }
+        .status-select:focus { border-color: var(--primary-color); outline: none; }
         .actions-cell { text-align: center; white-space: nowrap; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; transition: color 0.2s, transform 0.2s; }
-        .action-btn:hover { transform: scale(1.15); }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; color: var(--text-secondary); }
         .btn-edit { color: var(--primary-color); }
         .btn-delete { color: var(--danger-color); }
-        .btn-edit:hover { color: var(--primary-hover); }
-        .btn-delete:hover { color: #a51826; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s;
-        }
-        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease, visibility 0s 0s; }
-        .modal-content {
-            background: var(--white); padding: 25px 30px; border-radius: 8px;
-            width: 90%; max-width: 550px; box-shadow: var(--shadow-md);
-            transform: scale(0.95); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto;
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+        .modal-content { background: var(--white); padding: 25px 30px; border-radius: 8px; width: 90%; max-width: 550px; transform: scale(0.95); transition: transform 0.3s ease; }
         .modal-overlay.visible .modal-content { transform: scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-header h2 { color: var(--primary-color); font-size: 1.5em; }
+        .modal-header h2 { color: var(--primary-color); }
         .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-secondary); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-        .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-size: 1em; font-weight: 500; cursor: pointer; }
-        #save-quote-btn, #update-quote-btn { background-color: var(--success-color); color: white; }
-        #save-quote-btn:disabled, #update-quote-btn:disabled { background-color: #aaa; cursor: not-allowed; }
-        #cancel-quote-btn { background-color: #f1f1f1; }
+        .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-weight: 500; cursor: pointer; }
         .hidden { display: none !important; }
-        @media (max-width: 768px) {
-            .app-header { padding: 10px 15px; flex-wrap: wrap; }
-            .app-header h1 { font-size: 1.3em; }
-            .header-controls { width: 100%; justify-content: flex-end; padding-top: 5px; }
-            #app-content { padding: 15px; margin: 10px; }
-        }
     </style>
 </head>
 <body>
-
     <header class="app-header">
         <div class="header-title-group">
-            <a href="/" class="logo-link" title="Torna alla Home"> 
-                <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-            </a>
+            <a href="/" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
             <h1>Elenco Preventivi</h1>
         </div>
         <div class="header-controls">
-            <button id="add-quote-btn" class="header-button hidden" title="Aggiungi nuovo preventivo">
-                <i class="fas fa-plus" style="margin-right: 8px;"></i> Nuovo Preventivo
-            </button>
+            <button id="add-quote-btn" class="header-button hidden">Nuovo Preventivo</button>
             <button id="logout-button" class="hidden">Logout</button>
         </div>
     </header>
@@ -136,17 +78,16 @@
         </section>
 
         <div id="app-content" class="hidden">
-            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca per cliente, numero, stato..."></div>
+            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca..."></div>
             <div class="table-container">
                 <table>
                     <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
                     <tbody id="preventivi-table-body"></tbody>
                 </table>
             </div>
-            <p id="no-results-message" class="hidden">Nessun preventivo trovato.</p>
         </div>
     </main>
-
+    
     <!-- Modal per NUOVO preventivo -->
     <div id="add-quote-modal" class="modal-overlay">
         <div class="modal-content">
@@ -162,9 +103,8 @@
                 <div class="form-group"><label for="add-stato">Stato</label>
                     <select id="add-stato" required>
                         <option value="Inviato">Inviato</option>
-                        <option value="In attesa">In attesa</option>
-                        <option value="Approvato">Approvato</option>
-                        <option value="Rifiutato">Rifiutato</option>
+                        <option value="Offerta Fornitore">Offerta Fornitore</option>
+                        <option value="In Corso">In Corso</option>
                     </select>
                 </div>
                 <div class="form-group"><label for="add-esito">Esito Offerta</label>
@@ -178,7 +118,7 @@
                 <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
                 <div class="modal-footer">
                     <button type="button" class="modal-button cancel-btn">Annulla</button>
-                    <button type="submit" id="save-quote-btn" class="modal-button">Salva</button>
+                    <button type="submit" class="modal-button" id="save-quote-btn">Salva</button>
                 </div>
             </form>
         </div>
@@ -199,10 +139,7 @@
                 <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
                 <div class="form-group"><label for="edit-stato">Stato</label>
                     <select id="edit-stato" required>
-                        <option value="Inviato">Inviato</option>
-                        <option value="In attesa">In attesa</option>
-                        <option value="Approvato">Approvato</option>
-                        <option value="Rifiutato">Rifiutato</option>
+                         <!-- Opzioni popolate da JS -->
                     </select>
                 </div>
                 <div class="form-group"><label for="edit-esito">Esito Offerta</label>
@@ -216,13 +153,12 @@
                 <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
                 <div class="modal-footer">
                     <button type="button" class="modal-button cancel-btn">Annulla</button>
-                    <button type="submit" id="update-quote-btn" class="modal-button">Salva Modifiche</button>
+                    <button type="submit" class="modal-button" id="update-quote-btn">Salva Modifiche</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -238,236 +174,256 @@
                 appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
 
-            const firebaseCheck = setInterval(() => {
-                if (typeof firebase !== 'undefined') {
-                    clearInterval(firebaseCheck);
-                    initializeApp(firebaseConfig);
-                }
-            }, 100);
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
+            
+            const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
+            let allPreventivi = [];
+            let listenersAttached = false;
 
-            function initializeApp(config) {
-                if (!firebase.apps.length) firebase.initializeApp(config);
-                
-                const auth = firebase.auth();
-                const db = firebase.firestore();
-                const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
+            const ui = {
+                loginSection: document.getElementById('login-section'),
+                appContent: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form'),
+                logoutButton: document.getElementById('logout-button'),
+                addQuoteBtn: document.getElementById('add-quote-btn'),
+                tableBody: document.getElementById('preventivi-table-body'),
+                addModal: document.getElementById('add-quote-modal'),
+                addForm: document.getElementById('add-quote-form'),
+                editModal: document.getElementById('edit-quote-modal'),
+                editForm: document.getElementById('edit-quote-form'),
+                searchInput: document.getElementById('search-input'),
+            };
 
-                const loginSection = document.getElementById('login-section');
-                const loginForm = document.getElementById('login-form');
-                const logoutButton = document.getElementById('logout-button');
-                const appContent = document.getElementById('app-content');
-                const addQuoteBtn = document.getElementById('add-quote-btn');
-                const preventiviTableBody = document.getElementById('preventivi-table-body');
-                
-                const addModal = document.getElementById('add-quote-modal');
-                const addQuoteForm = document.getElementById('add-quote-form');
-                const editModal = document.getElementById('edit-quote-modal');
-                const editQuoteForm = document.getElementById('edit-quote-form');
-
-                let allPreventivi = [];
-                let appListenersAttached = false;
-
-                loginForm.addEventListener('submit', (e) => { 
-                    e.preventDefault();
-                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value)
-                        .catch(err => { document.getElementById('login-error').textContent = "Email o password errati."; });
-                });
-                logoutButton.addEventListener('click', () => auth.signOut());
-
-                auth.onAuthStateChanged(user => {
-                    appContent.classList.toggle('hidden', !user);
-                    loginSection.classList.toggle('hidden', !!user);
-                    addQuoteBtn.classList.toggle('hidden', !user);
-                    logoutButton.classList.toggle('hidden', !user);
-                    if (user) {
-                        fetchPreventivi(db); 
-                        setupAppEventListeners();
-                    } else {
-                        appListenersAttached = false;
-                        preventiviTableBody.innerHTML = '';
-                    }
-                });
-
-                function setupAppEventListeners() {
-                    if (appListenersAttached) return;
-                    
-                    addQuoteBtn.addEventListener('click', () => {
-                        addQuoteForm.reset();
-                        addModal.classList.add('visible');
-                        document.getElementById('add-cliente').focus();
-                    });
-
-                    document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                        btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
-                    });
-                    
-                    preventiviTableBody.addEventListener('click', handleTableActions);
-                    appListenersAttached = true;
-                }
-
-                async function handleTableActions(e) {
-                    const target = e.target.closest('.action-btn');
-                    if (!target) return;
-
-                    const quoteId = target.dataset.id;
-                    const quote = allPreventivi.find(p => p.id === quoteId);
-                    if (!quote) return;
-                    
-                    if (target.classList.contains('btn-delete')) {
-                        if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
-                            try {
-                                await db.collection("preventivi").doc(quoteId).delete();
-                                
-                                if(quote.numero){
-                                    fetch(GOOGLE_SCRIPT_URL, {
-                                        method: 'POST', mode: 'no-cors',
-                                        body: JSON.stringify({ action: 'delete', numero: quote.numero })
-                                    }).catch(err => console.error("Errore invio cancellazione a Sheets:", err));
-                                }
-
-                                alert('Preventivo eliminato.');
-                                fetchPreventivi(db);
-                            } catch (error) {
-                                console.error("Errore durante l'eliminazione:", error);
-                                alert("Errore durante l'eliminazione.");
-                            }
-                        }
-                    }
-                    else if (target.classList.contains('btn-edit')) {
-                        document.getElementById('edit-quote-id').value = quote.id;
-                        document.getElementById('edit-cliente').value = quote.cliente || '';
-                        document.getElementById('edit-data').value = quote.data?.seconds ? new Date(quote.data.seconds * 1000).toISOString().split('T')[0] : '';
-                        document.getElementById('edit-riferimento').value = quote.riferimento || '';
-                        document.getElementById('edit-numero').value = quote.numero || '';
-                        document.getElementById('edit-stato').value = quote.stato || 'Inviato';
-                        document.getElementById('edit-esito').value = quote.esitoOfferta || '';
-                        document.getElementById('edit-note').value = quote.note || '';
-                        editModal.classList.add('visible');
-                    }
-                }
-                
-                function fetchPreventivi(db) {
-                    preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message">Caricamento...</td></tr>`;
-                    // ORDINAMENTO CRONOLOGICO (più recente in alto)
-                    db.collection("preventivi").orderBy("data", "desc").get()
-                      .then(snapshot => {
-                          allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                          renderTable(allPreventivi);
-                      }).catch(err => {
-                          console.error("Errore fetchPreventivi:", err);
-                          preventiviTableBody.innerHTML = `<tr><td colspan="8" class="loading-message" style="color:red;">Errore caricamento.</td></tr>`;
-                      });
-                }
-
-                function renderTable(data) {
-                    preventiviTableBody.innerHTML = '';
-                    document.getElementById('no-results-message').classList.toggle('hidden', data.length > 0);
-                    data.forEach(p => {
-                        const row = preventiviTableBody.insertRow();
-                        // Uso innerHTML per efficienza e semplicità
-                        row.innerHTML = `
-                            <td>${p.cliente || ''}</td>
-                            <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
-                            <td>${p.riferimento || ''}</td>
-                            <td>${p.numero || ''}</td>
-                            <td>${p.stato || ''}</td>
-                            <td>${p.esitoOfferta || ''}</td>
-                            <td>${p.note || ''}</td>
-                            <td class="actions-cell">
-                                <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
-                                <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
-                            </td>
-                        `;
-                    });
-                }
-
-                addQuoteForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if(!e.target.checkValidity()) { alert("Il campo Cliente è obbligatorio."); return; }
-                    
-                    const saveBtn = document.getElementById('save-quote-btn');
-                    saveBtn.disabled = true;
-
-                    const dateString = document.getElementById('add-data').value;
-                    // Se la data non è inserita, usa oggi. Altrimenti, usa la data specificata.
-                    const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
-
-                    const quoteData = {
-                        cliente: document.getElementById('add-cliente').value.trim(),
-                        data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                        riferimento: document.getElementById('add-riferimento').value.trim(),
-                        numero: document.getElementById('add-numero').value.trim(),
-                        stato: document.getElementById('add-stato').value,
-                        esitoOfferta: document.getElementById('add-esito').value,
-                        note: document.getElementById('add-note').value.trim(),
-                    };
-                    
-                    try {
-                        await db.collection("preventivi").add(quoteData);
-                        
-                        const sheetData = { ...quoteData, action: 'add', data: quoteDate.toISOString() };
-                        fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
-                        }).catch(err => console.error("Errore invio a Sheets:", err));
-                        
-                        alert('Preventivo salvato!');
-                        addModal.classList.remove('visible');
-                        fetchPreventivi(db);
-                    } catch(err) {
-                        console.error("Errore salvataggio:", err);
-                        alert("Errore durante il salvataggio.");
-                    } finally {
-                        saveBtn.disabled = false;
-                    }
-                });
-                
-                editQuoteForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                     if(!e.target.checkValidity()) { alert("Tutti i campi sono obbligatori in modifica."); return; }
-
-                    const updateBtn = document.getElementById('update-quote-btn');
-                    updateBtn.disabled = true;
-
-                    const quoteId = document.getElementById('edit-quote-id').value;
-                    const dateString = document.getElementById('edit-data').value;
-                    const quoteDate = new Date(dateString + 'T00:00:00');
-
-                    const updatedData = {
-                        cliente: document.getElementById('edit-cliente').value.trim(),
-                        data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                        riferimento: document.getElementById('edit-riferimento').value.trim(),
-                        numero: document.getElementById('edit-numero').value.trim(),
-                        stato: document.getElementById('edit-stato').value,
-                        esitoOfferta: document.getElementById('edit-esito').value,
-                        note: document.getElementById('edit-note').value.trim()
-                    };
-
-                    try {
-                        await db.collection("preventivi").doc(quoteId).update(updatedData);
-                        
-                         const sheetData = { ...updatedData, action: 'update', data: quoteDate.toISOString() };
-                         fetch(GOOGLE_SCRIPT_URL, {
-                            method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData)
-                        }).catch(err => console.error("Errore invio aggiornamento a Sheets:", err));
-                        
-                        alert('Preventivo aggiornato!');
-                        editModal.classList.remove('visible');
-                        fetchPreventivi(db);
-                    } catch(err) {
-                        console.error("Errore aggiornamento:", err);
-                        alert("Errore durante l'aggiornamento.");
-                    } finally {
-                        updateBtn.disabled = false;
-                    }
-                });
-
-                document.getElementById('search-input').addEventListener('input', (e) => {
-                    const term = e.target.value.toLowerCase();
-                    renderTable(allPreventivi.filter(p => 
-                        Object.values(p).some(val => String(val).toLowerCase().includes(term))
-                    ));
+            function initializeLogic() {
+                ui.loginForm.addEventListener('submit', handleLogin);
+                auth.onAuthStateChanged(handleAuthStateChange);
+            }
+            
+            function handleLogin(e) {
+                e.preventDefault();
+                const { email, password } = e.target.elements;
+                document.getElementById('login-error').textContent = '';
+                auth.signInWithEmailAndPassword(email.value, password.value).catch(() => {
+                    document.getElementById('login-error').textContent = "Email o password errati.";
                 });
             }
+
+            function handleAuthStateChange(user) {
+                const isLoggedIn = !!user;
+                ui.loginSection.classList.toggle('hidden', isLoggedIn);
+                ui.appContent.classList.toggle('hidden', !isLoggedIn);
+                ui.logoutButton.classList.toggle('hidden', !isLoggedIn);
+                ui.addQuoteBtn.classList.toggle('hidden', !isLoggedIn);
+
+                if (isLoggedIn) {
+                    fetchPreventivi();
+                    setupAppEventListeners();
+                } else {
+                    listenersAttached = false;
+                }
+            }
+            
+            function setupAppEventListeners() {
+                if (listenersAttached) return;
+                
+                ui.logoutButton.addEventListener('click', () => auth.signOut());
+                ui.addQuoteBtn.addEventListener('click', openAddModal);
+                ui.tableBody.addEventListener('change', handleStatusChange);
+                ui.tableBody.addEventListener('click', handleTableButtonClick);
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
+                });
+                ui.addForm.addEventListener('submit', handleAddSubmit);
+                ui.editForm.addEventListener('submit', handleEditSubmit);
+                ui.searchInput.addEventListener('input', handleSearch);
+
+                listenersAttached = true;
+            }
+
+            function openAddModal() {
+                ui.addForm.reset();
+                ui.addModal.classList.add('visible');
+            }
+
+            async function handleStatusChange(e) {
+                if (!e.target.classList.contains('status-select')) return;
+                
+                const select = e.target;
+                const newStatus = select.value;
+                const quoteId = select.dataset.id;
+                
+                select.disabled = true;
+                const originalQuote = allPreventivi.find(p => p.id === quoteId);
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update({ stato: newStatus });
+                    
+                    if (originalQuote?.numero) {
+                       const sheetData = { ...originalQuote, stato: newStatus, action: 'update', data: new Date(originalQuote.data.seconds * 1000).toISOString() };
+                       fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
+                    }
+                    if (originalQuote) originalQuote.stato = newStatus;
+                } catch (error) {
+                    alert("Errore nell'aggiornare lo stato.");
+                    select.value = originalQuote.stato;
+                } finally {
+                    select.disabled = false;
+                }
+            }
+
+            function handleTableButtonClick(e) {
+                const button = e.target.closest('.action-btn');
+                if (!button) return;
+                const quote = allPreventivi.find(p => p.id === button.dataset.id);
+                if (!quote) return;
+                
+                if (button.classList.contains('btn-delete')) deleteQuote(quote);
+                else if (button.classList.contains('btn-edit')) openEditModal(quote);
+            }
+
+            function openEditModal(quote) {
+                ui.editForm.reset();
+                const { id, cliente, data, riferimento, numero, stato, esitoOfferta, note } = quote;
+                document.getElementById('edit-quote-id').value = id;
+                document.getElementById('edit-cliente').value = cliente || '';
+                document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
+                document.getElementById('edit-riferimento').value = riferimento || '';
+                document.getElementById('edit-numero').value = numero || '';
+                
+                const statoSelect = document.getElementById('edit-stato');
+                statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+
+                document.getElementById('edit-esito').value = esitoOfferta || '';
+                document.getElementById('edit-note').value = note || '';
+                ui.editModal.classList.add('visible');
+            }
+            
+            async function deleteQuote(quote) {
+                if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
+                    try {
+                        await db.collection("preventivi").doc(quote.id).delete();
+                        if (quote.numero) {
+                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
+                        }
+                        fetchPreventivi();
+                    } catch (error) {
+                        alert("Errore durante l'eliminazione.");
+                    }
+                }
+            }
+            
+            function fetchPreventivi() {
+                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
+                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                      renderTable(allPreventivi);
+                  });
+            }
+
+            function renderTable(data) {
+                ui.tableBody.innerHTML = '';
+                if(data.length === 0){
+                    ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo trovato.</td></tr>`;
+                    return;
+                }
+                data.forEach(p => {
+                    const row = ui.tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${escapeHtml(p.cliente)}</td>
+                        <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
+                        <td>${escapeHtml(p.riferimento)}</td>
+                        <td>${escapeHtml(p.numero)}</td>
+                        <td>
+                            <select class="status-select" data-id="${p.id}">
+                                ${STATO_OPTIONS.map(opt => `<option value="${opt}" ${p.stato === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
+                            </select>
+                        </td>
+                        <td>${escapeHtml(p.esitoOfferta)}</td>
+                        <td>${escapeHtml(p.note)}</td>
+                        <td class="actions-cell">
+                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica Completa"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
+                        </td>`;
+                });
+            }
+
+            async function handleAddSubmit(e) {
+                e.preventDefault();
+                const saveBtn = e.target.querySelector('button[type="submit"]');
+                saveBtn.disabled = true;
+
+                const dateString = document.getElementById('add-data').value;
+                const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
+
+                const quoteData = {
+                    cliente: document.getElementById('add-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('add-riferimento').value.trim(),
+                    numero: document.getElementById('add-numero').value.trim(),
+                    stato: document.getElementById('add-stato').value,
+                    esitoOfferta: document.getElementById('add-esito').value,
+                    note: document.getElementById('add-note').value.trim(),
+                };
+                
+                try {
+                    await db.collection("preventivi").add(quoteData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.addModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    saveBtn.disabled = false;
+                }
+            }
+            
+            async function handleEditSubmit(e) {
+                e.preventDefault();
+                const updateBtn = e.target.querySelector('button[type="submit"]');
+                updateBtn.disabled = true;
+
+                const quoteId = document.getElementById('edit-quote-id').value;
+                const dateString = document.getElementById('edit-data').value;
+                const quoteDate = new Date(dateString + 'T00:00:00');
+
+                const updatedData = {
+                    cliente: document.getElementById('edit-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('edit-riferimento').value.trim(),
+                    numero: document.getElementById('edit-numero').value.trim(),
+                    stato: document.getElementById('edit-stato').value,
+                    esitoOfferta: document.getElementById('edit-esito').value,
+                    note: document.getElementById('edit-note').value.trim()
+                };
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update(updatedData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.editModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    updateBtn.disabled = false;
+                }
+            }
+
+            function handleSearch(e) {
+                const term = e.target.value.toLowerCase();
+                const filtered = allPreventivi.filter(p => 
+                    Object.values(p).some(val => String(val).toLowerCase().includes(term))
+                );
+                renderTable(filtered);
+            }
+
+            function escapeHtml(text) {
+                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
+                return String(text || '').replace(/[&<>"']/g, m => map[m]);
+            }
+            
+            initializeLogic();
         });
     </script>
 </body>
