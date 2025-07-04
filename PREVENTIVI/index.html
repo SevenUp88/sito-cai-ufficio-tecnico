@@ -69,7 +69,8 @@
     <main>
         <section id="login-section">
             <h2>Accesso Riservato</h2>
-            <form id="login-form">
+            <!-- AGGIUNTO method="post" PER SICUREZZA -->
+            <form id="login-form" method="post">
                 <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
                 <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
                 <button type="submit" class="btn-login">Accedi</button>
@@ -95,9 +96,9 @@
                 <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
                 <div class="form-group"><label for="add-data">Data</label><input type="date" id="add-data"></div>
                 <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
-                <div class="form-group"><label for="add-numero">Numero</label><input type="text" id="add-numero"></div>
+                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
                 <div class="form-group"><label for="add-stato">Stato</label><select id="add-stato" required></select></div>
-                <div class="form-group"><label for="add-esito">Esito</label><select id="add-esito"></select></div>
+                <div class="form-group"><label for="add-esito">Esito Offerta</label><select id="add-esito"></select></div>
                 <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
                 <div class="modal-footer"><button type="button" class="modal-button cancel-btn">Annulla</button><button type="submit" class="modal-button">Salva</button></div>
             </form>
@@ -162,6 +163,8 @@
                 searchInput: document.getElementById('search-input'),
             };
             
+            initializeApp();
+
             function initializeApp() {
                 ui.loginForm.addEventListener('submit', handleLogin);
                 auth.onAuthStateChanged(handleAuthStateChange);
@@ -220,10 +223,9 @@
                 const quoteId = select.dataset.id;
                 const fieldToUpdate = select.dataset.field;
                 const newValue = select.value;
-
                 select.disabled = true;
+                
                 const originalQuote = allPreventivi.find(p => p.id === quoteId);
-
                 try {
                     await db.collection("preventivi").doc(quoteId).update({ [fieldToUpdate]: newValue });
                     if (originalQuote?.numero) {
@@ -244,7 +246,6 @@
                 if (!button) return;
                 const quote = allPreventivi.find(p => p.id === button.dataset.id);
                 if (!quote) return;
-                
                 if (button.classList.contains('btn-delete')) deleteQuote(quote);
                 else if (button.classList.contains('btn-edit')) openEditModal(quote);
             }
@@ -260,7 +261,7 @@
                 
                 const statoSelect = document.getElementById('edit-stato');
                 statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
-                if(stato && !STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+                if (stato && !STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
 
                 const esitoSelect = document.getElementById('edit-esito');
                 esitoSelect.innerHTML = `<option value="">-- Seleziona --</option>` + ESITO_OPTIONS.map(opt => `<option value="${opt}" ${esitoOfferta === opt ? 'selected' : ''}>${opt}</option>`).join('');
@@ -275,7 +276,7 @@
                     try {
                         await db.collection("preventivi").doc(quote.id).delete();
                         if (quote.numero) {
-                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
+                            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
                         }
                         fetchPreventivi();
                     } catch (error) {
@@ -285,18 +286,18 @@
             }
             
             function fetchPreventivi() {
-                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Caricamento...</td></tr>`;
                 db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
                   }).catch(err => {
-                    ui.tableBody.innerHTML = `<tr><td colspan="8">Errore nel caricamento dei dati.</td></tr>`;
+                    ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:red;">Errore nel caricamento dati.</td></tr>`;
                   });
             }
 
             function renderTable(data) {
                 ui.tableBody.innerHTML = '';
-                if(data.length === 0) { ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo.</td></tr>`; return; }
+                if (data.length === 0) { ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Nessun preventivo.</td></tr>`; return; }
                 
                 const createSelectHTML = (options, selectedValue, id, field) => {
                     let html = `<select class="inline-select" data-id="${id}" data-field="${field}">`;
@@ -305,8 +306,7 @@
                     if (selectedValue && !options.includes(selectedValue)) {
                         html += `<option value="${escapeHtml(selectedValue)}" selected>${escapeHtml(selectedValue)}</option>`;
                     }
-                    html += `</select>`;
-                    return html;
+                    return html + `</select>`;
                 };
 
                 data.forEach(p => {
@@ -322,7 +322,8 @@
                         <td class="actions-cell">
                             <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
                             <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
-                        </td>`;
+                        </td>
+                    `;
                 });
             }
 
@@ -397,7 +398,7 @@
             }
 
             function escapeHtml(text) {
-                return String(text || '').replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'''})[m]);
+                return String(text || '').replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'"'})[m]);
             }
             
             initializeApp();
