@@ -88,7 +88,6 @@
         </div>
     </main>
     
-    <!-- Modali -->
     <div id="add-quote-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header"><h2>Nuovo Preventivo</h2><button class="close-modal-btn">×</button></div>
@@ -96,18 +95,15 @@
                 <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
                 <div class="form-group"><label for="add-data">Data</label><input type="date" id="add-data"></div>
                 <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
-                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
-                <div class="form-group"><label for="add-stato">Stato</label>
-                    <select id="add-stato" required></select>
-                </div>
-                <div class="form-group"><label for="add-esito">Esito Offerta</label>
-                    <select id="add-esito"></select>
-                </div>
+                <div class="form-group"><label for="add-numero">Numero</label><input type="text" id="add-numero"></div>
+                <div class="form-group"><label for="add-stato">Stato</label><select id="add-stato" required></select></div>
+                <div class="form-group"><label for="add-esito">Esito</label><select id="add-esito"></select></div>
                 <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
                 <div class="modal-footer"><button type="button" class="modal-button cancel-btn">Annulla</button><button type="submit" class="modal-button">Salva</button></div>
             </form>
         </div>
     </div>
+    
     <div id="edit-quote-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header"><h2>Modifica Preventivo</h2><button class="close-modal-btn">×</button></div>
@@ -120,7 +116,7 @@
                 <div class="form-group"><label for="edit-stato">Stato</label><select id="edit-stato" required></select></div>
                 <div class="form-group"><label for="edit-esito">Esito</label><select id="edit-esito"></select></div>
                 <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
-                <div class="modal-footer"><button type="button" class="modal-button cancel-btn">Annulla</button><button type="submit" class="modal-button">Salva Modifiche</button></div>
+                <div class="modal-footer"><button type="button" class="modal-button cancel-btn">Annulla</button><button type="submit" class="modal-button">Salva</button></div>
             </form>
         </div>
     </div>
@@ -166,9 +162,7 @@
                 searchInput: document.getElementById('search-input'),
             };
             
-            initializeLogic();
-
-            function initializeLogic() {
+            function initializeApp() {
                 ui.loginForm.addEventListener('submit', handleLogin);
                 auth.onAuthStateChanged(handleAuthStateChange);
                 populateModalSelects();
@@ -224,7 +218,7 @@
                 
                 const select = e.target;
                 const quoteId = select.dataset.id;
-                const fieldToUpdate = select.dataset.field; // "stato" o "esitoOfferta"
+                const fieldToUpdate = select.dataset.field;
                 const newValue = select.value;
 
                 select.disabled = true;
@@ -239,26 +233,75 @@
                     if (originalQuote) originalQuote[fieldToUpdate] = newValue;
                 } catch (error) {
                     alert(`Errore nell'aggiornare il campo.`);
-                    select.value = originalQuote[fieldToUpdate]; // Ripristina
+                    select.value = originalQuote[fieldToUpdate];
                 } finally {
                     select.disabled = false;
                 }
             }
 
-            function handleTableButtonClick(e) { /* Invariata */ }
-            function openEditModal(quote) { /* Invariata */ }
-            async function deleteQuote(quote) { /* Invariata */ }
+            function handleTableButtonClick(e) {
+                const button = e.target.closest('.action-btn');
+                if (!button) return;
+                const quote = allPreventivi.find(p => p.id === button.dataset.id);
+                if (!quote) return;
+                
+                if (button.classList.contains('btn-delete')) deleteQuote(quote);
+                else if (button.classList.contains('btn-edit')) openEditModal(quote);
+            }
             
-            function fetchPreventivi() { /* Invariata */ }
+            function openEditModal(quote) {
+                ui.editForm.reset();
+                const { id, cliente, data, riferimento, numero, stato, esitoOfferta, note } = quote;
+                document.getElementById('edit-quote-id').value = id;
+                document.getElementById('edit-cliente').value = cliente || '';
+                document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
+                document.getElementById('edit-riferimento').value = riferimento || '';
+                document.getElementById('edit-numero').value = numero || '';
+                
+                const statoSelect = document.getElementById('edit-stato');
+                statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                if(stato && !STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+
+                const esitoSelect = document.getElementById('edit-esito');
+                esitoSelect.innerHTML = `<option value="">-- Seleziona --</option>` + ESITO_OPTIONS.map(opt => `<option value="${opt}" ${esitoOfferta === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                if (esitoOfferta && !ESITO_OPTIONS.includes(esitoOfferta)) esitoSelect.innerHTML += `<option value="${esitoOfferta}" selected>${esitoOfferta}</option>`;
+
+                document.getElementById('edit-note').value = note || '';
+                ui.editModal.classList.add('visible');
+            }
+
+            async function deleteQuote(quote) {
+                if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
+                    try {
+                        await db.collection("preventivi").doc(quote.id).delete();
+                        if (quote.numero) {
+                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
+                        }
+                        fetchPreventivi();
+                    } catch (error) {
+                        alert("Errore durante l'eliminazione.");
+                    }
+                }
+            }
+            
+            function fetchPreventivi() {
+                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
+                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                      renderTable(allPreventivi);
+                  }).catch(err => {
+                    ui.tableBody.innerHTML = `<tr><td colspan="8">Errore nel caricamento dei dati.</td></tr>`;
+                  });
+            }
 
             function renderTable(data) {
                 ui.tableBody.innerHTML = '';
                 if(data.length === 0) { ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo.</td></tr>`; return; }
                 
-                const selectHTML = (options, selectedValue, id, field) => {
+                const createSelectHTML = (options, selectedValue, id, field) => {
                     let html = `<select class="inline-select" data-id="${id}" data-field="${field}">`;
-                    if(field === "esitoOfferta") html += `<option value="">-- Seleziona --</option>`;
-                    html += options.map(opt => `<option value="${opt}" ${selectedValue === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                    if (field === "esitoOfferta") html += `<option value="">-- Seleziona --</option>`;
+                    html += options.map(opt => `<option value="${escapeHtml(opt)}" ${selectedValue === opt ? 'selected' : ''}>${escapeHtml(opt)}</option>`).join('');
                     if (selectedValue && !options.includes(selectedValue)) {
                         html += `<option value="${escapeHtml(selectedValue)}" selected>${escapeHtml(selectedValue)}</option>`;
                     }
@@ -273,8 +316,8 @@
                         <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
                         <td>${escapeHtml(p.riferimento)}</td>
                         <td>${escapeHtml(p.numero)}</td>
-                        <td>${selectHTML(STATO_OPTIONS, p.stato, p.id, 'stato')}</td>
-                        <td>${selectHTML(ESITO_OPTIONS, p.esitoOfferta, p.id, 'esitoOfferta')}</td>
+                        <td>${createSelectHTML(STATO_OPTIONS, p.stato, p.id, 'stato')}</td>
+                        <td>${createSelectHTML(ESITO_OPTIONS, p.esitoOfferta, p.id, 'esitoOfferta')}</td>
                         <td>${escapeHtml(p.note)}</td>
                         <td class="actions-cell">
                             <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
@@ -284,19 +327,80 @@
             }
 
             function populateModalSelects() {
-                const addStato = document.getElementById('add-stato');
-                const addEsito = document.getElementById('add-esito');
-                addStato.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('');
-                addEsito.innerHTML = `<option value="">-- Seleziona --</option>` + ESITO_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                document.getElementById('add-stato').innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                document.getElementById('add-esito').innerHTML = `<option value="">-- Seleziona --</option>` + ESITO_OPTIONS.map(opt => `<option value="${opt}">${opt}</option>`).join('');
             }
             
-            // Le seguenti funzioni gestiscono i modali
-            async function handleAddSubmit(e) { /* Invariata */ }
-            async function handleEditSubmit(e) { /* Invariata */ }
-            function handleSearch(e) { /* Invariata */ }
-            function escapeHtml(text) { return String(text || '').replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'''})[m]); }
+            async function handleAddSubmit(e) {
+                e.preventDefault();
+                const saveBtn = e.target.querySelector('button[type="submit"]');
+                saveBtn.disabled = true;
+
+                const dateString = document.getElementById('add-data').value;
+                const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
+
+                const quoteData = {
+                    cliente: document.getElementById('add-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('add-riferimento').value.trim(),
+                    numero: document.getElementById('add-numero').value.trim(),
+                    stato: document.getElementById('add-stato').value,
+                    esitoOfferta: document.getElementById('add-esito').value,
+                    note: document.getElementById('add-note').value.trim(),
+                };
+                
+                try {
+                    await db.collection("preventivi").add(quoteData);
+                    const sheetData = { ...quoteData, action: 'add', data: quoteDate.toISOString() };
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
+                    ui.addModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    saveBtn.disabled = false;
+                }
+            }
             
-            initializeLogic();
+            async function handleEditSubmit(e) {
+                e.preventDefault();
+                const updateBtn = e.target.querySelector('button[type="submit"]');
+                updateBtn.disabled = true;
+
+                const quoteId = document.getElementById('edit-quote-id').value;
+                const dateString = document.getElementById('edit-data').value;
+                const quoteDate = new Date(dateString + 'T00:00:00');
+
+                const updatedData = {
+                    cliente: document.getElementById('edit-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('edit-riferimento').value.trim(),
+                    numero: document.getElementById('edit-numero').value.trim(),
+                    stato: document.getElementById('edit-stato').value,
+                    esitoOfferta: document.getElementById('edit-esito').value,
+                    note: document.getElementById('edit-note').value.trim()
+                };
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update(updatedData);
+                    const sheetData = { ...updatedData, action: 'update', data: quoteDate.toISOString() };
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
+                    ui.editModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    updateBtn.disabled = false;
+                }
+            }
+
+            function handleSearch(e) {
+                const term = e.target.value.toLowerCase();
+                const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val || '').toLowerCase().includes(term)));
+                renderTable(filtered);
+            }
+
+            function escapeHtml(text) {
+                return String(text || '').replace(/[&<>"']/g, m => ({'&':'&','<':'<','>':'>','"':'"',"'":'''})[m]);
+            }
+            
+            initializeApp();
         });
     </script>
 </body>
