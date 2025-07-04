@@ -419,7 +419,7 @@
             }
 
             function escapeHtml(text) {
-                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' };
+                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '"' };
                 return String(text || '').replace(/[&<>"']/g, m => map[m]);
             }
             
