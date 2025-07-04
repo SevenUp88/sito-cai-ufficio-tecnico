@@ -20,6 +20,63 @@
         #user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
         #logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
         .hidden { display: none !important; }
+
+        /* <!-- NUOVO --> Stili per la barra di ricerca e i risultati */
+        #search-container {
+            margin: 25px auto;
+            padding: 0 10px;
+            max-width: 800px; /* Larghezza massima della barra */
+            width: 95%;
+        }
+        #search-input {
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1.1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box; /* Assicura che padding non alteri la larghezza */
+        }
+        #search-results {
+            margin-top: 5px;
+            max-height: 400px; /* Altezza massima prima di mostrare la scrollbar */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: none; /* Nascosto di default */
+        }
+        .result-item {
+            display: block;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .result-item:hover {
+            background-color: #e9ecef;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item .item-code {
+            font-family: monospace;
+            background-color: #e0e0e0;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .result-item .item-category {
+            float: right;
+            font-size: 0.8em;
+            color: #6c757d;
+            background-color: #f1f1f1;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+        /* <!-- FINE NUOVI STILI --> */
     </style>
 </head>
 <body>
@@ -51,19 +108,25 @@
         <div id="app-content" class="hidden"> <!-- Contenuto principale visibile dopo login -->
             <div class="welcome-message">
                 <h2>Benvenuto nel Portale CAI Ufficio Tecnico!</h2>
-                <p>Seleziona una voce dal menu per accedere alle diverse sezioni.</p>
+                <!-- <!-- NUOVO --> Messaggio di benvenuto aggiornato -->
+                <p>Seleziona una voce dal menu per accedere alle diverse sezioni o utilizza la ricerca per trovare un articolo.</p>
             </div>
 
-            <nav class="main-nav" id="mainNav"> <!-- Aggiunto ID a main-nav -->
+            <nav class="main-nav" id="mainNav">
                 <a href="NOLEGGI/code.html" class="nav-button"> <i class="fas fa-key"></i> Noleggi </a>
                 <a href="PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
                 <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
                 <button id="btn-configuratori" class="nav-button" aria-expanded="false" aria-controls="submenu-configuratori"> <i class="fas fa-cogs"></i> Configuratori </button>
                 <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
-                <!-- MODIFICA QUI: il percorso href ora riflette "AGENDA CONSEGNE" con lo spazio -->
                 <a href="AGENDA%20CONSEGNE/index.html" class="nav-button"> <i class="fas fa-calendar-alt"></i> Agenda Consegne </a>
-                <!-- Nuove categorie aggiunte da JS andranno qui DENTRO #mainNav -->
             </nav>
+            
+            <!-- <!-- NUOVO --> Sezione della barra di ricerca -->
+            <div id="search-container">
+                <input type="text" id="search-input" placeholder="Cerca per codice o descrizione articolo...">
+                <div id="search-results"></div> <!-- Qui verranno mostrati i risultati -->
+            </div>
+            <!-- <!-- FINE SEZIONE RICERCA --> -->
 
             <div id="submenu-listini" class="submenu">
                  <a href="LISTINI/CLIMA/monosplit/index.html" class="submenu-button"> <i class="fas fa-snowflake"></i> Clima </a>
@@ -74,7 +137,6 @@
 
             <div id="submenu-configuratori" class="submenu">
                  <a href="CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="submenu-button"> <i class="fas fa-border-all"></i> Impianto Radiante </a>
-                 <!-- Aggiungi qui altri link per futuri configuratori -->
             </div>
         </div>
 
@@ -91,10 +153,9 @@
 
     </main>
 
-    <!-- Firebase SDKs (usa la v8 come da tuoi script esistenti per la Home) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <!-- Rimuovi il commento e includi lo script di Firestore -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
     <!-- Configurazione Firebase -->
@@ -104,7 +165,6 @@
     <script src="auth.js"></script> 
 
     <!-- Script UI della Home Page -->
-    <!-- Se `script.js` della Home NON usa 'import', non mettere type="module" -->
     <script src="script.js"></script> 
 </body>
 </html>
