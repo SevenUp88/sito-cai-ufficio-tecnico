@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'listino-caldaie', category: 'Caldaie', fields: { code: 'Codice', name: 'Modello' }, link: 'LISTINI/CALDAIE/index.html' },
             { name: 'listino-scaldabagni', category: 'Scaldabagni', fields: { code: 'CODICE', name: 'DESCRIZIONE' }, link: 'LISTINI/SCALDABAGNI/index.html' },
             { name: 'listino-sanitari', category: 'Sanitari', fields: { code: 'Codice', name: 'Descrizione' }, link: 'LISTINI/SANITARI/index.html' },
-            { name: 'noleggi', category: 'Noleggi', fields: { code: 'ID_Articolo', name: 'Descrizione' }, link: 'NOLEGGI/code.html' },
+            
             // Esempio per aggiungere una nuova collezione:
             // { name: 'nome-collezione-in-firestore', category: 'Nome da Mostrare', fields: { code: 'nome_campo_codice', name: 'nome_campo_descrizione' }, link: 'percorso/alla/pagina.html' },
         ];
