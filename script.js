@@ -1,10 +1,7 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * Gestisce:
- * - Logica dei sottomenu a comparsa
- * - Pannello amministrativo "Aggiungi Categoria"
- * - Ricerca globale dei prodotti da tutte le collezioni
- * - Apertura del modal con i dettagli del prodotto selezionato dalla ricerca
+ * Versione Finale con gestione MODAL e percorsi immagine corretti.
+ * Gestisce: Sottomenu, Pannello Admin, Ricerca Globale, Modal Dettagli.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,59 +9,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // =================================================================
     // 1. SELEZIONE DEGLI ELEMENTI DOM
     // =================================================================
-    
-    // Elementi UI generali
-    const btnListini = document.getElementById('btn-listini');
-    const submenuListini = document.getElementById('submenu-listini');
-    const btnConfiguratori = document.getElementById('btn-configuratori');
-    const submenuConfiguratori = document.getElementById('submenu-configuratori');
-    const mainNav = document.getElementById('mainNav');
-    const appContent = document.getElementById('app-content');
-    
-    // Elementi per Pannello Admin "Aggiungi Categoria"
-    const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
-    const addCategoryPanel = document.getElementById('add-category-panel');
-    const addCategoryCloseBtn = document.getElementById('add-category-close');
-    const categoryNameInput = document.getElementById('category-name');
-    const categoryPathInput = document.getElementById('category-path');
-    const categoryIconInput = document.getElementById('category-icon');
-    const addCategorySubmitBtn = document.getElementById('add-category-submit');
-    const addCategoryFeedback = document.getElementById('add-category-feedback');
-    const adminOverlay = document.getElementById('admin-overlay');
+    const btnListini = document.getElementById('btn-listini'),
+        submenuListini = document.getElementById('submenu-listini'),
+        btnConfiguratori = document.getElementById('btn-configuratori'),
+        submenuConfiguratori = document.getElementById('submenu-configuratori'),
+        mainNav = document.getElementById('mainNav'),
+        appContent = document.getElementById('app-content'),
+        addCategoryTriggerBtn = document.getElementById('add-category-trigger'),
+        addCategoryPanel = document.getElementById('add-category-panel'),
+        addCategoryCloseBtn = document.getElementById('add-category-close'),
+        categoryNameInput = document.getElementById('category-name'),
+        categoryPathInput = document.getElementById('category-path'),
+        categoryIconInput = document.getElementById('category-icon'),
+        addCategorySubmitBtn = document.getElementById('add-category-submit'),
+        addCategoryFeedback = document.getElementById('add-category-feedback'),
+        adminOverlay = document.getElementById('admin-overlay'),
+        searchInput = document.getElementById('search-input'),
+        searchResultsContainer = document.getElementById('search-results'),
+        detailsModalOverlay = document.getElementById('product-details-modal-overlay'),
+        modalProductLogo = document.getElementById('modal-product-logo'),
+        modalProductBrand = document.getElementById('modal-product-brand'),
+        modalProductModel = document.getElementById('modal-product-model'),
+        modalProductImage = document.getElementById('modal-product-image'),
+        modalMainDetailsList = document.getElementById('modal-main-details-list'),
+        modalExtraDetailsList = document.getElementById('modal-extra-details-list'),
+        modalProductPrice = document.getElementById('modal-product-price'),
+        closeModalBtn = document.getElementById('close-modal-btn'),
+        modalDatasheetLink = document.getElementById('modal-datasheet-link');
 
-    // Elementi per Ricerca e Risultati
-    const searchInput = document.getElementById('search-input');
-    const searchResultsContainer = document.getElementById('search-results');
-    
-    // Elementi per il Modal dei Dettagli Prodotto
-    const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
-    const modalProductLogo = document.getElementById('modal-product-logo');
-    const modalProductBrand = document.getElementById('modal-product-brand');
-    const modalProductModel = document.getElementById('modal-product-model');
-    const modalProductImage = document.getElementById('modal-product-image');
-    const modalMainDetailsList = document.getElementById('modal-main-details-list');
-    const modalExtraDetailsList = document.getElementById('modal-extra-details-list');
-    const modalProductPrice = document.getElementById('modal-product-price');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const modalDatasheetLink = document.getElementById('modal-datasheet-link');
-
-    
     // =================================================================
     // 2. VARIABILI DI STATO E CONFIGURAZIONE
     // =================================================================
-    
     const db = firebase.firestore();
-    let allSearchableData = []; // Array che conterrà tutti i dati dei prodotti per la ricerca
-    let isDataFetched = false;   // Flag per evitare di ricaricare i dati più volte
+    let allSearchableData = [];
+    let isDataFetched = false;
     const currentlyOpenSubmenu = { btn: null, menu: null };
 
-
     // =================================================================
-    // 3. LOGICA DI BUSINESS (FUNZIONI)
+    // 3. FUNZIONI
     // =================================================================
 
-    // --- Funzioni per la gestione dei Sottomenu ---
-    const toggleSubmenu = (button, submenu) => {
+    // --- Funzioni per la gestione dei Sottomenu e Pannello Admin ---
+    const toggleSubmenu = (button, submenu) => { /* ... codice completo ... */ };
+    const showAddCategoryPanel = () => { /* ... codice completo ... */ };
+    const hideAddCategoryPanel = () => { /* ... codice completo ... */ };
+    const handleAddCategorySubmit = () => { /* ... codice completo ... */ };
+    
+    // Riscrivo qui le funzioni nascoste per completezza
+    toggleSubmenu = (button, submenu) => {
         if (!button || !submenu) return;
         const isCurrentlyVisible = submenu.classList.contains('visible');
         if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
@@ -90,57 +82,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-
-    // --- Funzioni per il pannello "Aggiungi Categoria" ---
-    const showAddCategoryPanel = () => {
-        if (!addCategoryPanel || !adminOverlay || !categoryNameInput) return;
+    showAddCategoryPanel = () => {
+        if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.remove('hidden');
         adminOverlay.classList.remove('hidden');
-        categoryNameInput.value = ''; 
-        categoryPathInput.value = ''; 
-        categoryIconInput.value = '';
+        if(categoryNameInput) categoryNameInput.value = ''; 
+        if(categoryPathInput) categoryPathInput.value = ''; 
+        if(categoryIconInput) categoryIconInput.value = '';
         if(addCategoryFeedback) addCategoryFeedback.classList.add('hidden');
-        categoryNameInput.focus();
+        if(categoryNameInput) categoryNameInput.focus();
     };
-
-    const hideAddCategoryPanel = () => {
+    hideAddCategoryPanel = () => {
          if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.add('hidden');
         adminOverlay.classList.add('hidden');
     };
-
-    const handleAddCategorySubmit = () => {
+    handleAddCategorySubmit = () => {
         if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav || !addCategoryFeedback) return;
-        
         const name = categoryNameInput.value.trim();
         const path = categoryPathInput.value.trim();
         const iconClassRaw = categoryIconInput.value.trim() || 'fas fa-folder';
-        
         if (!name || !path) {
             addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!';
             addCategoryFeedback.className = 'feedback-message error'; 
             addCategoryFeedback.classList.remove('hidden');
             return;
         }
-        
-        const newLink = document.createElement('a'); 
-        newLink.href = path; 
-        newLink.className = 'nav-button';
-        
-        const newIcon = document.createElement('i');
-        newIcon.className = iconClassRaw;
-
-        const linkText = document.createTextNode(` ${name}`); 
-        newLink.appendChild(newIcon);
-        newLink.appendChild(linkText);
-        
+        const newLink = document.createElement('a'); newLink.href = path; newLink.className = 'nav-button';
+        const newIcon = document.createElement('i'); newIcon.className = iconClassRaw;
+        const linkText = document.createTextNode(` ${name}`); newLink.appendChild(newIcon); newLink.appendChild(linkText);
         mainNav.appendChild(newLink);
-        
         categoryNameInput.value = ''; categoryPathInput.value = ''; categoryIconInput.value = '';
-        addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`;
-        addCategoryFeedback.className = 'feedback-message success';
+        addCategoryFeedback.textContent = `Categoria "${name}" aggiunta!`; addCategoryFeedback.className = 'feedback-message success';
         addCategoryFeedback.classList.remove('hidden');
-        
         setTimeout(() => addCategoryFeedback.classList.add('hidden'), 3000);
         categoryNameInput.focus();
     };
@@ -150,32 +124,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const formatPrice = (price) => {
         if (price === null || price === undefined || price === '') return 'N/D';
         const numberPrice = Number(price);
-        if (isNaN(numberPrice)) return 'N/D';
-        return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numberPrice);
+        return !isNaN(numberPrice) ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numberPrice) : 'N/D';
     };
 
     const createDetailRowHTML = (label, value, unit = '') => {
         if (value === null || value === undefined || String(value).trim() === '') return '';
-        return `<li><strong>${label}:</strong><span>${value}${unit}</span></li>`;
+        return `<li><strong>${label}:</strong><span>${String(value).replace(/\./g, ',')}${unit}</span></li>`;
     };
 
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
+        
+        // CORREZIONE DEI PERCORSI IMMAGINE
+        const getCorrectedPath = (path, folder) => {
+            const defaultPath = `LISTINI/CLIMA/images/${folder}/placeholder.png`;
+            if (!path) return defaultPath;
+            if (path.startsWith('http')) return path; // Se è un URL completo
+            if (path.startsWith('../')) {
+                // Trasforma ../images/file.png in LISTINI/CLIMA/images/file.png
+                return `LISTINI/CLIMA/${path.substring(3)}`;
+            }
+            return path; // Altrimenti, suppone che il percorso sia già corretto
+        };
 
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
-        const basePath = 'LISTINI/CLIMA/images/'; 
-
-        modalProductLogo.src = `${basePath}logos/${safeBrandName}.png`;
-        modalProductLogo.onerror = () => { modalProductLogo.src = `${basePath}logos/placeholder_logo.png`; };
-        modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
-
+        modalProductLogo.src = `LISTINI/CLIMA/images/logos/${safeBrandName}.png`;
+        modalProductLogo.onerror = () => { modalProductLogo.src = 'LISTINI/CLIMA/images/logos/placeholder_logo.png'; };
+        
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
-
-        modalProductImage.src = product.image_url || `${basePath}placeholder.png`;
-        modalProductImage.onerror = () => { modalProductImage.src = `${basePath}placeholder.png`; };
-        modalProductImage.alt = `Immagine ${product.modello || 'N/D'}`;
-
+        
+        modalProductImage.src = getCorrectedPath(product.image_url, 'products');
+        modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
+        
         modalMainDetailsList.innerHTML = [
             createDetailRowHTML('Potenza', product.potenza),
             createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento),
@@ -215,22 +196,20 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.disabled = true;
         searchInput.placeholder = 'Caricamento dati...';
         
+        // PERSONALIZZA QUI LE COLLEZIONI DA CERCARE
         const collectionsToFetch = [
             { name: 'prodottiClimaMonosplit', category: 'Monosplit' },
             { name: 'outdoorUnits', category: 'U. Esterna Multi' },
             { name: 'indoorUnits', category: 'U. Interna Multi' },
-            // Aggiungi qui altre collezioni se vuoi renderle ricercabili, es:
-            // { name: 'listino-caldaie', category: 'Caldaie' },
-            // { name: 'listino-sanitari', category: 'Sanitari' }
+            // Esempio per CALDAIE (da decommentare e adattare):
+            // { name: 'prodottiCaldaie', category: 'Caldaie' }, 
         ];
 
         const promises = collectionsToFetch.map(async (col) => {
             try {
                 const snapshot = await db.collection(col.name).get();
                 return snapshot.docs.map(doc => ({
-                    ...doc.data(),
-                    id: doc.id,
-                    category: col.category
+                    ...doc.data(), id: doc.id, category: col.category
                 }));
             } catch (error) {
                 console.error(`Errore nel caricamento della collezione ${col.name}:`, error);
@@ -238,10 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        const results = await Promise.all(promises);
-        allSearchableData = results.flat();
+        allSearchableData = (await Promise.all(promises)).flat();
         isDataFetched = true;
-        console.log(`Caricamento completato. ${allSearchableData.length} articoli totali indicizzati.`);
+        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
         searchInput.disabled = false;
         searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
     };
@@ -249,40 +227,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleSearch = () => {
         if (!searchInput) return;
         const query = searchInput.value.toLowerCase().trim();
-        if (query.length < 2) {
-            displayResults([]);
-            return;
-        }
+        if (query.length < 2) { displayResults([]); return; }
         
         const filteredResults = allSearchableData.filter(item => {
-            const codeMatch = item.codice_prodotto ? item.codice_prodotto.toLowerCase().includes(query) : false;
-            const modelMatch = item.modello ? item.modello.toLowerCase().includes(query) : false;
-            const brandMatch = item.marca ? item.marca.toLowerCase().includes(query) : false;
-            const idMatch = item.id ? item.id.toLowerCase().includes(query) : false;
+            const codeMatch = item.codice_prodotto?.toLowerCase().includes(query);
+            const modelMatch = item.modello?.toLowerCase().includes(query);
+            const brandMatch = item.marca?.toLowerCase().includes(query);
+            const idMatch = item.id?.toLowerCase().includes(query);
             return codeMatch || modelMatch || brandMatch || idMatch;
         });
-
         displayResults(filteredResults);
     };
     
     const displayResults = (results) => {
         if (!searchResultsContainer) return;
         searchResultsContainer.innerHTML = '';
-        if (results.length === 0) {
-            searchResultsContainer.style.display = 'none';
-            return;
-        }
+        if (results.length === 0) { searchResultsContainer.style.display = 'none'; return; }
         
         searchResultsContainer.style.display = 'block';
-
         results.slice(0, 20).forEach(item => {
             const resultItem = document.createElement('a');
             resultItem.href = "javascript:void(0);";
             resultItem.className = 'result-item';
-            resultItem.setAttribute('data-product-id', item.id);
-            
+            resultItem.dataset.productId = item.id;
             const name = [item.marca, item.modello, item.potenza].filter(Boolean).join(' ');
-            
             resultItem.innerHTML = `
                 <span class="item-category">${item.category}</span>
                 <span class="item-code">${item.codice_prodotto || item.id}</span>
@@ -292,87 +260,66 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-
     // =================================================================
-    // 4. EVENT LISTENERS E INTEGRAZIONE
+    // 4. EVENT LISTENERS E FLUSSO PRINCIPALE
     // =================================================================
 
-    // --- Listeners per i sottomenu ---
+    // Sottomenu, Pannello Admin, Ricerca
     if (btnListini) btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); });
     if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); });
-
-    // --- Listeners per il pannello "Aggiungi Categoria" ---
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
-
-    // --- Listener per la barra di ricerca ---
     if (searchInput) searchInput.addEventListener('input', handleSearch);
 
-    // --- Listener per aprire il MODAL al click su un risultato della ricerca ---
+    // Click su un risultato di ricerca per aprire il MODAL
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener('click', (event) => {
             const resultItem = event.target.closest('.result-item');
             if (!resultItem) return;
-
             event.preventDefault();
-            const productId = resultItem.getAttribute('data-product-id');
-            const product = allSearchableData.find(p => p.id === productId);
-
+            const product = allSearchableData.find(p => p.id === resultItem.dataset.productId);
             if (product) {
                 populateAndShowModal(product);
                 searchResultsContainer.style.display = 'none';
                 searchInput.value = '';
                 searchInput.blur();
             } else {
-                console.error("Prodotto non trovato con ID:", productId);
-                alert("Si è verificato un errore, il prodotto non è stato trovato.");
+                console.error("Prodotto non trovato con ID:", resultItem.dataset.productId);
             }
         });
     }
     
-    // --- Listener Globale per chiudere popup e menu ---
+    // Chiusura di Popup e Menu
     document.addEventListener('click', (event) => {
-        // Chiudi sottomenu
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(event.target) && !currentlyOpenSubmenu.btn.contains(event.target)) {
             toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
         }
-        // Chiudi risultati ricerca
         if (searchResultsContainer && !searchResultsContainer.contains(event.target) && event.target !== searchInput) {
             searchResultsContainer.style.display = 'none';
         }
     });
     
-    // --- Listeners per la chiusura del MODAL ---
+    // Chiusura del MODAL
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-    if (detailsModalOverlay) {
-        detailsModalOverlay.addEventListener('click', (event) => {
-            if (event.target === detailsModalOverlay) closeModal();
-        });
-    }
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
-            closeModal();
-        }
-    });
+    if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => { if (event.target === detailsModalOverlay) closeModal(); });
+    window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && detailsModalOverlay?.classList.contains('visible')) closeModal(); });
 
-    // --- Observer per avviare il tutto dopo il login ---
+    // Observer per avviare il caricamento dati dopo il login
     if (appContent) {
-        const observer = new MutationObserver((mutationsList) => {
+        new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    if (!appContent.classList.contains('hidden')) {
-                        fetchAllSearchableData();
-                    } else {
+                    if (!appContent.classList.contains('hidden')) fetchAllSearchableData();
+                    else {
                         allSearchableData = [];
                         isDataFetched = false;
-                        if(searchResultsContainer) searchResultsContainer.style.display = 'none';
+                        if(searchResultsContainer) searchResultsContainer.innerHTML = '';
                         if(searchInput) searchInput.value = '';
                     }
                 }
             }
-        });
-        observer.observe(appContent, { attributes: true });
+        }).observe(appContent, { attributes: true });
     }
 });
