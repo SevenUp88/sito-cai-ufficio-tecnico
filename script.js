@@ -141,18 +141,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
        const collectionsToFetch = [
+            // 1. Monosplit (già testato e funzionante)
             { 
-                // NOME CORRETTO DELLA COLLEZIONE:
                 name: 'prodottiClimaMonosplit', 
-                category: 'Monosplit', // Ho reso la categoria più specifica       
+                category: 'Monosplit',       
                 fields: { 
                     code: 'codice_prodotto', 
-                    name_parts: ['marca', 'modello', 'potenza']
+                    name_parts: ['marca', 'modello', 'potenza'] 
                 }, 
-                // Questo link punta alla pagina specifica dei monosplit? Se no, aggiornalo.
                 link: 'LISTINI/CLIMA/monosplit/index.html' 
+            },
+
+            // 2. Unità Esterne Multisplit
+            {
+                name: 'outdoorUnits',
+                category: 'U. Esterna Multi',
+                fields: {
+                    // ATTENZIONE: devi verificare i nomi dei campi reali
+                    code: 'codice_prodotto', // o 'model_code'?
+                    name_parts: ['brand', 'series', 'connections', 'btu'] // Esempio, da adattare
+                },
+                link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
+            },
+
+            // 3. Unità Interne Multisplit
+            {
+                name: 'indoorUnits',
+                category: 'U. Interna Multi',
+                fields: {
+                    // ATTENZIONE: devi verificare i nomi dei campi reali
+                    code: 'codice_prodotto', // o 'model_code'?
+                    name_parts: ['brand', 'series', 'type', 'btu'] // Esempio, da adattare
+                },
+                link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
             }
-        ];
+
         
         console.log("2. Configurazione di ricerca:", collectionsToFetch);
 
