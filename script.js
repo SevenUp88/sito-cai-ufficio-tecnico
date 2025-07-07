@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE DEFINITIVA E COMPLETA - Con ricerca intelligente
+ * VERSIONE DEFINITIVA E COMPLETA - Con risultati di ricerca dettagliati.
  * Gestisce: Sottomenu, Pannello Admin, Ricerca Globale, Modal Dettagli.
  */
 
@@ -195,35 +195,28 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.disabled = false;
         searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
     };
-
-    // ========= LA MODIFICA CHIAVE È QUI =========
+    
     const handleSearch = () => {
         if (!searchInput) return;
         const query = searchInput.value.toLowerCase().trim();
         if (query.length < 2) { displayResults([]); return; }
         
         const filteredResults = allSearchableData.filter(item => {
-            // Cerca in marca e modello come prima
             const modelMatch = item.modello?.toLowerCase().includes(query);
             const brandMatch = item.marca?.toLowerCase().includes(query);
-
-            // Per la ricerca sul codice, diventa più intelligente
             let codeMatch = false;
             if (item.codice_prodotto) {
-                // Estrae TUTTI i numeri di almeno 5 cifre dalla stringa del codice
-                // Esempio: "UI: 732350 / UE: 644831" -> diventa ["732350", "644831"]
                 const codesInString = item.codice_prodotto.match(/\d{5,}/g) || [];
-                // Controlla se la query corrisponde a uno dei codici estratti
                 if (codesInString.some(code => code.includes(query))) {
                     codeMatch = true;
                 }
             }
-            
             return codeMatch || modelMatch || brandMatch;
         });
         displayResults(filteredResults);
     };
     
+    // ========= LA MODIFICA CHIAVE È QUI =========
     const displayResults = (results) => {
         if (!searchResultsContainer) return;
         searchResultsContainer.innerHTML = '';
@@ -235,11 +228,22 @@ document.addEventListener('DOMContentLoaded', () => {
             resultItem.href = "javascript:void(0);";
             resultItem.className = 'result-item';
             resultItem.dataset.productId = item.id;
-            const name = [item.marca, item.modello, item.potenza].filter(Boolean).join(' ');
+            
+            // Creiamo due righe di testo: una principale e una di dettaglio per distinguerle
+            const mainName = [item.marca, item.modello, item.potenza].filter(Boolean).join(' ');
+            const detailName = item.articolo_fornitore || item.codice_prodotto;
+
             resultItem.innerHTML = `
-                <span class="item-category">${item.category}</span>
-                <span class="item-code">${item.codice_prodotto || item.id}</span>
-                ${name || 'Dettagli non disponibili'}
+                <div style="display: flex; flex-direction: column;">
+                    <div>
+                         <span class="item-category">${item.category}</span>
+                         <span class="item-code">${item.prezzo ? formatPrice(item.prezzo) : ''}</span>
+                         ${mainName}
+                    </div>
+                    <small style="opacity: 0.7; font-size: 0.8em; margin-top: 2px;">
+                        ${detailName || ''}
+                    </small>
+                </div>
             `;
             searchResultsContainer.appendChild(resultItem);
         });
@@ -248,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // =================================================================
     // 4. EVENT LISTENERS E FLUSSO PRINCIPALE
     // =================================================================
-
     if (btnListini) btnListini.addEventListener('click', (e) => e.stopPropagation() || toggleSubmenu(btnListini, submenuListini));
     if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => e.stopPropagation() || toggleSubmenu(btnConfiguratori, submenuConfiguratori));
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
