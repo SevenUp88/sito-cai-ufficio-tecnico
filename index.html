@@ -76,15 +76,15 @@
         </div>
         <div id="admin-overlay" class="overlay hidden"></div>
 
-        <!-- === LAYOUT HTML MODAL A DUE COLONNE === -->
+        <!-- === LAYOUT HTML MODAL AGGIORNATO CON CLASSI ENERGETICHE === -->
         <div id="product-details-modal-overlay">
             <div class="modal-container">
                 <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra">×</button>
                 <div class="modal-header">
                     <img id="modal-product-logo" src="" alt="Logo marca">
                     <div class="modal-title-group">
-                        <span id="modal-product-brand" class="modal-brand-text">Marca</span>
-                        <h2 id="modal-product-model" class="modal-model-text">Modello</h2>
+                        <span id="modal-product-brand"></span>
+                        <h2 id="modal-product-model"></h2>
                     </div>
                 </div>
                 <div class="modal-body-split">
@@ -92,12 +92,19 @@
                     <div class="modal-left-panel">
                         <img id="modal-product-image" src="" alt="Immagine prodotto">
                         <div class="modal-main-info">
-                            <div id="modal-product-power"></div>
-                            <div id="modal-product-code"></div>
+                             <div id="modal-product-power"></div>
+                             <div class="modal-energy-info">
+                                 <strong>Classe En.:</strong>
+                                 <div>
+                                     <span id="modal-energy-cooling" class="energy-badge cooling"></span>
+                                     <span id="modal-energy-heating" class="energy-badge heating"></span>
+                                 </div>
+                             </div>
+                             <div id="modal-product-code"></div>
                         </div>
                         <div class="modal-price-container">
                             <span>Prezzo vendita:</span>
-                            <span id="modal-product-price">€ 0,00</span>
+                            <span id="modal-product-price"></span>
                         </div>
                         <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-file-pdf"></i> Scheda Tecnica
@@ -106,7 +113,7 @@
                     <!-- COLONNA DESTRA (SCORREVOLE) -->
                     <div class="modal-right-panel">
                         <div id="modal-tech-details">
-                            <!-- I dettagli tecnici verranno inseriti qui da JS -->
+                            <!-- Dettagli tecnici da JS -->
                         </div>
                     </div>
                 </div>
