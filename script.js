@@ -132,78 +132,75 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAllSearchableData() {
         if (isDataFetched) return; 
 
-        console.log("Inizio caricamento dati per la ricerca...");
-        
+        console.log("Inizio caricamento dati per la ricerca (v2)...");
         if (searchInput) {
             searchInput.disabled = true;
             searchInput.placeholder = 'Caricamento dati in corso...';
         }
         
        const collectionsToFetch = [
-            // 1. Monosplit
+            // 1. Monosplit - Cerca in un campo, ne mostra un altro
             { 
                 name: 'prodottiClimaMonosplit', 
                 category: 'Monosplit',       
                 fields: { 
-                    code: 'codice_prodotto', 
+                    search_on: ['codice_prodotto'],         // In quale/i campo/i cercare
+                    display_code: 'codice_prodotto',        // Quale campo mostrare come codice
                     name_parts: ['marca', 'modello', 'potenza'] 
                 }, 
                 link: 'LISTINI/CLIMA/monosplit/index.html' 
             },
 
-            // 2. Unità Esterne Multisplit
+            // 2. Unità Esterne (CONFIGURAZIONE DA ADATTARE)
             {
                 name: 'outdoorUnits',
                 category: 'U. Esterna Multi',
                 fields: {
-                    // VERIFICA QUESTI CAMPI REALI SU FIRESTORE!
-                    code: 'codice_prodotto', 
-                    name_parts: ['brand', 'series', 'connections', 'btu'] 
+                    search_on: ['codice_prodotto'], // <-- VERIFICA QUESTO CAMPO!
+                    display_code: 'codice_prodotto',
+                    name_parts: ['marca', 'modello', 'potenza'] // <-- VERIFICA QUESTI CAMPI!
                 },
-                link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
+                link: 'LISTINI/CLIMA/multisplit/index.html'
             },
 
-            // 3. Unità Interne Multisplit
+            // 3. Unità Interne (CONFIGURAZIONE DA ADATTARE)
             {
                 name: 'indoorUnits',
                 category: 'U. Interna Multi',
                 fields: {
-                    // VERIFICA QUESTI CAMPI REALI SU FIRESTORE!
-                    code: 'codice_prodotto', 
-                    name_parts: ['brand', 'series', 'type', 'btu']
+                    search_on: ['codice_prodotto'], // <-- VERIFICA QUESTO CAMPO!
+                    display_code: 'codice_prodotto', 
+                    name_parts: ['marca', 'modello', 'potenza'] // <-- VERIFICA QUESTI CAMPI!
                 },
-                link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
+                link: 'LISTINI/CLIMA/multisplit/index.html'
             }
-        ]; // <-- Parentesi di chiusura CORRETTA
+        ];
 
         const promises = collectionsToFetch.map(async (col) => {
             try {
                 const snapshot = await db.collection(col.name).get();
-                if (snapshot.empty) {
-                    console.log(`Collezione "${col.name}" è vuota o non trovata.`);
-                    return [];
-                }
+                if (snapshot.empty) return [];
 
                 return snapshot.docs.map(doc => {
                     const data = doc.data();
                     
-                    let description = '';
-                    if (col.fields.name_parts) {
-                        description = col.fields.name_parts
-                            .map(part => data[part] || '')
-                            .filter(part => part)
-                            .join(' ');
-                    } else if (col.fields.name) {
-                        description = data[col.fields.name] || '';
-                    }
+                    // Costruisce la descrizione
+                    const description = (col.fields.name_parts || [])
+                        .map(part => data[part] || '').filter(Boolean).join(' ');
                     
-                    const codeValue = data[col.fields.code] || '';
-                    
+                    // Prende il codice da mostrare
+                    const displayCode = data[col.fields.display_code] || '';
+
+                    // Prende tutti i campi in cui cercare
+                    const searchFields = (col.fields.search_on || []).map(field => data[field] || '').filter(Boolean);
+
+                    // Restituisce un oggetto più ricco per la ricerca
                     return {
-                        code: codeValue,
+                        display_code: displayCode,
                         name: description,
                         category: col.category,
-                        link: col.link
+                        link: col.link,
+                        searchable_strings: [description, ...searchFields] // Array unico di stringhe su cui cercare
                     };
                 });
             } catch (error) {
@@ -213,21 +210,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const results = await Promise.all(promises);
-        const validResults = results.flat().filter(item => item.code || item.name);
-        allSearchableData = validResults;
-        
+        allSearchableData = results.flat().filter(item => item.display_code || item.name);
         isDataFetched = true;
-        
-        console.log(`Caricamento completato. Articoli totali indicizzati: ${allSearchableData.length}`);
+        console.log(`Caricamento completato. Articoli indicizzati: ${allSearchableData.length}`);
         
         if(searchInput) {
             searchInput.disabled = false;
             searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
         }
     }
-    /**
-     * Filtra i dati in memoria e chiama la funzione per visualizzarli.
-     */
     function handleSearch() {
         if (!searchInput) return;
         const query = searchInput.value.toLowerCase().trim();
