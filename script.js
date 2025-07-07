@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE FINALE ASSOLUTA - Con ereditarietà intelligente dell'immagine.
+ * VERSIONE FINALE E STABILE - Etichette dimensioni corrette.
  * Gestisce: Sottomenu, Pannello Admin, Ricerca Globale, Modal Dettagli.
  */
 
@@ -46,12 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. FUNZIONI
     const toggleSubmenu = (button, submenu) => {
-        if (!button || !submenu) return; const isVisible = submenu.classList.toggle('visible'); button.setAttribute('aria-expanded', isVisible);
-        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) { currentlyOpenSubmenu.menu.classList.remove('visible'); if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false'); }
-        currentlyOpenSubmenu.btn = isVisible ? button : null; currentlyOpenSubmenu.menu = isVisible ? submenu : null;
+        if (!button || !submenu) return;
+        const isCurrentlyVisible = submenu.classList.contains('visible');
+        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
+            currentlyOpenSubmenu.menu.classList.remove('visible');
+            if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false');
+        }
+        button.setAttribute('aria-expanded', String(!isCurrentlyVisible));
+        submenu.classList.toggle('visible', !isCurrentlyVisible);
+        currentlyOpenSubmenu.btn = isCurrentlyVisible ? button : null;
+        currentlyOpenSubmenu.menu = isCurrentlyVisible ? submenu : null;
     };
-    const showAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.remove('hidden'); if (adminOverlay) adminOverlay.classList.remove('hidden'); };
-    const hideAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.add('hidden'); if (adminOverlay) adminOverlay.classList.add('hidden'); };
+    const showAddCategoryPanel = () => { if (!addCategoryPanel || !adminOverlay) return; addCategoryPanel.classList.remove('hidden'); adminOverlay.classList.remove('hidden'); };
+    const hideAddCategoryPanel = () => { if (!addCategoryPanel || !adminOverlay) return; addCategoryPanel.classList.add('hidden'); adminOverlay.classList.add('hidden'); };
     const handleAddCategorySubmit = () => {
         if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav) return; const name = categoryNameInput.value.trim(), path = categoryPathInput.value.trim(), icon = categoryIconInput.value.trim() || 'fas fa-folder'; if (!name || !path) return;
         const link = document.createElement('a'); link.href = path; link.className = 'nav-button'; const i = document.createElement('i'); i.className = icon; link.append(i, ` ${name}`); mainNav.appendChild(link);
@@ -61,32 +68,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : (path || 'LISTINI/CLIMA/images/placeholder.png');
     const closeModal = () => { document.body.classList.remove('modal-open'); if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible'); };
     
-    // ======== MODAL ADATTIVO CON IMMAGINI INTELLIGENTI ========
+    // ======== MODAL ADATTIVO CON ETICHETTE DIMENSIONI CORRETTE ========
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
         const config = product.config;
-        
-        // Logica per le immagini
         let imageUrl = product.image_url;
-        // Se l'immagine manca ma il modello esiste, cercala in altri prodotti
         if (!imageUrl && product.modello) {
             const productWithImage = allSearchableData.find(p => p.modello === product.modello && p.image_url);
-            if (productWithImage) {
-                imageUrl = productWithImage.image_url;
-            }
+            if (productWithImage) imageUrl = productWithImage.image_url;
         }
 
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
         modalProductLogo.src = `LISTINI/CLIMA/images/logos/${safeBrandName}.png`;
         modalProductLogo.onerror = () => { modalProductLogo.src = 'LISTINI/CLIMA/images/logos/placeholder_logo.png'; };
+        
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
-        modalProductImage.src = getCorrectedPath(imageUrl); // Usa l'URL trovato o originale
+        modalProductImage.src = getCorrectedPath(imageUrl);
         
-        const mainDetailsHTML = [createDetailRowHTML('Potenza', product.potenza), createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento), createDetailRowHTML('Classe Risc.', product.classe_energetica_riscaldamento), createDetailRowHTML('Codice Prodotto', product[config.code_field] || product.id)].join('');
+        const mainDetailsHTML = [
+            createDetailRowHTML('Potenza', product.potenza),
+            createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento),
+            createDetailRowHTML('Classe Risc.', product.classe_energetica_riscaldamento),
+            createDetailRowHTML('Codice Prodotto', product[config.code_field] || product.id)
+        ].join('');
         modalMainDetailsList.innerHTML = mainDetailsHTML;
         
-        const extraDetailsHTML = [createDetailRowHTML(product.dimensioni_ue ? 'Dimensioni UI' : 'Dimensioni', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm'), createDetailRowHTML('Dimensioni UE', product.dimensioni_ue, ' mm'), createDetailRowHTML('Gas Refrigerante', product.gas), createDetailRowHTML('Prezzo Kit', formatPrice(product.prezzo_kit))].join('');
+        const extraDetailsHTML = [
+            createDetailRowHTML(product.dimensioni_ue ? 'Dimensioni UI (AxLxP)' : 'Dimensioni (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm'),
+            createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm'),
+            createDetailRowHTML('Gas Refrigerante', product.gas),
+            createDetailRowHTML('Prezzo Kit', formatPrice(product.prezzo_kit))
+        ].join('');
         modalExtraDetailsList.innerHTML = extraDetailsHTML;
         
         if (modalMainDetailsTitle) modalMainDetailsTitle.style.display = mainDetailsHTML.trim() ? 'block' : 'none';
@@ -109,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'indoorUnits', category: 'U. Interna Multi', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } }
         ];
         const promises = collectionsToFetch.map(async (col) => {
-            try { const snapshot = await db.collection(col.name).get(); return snapshot.docs.map(doc => ({...doc.data(), id: doc.id, category: col.category, config: col.config })); } catch (error) { return []; }
+            try { const snapshot = await db.collection(col.name).get(); return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id, category: col.category, config: col.config, _collection: col.name })); } catch (error) { return []; }
         });
         allSearchableData = (await Promise.all(promises)).flat();
         isDataFetched = true;
@@ -156,8 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // 4. EVENT LISTENERS
-    if (btnListini) btnListini.addEventListener('click', (e) => e.stopPropagation() || toggleSubmenu(btnListini, submenuListini));
-    if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => e.stopPropagation() || toggleSubmenu(btnConfiguratori, submenuConfiguratori));
+    if (btnListini) btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); });
+    if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); });
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
