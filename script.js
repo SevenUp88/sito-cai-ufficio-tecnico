@@ -140,14 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
             searchInput.placeholder = 'Caricamento dati in corso...';
         }
         
-        const collectionsToFetch = [
+       const collectionsToFetch = [
             { 
-                name: 'listino-clima',
-                category: 'Clima',           
+                // NOME CORRETTO DELLA COLLEZIONE:
+                name: 'prodottiClimaMonosplit', 
+                category: 'Monosplit', // Ho reso la categoria più specifica       
                 fields: { 
                     code: 'codice_prodotto', 
                     name_parts: ['marca', 'modello', 'potenza']
                 }, 
+                // Questo link punta alla pagina specifica dei monosplit? Se no, aggiornalo.
                 link: 'LISTINI/CLIMA/monosplit/index.html' 
             }
         ];
