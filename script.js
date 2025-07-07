@@ -130,25 +130,28 @@ document.addEventListener('DOMContentLoaded', () => {
      * Questa funzione viene chiamata una sola volta dopo il login.
      */
     async function fetchAllSearchableData() {
-        if (isDataFetched) return; // Non ricaricare se i dati sono già presenti
+        if (isDataFetched) return; 
 
-        console.log("Inizio caricamento dati per la ricerca...");
+        console.log("Inizio caricamento dati per la ricerca (test mirato)...");
         if (searchInput) {
             searchInput.disabled = true;
             searchInput.placeholder = 'Caricamento dati in corso...';
         }
         
         // ===========================================================================
-        // !!! IMPORTANTE: PERSONALIZZA QUESTA SEZIONE CON LE TUE COLLEZIONI !!!
+        // !!! CONFIGURAZIONE PER LA RICERCA - TEST MIRATO SU MONOSPLIT !!!
         // ===========================================================================
         const collectionsToFetch = [
-            { name: 'listino-clima', category: 'Clima', fields: { code: 'Codice', name: 'Descrizione' }, link: 'LISTINI/CLIMA/monosplit/index.html' },
-            { name: 'listino-caldaie', category: 'Caldaie', fields: { code: 'Codice', name: 'Modello' }, link: 'LISTINI/CALDAIE/index.html' },
-            { name: 'listino-scaldabagni', category: 'Scaldabagni', fields: { code: 'CODICE', name: 'DESCRIZIONE' }, link: 'LISTINI/SCALDABAGNI/index.html' },
-            { name: 'listino-sanitari', category: 'Sanitari', fields: { code: 'Codice', name: 'Descrizione' }, link: 'LISTINI/SANITARI/index.html' },
-            
-            // Esempio per aggiungere una nuova collezione:
-            // { name: 'nome-collezione-in-firestore', category: 'Nome da Mostrare', fields: { code: 'nome_campo_codice', name: 'nome_campo_descrizione' }, link: 'percorso/alla/pagina.html' },
+            { 
+                name: 'listino-clima',
+                category: 'Clima',           
+                fields: { 
+                    code: 'codice_prodotto', 
+                    name_parts: ['marca', 'modello', 'potenza'] // Campi per la descrizione
+                }, 
+                link: 'LISTINI/CLIMA/monosplit/index.html' 
+            }
+            // Altre collezioni commentate per il test
         ];
 
         const promises = collectionsToFetch.map(async (col) => {
@@ -156,22 +159,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 const snapshot = await db.collection(col.name).get();
                 return snapshot.docs.map(doc => {
                     const data = doc.data();
-                    // Normalizza i dati in un formato comune
+                    
+                    // --- NUOVA LOGICA PER LA DESCRIZIONE ---
+                    let description = '';
+                    if (col.fields.name) {
+                        // Metodo classico: usa un solo campo 'name'
+                        description = data[col.fields.name] || '';
+                    } else if (col.fields.name_parts) {
+                        // Metodo nuovo: costruisce la descrizione da più parti
+                        description = col.fields.name_parts
+                            .map(part => data[part] || '') // Prende ogni pezzo
+                            .filter(part => part)           // Rimuove pezzi vuoti
+                            .join(' ');                     // Li unisce con uno spazio
+                    }
+                    // --- FINE NUOVA LOGICA ---
+                    
                     return {
                         code: data[col.fields.code] || '',
-                        name: data[col.fields.name] || '',
+                        name: description, // Usa la descrizione costruita
                         category: col.category,
                         link: col.link
                     };
                 });
             } catch (error) {
                 console.error(`Errore nel caricare la collezione ${col.name}:`, error);
-                return []; // Ritorna un array vuoto in caso di errore per non bloccare tutto
+                return [];
             }
         });
 
         const results = await Promise.all(promises);
-        allSearchableData = results.flat(); // Unisce tutti gli array di risultati in un unico grande array
+        allSearchableData = results.flat();
         isDataFetched = true;
         
         console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
