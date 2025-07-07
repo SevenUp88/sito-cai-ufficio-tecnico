@@ -132,57 +132,79 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAllSearchableData() {
         if (isDataFetched) return; 
 
-        console.log("Inizio caricamento dati per la ricerca (test mirato)...");
+        console.log("------------------- INIZIO DEBUG RICERCA -------------------");
+        console.log("1. Funzione fetchAllSearchableData() avviata.");
+        
         if (searchInput) {
             searchInput.disabled = true;
             searchInput.placeholder = 'Caricamento dati in corso...';
         }
         
-        // ===========================================================================
-        // !!! CONFIGURAZIONE PER LA RICERCA - TEST MIRATO SU MONOSPLIT !!!
-        // ===========================================================================
         const collectionsToFetch = [
             { 
                 name: 'listino-clima',
                 category: 'Clima',           
                 fields: { 
                     code: 'codice_prodotto', 
-                    name_parts: ['marca', 'modello', 'potenza'] // Campi per la descrizione
+                    name_parts: ['marca', 'modello', 'potenza']
                 }, 
                 link: 'LISTINI/CLIMA/monosplit/index.html' 
             }
-            // Altre collezioni commentate per il test
         ];
+        
+        console.log("2. Configurazione di ricerca:", collectionsToFetch);
 
         const promises = collectionsToFetch.map(async (col) => {
             try {
+                console.log(`3. Tentativo di leggere la collezione: "${col.name}"`);
                 const snapshot = await db.collection(col.name).get();
-                return snapshot.docs.map(doc => {
+                
+                // --- LOG AGGIUNTIVO FONDAMENTALE ---
+                console.log(`4. Lettura della collezione "${col.name}" riuscita.`);
+                console.log(`   - Numero di documenti trovati: ${snapshot.size}`);
+                if (snapshot.empty) {
+                    console.warn(`   - ATTENZIONE: La collezione "${col.name}" è vuota o la query non ha prodotto risultati.`);
+                }
+                // --- FINE LOG AGGIUNTIVO ---
+
+                return snapshot.docs.map((doc, index) => {
                     const data = doc.data();
                     
-                    // --- NUOVA LOGICA PER LA DESCRIZIONE ---
-                    let description = '';
-                    if (col.fields.name) {
-                        // Metodo classico: usa un solo campo 'name'
-                        description = data[col.fields.name] || '';
-                    } else if (col.fields.name_parts) {
-                        // Metodo nuovo: costruisce la descrizione da più parti
-                        description = col.fields.name_parts
-                            .map(part => data[part] || '') // Prende ogni pezzo
-                            .filter(part => part)           // Rimuove pezzi vuoti
-                            .join(' ');                     // Li unisce con uno spazio
+                    // --- LOG PER OGNI DOCUMENTO ---
+                    if (index === 0) { // Logghiamo solo il primo documento per non intasare la console
+                       console.log(`5. Analisi del primo documento (ID: ${doc.id}):`, data);
                     }
-                    // --- FINE NUOVA LOGICA ---
+                    // --- FINE LOG ---
+
+                    let description = '';
+                    if (col.fields.name_parts) {
+                        description = col.fields.name_parts
+                            .map(part => {
+                                const value = data[part] || '';
+                                if (index === 0) { // Logghiamo il processo solo per il primo documento
+                                    console.log(`   - Estraggo la parte "${part}": "${value}"`);
+                                }
+                                return value;
+                            })
+                            .filter(part => part)
+                            .join(' ');
+                    }
                     
+                    const codeValue = data[col.fields.code] || '';
+                    if (index === 0) {
+                        console.log(`   - Estraggo il codice dal campo "${col.fields.code}": "${codeValue}"`);
+                        console.log(`   - Descrizione finale costruita: "${description}"`);
+                    }
+
                     return {
-                        code: data[col.fields.code] || '',
-                        name: description, // Usa la descrizione costruita
+                        code: codeValue,
+                        name: description,
                         category: col.category,
                         link: col.link
                     };
                 });
             } catch (error) {
-                console.error(`Errore nel caricare la collezione ${col.name}:`, error);
+                console.error(`ERRORE FATALE durante la lettura della collezione ${col.name}:`, error);
                 return [];
             }
         });
@@ -191,7 +213,9 @@ document.addEventListener('DOMContentLoaded', () => {
         allSearchableData = results.flat();
         isDataFetched = true;
         
-        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
+        console.log(`6. Caricamento completato. Articoli totali indicizzati: ${allSearchableData.length}`);
+        console.log("------------------- FINE DEBUG RICERCA -------------------");
+        
         if(searchInput) {
             searchInput.disabled = false;
             searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
