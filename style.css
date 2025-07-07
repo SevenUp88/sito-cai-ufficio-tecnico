@@ -86,36 +86,56 @@ body.modal-open { overflow: hidden; }
 
 .modal-header { display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; flex-shrink: 0; }
 #modal-product-logo { height: 40px; width: auto; max-width: 140px; margin-right: 20px; object-fit: contain; }
-.modal-title-group h2 { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
+.modal-title-group #modal-product-brand { font-size: 1.1rem; color: #6c757d; display: block; }
+.modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
 .modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
 
 .modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
-/* Colonna Sinistra (fissa) */
+/* --- Colonna Sinistra (fissa) --- */
 .modal-left-panel { flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; }
-#modal-product-image { width: 100%; height: 200px; object-fit: contain; border: 1px solid #f0f0f0; border-radius: 6px; margin-bottom: 15px; }
+#modal-product-image { width: 100%; height: 180px; object-fit: contain; border: 1px solid #f0f0f0; border-radius: 6px; margin-bottom: 15px; }
 
-.modal-main-info { width: 100%; text-align: center; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
-.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; }
+.modal-main-info {
+    width: 100%; text-align: center; margin-bottom: 15px;
+    display: flex; flex-direction: column; gap: 10px; /* Aumenta spazio tra elementi */
+}
+.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; margin-bottom: 2px; text-transform: uppercase; }
 .modal-main-info div { line-height: 1.4; }
 
-/* Nuova Sezione per le Classi Energetiche */
+/* Nuova Sezione per le Classi Energetiche - MODIFICATA */
 .modal-energy-info { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .energy-badge {
-    display: inline-block; width: 28px; height: 28px; line-height: 28px;
-    border-radius: 50%; color: white; text-align: center; font-weight: bold;
-    font-size: 0.85em; margin: 0 2px;
+    display: inline-block;
+    width: 32px; /* AUMENTATO */
+    height: 32px; /* AUMENTATO */
+    line-height: 32px; /* AUMENTATO */
+    border-radius: 50%;
+    color: white; text-align: center; font-weight: bold;
+    font-size: 0.9em; /* AUMENTATO */
+    margin: 0 3px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .energy-badge.cooling { background-color: #0d6efd; }
 .energy-badge.heating { background-color: #dc3545; }
 
 .modal-price-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: center; width: 100%; }
 .modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
-#modal-product-price { font-size: 2.4rem; font-weight: 700; color: #0056a8; }
-#modal-datasheet-link { display: inline-flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin-top: 15px; width: 100%; }
+#modal-product-price {
+    font-size: 2.2rem; /* DIMINUITO */
+    font-weight: 700;
+    color: #0056a8;
+}
+
+#modal-datasheet-link {
+    display: flex; /* CAMBIATO DA INLINE-FLEX */
+    align-items: center; justify-content: center; background-color: #dc3545; color: white;
+    padding: 10px 20px; /* Aggiustato padding */
+    text-decoration: none; border-radius: 5px; margin-top: 10px; width: 100%;
+}
 #modal-datasheet-link:hover { background-color: #b82c39; }
 
-/* Colonna Destra (scorrevole) */
+/* --- Colonna Destra (scorrevole) --- */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding: 5px 15px 5px 5px; border-left: 1px solid #eee; }
 #modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
