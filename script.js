@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE FINALE ASSOLUTA - Con ricerca per codice ESATTA e strumenti di debug.
+ * VERSIONE DEFINITIVA E COMPLETA - Con correzione BUG del modal
  * Gestisce: Sottomenu, Pannello Admin, Ricerca Globale, Modal Dettagli.
  */
 
@@ -39,20 +39,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.firestore();
     let allSearchableData = [];
     let isDataFetched = false;
+    let currentlyDisplayedResults = []; // NUOVO: per tracciare i risultati correnti
     const currentlyOpenSubmenu = { btn: null, menu: null };
 
     // 3. FUNZIONI
-    const toggleSubmenu = (button, submenu) => { if (!button || !submenu) return; const isVisible = submenu.classList.toggle('visible'); button.setAttribute('aria-expanded', isVisible); };
-    const showAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.remove('hidden'); if(adminOverlay) adminOverlay.classList.remove('hidden'); };
-    const hideAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.add('hidden'); if(adminOverlay) adminOverlay.classList.add('hidden'); };
-    const handleAddCategorySubmit = () => { /* ... logica inviata ... */ };
+    const toggleSubmenu = (button, submenu) => {
+        if (!button || !submenu) return;
+        const isCurrentlyVisible = submenu.classList.contains('visible');
+        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
+            currentlyOpenSubmenu.menu.classList.remove('visible');
+            if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false');
+        }
+        button.setAttribute('aria-expanded', String(!isCurrentlyVisible));
+        submenu.classList.toggle('visible', !isCurrentlyVisible);
+        currentlyOpenSubmenu.btn = !isCurrentlyVisible ? button : null;
+        currentlyOpenSubmenu.menu = !isCurrentlyVisible ? submenu : null;
+    };
+    const showAddCategoryPanel = () => { if (!addCategoryPanel || !adminOverlay) return; addCategoryPanel.classList.remove('hidden'); adminOverlay.classList.remove('hidden'); };
+    const hideAddCategoryPanel = () => { if (!addCategoryPanel || !adminOverlay) return; addCategoryPanel.classList.add('hidden'); adminOverlay.classList.add('hidden'); };
+    const handleAddCategorySubmit = () => {
+        if (!categoryNameInput || !categoryPathInput || !categoryIconInput) return;
+        const name = categoryNameInput.value.trim(), path = categoryPathInput.value.trim(), icon = categoryIconInput.value.trim() || 'fas fa-folder';
+        if (!name || !path) return;
+        const link = document.createElement('a'); link.href = path; link.className = 'nav-button';
+        const i = document.createElement('i'); i.className = icon;
+        link.append(i, ` ${name}`); mainNav.appendChild(link);
+    };
     const formatPrice = (price) => !isNaN(Number(price)) && price !== '' ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(price)) : 'N/D';
-    const createDetailRowHTML = (label, value, unit = '') => value != null ? `<li><strong>${label}:</strong><span>${String(value).replace('.', ',')}${unit}</span></li>` : '';
+    const createDetailRowHTML = (label, value, unit = '') => value != null ? `<li><strong>${label}:</strong><span>${String(value).replace(/\./g, ',')}${unit}</span></li>` : '';
     const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : path || 'LISTINI/CLIMA/images/placeholder.png';
     const closeModal = () => { document.body.classList.remove('modal-open'); if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible'); };
     
     const populateAndShowModal = (product) => {
-        if (!product) return;
+        if (!product || !detailsModalOverlay) return;
         const config = product.config;
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
@@ -83,58 +102,39 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const snapshot = await db.collection(col.name).get();
                 return snapshot.docs.map(doc => ({...doc.data(), id: doc.id, category: col.category, config: col.config, _collection: col.name }));
-            } catch (error) { console.error(`Errore caricamento ${col.name}:`, error); return []; }
+            } catch (error) { return []; }
         });
         allSearchableData = (await Promise.all(promises)).flat();
         isDataFetched = true;
         searchInput.disabled = false; searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
     };
 
-    // LOGICA DI RICERCA FINALE - SUPER RIGOROSA
     const handleSearch = () => {
         if (!searchInput) return;
-        const query = searchInput.value.trim(); // NON mettiamo toLowerCase() qui
+        const query = searchInput.value.trim();
         if (query.length < 3) { displayResults([]); return; }
-        
         const isNumericQuery = /^\d+$/.test(query);
 
-        const filteredResults = allSearchableData.filter(item => {
+        const results = allSearchableData.filter(item => {
             if (isNumericQuery) {
-                const codeField = item.config.code_field;
-                const codeValue = item[codeField];
-                if (codeValue == null) return false;
-                
-                const codeValueStr = String(codeValue);
-                
-                // Corrispondenza ESATTA
-                if (/^\d+$/.test(codeValueStr)) {
-                    return codeValueStr === query;
-                }
-                const codesInString = codeValueStr.match(/\d+/g) || [];
-                return codesInString.some(code => code === query);
+                const codeFieldValue = item[item.config.code_field];
+                if (!codeFieldValue) return false;
+                if (/^\d+$/.test(String(codeFieldValue))) return String(codeFieldValue) === query;
+                return (String(codeFieldValue).match(/\d+/g) || []).some(code => code === query);
             }
-            
-            // Ricerca testuale non numerica (deve essere case-insensitive)
             const queryLower = query.toLowerCase();
-            const modelMatch = item.modello?.toLowerCase().includes(queryLower);
-            const brandMatch = item.marca?.toLowerCase().includes(queryLower);
-            return modelMatch || brandMatch;
+            return item.modello?.toLowerCase().includes(queryLower) || item.marca?.toLowerCase().includes(queryLower);
         });
-        
-        // --- STRUMENTO DI DEBUG ---
-        console.clear(); // Pulisce la console per una lettura chiara
-        console.log(`Risultati trovati per "${query}": ${filteredResults.length}`);
-        console.table(filteredResults.map(p => ({
-            ID_Documento: p.id,
-            Collezione: p._collection,
-            Marca: p.marca,
-            Modello: p.modello,
-            Codice: p[p.config.code_field],
-            Prezzo: formatPrice(p[p.config.price_field])
-        })));
-        // --- FINE DEBUG ---
 
-        displayResults(filteredResults);
+        console.clear();
+        console.log(`Risultati trovati per "${query}": ${results.length}`);
+        console.table(results.map(p => ({
+            ID_Doc: p.id, Collezione: p._collection, Marca: p.marca, Modello: p.modello,
+            Codice: p[p.config.code_field], Prezzo: formatPrice(p[p.config.price_field])
+        })));
+        
+        currentlyDisplayedResults = results; // Aggiorna la lista dei risultati correnti
+        displayResults(currentlyDisplayedResults);
     };
     
     const displayResults = (results) => {
@@ -142,27 +142,26 @@ document.addEventListener('DOMContentLoaded', () => {
         searchResultsContainer.innerHTML = '';
         if (results.length === 0) { searchResultsContainer.style.display = 'none'; return; }
         searchResultsContainer.style.display = 'block';
-        results.slice(0, 20).forEach(item => {
+
+        results.slice(0, 20).forEach((item, index) => { // Aggiungiamo 'index'
             const resultItem = document.createElement('a');
             resultItem.href = "javascript:void(0);";
             resultItem.className = 'result-item';
-            resultItem.dataset.productId = item.id;
-            
+            resultItem.dataset.resultIndex = index; // Usiamo l'indice nell'array filtrato
+
             const mainName = [item.marca, item.modello, item.potenza].filter(Boolean).join(' ');
             const price = formatPrice(item[item.config.price_field]);
-            const detailName = item.articolo_fornitore || `Codice: ${item[item.config.code_field]}` || `ID: ${item.id}`;
+            const detailName = item.articolo_fornitore || `Codice: ${item[item.config.code_field] || 'N/D'}`;
 
-            resultItem.innerHTML = `
-                <div style="display: flex; flex-direction: column; width: 100%; gap: 4px;">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <span style="font-weight: 500;">${mainName || 'Prodotto non specificato'}</span>
-                        <span class="item-category">${item.category}</span>
-                    </div>
-                    <div style="font-size: 0.85em; opacity: 0.8; display: flex; justify-content: space-between; align-items: center;">
-                        <span style="max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${detailName}</span>
-                        <span style="font-weight: bold; color: #0056a8; font-size: 1.1em;">${price}</span>
-                    </div>
-                </div>`;
+            resultItem.innerHTML = `<div style="display: flex; flex-direction: column; width: 100%; gap: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <span style="font-weight: 500;">${mainName || 'Prodotto non specificato'}</span>
+                    <span class="item-category">${item.category}</span>
+                </div>
+                <div style="font-size: 0.85em; opacity: 0.8; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="max-width: 70%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${detailName}</span>
+                    <span style="font-weight: bold; color: #0056a8; font-size: 1.1em;">${price}</span>
+                </div></div>`;
             searchResultsContainer.appendChild(resultItem);
         });
     };
@@ -174,36 +173,50 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
+
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
         searchInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') { event.preventDefault(); handleSearch(); }
+            if (event.key === 'Enter') { event.preventDefault(); handleSearch(); searchResultsContainer.style.display = 'block'; }
         });
     }
+
+    // LOGICA DI CLICK FINALE E CORRETTA
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener('click', (event) => {
             const resultItem = event.target.closest('.result-item');
             if (!resultItem) return;
             event.preventDefault();
-            const product = allSearchableData.find(p => p.id === resultItem.dataset.productId);
+
+            const resultIndex = parseInt(resultItem.dataset.resultIndex, 10);
+            const product = currentlyDisplayedResults[resultIndex]; // Prende il prodotto dalla lista VISUALIZZATA
+
             if (product) {
                 populateAndShowModal(product);
                 searchResultsContainer.style.display = 'none';
+            } else {
+                console.error("ERRORE CRITICO: Prodotto non trovato all'indice:", resultIndex);
             }
         });
     }
+
     document.addEventListener('click', (event) => {
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(event.target) && !currentlyOpenSubmenu.btn.contains(event.target)) { toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu); }
         if (searchResultsContainer && !searchResultsContainer.contains(event.target) && event.target !== searchInput) { searchResultsContainer.style.display = 'none'; }
     });
-    const closeModalAndRefreshSearch = () => { closeModal(); setTimeout(handleSearch, 50); };
+
+    const closeModalAndRefreshSearch = () => {
+        closeModal();
+        displayResults(currentlyDisplayedResults); // Ri-visualizza i risultati che c'erano
+    };
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModalAndRefreshSearch);
     if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => { if (event.target === detailsModalOverlay) closeModalAndRefreshSearch(); });
-    window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && detailsModalOverlay?.classList.contains('visible')) { event.preventDefault(); closeModalAndRefreshSearch(); }});
+    window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && detailsModalOverlay?.classList.contains('visible')) { event.preventDefault(); closeModalAndRefreshSearch(); } });
 
+    // FLUSSO PRINCIPALE
     if (appContent) {
         new MutationObserver((mutations) => {
-            for (const m of mutations) { if (m.attributeName === 'class') { if (!appContent.classList.contains('hidden')) fetchAllSearchableData(); else { allSearchableData = []; isDataFetched = false; }} }
+            mutations.forEach(m => { if (m.attributeName === 'class') { if (!appContent.classList.contains('hidden')) fetchAllSearchableData(); else { allSearchableData = []; isDataFetched = false; } } });
         }).observe(appContent, { attributes: true });
     }
 });
