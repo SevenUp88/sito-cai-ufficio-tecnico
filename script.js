@@ -223,14 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!searchInput) return;
         const query = searchInput.value.toLowerCase().trim();
 
-        if (query.length < 2) { // Non cercare se la query è troppo corta
+        if (query.length < 2) {
             displayResults([]);
             return;
         }
-
+        
+        // Nuova logica di filtro più precisa
         const filteredResults = allSearchableData.filter(item => 
-            (item.name && item.name.toLowerCase().includes(query)) || 
-            (item.code && item.code.toLowerCase().includes(query))
+            item.searchable_strings.some(text => text.toLowerCase().includes(query))
         );
 
         displayResults(filteredResults);
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function displayResults(results) {
         if (!searchResultsContainer) return;
-        searchResultsContainer.innerHTML = ''; // Pulisce i risultati precedenti
+        searchResultsContainer.innerHTML = '';
 
         if (results.length === 0) {
             searchResultsContainer.style.display = 'none';
@@ -251,19 +251,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         searchResultsContainer.style.display = 'block';
 
-        results.slice(0, 20).forEach(item => { // Mostra un massimo di 20 risultati
+        results.slice(0, 20).forEach(item => {
             const resultItem = document.createElement('a');
             resultItem.href = item.link; 
             resultItem.className = 'result-item';
             resultItem.innerHTML = `
                 <span class="item-category">${item.category}</span>
-                <span class="item-code">${item.code}</span>
+                <span class="item-code">${item.display_code}</span> 
                 ${item.name}
             `;
             searchResultsContainer.appendChild(resultItem);
         });
     }
-
 
     // =================================================================
     // 4. EVENT LISTENERS E INTEGRAZIONE
