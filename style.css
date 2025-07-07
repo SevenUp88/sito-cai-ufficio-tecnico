@@ -8,109 +8,118 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height
 
 /* Contenitore pulsanti admin header */
 .header-controls { display: flex; align-items: center; gap: 15px; }
+.admin-button { background: none; border: none; color: #0056a8; font-size: 1.8em; cursor: pointer; }
 
-/* Stili specifici per la sezione di login della Home (aggiunti qui per completezza) */
+/* Stili specifici per la sezione di login della Home */
 #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; }
 #login-section h2 { color: #0056a8; margin-bottom: 20px; }
 .form-group { margin-bottom: 15px; width: 100%; }
 .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
 #login-section .form-group input { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-.btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
+.btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
 .btn-login:hover { background-color: #004182; }
 #login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; }
-#user-dashboard { padding: 10px; text-align: right; }
+#user-dashboard { text-align: right; }
 #user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
 #logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
 
 /* Area Contenuto Principale */
-#content-area { padding: 30px 30px 40px; flex-grow: 1; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
+#content-area { padding: 30px; flex-grow: 1; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
 #app-content { display: flex; flex-direction: column; align-items: center; }
 
 /* Stile Messaggio Benvenuto */
-.welcome-message { text-align: center; margin-bottom: 30px; width: 100%; }
+.welcome-message { text-align: center; margin-bottom: 30px; }
 .welcome-message h2 { color: #0056a8; font-size: 2em; margin-bottom: 5px; }
 .welcome-message p { font-size: 1.1em; color: #6c757d; }
 
 /* Navigazione Principale */
-.main-nav { display: flex; flex-wrap: wrap; gap: 15px 20px; justify-content: center; width: 100%; max-width: 900px; margin-bottom: 20px; }
-.nav-button { padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; background-color: #0056a8; color: white; transition: background-color 0.3s ease, transform 0.15s ease, box-shadow 0.3s ease; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-.nav-button i { margin-right: 8px; font-size: 1.1em; }
-.nav-button:hover { background-color: #004182; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
-.nav-button.active { background-color: #003566; }
+.main-nav { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 900px; margin-bottom: 20px; }
+.nav-button { padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; background-color: #0056a8; color: white; transition: all 0.2s ease; display: inline-flex; align-items: center; text-decoration: none; }
+.nav-button i { margin-right: 8px; }
+.nav-button:hover { background-color: #004182; transform: translateY(-2px); }
 
 /* Sottomenu Listini */
-.submenu { background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; max-height: 0; opacity: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; transition: max-height 0.4s ease-out, opacity 0.3s ease-out, padding 0.4s ease-out, margin-bottom 0.4s ease-out; width: auto; max-width: 90%; margin: 0 auto; border: 1px solid #e0e0e0; }
+.submenu { background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; max-height: 0; opacity: 0; display: flex; justify-content: center; gap: 10px; transition: all 0.4s ease-out; margin: 0 auto 0; border: 1px solid #e0e0e0; }
 .submenu.visible { max-height: 150px; opacity: 1; padding: 15px; margin-bottom: 25px; }
-.submenu-button { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; background-color: #e8f0f7; color: #0056a8; transition: background-color 0.3s ease, color 0.3s ease; display: inline-flex; align-items: center; text-decoration: none; }
+.submenu-button { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; background-color: #e8f0f7; color: #0056a8; display: inline-flex; align-items: center; text-decoration: none; }
 .submenu-button i { margin-right: 6px; }
 .submenu-button:hover { background-color: #d71920; color: white; }
 
 /* Ricerca e Risultati */
-#search-container { margin: 25px auto; padding: 0 10px; max-width: 800px; width: 95%; }
+#search-container { margin: 25px auto; max-width: 800px; width: 100%; }
 #search-input { width: 100%; padding: 12px 15px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
 #search-results { margin-top: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
-.result-item { display: block; padding: 12px 15px; border-bottom: 1px solid #eee; color: #333; text-decoration: none; transition: background-color 0.2s; }
+.result-item { display: block; padding: 12px 15px; border-bottom: 1px solid #eee; text-decoration: none; transition: background-color 0.2s; }
 .result-item:hover { background-color: #e9ecef; }
 .result-item:last-child { border-bottom: none; }
 
 /* Popup Generico */
-.admin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); z-index: 1060; min-width: 350px; text-align: center; }
+.admin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1060; }
 .close-panel-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; color: #aaa; cursor: pointer; }
 .admin-popup h3 { margin-top: 0; margin-bottom: 20px; color: #0056a8; }
-.admin-popup .form-group { text-align: left; }
 .admin-popup-buttons.centered { justify-content: center; }
-.feedback-message { font-weight: bold; }
 .feedback-message.success { color: #198754; }
 
-/* Overlay */
-.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; }
-
-/* Classe helper per nascondere */
+/* Overlay e Helper */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1050; }
 .hidden { display: none !important; }
 
-/* ================================================= */
-/* === NUOVO CSS PER IL MODAL A DUE COLONNE === */
-/* ================================================= */
+/* ========================================= */
+/* === CSS PER MODAL A DUE COLONNE (FINALE) === */
+/* ========================================= */
 body.modal-open { overflow: hidden; }
 
 #product-details-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.65);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px; box-sizing: border-box;
-    visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65);
+    z-index: 1050; display: flex; align-items: center; justify-content: center;
+    padding: 20px; box-sizing: border-box; visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
 }
 #product-details-modal-overlay.visible { visibility: visible; opacity: 1; }
 
 .modal-container {
-    background: #ffffff; padding: 25px 30px; border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25); width: 100%;
-    max-width: 900px; height: 85vh; max-height: 650px;
+    background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    width: 100%; max-width: 900px; height: 85vh; max-height: 650px;
     position: relative; display: flex; flex-direction: column;
     transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #product-details-modal-overlay.visible .modal-container { transform: scale(1); }
+
 .modal-header { display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; flex-shrink: 0; }
 #modal-product-logo { height: 40px; width: auto; max-width: 140px; margin-right: 20px; object-fit: contain; }
-.modal-title-group span { font-size: 1.1rem; color: #6c757d; display: block; }
 .modal-title-group h2 { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
-.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; font-weight: 300; color: #888; cursor: pointer; z-index: 10; }
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
 
 .modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
+
+/* Colonna Sinistra (fissa) */
 .modal-left-panel { flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; }
-#modal-product-image { width: 100%; height: 200px; object-fit: contain; border: 1px solid #f0f0f0; border-radius: 6px; margin-bottom: 20px; }
-.modal-main-info { width: 100%; text-align: center; margin-bottom: 15px; }
-.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; margin-bottom: 2px; }
+#modal-product-image { width: 100%; height: 200px; object-fit: contain; border: 1px solid #f0f0f0; border-radius: 6px; margin-bottom: 15px; }
+
+.modal-main-info { width: 100%; text-align: center; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; }
+.modal-main-info div { line-height: 1.4; }
+
+/* Nuova Sezione per le Classi Energetiche */
+.modal-energy-info { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.energy-badge {
+    display: inline-block; width: 28px; height: 28px; line-height: 28px;
+    border-radius: 50%; color: white; text-align: center; font-weight: bold;
+    font-size: 0.85em; margin: 0 2px;
+}
+.energy-badge.cooling { background-color: #0d6efd; }
+.energy-badge.heating { background-color: #dc3545; }
+
 .modal-price-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: center; width: 100%; }
 .modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
-#modal-product-price { font-size: 2.4rem; font-weight: 700; color: #0056a8; display: block; }
-#modal-datasheet-link { display: inline-flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; transition: background-color 0.2s; font-weight: 500; margin-top: 15px; width: 100%; }
+#modal-product-price { font-size: 2.4rem; font-weight: 700; color: #0056a8; }
+#modal-datasheet-link { display: inline-flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; margin-top: 15px; width: 100%; }
 #modal-datasheet-link:hover { background-color: #b82c39; }
 
+/* Colonna Destra (scorrevole) */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding: 5px 15px 5px 5px; border-left: 1px solid #eee; }
 #modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
-#modal-tech-details ul { list-style: none; padding: 0; margin: 0; font-size: 0.95em; }
+#modal-tech-details ul { list-style: none; padding: 0; margin: 0; }
 #modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
-#modal-tech-details li strong { color: #333; flex-shrink: 0; margin-right: 15px; }
-#modal-tech-details li span { color: #555; text-align: right; }
+#modal-tech-details li strong { margin-right: 15px; }
+#modal-tech-details li span { text-align: right; }
