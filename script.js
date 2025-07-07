@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * Versione Finale con gestione MODAL e percorsi immagine corretti.
+ * Versione Finale CORRETTA.
  * Gestisce: Sottomenu, Pannello Admin, Ricerca Globale, Modal Dettagli.
  */
 
@@ -49,14 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. FUNZIONI
     // =================================================================
 
-    // --- Funzioni per la gestione dei Sottomenu e Pannello Admin ---
-    const toggleSubmenu = (button, submenu) => { /* ... codice completo ... */ };
-    const showAddCategoryPanel = () => { /* ... codice completo ... */ };
-    const hideAddCategoryPanel = () => { /* ... codice completo ... */ };
-    const handleAddCategorySubmit = () => { /* ... codice completo ... */ };
-    
-    // Riscrivo qui le funzioni nascoste per completezza
-    toggleSubmenu = (button, submenu) => {
+    // --- Funzioni per la gestione dei Sottomenu ---
+    const toggleSubmenu = (button, submenu) => {
         if (!button || !submenu) return;
         const isCurrentlyVisible = submenu.classList.contains('visible');
         if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
@@ -82,7 +76,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-    showAddCategoryPanel = () => {
+    
+    // --- Funzioni per il pannello "Aggiungi Categoria" ---
+    const showAddCategoryPanel = () => {
         if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.remove('hidden');
         adminOverlay.classList.remove('hidden');
@@ -92,12 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if(addCategoryFeedback) addCategoryFeedback.classList.add('hidden');
         if(categoryNameInput) categoryNameInput.focus();
     };
-    hideAddCategoryPanel = () => {
+    
+    const hideAddCategoryPanel = () => {
          if (!addCategoryPanel || !adminOverlay) return;
         addCategoryPanel.classList.add('hidden');
         adminOverlay.classList.add('hidden');
     };
-    handleAddCategorySubmit = () => {
+    
+    const handleAddCategorySubmit = () => {
         if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav || !addCategoryFeedback) return;
         const name = categoryNameInput.value.trim();
         const path = categoryPathInput.value.trim();
@@ -119,7 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
         categoryNameInput.focus();
     };
 
-
     // --- Funzioni per il Modal dei Dettagli Prodotto ---
     const formatPrice = (price) => {
         if (price === null || price === undefined || price === '') return 'N/D';
@@ -129,22 +126,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const createDetailRowHTML = (label, value, unit = '') => {
         if (value === null || value === undefined || String(value).trim() === '') return '';
-        return `<li><strong>${label}:</strong><span>${String(value).replace(/\./g, ',')}${unit}</span></li>`;
+        // Sostituisce il punto con la virgola solo per i numeri, per non alterare le stringhe
+        const displayValue = typeof value === 'number' ? String(value).replace('.', ',') : value;
+        return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
     };
-
+    
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
         
-        // CORREZIONE DEI PERCORSI IMMAGINE
         const getCorrectedPath = (path, folder) => {
             const defaultPath = `LISTINI/CLIMA/images/${folder}/placeholder.png`;
             if (!path) return defaultPath;
-            if (path.startsWith('http')) return path; // Se è un URL completo
+            if (path.startsWith('http')) return path; 
             if (path.startsWith('../')) {
-                // Trasforma ../images/file.png in LISTINI/CLIMA/images/file.png
                 return `LISTINI/CLIMA/${path.substring(3)}`;
             }
-            return path; // Altrimenti, suppone che il percorso sia già corretto
+            return path;
         };
 
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
@@ -189,20 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible');
     };
 
-
     // --- Funzioni per la Ricerca Globale ---
     const fetchAllSearchableData = async () => {
         if (isDataFetched) return;
         searchInput.disabled = true;
         searchInput.placeholder = 'Caricamento dati...';
         
-        // PERSONALIZZA QUI LE COLLEZIONI DA CERCARE
         const collectionsToFetch = [
             { name: 'prodottiClimaMonosplit', category: 'Monosplit' },
             { name: 'outdoorUnits', category: 'U. Esterna Multi' },
             { name: 'indoorUnits', category: 'U. Interna Multi' },
-            // Esempio per CALDAIE (da decommentare e adattare):
-            // { name: 'prodottiCaldaie', category: 'Caldaie' }, 
         ];
 
         const promises = collectionsToFetch.map(async (col) => {
@@ -264,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. EVENT LISTENERS E FLUSSO PRINCIPALE
     // =================================================================
 
-    // Sottomenu, Pannello Admin, Ricerca
     if (btnListini) btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); });
     if (btnConfiguratori) btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); });
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
@@ -273,7 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
     if (searchInput) searchInput.addEventListener('input', handleSearch);
 
-    // Click su un risultato di ricerca per aprire il MODAL
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener('click', (event) => {
             const resultItem = event.target.closest('.result-item');
@@ -285,13 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 searchResultsContainer.style.display = 'none';
                 searchInput.value = '';
                 searchInput.blur();
-            } else {
-                console.error("Prodotto non trovato con ID:", resultItem.dataset.productId);
             }
         });
     }
     
-    // Chiusura di Popup e Menu
     document.addEventListener('click', (event) => {
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(event.target) && !currentlyOpenSubmenu.btn.contains(event.target)) {
             toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
@@ -301,18 +289,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Chiusura del MODAL
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
     if (detailsModalOverlay) detailsModalOverlay.addEventListener('click', (event) => { if (event.target === detailsModalOverlay) closeModal(); });
     window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && detailsModalOverlay?.classList.contains('visible')) closeModal(); });
 
-    // Observer per avviare il caricamento dati dopo il login
     if (appContent) {
         new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    if (!appContent.classList.contains('hidden')) fetchAllSearchableData();
-                    else {
+                    if (!appContent.classList.contains('hidden')) {
+                        fetchAllSearchableData();
+                    } else {
                         allSearchableData = [];
                         isDataFetched = false;
                         if(searchResultsContainer) searchResultsContainer.innerHTML = '';
