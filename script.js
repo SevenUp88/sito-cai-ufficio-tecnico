@@ -1,12 +1,27 @@
+/*
+ * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
+ * Gestisce:
+ * - Logica dei sottomenu a comparsa
+ * - Pannello amministrativo "Aggiungi Categoria"
+ * - Ricerca globale dei prodotti da tutte le collezioni
+ * - Apertura del modal con i dettagli del prodotto selezionato dalla ricerca
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
+
     // =================================================================
     // 1. SELEZIONE DEGLI ELEMENTI DOM
     // =================================================================
+    
+    // Elementi UI generali
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
     const btnConfiguratori = document.getElementById('btn-configuratori');
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
     const mainNav = document.getElementById('mainNav');
+    const appContent = document.getElementById('app-content');
+    
+    // Elementi per Pannello Admin "Aggiungi Categoria"
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -16,19 +31,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
     const addCategoryFeedback = document.getElementById('add-category-feedback');
     const adminOverlay = document.getElementById('admin-overlay');
-    const appContent = document.getElementById('app-content');
 
-    // Elementi per la nuova funzionalità di ricerca
+    // Elementi per Ricerca e Risultati
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results');
+    
+    // Elementi per il Modal dei Dettagli Prodotto
+    const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
+    const modalProductLogo = document.getElementById('modal-product-logo');
+    const modalProductBrand = document.getElementById('modal-product-brand');
+    const modalProductModel = document.getElementById('modal-product-model');
+    const modalProductImage = document.getElementById('modal-product-image');
+    const modalMainDetailsList = document.getElementById('modal-main-details-list');
+    const modalExtraDetailsList = document.getElementById('modal-extra-details-list');
+    const modalProductPrice = document.getElementById('modal-product-price');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalDatasheetLink = document.getElementById('modal-datasheet-link');
+
     
     // =================================================================
     // 2. VARIABILI DI STATO E CONFIGURAZIONE
     // =================================================================
+    
     const db = firebase.firestore();
-    let allSearchableData = []; // Array che conterrà tutti i dati per la ricerca
+    let allSearchableData = []; // Array che conterrà tutti i dati dei prodotti per la ricerca
     let isDataFetched = false;   // Flag per evitare di ricaricare i dati più volte
     const currentlyOpenSubmenu = { btn: null, menu: null };
+
 
     // =================================================================
     // 3. LOGICA DI BUSINESS (FUNZIONI)
@@ -38,8 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleSubmenu = (button, submenu) => {
         if (!button || !submenu) return;
         const isCurrentlyVisible = submenu.classList.contains('visible');
-
-        // Chiudi qualsiasi altro sottomenu aperto
         if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
             currentlyOpenSubmenu.menu.classList.remove('visible');
             if (currentlyOpenSubmenu.btn) {
@@ -47,8 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentlyOpenSubmenu.btn.classList.remove('active');
             }
         }
-
-        // Apri/Chiudi il sottomenu corrente
         if (!isCurrentlyVisible) {
             submenu.classList.add('visible');
             button.setAttribute('aria-expanded', 'true');
@@ -89,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const name = categoryNameInput.value.trim();
         const path = categoryPathInput.value.trim();
-        const iconClassRaw = categoryIconInput.value.trim() || 'folder'; 
+        const iconClassRaw = categoryIconInput.value.trim() || 'fas fa-folder';
         
         if (!name || !path) {
             addCategoryFeedback.textContent = 'Nome categoria e percorso sono obbligatori!';
@@ -103,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         newLink.className = 'nav-button';
         
         const newIcon = document.createElement('i');
-        newIcon.className = `fas fa-${iconClassRaw}`;
+        newIcon.className = iconClassRaw;
 
         const linkText = document.createTextNode(` ${name}`); 
         newLink.appendChild(newIcon);
@@ -116,153 +141,157 @@ document.addEventListener('DOMContentLoaded', () => {
         addCategoryFeedback.className = 'feedback-message success';
         addCategoryFeedback.classList.remove('hidden');
         
-        setTimeout(() => {
-            addCategoryFeedback.classList.add('hidden');
-        }, 3000);
+        setTimeout(() => addCategoryFeedback.classList.add('hidden'), 3000);
         categoryNameInput.focus();
     };
 
 
-    // --- Funzioni per la Ricerca Globale ---
+    // --- Funzioni per il Modal dei Dettagli Prodotto ---
+    const formatPrice = (price) => {
+        if (price === null || price === undefined || price === '') return 'N/D';
+        const numberPrice = Number(price);
+        if (isNaN(numberPrice)) return 'N/D';
+        return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numberPrice);
+    };
 
-    /**
-     * Carica i dati da tutte le collezioni ricercabili in Firestore.
-     * Questa funzione viene chiamata una sola volta dopo il login.
-     */
-    async function fetchAllSearchableData() {
-        if (isDataFetched) return; 
+    const createDetailRowHTML = (label, value, unit = '') => {
+        if (value === null || value === undefined || String(value).trim() === '') return '';
+        return `<li><strong>${label}:</strong><span>${value}${unit}</span></li>`;
+    };
 
-        console.log("Inizio caricamento dati per la ricerca (v2)...");
-        if (searchInput) {
-            searchInput.disabled = true;
-            searchInput.placeholder = 'Caricamento dati in corso...';
+    const populateAndShowModal = (product) => {
+        if (!product || !detailsModalOverlay) return;
+
+        const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
+        const basePath = 'LISTINI/CLIMA/images/'; 
+
+        modalProductLogo.src = `${basePath}logos/${safeBrandName}.png`;
+        modalProductLogo.onerror = () => { modalProductLogo.src = `${basePath}logos/placeholder_logo.png`; };
+        modalProductLogo.alt = `Logo ${product.marca || 'N/D'}`;
+
+        modalProductBrand.textContent = product.marca || 'N/D';
+        modalProductModel.textContent = product.modello || 'N/D';
+
+        modalProductImage.src = product.image_url || `${basePath}placeholder.png`;
+        modalProductImage.onerror = () => { modalProductImage.src = `${basePath}placeholder.png`; };
+        modalProductImage.alt = `Immagine ${product.modello || 'N/D'}`;
+
+        modalMainDetailsList.innerHTML = [
+            createDetailRowHTML('Potenza', product.potenza),
+            createDetailRowHTML('Classe Raffr.', product.classe_energetica_raffrescamento),
+            createDetailRowHTML('Classe Risc.', product.classe_energetica_riscaldamento),
+            createDetailRowHTML('Codice Prodotto', product.codice_prodotto || product.id)
+        ].join('');
+
+        modalExtraDetailsList.innerHTML = [
+            createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui, ' mm'),
+            createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm'),
+            createDetailRowHTML('Gas Refrigerante', product.gas),
+            createDetailRowHTML('Prezzo Kit', formatPrice(product.prezzo_kit))
+        ].join('');
+
+        modalProductPrice.textContent = formatPrice(product.prezzo);
+
+        if (product.scheda_tecnica_url) {
+            modalDatasheetLink.href = product.scheda_tecnica_url;
+            modalDatasheetLink.classList.remove('hidden');
+        } else {
+            modalDatasheetLink.classList.add('hidden');
         }
+
+        document.body.classList.add('modal-open');
+        detailsModalOverlay.classList.add('visible');
+    };
+
+    const closeModal = () => {
+        document.body.classList.remove('modal-open');
+        if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible');
+    };
+
+
+    // --- Funzioni per la Ricerca Globale ---
+    const fetchAllSearchableData = async () => {
+        if (isDataFetched) return;
+        searchInput.disabled = true;
+        searchInput.placeholder = 'Caricamento dati...';
         
-       const collectionsToFetch = [
-            // 1. Monosplit - Cerca in un campo, ne mostra un altro
-            { 
-                name: 'prodottiClimaMonosplit', 
-                category: 'Monosplit',       
-                fields: { 
-                    search_on: ['codice_prodotto'],         // In quale/i campo/i cercare
-                    display_code: 'codice_prodotto',        // Quale campo mostrare come codice
-                    name_parts: ['marca', 'modello', 'potenza'] 
-                }, 
-                link: 'LISTINI/CLIMA/monosplit/index.html' 
-            },
-
-            // 2. Unità Esterne (CONFIGURAZIONE DA ADATTARE)
-            {
-                name: 'outdoorUnits',
-                category: 'U. Esterna Multi',
-                fields: {
-                    search_on: ['codice_prodotto'], // <-- VERIFICA QUESTO CAMPO!
-                    display_code: 'codice_prodotto',
-                    name_parts: ['marca', 'modello', 'potenza'] // <-- VERIFICA QUESTI CAMPI!
-                },
-                link: 'LISTINI/CLIMA/multisplit/index.html'
-            },
-
-            // 3. Unità Interne (CONFIGURAZIONE DA ADATTARE)
-            {
-                name: 'indoorUnits',
-                category: 'U. Interna Multi',
-                fields: {
-                    search_on: ['codice_prodotto'], // <-- VERIFICA QUESTO CAMPO!
-                    display_code: 'codice_prodotto', 
-                    name_parts: ['marca', 'modello', 'potenza'] // <-- VERIFICA QUESTI CAMPI!
-                },
-                link: 'LISTINI/CLIMA/multisplit/index.html'
-            }
+        const collectionsToFetch = [
+            { name: 'prodottiClimaMonosplit', category: 'Monosplit' },
+            { name: 'outdoorUnits', category: 'U. Esterna Multi' },
+            { name: 'indoorUnits', category: 'U. Interna Multi' },
+            // Aggiungi qui altre collezioni se vuoi renderle ricercabili, es:
+            // { name: 'listino-caldaie', category: 'Caldaie' },
+            // { name: 'listino-sanitari', category: 'Sanitari' }
         ];
 
         const promises = collectionsToFetch.map(async (col) => {
             try {
                 const snapshot = await db.collection(col.name).get();
-                if (snapshot.empty) return [];
-
-                return snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    
-                    // Costruisce la descrizione
-                    const description = (col.fields.name_parts || [])
-                        .map(part => data[part] || '').filter(Boolean).join(' ');
-                    
-                    // Prende il codice da mostrare
-                    const displayCode = data[col.fields.display_code] || '';
-
-                    // Prende tutti i campi in cui cercare
-                    const searchFields = (col.fields.search_on || []).map(field => data[field] || '').filter(Boolean);
-
-                    // Restituisce un oggetto più ricco per la ricerca
-                    return {
-                        display_code: displayCode,
-                        name: description,
-                        category: col.category,
-                        link: col.link,
-                        searchable_strings: [description, ...searchFields] // Array unico di stringhe su cui cercare
-                    };
-                });
+                return snapshot.docs.map(doc => ({
+                    ...doc.data(),
+                    id: doc.id,
+                    category: col.category
+                }));
             } catch (error) {
-                console.error(`Errore durante la lettura della collezione ${col.name}:`, error);
+                console.error(`Errore nel caricamento della collezione ${col.name}:`, error);
                 return [];
             }
         });
 
         const results = await Promise.all(promises);
-        allSearchableData = results.flat().filter(item => item.display_code || item.name);
+        allSearchableData = results.flat();
         isDataFetched = true;
-        console.log(`Caricamento completato. Articoli indicizzati: ${allSearchableData.length}`);
-        
-        if(searchInput) {
-            searchInput.disabled = false;
-            searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
-        }
-    }
-    function handleSearch() {
+        console.log(`Caricamento completato. ${allSearchableData.length} articoli totali indicizzati.`);
+        searchInput.disabled = false;
+        searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
+    };
+
+    const handleSearch = () => {
         if (!searchInput) return;
         const query = searchInput.value.toLowerCase().trim();
-
         if (query.length < 2) {
             displayResults([]);
             return;
         }
         
-        // Nuova logica di filtro più precisa
-        const filteredResults = allSearchableData.filter(item => 
-            item.searchable_strings.some(text => text.toLowerCase().includes(query))
-        );
+        const filteredResults = allSearchableData.filter(item => {
+            const codeMatch = item.codice_prodotto ? item.codice_prodotto.toLowerCase().includes(query) : false;
+            const modelMatch = item.modello ? item.modello.toLowerCase().includes(query) : false;
+            const brandMatch = item.marca ? item.marca.toLowerCase().includes(query) : false;
+            const idMatch = item.id ? item.id.toLowerCase().includes(query) : false;
+            return codeMatch || modelMatch || brandMatch || idMatch;
+        });
 
         displayResults(filteredResults);
-    }
-
-    /**
-     * Mostra i risultati filtrati nel contenitore HTML.
-     * @param {Array} results - L'array di oggetti risultato da mostrare.
-     */
-    function displayResults(results) {
+    };
+    
+    const displayResults = (results) => {
         if (!searchResultsContainer) return;
         searchResultsContainer.innerHTML = '';
-
         if (results.length === 0) {
             searchResultsContainer.style.display = 'none';
             return;
         }
-
+        
         searchResultsContainer.style.display = 'block';
 
         results.slice(0, 20).forEach(item => {
             const resultItem = document.createElement('a');
-            resultItem.href = item.link; 
+            resultItem.href = "javascript:void(0);";
             resultItem.className = 'result-item';
+            resultItem.setAttribute('data-product-id', item.id);
+            
+            const name = [item.marca, item.modello, item.potenza].filter(Boolean).join(' ');
+            
             resultItem.innerHTML = `
                 <span class="item-category">${item.category}</span>
-                <span class="item-code">${item.display_code}</span> 
-                ${item.name}
+                <span class="item-code">${item.codice_prodotto || item.id}</span>
+                ${name || 'Dettagli non disponibili'}
             `;
             searchResultsContainer.appendChild(resultItem);
         });
-    }
+    };
+
 
     // =================================================================
     // 4. EVENT LISTENERS E INTEGRAZIONE
@@ -278,35 +307,64 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
 
-    // --- Listeners per la Ricerca ---
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
+    // --- Listener per la barra di ricerca ---
+    if (searchInput) searchInput.addEventListener('input', handleSearch);
+
+    // --- Listener per aprire il MODAL al click su un risultato della ricerca ---
+    if (searchResultsContainer) {
+        searchResultsContainer.addEventListener('click', (event) => {
+            const resultItem = event.target.closest('.result-item');
+            if (!resultItem) return;
+
+            event.preventDefault();
+            const productId = resultItem.getAttribute('data-product-id');
+            const product = allSearchableData.find(p => p.id === productId);
+
+            if (product) {
+                populateAndShowModal(product);
+                searchResultsContainer.style.display = 'none';
+                searchInput.value = '';
+                searchInput.blur();
+            } else {
+                console.error("Prodotto non trovato con ID:", productId);
+                alert("Si è verificato un errore, il prodotto non è stato trovato.");
+            }
+        });
     }
     
-    // --- Listener Globale per chiudere popup/menu ---
+    // --- Listener Globale per chiudere popup e menu ---
     document.addEventListener('click', (event) => {
-        // Chiudi sottomenu se si clicca fuori
+        // Chiudi sottomenu
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(event.target) && !currentlyOpenSubmenu.btn.contains(event.target)) {
             toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
         }
-        // Chiudi risultati ricerca se si clicca fuori
+        // Chiudi risultati ricerca
         if (searchResultsContainer && !searchResultsContainer.contains(event.target) && event.target !== searchInput) {
             searchResultsContainer.style.display = 'none';
         }
     });
+    
+    // --- Listeners per la chiusura del MODAL ---
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if (detailsModalOverlay) {
+        detailsModalOverlay.addEventListener('click', (event) => {
+            if (event.target === detailsModalOverlay) closeModal();
+        });
+    }
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && detailsModalOverlay && detailsModalOverlay.classList.contains('visible')) {
+            closeModal();
+        }
+    });
 
-    // --- Observer per attivare la ricerca dopo il login ---
-    // Questo observer "ascolta" quando l'area principale dell'app (#app-content) diventa visibile.
-    // È il modo più pulito per avviare il caricamento dei dati senza dover modificare auth.js.
+    // --- Observer per avviare il tutto dopo il login ---
     if (appContent) {
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    // Se la classe 'hidden' viene rimossa -> l'utente ha fatto il login
                     if (!appContent.classList.contains('hidden')) {
                         fetchAllSearchableData();
                     } else {
-                        // Se la classe 'hidden' viene aggiunta -> l'utente ha fatto logout
                         allSearchableData = [];
                         isDataFetched = false;
                         if(searchResultsContainer) searchResultsContainer.style.display = 'none';
@@ -315,9 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
-        // Avvia l'osservazione delle modifiche agli attributi di #app-content
         observer.observe(appContent, { attributes: true });
     }
-
-}); // Fine DOMContentLoaded
+});
