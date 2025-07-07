@@ -132,8 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchAllSearchableData() {
         if (isDataFetched) return; 
 
-        console.log("------------------- INIZIO DEBUG RICERCA -------------------");
-        console.log("1. Funzione fetchAllSearchableData() avviata.");
+        console.log("Inizio caricamento dati per la ricerca...");
         
         if (searchInput) {
             searchInput.disabled = true;
@@ -141,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
        const collectionsToFetch = [
-            // 1. Monosplit (già testato e funzionante)
+            // 1. Monosplit
             { 
                 name: 'prodottiClimaMonosplit', 
                 category: 'Monosplit',       
@@ -157,9 +156,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: 'outdoorUnits',
                 category: 'U. Esterna Multi',
                 fields: {
-                    // ATTENZIONE: devi verificare i nomi dei campi reali
-                    code: 'codice_prodotto', // o 'model_code'?
-                    name_parts: ['brand', 'series', 'connections', 'btu'] // Esempio, da adattare
+                    // VERIFICA QUESTI CAMPI REALI SU FIRESTORE!
+                    code: 'codice_prodotto', 
+                    name_parts: ['brand', 'series', 'connections', 'btu'] 
                 },
                 link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
             },
@@ -169,58 +168,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: 'indoorUnits',
                 category: 'U. Interna Multi',
                 fields: {
-                    // ATTENZIONE: devi verificare i nomi dei campi reali
-                    code: 'codice_prodotto', // o 'model_code'?
-                    name_parts: ['brand', 'series', 'type', 'btu'] // Esempio, da adattare
+                    // VERIFICA QUESTI CAMPI REALI SU FIRESTORE!
+                    code: 'codice_prodotto', 
+                    name_parts: ['brand', 'series', 'type', 'btu']
                 },
                 link: 'LISTINI/CLIMA/multisplit/index.html' // Modifica il link se necessario
             }
-
-        
-        console.log("2. Configurazione di ricerca:", collectionsToFetch);
+        ]; // <-- Parentesi di chiusura CORRETTA
 
         const promises = collectionsToFetch.map(async (col) => {
             try {
-                console.log(`3. Tentativo di leggere la collezione: "${col.name}"`);
                 const snapshot = await db.collection(col.name).get();
-                
-                // --- LOG AGGIUNTIVO FONDAMENTALE ---
-                console.log(`4. Lettura della collezione "${col.name}" riuscita.`);
-                console.log(`   - Numero di documenti trovati: ${snapshot.size}`);
                 if (snapshot.empty) {
-                    console.warn(`   - ATTENZIONE: La collezione "${col.name}" è vuota o la query non ha prodotto risultati.`);
+                    console.log(`Collezione "${col.name}" è vuota o non trovata.`);
+                    return [];
                 }
-                // --- FINE LOG AGGIUNTIVO ---
 
-                return snapshot.docs.map((doc, index) => {
+                return snapshot.docs.map(doc => {
                     const data = doc.data();
                     
-                    // --- LOG PER OGNI DOCUMENTO ---
-                    if (index === 0) { // Logghiamo solo il primo documento per non intasare la console
-                       console.log(`5. Analisi del primo documento (ID: ${doc.id}):`, data);
-                    }
-                    // --- FINE LOG ---
-
                     let description = '';
                     if (col.fields.name_parts) {
                         description = col.fields.name_parts
-                            .map(part => {
-                                const value = data[part] || '';
-                                if (index === 0) { // Logghiamo il processo solo per il primo documento
-                                    console.log(`   - Estraggo la parte "${part}": "${value}"`);
-                                }
-                                return value;
-                            })
+                            .map(part => data[part] || '')
                             .filter(part => part)
                             .join(' ');
+                    } else if (col.fields.name) {
+                        description = data[col.fields.name] || '';
                     }
                     
                     const codeValue = data[col.fields.code] || '';
-                    if (index === 0) {
-                        console.log(`   - Estraggo il codice dal campo "${col.fields.code}": "${codeValue}"`);
-                        console.log(`   - Descrizione finale costruita: "${description}"`);
-                    }
-
+                    
                     return {
                         code: codeValue,
                         name: description,
@@ -229,24 +207,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 });
             } catch (error) {
-                console.error(`ERRORE FATALE durante la lettura della collezione ${col.name}:`, error);
+                console.error(`Errore durante la lettura della collezione ${col.name}:`, error);
                 return [];
             }
         });
 
         const results = await Promise.all(promises);
-        allSearchableData = results.flat();
+        const validResults = results.flat().filter(item => item.code || item.name);
+        allSearchableData = validResults;
+        
         isDataFetched = true;
         
-        console.log(`6. Caricamento completato. Articoli totali indicizzati: ${allSearchableData.length}`);
-        console.log("------------------- FINE DEBUG RICERCA -------------------");
+        console.log(`Caricamento completato. Articoli totali indicizzati: ${allSearchableData.length}`);
         
         if(searchInput) {
             searchInput.disabled = false;
             searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
         }
     }
-
     /**
      * Filtra i dati in memoria e chiama la funzione per visualizzarli.
      */
