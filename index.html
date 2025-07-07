@@ -4,130 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Gestione Ufficio Tecnico - Home</title>
-    <link rel="stylesheet" href="style.css"> <!-- Il tuo style.css generale della Home -->
+    <link rel="stylesheet" href="style.css"> <!-- Riferimento al tuo CSS esterno -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        /* === Stili base (tuoi stili esistenti) === */
-        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; }
-        #login-section h2 { color: #0056a8; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; width: 100%; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input { width: calc(100% - 22px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; transition: background-color 0.3s; }
-        .btn-login:hover { background-color: #004182; }
-        #login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; }
-        #user-dashboard { padding: 10px; text-align: right; }
-        #user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
-        #logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
-        .hidden { display: none !important; }
-
-        /* === Stili ricerca (tuoi stili esistenti) === */
-        #search-container { margin: 25px auto; padding: 0 10px; max-width: 800px; width: 95%; }
-        #search-input { width: 100%; padding: 12px 15px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
-        #search-results { margin-top: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
-        .result-item { display: block; padding: 12px 15px; border-bottom: 1px solid #eee; color: #333; text-decoration: none; transition: background-color 0.2s; }
-        .result-item:hover { background-color: #e9ecef; }
-        .result-item:last-child { border-bottom: none; }
-        .result-item .item-code { float: right; font-weight: bold; }
-        .result-item .item-category { float: right; font-size: 0.8em; color: #6c757d; background-color: #f1f1f1; padding: 3px 8px; border-radius: 10px; }
-        
-        /* ================================================= */
-        /* === NUOVO CSS PER IL MODAL A DUE COLONNE === */
-        /* ================================================= */
-        body.modal-open { overflow: hidden; }
-
-        #product-details-modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.65); z-index: 1050;
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px; box-sizing: border-box;
-            visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
-        }
-        #product-details-modal-overlay.visible { visibility: visible; opacity: 1; }
-
-        .modal-container {
-            background: #ffffff; padding: 25px 30px; border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25); width: 100%;
-            max-width: 900px; height: 80vh; max-height: 650px;
-            position: relative; display: flex; flex-direction: column;
-            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        #product-details-modal-overlay.visible .modal-container { transform: scale(1); }
-        
-        .modal-close-btn {
-            position: absolute; top: 10px; right: 15px; background: transparent; border: none;
-            font-size: 2.2rem; font-weight: 300; color: #888; cursor: pointer; line-height: 1; z-index: 10;
-        }
-        .modal-header {
-            display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 20px;
-            border-bottom: 1px solid #e9e9e9; flex-shrink: 0;
-        }
-        #modal-product-logo { height: 40px; width: auto; max-width: 140px; margin-right: 20px; object-fit: contain; }
-        #modal-product-brand { font-size: 1.1rem; color: #6c757d; display: block; }
-        #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
-
-        .modal-body-split {
-            display: flex;
-            gap: 30px;
-            flex-grow: 1; /* Occupa tutto lo spazio rimanente */
-            overflow: hidden; /* Nasconde lo scroll del contenitore principale */
-        }
-
-        /* --- Colonna Sinistra (fissa) --- */
-        .modal-left-panel {
-            flex: 0 0 300px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #modal-product-image {
-            width: 100%; height: 200px; object-fit: contain;
-            border: 1px solid #f0f0f0; border-radius: 6px; margin-bottom: 20px;
-        }
-        .modal-main-info {
-            width: 100%; font-size: 0.95em; color: #495057; text-align: center;
-            margin-bottom: 15px;
-        }
-        #modal-product-power { font-weight: 600; font-size: 1.05em; }
-        #modal-product-code { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
-
-        .modal-price-container {
-            margin-top: auto; /* Spinge il prezzo e il bottone in basso */
-            padding-top: 15px; border-top: 1px solid #eee;
-            text-align: center; width: 100%;
-        }
-        .modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
-        #modal-product-price { font-size: 2.4rem; font-weight: 700; color: #0056a8; display: block; }
-        
-        #modal-datasheet-link {
-            display: inline-flex; align-items: center; justify-content: center;
-            background-color: #dc3545; color: white;
-            padding: 12px 25px; text-decoration: none; border-radius: 5px;
-            transition: background-color 0.2s; font-weight: 500;
-            margin-top: 15px; width: 100%;
-        }
-        #modal-datasheet-link i { margin-right: 8px; }
-        #modal-datasheet-link:hover { background-color: #b82c39; }
-        #modal-datasheet-link.hidden { display: none !important; }
-
-        /* --- Colonna Destra (scorrevole) --- */
-        .modal-right-panel {
-            flex-grow: 1;
-            overflow-y: auto; /* Abilita lo scroll VERTICALE solo qui */
-            padding: 5px 15px 5px 5px;
-        }
-        #modal-tech-details h3 {
-            font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0;
-            padding-bottom: 5px; border-bottom: 2px solid #e0e0e0;
-        }
-        #modal-tech-details h3:first-child { margin-top: 0; }
-        
-        #modal-tech-details ul { list-style: none; padding: 0; margin: 0; font-size: 0.95em; }
-        #modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
-        #modal-tech-details li strong { color: #333; flex-shrink: 0; margin-right: 15px; }
-        #modal-tech-details li span { color: #555; text-align: right; }
-
-    </style>
 </head>
 <body>
 
@@ -198,13 +76,10 @@
         </div>
         <div id="admin-overlay" class="overlay hidden"></div>
 
-        <!-- ========================================================== -->
-        <!-- === NUOVO LAYOUT HTML PER IL MODAL === -->
-        <!-- ========================================================== -->
+        <!-- === LAYOUT HTML MODAL A DUE COLONNE === -->
         <div id="product-details-modal-overlay">
             <div class="modal-container">
                 <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra">×</button>
-                
                 <div class="modal-header">
                     <img id="modal-product-logo" src="" alt="Logo marca">
                     <div class="modal-title-group">
@@ -212,7 +87,6 @@
                         <h2 id="modal-product-model" class="modal-model-text">Modello</h2>
                     </div>
                 </div>
-        
                 <div class="modal-body-split">
                     <!-- COLONNA SINISTRA (FISSA) -->
                     <div class="modal-left-panel">
@@ -229,11 +103,10 @@
                             <i class="fas fa-file-pdf"></i> Scheda Tecnica
                         </a>
                     </div>
-
                     <!-- COLONNA DESTRA (SCORREVOLE) -->
                     <div class="modal-right-panel">
                         <div id="modal-tech-details">
-                            <!-- Dettagli tecnici verranno inseriti qui da JS -->
+                            <!-- I dettagli tecnici verranno inseriti qui da JS -->
                         </div>
                     </div>
                 </div>
