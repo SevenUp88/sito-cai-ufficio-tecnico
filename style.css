@@ -333,13 +333,14 @@ body.modal-open {
 
 .modal-container {
     background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    width: 100%; max-width: 900px; height: auto; max-height: 90vh; /* Reso più flessibile in altezza */
+    width: 100%; max-width: 900px; height: auto; max-height: 90vh;
     position: relative; display: flex; flex-direction: column;
     transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #product-details-modal-overlay.visible .modal-container { 
     transform: scale(1); 
 }
+
 .modal-header { 
     display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 20px; 
     border-bottom: 1px solid #e9e9e9; flex-shrink: 0; 
@@ -347,111 +348,58 @@ body.modal-open {
 #modal-product-logo { 
     height: 40px; width: auto; max-width: 140px; margin-right: 20px; object-fit: contain; 
 }
-.modal-title-group #modal-product-brand { 
-    font-size: 1.1rem; color: #6c757d; display: block; 
-}
-.modal-title-group #modal-product-model { 
-    font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; 
-}
-.modal-close-btn { 
-    position: absolute; top: 10px; right: 15px; background: transparent; 
-    border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; 
-}
+.modal-title-group #modal-product-brand { font-size: 1.1rem; color: #6c757d; display: block; }
+.modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
 
-.modal-body-split { 
-    display: flex; gap: 30px; flex-grow: 1; overflow: hidden; 
-}
+.modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
 /* Colonna Sinistra (fissa) */
-.modal-left-panel { 
-    flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; 
-}
+.modal-left-panel { flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; }
+
+/* 6. CORREZIONE BORDO IMMAGINE */
 #modal-product-image { 
     width: 100%; height: 180px; object-fit: contain; 
-    border: none;  /* <-- BORDO RIMOSSO */
+    border: none;  /* Bordo rimosso */
     margin-bottom: 15px; 
 }
 
 .modal-main-info { 
     width: 100%; text-align: center; margin-bottom: 15px;
-    display: flex; flex-direction: column; gap: 10px; position: relative; /* Aggiunto relative per l'icona */
+    display: flex; flex-direction: column; gap: 10px; position: relative;
 }
+.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; margin-bottom: 2px; text-transform: uppercase; }
+.modal-main-info div { line-height: 1.4; }
 
-/* NUOVO: Stile per l'icona Wi-Fi */
 #modal-wifi-icon {
-    position: absolute;
-    top: 0;
-    right: 5px;
-    font-size: 1.5em;
-    color: #0d6efd; /* Blu acceso */
-    display: none; /* Nascosto di default */
-}
-.modal-main-info strong { 
-    display: block; font-size: 0.8em; color: #6c757d; margin-bottom: 2px; text-transform: uppercase; 
-}
-.modal-main-info div { 
-    line-height: 1.4; 
+    position: absolute; top: 0; right: 5px; font-size: 1.5em; color: #0d6efd; display: none;
 }
 
-/* Stili Bollini Energetici - CORRETTI */
-.modal-energy-info { 
-    display: flex; flex-direction: column; align-items: center; gap: 5px; 
-}
+/* 3. CORREZIONE BOLLINI ENERGETICI */
+.modal-energy-info { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .energy-badge {
     display: inline-block;
-    width: 38px;  /* AUMENTATO */
-    height: 38px; /* AUMENTATO */
-    line-height: 38px; /* AUMENTATO */
-    border-radius: 50%;
-    color: white; text-align: center; font-weight: bold;
-    font-size: 0.8em; /* AUMENTATO */
-    margin: 0 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    width: 34px; height: 34px; line-height: 34px; border-radius: 50%;
+    color: white; text-align: center; font-weight: bold; font-size: 0.9em;
+    margin: 0 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .energy-badge.cooling { background-color: #0d6efd; }
 .energy-badge.heating { background-color: #dc3545; }
 
-.modal-price-container { 
-    margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; 
-    text-align: center; width: 100%; 
-}
-.modal-price-container span:first-child { 
-    font-size: 1rem; color: #6c757d; 
-}
-#modal-product-price { 
-    font-size: 2.0rem; /* DIMINUITO */
-    font-weight: 700; color: #0056a8; 
-}
-#modal-datasheet-link {
-    display: flex; /* CAMBIATO PER UNA MIGLIORE RESA */
-    align-items: center; justify-content: center; background-color: #dc3545; color: white;
-    padding: 10px 20px; text-decoration: none; border-radius: 5px; 
-    margin-top: 10px; width: 100%;
-}
-#modal-datasheet-link:hover { 
-    background-color: #b82c39; 
-}
+.modal-price-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: center; width: 100%; }
+.modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
+/* 2. CORREZIONE GRANDEZZA PREZZO */
+#modal-product-price { font-size: 2.2rem; font-weight: 700; color: #0056a8; }
+/* 4. CORREZIONE BOTTONE SCHEDA TECNICA */
+#modal-datasheet-link { display: flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; width: 100%; }
+#modal-datasheet-link:hover { background-color: #b82c39; }
+#modal-datasheet-link i { margin-right: 8px; }
 
 /* Colonna Destra (scorrevole) */
-.modal-right-panel { 
-    flex-grow: 1; overflow-y: auto; padding: 5px 15px 5px 5px; border-left: 1px solid #eee; 
-}
-#modal-tech-details h3 { 
-    font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; 
-    padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; 
-}
-#modal-tech-details h3:first-child { 
-    margin-top: 0; 
-}
-#modal-tech-details ul { 
-    list-style: none; padding: 0; margin: 0; 
-}
-#modal-tech-details li { 
-    display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; 
-}
-#modal-tech-details li strong { 
-    margin-right: 15px; 
-}
-#modal-tech-details li span { 
-    text-align: right; 
-}
+.modal-right-panel { flex-grow: 1; overflow-y: auto; padding: 0 15px 5px 5px; border-left: 1px solid #eee; }
+#modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
+#modal-tech-details h3:first-child { margin-top: 0; }
+#modal-tech-details ul { list-style: none; padding: 0; margin: 0; }
+#modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
+#modal-tech-details li strong { margin-right: 15px; }
+#modal-tech-details li span { text-align: right; }
