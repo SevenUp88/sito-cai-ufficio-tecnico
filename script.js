@@ -70,8 +70,21 @@ document.addEventListener('DOMContentLoaded', () => {
         mainNav.appendChild(link);
     };
     const formatPrice = (price) => !isNaN(Number(price)) && String(price).trim() !== '' ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(price)) : 'N/D';
-    const createDetailRowHTML = (label, value, unit = '') => value != null && String(value).trim() !== '' ? `<li><strong>${label}:</strong><span>${String(value).replace(/\./g, ',')}${unit}</span></li>` : '';
-    const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : (path || 'LISTINI/CLIMA/images/placeholder.png');
+const createDetailRowHTML = (label, value, unit = '') => {
+        if (value == null || String(value).trim() === '') return '';
+        
+        let displayValue;
+        // Controlla se il valore è un numero
+        if (!isNaN(parseFloat(value)) && isFinite(value)) {
+            // Se è un numero, lo formatta a 2 decimali e usa la virgola
+            displayValue = Number(value).toFixed(2).replace('.', ',');
+        } else {
+            // Altrimenti, lo lascia così com'è (per stringhe, ecc.)
+            displayValue = value;
+        }
+        
+        return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
+    };    const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : (path || 'LISTINI/CLIMA/images/placeholder.png');
     const closeModal = () => { document.body.classList.remove('modal-open'); if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible'); };
     
     // ======== Funzione populateAndShowModal AGGIORNATA ========
