@@ -92,66 +92,73 @@ const createDetailRowHTML = (label, value, unit = '') => {
         if (!product || !detailsModalOverlay) return;
         const config = product.config;
         
+        // Cerca l'immagine nel modo più robusto possibile
         let imageUrl = product.image_url;
         if (!imageUrl && product.modello) {
             const productWithImage = allSearchableData.find(p => p.modello === product.modello && p.image_url);
             if (productWithImage) imageUrl = productWithImage.image_url;
         }
-
+        
+        // --- Popolamento Header ---
         const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
-        const logoPath = `../images/logos/${safeBrandName}.png`; // Creiamo il percorso standard
-        
-        // Header
-        modalProductLogo.src = getCorrectedPath(logoPath); // Applichiamo la correzione del percorso
+        const logoPath = `../images/logos/${safeBrandName}.png`;
+        modalProductLogo.src = getCorrectedPath(logoPath);
         modalProductLogo.onerror = () => { modalProductLogo.src = 'LISTINI/CLIMA/images/logos/placeholder_logo.png'; };
-        
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
         
-        // Colonna Sinistra
-        modalProductImage.src = getCorrectedPath(imageUrl);
-        modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
-
+        // --- Popolamento Colonna Sinistra ---
         const modalPower = document.getElementById('modal-product-power');
         const modalEnergyInfo = document.querySelector('.modal-energy-info');
         const modalEnergyCooling = document.getElementById('modal-energy-cooling');
         const modalEnergyHeating = document.getElementById('modal-energy-heating');
         const modalCode = document.getElementById('modal-product-code');
 
+        modalProductImage.src = getCorrectedPath(imageUrl);
         if(modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${product.potenza || ''}`;
-        if (modalEnergyInfo && modalEnergyCooling && modalEnergyHeating) {
-            const coolingClass = product.classe_energetica_raffrescamento;
-            const heatingClass = product.classe_energetica_riscaldamento;
-            if(coolingClass || heatingClass) {
-                modalEnergyInfo.style.display = 'flex';
-                modalEnergyCooling.textContent = coolingClass || '-';
-                modalEnergyHeating.textContent = heatingClass || '-';
-            } else {
-                modalEnergyInfo.style.display = 'none';
-            }
+
+        // NUOVA LOGICA: Mostra i bollini energetici SOLO se esistono nel documento
+        const coolingClass = product.classe_energetica_raffrescamento;
+        const heatingClass = product.classe_energetica_riscaldamento;
+        if (modalEnergyInfo && (coolingClass || heatingClass)) {
+            modalEnergyInfo.style.display = 'flex';
+            modalEnergyCooling.textContent = coolingClass || '-';
+            modalEnergyHeating.textContent = heatingClass || '-';
+        } else if (modalEnergyInfo) {
+            modalEnergyInfo.style.display = 'none';
         }
+
         if(modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product[config.code_field] || ''}`;
-        
         modalProductPrice.textContent = formatPrice(product[config.price_field]);
         modalDatasheetLink.classList.toggle('hidden', !product.scheda_tecnica_url);
         if (product.scheda_tecnica_url) modalDatasheetLink.href = product.scheda_tecnica_url;
 
-        // Colonna Destra
+        // --- Popolamento Colonna Destra (Dati Tecnici) ---
         const modalTechDetails = document.getElementById('modal-tech-details');
-        const techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${[
-            createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore),
-            createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm'),
-            createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm'),
-            createDetailRowHTML('Peso UI', product.peso_ui, ' kg'),
-            createDetailRowHTML('Peso UE', product.peso_ue, ' kg')
-        ].join('')}</ul>
-        <h3>Dettagli Energetici</h3><ul>${[
-            createDetailRowHTML('Gas Refrigerante', product.gas),
-            createDetailRowHTML('Contenuto Gas', product.quantita_gas, ' kg'),
-            createDetailRowHTML('EER', product.eer),
-            createDetailRowHTML('COP', product.cop)
-        ].join('')}</ul>`;
-        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML;
+        
+        // Costruiamo le sezioni separate
+        const techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>
+            ${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}
+            ${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm')}
+            ${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}
+            ${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}
+            ${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}
+        </ul>`;
+        
+        // NUOVA LOGICA: Aggiungi i dettagli energetici solo se esistono
+        const energyDetailsHTML = `<h3>Dettagli Energetici</h3><ul>
+            ${createDetailRowHTML('Gas Refrigerante', product.gas)}
+            ${createDetailRowHTML('Contenuto Gas', product.quantita_gas, ' kg')}
+            ${createDetailRowHTML('EER', product.eer)}
+            ${createDetailRowHTML('COP', product.cop)}
+        </ul>`;
+        
+        // Se almeno un valore energetico (escluso il gas) esiste, mostra la sezione
+        if (product.eer || product.cop || product.quantita_gas) {
+            modalTechDetails.innerHTML = techDetailsHTML + energyDetailsHTML;
+        } else {
+            modalTechDetails.innerHTML = techDetailsHTML;
+        }
         
         // Mostra il modal
         document.body.classList.add('modal-open');
