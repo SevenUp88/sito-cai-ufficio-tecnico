@@ -407,7 +407,7 @@ body.modal-open {
     font-size: 1rem; color: #6c757d; 
 }
 #modal-product-price { 
-    font-size: 2.2rem; /* DIMINUITO */
+    font-size: 2.0rem; /* DIMINUITO */
     font-weight: 700; color: #0056a8; 
 }
 #modal-datasheet-link {
