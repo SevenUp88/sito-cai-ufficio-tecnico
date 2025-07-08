@@ -387,9 +387,9 @@ body.modal-open {
 }
 .energy-badge {
     display: inline-block;
-    width: 32px;  /* AUMENTATO */
-    height: 32px; /* AUMENTATO */
-    line-height: 32px; /* AUMENTATO */
+    width: 34px;  /* AUMENTATO */
+    height: 34px; /* AUMENTATO */
+    line-height: 34px; /* AUMENTATO */
     border-radius: 50%;
     color: white; text-align: center; font-weight: bold;
     font-size: 0.9em; /* AUMENTATO */
