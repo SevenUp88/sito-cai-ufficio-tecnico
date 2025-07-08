@@ -387,13 +387,13 @@ body.modal-open {
 }
 .energy-badge {
     display: inline-block;
-    width: 36px;  /* AUMENTATO */
-    height: 36px; /* AUMENTATO */
-    line-height: 36px; /* AUMENTATO */
+    width: 38px;  /* AUMENTATO */
+    height: 38px; /* AUMENTATO */
+    line-height: 38px; /* AUMENTATO */
     border-radius: 50%;
     color: white; text-align: center; font-weight: bold;
     font-size: 0.8em; /* AUMENTATO */
-    margin: 0 3px;
+    margin: 0 4px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .energy-badge.cooling { background-color: #0d6efd; }
