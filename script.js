@@ -1,6 +1,7 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
  * VERSIONE MIGLIORATA: codice riformattato, più leggibile, robusto e manutenibile.
+ * Correzione specifica per la visualizzazione di tutti i dati dalla modale.
  */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -188,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const modelName = product.modello || product.nome_modello_ue || product.nome || 'N/D';
         const powerValue = typeof product.potenza === 'number' ? `${product.potenza.toFixed(1).replace('.',',')} kW` : product.potenza;
         
-        // Cerca un'immagine se non è presente
         let imageUrl = product.image_url;
         if (!imageUrl && modelName !== 'N/D') {
             const productWithImage = allSearchableData.find(item => (item.modello === modelName || item.nome_modello_ue === modelName) && item.image_url);
@@ -205,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
 
-        // Gestione classi energetiche
         const coolingClass = product.classe_energetica_raffrescamento;
         const heatingClass = product.classe_energetica_riscaldamento;
         const hasEnergyData = (coolingClass && coolingClass !== "Dati mancanti") || (heatingClass && heatingClass !== "Dati mancanti");
@@ -218,7 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modalEnergyInfo.style.display = 'none';
         }
         
-        // Icona Wi-Fi
         if(modalWifiIcon) {
             const hasWifi = (product.wifi === true || String(product.wifi).toLowerCase().startsWith('s'));
             modalWifiIcon.style.display = hasWifi ? 'block' : 'none';
@@ -227,10 +225,21 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product[config.code_field] || ''}`;
         
         modalProductPrice.textContent = formatPrice(product[config.price_field]);
-        modalDatasheetLink.classList.toggle('hidden', !product.scheda_tecnica_url);
-        if (product.scheda_tecnica_url) modalDatasheetLink.href = product.scheda_tecnica_url;
+        
+        // =========================================================================
+        // === INIZIO BLOCCO CORRETTO E RESO PIÙ ROBUSTO ===
+        // =========================================================================
+        const datasheetUrl = product.scheda_tecnica_url;
+        const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '';
 
-        // Costruzione dinamica dei dettagli tecnici
+        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
+        if (hasValidUrl) {
+            modalDatasheetLink.href = datasheetUrl.trim();
+        }
+        // =========================================================================
+        // === FINE BLOCCO CORRETTO ===
+        // =========================================================================
+
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
@@ -250,7 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createDetailRowHTML('COP', product.cop)}
             </ul>
         `;
-        // Pulisce sezioni vuote per non mostrare titoli senza contenuto
         if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/gi, '').replace(/<h3[^>]*>\s*<\/h3>/gi, '');
         
         document.body.classList.add('modal-open');
@@ -280,15 +288,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     config: config.config
                 }));
             } catch (error) {
-                // MIGLIORAMENTO: Gestione robusta degli errori
                 console.error(`Errore nel caricamento della collezione '${config.name}':`, error);
-                // alert(`Attenzione: non è stato possibile caricare i dati per la sezione ${config.category}.`);
-                return []; // Restituisce un array vuoto per non bloccare le altre promise
+                return []; 
             }
         });
         
         const results = await Promise.all(promises);
-        allSearchableData = results.flat(); // Unisce i risultati di tutte le collezioni
+        allSearchableData = results.flat(); 
         
         isDataFetched = true;
         searchInput.disabled = false;
@@ -311,20 +317,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const lowerCaseQuery = query.toLowerCase();
 
         const results = allSearchableData.filter(item => {
-            // Logica di ricerca per codici numerici
             if (isNumericQuery) {
                 const productCode = item[item.config.code_field];
                 if (!productCode) return false;
-                // Se il codice prodotto è solo numerico, fa un match esatto
                 if (/^\d+$/.test(String(productCode))) {
                     return String(productCode) === query;
                 }
-                // Altrimenti, estrae i numeri dal codice e controlla se uno corrisponde
                 const numericParts = String(productCode).match(/\d+/g) || [];
                 return numericParts.some(part => part === query);
             }
 
-            // Logica di ricerca per testo
             return (
                 item.modello?.toLowerCase().includes(lowerCaseQuery) ||
                 item.marca?.toLowerCase().includes(lowerCaseQuery) ||
@@ -350,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         searchResultsContainer.style.display = 'block';
-        results.slice(0, 20).forEach((item, index) => { // Limita a 20 risultati per performance
+        results.slice(0, 20).forEach((item, index) => { 
             const resultElement = document.createElement('a');
             resultElement.href = "#";
             resultElement.className = 'result-item';
@@ -380,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. EVENT LISTENERS
     // ====================
 
-    // Gestione sottomenu
     if (btnListini) {
         btnListini.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -395,13 +396,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gestione pannello admin
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
 
-    // Gestione ricerca
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
         searchInput.addEventListener('keydown', (e) => {
@@ -412,7 +411,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Gestione click sui risultati di ricerca
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener('click', (e) => {
             const resultItem = e.target.closest('.result-item');
@@ -424,28 +422,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (product) {
                 populateAndShowModal(product);
-                searchResultsContainer.style.display = 'none'; // Nasconde i risultati dopo la selezione
-                searchInput.value = ''; // Pulisce l'input
+                searchResultsContainer.style.display = 'none'; 
+                searchInput.value = '';
             }
         });
     }
 
-    // Gestione chiusura dei popup e sottomenu
     document.addEventListener('click', (e) => {
-        // Chiude il sottomenu se si clicca fuori
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(e.target) && !currentlyOpenSubmenu.btn.contains(e.target)) {
             toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
         }
-        // Chiude i risultati di ricerca se si clicca fuori
         if (searchResultsContainer && !searchResultsContainer.contains(e.target) && e.target !== searchInput) {
             searchResultsContainer.style.display = 'none';
         }
     });
 
-    // Gestione chiusura modale
     const closeModalAndClearSearch = () => {
         closeModal();
-        handleSearch(); // Potrebbe essere utile ricaricare la ricerca o semplicemente lasciarla così
     };
 
     if (closeModalBtn) closeModalBtn.addEventListener('click', closeModalAndClearSearch);
@@ -466,8 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 5. INIZIALIZZAZIONE
     // =====================
-
-    // Utilizza un MutationObserver per caricare i dati solo quando il contenuto dell'app diventa visibile.
     if (appContent) {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(mutation => {
@@ -476,7 +467,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!isHidden && !isDataFetched) {
                         fetchAllSearchableData();
                     } else if (isHidden) {
-                        // Resetta lo stato se l'utente fa logout
                         allSearchableData = [];
                         isDataFetched = false;
                     }
