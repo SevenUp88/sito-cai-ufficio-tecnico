@@ -3,10 +3,14 @@
 /* ========================================================== */
 
 /* --- Reset base e stili generali --- */
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
+/* MIGLIORAMENTO: Utilizzo del box-sizing ereditabile, una best practice moderna */
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
 }
 body { 
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -83,7 +87,7 @@ body {
     font-weight: 500; 
 }
 #login-section .form-group input { 
-    width: calc(100% - 22px); 
+    width: 100%; /* Semplificato il calcolo del width */
     padding: 10px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
@@ -184,7 +188,7 @@ body {
     background-color: #003566; 
 }
 
-/* --- Sottomenu Listini --- */
+/* --- Sottomenu --- */
 .submenu { 
     background-color: #f8f9fa; 
     border-radius: 6px; 
@@ -200,7 +204,8 @@ body {
     border: 1px solid #e0e0e0; 
 }
 .submenu.visible { 
-    max-height: 150px; 
+    /* MIGLIORAMENTO: Aumentato max-height per maggiore robustezza */
+    max-height: 200px; 
     opacity: 1; 
     padding: 15px; 
     margin-bottom: 25px; 
@@ -238,7 +243,6 @@ body {
     font-size: 1.1em; 
     border: 1px solid #ccc; 
     border-radius: 6px; 
-    box-sizing: border-box; 
 }
 #search-results { 
     margin-top: 5px; 
@@ -284,6 +288,7 @@ body {
     background: none; 
     border: none; 
     font-size: 2em; 
+    line-height: 1; /* Aggiunto per un miglior allineamento verticale */
     color: #aaa; 
     cursor: pointer; 
 }
@@ -313,7 +318,6 @@ body {
     display: none !important; 
 }
 
-
 /* ================================================ */
 /* === CSS MODAL A DUE COLONNE (FINALE CON FIX) === */
 /* ================================================ */
@@ -324,7 +328,7 @@ body.modal-open {
 #product-details-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65);
     z-index: 1050; display: flex; align-items: center; justify-content: center;
-    padding: 20px; box-sizing: border-box; visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
+    padding: 20px; visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
 }
 #product-details-modal-overlay.visible { 
     visibility: visible; 
@@ -357,10 +361,9 @@ body.modal-open {
 /* Colonna Sinistra (fissa) */
 .modal-left-panel { flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; }
 
-/* 6. CORREZIONE BORDO IMMAGINE */
 #modal-product-image { 
     width: 100%; height: 180px; object-fit: contain; 
-    border: none;  /* Bordo rimosso */
+    border: none;
     margin-bottom: 15px; 
 }
 
@@ -375,7 +378,6 @@ body.modal-open {
     position: absolute; top: 0; right: 5px; font-size: 1.5em; color: #0d6efd; display: none;
 }
 
-/* 3. CORREZIONE BOLLINI ENERGETICI */
 .modal-energy-info { display: flex; flex-direction: column; align-items: center; gap: 5px; }
 .energy-badge {
     display: inline-block;
@@ -388,9 +390,7 @@ body.modal-open {
 
 .modal-price-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: center; width: 100%; }
 .modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
-/* 2. CORREZIONE GRANDEZZA PREZZO */
 #modal-product-price { font-size: 2.2rem; font-weight: 700; color: #0056a8; }
-/* 4. CORREZIONE BOTTONE SCHEDA TECNICA */
 #modal-datasheet-link { display: flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; width: 100%; }
 #modal-datasheet-link:hover { background-color: #b82c39; }
 #modal-datasheet-link i { margin-right: 8px; }
