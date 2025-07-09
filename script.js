@@ -99,33 +99,48 @@ const createDetailRowHTML = (label, value, unit = '') => {
             modalEnergyHeating = document.getElementById('modal-energy-heating'),
             modalCode = document.getElementById('modal-product-code'),
             modalTechDetails = document.getElementById('modal-tech-details'),
-            modalWifiIcon = document.getElementById('modal-wifi-icon'); // Nuovo selettore
+            modalWifiIcon = document.getElementById('modal-wifi-icon');
 
         // Gestione Immagine
         let imageUrl = product.image_url;
         if (!imageUrl && product.modello) { const p = allSearchableData.find(i => i.modello === product.modello && i.image_url); if (p) imageUrl = p.image_url; }
 
-        // Popolamento Header e Immagine
+        // =======================================================
+        // ========= CORREZIONE LOGO - INIZIO ============
+        // =======================================================
+        const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
+        // Creiamo il percorso standard del logo basandoci sulla posizione di altre immagini
+        const logoPath = `../images/logos/${safeBrandName}.png`; 
+        
+        // Header
+        modalProductLogo.src = getCorrectedPath(logoPath); // Usiamo la stessa funzione di correzione per il logo
+        modalProductLogo.onerror = () => { modalProductLogo.src = 'LISTINI/CLIMA/images/logos/placeholder_logo.png'; };
+        // =======================================================
+        // ========= CORREZIONE LOGO - FINE =============
+        // =======================================================
+        
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = product.modello || 'N/D';
+        
         modalProductImage.src = getCorrectedPath(imageUrl);
+        modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
 
-        // Popolamento Colonna Sinistra
+
         if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${product.potenza || ''}`;
 
-        // Gestione Bollini Energetici
-        const coolingClass = product.classe_energetica_raffrescamento, heatingClass = product.classe_energetica_riscaldamento;
-        if (modalEnergyInfo && (coolingClass || heatingClass)) {
-            modalEnergyInfo.style.display = 'flex';
-            modalEnergyCooling.textContent = coolingClass || '-';
-            modalEnergyHeating.textContent = heatingClass || '-';
-        } else if (modalEnergyInfo) {
-            modalEnergyInfo.style.display = 'none';
+        if (modalEnergyInfo && modalEnergyCooling && modalEnergyHeating) {
+            const coolingClass = product.classe_energetica_raffrescamento, heatingClass = product.classe_energetica_riscaldamento;
+            if(coolingClass || heatingClass) {
+                modalEnergyInfo.style.display = 'flex';
+                modalEnergyCooling.textContent = coolingClass || '-';
+                modalEnergyHeating.textContent = heatingClass || '-';
+            } else {
+                modalEnergyInfo.style.display = 'none';
+            }
         }
         
-        // NUOVA GESTIONE ICONA WIFI
         if(modalWifiIcon) {
-            const wifiValue = product.wifi; // Può essere true, 'si', 'sì'
+            const wifiValue = product.wifi;
             modalWifiIcon.style.display = (wifiValue === true || String(wifiValue).toLowerCase().startsWith('s')) ? 'block' : 'none';
         }
         
@@ -135,7 +150,6 @@ const createDetailRowHTML = (label, value, unit = '') => {
         modalDatasheetLink.classList.toggle('hidden', !product.scheda_tecnica_url);
         if (product.scheda_tecnica_url) modalDatasheetLink.href = product.scheda_tecnica_url;
 
-        // Popolamento Colonna Destra (con nuovi campi)
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3><ul>
                 ${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}
@@ -154,7 +168,6 @@ const createDetailRowHTML = (label, value, unit = '') => {
             </ul>`;
         if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML;
         
-        // Mostra il modal
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
