@@ -66,7 +66,8 @@
         </div>
 
         <div id="add-category-panel" class="admin-popup hidden">
-             <span class="close-panel-btn" id="add-category-close">×</span>
+             <!-- MIGLIORAMENTO ACCESSIBILITÀ: Usato <button> invece di <span> per la chiusura -->
+             <button class="close-panel-btn" id="add-category-close" aria-label="Chiudi pannello">×</button>
             <h3>Aggiungi Nuova Categoria</h3>
             <div class="form-group"> <label for="category-name">Nome Categoria:</label> <input type="text" id="category-name" placeholder="Es: Manutenzioni"> </div>
             <div class="form-group"> <label for="category-path">Percorso File/Pagina:</label> <input type="text" id="category-path" placeholder="Es: MANUTENZIONI/index.html"> </div>
@@ -79,7 +80,7 @@
         <!-- === LAYOUT HTML MODAL AGGIORNATO CON CLASSI ENERGETICHE === -->
         <div id="product-details-modal-overlay">
             <div class="modal-container">
-                <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra">×</button>
+                <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
                 <div class="modal-header">
                     <img id="modal-product-logo" src="" alt="Logo marca">
                     <div class="modal-title-group">
