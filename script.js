@@ -1,130 +1,7 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE FINALE E STABILE - Con logica adattiva per ogni tipo di prodotto.
+ * VERSIONE FINALE DEFINITIVA E STABILE
  */
-document.addEventListener('DOMContentLoaded', () => {
-
-    // 1. SELEZIONE DEGLI ELEMENTI DOM (Completa e non abbreviata)
-    const btnListini = document.getElementById('btn-listini'),
-        submenuListini = document.getElementById('submenu-listini'),
-        btnConfiguratori = document.getElementById('btn-configuratori'),
-        submenuConfiguratori = document.getElementById('submenu-configuratori'),
-        mainNav = document.getElementById('mainNav'),
-        appContent = document.getElementById('app-content'),
-        addCategoryTriggerBtn = document.getElementById('add-category-trigger'),
-        addCategoryPanel = document.getElementById('add-category-panel'),
-        addCategoryCloseBtn = document.getElementById('add-category-close'),
-        categoryNameInput = document.getElementById('category-name'),
-        categoryPathInput = document.getElementById('category-path'),
-        categoryIconInput = document.getElementById('category-icon'),
-        addCategorySubmitBtn = document.getElementById('add-category-submit'),
-        addCategoryFeedback = document.getElementById('add-category-feedback'),
-        adminOverlay = document.getElementById('admin-overlay'),
-        searchInput = document.getElementById('search-input'),
-        searchResultsContainer = document.getElementById('search-results'),
-        detailsModalOverlay = document.getElementById('product-details-modal-overlay'),
-        modalProductLogo = document.getElementById('modal-product-logo'),
-        modalProductBrand = document.getElementById('modal-product-brand'),
-        modalProductModel = document.getElementById('modal-product-model'),
-        modalProductImage = document.getElementById('modal-product-image'),
-        modalProductPrice = document.getElementById('modal-product-price'),
-        closeModalBtn = document.getElementById('close-modal-btn'),
-        modalDatasheetLink = document.getElementById('modal-datasheet-link');
-
-    // 2. VARIABILI DI STATO
-    const db = firebase.firestore();
-    let allSearchableData = [], currentlyDisplayedResults = [];
-    let isDataFetched = false;
-    const currentlyOpenSubmenu = { btn: null, menu: null };
-
-    // 3. FUNZIONI
-    const toggleSubmenu = (button, submenu) => { /*... Logica completa ...*/ };
-    const showAddCategoryPanel = () => { /*... Logica completa ...*/ };
-    const hideAddCategoryPanel = () => { /*... Logica completa ...*/ };
-    const handleAddCategorySubmit = () => { /*... Logica completa ...*/ };
-    const formatPrice = (price) => !isNaN(Number(price)) && String(price).trim() !== '' ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(price)) : 'N/D';
-    const createDetailRowHTML = (label, value, unit = '') => { if (value == null || String(value).trim() === '') return ''; let d = !isNaN(parseFloat(value)) && isFinite(value) ? Number(value).toFixed(2).replace('.', ',') : value; return `<li><strong>${label}:</strong><span>${d}${unit}</span></li>`; };
-    const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : (path || 'LISTINI/CLIMA/images/placeholder.png');
-    const closeModal = () => { document.body.classList.remove('modal-open'); if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible'); };
-    
-    // ======== Funzione populateAndShowModal FINALE per gestire tutti i casi ========
-    const populateAndShowModal = (product) => {
-        if (!product || !detailsModalOverlay) return;
-        const config = product.config;
-
-        const modalPower = document.getElementById('modal-product-power'),
-            modalEnergyInfo = document.querySelector('.modal-energy-info'),
-            modalEnergyCooling = document.getElementById('modal-energy-cooling'),
-            modalEnergyHeating = document.getElementById('modal-energy-heating'),
-            modalCode = document.getElementById('modal-product-code'),
-            modalTechDetails = document.getElementById('modal-tech-details'),
-            modalWifiIcon = document.getElementById('modal-wifi-icon');
-        
-        // --- LOGICA DATI INTELLIGENTE ---
-        // Se non trova 'modello', usa 'nome_modello_ue' o 'nome'
-        const modelName = product.modello || product.nome_modello_ue || product.nome || 'N/D';
-        // Formatta la potenza se è un numero
-        const powerValue = typeof product.potenza === 'number' ? `${product.potenza.toFixed(1).replace('.',',')}kW` : product.potenza;
-
-        let imageUrl = product.image_url;
-        if (!imageUrl && modelName !== 'N/D') {
-            const productWithImage = allSearchableData.find(p => (p.modello === modelName || p.nome_modello_ue === modelName) && p.image_url);
-            if (productWithImage) imageUrl = productWithImage.image_url;
-        }
-
-        // --- POPOLAMENTO MODAL ---
-        modalProductBrand.textContent = product.marca || 'N/D';
-        modalProductModel.textContent = modelName;
-        modalProductImage.src = getCorrectedPath(imageUrl);
-
-        // Colonna Sinistra
-        if(modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
-        
-        const coolingClass = product.classe_energetica_raffrescamento;
-        const heatingClass = product.classe_energetica_riscaldamento;
-        if(modalEnergyInfo && (coolingClass || heatingClass)) {
-            modalEnergyInfo.style.display = 'flex';
-            if(modalEnergyCooling) modalEnergyCooling.textContent = coolingClass !== "Dati mancanti" ? coolingClass : '-';
-            if(modalEnergyHeating) modalEnergyHeating.textContent = heatingClass !== "Dati mancanti" ? heatingClass : '-';
-        } else if (modalEnergyInfo) {
-            modalEnergyInfo.style.display = 'none';
-        }
-        
-        if(modalWifiIcon) { modalWifiIcon.style.display = (product.wifi === true || String(product.wifi).toLowerCase().startsWith('s')) ? 'block' : 'none'; }
-        if(modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product[config.code_field] || ''}`;
-        
-        modalProductPrice.textContent = formatPrice(product[config.price_field]);
-        modalDatasheetLink.classList.toggle('hidden', !product.scheda_tecnica_url);
-        if (product.scheda_tecnica_url) modalDatasheetLink.href = product.scheda_tecnica_url;
-
-        // Colonna Destra - ora con tutti i dati corretti
-        const techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>
-            ${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}
-            ${createDetailRowHTML('Unità Collegabili', product.unit_collegabili)}
-            ${createDetailRowHTML('Serie Interne Compatibili', product.compatibleIndoorSeriesIds?.join(', '))}
-            ${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm')}
-            ${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}
-            ${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}
-            ${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}
-        </ul>
-        <h3>Dettagli Energetici</h3><ul>
-            ${createDetailRowHTML('Gas Refrigerante', product.tipo_refrigerante || product.gas)}
-            ${createDetailRowHTML('Contenuto Gas', product.quantita_refrigerante_kg || product.quantita_gas, ' kg')}
-            ${createDetailRowHTML('EER', product.eer)}
-            ${createDetailRowHTML('COP', product.cop)}
-        </ul>`;
-        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<li>\s*<\/li>/g, ''); // Rimuove righe vuote
-        
-        document.body.classList.add('modal-open');
-        detailsModalOverlay.classList.add('visible');
-    };
-    
-    // Funzioni `fetchAllSearchableData`, `handleSearch`, `displayResults`, etc.
-    // INCOLLA QUI IL RESTO DEL TUO SCRIPT.JS FUNZIONANTE
-    // ...
-});
-
-// Per evitare qualsiasi dubbio, ti fornisco l'INTERO SCRIPT completo da capo.
 document.addEventListener('DOMContentLoaded', () => {
 
     // 1. SELEZIONE DEGLI ELEMENTI DOM
@@ -161,17 +38,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentlyOpenSubmenu = { btn: null, menu: null };
 
     // 3. FUNZIONI
-    const toggleSubmenu = (button, submenu) => { if (!button || !submenu) return; const isVisible = submenu.classList.toggle('visible'); button.setAttribute('aria-expanded', isVisible); if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) { currentlyOpenSubmenu.menu.classList.remove('visible'); if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false'); } currentlyOpenSubmenu.btn = isVisible ? button : null; currentlyOpenSubmenu.menu = isVisible ? submenu : null; };
+    const toggleSubmenu = (button, submenu) => {
+        if (!button || !submenu) return;
+        const isVisible = submenu.classList.toggle('visible');
+        button.setAttribute('aria-expanded', isVisible);
+        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
+            currentlyOpenSubmenu.menu.classList.remove('visible');
+            if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false');
+        }
+        currentlyOpenSubmenu.btn = isVisible ? button : null;
+        currentlyOpenSubmenu.menu = isVisible ? submenu : null;
+    };
     const showAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.remove('hidden'); if (adminOverlay) adminOverlay.classList.remove('hidden'); };
     const hideAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.add('hidden'); if (adminOverlay) adminOverlay.classList.add('hidden'); };
-    const handleAddCategorySubmit = () => { if (!categoryNameInput || !categoryPathInput || !categoryIconInput || !mainNav) return; const name = categoryNameInput.value.trim(), path = categoryPathInput.value.trim(), icon = categoryIconInput.value.trim() || 'fas fa-folder'; if (!name || !path) return; const link = document.createElement('a'); link.href = path; link.className = 'nav-button'; const i = document.createElement('i'); i.className = icon; link.append(i, ` ${name}`); mainNav.appendChild(link); };
+    const handleAddCategorySubmit = () => { if (!categoryNameInput || !categoryPathInput || !categoryIconInput) return; const name = categoryNameInput.value.trim(), path = categoryPathInput.value.trim(), icon = categoryIconInput.value.trim() || 'fas fa-folder'; if (!name || !path) return; const link = document.createElement('a'); link.href = path; link.className = 'nav-button'; const i = document.createElement('i'); i.className = icon; link.append(i, ` ${name}`); mainNav.appendChild(link); };
     const formatPrice = (price) => !isNaN(Number(price)) && String(price).trim() !== '' ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(Number(price)) : 'N/D';
-    const createDetailRowHTML = (label, value, unit = '') => { if (value == null || String(value).trim() === '' || String(value) === "Dati mancanti") return ''; let d = !isNaN(parseFloat(value)) && isFinite(value) ? Number(value).toFixed(2).replace('.', ',') : value; return `<li><strong>${label}:</strong><span>${d}${unit}</span></li>`; };
+    const createDetailRowHTML = (label, value, unit = '') => { if (value == null || String(value).trim() === '' || String(value) === 'Dati mancanti') return ''; let d = !isNaN(parseFloat(value)) && isFinite(value) ? Number(value).toFixed(2).replace('.', ',') : value; return `<li><strong>${label}:</strong><span>${d}${unit}</span></li>`; };
     const getCorrectedPath = (path) => path && path.startsWith('../') ? `LISTINI/CLIMA/${path.substring(3)}` : (path || 'LISTINI/CLIMA/images/placeholder.png');
     const closeModal = () => { document.body.classList.remove('modal-open'); if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible'); };
     
     const populateAndShowModal = (product) => {
-        if (!product) return;
+        if (!product || !detailsModalOverlay) return;
         const config = product.config;
         const modalPower = document.getElementById('modal-product-power'), modalEnergyInfo = document.querySelector('.modal-energy-info'), modalEnergyCooling = document.getElementById('modal-energy-cooling'), modalEnergyHeating = document.getElementById('modal-energy-heating'), modalCode = document.getElementById('modal-product-code'), modalTechDetails = document.getElementById('modal-tech-details'), modalWifiIcon = document.getElementById('modal-wifi-icon');
         
@@ -181,20 +68,24 @@ document.addEventListener('DOMContentLoaded', () => {
         let imageUrl = product.image_url;
         if (!imageUrl && modelName !== 'N/D') { const p = allSearchableData.find(i => (i.modello === modelName || i.nome_modello_ue === modelName) && i.image_url); if (p) imageUrl = p.image_url; }
 
+        const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
+        modalProductLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`);
+
         modalProductBrand.textContent = product.marca || 'N/D';
         modalProductModel.textContent = modelName;
         modalProductImage.src = getCorrectedPath(imageUrl);
+        modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
 
         if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
         
         const coolingClass = product.classe_energetica_raffrescamento, heatingClass = product.classe_energetica_riscaldamento;
         if (modalEnergyInfo && (coolingClass && coolingClass !== "Dati mancanti" || heatingClass && heatingClass !== "Dati mancanti")) {
             modalEnergyInfo.style.display = 'flex';
-            if (modalEnergyCooling) modalEnergyCooling.textContent = coolingClass !== "Dati mancanti" ? coolingClass : '-';
-            if (modalEnergyHeating) modalEnergyHeating.textContent = heatingClass !== "Dati mancanti" ? heatingClass : '-';
+            if(modalEnergyCooling) modalEnergyCooling.textContent = coolingClass !== "Dati mancanti" ? coolingClass : '-';
+            if(modalEnergyHeating) modalEnergyHeating.textContent = heatingClass !== "Dati mancanti" ? heatingClass : '-';
         } else if (modalEnergyInfo) { modalEnergyInfo.style.display = 'none'; }
         
-        if (modalWifiIcon) { modalWifiIcon.style.display = (product.wifi === true || String(product.wifi).toLowerCase().startsWith('s')) ? 'block' : 'none'; }
+        if(modalWifiIcon) { modalWifiIcon.style.display = (product.wifi === true || String(product.wifi).toLowerCase().startsWith('s')) ? 'block' : 'none'; }
         if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product[config.code_field] || ''}`;
         
         modalProductPrice.textContent = formatPrice(product[config.price_field]);
@@ -203,11 +94,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${[createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore), createDetailRowHTML('Unità Collegabili', product.unit_collegabili), createDetailRowHTML('Serie Interne Compatibili', product.compatibleIndoorSeriesIds?.join(', ')), createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm'), createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm'), createDetailRowHTML('Peso UI', product.peso_ui, ' kg'), createDetailRowHTML('Peso UE', product.peso_ue, ' kg')].join('')}</ul>
                                  <h3>Dettagli Energetici</h3><ul>${[createDetailRowHTML('Gas Refrigerante', product.tipo_refrigerante || product.gas), createDetailRowHTML('Contenuto Gas', product.quantita_refrigerante_kg || product.quantita_gas, ' kg'), createDetailRowHTML('EER', product.eer), createDetailRowHTML('COP', product.cop)].join('')}</ul>`;
-        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*><\/ul>/gi, '').replace(/<h3[^>]*>\s*<\/h3>/gi, ''); // Rimuove sezioni vuote
+        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*><\/ul>/gi, '').replace(/<h3[^>]*>\s*<\/h3>/gi, '');
         
         document.body.classList.add('modal-open'); detailsModalOverlay.classList.add('visible');
     };
-
+    
     const fetchAllSearchableData = async () => { if (isDataFetched) return; searchInput.disabled = true; searchInput.placeholder = 'Caricamento...'; const c = [{n:'prodottiClimaMonosplit',c:'Monosplit',cf:{cf:'codice_prodotto',pf:'prezzo'}},{n:'outdoorUnits',c:'U. Esterna',cf:{cf:'codice_prodotto',pf:'prezzo'}},{n:'indoorUnits',c:'U. Interna',cf:{cf:'codice_prodotto',pf:'prezzo_ui'}}]; const p = c.map(async (i)=>{try{const s=await db.collection(i.n).get();return s.docs.map(d=>({...d.data(),id:d.id,category:i.c,config:i.cf}))}catch(e){return[]}}); allSearchableData=(await Promise.all(p)).flat(); isDataFetched = true; searchInput.disabled = false; searchInput.placeholder = 'Cerca...'; };
     const handleSearch = () => { if (!searchInput) return; const q = searchInput.value.trim(); if (q.length < 3) { displayResults([]); return; } const n=/^\d+$/.test(q); const r = allSearchableData.filter(i=>{if(n){const v=i[i.config.code_field];if(!v)return false;if(/^\d+$/.test(String(v)))return String(v)===q;return(String(v).match(/\d+/g)||[]).some(c=>c===q)}const l=q.toLowerCase();return i.modello?.toLowerCase().includes(l)||i.marca?.toLowerCase().includes(l)||i.nome_modello_ue?.toLowerCase().includes(l)}); currentlyDisplayedResults = r; displayResults(r); };
     const displayResults = (r) => { if (!searchResultsContainer) return; searchResultsContainer.innerHTML = ''; if (r.length === 0) { searchResultsContainer.style.display = 'none'; return; } searchResultsContainer.style.display = 'block'; r.slice(0, 20).forEach((i, x) => { const a = document.createElement('a'); a.href="#"; a.className='result-item'; a.dataset.resultIndex=x; const m=[i.marca, i.modello || i.nome_modello_ue, i.potenza].filter(Boolean).join(' '); const p=formatPrice(i[i.config.price_field]); const d=i.articolo_fornitore || `Codice: ${i[i.config.code_field] || 'N/D'}`; a.innerHTML=`<div style="display:flex;flex-direction:column;width:100%;gap:4px"><div style="display:flex;justify-content:space-between;align-items:flex-start"><span style="font-weight:500">${m||'Prodotto'}</span><span class="item-category">${i.category}</span></div><div style="font-size:0.85em;opacity:0.8;display:flex;justify-content:space-between;align-items:center"><span style="max-width:70%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d}</span><span style="font-weight:bold;color:#0056a8;font-size:1.1em">${p}</span></div></div>`; searchResultsContainer.appendChild(a); }); };
@@ -218,5 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click',e=>{if(currentlyOpenSubmenu.menu&&!currentlyOpenSubmenu.menu.contains(e.target)&&!currentlyOpenSubmenu.btn.contains(e.target)){toggleSubmenu(currentlyOpenSubmenu.btn,currentlyOpenSubmenu.menu)}if(searchResultsContainer&&!searchResultsContainer.contains(e.target)&&e.target!==searchInput){searchResultsContainer.style.display='none'}});
     const c=()=>{closeModal();handleSearch()};if(closeModalBtn)closeModalBtn.addEventListener('click',c);if(detailsModalOverlay)detailsModalOverlay.addEventListener('click',e=>{if(e.target===detailsModalOverlay)c()});window.addEventListener('keydown',e=>{if(e.key==='Escape'&&detailsModalOverlay?.classList.contains('visible')){e.preventDefault();c()}});
     
+    // FLUSSO PRINCIPALE
     if(appContent)new MutationObserver(m=>{m.forEach(i=>{if(i.attributeName==='class'){if(!appContent.classList.contains('hidden'))fetchAllSearchableData();else{allSearchableData=[];isDataFetched=false}}})}).observe(appContent,{attributes:true});
 });
