@@ -273,22 +273,49 @@ document.addEventListener('DOMContentLoaded', () => {
         searchInput.placeholder = 'Caricamento dati...';
 
         const collectionConfigs = [
-            { name: 'prodottiClimaMonosplit', category: 'Monosplit', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
-            { name: 'outdoorUnits', category: 'U. Esterna', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
-            { name: 'indoorUnits', category: 'U. Interna', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } }
+            // Il nome della collezione in Firestore deve essere 'prodottiClimaMonosplit'
+            { name: 'prodottiClimaMonosplit', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
+            { name: 'outdoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
+            { name: 'indoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } }
         ];
         
-        const promises = collectionConfigs.map(async (config) => {
+        const promises = collectionConfigs.map(async (collectionConfig) => {
             try {
-                const snapshot = await db.collection(config.name).get();
-                return snapshot.docs.map(doc => ({
-                    ...doc.data(),
-                    id: doc.id,
-                    category: config.category,
-                    config: config.config
-                }));
+                const snapshot = await db.collection(collectionConfig.name).get();
+                return snapshot.docs.map(doc => {
+                    const data = doc.data();
+
+                    // --- NUOVA LOGICA DI IDENTIFICAZIONE ---
+                    const hasUI = data.dimensioni_ui || data.dimensioni_peso_ui;
+                    const hasUE = data.dimensioni_ue;
+                    let productType = 'Prodotto';
+                    let imageUrl = data.image_url || '';
+                    const brand = (data.marca || '').toLowerCase().replace(/\s+/g, '');
+
+                    if (hasUI && hasUE) {
+                        productType = 'Monosplit';
+                        // Se non c'è un'immagine specifica, proviamo con quella dell'unità interna
+                        if (!imageUrl && brand) imageUrl = `../images/int_${brand}.jpg`;
+                    } else if (hasUE) {
+                        productType = 'U. Esterna';
+                        if (!imageUrl && brand) imageUrl = `../images/est_${brand}.jpg`;
+                    } else if (hasUI) {
+                        productType = 'U. Interna';
+                        if (!imageUrl && brand) imageUrl = `../images/int_${brand}.jpg`;
+                    }
+                    // --- FINE NUOVA LOGICA ---
+
+                    return {
+                        ...data, // Manteniamo tutti i dati originali per il modale
+                        id: doc.id,
+                        // Dati aggiuntivi per la ricerca e la visualizzazione
+                        derived_type: productType,
+                        derived_image: getCorrectedPath(imageUrl),
+                        config: collectionConfig.config // Manteniamo la config originale
+                    };
+                });
             } catch (error) {
-                console.error(`Errore nel caricamento della collezione '${config.name}':`, error);
+                console.error(`Errore nel caricamento della collezione '${collectionConfig.name}':`, error);
                 return []; 
             }
         });
@@ -299,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isDataFetched = true;
         searchInput.disabled = false;
         searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
+        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
     };
 
     /**
@@ -346,6 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!searchResultsContainer) return;
 
         searchResultsContainer.innerHTML = '';
+        if (results.length === 0 && searchInput.value.length > 2) {
+            searchResultsContainer.style.display = 'block';
+            searchResultsContainer.innerHTML = `<div class="result-item-empty">Nessun risultato trovato.</div>`;
+            return;
+        }
+
         if (results.length === 0) {
             searchResultsContainer.style.display = 'none';
             return;
@@ -358,21 +392,24 @@ document.addEventListener('DOMContentLoaded', () => {
             resultElement.className = 'result-item';
             resultElement.dataset.resultIndex = index;
 
+            // Dati per la visualizzazione
             const description = [item.marca, item.modello || item.nome_modello_ue, item.potenza].filter(Boolean).join(' ');
             const price = formatPrice(item[item.config.price_field]);
-            const codeInfo = item.articolo_fornitore || `Codice: ${item[item.config.code_field] || 'N/D'}`;
+            const supplierInfo = item.articolo_fornitore || `Codice: ${item[item.config.code_field] || 'N/D'}`;
+            const imageHTML = item.derived_image 
+                ? `<img src="${item.derived_image}" alt="${description}" class="result-image" onerror="this.style.display='none'"/>`
+                : '<div class="result-image-placeholder"></div>';
 
             resultElement.innerHTML = `
-                <div style="display:flex; flex-direction:column; width:100%; gap:4px;">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <span style="font-weight:500;">${description || 'Prodotto'}</span>
-                        <span class="item-category">${item.category}</span>
+                ${imageHTML}
+                <div class="result-info">
+                    <div class="result-header">
+                        <span class="result-name">${description || 'Prodotto'}</span>
+                        <span class="result-type">${item.derived_type}</span>
                     </div>
-                    <div style="font-size:0.85em; opacity:0.8; display:flex; justify-content:space-between; align-items:center;">
-                        <span style="max-width:70%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${codeInfo}</span>
-                        <span style="font-weight:bold; color:#0056a8; font-size:1.1em;">${price}</span>
-                    </div>
+                    <p class="result-supplier-item">${supplierInfo}</p>
                 </div>
+                <div class="result-price">${price}</div>
             `;
             searchResultsContainer.appendChild(resultElement);
         });
