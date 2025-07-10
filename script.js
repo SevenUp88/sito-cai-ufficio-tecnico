@@ -169,15 +169,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     /**
-     * Popola e mostra la modale con i dettagli del prodotto selezionato.
-     * @param {object} product - L'oggetto prodotto.
+  * Popola e mostra la modale con i dettagli del prodotto selezionato.
+     * @param {object} product - L'oggetto prodotto completo, inclusi i dati derivati.
      */
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
 
-        const config = product.config;
+        // Elementi interni alla modale
+        const modalTypeLabel = document.getElementById('modal-product-type-label') || document.createElement('span'); // Crea se non esiste
+        modalTypeLabel.id = 'modal-product-type-label';
 
-        // Seleziona elementi interni alla modale
+        const modalTitleGroup = document.querySelector('.modal-title-group');
         const modalPower = document.getElementById('modal-product-power');
         const modalEnergyInfo = document.querySelector('.modal-energy-info');
         const modalEnergyCooling = document.getElementById('modal-energy-cooling');
@@ -186,80 +188,76 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalTechDetails = document.getElementById('modal-tech-details');
         const modalWifiIcon = document.getElementById('modal-wifi-icon');
         
-        const modelName = product.modello || product.nome_modello_ue || product.nome || 'N/D';
+        // Dati principali
+        const modelName = product.modello || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
         const powerValue = typeof product.potenza === 'number' ? `${product.potenza.toFixed(1).replace('.',',')} kW` : product.potenza;
-        
-        let imageUrl = product.image_url;
-        if (!imageUrl && modelName !== 'N/D') {
-            const productWithImage = allSearchableData.find(item => (item.modello === modelName || item.nome_modello_ue === modelName) && item.image_url);
-            if (productWithImage) imageUrl = productWithImage.image_url;
-        }
+        const brandName = product.marca || 'N/D';
+        const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
 
-        const safeBrandName = product.marca ? product.marca.toLowerCase().replace(/\s+/g, '') : 'placeholder';
+        // Gestione Logo e Titolo
         modalProductLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`);
-        
-        modalProductBrand.textContent = product.marca || 'N/D';
+        modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
-        modalProductImage.src = getCorrectedPath(imageUrl);
+        
+        // --- NUOVO: Aggiunta etichetta tipo prodotto ---
+        modalTypeLabel.textContent = product.derived_type; // Usa il tipo derivato (Monosplit, U. Esterna, etc.)
+        if (modalTitleGroup) modalTitleGroup.appendChild(modalTypeLabel);
+
+        // Gestione Immagine Prodotto (usa derived_image)
+        modalProductImage.src = product.derived_image || 'LISTINI/CLIMA/images/placeholder.png';
         modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
-        
+
+        // Gestione Pannello Sinistro
         if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
-
-        const coolingClass = product.classe_energetica_raffrescamento;
-        const heatingClass = product.classe_energetica_riscaldamento;
-        const hasEnergyData = (coolingClass && coolingClass !== "Dati mancanti") || (heatingClass && heatingClass !== "Dati mancanti");
         
-        if (modalEnergyInfo && hasEnergyData) {
-            modalEnergyInfo.style.display = 'flex';
-            if(modalEnergyCooling) modalEnergyCooling.textContent = coolingClass && coolingClass !== "Dati mancanti" ? coolingClass : '-';
-            if(modalEnergyHeating) modalEnergyHeating.textContent = heatingClass && heatingClass !== "Dati mancanti" ? heatingClass : '-';
-        } else if (modalEnergyInfo) {
-            modalEnergyInfo.style.display = 'none';
-        }
-        
-        if(modalWifiIcon) {
-            const hasWifi = (product.wifi === true || String(product.wifi).toLowerCase().startsWith('s'));
-            modalWifiIcon.style.display = hasWifi ? 'block' : 'none';
+        // --- NUOVO: Gestione condizionale dei dettagli energetici ---
+        const hasEnergyData = product.derived_type !== 'U. Interna'; // Le UI non hanno dati energetici
+        if (modalEnergyInfo) modalEnergyInfo.style.display = hasEnergyData ? 'flex' : 'none';
+        if (hasEnergyData) {
+            const coolingClass = product.classe_energetica_raffrescamento;
+            const heatingClass = product.classe_energetica_riscaldamento;
+            if(modalEnergyCooling) modalEnergyCooling.textContent = coolingClass || '-';
+            if(modalEnergyHeating) modalEnergyHeating.textContent = heatingClass || '-';
         }
 
-        if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product[config.code_field] || ''}`;
-        
-        modalProductPrice.textContent = formatPrice(product[config.price_field]);
-        
-        // =========================================================================
-        // === INIZIO BLOCCO CORRETTO E RESO PIÙ ROBUSTO ===
-        // =========================================================================
+        if(modalWifiIcon) modalWifiIcon.style.display = (product.wifi === true) ? 'block' : 'none';
+        if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product.codice_prodotto || ''}`;
+        modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
+
+        // Gestione Scheda Tecnica
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '';
-
         modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
-        if (hasValidUrl) {
-            modalDatasheetLink.href = datasheetUrl.trim();
-        }
-        // =========================================================================
-        // === FINE BLOCCO CORRETTO ===
-        // =========================================================================
+        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
 
+        // Gestione Pannello Destro (Dettagli Tecnici)
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
                 ${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}
                 ${createDetailRowHTML('Unità Collegabili', product.unit_collegabili)}
-                ${createDetailRowHTML('Serie Interne Compatibili', product.compatibleIndoorSeriesIds?.join(', '))}
+                ${createDetailRowHTML('Serie Interne Compatibili', Array.isArray(product.compatibleIndoorSeriesIds) ? product.compatibleIndoorSeriesIds.join(', ') : '')}
                 ${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm')}
                 ${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}
                 ${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}
                 ${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}
             </ul>
+            ${hasEnergyData ? `
             <h3>Dettagli Energetici</h3>
             <ul>
                 ${createDetailRowHTML('Gas Refrigerante', product.tipo_refrigerante || product.gas)}
                 ${createDetailRowHTML('Contenuto Gas', product.quantita_refrigerante_kg || product.quantita_gas, ' kg')}
                 ${createDetailRowHTML('EER', product.eer)}
                 ${createDetailRowHTML('COP', product.cop)}
+            </ul>` : ''}
+            <h3>Attacchi Tubazioni</h3>
+            <ul>
+                ${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}
+                ${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}
             </ul>
         `;
-        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/gi, '').replace(/<h3[^>]*>\s*<\/h3>/gi, '');
+        // Pulisce sezioni completamente vuote
+        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<h3[^>]*>\s*<\/h3>\s*<ul[^>]*>\s*<\/ul>/gi, '');
         
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
