@@ -403,3 +403,87 @@ body.modal-open {
 #modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
 #modal-tech-details li strong { margin-right: 15px; }
 #modal-tech-details li span { text-align: right; }
+
+/* ================================================ */
+/* === AGGIUNTE PER RICERCA CON IMMAGINI (HOME) === */
+/* ================================================ */
+
+/* Aggiorna lo stile del risultato per usare flexbox */
+.result-item {
+    display: flex; /* CAMBIO CHIAVE */
+    align-items: center;
+    gap: 15px; /* Spazio tra immagine e info */
+}
+
+/* Stile per l'immagine nel risultato della ricerca */
+.result-image, .result-image-placeholder {
+    width: 60px;
+    height: 60px;
+    object-fit: contain; /* L'immagine si adatta senza distorsioni */
+    flex-shrink: 0; /* Impedisce all'immagine di rimpicciolirsi */
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+/* Stile per il messaggio "Nessun risultato" */
+.result-item-empty {
+    padding: 15px;
+    color: #6c757d;
+    text-align: center;
+}
+
+/* Contenitore delle informazioni nel risultato (nome, tipo, etc.) */
+.result-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Occupa lo spazio rimanente */
+    overflow: hidden; /* Evita che il testo esca dai bordi */
+}
+
+/* Header del risultato (nome + tipo) */
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Nome del prodotto nel risultato */
+.result-name {
+    font-weight: 600;
+    font-size: 1em;
+    color: #0056a8;
+}
+
+/* Categoria/Tipo del prodotto (es. Monosplit) */
+.result-type {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 500;
+    white-space: nowrap; /* Non va a capo */
+    flex-shrink: 0;
+}
+
+/* Codice fornitore sotto il nome */
+.result-supplier-item {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
+}
+
+/* Prezzo nel risultato */
+.result-price {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #0056a8;
+    white-space: nowrap;
+    margin-left: 15px; /* Spazio tra info e prezzo */
+    flex-shrink: 0;
+}
