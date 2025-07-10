@@ -487,3 +487,23 @@ body.modal-open {
     margin-left: 15px; /* Spazio tra info e prezzo */
     flex-shrink: 0;
 }
+
+/* ==================================================== */
+/* === AGGIUNTE PER MODALE (TIPO PRODOTTO E FIX) === */
+/* ==================================================== */
+
+.modal-title-group {
+    display: flex; /* CAMBIO: Rende il contenitore flessibile */
+    flex-direction: column;
+}
+
+#modal-product-type-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #6c757d; /* Grigio scuro per contrasto */
+    padding: 3px 10px;
+    border-radius: 15px;
+    margin-top: 5px; /* Spazio dal modello */
+    align-self: flex-start; /* Si allinea all'inizio del contenitore flex */
+}
