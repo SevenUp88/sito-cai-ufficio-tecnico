@@ -66,7 +66,6 @@
         </div>
 
         <div id="add-category-panel" class="admin-popup hidden">
-             <!-- MIGLIORAMENTO ACCESSIBILITÀ: Usato <button> invece di <span> per la chiusura -->
              <button class="close-panel-btn" id="add-category-close" aria-label="Chiudi pannello">×</button>
             <h3>Aggiungi Nuova Categoria</h3>
             <div class="form-group"> <label for="category-name">Nome Categoria:</label> <input type="text" id="category-name" placeholder="Es: Manutenzioni"> </div>
@@ -77,45 +76,49 @@
         </div>
         <div id="admin-overlay" class="overlay hidden"></div>
 
-        <!-- === LAYOUT HTML MODAL AGGIORNATO CON CLASSI ENERGETICHE === -->
+        <!-- === NUOVO LAYOUT DEL MODALE (secondo la tua maquette) === -->
         <div id="product-details-modal-overlay">
             <div class="modal-container">
                 <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
+                
+                <!-- HEADER DEL MODALE -->
                 <div class="modal-header">
-                    <img id="modal-product-logo" src="" alt="Logo marca">
-                    <div class="modal-title-group">
-                        <span id="modal-product-brand">Marca</span>
-                        <h2 id="modal-product-model">Modello</h2>
+                    <img id="modal-brand-logo" src="" alt="Logo marca" class="modal-brand-logo">
+                    <div class="modal-header-main">
+                        <div class="modal-title-group">
+                            <span id="modal-product-brand"></span>
+                            <h2 id="modal-product-model"></h2>
+                        </div>
+                        <div id="modal-product-code" class="modal-product-code"></div>
+                    </div>
+                    <div class="modal-header-right">
+                        <div id="modal-product-type-badge" class="modal-type-badge"></div>
+                        <i id="modal-wifi-icon" class="fas fa-wifi"></i>
                     </div>
                 </div>
+
+                <!-- CORPO DEL MODALE -->
                 <div class="modal-body-split">
-                    <!-- COLONNA SINISTRA (FISSA) -->
+                    <!-- COLONNA SINISTRA (Immagini & Prezzo) -->
                     <div class="modal-left-panel">
-                        <img id="modal-product-image" src="" alt="Immagine prodotto">
-                        <div class="modal-main-info">
-                            <i id="modal-wifi-icon" class="fas fa-wifi" title="Wi-Fi Integrato"></i>
-                             <div id="modal-product-power"></div>
-                             <div class="modal-energy-info">
-                                 <strong>Classe En.:</strong>
-                                 <div>
-                                     <span id="modal-energy-cooling" class="energy-badge cooling"></span>
-                                     <span id="modal-energy-heating" class="energy-badge heating"></span>
-                                 </div>
-                             </div>
-                             <div id="modal-product-code"></div>
+                        <div class="modal-images-container">
+                            <img id="modal-image-ui" src="" alt="Unità Interna" class="modal-product-image">
+                            <img id="modal-image-ue" src="" alt="Unità Esterna" class="modal-product-image">
                         </div>
-                        <div class="modal-price-container">
-                            <span>Prezzo vendita:</span>
-                            <span id="modal-product-price"></span>
+                        <div class="modal-energy-badges-container">
+                             <span id="modal-energy-cooling" class="energy-badge cooling"></span>
+                             <span id="modal-energy-heating" class="energy-badge heating"></span>
                         </div>
-                        <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer">
+                        <div id="modal-product-price" class="modal-product-price"></div>
+                        <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
                             <i class="fas fa-file-pdf"></i> Scheda Tecnica
                         </a>
                     </div>
-                    <!-- COLONNA DESTRA (SCORREVOLE) -->
+
+                    <!-- COLONNA DESTRA (Dettagli Tecnici) -->
                     <div class="modal-right-panel">
                         <div id="modal-tech-details">
-                            <!-- I dettagli tecnici verranno popolati qui da JavaScript -->
+                            <!-- I dettagli tecnici verranno inseriti qui da JavaScript -->
                         </div>
                     </div>
                 </div>
