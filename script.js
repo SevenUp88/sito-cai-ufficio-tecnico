@@ -176,10 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!product || !detailsModalOverlay) return;
 
         // Elementi interni alla modale
-        const modalTypeLabel = document.getElementById('modal-product-type-label') || document.createElement('span'); // Crea se non esiste
+        const modalTitleGroup = document.querySelector('.modal-title-group');
+        const modalTypeLabel = document.getElementById('modal-product-type-label') || document.createElement('span');
         modalTypeLabel.id = 'modal-product-type-label';
 
-        const modalTitleGroup = document.querySelector('.modal-title-group');
         const modalPower = document.getElementById('modal-product-power');
         const modalEnergyInfo = document.querySelector('.modal-energy-info');
         const modalEnergyCooling = document.getElementById('modal-energy-cooling');
@@ -199,38 +199,45 @@ document.addEventListener('DOMContentLoaded', () => {
         modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
         
-        // --- NUOVO: Aggiunta etichetta tipo prodotto ---
-        modalTypeLabel.textContent = product.derived_type; // Usa il tipo derivato (Monosplit, U. Esterna, etc.)
-        if (modalTitleGroup) modalTitleGroup.appendChild(modalTypeLabel);
+        // --- CORREZIONE: Aggiunta etichetta tipo prodotto nel gruppo titolo ---
+        modalTypeLabel.textContent = product.derived_type; 
+        if (modalTitleGroup) {
+            // Rimuovi la vecchia etichetta se presente, per evitare duplicati
+            const oldLabel = modalTitleGroup.querySelector('#modal-product-type-label');
+            if(oldLabel) oldLabel.remove();
+            modalTitleGroup.appendChild(modalTypeLabel);
+        }
 
-        // Gestione Immagine Prodotto (usa derived_image)
+        // Gestione Immagine Prodotto
         modalProductImage.src = product.derived_image || 'LISTINI/CLIMA/images/placeholder.png';
         modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
 
         // Gestione Pannello Sinistro
         if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
         
-        // --- NUOVO: Gestione condizionale dei dettagli energetici ---
-        const hasEnergyData = product.derived_type !== 'U. Interna'; // Le UI non hanno dati energetici
+        const hasEnergyData = product.derived_type !== 'U. Interna';
         if (modalEnergyInfo) modalEnergyInfo.style.display = hasEnergyData ? 'flex' : 'none';
         if (hasEnergyData) {
-            const coolingClass = product.classe_energetica_raffrescamento;
-            const heatingClass = product.classe_energetica_riscaldamento;
-            if(modalEnergyCooling) modalEnergyCooling.textContent = coolingClass || '-';
-            if(modalEnergyHeating) modalEnergyHeating.textContent = heatingClass || '-';
+            if(modalEnergyCooling) modalEnergyCooling.textContent = product.classe_energetica_raffrescamento || '-';
+            if(modalEnergyHeating) modalEnergyHeating.textContent = product.classe_energetica_riscaldamento || '-';
         }
 
         if(modalWifiIcon) modalWifiIcon.style.display = (product.wifi === true) ? 'block' : 'none';
         if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product.codice_prodotto || ''}`;
+        
+        // --- CORREZIONE: Gestione Prezzo ---
+        // La logica di formattazione è già in formatPrice, qui passiamo solo il valore corretto
         modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
 
-        // Gestione Scheda Tecnica
+        // --- CORREZIONE: Gestione Scheda Tecnica ---
         const datasheetUrl = product.scheda_tecnica_url;
-        const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '';
+        const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
         modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
-        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
+        if (hasValidUrl) {
+            modalDatasheetLink.href = datasheetUrl.trim();
+        }
 
-        // Gestione Pannello Destro (Dettagli Tecnici)
+        // --- CORREZIONE: Gestione Dettagli Tecnici (incluso Tubazioni) ---
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
@@ -253,11 +260,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Attacchi Tubazioni</h3>
             <ul>
                 ${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}
-                ${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}
+                ${createDetailRowHTML('Gas', aproduct.tubazione_gas, ' "')}
             </ul>
         `;
-        // Pulisce sezioni completamente vuote
-        if (modalTechDetails) modalTechDetails.innerHTML = techDetailsHTML.replace(/<h3[^>]*>\s*<\/h3>\s*<ul[^>]*>\s*<\/ul>/gi, '');
+        // Pulisce sezioni completamente vuote e titoli orfani
+        if (modalTechDetails) {
+            let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, ''); // Rimuove liste vuote
+            finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, ''); // Rimuove titoli senza una lista che li segue
+            modalTechDetails.innerHTML = finalHTML;
+        }
         
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
