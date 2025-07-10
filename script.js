@@ -175,78 +175,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
 
-        // Elementi interni alla modale
-        const modalTitleGroup = document.querySelector('.modal-title-group');
-        const modalTypeLabel = document.getElementById('modal-product-type-label') || document.createElement('span');
-        modalTypeLabel.id = 'modal-product-type-label';
-
-        const modalPower = document.getElementById('modal-product-power');
-        const modalEnergyInfo = document.querySelector('.modal-energy-info');
+        // --- Seleziona tutti gli elementi del modale ---
+        const modalBrandLogo = document.getElementById('modal-brand-logo');
+        const modalProductBrand = document.getElementById('modal-product-brand');
+        const modalProductModel = document.getElementById('modal-product-model');
+        const modalProductCode = document.getElementById('modal-product-code');
+        const modalTypeBadge = document.getElementById('modal-product-type-badge');
+        const modalWifiIcon = document.getElementById('modal-wifi-icon');
+        const modalImageUi = document.getElementById('modal-image-ui');
+        const modalImageUe = document.getElementById('modal-image-ue');
         const modalEnergyCooling = document.getElementById('modal-energy-cooling');
         const modalEnergyHeating = document.getElementById('modal-energy-heating');
-        const modalCode = document.getElementById('modal-product-code');
+        const modalProductPrice = document.getElementById('modal-product-price');
+        const modalDatasheetLink = document.getElementById('modal-datasheet-link');
         const modalTechDetails = document.getElementById('modal-tech-details');
-        const modalWifiIcon = document.getElementById('modal-wifi-icon');
         
-        // Dati principali
-        const modelName = product.modello || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
-        const powerValue = typeof product.potenza === 'number' ? `${product.potenza.toFixed(1).replace('.',',')} kW` : product.potenza;
-        const brandName = product.marca || 'N/D';
+        // --- Prepara i dati ---
+        const { marca, modello, codice_prodotto, potenza, wifi, derived_type, derived_image } = product;
+        const brandName = marca || 'N/D';
+        const modelName = modello || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
         const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
+        const powerText = typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (potenza || '').replace('BTU', '');
 
-        // Gestione Logo e Titolo
-        modalProductLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`);
+        // --- Popola l'Header ---
+        modalBrandLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`);
         modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
+        modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codice_prodotto || 'N/D'}</strong>`;
+        modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText}`;
+        modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
+
+        // --- Popola la Colonna Sinistra (Immagini, Energia, Prezzo) ---
         
-        // --- CORREZIONE: Aggiunta etichetta tipo prodotto nel gruppo titolo ---
-        modalTypeLabel.textContent = product.derived_type; 
-        if (modalTitleGroup) {
-            // Rimuovi la vecchia etichetta se presente, per evitare duplicati
-            const oldLabel = modalTitleGroup.querySelector('#modal-product-type-label');
-            if(oldLabel) oldLabel.remove();
-            modalTitleGroup.appendChild(modalTypeLabel);
+        // Nascondi prima entrambe le immagini
+        modalImageUi.style.display = 'none';
+        modalImageUe.style.display = 'none';
+
+        if (derived_type === 'Monosplit') {
+            modalImageUi.src = derived_image || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
+            modalImageUe.src = getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUi.style.display = 'block';
+            modalImageUe.style.display = 'block';
+        } else if (derived_type === 'U. Esterna') {
+            modalImageUe.src = derived_image || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUe.style.display = 'block';
+        } else if (derived_type === 'U. Interna') {
+            modalImageUi.src = derived_image || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
+            modalImageUi.style.display = 'block';
         }
 
-        // Gestione Immagine Prodotto
-        modalProductImage.src = product.derived_image || 'LISTINI/CLIMA/images/placeholder.png';
-        modalProductImage.onerror = () => { modalProductImage.src = 'LISTINI/CLIMA/images/placeholder.png'; };
-
-        // Gestione Pannello Sinistro
-        if (modalPower) modalPower.innerHTML = `<strong>Potenza:</strong><br>${powerValue || ''}`;
+        // Gestisce gli errori delle immagini
+        modalImageUi.onerror = () => { modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; };
+        modalImageUe.onerror = () => { modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png'; };
         
-        const hasEnergyData = product.derived_type !== 'U. Interna';
-        if (modalEnergyInfo) modalEnergyInfo.style.display = hasEnergyData ? 'flex' : 'none';
-        if (hasEnergyData) {
-            if(modalEnergyCooling) modalEnergyCooling.textContent = product.classe_energetica_raffrescamento || '-';
-            if(modalEnergyHeating) modalEnergyHeating.textContent = product.classe_energetica_riscaldamento || '-';
-        }
-
-        if(modalWifiIcon) modalWifiIcon.style.display = (product.wifi === true) ? 'block' : 'none';
-        if (modalCode) modalCode.innerHTML = `<strong>Codice Prodotto:</strong><br>${product.codice_prodotto || ''}`;
+        // Badge Energetici
+        const coolingClass = product.classe_energetica_raffrescamento;
+        const heatingClass = product.classe_energetica_riscaldamento;
+        modalEnergyCooling.style.display = coolingClass ? 'inline-block' : 'none';
+        modalEnergyHeating.style.display = heatingClass ? 'inline-block' : 'none';
+        if (coolingClass) modalEnergyCooling.textContent = coolingClass;
+        if (heatingClass) modalEnergyHeating.textContent = heatingClass;
         
-        // --- CORREZIONE: Gestione Prezzo ---
-        // La logica di formattazione è già in formatPrice, qui passiamo solo il valore corretto
+        // Prezzo & Scheda Tecnica
         modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
-
-        // --- CORREZIONE: Gestione Scheda Tecnica ---
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
-        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
-        if (hasValidUrl) {
-            modalDatasheetLink.href = datasheetUrl.trim();
-        }
+        modalDatasheetLink.classList.toggle('visible', hasValidUrl);
+        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
 
-        // --- CORREZIONE: Gestione Dettagli Tecnici (incluso Tubazioni) ---
+        // --- Popola la Colonna Destra (Dettagli Tecnici) ---
+        const hasEnergyData = derived_type !== 'U. Interna';
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
                 ${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}
-                ${createDetailRowHTML('Unità Collegabili', product.unit_collegabili)}
-                ${createDetailRowHTML('Serie Interne Compatibili', Array.isArray(product.compatibleIndoorSeriesIds) ? product.compatibleIndoorSeriesIds.join(', ') : '')}
                 ${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui || product.dimensioni_peso_ui, ' mm')}
-                ${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}
                 ${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}
+                ${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}
                 ${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}
             </ul>
             ${hasEnergyData ? `
@@ -260,16 +265,15 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3>Attacchi Tubazioni</h3>
             <ul>
                 ${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}
-                ${createDetailRowHTML('Gas', aproduct.tubazione_gas, ' "')}
+                ${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}
             </ul>
         `;
-        // Pulisce sezioni completamente vuote e titoli orfani
-        if (modalTechDetails) {
-            let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, ''); // Rimuove liste vuote
-            finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, ''); // Rimuove titoli senza una lista che li segue
-            modalTechDetails.innerHTML = finalHTML;
-        }
         
+        let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
+        finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, '');
+        modalTechDetails.innerHTML = finalHTML;
+        
+        // --- Mostra il modale ---
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
