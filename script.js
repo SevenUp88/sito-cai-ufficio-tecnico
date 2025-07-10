@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
 
-        // --- Seleziona tutti gli elementi del modale ---
+        // --- 1. Seleziona tutti gli elementi del modale ---
         const modalBrandLogo = document.getElementById('modal-brand-logo');
         const modalProductBrand = document.getElementById('modal-product-brand');
         const modalProductModel = document.getElementById('modal-product-model');
@@ -190,14 +190,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalDatasheetLink = document.getElementById('modal-datasheet-link');
         const modalTechDetails = document.getElementById('modal-tech-details');
         
-        // --- Prepara i dati ---
-        const { marca, modello, codice_prodotto, potenza, wifi, derived_type, derived_image } = product;
+        // --- 2. Prepara e "pulisce" i dati ---
+        const { marca, modello, codice_prodotto, potenza, wifi, derived_type } = product;
         const brandName = marca || 'N/D';
         const modelName = modello || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
         const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
-        const powerText = typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (potenza || '').replace('BTU', '');
+        // Correzione: gestisce sia stringhe "2,5kW - 9000BTU" che numeri
+        const powerText = typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim();
 
-        // --- Popola l'Header ---
+        // --- 3. Popola l'Header ---
         modalBrandLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`);
         modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
@@ -205,28 +206,31 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText}`;
         modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
 
-        // --- Popola la Colonna Sinistra (Immagini, Energia, Prezzo) ---
+        // --- 4. Popola la Colonna Sinistra (Immagini, Energia, Prezzo) ---
         
-        // Nascondi prima entrambe le immagini
+        // Reset iniziale
         modalImageUi.style.display = 'none';
         modalImageUe.style.display = 'none';
+        modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; // Imposta un'immagine di fallback
+        modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png';
+
+        // Logica per le immagini
+        const uiImageFromProduct = product.image_url;
+        const ueImageFromProduct = product.image_url_ue; // Assumiamo che possa esistere un campo image_url_ue
 
         if (derived_type === 'Monosplit') {
-            modalImageUi.src = derived_image || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
-            modalImageUe.src = getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUi.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
+            // CORREZIONE: Cerca l'immagine UE o costruiscila
+            modalImageUe.src = getCorrectedPath(ueImageFromProduct) || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
             modalImageUi.style.display = 'block';
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Esterna') {
-            modalImageUe.src = derived_image || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUe.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Interna') {
-            modalImageUi.src = derived_image || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
+            modalImageUi.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
             modalImageUi.style.display = 'block';
         }
-
-        // Gestisce gli errori delle immagini
-        modalImageUi.onerror = () => { modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; };
-        modalImageUe.onerror = () => { modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png'; };
         
         // Badge Energetici
         const coolingClass = product.classe_energetica_raffrescamento;
@@ -236,15 +240,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (coolingClass) modalEnergyCooling.textContent = coolingClass;
         if (heatingClass) modalEnergyHeating.textContent = heatingClass;
         
-        // Prezzo & Scheda Tecnica
-        modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
+        // --- CORREZIONE: Prezzo & Scheda Tecnica ---
+        const priceField = product.config.price_field;
+        modalProductPrice.textContent = formatPrice(product[priceField]);
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
         modalDatasheetLink.classList.toggle('visible', hasValidUrl);
         if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
 
-        // --- Popola la Colonna Destra (Dettagli Tecnici) ---
+        // --- 5. Popola la Colonna Destra (Dettagli Tecnici) ---
         const hasEnergyData = derived_type !== 'U. Interna';
+        // CORREZIONE: Logica tubazioni più robusta
+        const hasPipingData = product.tubazione_liquido || product.tubazione_gas;
+
         const techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
@@ -260,20 +268,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createDetailRowHTML('Gas Refrigerante', product.tipo_refrigerante || product.gas)}
                 ${createDetailRowHTML('Contenuto Gas', product.quantita_refrigerante_kg || product.quantita_gas, ' kg')}
                 ${createDetailRowHTML('EER', product.eer)}
-                ${createDetailRowHTML('COP', product.cop)}
+                ${createDetailRowHTML('COP', aproduct.cop)}
             </ul>` : ''}
+            ${hasPipingData ? `
             <h3>Attacchi Tubazioni</h3>
             <ul>
                 ${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}
                 ${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}
-            </ul>
+            </ul>` : ''}
         `;
         
         let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
         finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, '');
         modalTechDetails.innerHTML = finalHTML;
         
-        // --- Mostra il modale ---
+        // --- 6. Mostra il modale ---
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
