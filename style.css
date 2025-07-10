@@ -3,7 +3,6 @@
 /* ========================================================== */
 
 /* --- Reset base e stili generali --- */
-/* MIGLIORAMENTO: Utilizzo del box-sizing ereditabile, una best practice moderna */
 html {
     box-sizing: border-box;
 }
@@ -87,7 +86,7 @@ body {
     font-weight: 500; 
 }
 #login-section .form-group input { 
-    width: 100%; /* Semplificato il calcolo del width */
+    width: 100%;
     padding: 10px; 
     border: 1px solid #ccc; 
     border-radius: 4px; 
@@ -204,7 +203,6 @@ body {
     border: 1px solid #e0e0e0; 
 }
 .submenu.visible { 
-    /* MIGLIORAMENTO: Aumentato max-height per maggiore robustezza */
     max-height: 200px; 
     opacity: 1; 
     padding: 15px; 
@@ -254,20 +252,98 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
     display: none; 
 }
-.result-item { 
-    display: block; 
-    padding: 12px 15px; 
-    border-bottom: 1px solid #eee; 
-    text-decoration: none; 
+/* Stile base del contenitore di un risultato */
+.result-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
     color: #343a40;
-    transition: background-color 0.2s; 
+    text-decoration: none;
+    transition: background-color 0.2s;
+    cursor: pointer;
 }
-.result-item:hover { 
-    background-color: #e9ecef; 
+.result-item:hover {
+    background-color: #f5f5f5;
 }
-.result-item:last-child { 
-    border-bottom: none; 
+.result-item:last-child {
+    border-bottom: none;
 }
+
+/* Stile per l'immagine nel risultato della ricerca */
+.result-image, .result-image-placeholder {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    flex-shrink: 0;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+/* Stile per il messaggio "Nessun risultato" */
+.result-item-empty {
+    padding: 15px;
+    color: #6c757d;
+    text-align: center;
+}
+
+/* Contenitore delle informazioni nel risultato (nome, tipo, etc.) */
+.result-info {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+/* Header del risultato (nome + tipo) */
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Nome del prodotto nel risultato */
+.result-name {
+    font-weight: 600;
+    font-size: 1em;
+    color: #0056a8;
+}
+
+/* Categoria/Tipo del prodotto (es. Monosplit) */
+.result-type {
+    background-color: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Codice fornitore sotto il nome */
+.result-supplier-item {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Prezzo nel risultato */
+.result-price {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #0056a8;
+    white-space: nowrap;
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
 
 /* --- Popup Generico --- */
 .admin-popup { 
@@ -288,7 +364,7 @@ body {
     background: none; 
     border: none; 
     font-size: 2em; 
-    line-height: 1; /* Aggiunto per un miglior allineamento verticale */
+    line-height: 1;
     color: #aaa; 
     cursor: pointer; 
 }
@@ -318,192 +394,72 @@ body {
     display: none !important; 
 }
 
-/* ================================================ */
-/* === CSS MODAL A DUE COLONNE (FINALE CON FIX) === */
-/* ================================================ */
-body.modal-open { 
-    overflow: hidden; 
-}
+/* ========================================================== */
+/* === NUOVO CSS DEL MODALE (secondo la tua maquette) === */
+/* ========================================================== */
+body.modal-open { overflow: hidden; }
 
 #product-details-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.65);
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
     z-index: 1050; display: flex; align-items: center; justify-content: center;
     padding: 20px; visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
 }
-#product-details-modal-overlay.visible { 
-    visibility: visible; 
-    opacity: 1; 
-}
+#product-details-modal-overlay.visible { visibility: visible; opacity: 1; }
 
 .modal-container {
     background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    width: 100%; max-width: 900px; height: auto; max-height: 90vh;
+    width: 100%; max-width: 950px; height: auto; max-height: 90vh;
     position: relative; display: flex; flex-direction: column;
     transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#product-details-modal-overlay.visible .modal-container { 
-    transform: scale(1); 
-}
+#product-details-modal-overlay.visible .modal-container { transform: scale(1); }
 
-.modal-header { 
-    display: flex; align-items: center; padding-bottom: 15px; margin-bottom: 20px; 
-    border-bottom: 1px solid #e9e9e9; flex-shrink: 0; 
+/* --- NUOVO HEADER --- */
+.modal-header {
+    display: flex; align-items: center; gap: 20px;
+    padding-bottom: 15px; margin-bottom: 20px; 
+    border-bottom: 1px solid #e9e9e9;
 }
-#modal-product-logo { 
-    height: 40px; width: auto; max-width: 140px; margin-right: 20px; object-fit: contain; 
+.modal-brand-logo { height: 40px; width: auto; max-width: 140px; object-fit: contain; flex-shrink: 0; }
+.modal-header-main { display: flex; flex-direction: column; flex-grow: 1; }
+.modal-title-group { display: flex; align-items: baseline; gap: 10px; }
+.modal-title-group #modal-product-brand { font-size: 1.1rem; color: #6c757d; }
+.modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; }
+.modal-product-code { font-size: 0.9rem; color: #6c757d; margin-top: 4px; }
+.modal-header-right { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+.modal-type-badge {
+    background-color: #343a40; color: white;
+    padding: 8px 12px; border-radius: 5px; text-align: center;
+    font-size: 0.9em; font-weight: 500; line-height: 1.3;
 }
-.modal-title-group #modal-product-brand { font-size: 1.1rem; color: #6c757d; display: block; }
-.modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; line-height: 1.2; }
+#modal-wifi-icon { font-size: 1.8em; color: #0d6efd; display: none; }
 .modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
 
+/* --- NUOVO CORPO --- */
 .modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
-/* Colonna Sinistra (fissa) */
-.modal-left-panel { flex: 0 0 300px; display: flex; flex-direction: column; align-items: center; }
-
-#modal-product-image { 
-    width: 100%; height: 180px; object-fit: contain; 
-    border: none;
-    margin-bottom: 15px; 
-}
-
-.modal-main-info { 
-    width: 100%; text-align: center; margin-bottom: 15px;
-    display: flex; flex-direction: column; gap: 10px; position: relative;
-}
-.modal-main-info strong { display: block; font-size: 0.8em; color: #6c757d; margin-bottom: 2px; text-transform: uppercase; }
-.modal-main-info div { line-height: 1.4; }
-
-#modal-wifi-icon {
-    position: absolute; top: 0; right: 5px; font-size: 1.5em; color: #0d6efd; display: none;
-}
-
-.modal-energy-info { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+/* Colonna sinistra */
+.modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+.modal-images-container { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+.modal-product-image { width: 100%; height: auto; max-height: 180px; object-fit: contain; display: none; } /* Nascoste di default */
+.modal-energy-badges-container { margin: 20px 0; display: flex; gap: 10px; }
 .energy-badge {
-    display: inline-block;
-    width: 34px; height: 34px; line-height: 34px; border-radius: 50%;
-    color: white; text-align: center; font-weight: bold; font-size: 0.9em;
-    margin: 0 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    width: 38px; height: 38px; line-height: 38px; border-radius: 50%;
+    color: white; text-align: center; font-weight: bold; font-size: 1em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: none; /* Nascosti di default */
 }
 .energy-badge.cooling { background-color: #0d6efd; }
 .energy-badge.heating { background-color: #dc3545; }
-
-.modal-price-container { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: center; width: 100%; }
-.modal-price-container span:first-child { font-size: 1rem; color: #6c757d; }
-#modal-product-price { font-size: 2.2rem; font-weight: 700; color: #0056a8; }
-#modal-datasheet-link { display: flex; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; width: 100%; }
-#modal-datasheet-link:hover { background-color: #b82c39; }
+.modal-product-price { font-size: 2.8rem; font-weight: 700; color: #0056a8; text-align: center; margin: 10px 0; }
+#modal-datasheet-link { display: none; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; width: 100%; }
+#modal-datasheet-link.visible { display: flex; }
 #modal-datasheet-link i { margin-right: 8px; }
 
-/* Colonna Destra (scorrevole) */
-.modal-right-panel { flex-grow: 1; overflow-y: auto; padding: 0 15px 5px 5px; border-left: 1px solid #eee; }
+/* Colonna destra */
+.modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
 #modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
 #modal-tech-details ul { list-style: none; padding: 0; margin: 0; }
 #modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
 #modal-tech-details li strong { margin-right: 15px; }
 #modal-tech-details li span { text-align: right; }
-
-/* ================================================ */
-/* === AGGIUNTE PER RICERCA CON IMMAGINI (HOME) === */
-/* ================================================ */
-
-/* Aggiorna lo stile del risultato per usare flexbox */
-.result-item {
-    display: flex; /* CAMBIO CHIAVE */
-    align-items: center;
-    gap: 15px; /* Spazio tra immagine e info */
-}
-
-/* Stile per l'immagine nel risultato della ricerca */
-.result-image, .result-image-placeholder {
-    width: 60px;
-    height: 60px;
-    object-fit: contain; /* L'immagine si adatta senza distorsioni */
-    flex-shrink: 0; /* Impedisce all'immagine di rimpicciolirsi */
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #eee;
-}
-
-/* Stile per il messaggio "Nessun risultato" */
-.result-item-empty {
-    padding: 15px;
-    color: #6c757d;
-    text-align: center;
-}
-
-/* Contenitore delle informazioni nel risultato (nome, tipo, etc.) */
-.result-info {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Occupa lo spazio rimanente */
-    overflow: hidden; /* Evita che il testo esca dai bordi */
-}
-
-/* Header del risultato (nome + tipo) */
-.result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-/* Nome del prodotto nel risultato */
-.result-name {
-    font-weight: 600;
-    font-size: 1em;
-    color: #0056a8;
-}
-
-/* Categoria/Tipo del prodotto (es. Monosplit) */
-.result-type {
-    background-color: #e9ecef;
-    color: #495057;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.75em;
-    font-weight: 500;
-    white-space: nowrap; /* Non va a capo */
-    flex-shrink: 0;
-}
-
-/* Codice fornitore sotto il nome */
-.result-supplier-item {
-    font-size: 0.85em;
-    color: #6c757d;
-    margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis; /* Aggiunge "..." se il testo è troppo lungo */
-}
-
-/* Prezzo nel risultato */
-.result-price {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #0056a8;
-    white-space: nowrap;
-    margin-left: 15px; /* Spazio tra info e prezzo */
-    flex-shrink: 0;
-}
-
-/* ==================================================== */
-/* === AGGIUNTE PER MODALE (TIPO PRODOTTO E FIX) === */
-/* ==================================================== */
-
-.modal-title-group {
-    display: flex; /* CAMBIO: Rende il contenitore flessibile */
-    flex-direction: column;
-}
-
-#modal-product-type-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #fff;
-    background-color: #6c757d; /* Grigio scuro per contrasto */
-    padding: 3px 10px;
-    border-radius: 15px;
-    margin-top: 5px; /* Spazio dal modello */
-    align-self: flex-start; /* Si allinea all'inizio del contenitore flex */
-}
