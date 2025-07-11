@@ -213,27 +213,24 @@ document.addEventListener('DOMContentLoaded', () => {
         modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png';
         modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png';
 
-        // Logica per le immagini
-        const uiImageFromProduct = product.image_url;
-        
-        // CORREZIONE DEFINITIVA PERCORSO IMMAGINI
-        const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
-        const uiImagePath = uiImageFromProduct ? getCorrectedPath(uiImageFromProduct) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
+        // NUOVA CORREZIONE: Logica per le immagini più robusta
+        let uiImagePath = product.image_url ? getCorrectedPath(product.image_url) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
+        let ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
 
         if (derived_type === 'Monosplit') {
             modalImageUi.src = uiImagePath;
-            modalImageUe.src = ueImagePath; // Usa il percorso costruito
+            modalImageUe.src = ueImagePath;
             modalImageUi.style.display = 'block';
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Esterna') {
-            modalImageUe.src = ueImagePath; // Usa il percorso costruito
+            // Per le unità esterne, l'image_url potrebbe essere il percorso corretto
+            modalImageUe.src = product.image_url ? getCorrectedPath(product.image_url) : ueImagePath;
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Interna') {
             modalImageUi.src = uiImagePath;
             modalImageUi.style.display = 'block';
         }
         
-        // Gestione errore se l'immagine non viene trovata
         modalImageUi.onerror = () => { modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; };
         modalImageUe.onerror = () => { modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png'; };
         
@@ -248,10 +245,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Prezzo & Scheda Tecnica
         const priceField = product.config.price_field;
         modalProductPrice.textContent = formatPrice(product[priceField]);
+        
+        // NUOVA CORREZIONE: Logica scheda tecnica
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
-        modalDatasheetLink.classList.toggle('visible', !hasValidUrl); // NOTA: la classe hidden è gestita dal CSS, qui la classe 'visible' la mostra
-        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
+        // Usiamo la classe 'hidden' per coerenza con il resto del codice
+        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
+        if (hasValidUrl) {
+            modalDatasheetLink.href = datasheetUrl.trim();
+        }
 
         // --- 5. Popola la Colonna Destra (Dettagli Tecnici) ---
         const hasEnergyData = derived_type !== 'U. Interna';
