@@ -210,12 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset iniziale
         modalImageUi.style.display = 'none';
         modalImageUe.style.display = 'none';
-        modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png';
-        modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png';
-
-        // NUOVA CORREZIONE: Logica per le immagini più robusta
-        let uiImagePath = product.image_url ? getCorrectedPath(product.image_url) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
-        let ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
+        
+        // Logica per le immagini
+        const uiImagePath = product.image_url ? getCorrectedPath(product.image_url) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
+        const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
 
         if (derived_type === 'Monosplit') {
             modalImageUi.src = uiImagePath;
@@ -223,7 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modalImageUi.style.display = 'block';
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Esterna') {
-            // Per le unità esterne, l'image_url potrebbe essere il percorso corretto
             modalImageUe.src = product.image_url ? getCorrectedPath(product.image_url) : ueImagePath;
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Interna') {
@@ -231,8 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
             modalImageUi.style.display = 'block';
         }
         
-        modalImageUi.onerror = () => { modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; };
-        modalImageUe.onerror = () => { modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png'; };
+        modalImageUi.onerror = () => { modalImageUi.style.display = 'none'; modalImageUi.src = ''; };
+        modalImageUe.onerror = () => { modalImageUe.style.display = 'none'; modalImageUe.src = ''; };
         
         // Badge Energetici
         const coolingClass = product.classe_energetica_raffrescamento;
@@ -246,11 +243,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const priceField = product.config.price_field;
         modalProductPrice.textContent = formatPrice(product[priceField]);
         
-        // NUOVA CORREZIONE: Logica scheda tecnica
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
-        // Usiamo la classe 'hidden' per coerenza con il resto del codice
-        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
+        // CORREZIONE FINALE: Usa la classe `visible` del tuo CSS.
+        modalDatasheetLink.classList.toggle('visible', hasValidUrl);
         if (hasValidUrl) {
             modalDatasheetLink.href = datasheetUrl.trim();
         }
