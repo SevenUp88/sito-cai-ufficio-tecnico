@@ -195,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const brandName = marca || 'N/D';
         const modelName = modello || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
         const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
-        // Correzione: gestisce sia stringhe "2,5kW - 9000BTU" che numeri
         const powerText = typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim();
 
         // --- 3. Popola l'Header ---
@@ -211,26 +210,32 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset iniziale
         modalImageUi.style.display = 'none';
         modalImageUe.style.display = 'none';
-        modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; // Imposta un'immagine di fallback
+        modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png';
         modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png';
 
         // Logica per le immagini
         const uiImageFromProduct = product.image_url;
-        const ueImageFromProduct = product.image_url_ue; // Assumiamo che possa esistere un campo image_url_ue
+        
+        // CORREZIONE DEFINITIVA PERCORSO IMMAGINI
+        const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
+        const uiImagePath = uiImageFromProduct ? getCorrectedPath(uiImageFromProduct) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
 
         if (derived_type === 'Monosplit') {
-            modalImageUi.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
-            // CORREZIONE: Cerca l'immagine UE o costruiscila
-            modalImageUe.src = getCorrectedPath(ueImageFromProduct) || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUi.src = uiImagePath;
+            modalImageUe.src = ueImagePath; // Usa il percorso costruito
             modalImageUi.style.display = 'block';
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Esterna') {
-            modalImageUe.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/est_${safeBrandName}.jpg`);
+            modalImageUe.src = ueImagePath; // Usa il percorso costruito
             modalImageUe.style.display = 'block';
         } else if (derived_type === 'U. Interna') {
-            modalImageUi.src = getCorrectedPath(uiImageFromProduct) || getCorrectedPath(`../images/int_${safeBrandName}.jpg`);
+            modalImageUi.src = uiImagePath;
             modalImageUi.style.display = 'block';
         }
+        
+        // Gestione errore se l'immagine non viene trovata
+        modalImageUi.onerror = () => { modalImageUi.src = 'LISTINI/CLIMA/images/placeholder.png'; };
+        modalImageUe.onerror = () => { modalImageUe.src = 'LISTINI/CLIMA/images/placeholder.png'; };
         
         // Badge Energetici
         const coolingClass = product.classe_energetica_raffrescamento;
@@ -240,17 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (coolingClass) modalEnergyCooling.textContent = coolingClass;
         if (heatingClass) modalEnergyHeating.textContent = heatingClass;
         
-        // --- CORREZIONE: Prezzo & Scheda Tecnica ---
+        // Prezzo & Scheda Tecnica
         const priceField = product.config.price_field;
         modalProductPrice.textContent = formatPrice(product[priceField]);
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
-        modalDatasheetLink.classList.toggle('visible', hasValidUrl);
+        modalDatasheetLink.classList.toggle('visible', !hasValidUrl); // NOTA: la classe hidden è gestita dal CSS, qui la classe 'visible' la mostra
         if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
 
         // --- 5. Popola la Colonna Destra (Dettagli Tecnici) ---
         const hasEnergyData = derived_type !== 'U. Interna';
-        // CORREZIONE: Logica tubazioni più robusta
         const hasPipingData = product.tubazione_liquido || product.tubazione_gas;
 
         const techDetailsHTML = `
@@ -268,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${createDetailRowHTML('Gas Refrigerante', product.tipo_refrigerante || product.gas)}
                 ${createDetailRowHTML('Contenuto Gas', product.quantita_refrigerante_kg || product.quantita_gas, ' kg')}
                 ${createDetailRowHTML('EER', product.eer)}
-                ${createDetailRowHTML('COP', aproduct.cop)}
+                ${createDetailRowHTML('COP', product.cop)}
             </ul>` : ''}
             ${hasPipingData ? `
             <h3>Attacchi Tubazioni</h3>
