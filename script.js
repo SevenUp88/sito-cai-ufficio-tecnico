@@ -210,26 +210,38 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset iniziale
         modalImageUi.style.display = 'none';
         modalImageUe.style.display = 'none';
+        const placeholderImage = 'LISTINI/CLIMA/images/placeholder.png';
+
+        // --- CORREZIONE FINALE E DEFINITIVA PER LE IMMAGINI ---
+        const safeModelName = (modelName || '').toLowerCase().replace(/\s+/g, '');
         
-        // Logica per le immagini
-        const uiImagePath = product.image_url ? getCorrectedPath(product.image_url) : `LISTINI/CLIMA/images/int_${safeBrandName}.png`;
+        // Priorità 1: Cerca un image_url specifico nel DB
+        // Priorità 2: Costruisce il percorso usando il MODELLO (es. revive.png)
+        const uiImagePath = product.image_url ? getCorrectedPath(product.image_url) : `LISTINI/CLIMA/images/${safeModelName}.png`;
         const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
 
+        // Funzione di fallback per le immagini
+        const setImage = (element, primaryPath) => {
+            if (!primaryPath) {
+                element.src = placeholderImage;
+                element.style.display = 'block'; // Mostra comunque il placeholder
+                return;
+            }
+            element.src = primaryPath;
+            element.onerror = () => { element.src = placeholderImage; };
+            element.style.display = 'block';
+        };
+
         if (derived_type === 'Monosplit') {
-            modalImageUi.src = uiImagePath;
-            modalImageUe.src = ueImagePath;
-            modalImageUi.style.display = 'block';
-            modalImageUe.style.display = 'block';
+            setImage(modalImageUi, uiImagePath);
+            setImage(modalImageUe, ueImagePath);
         } else if (derived_type === 'U. Esterna') {
-            modalImageUe.src = product.image_url ? getCorrectedPath(product.image_url) : ueImagePath;
-            modalImageUe.style.display = 'block';
+            // Per le unità esterne, il nome del modello potrebbe essere nel campo 'nome_modello_ue'
+            const ueModelImage = `LISTINI/CLIMA/images/est_${safeModelName}.png`;
+            setImage(modalImageUe, product.image_url ? getCorrectedPath(product.image_url) : ueModelImage);
         } else if (derived_type === 'U. Interna') {
-            modalImageUi.src = uiImagePath;
-            modalImageUi.style.display = 'block';
+            setImage(modalImageUi, uiImagePath);
         }
-        
-        modalImageUi.onerror = () => { modalImageUi.style.display = 'none'; modalImageUi.src = ''; };
-        modalImageUe.onerror = () => { modalImageUe.style.display = 'none'; modalImageUe.src = ''; };
         
         // Badge Energetici
         const coolingClass = product.classe_energetica_raffrescamento;
@@ -245,8 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const datasheetUrl = product.scheda_tecnica_url;
         const hasValidUrl = datasheetUrl && typeof datasheetUrl === 'string' && datasheetUrl.trim() !== '' && datasheetUrl.trim() !== '#';
-        // CORREZIONE FINALE: Usa la classe `visible` del tuo CSS.
-        modalDatasheetLink.classList.toggle('visible', hasValidUrl);
+        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
         if (hasValidUrl) {
             modalDatasheetLink.href = datasheetUrl.trim();
         }
