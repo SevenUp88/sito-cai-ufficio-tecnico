@@ -76,7 +76,7 @@
         </div>
         <div id="admin-overlay" class="overlay hidden"></div>
 
-        <!-- === NUOVO LAYOUT DEL MODALE (secondo la tua maquette) === -->
+        <!-- === LAYOUT DEL MODALE CORRETTO === -->
         <div id="product-details-modal-overlay">
             <div class="modal-container">
                 <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
@@ -109,12 +109,14 @@
                              <span id="modal-energy-cooling" class="energy-badge cooling"></span>
                              <span id="modal-energy-heating" class="energy-badge heating"></span>
                         </div>
+                        <!-- Blocco per prezzo e scheda tecnica, verrà spinto in basso dal CSS -->
                         <div class="modal-bottom-info">
-    <div id="modal-product-price" class="modal-product-price"></div>
-    <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
-        <i class="fas fa-file-pdf"></i> Scheda Tecnica
-    </a>
-</div>
+                            <div id="modal-product-price" class="modal-product-price"></div>
+                            <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
+                                <i class="fas fa-file-pdf"></i> Scheda Tecnica
+                            </a>
+                        </div>
+                    </div> <!-- Fine di .modal-left-panel -->
 
                     <!-- COLONNA DESTRA (Dettagli Tecnici) -->
                     <div class="modal-right-panel">
@@ -122,7 +124,7 @@
                             <!-- I dettagli tecnici verranno inseriti qui da JavaScript -->
                         </div>
                     </div>
-                </div>
+                </div> <!-- Fine di .modal-body-split -->
             </div>
         </div>
     </main>
