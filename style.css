@@ -449,7 +449,7 @@ body.modal-open { overflow: hidden; }
     height: 380px; 
     margin-bottom: 15px;
     justify-content: center;}
-.modal-product-image { width: 100%; height: auto; max-height: 180px; object-fit: contain; display: none;background-color: #f8f9fa; } /* Nascoste di default */
+.modal-product-image { width: 100%; height: auto; max-height: 180px; object-fit: contain; display: none;background-color: transparent; } /* Nascoste di default */
 .modal-energy-badges-container { margin: 20px 0; display: flex; gap: 10px; }
 .energy-badge {
     width: 38px; height: 38px; line-height: 38px; border-radius: 50%;
