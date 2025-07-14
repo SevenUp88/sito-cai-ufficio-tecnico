@@ -473,8 +473,11 @@ body.modal-open { overflow: hidden; }
 }
 #modal-datasheet-link.visible {
     display: flex; /* La classe 'visible' lo mostra */
+} /* <<< PARENTESI MANCANTE AGGIUNTA QUI */
 
-#modal-datasheet-link i { margin-right: 8px; }
+#modal-datasheet-link i { 
+    margin-right: 8px; 
+}
 
 /* Colonna destra */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
