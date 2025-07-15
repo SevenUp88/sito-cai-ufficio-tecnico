@@ -3,41 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestione FGAS - C.A.I.</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>CAI - Modulo Dichiarazione Acquisto FGAS</title>
+    <!-- Icone da Font Awesome per il pulsante di stampa -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* === TUTTI GLI STILI CSS SONO QUI DENTRO === */
+        
+        /* Reset di base e stili generali del corpo */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #e9ecef; /* Sfondo grigio chiaro per far risaltare il foglio */
+            color: #212529;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Contenitore principale che simula il foglio A4 */
+        .form-container {
+            max-width: 850px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 40px 50px;
+            border-radius: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        /* Header del modulo */
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-header h1 {
+            font-size: 1.3rem; /* Dimensione più fedele all'originale */
+            color: #000;
+            margin: 0 0 5px 0;
+            font-weight: 700;
+        }
+
+        .form-header p {
+            font-size: 0.9rem;
+            color: #333;
+            margin: 0;
+        }
+
+        /* Stili per i campi del form */
+        #fgas-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 25px;
+            align-items: flex-end; /* Allinea gli input alla base */
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1; /* Permette ai campi di occupare spazio equamente */
+            min-width: 0; /* Previene l'overflow nei flex container */
+        }
+        .form-group.flex-grow-2 {
+            flex-grow: 2;
+        }
+
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: #495057;
+            margin-bottom: 3px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="date"] {
+            border: none;
+            border-bottom: 1px solid #333; /* Linea stile documento originale */
+            border-radius: 0;
+            padding: 5px 2px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-bottom: 2px solid #0056a8;
+        }
+        .form-group input:disabled {
+            background-color: #f8f9fa;
+            border-bottom: 1px dotted #999;
+            cursor: not-allowed;
+        }
+
+        /* Linea di separazione */
+        .section-divider {
+            border: 0;
+            border-top: 1px dashed #aaa;
+            margin: 15px 0;
+        }
+        
+        /* Stile per i titoli delle sezioni e le checkbox */
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            margin-top: 10px;
+        }
+        .section-title input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+        }
+        .section-title label, .section-title-static {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #000;
+        }
+        .section-title-static {
+            margin-bottom: 15px;
+        }
+
+        .separator-text {
+            text-align: left;
+            font-weight: 500;
+            color: #333;
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        /* Sezione DICHIARA */
+        .declaration-section {
+            margin-top: 25px;
+            text-align: center;
+        }
+        .declaration-section h3 { font-size: 0.95rem; font-weight: 400; }
+        .declaration-section h2 { margin: 10px 0; font-size: 1.4rem; color: #000; }
+        .declaration-section p { font-size: 0.95rem; line-height: 1.6; text-align: justify; }
+
+        /* Sezione Firma */
+        .signature-section { margin-top: 35px; }
+        .signature-fields { align-items: flex-end; }
+        .signature-box {
+            height: 60px;
+            background-color: #fff;
+            border-bottom: 1px solid #333; /* Linea coerente con gli altri input */
+        }
+        
+        /* Note e piè di pagina */
+        .attachment-note {
+            font-style: italic;
+            color: #6c757d;
+            text-align: left; /* Come nell'originale */
+            margin-top: 35px;
+        }
+        .privacy-footer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #ccc;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .privacy-footer h4 { margin-bottom: 5px; color: #000; font-size: 0.85rem; }
+        .privacy-footer p { text-align: justify; line-height: 1.5; }
+        
+        /* Azioni (pulsante Stampa) */
+        .form-actions {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .print-button {
+            padding: 12px 25px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 5px; 
+            background-color: #0056a8; 
+            color: white; 
+            transition: background-color 0.2s ease;
+        }
+        .print-button i { margin-right: 8px; }
+        .print-button:hover { background-color: #004182; }
+
+        /* STILI PER LA STAMPA: nasconde elementi non necessari e ottimizza il layout */
+        @media print {
+            body {
+                background-color: #fff;
+                padding: 0;
+                margin: 0;
+            }
+            .form-container {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .form-group input[type="text"], .form-group input[type="date"] {
+                border-bottom: 1px solid #333;
+            }
+            /* Nasconde il pulsante di stampa durante la stampa */
+            .form-actions {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <header class="app-header">
-        <a href="../HOME/index.html" title="C.A.I. - Home">
-             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI Consorzio Artigiani Idraulici" class="logo">
-        </a>
-        <div class="header-controls">
-            <a href="../HOME/index.html" class="header-action-button" title="Torna alla Home">
-                <i class="fas fa-home"></i>
-            </a>
-            <button id="fgas-admin-trigger" class="header-action-button" title="Accesso Admin FGAS">
-                <i class="fas fa-user-shield"></i>
-            </button>
+    <div class="form-container">
+        <!-- Header del modulo -->
+        <div class="form-header">
+            <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
+            <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
         </div>
-    </header>
 
-    <div class="container">
-        <h1 class="page-title">Gestione FGAS</h1>
+        <form id="fgas-form" onsubmit="return false;">
+            <div class="form-row">
+                <div class="form-group"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div>
+                <div class="form-group"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div>
+                <div class="form-group"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div>
+            </div>
 
-        <main>
-            <!-- Contenuto specifico FGAS qui -->
-            <p>Area dedicata alla gestione FGAS. Contenuto da implementare.</p>
-            <!-- Esempio: tabella, form, ecc. -->
-        </main>
+            <hr class="section-divider">
 
-        <footer>
-             <p>&copy; 2025 C.A.I - Consorzio Artigiani Idraulici </p>
-        </footer>
+            <section id="section-impresa-certificata">
+                <div class="section-title">
+                    <input type="checkbox" id="is-impresa-certificata">
+                    <label for="is-impresa-certificata">IMPRESA CERTIFICATA</label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-grow-2"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div>
+                    <div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div>
+                    <div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div>
+                </div>
+            </section>
+            
+            <section id="section-dati-acquirente">
+                <div class="section-title-static">DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</div>
+                <div class="form-row">
+                     <div class="form-group flex-grow-2"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div>
+                     <div class="form-group"><label for="acq-codice-fiscale">CODICE FISCALE</label><input type="text" id="acq-codice-fiscale"></div>
+                </div>
+            </section>
+            
+            <hr class="section-divider">
+
+            <section id="section-altre-finalita">
+                <div class="section-title">
+                    <input type="checkbox" id="is-altre-finalita">
+                    <label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-grow-2"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div>
+                    <div class="form-group"><label for="altre-cod-fisc-1">COD.FISC.</label><input type="text" id="altre-cod-fisc-1" disabled></div>
+                </div>
+                <p class="separator-text">OPPURE</p>
+                <div class="form-row">
+                    <div class="form-group flex-grow-2"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div>
+                    <div class="form-group"><label for="altre-cod-fisc-2">COD. FISC.</label><input type="text" id="altre-cod-fisc-2" disabled></div>
+                </div>
+            </section>
+
+            <section class="declaration-section">
+                <h3>Ai sensi dell'art. 16, comme 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3>
+                <h2>DICHIARA</h2>
+                <p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
+            </section>
+            
+            <section class="signature-section">
+                <div class="form-row">
+                    <div class="form-group flex-grow-2"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
+                    <div class="form-group"></div>
+                </div>
+                 <div class="form-row signature-fields" style="margin-top: 20px;">
+                    <div class="form-group flex-grow-2">
+                        <label for="nome-dichiarante">Nome e cognome del dichiarante</label>
+                        <input type="text" id="nome-dichiarante">
+                    </div>
+                    <div class="form-group">
+                         <label>Firma</label>
+                         <div class="signature-box"></div>
+                    </div>
+                </div>
+            </section>
+
+            <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
+
+            <footer class="privacy-footer">
+                <h4>INFORMATIVA AI SENSI DEL D.LGS. 196/2003</h4>
+                <p>In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
+            </footer>
+        </form>
+
+        <div class="form-actions">
+            <button id="print-button" class="print-button"><i class="fas fa-print"></i> Stampa Modulo</button>
+        </div>
     </div>
+    
+    <script>
+    // === TUTTO IL CODICE JAVASCRIPT E' QUI DENTRO ===
 
-    <!-- Eventuali script specifici -->
-    <!-- <script src="script.js"></script> -->
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const printButton = document.getElementById('print-button');
+        
+        const checkImpresaCertificata = document.getElementById('is-impresa-certificata');
+        const checkAltreFinalita = document.getElementById('is-altre-finalita');
+
+        const sectionImpresaCertificata = document.getElementById('section-impresa-certificata');
+        const sectionAltreFinalita = document.getElementById('section-altre-finalita');
+
+        const inputsImpresaCertificata = sectionImpresaCertificata.querySelectorAll('input:not([type="checkbox"])');
+        const inputsAltreFinalita = sectionAltreFinalita.querySelectorAll('input:not([type="checkbox"])');
+
+        // Abilita o disabilita i campi di una sezione specifica
+        const toggleSectionInputs = (inputs, enable) => {
+            inputs.forEach(input => {
+                input.disabled = !enable;
+                if (!enable) {
+                    input.value = ''; // Pulisce il campo se viene disabilitato
+                }
+            });
+        };
+
+        // Gestisce il click sul checkbox "Impresa Certificata"
+        checkImpresaCertificata.addEventListener('change', () => {
+            const isChecked = checkImpresaCertificata.checked;
+            toggleSectionInputs(inputsImpresaCertificata, isChecked);
+
+            // Se spunto questo, l'altro viene deselezionato e disabilitato
+            if (isChecked) {
+                checkAltreFinalita.checked = false;
+                toggleSectionInputs(inputsAltreFinalita, false);
+            }
+        });
+
+        // Gestisce il click sul checkbox "Altre Finalità"
+        checkAltreFinalita.addEventListener('change', () => {
+            const isChecked = checkAltreFinalita.checked;
+            toggleSectionInputs(inputsAltreFinalita, isChecked);
+            
+            // Se spunto questo, l'altro viene deselezionato e disabilitato
+            if (isChecked) {
+                checkImpresaCertificata.checked = false;
+                toggleSectionInputs(inputsImpresaCertificata, false);
+            }
+        });
+
+        // Gestisce il click sul pulsante "Stampa Modulo"
+        if (printButton) {
+            printButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.print(); // Apre la finestra di dialogo di stampa del browser
+            });
+        }
+    });
+    </script>
 </body>
 </html>
