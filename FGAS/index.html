@@ -6,70 +6,176 @@
     <title>CAI - Modulo Dichiarazione Acquisto FGAS</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Link al foglio di stile principale dell'applicazione -->
-    <!-- Il percorso "../" sale di una cartella per trovare lo style.css -->
     <link rel="stylesheet" href="../style.css"> 
     
     <style>
-        /* Aggiungiamo qui solo gli stili specifici per la stampa del modulo, 
-           per non sporcare il CSS principale. */
+        /* ======================================================== */
+        /*    STILI DEDICATI PER IL LAYOUT DEL MODULO FGAS          */
+        /* ======================================================== */
+        
+        /* Sovrascrivi gli stili generici per ottenere il layout da documento */
+        #page-content .form-container {
+            font-family: Arial, Helvetica, sans-serif;
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 30px 40px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #page-content .form-header {
+            text-align: left; /* Allineato a sx come documento */
+            margin-bottom: 25px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 15px;
+        }
+
+        #page-content .form-header h1 {
+            font-size: 1.5rem;
+            color: #000;
+            font-weight: bold;
+        }
+
+        #page-content .form-header p {
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        #page-content form label {
+            display: block;
+            font-size: 0.85rem;
+            color: #555;
+            font-weight: normal;
+            margin-bottom: 2px;
+        }
+
+        /* Stile dei campi per farli apparire solo sottolineati */
+        #page-content form input[type="text"],
+        #page-content form input[type="date"] {
+            background-color: transparent;
+            border: none;
+            border-bottom: 1px solid #333;
+            border-radius: 0;
+            padding: 4px 1px;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        #page-content form input:focus {
+             outline: none;
+             border-bottom: 2px solid #0056a8;
+        }
+        
+        #page-content form input:disabled {
+            background-color: #f8f9fa;
+            border-bottom-style: dotted;
+            cursor: not-allowed;
+        }
+
+        /* Layout delle sezioni */
+        #page-content .section-divider { display: none; } /* Le linee tratteggiate non servono più */
+
+        #page-content section { margin-bottom: 25px; }
+        #page-content .section-title label, #page-content .section-title-static { font-weight: bold; font-size: 1rem; color: #000; }
+        
+        #page-content .declaration-section {
+             background-color: #f7f7f7;
+             padding: 15px;
+             border: 1px solid #eee;
+             text-align: center;
+        }
+        
+        #page-content .form-actions { margin-top: 30px; text-align: center; }
+        #page-content .print-button { background-color: #198754; }
+
+
+        /* Stili specifici per la STAMPA A4 */
         @media print {
-            body { background-color: #fff; font-size: 9.5pt; }
+            body { background-color: #fff; font-size: 10pt; color: #000; }
             .app-header, .form-actions-header, .form-actions { display: none; }
+            
+            #page-content { display: block !important; }
+            #auth-loader { display: none; }
             #content-area { padding: 0; margin: 0; box-shadow: none; }
-            .form-container.fgas-theme { box-shadow: none; border: none; max-width: 100%; padding: 0; margin: 0; }
+            
+            #page-content .form-container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
+
+            /* Ottimizzazione spazi per la stampa */
+            #page-content section, #page-content .form-header { margin-bottom: 15px; }
+            #page-content .declaration-section { background-color: #fff; border: 1px solid #ccc; }
+            #page-content form input { border-color: #000; }
         }
     </style>
 </head>
 <body>
+
     <header class="app-header">
-        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo"></a>
-        <div class="header-controls">
-            <!-- Questo verrà popolato dallo script di autenticazione se necessario -->
-            <div id="user-dashboard" class="hidden">
-                 <p>Utente: <span id="user-email-display"></span></p>
-                <button id="logout-button" class="btn-login">Logout</button>
-            </div>
+        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="hidden">
+             <p style="margin: 0 10px 0 0;">Utente: <span id="user-email-display"></span></p>
+            <button id="logout-button" class="btn-login">Logout</button>
         </div>
     </header>
 
-    <!-- Messaggio mostrato durante il controllo dell'autenticazione -->
-    <div id="auth-loader" style="text-align: center; padding: 50px; font-size: 1.2rem;">
-        Verifica autorizzazione in corso...
-    </div>
-
-    <!-- Il contenuto principale della pagina, nascosto di default -->
-    <main id="page-content" class="hidden">
-         <div class="form-container fgas-theme">
-             <div class="form-header">
+    <div id="auth-loader" style="text-align: center; padding: 50px; font-size: 1.2rem;">Verifica autorizzazione...</div>
+    
+    <main id="content-area" class="hidden">
+         <div id="page-content" class="form-container">
+            <div class="form-header">
                 <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
                 <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
-             </div>
-             <!-- Inizio Form -->
+            </div>
+             
              <form id="fgas-form" onsubmit="return false;">
-                <div class="form-row"><div class="form-group"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div><div class="form-group"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div><div class="form-group"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div></div><hr class="section-divider">
-                <section id="section-impresa-certificata"><div class="section-title"><input type="checkbox" id="is-impresa-certificata"><label for="is-impresa-certificata">IMPRESA CERTIFICATA</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div><div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div><div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div></div></section>
-                <section id="section-dati-acquirente"><div class="section-title-static">DATI ACQUIRENTE (obbligatori)</div><div class="form-row"><div class="form-group flex-grow-2"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div><div class="form-group"><label for="acq-codice-fiscale">CODICE FISCALE</label><input type="text" id="acq-codice-fiscale"></div></div></section><hr class="section-divider">
-                <section id="section-altre-finalita"><div class="section-title"><input type="checkbox" id="is-altre-finalita"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div><div class="form-group"><label for="altre-cod-fisc-1">COD.FISC.</label><input type="text" id="altre-cod-fisc-1" disabled></div></div><p class="separator-text">OPPURE</p><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div><div class="form-group"><label for="altre-cod-fisc-2">COD. FISC.</label><input type="text" id="altre-cod-fisc-2" disabled></div></div></section>
+                <section>
+                    <div class="form-group" style="max-width: 250px;"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div>
+                    <div class="form-group" style="max-width: 250px; margin-top: 15px;"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div>
+                    <div class="form-group" style="max-width: 250px; margin-top: 15px;"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div>
+                </section>
+
+                <section id="section-impresa-certificata">
+                    <div class="section-title" style="display:flex; align-items:center;"><input type="checkbox" id="is-impresa-certificata" style="width:18px; height:18px; margin-right:10px;"><label for="is-impresa-certificata">IMPRESA CERTIFICata</label></div>
+                    <div class="form-group" style="margin-top:15px;"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div>
+                    <div class="form-group" style="margin-top:15px;"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div>
+                    <div class="form-group" style="margin-top:15px;"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div>
+                </section>
+                
+                <section id="section-dati-acquirente">
+                    <div class="section-title-static">DATI ACQUIRENTE (obbligatori)</div>
+                    <div class="form-group" style="margin-top:15px;"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div>
+                </section>
+
+                <section id="section-altre-finalita">
+                    <div class="section-title" style="display:flex; align-items:center;"><input type="checkbox" id="is-altre-finalita" style="width:18px; height:18px; margin-right:10px;"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div>
+                     <div class="form-group" style="margin-top:15px;"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div>
+                     <p class="separator-text" style="font-weight: bold; margin: 10px 0;">OPPURE</p>
+                     <div class="form-group" style="margin-top:15px;"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div>
+                </section>
+                
                 <section class="declaration-section"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
-                <section class="signature-section"><div class="form-row"><div class="form-group flex-grow-2"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div></div><div class="form-row" style="margin-top: 15px;"><div class="form-group flex-grow-2"><label for="nome-dichiarante">Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div><div class="form-group"><label>Firma</label><div class="signature-box"></div></div></div></section>
-                <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
-                <footer class="privacy-footer"><h4>INFORMATIVA D.LGS. 196/2003</h4><p>I dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
+                
+                <section class="signature-section" style="margin-top:40px;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div class="form-group" style="width:45%;"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
+                        <div class="form-group" style="width:45%;"><label>Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div>
+                    </div>
+                     <div style="margin-top: 50px;"><label>Firma</label><div style="width:50%; border-bottom:1px solid #333; height: 30px;"></div></div>
+                </section>
+
+                 <footer class="privacy-footer" style="margin-top:40px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 0.8rem;"><p>In qualità di titolari del trattamento dei dati forniti... Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
-            <div class="form-actions"><button id="fgas-print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
+             <div class="form-actions"><button id="fgas-print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
          </div>
     </main>
 
-    <!-- Script Firebase (NECESSARI SU OGNI PAGINA PROTETTA) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <script>
-    // Questo script va inserito in OGNI pagina che vuoi proteggere.
-    // Includi qui le tue credenziali firebase.
     const firebaseConfig = {
-        apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // LA TUA CHIAVE REALE
+        apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
         authDomain: "caiufficiotecnico.firebaseapp.com",
         projectId: "caiufficiotecnico",
         storageBucket: "caiufficiotecnico.appspot.com",
@@ -77,23 +183,17 @@
         appId: "1:1071449383838:web:715c0a3733a4c14e1a0525"
     };
 
-    // Inizializza Firebase
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    } else {
-        firebase.app(); 
-    }
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); } else { firebase.app(); }
     const auth = firebase.auth();
-
-    // Funzionamento del modulo FGAS
+    
+    // Logica di compilazione del form
     function initializeFGASForm() {
         const printButton = document.getElementById('fgas-print-button');
         const checkImpresa = document.getElementById('is-impresa-certificata');
         const checkAltre = document.getElementById('is-altre-finalita');
-        if(!checkImpresa) return; // Se il form non c'è, non fare nulla
-
-        const inputsImpresa = document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])');
-        const inputsAltre = document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])');
+        if(!checkImpresa) return;
+        const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
+        const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
 
         const toggleInputs = (inputs, enable) => inputs.forEach(i => { i.disabled = !enable; if (!enable) i.value = ''; });
         
@@ -114,37 +214,24 @@
         if(printButton) printButton.onclick = () => window.print();
     }
     
-    // LA "GUARDIA DI SICUREZZA" DI QUESTA PAGINA
+    // Logica di autenticazione ("guardia di sicurezza")
     document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('auth-loader');
-        const pageContent = document.getElementById('page-content');
+        const contentArea = document.getElementById('content-area');
         const userDashboard = document.getElementById('user-dashboard');
         const userEmailDisplay = document.getElementById('user-email-display');
         const logoutButton = document.getElementById('logout-button');
         
         auth.onAuthStateChanged(user => {
             if (user) {
-                // UTENTE AUTENTICATO: mostra il contenuto della pagina
-                console.log('Accesso autorizzato per:', user.email);
                 loader.classList.add('hidden');
-                pageContent.classList.remove('hidden');
-
-                // Mostra i dettagli utente e il pulsante logout nell'header
+                contentArea.classList.remove('hidden');
                 userDashboard.classList.remove('hidden');
                 userEmailDisplay.textContent = user.email;
-                logoutButton.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        window.location.href = '/'; // Torna alla home dopo il logout
-                    });
-                });
-                
-                // Inizializza la logica specifica del modulo FGAS
+                logoutButton.onclick = () => { auth.signOut().then(() => { window.location.href = '/'; }); };
                 initializeFGASForm();
-                
             } else {
-                // UTENTE NON AUTENTICATO: torna alla pagina di login
-                console.log('Accesso negato. Reindirizzamento alla home.');
-                window.location.href = '/'; // Usa '/' per puntare alla radice del sito
+                window.location.href = '/';
             }
         });
     });
