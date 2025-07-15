@@ -17,7 +17,7 @@
         .paper-form input:focus {outline: none; border-bottom: 1px solid #0056a8;}
         .paper-form input:disabled { background: #f8f9fa; cursor: not-allowed; border-bottom-style: solid; border-color: #eee;}
         .paper-form section { margin-top: 25px; }
-        .checkbox-label {display: flex;align-items: center;font-weight: bold;font-size: 1rem;margin-bottom: 15px;}
+        .checkbox-label {display: flex;align-items: center;font-weight: bold;font-size: 1rem;margin-bottom: 15px; cursor: pointer;}
         .checkbox-label input {width: 16px;height: 16px;margin-right: 10px;}
         .declaration-box {background:#f7f7f7;border:1px solid #eee;padding:20px;text-align:center;margin:30px 0;}
         .declaration-box h2 { font-size: 1.2rem; }
@@ -25,30 +25,16 @@
         .signature-area > div {flex: 1;}
         .signature-area label {font-size: 0.8rem; display: block; margin-bottom: 25px;}
         .signature-area .signature-box {height: 1px; border-top: 1px solid #333;}
-        
-        /* === Stile per il NUOVO footer === */
-        .info-footer { 
-            text-align: justify; 
-            margin-top: 40px; 
-            padding-top: 20px; 
-            border-top: 1px solid #ccc;
-            font-size: 0.8rem;
-            color: #444;
-        }
-        .info-footer p { font-size: inherit; } /* Eredita la dimensione */
-        .info-footer .attachment-note {
-            font-style: italic;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
+        .info-footer { text-align: justify; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 0.8rem; color: #444; }
+        .info-footer p { font-size: inherit; }
+        .info-footer .attachment-note { font-style: italic; text-align: center; margin-bottom: 15px; }
         @media print {
-            body {background: #fff; font-size: 9pt;} /* Ridotto per far entrare tutto */
+            body {background: #fff; font-size: 9pt;}
             .app-header, .form-actions {display: none;}
             #content-area, .paper-form {padding:0;margin:0;border:none;box-shadow:none;}
             #auth-loader {display:none;}
             .declaration-box {background: #fff; border: 1px solid #ccc;}
-            .info-footer { font-size: 7.5pt; } /* Più piccolo in stampa */
+            .info-footer { font-size: 7.5pt; }
         }
     </style>
 </head>
@@ -62,51 +48,28 @@
         <div class="paper-form">
             <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
-                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;">
-                    <span class="form-field"><label>Codice cliente</label><input type="text" style="width:150px;"></span>
-                    <span class="form-field"><label>N. bolla</label><input type="text" style="width:150px;"></span>
-                    <span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span>
-                </section>
+                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;"><span class="form-field"><label>Codice cliente</label><input type="text" style="width:150px;"></span><span class="form-field"><label>N. bolla</label><input type="text" style="width:150px;"></span><span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span></section>
                 <section id="section-impresa-certificata">
                     <label class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</label>
-                    <div class="form-field"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div>
-                    <div style="display:flex;gap:30px; margin-top: 15px;">
-                        <span class="form-field" style="flex:1;"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></span>
-                        <span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></span>
-                    </div>
+                    <div class="form-field" style="margin-top: 15px;"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:1;"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></span><span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></span></div>
                 </section>
                 <section id="section-dati-acquirente">
                     <b style="font-size:1rem;">DATI ACQUIRENTE (obbligatori)</b>
-                    <div style="display:flex;gap:30px; margin-top: 15px;">
-                        <span class="form-field" style="flex:2;"><label>Denominazione</label><input type="text" id="acq-denominazione"></span>
-                        <span class="form-field" style="flex:1;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></span>
-                    </div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:2;"><label>Denominazione</label><input type="text" id="acq-denominazione"></span><span class="form-field" style="flex:1;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></span></div>
                 </section>
                 <section id="section-altre-finalita">
                     <label class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
-                    <div class="form-field"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
+                    <div class="form-field" style="margin-top: 15px;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
                     <p style="font-weight:bold;margin:15px 0 10px 0;">OPPURE</p>
                     <div class="form-field"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
                 </section>
-                <section class="declaration-box">
-                    <h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3>
-                    <h2>DICHIARA</h2>
-                    <p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
-                </section>
+                <section class="declaration-box"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
                 <section class="signature-area">
                     <div><label>Luogo e data</label><div class="signature-box"></div></div>
-                    <div>
-                        <label>Nome e cognome del dichiarante</label><div class="signature-box"></div>
-                        <label style="margin-top:40px;">Firma</label><div class="signature-box"></div>
-                    </div>
+                    <div><label>Nome e cognome del dichiarante</label><div class="signature-box"></div><label style="margin-top:40px;">Firma</label><div class="signature-box"></div></div>
                 </section>
-
-                <!-- === NUOVA SEZIONE INFORMATIVA AGGIUNTA QUI === -->
-                <footer class="info-footer">
-                    <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
-                    <p><b>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</b> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall’articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
-                </footer>
-                <!-- === FINE NUOVA SEZIONE === -->
+                <footer class="info-footer"><p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p><p><b>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</b> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall’articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
             <div class="form-actions" style="margin-top: 30px;"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
         </div>
@@ -114,9 +77,82 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
         const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
-        if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);const auth=firebase.auth();
-        function initializeForm(){const e=document.getElementById("is-impresa-certificata"),t=document.getElementById("is-altre-finalita");if(!e)return;const a=Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])')),n=Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])')),c=t=>{t.forEach(t=>{t.disabled=!0,t.value=""})},o=t=>{t.forEach(t=>t.disabled=!1)};e.addEventListener("change",()=>{toggleInputs(a,e.checked),e.checked&&(t.checked=!1,toggleInputs(n,!1))}),t.addEventListener("change",()=>{toggleInputs(n,t.checked),t.checked&&(e.checked=!1,toggleInputs(a,!1))}),document.getElementById("print-button").addEventListener("click",()=>window.print()),c(a),c(n)}
-        document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("auth-loader"),t=document.getElementById("content-area"),a=document.getElementById("user-dashboard"),n=document.getElementById("user-email-display"),c=document.getElementById("logout-button"),o=document.getElementById("data-bolla");o&&(o.valueAsDate=new Date),auth.onAuthStateChanged(i=>{i?(e.classList.add("hidden"),t.classList.remove("hidden"),a.classList.remove("hidden"),n.textContent=i.email,c.onclick=()=>{auth.signOut().then(()=>{window.location.href="/"})},initializeForm()):window.location.href="/"})});
+        if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
+        const auth=firebase.auth();
+        
+        // --- INIZIO SCRIPT CORRETTO PER IL FORM ---
+        function initializeForm() {
+            const checkImpresa = document.getElementById('is-impresa-certificata');
+            const checkAltre = document.getElementById('is-altre-finalita');
+            if (!checkImpresa) return;
+
+            const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
+            const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
+
+            // Funzione unica per abilitare/disabilitare una sezione
+            const setSectionState = (inputs, isEnabled) => {
+                inputs.forEach(input => {
+                    input.disabled = !isEnabled;
+                    if (!isEnabled) {
+                        input.value = '';
+                    }
+                });
+            };
+
+            // Evento per checkbox "IMPRESA CERTIFICATA"
+            checkImpresa.addEventListener('change', () => {
+                setSectionState(inputsImpresa, checkImpresa.checked);
+                // Se viene spuntato, deseleziona e disabilita l'altro
+                if (checkImpresa.checked) {
+                    checkAltre.checked = false;
+                    setSectionState(inputsAltre, false);
+                }
+            });
+
+            // Evento per checkbox "ALTRE FINALITA'"
+            checkAltre.addEventListener('change', () => {
+                setSectionState(inputsAltre, checkAltre.checked);
+                // Se viene spuntato, deseleziona e disabilita l'altro
+                if (checkAltre.checked) {
+                    checkImpresa.checked = false;
+                    setSectionState(inputsImpresa, false);
+                }
+            });
+
+            // Pulsante di stampa
+            document.getElementById('print-button').addEventListener('click', () => window.print());
+
+            // Stato iniziale al caricamento della pagina: tutto disabilitato
+            setSectionState(inputsImpresa, false);
+            setSectionState(inputsAltre, false);
+        }
+        // --- FINE SCRIPT CORRETTO PER IL FORM ---
+        
+        document.addEventListener("DOMContentLoaded", () => {
+            const loader = document.getElementById("auth-loader");
+            const contentArea = document.getElementById("content-area");
+            const userDashboard = document.getElementById("user-dashboard");
+            const userEmailDisplay = document.getElementById("user-email-display");
+            const logoutButton = document.getElementById("logout-button");
+            const dataBollaInput = document.getElementById('data-bolla');
+
+            if(dataBollaInput) {
+                dataBollaInput.valueAsDate = new Date();
+            }
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loader.classList.add("hidden");
+                    contentArea.classList.remove("hidden");
+                    userDashboard.classList.remove("hidden");
+                    userEmailDisplay.textContent = user.email;
+                    logoutButton.onclick = () => { auth.signOut().then(() => { window.location.href = "/" }) };
+                    initializeForm(); // Lancia la logica del form
+                } else {
+                    window.location.href = "/"
+                }
+            });
+        });
     </script>
 </body>
 </html>
