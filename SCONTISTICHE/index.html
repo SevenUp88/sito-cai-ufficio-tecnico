@@ -49,92 +49,79 @@
         .login-form .form-group { margin-bottom: 20px; text-align: left; }
         .login-form label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--secondary-color); }
         .login-form input[type="email"], .login-form input[type="password"] { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1em; }
-        .login-form input[type="email"]:focus, .login-form input[type="password"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
         .login-form .button-login { background-color: var(--primary-color); color: white; padding: 12px; width: 100%; font-size: 1.1em; border: none; border-radius: var(--border-radius); cursor: pointer; }
-        .login-form .button-login:hover { background-color: #004182; }
         .auth-error { color: var(--danger-color); margin-top: 15px; font-size: 0.9em; min-height: 1.2em; }
         .content-hidden { display: none !important; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
         /* Header */
-        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0,86,168,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); box-sizing: border-box; }
-        .app-header .logo { height: 45px; width: auto; flex-shrink: 0; display: block; }
-        .app-header a { line-height: 0; }
+        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: var(--background-color); box-shadow: 0 2px 5px rgba(0,86,168,0.1); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: var(--header-height); }
+        .app-header .logo { height: 45px; width: auto; }
         .header-controls { display: flex; align-items: center; gap: 15px; }
-        .header-user-info { font-size: 0.85em; color: var(--secondary-color); margin-right: 10px;}
+        .header-user-info { font-size: 0.85em; color: var(--secondary-color); }
         .header-user-info strong { color: var(--dark-color); }
-        .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.8em; cursor: pointer; padding: 5px; transition: color 0.3s ease; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
-        .button-logout { background: none; border: 1px solid var(--secondary-color); color: var(--secondary-color); font-size: 0.85em; padding: 6px 12px; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px; }
-        .header-action-button:hover, .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
+        .button-logout { background: none; border: 1px solid var(--secondary-color); color: var(--secondary-color); font-size: 0.85em; padding: 6px 12px; border-radius: var(--border-radius); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .button-logout:hover { color: var(--matrice-accent-danger); border-color: var(--matrice-accent-danger); }
         
         /* Main Content & Cards */
         .main-container { max-width: 1300px; margin: 20px auto; padding: 20px; }
         .page-title-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
-        .title-group { flex-grow: 1; }
-        .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin-top: 0; margin-bottom: 2px; font-weight: 700; line-height: 1.2;}
-        .page-subtitle { font-size: 0.9em; color: var(--secondary-color); margin-top: 0; margin-bottom: 0; font-weight: 400; line-height: 1.4; }
-        .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; line-height: 1.4; }
-        .button:hover { transform: translateY(-1px); }
+        .page-title-actions h1 { font-size: 2em; color: var(--primary-color); margin: 0; font-weight: 700; }
+        .page-subtitle { font-size: 0.9em; color: var(--secondary-color); margin-top: 4px; }
+        .button { border: none; padding: 10px 18px; font-size: 0.9em; font-weight: 600; border-radius: var(--border-radius); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
         .button-secondary { background-color: var(--matrice-surface-color); color: var(--matrice-text-secondary); border: 1px solid var(--matrice-border-color); }
-        .button-secondary:hover { background-color: #e9ecef; border-color: #ced4da; }
         .content-card { background-color: var(--matrice-surface-color); padding: 24px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); margin-bottom: 24px; box-shadow: var(--card-shadow); }
         
         /* Filtri */
-        .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;}
-        .filters { display: flex; gap: 20px; align-items: center; flex-wrap: wrap;}
-        .filters label { font-weight: 500; margin-right: 8px; color: var(--matrice-text-secondary); font-size: 0.9em;}
-        .filters select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.9em; background-color: #fff; color: var(--matrice-text-primary); min-width: 180px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-        .filters select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
-
+        .filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .filters { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+        .filters label { font-weight: 500; color: var(--matrice-text-secondary); font-size: 0.9em; }
+        .filters select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ced4da; font-size: 0.9em; min-width: 180px; }
+        
         /* Tabella */
-        .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px;}
+        .discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         .discounts-matrix-table th, .discounts-matrix-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--matrice-border-color); font-size: 0.85em; vertical-align: top; }
-        .discounts-matrix-table th:nth-child(1), .discounts-matrix-table td:nth-child(1) { width: 16%; } /* Categoria */
-        .discounts-matrix-table th:nth-child(2), .discounts-matrix-table td:nth-child(2) { width: 14%; } /* Marca */
-        .discounts-matrix-table th:nth-child(3), .discounts-matrix-table td:nth-child(3) { width: 14%; } /* Sconti Acquisto */
-        .discounts-matrix-table th:nth-child(4), .discounts-matrix-table td:nth-child(4) { width: 9%; }  /* Trasporto */
-        .discounts-matrix-table th:nth-child(5), .discounts-matrix-table td:nth-child(5) { width: 12%; } /* Sconti Vendita */
-        .discounts-matrix-table th:nth-child(6), .discounts-matrix-table td:nth-child(6) { width: 12%; } /* Agenzia */
-        .discounts-matrix-table th:nth-child(7), .discounts-matrix-table td:nth-child(7) { width: 23%; } /* Centri Assistenza */
         .discounts-matrix-table th { font-weight: 600; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.5px; color: var(--matrice-text-secondary); background-color: #f8f9fa; }
         .discounts-matrix-table tr:last-child td { border-bottom: none; }
         .discounts-matrix-table tbody tr:nth-child(even) { background-color: #fdfdfd; }
         .discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
-        .discounts-display { font-weight: 500; } .category-name { font-weight: 600; color: var(--primary-color); }
-        .brand-name { font-weight: 500; } 
-        .service-centers-cell { 
-            font-size: 0.85em; 
-            line-height: 1.5; 
-            white-space: normal; 
-            word-break: break-word;
-        }
+        .discounts-display { font-weight: 500; } 
+        .category-name { font-weight: 600; color: var(--primary-color); }
+        .brand-name { font-weight: 500; }
+        .service-centers-cell { font-size: 0.85em; line-height: 1.5; white-space: normal; word-break: break-word; }
         .no-data { text-align: center; padding: 40px; color: var(--matrice-text-secondary); font-size: 1.1em; }
-        
-        /* Calcolatore Sconto */
-        .calculator-panel { padding: 20px; margin-bottom: 25px; border-top: 3px solid var(--primary-color); }
-        .calculator-panel h2 { margin-top: 0; margin-bottom: 20px; font-size: 1.4em; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
-        .calculator-layout { display: flex; flex-wrap: wrap; gap: 25px; }
-        .calculator-layout .input-section { flex: 2; min-width: 300px; }
-        .calculator-layout .result-section { flex: 1; background-color: #f8f9fa; padding: 15px 20px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); text-align: center; min-width: 220px;}
-        .sconto-fields-calculator { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 8px; margin-bottom: 15px; }
-        .sconto-fields-calculator input[type="number"] { width: 100%; padding: 8px; font-size: 0.9em; text-align: center; border: 1px solid #ced4da; border-radius: 4px; }
-        .calculator-panel .form-group { margin-bottom: 15px; }
-        .calculator-panel .form-group label { font-size: 0.85em; font-weight: 500; margin-bottom: 5px; color: var(--secondary-color); }
-        .calculator-panel #calc-base-price { width: 100%; max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 15px; }
-        .calculator-panel .button-primary-calc, .calculator-panel .button-secondary-calc { padding: 10px 15px; font-size: 0.95em; border: none; color:white; border-radius: var(--border-radius); cursor:pointer; }
-        .calculator-panel .button-primary-calc { background-color: var(--matrice-accent-success); }
-        .calculator-panel .button-primary-calc:hover { background-color: #147543; }
-        .calculator-panel .button-secondary-calc { background-color: var(--secondary-color); }
-        .calculator-panel .button-secondary-calc:hover { background-color: #5a6268; }
-        .result-section p { margin-top: 0; margin-bottom: 5px; color: var(--secondary-color); font-size: 0.9em; }
-        .calculated-price-display { font-size: 1.8em; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; padding: 5px; border-bottom: 2px solid var(--primary-color); display: inline-block; }
-        .total-discount-display { font-size: 1.3em; font-weight: 500; color: var(--dark-color); }
-        @media (max-width: 768px) { .calculator-layout { flex-direction: column; } .sconto-fields-calculator { grid-template-columns: repeat(3, 1fr); } .calculator-panel #calc-base-price { max-width: none; } }
-        @media (max-width: 480px) { .sconto-fields-calculator { grid-template-columns: repeat(2, 1fr); } }
 
+
+        /* --- CALCOLATORE UNIFICATO --- */
+        .calculator-panel { padding: 24px; border-top: 3px solid var(--primary-color); }
+        .calculator-panel h2 { margin-top: 0; margin-bottom: 24px; font-size: 1.5em; color: var(--primary-color); display: flex; align-items: center; gap: 10px; }
+        .calculator-panel .form-group { margin-bottom: 15px; }
+        .calculator-panel .form-group label { font-size: 0.9em; font-weight: 500; margin-bottom: 6px; color: var(--secondary-color); display: block; }
+        .calculator-panel input[type="number"] { width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px; }
+        
+        .calculator-main-layout { display: flex; flex-wrap: wrap; gap: 30px; }
+        .calculator-actions { flex: 2; min-width: 320px; display: flex; flex-direction: column; gap: 20px; }
+        .calculator-results { flex: 1; min-width: 250px; display: flex; flex-direction: column; gap: 20px; }
+
+        .calc-group { border-top: 1px solid #e9ecef; padding-top: 20px; }
+        .sconto-fields-calculator { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: 8px; }
+        .sconto-fields-calculator input { text-align: center; }
+
+        .result-box { background-color: #f8f9fa; padding: 15px 20px; border-radius: var(--border-radius); border: 1px solid var(--matrice-border-color); text-align: center; }
+        .result-box .result-label { margin-top: 0; margin-bottom: 8px; color: var(--secondary-color); font-size: 0.9em; }
+        .result-box .result-value { font-size: 1.8em; font-weight: 700; color: var(--primary-color); }
+        .result-box .result-sub-value { font-size: 1.2em; font-weight: 500; color: var(--dark-color); margin-top: 8px; }
+
+        .calc-button { padding: 10px 15px; font-size: 0.95em; border: none; color: white; border-radius: var(--border-radius); cursor: pointer; margin-top: 10px; }
+        .calc-button.discount { background-color: var(--matrice-accent-success); }
+        .calc-button.percentage { background-color: var(--primary-color); }
+        .calc-button.reset { background-color: var(--secondary-color); }
+
+        @media (max-width: 800px) { .calculator-main-layout { flex-direction: column; } }
+        
         /* Toast */
-        .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; font-size: 1em; box-shadow: var(--card-shadow); opacity: 0; transition: opacity 0.3s, visibility 0.3s, transform 0.3s; transform: translateY(20px); }
+        .toast { visibility: hidden; min-width: 250px; background-color: var(--matrice-accent-success); color: white; text-align: center; border-radius: var(--border-radius); padding: 16px; position: fixed; z-index: 2000; right: 30px; bottom: 30px; box-shadow: var(--card-shadow); opacity: 0; transition: all 0.3s; transform: translateY(20px); }
         .toast.show { visibility: visible; opacity: 1; transform: translateY(0); }
     </style>
 </head>
@@ -146,7 +133,6 @@
         </a>
         <div class="header-controls">
             <div id="user-info-header" class="header-user-info content-hidden">Utente: <strong id="user-email-display"></strong></div>
-            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
             <button id="logout-button" class="button-logout content-hidden" title="Esci"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </header>
@@ -165,54 +151,62 @@
         <div id="app-loader" class="loader content-hidden"></div>
 
         <div class="page-title-actions">
-            <div class="title-group">
+            <div>
                 <h1>Scontistiche in vigore</h1>
                 <p class="page-subtitle">Le percentuali di sconto devono essere applicate al valore di listino</p>
             </div>
         </div>
 
-        <div id="quick-discount-calculator" class="content-card calculator-panel">
-            <h2><i class="fas fa-calculator"></i> Calcolatore Sconto Rapido</h2>
-            <div class="calculator-layout">
-                <div class="input-section">
-                    <div class="form-group"><label for="calc-base-price">Prezzo di Listino (€):</label><input type="number" id="calc-base-price" placeholder="Es. 1000" step="0.01"></div>
-                    <div class="form-group"><label>Sconti in Cascata (%):</label>
+        <!-- =========== CALCOLATORE UNIFICATO =========== -->
+        <div id="unified-calculator" class="content-card calculator-panel">
+            <h2><i class="fas fa-calculator"></i> Calcolatore Unificato</h2>
+            
+            <div class="form-group">
+                <label for="main-value-input">Importo di Riferimento (€):</label>
+                <input type="number" id="main-value-input" placeholder="Es. 1000" step="0.01">
+            </div>
+
+            <div class="calculator-main-layout">
+                <div class="calculator-actions">
+                    <!-- Gruppo Sconto in Cascata -->
+                    <div class="calc-group">
+                        <label>Sconti in Cascata (%):</label>
                         <div class="sconto-fields-calculator">
-                            <input type="number" id="calc-sconto1" placeholder="S1" step="0.01" min="0" max="100"><input type="number" id="calc-sconto2" placeholder="S2" step="0.01" min="0" max="100"><input type="number" id="calc-sconto3" placeholder="S3" step="0.01" min="0" max="100">
-                            <input type="number" id="calc-sconto4" placeholder="S4" step="0.01" min="0" max="100"><input type="number" id="calc-sconto5" placeholder="S5" step="0.01" min="0" max="100"><input type="number" id="calc-sconto6" placeholder="S6" step="0.01" min="0" max="100">
+                            <input type="number" id="calc-sconto1" placeholder="S1" step="0.01"><input type="number" id="calc-sconto2" placeholder="S2" step="0.01">
+                            <input type="number" id="calc-sconto3" placeholder="S3" step="0.01"><input type="number" id="calc-sconto4" placeholder="S4" step="0.01">
+                            <input type="number" id="calc-sconto5" placeholder="S5" step="0.01"><input type="number" id="calc-sconto6" placeholder="S6" step="0.01">
                         </div>
+                        <button id="calculate-discount-button" class="calc-button discount"><i class="fas fa-cogs"></i> Calcola Sconto</button>
                     </div>
-                    <button id="calculate-button" class="button button-primary-calc"><i class="fas fa-cogs"></i> Calcola</button>
-                    <button id="reset-calculator-button" class="button button-secondary-calc" style="margin-left: 10px;"><i class="fas fa-undo"></i> Reset</button>
+
+                    <!-- Gruppo Calcolo Percentuale Singola -->
+                    <div class="calc-group">
+                        <div class="form-group">
+                             <label for="single-percentage-input">Calcola Percentuale Singola (%):</label>
+                             <input type="number" id="single-percentage-input" placeholder="Es. 22" step="0.01">
+                        </div>
+                        <button id="calculate-percentage-button" class="calc-button percentage"><i class="fas fa-percentage"></i> Calcola Percentuale</button>
+                    </div>
+                     <button id="reset-calculator-button" class="calc-button reset"><i class="fas fa-undo"></i> Reset Calcolatore</button>
                 </div>
-                <div class="result-section">
-                    <p>Prezzo Scontato:</p><div id="calculated-price" class="calculated-price-display">0.00 €</div>
-                    <p style="margin-top:10px;">Sconto Totale Applicato:</p><div id="total-discount-percentage" class="total-discount-display">0.00 %</div>
+
+                <div class="calculator-results">
+                    <!-- Box Risultati Sconto Cascata -->
+                    <div class="result-box">
+                        <p class="result-label">Risultato Sconto Cascata</p>
+                        <div id="cascade-result-price" class="result-value">0.00 €</div>
+                        <div id="cascade-result-percentage" class="result-sub-value">Sconto: 0.00 %</div>
+                    </div>
+                    <!-- Box Risultati Percentuale Singola -->
+                     <div class="result-box">
+                        <p class="result-label">Risultato Percentuale</p>
+                        <div id="single-perc-result-value" class="result-value">0.00 €</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="content-card calculator-panel">
-            <h2><i class="fas fa-percentage"></i> Calcolo Percentuale Singola</h2>
-            <div class="calculator-layout">
-                <div class="input-section">
-                    <div class="form-group">
-                        <label for="single-perc-total">Importo Totale (€):</label>
-                        <input type="number" id="single-perc-total" placeholder="Es. 500" step="0.01" style="max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px;">
-                    </div>
-                    <div class="form-group">
-                        <label for="single-perc-value">Percentuale da Calcolare (%):</label>
-                        <input type="number" id="single-perc-value" placeholder="Es. 3" step="0.01" style="max-width: 250px; padding: 10px; font-size: 1em; border: 1px solid #ced4da; border-radius: 4px;">
-                    </div>
-                    <button id="calculate-single-perc-button" class="button button-primary-calc"><i class="fas fa-cogs"></i> Calcola</button>
-                </div>
-                <div class="result-section">
-                    <p>Risultato Calcolato:</p>
-                    <div id="single-perc-result" class="calculated-price-display">0.00 €</div>
-                </div>
-            </div>
-        </div>
-
+        <!-- Filtri Tabella -->
         <div class="content-card filters-container">
             <div class="filters">
                 <div> <label for="category-filter">Categoria:</label> <select id="category-filter" onchange="triggerFilter()"><option value="">Tutte</option></select> </div>
@@ -221,6 +215,7 @@
             <button class="button button-secondary" onclick="resetFilters()" style="font-size:0.9em;"><i class="fas fa-undo" style="font-size:0.9em;"></i> Reset Filtri</button>
         </div>
 
+        <!-- Tabella Sconti -->
         <div class="content-card">
             <table class="discounts-matrix-table">
                 <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto</th><th>Trasporto (%)</th><th>Sconti Vendita</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
@@ -240,9 +235,8 @@
     // ----- 1. DEFINIZIONI GLOBALI -----
     let allFirestoreData = [];
     let processedAndMergedData = [];
-    let currentFilteredRulesUI = [];
-
-    // Riferimenti agli elementi del DOM
+    
+    // Riferimenti agli elementi del DOM (Autenticazione & Tabella)
     const authContainer = document.getElementById('auth-container'); 
     const mainContentWrapper = document.getElementById('main-content-wrapper');
     const appLoader = document.getElementById('app-loader');
@@ -254,29 +248,26 @@
     const userInfoHeader = document.getElementById('user-info-header');
     const userEmailDisplay = document.getElementById('user-email-display');
     const toastElement = document.getElementById('toast-notification');
-    const calcBasePriceInput = document.getElementById('calc-base-price');
-    const calcScontoInputs = Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`));
-    const calculateButton = document.getElementById('calculate-button');
-    const resetCalculatorButton = document.getElementById('reset-calculator-button');
-    const calculatedPriceDisplay = document.getElementById('calculated-price');
-    const totalDiscountPercentageDisplay = document.getElementById('total-discount-percentage');
-    const calculateSinglePercButton = document.getElementById('calculate-single-perc-button');
 
+    // Riferimenti elementi del CALCOLATORE UNIFICATO
+    const mainValueInput = document.getElementById('main-value-input');
+    const calcScontoInputs = Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`));
+    const singlePercentageInput = document.getElementById('single-percentage-input');
     
+    const calculateDiscountButton = document.getElementById('calculate-discount-button');
+    const calculatePercentageButton = document.getElementById('calculate-percentage-button');
+    const resetCalculatorButton = document.getElementById('reset-calculator-button');
+    
+    const cascadeResultPrice = document.getElementById('cascade-result-price');
+    const cascadeResultPercentage = document.getElementById('cascade-result-percentage');
+    const singlePercResultValue = document.getElementById('single-perc-result-value');
+    
+
     // ----- 2. FUNZIONI HELPER -----
     
-    /**
-     * Formatta un array per la visualizzazione.
-     * Se è un numero, aggiunge "%". Unisce gli elementi con " + ".
-     */
     function formattaArray(array) {
       if (!array || array.length === 0) return 'N/A';
-      return array.map(item => {
-          if (typeof item === 'number') {
-              return `${item}%`;
-          }
-          return item;
-      }).join(' + ');
+      return array.map(item => (typeof item === 'number' ? `${item}%` : item)).join(' + ');
     }
     
     function showToast(message, duration = 3000) {
@@ -294,23 +285,16 @@
     }
 
     
-    // ----- 3. LOGICA PRINCIPALE -----
-    
-    /**
-     * Prende i dati grezzi e unisce i doppioni.
-     */
+    // ----- 3. LOGICA DI BUSINESS (TABELLA SCONTI E FILTRI) -----
+
     function processAndMergeData(rawData) {
         const merged = {};
-        
         rawData.forEach(rule => {
             const key = `${rule.categoria}|${rule.marca}`;
-            
             if (!merged[key]) {
                 merged[key] = { ...rule };
             } else {
                 const existing = merged[key];
-                
-                // Unisce i dati: la riga con più "dettagli" (più campi pieni) vince
                 if (rule.scontiAcquisto && rule.scontiAcquisto.length > 0) existing.scontiAcquisto = rule.scontiAcquisto;
                 if (rule.scontiVendita && rule.scontiVendita.length > 0) existing.scontiVendita = rule.scontiVendita;
                 if (rule.agente) existing.agente = rule.agente;
@@ -318,66 +302,56 @@
                 if (rule.centriAssistenza && rule.centriAssistenza.length > 0) existing.centriAssistenza = rule.centriAssistenza;
             }
         });
-        
         return Object.values(merged);
     }
 
-    /**
-     * Popola la tabella HTML.
-     */
     function renderTable(rulesToRender) {
-    const tableBody = document.getElementById('discounts-matrix-body');
-    const noDataMsg = document.getElementById('no-data-message');
-    tableBody.innerHTML = ''; 
+        const tableBody = document.getElementById('discounts-matrix-body');
+        const noDataMsg = document.getElementById('no-data-message');
+        tableBody.innerHTML = ''; 
 
-    if (!rulesToRender || rulesToRender.length === 0) {
-        noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
-        noDataMsg.style.display = 'block';
-        return;
-    }
-    noDataMsg.style.display = 'none';
-
-    const sortedRules = [...rulesToRender].sort((a, b) => a.categoria.localeCompare(b.categoria) || a.marca.localeCompare(b.marca));
-
-    sortedRules.forEach(rule => {
-        const row = tableBody.insertRow();
-        
-        let trasportoDisplay = "N/A";
-        if (typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
-            trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
+        if (!rulesToRender || rulesToRender.length === 0) {
+            noDataMsg.textContent = "Nessuna regola di sconto per i filtri selezionati.";
+            noDataMsg.style.display = 'block';
+            return;
         }
+        noDataMsg.style.display = 'none';
 
-        // --- NUOVA LOGICA PER FORMATTARE I CENTRI ASSISTENZA ---
-        let assistenzaDisplay = "N/A";
-        // L'array centriAssistenza contiene ['valoreCesena', 'valoreSavignano', 'valoreRimini']
-        if (rule.centriAssistenza && rule.centriAssistenza.length > 0) {
-            const citta = ['Cesena', 'Savignano', 'Rimini'];
-            const partiFormattate = [];
-            
-            // Cicliamo sull'array e aggiungiamo il nome della città solo se il valore non è vuoto
-            rule.centriAssistenza.forEach((valore, index) => {
-                if (valore && valore.toString().trim() !== '') {
-                    partiFormattate.push(`<strong>${citta[index]}:</strong> ${valore}`);
-                }
-            });
-            
-            if (partiFormattate.length > 0) {
-                // Uniamo le parti con un "a capo" HTML (<br>)
-                assistenzaDisplay = partiFormattate.join('<br>');
+        const sortedRules = [...rulesToRender].sort((a, b) => a.categoria.localeCompare(b.categoria) || a.marca.localeCompare(b.marca));
+
+        sortedRules.forEach(rule => {
+            const row = tableBody.insertRow();
+            let trasportoDisplay = "N/A";
+            if (typeof rule.trasporto === 'number' && !isNaN(rule.trasporto)) {
+                trasportoDisplay = `${rule.trasporto.toFixed(2)} %`;
             }
-        }
-        
-        row.innerHTML = `
-            <td class="category-name">${rule.categoria || 'N/A'}</td> 
-            <td class="brand-name">${rule.marca || 'N/A'}</td>
-            <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
-            <td>${trasportoDisplay}</td>
-            <td class="discounts-display">${formattaArray(rule.scontiVendita)}</td>
-            <td>${rule.agente || 'N/A'}</td>
-            <td class="service-centers-cell">${assistenzaDisplay}</td>
-        `;
-    });
-}
+
+            let assistenzaDisplay = "N/A";
+            if (rule.centriAssistenza && rule.centriAssistenza.length > 0) {
+                const citta = ['Cesena', 'Savignano', 'Rimini'];
+                const partiFormattate = [];
+                rule.centriAssistenza.forEach((valore, index) => {
+                    if (valore && valore.toString().trim() !== '') {
+                        partiFormattate.push(`<strong>${citta[index]}:</strong> ${valore}`);
+                    }
+                });
+                if (partiFormattate.length > 0) {
+                    assistenzaDisplay = partiFormattate.join('<br>');
+                }
+            }
+            
+            row.innerHTML = `
+                <td class="category-name">${rule.categoria || 'N/A'}</td> 
+                <td class="brand-name">${rule.marca || 'N/A'}</td>
+                <td class="discounts-display">${formattaArray(rule.scontiAcquisto)}</td>
+                <td>${trasportoDisplay}</td>
+                <td class="discounts-display">${formattaArray(rule.scontiVendita)}</td>
+                <td>${rule.agente || 'N/A'}</td>
+                <td class="service-centers-cell">${assistenzaDisplay}</td>
+            `;
+        });
+    }
+
     function populateUiFilters(data) {
         const categories = [...new Set(data.map(rule => rule.categoria))].sort();
         const categoryFilterEl = document.getElementById('category-filter');
@@ -387,9 +361,6 @@
         categoryFilterEl.value = categories.includes(catVal) ? catVal : "";
     }
     
-    /**
-     * Applica i filtri (usa dati già fusi).
-     */
     function applyUiFilters() {
         const categoryValue = document.getElementById('category-filter').value;
         const brandFilterEl = document.getElementById('brand-filter');
@@ -405,31 +376,25 @@
         brandFilterEl.innerHTML = '<option value="">Tutte</option>';
         brandsForCurrentCategory.forEach(b => brandFilterEl.add(new Option(b, b)));
         brandFilterEl.value = brandsForCurrentCategory.includes(currentBrandSelection) ? currentBrandSelection : "";
+        
         const finalBrandValue = brandFilterEl.value; 
-
-        currentFilteredRulesUI = processedAndMergedData.filter(rule => 
+        const currentFilteredRulesUI = processedAndMergedData.filter(rule => 
             (!categoryValue || rule.categoria === categoryValue) &&
             (!finalBrandValue || rule.marca === finalBrandValue)
         );
-        
         renderTable(currentFilteredRulesUI);
     }
 
     function resetFilters() { document.getElementById('category-filter').value = ""; document.getElementById('brand-filter').value = ""; applyUiFilters(); showToast("Filtri resettati."); }
     function triggerFilter() { applyUiFilters(); }
 
-    /**
-     * Carica e processa i dati da Firestore.
-     */
     async function loadDataFromFirestore() {
         showToast("Caricamento dati...", 2500); 
         appLoader.classList.remove('content-hidden');
         try {
             const snapshot = await db.collection(SCONTISTICHE_COLLECTION).get();
             allFirestoreData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
             processedAndMergedData = processAndMergeData(allFirestoreData);
-
             populateUiFilters(processedAndMergedData); 
             applyUiFilters();
         } catch (error) { 
@@ -444,8 +409,7 @@
     }
 
 
-    // ----- 4. GESTIONE AUTENTICAZIONE E LISTENER -----
-    
+    // ----- 4. GESTIONE AUTENTICAZIONE -----
     auth.onAuthStateChanged(async (user) => {
         appLoader.classList.remove('content-hidden');
         if (user) {
@@ -456,57 +420,75 @@
             logoutButton.classList.remove('content-hidden');
             await loadDataFromFirestore();
         } else {
-            authContainer.classList.remove('content-hidden'); 
-            mainContentWrapper.classList.add('content-hidden');
+            authContainer.classList.add('content-hidden'); 
+            mainContentWrapper.add('content-hidden');
             userInfoHeader.classList.add('content-hidden');
             logoutButton.classList.add('content-hidden');
-            allFirestoreData = [];
-            processedAndMergedData = [];
-            populateUiFilters([]);
-            applyUiFilters();
         }
         appLoader.classList.add('content-hidden');
     });
 
-    // Listener eventi (invariati)
     loginButton.addEventListener('click', async () => {
         const email = emailInput.value; const password = passwordInput.value; authErrorMessage.textContent = '';
         if (!email || !password) { authErrorMessage.textContent = 'Email e Password obbligatori.'; return; }
-        try { showToast("Accesso...", 2000); appLoader.classList.remove('content-hidden'); await auth.signInWithEmailAndPassword(email, password); } 
-        catch (error) { console.error("Login Err:", error); authErrorMessage.textContent = "Credenziali non valide."; showToast("Errore login.", 3000); appLoader.classList.add('content-hidden');}
+        try { appLoader.classList.remove('content-hidden'); await auth.signInWithEmailAndPassword(email, password); } 
+        catch (error) { authErrorMessage.textContent = "Credenziali non valide."; appLoader.classList.add('content-hidden'); }
     });
     logoutButton.addEventListener('click', async () => {
-        try { appLoader.classList.remove('content-hidden'); await auth.signOut(); showToast("Logout.", 2000); } 
-        catch (error) { console.error("Logout Err:", error); showToast("Errore logout.", 3000); appLoader.classList.add('content-hidden'); }
+        try { appLoader.classList.remove('content-hidden'); await auth.signOut(); } catch (error) { appLoader.add('content-hidden'); }
     });
-    calculateButton.addEventListener('click', () => {
-        const base = parseFloat(calcBasePriceInput.value); if(isNaN(base) || base <= 0){ showToast("Prezzo base non valido.",3000); return; }
-        const discounts = calcScontoInputs.map(input => parseFloat(input.value)).filter(val => !isNaN(val) && val > 0 && val <= 100);
-        if(discounts.length === 0){ calculatedPriceDisplay.textContent = base.toFixed(2) + " €"; totalDiscountPercentageDisplay.textContent = "0.00 %"; return; }
-        const finalPrice = applyCascadingDiscounts(base, discounts); calculatedPriceDisplay.textContent = finalPrice.toFixed(2) + " €";
-        const totalDiscount = ((base - finalPrice) / base) * 100; totalDiscountPercentageDisplay.textContent = totalDiscount.toFixed(2) + " %";
-    });
-    resetCalculatorButton.addEventListener('click', () => {
-        calcBasePriceInput.value = ''; calcScontoInputs.forEach(input => input.value = '');
-        calculatedPriceDisplay.textContent = "0.00 €"; totalDiscountPercentageDisplay.textContent = "0.00 %"; 
-        showToast("Calcolatore resettato.",2000);
-    });
-    calcBasePriceInput.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); calculateButton.click(); }});
-    calcScontoInputs.forEach(input => { input.addEventListener('keypress', (e) => { if(e.key === 'Enter'){ e.preventDefault(); calculateButton.click(); }})});
-    calculateSinglePercButton.addEventListener('click', () => {
-        const totalAmount = parseFloat(document.getElementById('single-perc-total').value);
-        const percentage = parseFloat(document.getElementById('single-perc-value').value);
-        const resultDisplay = document.getElementById('single-perc-result');
 
-        if (isNaN(totalAmount) || isNaN(percentage)) {
-            showToast("Inserire valori validi per importo e percentuale.", 3000);
+    
+    // ----- 5. LISTENER EVENTI CALCOLATORE UNIFICATO -----
+
+    calculateDiscountButton.addEventListener('click', () => {
+        const base = parseFloat(mainValueInput.value);
+        if (isNaN(base) || base <= 0) {
+            showToast("Inserire un Importo di Riferimento valido.", 3000);
+            return;
+        }
+        
+        const discounts = calcScontoInputs
+            .map(input => parseFloat(input.value))
+            .filter(val => !isNaN(val) && val > 0 && val <= 100);
+
+        if (discounts.length === 0) {
+            cascadeResultPrice.textContent = base.toFixed(2) + " €";
+            cascadeResultPercentage.textContent = "Sconto: 0.00 %";
             return;
         }
 
-        const result = (totalAmount * percentage) / 100;
-        resultDisplay.textContent = result.toFixed(2) + " €";
+        const finalPrice = applyCascadingDiscounts(base, discounts);
+        cascadeResultPrice.textContent = finalPrice.toFixed(2) + " €";
+        
+        const totalDiscount = ((base - finalPrice) / base) * 100;
+        cascadeResultPercentage.textContent = `Sconto: ${totalDiscount.toFixed(2)} %`;
     });
-    
+
+    calculatePercentageButton.addEventListener('click', () => {
+        const base = parseFloat(mainValueInput.value);
+        const percentage = parseFloat(singlePercentageInput.value);
+
+        if (isNaN(base) || base <= 0 || isNaN(percentage)) {
+            showToast("Inserire un Importo e una Percentuale validi.", 3000);
+            return;
+        }
+
+        const result = (base * percentage) / 100;
+        singlePercResultValue.textContent = result.toFixed(2) + " €";
+    });
+
+    resetCalculatorButton.addEventListener('click', () => {
+        mainValueInput.value = '';
+        singlePercentageInput.value = '';
+        calcScontoInputs.forEach(input => input.value = '');
+        
+        cascadeResultPrice.textContent = "0.00 €";
+        cascadeResultPercentage.textContent = "Sconto: 0.00 %";
+        singlePercResultValue.textContent = "0.00 €";
+        
+        showToast("Calcolatore resettato.", 2000);
+    });
     </script>
 </body>
 </html>
