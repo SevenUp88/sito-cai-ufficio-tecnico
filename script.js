@@ -469,7 +469,13 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleSubmenu(btnConfiguratori, submenuConfiguratori);
         });
     }
-
+if (btnFgas) {
+        btnFgas.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSubmenu(btnFgas, submenuFgas);
+        });
+    }
+    
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
