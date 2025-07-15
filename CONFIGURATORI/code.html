@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Modulo Dichiarazione FGAS</title>
+    <!-- Link ai CSS comuni e a Font Awesome -->
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Link al CSS specifico per questo modulo -->
+    <link rel="stylesheet" href="fgas.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <div class="header-controls">
+            <!-- Qui puoi aggiungere info utente se necessario -->
+        </div>
+    </header>
+
+    <main id="content-area">
+        <div class="form-container">
+            <!-- Header del modulo -->
+            <div class="form-header">
+                <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="form-logo">
+                <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
+                <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
+            </div>
+
+            <form id="fgas-form">
+                <!-- Dati Generici -->
+                <div class="form-row generic-data">
+                    <div class="form-group"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div>
+                    <div class="form-group"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div>
+                    <div class="form-group"><label for="data-bolla">Data bolla</label><input type="date" id="data-bolla"></div>
+                </div>
+
+                <hr class="section-divider">
+
+                <!-- Sezione Impresa Certificata -->
+                <section id="section-impresa-certificata">
+                    <div class="section-title">
+                        <input type="checkbox" id="is-impresa-certificata">
+                        <label for="is-impresa-certificata">IMPRESA CERTIFICATA</label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-grow-2"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div>
+                        <div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div>
+                    </div>
+                </section>
+
+                <hr class="section-divider">
+                
+                <!-- Dati Acquirente -->
+                <section id="section-dati-acquirente">
+                    <div class="section-title-static">DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</div>
+                    <div class="form-row">
+                         <div class="form-group flex-grow-2"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div>
+                         <div class="form-group"><label for="acq-codice-fiscale">CODICE FISCALE</label><input type="text" id="acq-codice-fiscale"></div>
+                    </div>
+                </section>
+
+                <hr class="section-divider">
+
+                <!-- Altre Finalità -->
+                <section id="section-altre-finalita">
+                    <div class="section-title">
+                        <input type="checkbox" id="is-altre-finalita">
+                        <label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group flex-grow-2"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div>
+                        <div class="form-group"><label for="altre-cod-fisc-1">COD.FISC.</label><input type="text" id="altre-cod-fisc-1" disabled></div>
+                    </div>
+                    <p class="separator-text">OPPURE</p>
+                    <div class="form-row">
+                        <div class="form-group flex-grow-2"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div>
+                        <div class="form-group"><label for="altre-cod-fisc-2">COD. FISC.</label><input type="text" id="altre-cod-fisc-2" disabled></div>
+                    </div>
+                </section>
+
+                <hr class="section-divider">
+
+                <!-- Dichiarazione -->
+                <section class="declaration-section">
+                    <h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3>
+                    <h2>DICHIARA</h2>
+                    <p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
+                </section>
+                
+                <!-- Firma -->
+                <section class="signature-section">
+                    <div class="form-row">
+                        <div class="form-group"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
+                    </div>
+                     <div class="form-row signature-fields">
+                        <div class="form-group">
+                            <label for="nome-dichiarante">Nome e cognome del dichiarante</label>
+                            <input type="text" id="nome-dichiarante">
+                        </div>
+                        <div class="form-group">
+                             <label>Firma</label>
+                             <div class="signature-box"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
+
+                <!-- Informativa Privacy -->
+                <footer class="privacy-footer">
+                    <h4>INFORMATIVA AI SENSI DEL D.LGS. 196/2003</h4>
+                    <p>In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
+                </footer>
+            </form>
+
+            <div class="form-actions">
+                <button id="print-button" class="nav-button"><i class="fas fa-print"></i> Stampa Modulo</button>
+            </div>
+        </div>
+    </main>
+    
+    <script src="fgas.js"></script>
+</body>
+</html>
