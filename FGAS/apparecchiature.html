@@ -8,23 +8,31 @@
     <link rel="stylesheet" href="../style.css">
     <style>
         .paper-form {font-family: Arial, sans-serif; background: #fff; padding: 40px; border: 1px solid #ddd; border-radius: 8px; max-width: 850px; margin: auto;}
+        /* 1. Titolo centrato */
+        .paper-form .form-header { text-align: center; margin-bottom: 25px;}
         .paper-form h1 {font-size: 1.1rem; font-weight: bold; margin-bottom: 5px;}
         .paper-form p {font-size: 0.9rem;}
-        .paper-form .form-field { display: inline-flex; align-items: center; margin-right: 25px;}
-        .paper-form .form-field label {margin-right: 8px;}
-        .paper-form input[type="text"], .paper-form input[type="date"] { background: transparent; border: none; border-bottom: 1px dotted #333; padding: 2px; font-size: 0.95rem;}
-        .paper-form input[type="text"]:focus, .paper-form input[type="date"]:focus {outline: none; border-bottom: 1px solid #0056a8;}
-        .paper-form input:disabled { background: #f8f9fa; cursor: not-allowed; }
+        .paper-form .form-field { display: flex; align-items: baseline; gap: 8px; }
+        .paper-form .form-field label { font-weight: normal; font-size: 0.95rem; white-space: nowrap;} /* 2. N. bolla non va a capo */
+        .paper-form input[type="text"], .paper-form input[type="date"] { background: transparent; border: none; border-bottom: 1px dotted #333; padding: 2px; font-size: 0.95rem; width: 100%;}
+        .paper-form input:focus {outline: none; border-bottom: 1px solid #0056a8;}
+        .paper-form input:disabled { background: #f8f9fa; cursor: not-allowed; border-bottom-style: solid; border-color: #eee;}
         .paper-form section { margin-top: 25px; }
         .checkbox-label {display: flex;align-items: center;font-weight: bold;font-size: 1rem;margin-bottom: 15px;}
         .checkbox-label input {width: 16px;height: 16px;margin-right: 10px;}
+        /* 6. DICHIARA più piccolo */
         .declaration-box {background:#f7f7f7;border:1px solid #eee;padding:20px;text-align:center;margin:30px 0;}
-        .signature-row {display:flex;justify-content:space-between;gap:30px;margin-top:40px;}
-        .signature-box {height:40px;border-bottom:1px solid #333;margin-top:5px;}
+        .declaration-box h2 { font-size: 1.2rem; }
+        /* 7. Firma riposizionata */
+        .signature-area {display: flex; justify-content: space-between; gap: 40px; margin-top: 40px;}
+        .signature-area > div {flex: 1;}
+        .signature-area label {font-size: 0.8rem; display: block; margin-bottom: 25px;}
+        .signature-area .signature-box {height: 1px; border-top: 1px solid #333;}
+        
         @media print {
             body {background: #fff; font-size: 10pt;}
             .app-header, .form-actions {display: none;}
-            #content-area, #page-content, .paper-form {padding:0;margin:0;border:none;box-shadow:none;}
+            #content-area, .paper-form {padding:0;margin:0;border:none;box-shadow:none;}
             #auth-loader {display:none;}
             .declaration-box {background: #fff; border: 1px solid #ccc;}
         }
@@ -38,25 +46,121 @@
     <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
     <main id="content-area" class="hidden">
         <div class="paper-form">
-            <header><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
+            <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
-                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;"><span class="form-field"><label>Codice cliente</label><input type="text" style="width:150px;"></span><span class="form-field"><label>N. bolla</label><input type="text" style="width:150px;"></span><span class="form-field"><label>data bolla</label><input type="date" style="width:150px;"></span></section>
-                <section id="section-impresa-certificata"><label class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</label><div style="display:flex;flex-wrap:wrap;gap:20px;"><span class="form-field" style="width:100%"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled style="width:calc(100% - 120px)"></span><span class="form-field"><label>N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></span><span class="form-field"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></span></div></section>
-                <section id="section-dati-acquirente" style="display:flex;align-items:center;gap:15px;"><b style="font-size:1rem;">DATI ACQUIRENTE (obbligatori)</b><span class="form-field" style="flex-grow:1;"><label>Denominazione</label><input type="text" id="acq-denominazione" style="width:calc(100% - 110px)"></span></section>
-                <section id="section-altre-finalita"><label class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label><span class="form-field" style="width:100%"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled style="width:calc(100% - 120px)"></span><p style="font-weight:bold;margin:15px 0 10px 0;">OPPURE</p><span class="form-field" style="width:100%"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled style="width:calc(100% - 120px)"></span></section>
-                <section class="declaration-box"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
-                <section class="signature-row"><div style="flex:1;"><label>Luogo e data</label><div class="signature-box"></div></div><div style="flex:1;"><label>Nome e cognome del dichiarante</label><div class="signature-box"></div></div></section>
-                <section style="margin-top:20px;"><label>Firma</label><div class="signature-box" style="width:48%"></div></section>
+                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;">
+                    <span class="form-field"><label>Codice cliente</label><input type="text" style="width:150px;"></span>
+                    <span class="form-field"><label>N. bolla</label><input type="text" style="width:150px;"></span>
+                    <span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span>
+                </section>
+                <section id="section-impresa-certificata">
+                    <label class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</label>
+                    <div class="form-field"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;">
+                        <span class="form-field" style="flex:1;"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></span>
+                        <span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></span>
+                    </div>
+                </section>
+                <section id="section-dati-acquirente">
+                    <b style="font-size:1rem;">DATI ACQUIRENTE (obbligatori)</b>
+                    <div style="display:flex;gap:30px; margin-top: 15px;">
+                        <span class="form-field" style="flex:2;"><label>Denominazione</label><input type="text" id="acq-denominazione"></span>
+                        <!-- 4. Campo Codice Fiscale Aggiunto -->
+                        <span class="form-field" style="flex:1;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></span>
+                    </div>
+                </section>
+                <section id="section-altre-finalita">
+                    <label class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
+                    <div class="form-field"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
+                    <p style="font-weight:bold;margin:15px 0 10px 0;">OPPURE</p>
+                    <div class="form-field"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
+                </section>
+                <section class="declaration-box">
+                    <h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3>
+                    <h2>DICHIARA</h2>
+                    <p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
+                </section>
+                <section class="signature-area">
+                    <div><label>Luogo e data</label><div class="signature-box"></div></div>
+                    <div>
+                        <label>Nome e cognome del dichiarante</label><div class="signature-box"></div>
+                        <label style="margin-top:40px;">Firma</label><div class="signature-box"></div>
+                    </div>
+                </section>
             </form>
-            <div class="form-actions"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
+            <div class="form-actions" style="margin-top: 30px;"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
         </div>
     </main>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
         const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);const auth=firebase.auth();
-        function initializeForm(){const t=document.getElementById("is-impresa-certificata"),e=document.getElementById("is-altre-finalita");if(!t)return;const a=Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])')),s=Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])')),n=t=>{t.forEach(t=>{t.disabled=!0,t.value=""})},i=t=>t.forEach(t=>t.disabled=!1);t.onchange=()=>{const a=t.checked;i(a?a:[]),n(a?s:a),a&&(e.checked=!1)},e.onchange=()=>{const s=e.checked;i(s?s:[]),n(s?a:s),s&&(t.checked=!1)};const o=document.getElementById("print-button");o&&o.addEventListener("click",()=>window.print()),n(a),n(s)}
-        document.addEventListener("DOMContentLoaded",()=>{const t=document.getElementById("auth-loader"),e=document.getElementById("content-area"),a=document.getElementById("user-dashboard"),s=document.getElementById("user-email-display"),n=document.getElementById("logout-button");auth.onAuthStateChanged(i=>{i?(t.classList.add("hidden"),e.classList.remove("hidden"),a.classList.remove("hidden"),s.textContent=i.email,n.onclick=()=>{auth.signOut().then(()=>{window.location.href="/"})},initializeForm()):window.location.href="/"})});
+        
+        // 5. Logica Checkbox corretta
+        function initializeForm() {
+            const checkImpresa = document.getElementById('is-impresa-certificata');
+            const checkAltre = document.getElementById('is-altre-finalita');
+            if (!checkImpresa) return;
+
+            const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
+            const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
+
+            const toggleInputs = (inputs, enable) => {
+                inputs.forEach(input => {
+                    input.disabled = !enable;
+                    if (!enable) input.value = '';
+                });
+            };
+
+            checkImpresa.addEventListener('change', () => {
+                toggleInputs(inputsImpresa, checkImpresa.checked);
+                if (checkImpresa.checked) {
+                    checkAltre.checked = false;
+                    toggleInputs(inputsAltre, false);
+                }
+            });
+
+            checkAltre.addEventListener('change', () => {
+                toggleInputs(inputsAltre, checkAltre.checked);
+                if (checkAltre.checked) {
+                    checkImpresa.checked = false;
+                    toggleInputs(inputsImpresa, false);
+                }
+            });
+
+            document.getElementById('print-button').addEventListener('click', () => window.print());
+
+            // Stato iniziale (tutto disabilitato)
+            toggleInputs(inputsImpresa, false);
+            toggleInputs(inputsAltre, false);
+        }
+
+        document.addEventListener("DOMContentLoaded",()=>{
+            const loader = document.getElementById("auth-loader");
+            const contentArea = document.getElementById("content-area");
+            const userDashboard = document.getElementById("user-dashboard");
+            const userEmailDisplay = document.getElementById("user-email-display");
+            const logoutButton = document.getElementById("logout-button");
+
+            // 3. Data di oggi in automatico
+            const dataBollaInput = document.getElementById('data-bolla');
+            if(dataBollaInput) {
+                dataBollaInput.valueAsDate = new Date();
+            }
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    loader.classList.add("hidden");
+                    contentArea.classList.remove("hidden");
+                    userDashboard.classList.remove("hidden");
+                    userEmailDisplay.textContent = user.email;
+                    logoutButton.onclick = () => { auth.signOut().then(() => { window.location.href = "/" }) };
+                    initializeForm();
+                } else {
+                    window.location.href = "/"
+                }
+            });
+        });
     </script>
 </body>
 </html>
