@@ -10,15 +10,11 @@
     
     <style>
         /* ======================================================== */
-        /*    STILI DEDICATI PER IL LAYOUT DEL MODULO FGAS          */
+        /*        STILI FINALI PER IL LAYOUT FEDELE AL PDF            */
         /* ======================================================== */
         
-        /* Sovrascrivi gli stili generici per ottenere il layout da documento */
         #page-content .form-container {
             font-family: Arial, Helvetica, sans-serif;
-            max-width: 850px;
-            width: 100%;
-            margin: 0 auto;
             background-color: #fff;
             padding: 30px 40px;
             border: 1px solid #ddd;
@@ -26,41 +22,38 @@
         }
 
         #page-content .form-header {
-            text-align: left; /* Allineato a sx come documento */
+            text-align: left;
             margin-bottom: 25px;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 15px;
         }
 
         #page-content .form-header h1 {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             color: #000;
             font-weight: bold;
+            margin: 0 0 5px 0;
         }
 
         #page-content .form-header p {
-            font-size: 0.9rem;
-            color: #333;
+            font-size: 0.85rem;
+            color: #444;
         }
         
         #page-content form label {
             display: block;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #555;
-            font-weight: normal;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
-        /* Stile dei campi per farli apparire solo sottolineati */
         #page-content form input[type="text"],
         #page-content form input[type="date"] {
-            background-color: transparent;
+            background: transparent;
             border: none;
             border-bottom: 1px solid #333;
             border-radius: 0;
-            padding: 4px 1px;
+            padding: 2px 1px;
             width: 100%;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         #page-content form input:focus {
@@ -71,41 +64,68 @@
         #page-content form input:disabled {
             background-color: #f8f9fa;
             border-bottom-style: dotted;
-            cursor: not-allowed;
         }
 
-        /* Layout delle sezioni */
-        #page-content .section-divider { display: none; } /* Le linee tratteggiate non servono più */
-
-        #page-content section { margin-bottom: 25px; }
-        #page-content .section-title label, #page-content .section-title-static { font-weight: bold; font-size: 1rem; color: #000; }
+        #page-content section { margin-bottom: 20px; }
+        #page-content .form-group { margin-top: 15px; } /* Spazio tra campi verticali */
+        
+        #page-content .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        #page-content .section-title label, #page-content .section-title-static { 
+            font-weight: bold; 
+            font-size: 0.9rem; 
+            color: #000;
+        }
+        #page-content .section-title input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin-right: 10px;
+        }
         
         #page-content .declaration-section {
              background-color: #f7f7f7;
              padding: 15px;
              border: 1px solid #eee;
              text-align: center;
+             margin: 25px 0;
+        }
+        
+        /* Contenitore per campi affiancati */
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 40px; /* Spazio tra i campi */
+        }
+        .signature-row .form-group {
+            width: 48%; /* Occupa quasi metà dello spazio */
+            margin-top: 0;
+        }
+        .firma-line {
+            margin-top: 40px;
+        }
+        .firma-line .signature-box {
+            width: 50%;
+            height: 20px;
+            border-bottom: 1px solid #333;
         }
         
         #page-content .form-actions { margin-top: 30px; text-align: center; }
         #page-content .print-button { background-color: #198754; }
 
-
-        /* Stili specifici per la STAMPA A4 */
         @media print {
-            body { background-color: #fff; font-size: 10pt; color: #000; }
-            .app-header, .form-actions-header, .form-actions { display: none; }
-            
-            #page-content { display: block !important; }
-            #auth-loader { display: none; }
+            body { background: #fff; font-size: 9.5pt; color: #000; }
+            .app-header, .form-actions { display: none; }
             #content-area { padding: 0; margin: 0; box-shadow: none; }
-            
-            #page-content .form-container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; }
-
-            /* Ottimizzazione spazi per la stampa */
-            #page-content section, #page-content .form-header { margin-bottom: 15px; }
-            #page-content .declaration-section { background-color: #fff; border: 1px solid #ccc; }
-            #page-content form input { border-color: #000; }
+            #auth-loader { display: none; }
+            #page-content { display: block !important; padding: 0 !important; }
+            #page-content .form-container { box-shadow: none; border: none; padding: 0; margin: 0; max-width: 100%; border-radius: 0;}
+            #page-content section { margin-bottom: 15px; }
+            #page-content .form-group { margin-top: 12px; }
+            #page-content .declaration-section { background: #fff; border: 1px solid #ccc; padding: 10px; margin: 20px 0; }
         }
     </style>
 </head>
@@ -123,49 +143,48 @@
     
     <main id="content-area" class="hidden">
          <div id="page-content" class="form-container">
-            <div class="form-header">
-                <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
-                <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
-            </div>
-             
              <form id="fgas-form" onsubmit="return false;">
+                <header class="form-header">
+                    <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
+                    <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
+                </header>
+
                 <section>
                     <div class="form-group" style="max-width: 250px;"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div>
-                    <div class="form-group" style="max-width: 250px; margin-top: 15px;"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div>
-                    <div class="form-group" style="max-width: 250px; margin-top: 15px;"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div>
+                    <div class="form-group" style="max-width: 250px;"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div>
+                    <div class="form-group" style="max-width: 250px;"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div>
                 </section>
 
                 <section id="section-impresa-certificata">
-                    <div class="section-title" style="display:flex; align-items:center;"><input type="checkbox" id="is-impresa-certificata" style="width:18px; height:18px; margin-right:10px;"><label for="is-impresa-certificata">IMPRESA CERTIFICata</label></div>
-                    <div class="form-group" style="margin-top:15px;"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div>
-                    <div class="form-group" style="margin-top:15px;"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div>
-                    <div class="form-group" style="margin-top:15px;"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div>
+                    <div class="section-title"><input type="checkbox" id="is-impresa-certificata"><label for="is-impresa-certificata">IMPRESA CERTIFICATA</label></div>
+                    <div class="form-group"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div>
+                    <div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div>
+                    <div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div>
                 </section>
                 
                 <section id="section-dati-acquirente">
                     <div class="section-title-static">DATI ACQUIRENTE (obbligatori)</div>
-                    <div class="form-group" style="margin-top:15px;"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div>
+                    <div class="form-group"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div>
                 </section>
 
                 <section id="section-altre-finalita">
-                    <div class="section-title" style="display:flex; align-items:center;"><input type="checkbox" id="is-altre-finalita" style="width:18px; height:18px; margin-right:10px;"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div>
-                     <div class="form-group" style="margin-top:15px;"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div>
-                     <p class="separator-text" style="font-weight: bold; margin: 10px 0;">OPPURE</p>
-                     <div class="form-group" style="margin-top:15px;"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div>
+                    <div class="section-title"><input type="checkbox" id="is-altre-finalita"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div>
+                     <div class="form-group"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div>
+                     <p style="font-weight: bold; margin: 10px 0 10px 20px;">OPPURE</p>
+                     <div class="form-group"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div>
                 </section>
                 
                 <section class="declaration-section"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
                 
-                <section class="signature-section" style="margin-top:40px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div class="form-group" style="width:45%;"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
-                        <div class="form-group" style="width:45%;"><label>Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div>
+                <section class="signature-section">
+                    <div class="signature-row">
+                        <div class="form-group"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
+                        <div class="form-group"><label for="nome-dichiarante">Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div>
                     </div>
-                     <div style="margin-top: 50px;"><label>Firma</label><div style="width:50%; border-bottom:1px solid #333; height: 30px;"></div></div>
+                     <div class="form-group firma-line"><label>Firma</label><div class="signature-box"></div></div>
                 </section>
-
-                 <footer class="privacy-footer" style="margin-top:40px; border-top: 1px solid #ccc; padding-top: 10px; font-size: 0.8rem;"><p>In qualità di titolari del trattamento dei dati forniti... Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
+
              <div class="form-actions"><button id="fgas-print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
          </div>
     </main>
@@ -186,7 +205,6 @@
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); } else { firebase.app(); }
     const auth = firebase.auth();
     
-    // Logica di compilazione del form
     function initializeFGASForm() {
         const printButton = document.getElementById('fgas-print-button');
         const checkImpresa = document.getElementById('is-impresa-certificata');
@@ -194,27 +212,12 @@
         if(!checkImpresa) return;
         const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
         const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
-
         const toggleInputs = (inputs, enable) => inputs.forEach(i => { i.disabled = !enable; if (!enable) i.value = ''; });
-        
-        checkImpresa.onchange = () => {
-            toggleInputs(inputsImpresa, checkImpresa.checked);
-            if(checkImpresa.checked) {
-                checkAltre.checked = false;
-                toggleInputs(inputsAltre, false);
-            }
-        };
-        checkAltre.onchange = () => {
-            toggleInputs(inputsAltre, checkAltre.checked);
-            if(checkAltre.checked) {
-                checkImpresa.checked = false;
-                toggleInputs(inputsImpresa, false);
-            }
-        };
+        checkImpresa.onchange = () => { toggleInputs(inputsImpresa, checkImpresa.checked); if(checkImpresa.checked) { checkAltre.checked = false; toggleInputs(inputsAltre, false); } };
+        checkAltre.onchange = () => { toggleInputs(inputsAltre, checkAltre.checked); if(checkAltre.checked) { checkImpresa.checked = false; toggleInputs(inputsImpresa, false); } };
         if(printButton) printButton.onclick = () => window.print();
     }
     
-    // Logica di autenticazione ("guardia di sicurezza")
     document.addEventListener('DOMContentLoaded', () => {
         const loader = document.getElementById('auth-loader');
         const contentArea = document.getElementById('content-area');
@@ -230,9 +233,7 @@
                 userEmailDisplay.textContent = user.email;
                 logoutButton.onclick = () => { auth.signOut().then(() => { window.location.href = '/'; }); };
                 initializeFGASForm();
-            } else {
-                window.location.href = '/';
-            }
+            } else { window.location.href = '/'; }
         });
     });
     </script>
