@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Modulo Gas Fluorurati</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        #page-content .form-container {font-family: Arial, sans-serif;background: #fff; padding: 30px 40px; border: 1px solid #ddd; border-radius: 8px;}
+        .legal-text {font-size: 0.9rem; text-align: justify; margin: 15px 0;}
+        h1, h2, h3 {color: #000; font-weight: bold;}
+        form input {background: transparent; border: none; border-bottom: 1px solid #333; padding: 2px; width: 100%;}
+        form input:disabled {background: #f0f0f0; border-bottom-style: dotted;}
+        .data-table {border-collapse: collapse; width: 100%; margin: 15px 0;}
+        .data-table th, .data-table td {border: 1px solid #000; padding: 8px; text-align: left;}
+        @media print {body{background:#fff;font-size:9pt;}.app-header,.form-actions{display:none;}#content-area,#page-content,#page-content .form-container{padding:0;margin:0;border:none;box-shadow:none;}#auth-loader{display:none;}#page-content{display:block !important;}}
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="hidden"><p style="margin:0 10px 0 0;">Utente: <span id="user-email-display"></span></p><button id="logout-button" class="btn-login">Logout</button></div>
+    </header>
+    <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
+    <main id="content-area" class="hidden">
+         <div id="page-content" class="form-container">
+             <form id="gas-form" onsubmit="return false;">
+                <header><h1>MODULO DICHIARAZIONE ACQUISTO FGAS</h1><p>da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
+                <section><div style="display:flex; gap: 30px; margin-top:20px;"><div style="flex:1;"><label>Codice cliente</label><input type="text"></div><div style="flex:1;"><label>N. bolla</label><input type="text"></div><div style="flex:1;"><label>data bolla</label><input type="date"></div></div></section>
+                <hr style="border-top:1px solid #ccc; margin:20px 0;">
+                <h3>ALTRE FINALITA' (IMPRESA NON CERTIFICATA PERSONA CERTIFICATA)</h3>
+                <section><h3>DICHIARAZIONE</h3><p class="legal-text">Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146</p><p class="legal-text">Il Regolamento (UE) n. 517/2014, stabilisce, all'articolo 11, paragrafo 4, che, ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del predetto regolamento, i gas fluorurati a effetto serra sono esclusivamente venduti a e acquistati da imprese in possesso dei certificati o degli attestati pertinenti a norma dell'articolo 10 o da imprese che impiegano persone in possesso di un certificato o di un attestato di formazione ai sensi dell'articolo 10, paragrafi 2 e 5.</p><p class="legal-text">Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146, l'acquirente</p></section>
+                <div style="margin-bottom:15px;"><input type="radio" id="radioPersona" name="tipoAcquirente" value="persona" checked> <label for="radioPersona">Persona Fisica</label><input type="radio" id="radioImpresa" name="tipoAcquirente" value="impresa" style="margin-left:20px;"> <label for="radioImpresa">Impresa</label></div>
+                <table class="data-table">
+                    <thead><tr><th colspan="2">Persona Fisica</th></tr></thead>
+                    <tbody><tr><td>Nome / Cognome</td><td><input type="text" id="persona-nome"></td></tr><tr><td>Codice Fiscale / identificativo univoco</td><td><input type="text" id="persona-cf"></td></tr><tr><td colspan="2" style="text-align:center;font-weight:bold;background:#f8f9fa;">oppure</td></tr><tr><th colspan="2">Impresa</th></tr><tr><td>Ragione Sociale</td><td><input type="text" id="impresa-ragione"></td></tr><tr><td>Codice Fiscale / VAT</td><td><input type="text" id="impresa-cf"></td></tr></tbody>
+                </table>
+                <h3>DICHIARA</h3><p class="legal-text">Che i gas fluorurati non vengono acquistati ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas, per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
+                <section style="margin-top:40px;display:flex;justify-content:space-between;"><div style="width:45%"><label>Luogo e data</label><input type="text"></div><div style="width:45%"><label>Firma</label><div style="height:20px; border-bottom:1px solid #333;"></div></div></section>
+                <footer style="margin-top:40px;border-top:1px solid #ccc;padding-top:10px;font-size:0.8rem;"><p><b>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</b> In qualità di titolari del trattamento... Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
+            </form>
+            <div class="form-actions"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
+         </div>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
+        if(!firebase.apps.length){firebase.initializeApp(firebaseConfig)}const auth=firebase.auth();
+        function initializeForm(){const e=document.getElementById("radioPersona"),t=document.getElementById("radioImpresa"),a=[document.getElementById("persona-nome"),document.getElementById("persona-cf")],n=[document.getElementById("impresa-ragione"),document.getElementById("impresa-cf")];const l=e=>{a.forEach(t=>{t.disabled=!e,!e&&(t.value="")}),n.forEach(t=>{t.disabled=e,e&&(t.value="")})};e.onchange=()=>l(!0),t.onchange=()=>l(!1),l(!0);const o=document.getElementById("print-button");o&&o.addEventListener("click",()=>{window.print()})}document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("auth-loader"),t=document.getElementById("content-area"),a=document.getElementById("user-dashboard"),n=document.getElementById("user-email-display"),l=document.getElementById("logout-button");auth.onAuthStateChanged(o=>{o?(e.classList.add("hidden"),t.classList.remove("hidden"),a.classList.remove("hidden"),n.textContent=o.email,l.onclick=()=>{auth.signOut().then(()=>{window.location.href="/"})},initializeForm()):window.location.href="/"})});
+    </script>
+</body>
+</html>

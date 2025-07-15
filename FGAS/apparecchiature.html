@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Modulo Apparecchiature FGAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        #page-content .form-container {font-family: Arial, sans-serif;background: #fff;padding: 30px 40px;border: 1px solid #ddd;border-radius: 8px;}
+        #page-content .form-header h1 {font-size: 1.2rem;font-weight: bold;margin-bottom: 5px;}
+        #page-content form label {font-size: 0.8rem;}
+        #page-content form input {background: transparent;border: none;border-bottom: 1px solid #333;padding: 2px;}
+        #page-content form input:disabled {background: #f0f0f0;border-bottom-style: dotted;}
+        #page-content section {margin-bottom: 20px;}
+        #page-content .form-group {margin-top: 15px;}
+        #page-content .declaration-section {background-color: #f7f7f7;padding: 15px;border: 1px solid #eee;text-align: center;margin: 25px 0;}
+        @media print {body{background:#fff;font-size:9.5pt;}.app-header,.form-actions{display:none;}#content-area,#page-content,#page-content .form-container{padding:0;margin:0;border:none;box-shadow:none;}#auth-loader{display:none;}#page-content{display:block !important;}}
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="hidden"><p style="margin:0 10px 0 0;">Utente: <span id="user-email-display"></span></p><button id="logout-button" class="btn-login">Logout</button></div>
+    </header>
+    <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
+    <main id="content-area" class="hidden">
+         <div id="page-content" class="form-container">
+            <form id="apparecchiature-form" onsubmit="return false;">
+                <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
+                <section><div class="form-group" style="max-width:250px;"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div><div class="form-group" style="max-width:250px;"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div><div class="form-group" style="max-width:250px;"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div></section>
+                <section id="section-impresa-certificata"><div style="display:flex;align-items:center;"><input type="checkbox" id="is-impresa-certificata" style="width:16px;height:16px;margin-right:10px;"><label for="is-impresa-certificata" style="font-weight:bold;font-size:0.9rem;">IMPRESA CERTIFICATA</label></div><div class="form-group"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div><div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div><div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div></section>
+                <section id="section-dati-acquirente"><div style="font-weight:bold;font-size:0.9rem;">DATI ACQUIRENTE (obbligatori)</div><div class="form-group"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div></section>
+                <section id="section-altre-finalita"><div style="display:flex;align-items:center;"><input type="checkbox" id="is-altre-finalita" style="width:16px;height:16px;margin-right:10px;"><label for="is-altre-finalita" style="font-weight:bold;font-size:0.9rem;">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div><div class="form-group"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div><p style="font-weight:bold;margin:10px 0 10px 20px;">OPPURE</p><div class="form-group"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div></section>
+                <section class="declaration-section"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
+                <section style="margin-top:40px;"><div style="display:flex;justify-content:space-between;gap:40px;"><div class="form-group" style="width:48%;margin:0;"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div><div class="form-group" style="width:48%;margin:0;"><label for="nome-dichiarante">Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div></div><div class="form-group" style="margin-top:40px;"><label>Firma</label><div style="width:50%;height:20px;border-bottom:1px solid #333;"></div></div></section>
+            </form>
+            <div class="form-actions"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
+         </div>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
+        if(!firebase.apps.length){firebase.initializeApp(firebaseConfig)}const auth=firebase.auth();
+        function initializeForm(){const e=document.getElementById("is-impresa-certificata"),t=document.getElementById("is-altre-finalita");if(!e)return;const a=Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])')),n=Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])')),l=e=>{e.forEach(e=>{e.disabled=!1,e.value=""})};e.onchange=()=>{const o=e.checked;o?(n.forEach(e=>{e.disabled=!0,e.value=""}),t.checked=!1):a.forEach(e=>{e.disabled=!0,e.value=""})},t.onchange=()=>{t.checked?(a.forEach(e=>{e.disabled=!0,e.value=""}),e.checked=!1):n.forEach(e=>{e.disabled=!0,e.value=""})};const o=document.getElementById("print-button");o&&o.addEventListener("click",()=>{window.print()})}document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("auth-loader"),t=document.getElementById("content-area"),a=document.getElementById("user-dashboard"),n=document.getElementById("user-email-display"),l=document.getElementById("logout-button");auth.onAuthStateChanged(o=>{o?(e.classList.add("hidden"),t.classList.remove("hidden"),a.classList.remove("hidden"),n.textContent=o.email,l.onclick=()=>{auth.signOut().then(()=>{window.location.href="/"})},initializeForm()):window.location.href="/"})});
+    </script>
+</body>
+</html>
