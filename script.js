@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submenuListini = document.getElementById('submenu-listini');
     const btnConfiguratori = document.getElementById('btn-configuratori');
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
+    const btnFgas = document.getElementById('btn-fgas');
+    const submenuFgas = document.getElementById('submenu-fgas');
 
     // Elementi Pannello Admin
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
