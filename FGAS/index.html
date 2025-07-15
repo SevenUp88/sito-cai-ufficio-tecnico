@@ -3,282 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Gestione Ufficio Tecnico - Home</title>
+    <title>CAI - Modulo Dichiarazione Acquisto FGAS</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Link al foglio di stile principale dell'applicazione -->
+    <!-- Il percorso "../" sale di una cartella per trovare lo style.css -->
+    <link rel="stylesheet" href="../style.css"> 
+    
     <style>
-        /* ========================================================== */
-        /*               FOGLIO DI STILE COMPLETO                     */
-        /* ========================================================== */
-        
-        @page { size: A4; margin: 1.5cm; }
-
-        html { box-sizing: border-box; }
-        *, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: #f8f9fa; color: #343a40; display: flex; flex-direction: column; min-height: 100vh; position: relative; }
-        body.modal-open { overflow: hidden; }
-
-        .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: sticky; top: 0; z-index: 1000; }
-        .logo { height: 45px; width: auto; flex-shrink: 0; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .admin-button { background: none; border: none; color: #0056a8; font-size: 1.8em; cursor: pointer; }
-        .admin-button:hover { color: #d71920; }
-        
-        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; }
-        #login-section h2 { color: #0056a8; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; width: 100%; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        #login-section .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
-        #login-error { color: #dc3545; }
-        #user-dashboard { text-align: right; }
-        #user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
-        #logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
-
-        #content-area { padding: 30px; flex-grow: 1; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
-        #app-content { display: flex; flex-direction: column; align-items: center; }
-
-        .welcome-message { text-align: center; margin-bottom: 30px; }
-        .welcome-message h2 { color: #0056a8; font-size: 2em; margin-bottom: 5px; }
-        .welcome-message p { font-size: 1.1em; color: #6c757d; }
-        
-        .main-nav { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 900px; margin: 0 auto 20px auto; }
-        .nav-button { padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; background-color: #0056a8; color: white; transition: all 0.2s ease; display: inline-flex; align-items: center; text-decoration: none; }
-        .nav-button i { margin-right: 8px; }
-        .nav-button:hover { background-color: #004182; }
-
-        .submenu { background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; max-height: 0; opacity: 0; display: flex; justify-content: center; gap: 10px; transition: all 0.4s ease-out; margin: 0 auto 0; border: 1px solid #e0e0e0; }
-        .submenu.visible { max-height: 200px; opacity: 1; padding: 15px; margin-bottom: 25px; }
-        .submenu-button { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; background-color: #e8f0f7; color: #0056a8; display: inline-flex; align-items: center; text-decoration: none; }
-        
-        .hidden { display: none !important; }
-
-        /* Stili Modulo FGAS (NON STAMPA) */
-        .form-container.fgas-theme { max-width: 850px; width:100%; margin: 0 auto; background-color: #fff; padding: 30px 40px; border: 1px solid #ddd; border-radius: 8px; }
-        .form-actions-header { margin-bottom: 25px; }
-        .back-button { background-color: #6c757d; }
-        .back-button:hover { background-color: #5a6268; }
-        .fgas-theme .form-header { text-align: center; margin-bottom: 25px; }
-        .fgas-theme .form-header h1 { font-size: 1.3rem; color: #000; font-weight: 700; }
-        .fgas-theme .form-header p { font-size: 0.9rem; color: #333; }
-        .fgas-theme #fgas-form { display: flex; flex-direction: column; gap: 12px; }
-        .fgas-theme .form-row { display: flex; gap: 25px; align-items: flex-end; }
-        .fgas-theme .form-group { display: flex; flex-direction: column; flex: 1; }
-        .fgas-theme .form-group.flex-grow-2 { flex-grow: 2; }
-        .fgas-theme .form-group label { font-size: 0.8rem; }
-        .fgas-theme .form-group input { border: none; border-bottom: 1px solid #333; border-radius: 0; padding: 5px 2px; }
-        .fgas-theme .form-group input:disabled { background-color: #f8f9fa; border-bottom-style: dotted; }
-        .fgas-theme .section-divider { border: 0; border-top: 1px dashed #aaa; margin: 10px 0; }
-        .fgas-theme .section-title { display: flex; align-items: center; margin: 10px 0; }
-        .fgas-theme .section-title input[type="checkbox"] { width: 17px; height: 17px; margin-right: 12px; }
-        .fgas-theme .section-title label, .fgas-theme .section-title-static { font-weight: 700; font-size: 1rem; color: #000; }
-        .fgas-theme .separator-text { font-weight: 500; padding-left: 20px; }
-        .fgas-theme .declaration-section { margin-top: 20px; text-align: center; }
-        .fgas-theme .signature-section { margin-top: 25px; }
-        .fgas-theme .signature-box { height: 50px; border-bottom: 1px solid #333; }
-        .fgas-theme .attachment-note { font-style: italic; margin-top: 25px; }
-        .fgas-theme .privacy-footer { margin-top: 20px; padding-top: 10px; border-top: 1px solid #ccc; font-size: 0.7rem; }
-        .fgas-theme .form-actions { margin-top: 40px; text-align: center; }
-        .fgas-theme .print-button { background-color: #198754; }
-        .fgas-theme .print-button:hover { background-color: #157347; }
-        
-        /* Stili per la STAMPA del Modulo FGAS */
+        /* Aggiungiamo qui solo gli stili specifici per la stampa del modulo, 
+           per non sporcare il CSS principale. */
         @media print {
             body { background-color: #fff; font-size: 9.5pt; }
-            .app-header, #main-dashboard-view, #product-details-modal-overlay, .form-actions-header, .form-actions { display: none; }
+            .app-header, .form-actions-header, .form-actions { display: none; }
             #content-area { padding: 0; margin: 0; box-shadow: none; }
-            #fgas-view { display: block !important; }
             .form-container.fgas-theme { box-shadow: none; border: none; max-width: 100%; padding: 0; margin: 0; }
         }
     </style>
 </head>
 <body>
-
     <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo"></a>
         <div class="header-controls">
+            <!-- Questo verrà popolato dallo script di autenticazione se necessario -->
             <div id="user-dashboard" class="hidden">
-                <p>Utente: <span id="user-email-display"></span></p>
+                 <p>Utente: <span id="user-email-display"></span></p>
                 <button id="logout-button" class="btn-login">Logout</button>
             </div>
         </div>
     </header>
 
-    <main id="content-area">
-        <section id="login-section">
-            <h2>Accesso Riservato</h2>
-            <form id="login-form">
-                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
-                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
-                <button type="submit" class="btn-login">Accedi</button>
-                <p id="login-error" class="error-message hidden"></p>
+    <!-- Messaggio mostrato durante il controllo dell'autenticazione -->
+    <div id="auth-loader" style="text-align: center; padding: 50px; font-size: 1.2rem;">
+        Verifica autorizzazione in corso...
+    </div>
+
+    <!-- Il contenuto principale della pagina, nascosto di default -->
+    <main id="page-content" class="hidden">
+         <div class="form-container fgas-theme">
+             <div class="form-header">
+                <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
+                <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
+             </div>
+             <!-- Inizio Form -->
+             <form id="fgas-form" onsubmit="return false;">
+                <div class="form-row"><div class="form-group"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div><div class="form-group"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div><div class="form-group"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div></div><hr class="section-divider">
+                <section id="section-impresa-certificata"><div class="section-title"><input type="checkbox" id="is-impresa-certificata"><label for="is-impresa-certificata">IMPRESA CERTIFICATA</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div><div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div><div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div></div></section>
+                <section id="section-dati-acquirente"><div class="section-title-static">DATI ACQUIRENTE (obbligatori)</div><div class="form-row"><div class="form-group flex-grow-2"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div><div class="form-group"><label for="acq-codice-fiscale">CODICE FISCALE</label><input type="text" id="acq-codice-fiscale"></div></div></section><hr class="section-divider">
+                <section id="section-altre-finalita"><div class="section-title"><input type="checkbox" id="is-altre-finalita"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div><div class="form-group"><label for="altre-cod-fisc-1">COD.FISC.</label><input type="text" id="altre-cod-fisc-1" disabled></div></div><p class="separator-text">OPPURE</p><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div><div class="form-group"><label for="altre-cod-fisc-2">COD. FISC.</label><input type="text" id="altre-cod-fisc-2" disabled></div></div></section>
+                <section class="declaration-section"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
+                <section class="signature-section"><div class="form-row"><div class="form-group flex-grow-2"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div></div><div class="form-row" style="margin-top: 15px;"><div class="form-group flex-grow-2"><label for="nome-dichiarante">Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div><div class="form-group"><label>Firma</label><div class="signature-box"></div></div></div></section>
+                <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
+                <footer class="privacy-footer"><h4>INFORMATIVA D.LGS. 196/2003</h4><p>I dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
-        </section>
-
-        <div id="app-content" class="hidden">
-            
-            <div id="main-dashboard-view">
-                <div class="welcome-message"><h2>Benvenuto nel Portale CAI Ufficio Tecnico!</h2><p>Seleziona una voce dal menu o utilizza la ricerca.</p></div>
-                <nav class="main-nav" id="mainNav">
-                    <button class="nav-button"> <i class="fas fa-key"></i> Noleggi </button>
-                    <button class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </button>
-                    <button id="btn-listini" class="nav-button"> <i class="fas fa-list"></i> Listini </button>
-                    <button id="btn-configuratori" class="nav-button"> <i class="fas fa-cogs"></i> Configuratori </button>
-                    <button id="btn-fgas-module" class="nav-button"> <i class="fas fa-file-signature"></i> Modulo FGAS </button>
-                </nav>
-            </div> 
-
-            <div id="fgas-view" class="hidden">
-                <div class="form-container fgas-theme">
-                    <div class="form-actions-header"><button id="fgas-back-button" class="nav-button back-button"><i class="fas fa-arrow-left"></i> Torna alla Home</button></div>
-                    <div class="form-header">
-                        <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
-                        <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
-                    </div>
-                    <form id="fgas-form" onsubmit="return false;">
-                        <div class="form-row"><div class="form-group"><label for="codice-cliente">Codice cliente</label><input type="text" id="codice-cliente"></div><div class="form-group"><label for="n-bolla">N. bolla</label><input type="text" id="n-bolla"></div><div class="form-group"><label for="data-bolla">data bolla</label><input type="date" id="data-bolla"></div></div><hr class="section-divider">
-                        <section id="section-impresa-certificata"><div class="section-title"><input type="checkbox" id="is-impresa-certificata"><label for="is-impresa-certificata">IMPRESA CERTIFICATA</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="cert-ragione-sociale">Ragione sociale</label><input type="text" id="cert-ragione-sociale" disabled></div><div class="form-group"><label for="cert-n-certificazione">N. certificazione</label><input type="text" id="cert-n-certificazione" disabled></div><div class="form-group"><label for="cert-cod-fisc">COD. FISC.</label><input type="text" id="cert-cod-fisc" disabled></div></div></section>
-                        <section id="section-dati-acquirente"><div class="section-title-static">DATI ACQUIRENTE (obbligatori)</div><div class="form-row"><div class="form-group flex-grow-2"><label for="acq-denominazione">Denominazione</label><input type="text" id="acq-denominazione"></div><div class="form-group"><label for="acq-codice-fiscale">CODICE FISCALE</label><input type="text" id="acq-codice-fiscale"></div></div></section><hr class="section-divider">
-                        <section id="section-altre-finalita"><div class="section-title"><input type="checkbox" id="is-altre-finalita"><label for="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label></div><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-nome-cognome">Nome Cognome</label><input type="text" id="altre-nome-cognome" disabled></div><div class="form-group"><label for="altre-cod-fisc-1">COD.FISC.</label><input type="text" id="altre-cod-fisc-1" disabled></div></div><p class="separator-text">OPPURE</p><div class="form-row"><div class="form-group flex-grow-2"><label for="altre-ragione-sociale">Ragione sociale</label><input type="text" id="altre-ragione-sociale" disabled></div><div class="form-group"><label for="altre-cod-fisc-2">COD. FISC.</label><input type="text" id="altre-cod-fisc-2" disabled></div></div></section>
-                        <section class="declaration-section"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
-                        <section class="signature-section"><div class="form-row"><div class="form-group flex-grow-2"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div></div><div class="form-row" style="margin-top: 15px;"><div class="form-group flex-grow-2"><label for="nome-dichiarante">Nome e cognome del dichiarante</label><input type="text" id="nome-dichiarante"></div><div class="form-group"><label>Firma</label><div class="signature-box"></div></div></div></section>
-                        <p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
-                        <footer class="privacy-footer"><h4>INFORMATIVA D.LGS. 196/2003</h4><p>I dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del D.Lgs. 196/2003. Titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
-                    </form>
-                    <div class="form-actions"><button id="fgas-print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
-                </div>
-            </div>
-        </div> 
+            <div class="form-actions"><button id="fgas-print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
+         </div>
     </main>
 
+    <!-- Script Firebase (NECESSARI SU OGNI PAGINA PROTETTA) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
     <script>
-        // SCRIPT 1: CONTENUTO DI FIREBASE-CONFIG.JS
-        // CANCELLA E SOSTITUISCI CON IL TUO CONTENUTO
-        const firebaseConfig = {
-            apiKey: "AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", // SOSTITUISCI
-            authDomain: "tuo-progetto.firebaseapp.com",     // SOSTITUISCI
-            projectId: "tuo-progetto",                   // SOSTITUISCI
-            storageBucket: "tuo-progetto.appspot.com",   // SOSTITUISCI
-            messagingSenderId: "1234567890",              // SOSTITUISCI
-            appId: "1:1234567890:web:abcdef123456"       // SOSTITUISCI
-        };
+    // Questo script va inserito in OGNI pagina che vuoi proteggere.
+    // Includi qui le tue credenziali firebase.
+    const firebaseConfig = {
+        apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", // LA TUA CHIAVE REALE
+        authDomain: "caiufficiotecnico.firebaseapp.com",
+        projectId: "caiufficiotecnico",
+        storageBucket: "caiufficiotecnico.appspot.com",
+        messagingSenderId: "1071449383838",
+        appId: "1:1071449383838:web:715c0a3733a4c14e1a0525"
+    };
+
+    // Inizializza Firebase
+    if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig);
-        // Esponi globalmente le istanze di auth e db
-        window.auth = firebase.auth();
-        window.db = firebase.firestore();
-        // Imposta la persistenza della sessione
-        window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .catch((error) => console.error("Firebase persistence error:", error.code, error.message));
-    </script>
+    } else {
+        firebase.app(); 
+    }
+    const auth = firebase.auth();
+
+    // Funzionamento del modulo FGAS
+    function initializeFGASForm() {
+        const printButton = document.getElementById('fgas-print-button');
+        const checkImpresa = document.getElementById('is-impresa-certificata');
+        const checkAltre = document.getElementById('is-altre-finalita');
+        if(!checkImpresa) return; // Se il form non c'è, non fare nulla
+
+        const inputsImpresa = document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])');
+        const inputsAltre = document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])');
+
+        const toggleInputs = (inputs, enable) => inputs.forEach(i => { i.disabled = !enable; if (!enable) i.value = ''; });
+        
+        checkImpresa.onchange = () => {
+            toggleInputs(inputsImpresa, checkImpresa.checked);
+            if(checkImpresa.checked) {
+                checkAltre.checked = false;
+                toggleInputs(inputsAltre, false);
+            }
+        };
+        checkAltre.onchange = () => {
+            toggleInputs(inputsAltre, checkAltre.checked);
+            if(checkAltre.checked) {
+                checkImpresa.checked = false;
+                toggleInputs(inputsImpresa, false);
+            }
+        };
+        if(printButton) printButton.onclick = () => window.print();
+    }
     
-    <script>
-        // SCRIPT 2: CONTENUTO DI AUTH.JS
-        document.addEventListener('DOMContentLoaded', function () {
-            if (!window.auth) {
-                console.error("Auth.js: Firebase Auth object (window.auth) non disponibile.");
-                return; 
-            }
-            const loginSection = document.getElementById('login-section');
-            const loginForm = document.getElementById('login-form');
-            const loginError = document.getElementById('login-error');
-            const appContent = document.getElementById('app-content');
-            const userDashboard = document.getElementById('user-dashboard');
-            const userEmailDisplay = document.getElementById('user-email-display');
-            const logoutButton = document.getElementById('logout-button');
-            const ADMIN_EMAILS = ['tecnicovillalta@gmail.com']; 
+    // LA "GUARDIA DI SICUREZZA" DI QUESTA PAGINA
+    document.addEventListener('DOMContentLoaded', () => {
+        const loader = document.getElementById('auth-loader');
+        const pageContent = document.getElementById('page-content');
+        const userDashboard = document.getElementById('user-dashboard');
+        const userEmailDisplay = document.getElementById('user-email-display');
+        const logoutButton = document.getElementById('logout-button');
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // UTENTE AUTENTICATO: mostra il contenuto della pagina
+                console.log('Accesso autorizzato per:', user.email);
+                loader.classList.add('hidden');
+                pageContent.classList.remove('hidden');
 
-            window.auth.onAuthStateChanged(user => {
-                if (user) {
-                    loginSection.classList.add('hidden');
-                    if(loginError) loginError.classList.add('hidden'); 
-                    appContent.classList.remove('hidden');
-                    userDashboard.classList.remove('hidden');
-                    if (userEmailDisplay) userEmailDisplay.textContent = user.email;
-                } else {
-                    loginSection.classList.remove('hidden');
-                    appContent.classList.add('hidden');
-                    userDashboard.classList.add('hidden');
-                }
-            });
-
-            if (loginForm) {
-                loginForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const email = loginForm.email.value;
-                    const password = loginForm.password.value;
-                    window.auth.signInWithEmailAndPassword(email, password)
-                        .catch((error) => {
-                            if(loginError) {
-                                 loginError.textContent = 'Credenziali non valide.';
-                                 loginError.classList.remove('hidden');
-                            }
-                        });
+                // Mostra i dettagli utente e il pulsante logout nell'header
+                userDashboard.classList.remove('hidden');
+                userEmailDisplay.textContent = user.email;
+                logoutButton.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        window.location.href = '/'; // Torna alla home dopo il logout
+                    });
                 });
-            }
-
-            if (logoutButton) {
-                logoutButton.addEventListener('click', () => { window.auth.signOut(); });
+                
+                // Inizializza la logica specifica del modulo FGAS
+                initializeFGASForm();
+                
+            } else {
+                // UTENTE NON AUTENTICATO: torna alla pagina di login
+                console.log('Accesso negato. Reindirizzamento alla home.');
+                window.location.href = '/'; // Usa '/' per puntare alla radice del sito
             }
         });
-    </script> 
-    
-    <script>
-        // SCRIPT 3: SCRIPT PRINCIPALE + LOGICA FGAS
-        document.addEventListener('DOMContentLoaded', () => {
-            const btnFgasModule = document.getElementById('btn-fgas-module');
-            const mainDashboardView = document.getElementById('main-dashboard-view');
-            const fgasView = document.getElementById('fgas-view');
-            const fgasBackButton = document.getElementById('fgas-back-button');
-
-            const showFgasView = () => {
-                if(mainDashboardView) mainDashboardView.classList.add('hidden');
-                if(fgasView) fgasView.classList.remove('hidden');
-            };
-            const showMainDashboard = () => {
-                if(fgasView) fgasView.classList.add('hidden');
-                if(mainDashboardView) mainDashboardView.classList.remove('hidden');
-            };
-            
-            if (btnFgasModule) btnFgasModule.addEventListener('click', showFgasView);
-            if (fgasBackButton) fgasBackButton.addEventListener('click', showMainDashboard);
-            
-            // Logica interna al form FGAS (checkbox e stampa)
-            const fgasPrintButton = document.getElementById('fgas-print-button');
-            const checkImpresaCertificata = document.getElementById('is-impresa-certificata');
-            const checkAltreFinalita = document.getElementById('is-altre-finalita');
-            
-            if (checkImpresaCertificata) {
-                const sectionImpresaCertificata = document.getElementById('section-impresa-certificata');
-                const sectionAltreFinalita = document.getElementById('section-altre-finalita');
-                const inputsImpresaCertificata = sectionImpresaCertificata.querySelectorAll('input:not([type="checkbox"])');
-                const inputsAltreFinalita = sectionAltreFinalita.querySelectorAll('input:not([type="checkbox"])');
-
-                const toggleSectionInputs = (inputs, enable) => {
-                    inputs.forEach(input => { input.disabled = !enable; if (!enable) input.value = ''; });
-                };
-
-                checkImpresaCertificata.addEventListener('change', () => {
-                    toggleSectionInputs(inputsImpresaCertificata, checkImpresaCertificata.checked);
-                    if (checkImpresaCertificata.checked) {
-                        checkAltreFinalita.checked = false;
-                        toggleSectionInputs(inputsAltreFinalita, false);
-                    }
-                });
-                checkAltreFinalita.addEventListener('change', () => {
-                    toggleSectionInputs(inputsAltreFinalita, checkAltreFinalita.checked);
-                    if (checkAltreFinalita.checked) {
-                        checkImpresaCertificata.checked = false;
-                        toggleSectionInputs(inputsImpresaCertificata, false);
-                    }
-                });
-                if(fgasPrintButton) fgasPrintButton.addEventListener('click', () => window.print());
-            }
-        });
+    });
     </script>
 </body>
 </html>
