@@ -10,19 +10,23 @@
     <style>
         /* === TUTTI GLI STILI CSS SONO QUI DENTRO === */
         
-        /* Reset di base e stili generali del corpo */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        /* Definisce i margini e la dimensione per la pagina di stampa */
+        @page {
+            size: A4;
+            margin: 1.5cm; /* Margini standard per la stampa */
+        }
 
         body {
             font-family: 'Roboto', Arial, sans-serif;
-            line-height: 1.6;
+            line-height: 1.5;
             background-color: #e9ecef; /* Sfondo grigio chiaro per far risaltare il foglio */
             color: #212529;
             margin: 0;
             padding: 20px;
         }
 
-        /* Contenitore principale che simula il foglio A4 */
         .form-container {
             max-width: 850px;
             margin: 20px auto;
@@ -32,14 +36,20 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
-        /* Header del modulo */
         .form-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+        
+        /* Stile per il LOGO aggiunto */
+        .form-logo {
+            max-width: 250px; /* Puoi aggiustare la dimensione */
+            height: auto;
+            margin-bottom: 20px;
         }
         
         .form-header h1 {
-            font-size: 1.3rem; /* Dimensione più fedele all'originale */
+            font-size: 1.3rem;
             color: #000;
             margin: 0 0 5px 0;
             font-weight: 700;
@@ -51,28 +61,25 @@
             margin: 0;
         }
 
-        /* Stili per i campi del form */
         #fgas-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px; /* Ridotta spaziatura per la stampa */
         }
 
         .form-row {
             display: flex;
             gap: 25px;
-            align-items: flex-end; /* Allinea gli input alla base */
+            align-items: flex-end;
         }
         
         .form-group {
             display: flex;
             flex-direction: column;
-            flex: 1; /* Permette ai campi di occupare spazio equamente */
-            min-width: 0; /* Previene l'overflow nei flex container */
+            flex: 1;
+            min-width: 0;
         }
-        .form-group.flex-grow-2 {
-            flex-grow: 2;
-        }
+        .form-group.flex-grow-2 { flex-grow: 2; }
 
         .form-group label {
             font-size: 0.8rem;
@@ -84,10 +91,10 @@
         .form-group input[type="text"],
         .form-group input[type="date"] {
             border: none;
-            border-bottom: 1px solid #333; /* Linea stile documento originale */
+            border-bottom: 1px solid #333;
             border-radius: 0;
             padding: 5px 2px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             width: 100%;
         }
         .form-group input:focus {
@@ -100,23 +107,20 @@
             cursor: not-allowed;
         }
 
-        /* Linea di separazione */
         .section-divider {
             border: 0;
             border-top: 1px dashed #aaa;
-            margin: 15px 0;
+            margin: 10px 0;
         }
         
-        /* Stile per i titoli delle sezioni e le checkbox */
         .section-title {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            margin-top: 10px;
+            margin: 10px 0;
         }
         .section-title input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            width: 17px;
+            height: 17px;
             margin-right: 12px;
         }
         .section-title label, .section-title-static {
@@ -125,99 +129,95 @@
             color: #000;
         }
         .section-title-static {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .separator-text {
             text-align: left;
             font-weight: 500;
             color: #333;
-            margin: 10px 0;
+            margin: 5px 0;
             padding-left: 20px;
         }
 
-        /* Sezione DICHIARA */
         .declaration-section {
-            margin-top: 25px;
+            margin-top: 20px;
             text-align: center;
         }
-        .declaration-section h3 { font-size: 0.95rem; font-weight: 400; }
-        .declaration-section h2 { margin: 10px 0; font-size: 1.4rem; color: #000; }
-        .declaration-section p { font-size: 0.95rem; line-height: 1.6; text-align: justify; }
+        .declaration-section h3 { font-size: 0.9rem; font-weight: 400; }
+        .declaration-section h2 { margin: 8px 0; font-size: 1.3rem; color: #000; }
+        .declaration-section p { font-size: 0.9rem; line-height: 1.5; text-align: justify; }
 
-        /* Sezione Firma */
-        .signature-section { margin-top: 35px; }
+        .signature-section { margin-top: 25px; }
         .signature-fields { align-items: flex-end; }
         .signature-box {
-            height: 60px;
+            height: 50px;
             background-color: #fff;
-            border-bottom: 1px solid #333; /* Linea coerente con gli altri input */
+            border-bottom: 1px solid #333;
         }
         
-        /* Note e piè di pagina */
         .attachment-note {
             font-style: italic;
             color: #6c757d;
-            text-align: left; /* Come nell'originale */
-            margin-top: 35px;
+            text-align: left;
+            margin-top: 25px;
         }
         .privacy-footer {
-            margin-top: 25px;
-            padding-top: 15px;
+            margin-top: 20px;
+            padding-top: 10px;
             border-top: 1px solid #ccc;
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Rimpicciolito per non occupare spazio */
             color: #6c757d;
         }
-        .privacy-footer h4 { margin-bottom: 5px; color: #000; font-size: 0.85rem; }
-        .privacy-footer p { text-align: justify; line-height: 1.5; }
+        .privacy-footer h4 { margin-bottom: 5px; color: #000; font-size: 0.75rem; }
+        .privacy-footer p { text-align: justify; line-height: 1.4; }
         
-        /* Azioni (pulsante Stampa) */
         .form-actions {
             margin-top: 40px;
             text-align: center;
         }
         .print-button {
-            padding: 12px 25px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            border: none; 
-            border-radius: 5px; 
-            background-color: #0056a8; 
-            color: white; 
+            padding: 12px 25px; font-size: 16px; cursor: pointer; border: none; 
+            border-radius: 5px; background-color: #0056a8; color: white; 
             transition: background-color 0.2s ease;
         }
         .print-button i { margin-right: 8px; }
         .print-button:hover { background-color: #004182; }
 
-        /* STILI PER LA STAMPA: nasconde elementi non necessari e ottimizza il layout */
+        /* OTTIMIZZAZIONI SPECIFICHE PER LA STAMPA */
         @media print {
             body {
                 background-color: #fff;
                 padding: 0;
                 margin: 0;
+                font-size: 9.5pt; /* Dimensione base del font per la stampa */
             }
             .form-container {
-                box-shadow: none;
-                border: none;
-                max-width: 100%;
-                padding: 0;
-                margin: 0;
+                box-shadow: none; border: none; max-width: 100%;
+                padding: 0; margin: 0;
             }
-            .form-group input[type="text"], .form-group input[type="date"] {
-                border-bottom: 1px solid #333;
+            .form-actions { display: none; }
+            
+            .form-logo { max-width: 220px; margin-bottom: 15px; }
+
+            /* Riduciamo tutte le spaziature verticali per compattare il layout */
+            .form-header, section, .attachment-note, .privacy-footer {
+                margin-top: 10px;
+                margin-bottom: 10px;
             }
-            /* Nasconde il pulsante di stampa durante la stampa */
-            .form-actions {
-                display: none;
-            }
+             .signature-section { margin-top: 20px; }
         }
     </style>
 </head>
 <body>
 
     <div class="form-container">
-        <!-- Header del modulo -->
+        
+        <!-- Intestazione con il logo e titolo -->
         <div class="form-header">
+            <!-- LOGO AGGIUNTO QUI -->
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="form-logo">
+            
             <h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1>
             <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
         </div>
@@ -280,7 +280,7 @@
                     <div class="form-group flex-grow-2"><label for="luogo-data">Luogo e data</label><input type="text" id="luogo-data"></div>
                     <div class="form-group"></div>
                 </div>
-                 <div class="form-row signature-fields" style="margin-top: 20px;">
+                 <div class="form-row signature-fields" style="margin-top: 15px;">
                     <div class="form-group flex-grow-2">
                         <label for="nome-dichiarante">Nome e cognome del dichiarante</label>
                         <input type="text" id="nome-dichiarante">
@@ -306,60 +306,47 @@
     </div>
     
     <script>
-    // === TUTTO IL CODICE JAVASCRIPT E' QUI DENTRO ===
-
     document.addEventListener('DOMContentLoaded', () => {
 
         const printButton = document.getElementById('print-button');
-        
         const checkImpresaCertificata = document.getElementById('is-impresa-certificata');
         const checkAltreFinalita = document.getElementById('is-altre-finalita');
-
         const sectionImpresaCertificata = document.getElementById('section-impresa-certificata');
         const sectionAltreFinalita = document.getElementById('section-altre-finalita');
-
         const inputsImpresaCertificata = sectionImpresaCertificata.querySelectorAll('input:not([type="checkbox"])');
         const inputsAltreFinalita = sectionAltreFinalita.querySelectorAll('input:not([type="checkbox"])');
 
-        // Abilita o disabilita i campi di una sezione specifica
         const toggleSectionInputs = (inputs, enable) => {
             inputs.forEach(input => {
                 input.disabled = !enable;
                 if (!enable) {
-                    input.value = ''; // Pulisce il campo se viene disabilitato
+                    input.value = '';
                 }
             });
         };
 
-        // Gestisce il click sul checkbox "Impresa Certificata"
         checkImpresaCertificata.addEventListener('change', () => {
             const isChecked = checkImpresaCertificata.checked;
             toggleSectionInputs(inputsImpresaCertificata, isChecked);
-
-            // Se spunto questo, l'altro viene deselezionato e disabilitato
             if (isChecked) {
                 checkAltreFinalita.checked = false;
                 toggleSectionInputs(inputsAltreFinalita, false);
             }
         });
 
-        // Gestisce il click sul checkbox "Altre Finalità"
         checkAltreFinalita.addEventListener('change', () => {
             const isChecked = checkAltreFinalita.checked;
             toggleSectionInputs(inputsAltreFinalita, isChecked);
-            
-            // Se spunto questo, l'altro viene deselezionato e disabilitato
             if (isChecked) {
                 checkImpresaCertificata.checked = false;
                 toggleSectionInputs(inputsImpresaCertificata, false);
             }
         });
 
-        // Gestisce il click sul pulsante "Stampa Modulo"
         if (printButton) {
             printButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                window.print(); // Apre la finestra di dialogo di stampa del browser
+                window.print();
             });
         }
     });
