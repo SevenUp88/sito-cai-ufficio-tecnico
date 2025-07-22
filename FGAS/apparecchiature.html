@@ -6,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
-    <!-- Questo bundle include sia html2canvas che jsPDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* Stili confermati e funzionanti per il layout */
         body { background-color: #f0f2f5; font-family: Arial, sans-serif; }
         .modulo-wrapper { max-width: 850px; margin: 20px auto; }
         .paper-form { background: #fff; padding: 40px; border: 1px solid #ccc; color: #000; }
@@ -57,7 +55,6 @@
 
     <main id="content-area" class="hidden modulo-wrapper">
         <div id="form-to-print" class="paper-form">
-            <!-- Tutto il contenuto del form rimane identico -->
              <header class="modulo-header">
                 <h1>MODULO DICHIARAZIONE ACQUISTO <span class="highlight">APPARECCHIATURE FGAS</span></h1>
                 <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
@@ -129,8 +126,20 @@
         const auth=firebase.auth();
 
         document.addEventListener("DOMContentLoaded",() => {
-            const authLoader=document.getElementById("auth-loader"),contentArea=document.getElementById("content-area"),userDashboard=document.getElementById("user-dashboard"),userEmailDisplay=document.getElementById("user-email-display"),logoutButton=document.getElementById("logout-button");
-            auth.onAuthStateChanged(user=>{user?(authLoader.style.display="none",contentArea.classList.remove("hidden"),userDashboard.classList.remove("hidden"),userEmailDisplay.textContent=user.email,logoutButton.onclick=()=>auth.signOut().then(()=>window.location.href="/"),initializeForm()):window.location.href="/"});
+            auth.onAuthStateChanged(user => {
+                const authLoader = document.getElementById("auth-loader");
+                const contentArea = document.getElementById("content-area");
+                if (user) {
+                    authLoader.style.display = "none";
+                    contentArea.classList.remove("hidden");
+                    document.getElementById("user-dashboard").classList.remove("hidden");
+                    document.getElementById("user-email-display").textContent = user.email;
+                    document.getElementById("logout-button").onclick = () => auth.signOut().then(() => window.location.href = "/");
+                    initializeForm();
+                } else {
+                    window.location.href = "/";
+                }
+            });
         });
 
         function initializeForm(){
@@ -141,9 +150,7 @@
             const saveButton = document.getElementById("save-pdf-button");
             const dataBollaInput = document.getElementById("data-bolla");
             
-            if (dataBollaInput) {
-                dataBollaInput.valueAsDate = new Date();
-            }
+            if (dataBollaInput) dataBollaInput.valueAsDate = new Date();
 
             function toggleFields(inputs, isEnabled) {
                 inputs.forEach(input => {
@@ -168,48 +175,23 @@
                 }
             });
             
-            // ==========================================================
-            // NUOVA LOGICA DI STAMPA - AFFIDABILE
-            // ==========================================================
             saveButton.addEventListener("click", () => {
                 const elementToPrint = document.getElementById("form-to-print");
-                const { jsPDF } = window.jspdf;
+                const options = {
+                    // Impostiamo margini generosi per evitare tagli
+                    margin:       1.5,
+                    // Nome del file statico, come richiesto
+                    filename:     'Modulo_FGAS.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    // Questa è la chiave: lasciamo che la libreria adatti il contenuto all'A4
+                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+                };
 
-                // 1. Usa html2canvas per creare un'immagine (canvas) del modulo
-                html2canvas(elementToPrint, { scale: 2, useCORS: true }).then(canvas => {
-                    // 2. Prepara il PDF A4
-                    const pdf = new jsPDF({
-                        orientation: 'portrait',
-                        unit: 'cm',
-                        format: 'a4'
-                    });
-                    
-                    const margin = 1.5; // Margine in cm
-                    const pdfWidth = pdf.internal.pageSize.getWidth() - (margin * 2);
-                    const pdfHeight = pdf.internal.pageSize.getHeight() - (margin * 2);
-
-                    const imgWidth = canvas.width;
-                    const imgHeight = canvas.height;
-                    const ratio = imgWidth / imgHeight;
-
-                    let finalImgWidth = pdfWidth;
-                    let finalImgHeight = pdfWidth / ratio;
-                    
-                    // Se l'altezza calcolata è maggiore dell'area stampabile, ricalcola in base all'altezza
-                    if (finalImgHeight > pdfHeight) {
-                        finalImgHeight = pdfHeight;
-                        finalImgWidth = pdfHeight * ratio;
-                    }
-
-                    // 3. Aggiungi l'immagine al PDF
-                    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', margin, margin, finalImgWidth, finalImgHeight);
-                    
-                    // 4. Salva il file, con un nome statico come richiesto.
-                    pdf.save('Modulo_FGAS.pdf');
-                });
+                // Questo è il modo standard e corretto di usare la libreria
+                html2pdf().from(elementToPrint).set(options).save();
             });
 
-            // Stato iniziale
             toggleFields(inputsImpresa, false);
             toggleFields(inputsAltre, false);
         }
