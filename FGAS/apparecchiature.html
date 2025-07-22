@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
+    
+    <!-- === 1. AGGIUNTA LA LIBRERIA PER GENERARE I PDF === -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         .paper-form {font-family: Arial, sans-serif; background: #fff; padding: 40px; border: 1px solid #ddd; border-radius: 8px; max-width: 850px; margin: auto;}
         .paper-form .form-header { text-align: center; margin-bottom: 25px;}
@@ -26,16 +30,7 @@
         .signature-area label {font-size: 0.8rem; display: block; margin-bottom: 25px;}
         .signature-area .signature-box {height: 1px; border-top: 1px solid #333;}
         .info-footer { text-align: justify; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 0.8rem; color: #444; }
-        .info-footer p { font-size: inherit; }
-        .info-footer .attachment-note { font-style: italic; text-align: center; margin-bottom: 15px; }
-        @media print {
-            body {background: #fff; font-size: 9pt;}
-            .app-header, .form-actions {display: none;}
-            #content-area, .paper-form {padding:0;margin:0;border:none;box-shadow:none;}
-            #auth-loader {display:none;}
-            .declaration-box {background: #fff; border: 1px solid #ccc;}
-            .info-footer { font-size: 7.5pt; }
-        }
+        /* Rimuoviamo la logica di stampa @media print, non ci serve più */
     </style>
 </head>
 <body>
@@ -45,14 +40,12 @@
     </header>
     <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
     <main id="content-area" class="hidden">
-        <div class="paper-form">
+        
+        <!-- === 2. AGGIUNTO UN 'div' CONTENITORE CON ID PER LA STAMPA === -->
+        <div id="form-to-print" class="paper-form">
             <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
-                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;">
-                    <span class="form-field"><label>Codice cliente</label><input type="text" id="pdf-cliente" style="width:150px;"></span>
-                    <span class="form-field"><label>N. bolla</label><input type="text" id="pdf-ddt" style="width:150px;"></span>
-                    <span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span>
-                </section>
+                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;"><span class="form-field"><label>Codice cliente</label><input type="text" id="pdf-cliente" style="width:150px;"></span><span class="form-field"><label>N. bolla</label><input type="text" id="pdf-ddt" style="width:150px;"></span><span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span></section>
                 <section id="section-impresa-certificata">
                     <label class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</label>
                     <div class="form-field" style="margin-top: 15px;"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div>
@@ -75,8 +68,10 @@
                 </section>
                 <footer class="info-footer"><p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p><p><b>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</b> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall’articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
-            <div class="form-actions" style="margin-top: 30px;"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
         </div>
+        
+        <!-- Pulsante di salvataggio FUORI dal div da stampare -->
+        <div class="form-actions" style="max-width:850px; margin: 30px auto; text-align:center;"><button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-file-pdf"></i> Salva come PDF</button></div>
     </main>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
@@ -84,7 +79,7 @@
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
         const auth=firebase.auth();
         
-        // --- INIZIO SCRIPT CON LOGICA CORRETTA PER NOME PDF ---
+        // --- 3. LOGICA DI INIZIALIZZAZIONE FORM E SALVATAGGIO PDF ---
         function initializeForm() {
             const checkImpresa = document.getElementById('is-impresa-certificata');
             const checkAltre = document.getElementById('is-altre-finalita');
@@ -92,51 +87,44 @@
 
             const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
             const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
-            
-            const printButton = document.getElementById('print-button');
-            const ddtInput = document.getElementById('pdf-ddt');
-            const clienteInput = document.getElementById('pdf-cliente');
-            const originalTitle = document.title;
 
             const setSectionState = (inputs, isEnabled) => {
-                inputs.forEach(input => {
-                    input.disabled = !isEnabled;
-                    if (!isEnabled) input.value = '';
-                });
+                inputs.forEach(input => { input.disabled = !isEnabled; if (!isEnabled) input.value = ''; });
             };
 
             checkImpresa.addEventListener('change', () => {
                 setSectionState(inputsImpresa, checkImpresa.checked);
-                if (checkImpresa.checked) {
-                    checkAltre.checked = false;
-                    setSectionState(inputsAltre, false);
-                }
+                if (checkImpresa.checked) { checkAltre.checked = false; setSectionState(inputsAltre, false); }
             });
 
             checkAltre.addEventListener('change', () => {
                 setSectionState(inputsAltre, checkAltre.checked);
-                if (checkAltre.checked) {
-                    checkImpresa.checked = false;
-                    setSectionState(inputsImpresa, false);
-                }
+                if (checkAltre.checked) { checkImpresa.checked = false; setSectionState(inputsImpresa, false); }
             });
             
-            // LOGICA DI STAMPA CORRETTA
-            printButton.addEventListener('click', () => {
-                const ddtValue = ddtInput.value.trim() || 'XXX';
-                const clienteValue = clienteInput.value.trim() || 'XXX';
-                document.title = `FGAS-DDT ${ddtValue}_cliente${clienteValue}`;
+            // --- Logica di salvataggio PDF ---
+            const saveButton = document.getElementById('save-pdf-button');
+            saveButton.addEventListener('click', () => {
+                const ddtValue = document.getElementById('pdf-ddt').value.trim() || 'XXX';
+                const clienteValue = document.getElementById('pdf-cliente').value.trim() || 'XXX';
+                const fileName = `FGAS-DDT ${ddtValue}_cliente${clienteValue}.pdf`;
                 
-                // Aggiungiamo un piccolo ritardo prima di stampare
-                setTimeout(() => {
-                    window.print();
-                }, 50); // 50 millisecondi sono sufficienti
+                const elementToPrint = document.getElementById('form-to-print');
+                
+                // Opzioni per la generazione del PDF
+                const opt = {
+                    margin:       1, // margini in cm
+                    filename:     fileName,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true }, // Aumenta la risoluzione
+                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
+                };
+                
+                // Lancia la generazione del PDF
+                html2pdf().from(elementToPrint).set(opt).save();
             });
 
-            window.addEventListener('afterprint', () => {
-                document.title = originalTitle;
-            });
-            
+            // Stato iniziale
             setSectionState(inputsImpresa, false);
             setSectionState(inputsAltre, false);
         }
