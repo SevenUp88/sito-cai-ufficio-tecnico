@@ -2,7 +2,6 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <!-- Il titolo iniziale che verrà poi ripristinato -->
     <title>CAI - Modulo Apparecchiature FGAS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -50,7 +49,6 @@
             <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
                 <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:15px;">
-                    <!-- Aggiunti ID ai campi per il nome del file -->
                     <span class="form-field"><label>Codice cliente</label><input type="text" id="pdf-cliente" style="width:150px;"></span>
                     <span class="form-field"><label>N. bolla</label><input type="text" id="pdf-ddt" style="width:150px;"></span>
                     <span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:150px;"></span>
@@ -86,21 +84,19 @@
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
         const auth=firebase.auth();
         
-        // --- INIZIO SCRIPT CON LOGICA PER NOME PDF ---
+        // --- INIZIO SCRIPT CON LOGICA CORRETTA PER NOME PDF ---
         function initializeForm() {
-            // Seleziona elementi per la logica dei checkbox
             const checkImpresa = document.getElementById('is-impresa-certificata');
             const checkAltre = document.getElementById('is-altre-finalita');
             if (!checkImpresa) return;
 
             const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
             const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
-
-            // Seleziona elementi per il nome del PDF
+            
             const printButton = document.getElementById('print-button');
             const ddtInput = document.getElementById('pdf-ddt');
             const clienteInput = document.getElementById('pdf-cliente');
-            const originalTitle = document.title; // Salva il titolo originale
+            const originalTitle = document.title;
 
             const setSectionState = (inputs, isEnabled) => {
                 inputs.forEach(input => {
@@ -124,30 +120,26 @@
                     setSectionState(inputsImpresa, false);
                 }
             });
-
-            // Gestione del pulsante di stampa
+            
+            // LOGICA DI STAMPA CORRETTA
             printButton.addEventListener('click', () => {
-                // Leggi i valori o usa 'XXX' se vuoti
                 const ddtValue = ddtInput.value.trim() || 'XXX';
                 const clienteValue = clienteInput.value.trim() || 'XXX';
-
-                // Costruisci il nuovo titolo
                 document.title = `FGAS-DDT ${ddtValue}_cliente${clienteValue}`;
-
-                // Lancia la stampa
-                window.print();
+                
+                // Aggiungiamo un piccolo ritardo prima di stampare
+                setTimeout(() => {
+                    window.print();
+                }, 50); // 50 millisecondi sono sufficienti
             });
 
-            // Ripristina il titolo originale dopo la stampa (sia che venga completata o annullata)
             window.addEventListener('afterprint', () => {
                 document.title = originalTitle;
             });
-
-            // Stato iniziale dei campi disabilitati
+            
             setSectionState(inputsImpresa, false);
             setSectionState(inputsAltre, false);
         }
-        // --- FINE SCRIPT ---
         
         document.addEventListener("DOMContentLoaded", () => {
             const loader = document.getElementById("auth-loader");
