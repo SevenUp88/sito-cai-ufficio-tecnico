@@ -9,23 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <style>
-        /* STILI PER REPLICARE ESATTAMENTE L'IMMAGINE E STARE IN A4 */
+        /* STILI SEMPLIFICATI E ROBUSTI PER LA STAMPA */
         body { background-color: #f0f2f5; font-family: Arial, sans-serif; }
-
-        .modulo-container { max-width: 850px; margin: 20px auto; }
-        .modulo-a4 {
+        
+        /* Contenitore principale nella pagina web */
+        .modulo-wrapper { max-width: 850px; margin: 20px auto; }
+        
+        /* Questo è il div che verrà stampato. NESSUNA altezza o larghezza fissa in cm. */
+        .paper-form {
             background: #fff;
-            padding: 2.5cm 2cm;
+            padding: 40px;
             border: 1px solid #ccc;
-            width: 21cm;
-            height: 29.7cm;
-            box-sizing: border-box;
-            margin: auto;
             color: #000;
         }
 
-        /* ----- GENERAL ----- */
-        h1, h2, h3, p, label { margin: 0; padding: 0; }
+        /* ----- Elementi interni ----- */
+        h1, h2, h3, p, label { margin: 0; padding: 0; font-weight: normal; }
         input[type="text"], input[type="date"] {
             border: none;
             border-bottom: 1px solid #000;
@@ -34,45 +33,40 @@
             padding: 2px 0;
             font-size: 0.9rem;
             font-family: Arial, sans-serif;
+            border-radius: 0; /* Aggiunto per consistenza */
         }
-        input:focus { outline: none; }
-        input:disabled { background: #f0f0f0; border-bottom-style: dotted; }
+        input:focus { outline: none; border-bottom-color: #0056a8; }
+        input:disabled { background: #f8f8f8; border-bottom-style: dotted; cursor: not-allowed; }
 
-        .riga { display: flex; align-items: baseline; gap: 15px; margin-top: 15px; }
-        .campo { display: flex; align-items: baseline; gap: 8px; }
+        .riga { display: flex; align-items: baseline; gap: 20px; margin-top: 18px; }
+        .campo { display: flex; align-items: baseline; gap: 8px; flex-grow: 1; }
         .campo label { white-space: nowrap; font-size: 0.9rem; }
-        .campo-full { flex-grow: 1; }
         
-        .separatore { border: 0; border-top: 1.5px dashed #ccc; margin: 20px 0; }
+        .separatore { border: 0; border-top: 1.5px dashed #ccc; margin: 25px 0; }
         .checkbox-label { display: flex; align-items: center; gap: 8px; font-size: 1rem; }
         .checkbox-label input { width: 18px; height: 18px; }
         
-        /* ----- HEADER ----- */
         .modulo-header { text-align: center; }
         .modulo-header h1 { font-size: 1.1rem; font-weight: bold; }
         .modulo-header .highlight { background-color: #ffff00; padding: 0 2px; }
         .modulo-header p { font-size: 0.9rem; margin-top: 5px; }
         
-        /* ----- SECTIONS ----- */
-        .top-info { margin-top: 20px; }
-        
-        #section-dati-acquirente h2 { font-size: 0.9rem; font-weight: bold; margin-top: 5px; color: #c00000; }
-        #section-altre-finalita p.oppure { font-weight: bold; margin-left: 26px; font-size: 0.9rem; margin-top: 5px; margin-bottom: 5px; }
+        .dati-acquirente-title { font-size: 0.9rem; font-weight: bold; margin-top: 5px; color: #c00000; }
+        .oppure { font-weight: bold; margin-left: 26px; font-size: 0.9rem; margin-top: 10px; margin-bottom: -5px; }
 
-        .dichiarazione { margin-top: 30px; text-align: center; }
+        .dichiarazione { margin-top: 35px; text-align: center; }
         .dichiarazione h2 { font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
         .dichiarazione h3 { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; }
         .dichiarazione p { font-size: 0.9rem; text-align: justify; line-height: 1.5; }
         
-        .signature-area { display: flex; justify-content: space-between; margin-top: 30px; gap: 40px;}
-        .signature-area .campo { flex-basis: 45%; flex-grow: 1; }
-        .signature-area .firma { margin-top: 20px; }
+        .signature-area { display: flex; justify-content: space-between; margin-top: 35px; gap: 50px;}
+        .signature-area .campo { flex-basis: 45%; }
+        .signature-area .firma { flex-basis: 45%; display: flex; flex-direction: column; gap: 30px; }
         .signature-area .firma .campo { flex-direction: column; align-items: flex-start; }
-        .signature-area .firma label { margin-bottom: 30px; }
-
-        /* ----- FOOTER ----- */
-        .modulo-footer { margin-top: 30px; }
-        .modulo-footer .allegato { border-bottom: 1px solid #000; padding-bottom: 2px; font-size: 0.9rem; }
+        .signature-area .firma label { margin-bottom: 25px; }
+        
+        .modulo-footer { margin-top: 40px; }
+        .modulo-footer .allegato { border-bottom: 1px solid #000; display: inline-block; padding-bottom: 2px; font-size: 0.9rem; }
         .modulo-footer .informativa { margin-top: 20px; }
         .modulo-footer .informativa p { font-size: 0.8rem; text-align: justify; line-height: 1.4;}
         .modulo-footer .informativa strong { font-size: 0.9rem; }
@@ -86,65 +80,54 @@
     </header>
     <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
 
-    <main id="content-area" class="hidden modulo-container">
-        <!-- Div contenitore del modulo da stampare -->
-        <div id="form-to-print" class="modulo-a4">
-            
+    <main id="content-area" class="hidden modulo-wrapper">
+        <!-- Questo è il div che verrà stampato -->
+        <div id="form-to-print" class="paper-form">
             <header class="modulo-header">
                 <h1>MODULO DICHIARAZIONE ACQUISTO <span class="highlight">APPARECCHIATURE FGAS</span></h1>
                 <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
             </header>
             
             <form id="apparecchiature-form" onsubmit="return false;">
-                
-                <section class="top-info riga">
-                    <div class="campo" style="flex:1;"><label>Codice cliente</label><input type="text" id="pdf-cliente"></div>
-                    <div class="campo" style="flex:1;"><label>N. bolla</label><input type="text" id="pdf-ddt"></div>
-                    <div class="campo" style="flex:1;"><label>data bolla</label><input type="date" id="data-bolla"></div>
+                <section class="riga">
+                    <div class="campo"><label>Codice cliente</label><input type="text" id="pdf-cliente"></div>
+                    <div class="campo"><label>N. bolla</label><input type="text" id="pdf-ddt"></div>
+                    <div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div>
                 </section>
-                
                 <hr class="separatore">
-                
                 <section id="section-impresa-certificata">
                     <div class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</div>
+                    <div class="riga"><div class="campo"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div></div>
                     <div class="riga">
-                        <div class="campo campo-full"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div>
-                    </div>
-                    <div class="riga">
-                        <div class="campo" style="flex-basis: 50%;"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></div>
-                        <div class="campo" style="flex-basis: 50%;"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></div>
+                        <div class="campo"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></div>
+                        <div class="campo"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></div>
                     </div>
                 </section>
-
-                <section id="section-dati-acquirente">
-                    <h2>DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</h2>
+                <section id="section-dati-acquirente" style="margin-top: 20px;">
+                    <p class="dati-acquirente-title">DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</p>
                      <div class="riga">
-                        <div class="campo" style="flex-basis: 50%;"><label>Denominazione</label><input type="text" id="acq-denominazione"></div>
-                        <div class="campo" style="flex-basis: 50%;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></div>
+                        <div class="campo"><label>Denominazione</label><input type="text" id="acq-denominazione"></div>
+                        <div class="campo"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></div>
                     </div>
                 </section>
-                
                 <hr class="separatore">
-                
                 <section id="section-altre-finalita">
                     <div class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</div>
                     <div class="riga">
-                         <div class="campo" style="flex-basis: 50%;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
-                         <div class="campo" style="flex-basis: 50%;"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></div>
+                         <div class="campo"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
+                         <div class="campo"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></div>
                     </div>
                     <p class="oppure">OPPURE</p>
                     <div class="riga">
-                         <div class="campo" style="flex-basis: 50%;"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
-                         <div class="campo" style="flex-basis: 50%;"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></div>
+                         <div class="campo"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
+                         <div class="campo"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></div>
                     </div>
                 </section>
-                
                 <section class="dichiarazione">
                     <h2>Ai sensi dell'art. 16, comme 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h2>
                     <h3>DICHIARA</h3>
                     <p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
                 </section>
-                
                 <section class="signature-area">
                      <div class="campo"><label>Luogo e data</label><input type="text"></div>
                      <div class="firma">
@@ -152,7 +135,6 @@
                          <div class="campo"><label>Firma</label><input type="text" readonly style="cursor: default;"></div>
                      </div>
                 </section>
-
                 <footer class="modulo-footer">
                     <p class="allegato">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
                     <div class="informativa">
@@ -161,102 +143,28 @@
                 </footer>
             </form>
         </div>
-        
         <div class="form-actions" style="text-align:center; padding: 20px 0;">
             <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-file-pdf"></i> Salva come PDF</button>
         </div>
     </main>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script>
-        // --- LOGICA DI AUTENTICAZIONE E INIZIALIZZAZIONE ---
         const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
         const auth=firebase.auth();
 
-        document.addEventListener("DOMContentLoaded",()=>{
-            const authLoader = document.getElementById("auth-loader");
-            const contentArea = document.getElementById("content-area");
-            const userDashboard = document.getElementById("user-dashboard");
-            const userEmailDisplay = document.getElementById("user-email-display");
-            const logoutButton = document.getElementById("logout-button");
-
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    authLoader.style.display = 'none';
-                    contentArea.classList.remove("hidden");
-                    userDashboard.classList.remove("hidden");
-                    userEmailDisplay.textContent = user.email;
-                    logoutButton.onclick = () => auth.signOut().then(() => window.location.href="/");
-                    
-                    // Inizializza il form solo dopo che l'utente è loggato
-                    initializeForm();
-                } else {
-                    window.location.href="/";
-                }
-            });
+        document.addEventListener("DOMContentLoaded",() => {
+            const authLoader=document.getElementById("auth-loader"),contentArea=document.getElementById("content-area"),userDashboard=document.getElementById("user-dashboard"),userEmailDisplay=document.getElementById("user-email-display"),logoutButton=document.getElementById("logout-button");
+            auth.onAuthStateChanged(user=>{user?(authLoader.style.display="none",contentArea.classList.remove("hidden"),userDashboard.classList.remove("hidden"),userEmailDisplay.textContent=user.email,logoutButton.onclick=()=>auth.signOut().then(()=>window.location.href="/"),initializeForm()):window.location.href="/"});
         });
 
-        // --- LOGICA SPECIFICA DEL MODULO ---
         function initializeForm(){
-            const checkImpresa = document.getElementById("is-impresa-certificata");
-            const checkAltre = document.getElementById("is-altre-finalita");
-
-            const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
-            const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
-            
-            const saveButton = document.getElementById("save-pdf-button");
-            const dataBollaInput = document.getElementById("data-bolla");
-            if(dataBollaInput) {
-                dataBollaInput.valueAsDate = new Date();
-            }
-
-            function toggleFields(inputs, isEnabled) {
-                inputs.forEach(input => {
-                    input.disabled = !isEnabled;
-                    if (!isEnabled) {
-                        input.value = "";
-                    }
-                });
-            }
-
-            checkImpresa.addEventListener("change", () => {
-                toggleFields(inputsImpresa, checkImpresa.checked);
-                if (checkImpresa.checked) {
-                    checkAltre.checked = false;
-                    toggleFields(inputsAltre, false);
-                }
-            });
-
-            checkAltre.addEventListener("change", () => {
-                toggleFields(inputsAltre, checkAltre.checked);
-                if (checkAltre.checked) {
-                    checkImpresa.checked = false;
-                    toggleFields(inputsImpresa, false);
-                }
-            });
-
-            saveButton.addEventListener("click", () => {
-                const ddt = document.getElementById("pdf-ddt").value.trim() || "XXX";
-                const cliente = document.getElementById("pdf-cliente").value.trim() || "XXX";
-                const filename = `FGAS-DDT_${ddt}_CLIENTE_${cliente}.pdf`;
-                const elementToPrint = document.getElementById("form-to-print");
-
-                const opt = {
-                    margin:       0, // Il PDF prenderà l'intera area del div .modulo-a4
-                    filename:     filename,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().from(elementToPrint).set(opt).save();
-            });
-
-            // Stato iniziale
-            toggleFields(inputsImpresa, false);
-            toggleFields(inputsAltre, false);
+            const e=document.getElementById("is-impresa-certificata"),t=document.getElementById("is-altre-finalita"),a=Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])')),n=Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])')),c=document.getElementById("save-pdf-button"),l=document.getElementById("data-bolla");
+            l&&(l.valueAsDate=new Date);function o(e,t){e.forEach(e=>{e.disabled=!t,t||(e.value="")})}e.addEventListener("change",()=>{o(a,e.checked),e.checked&&(t.checked=!1,o(n,!1))}),t.addEventListener("change",()=>{o(n,t.checked),t.checked&&(e.checked=!1,o(a,!1))}),c.addEventListener("click",()=>{const e=document.getElementById("pdf-ddt").value.trim()||"XXX",t=document.getElementById("pdf-cliente").value.trim()||"XXX",a=`FGAS-DDT_${e}_CLIENTE_${t}.pdf`,n=document.getElementById("form-to-print"),
+            // --- LA CONFIGURAZIONE CORRETTA PER LA STAMPA ---
+            l={margin:[1.5,1.5,1.5,1.5],filename:a,image:{type:"jpeg",quality:0.98},html2canvas:{scale:2,useCORS:!0},jsPDF:{unit:"cm",format:"a4",orientation:"portrait"}};
+            html2pdf().from(n).set(l).save()}),o(a,!1),o(n,!1)
         }
     </script>
 </body>
