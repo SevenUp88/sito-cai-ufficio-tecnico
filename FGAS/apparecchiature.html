@@ -23,8 +23,8 @@
         .declaration-box h2 { font-size: 1.2rem; }
         .signature-area {display: flex; justify-content: space-between; gap: 40px; margin-top: 40px;}
         .signature-area > div {flex: 1;}
-        .signature-area label {font-size: 0.8rem; display: block; margin-bottom: 25px;}
-        .signature-area .signature-box {height: 1px; border-top: 1px solid #333;}
+        .signature-area label {font-size: 0.8rem; display: block; margin-bottom: 5px;} /* Ridotto margin-bottom per la label */
+        .signature-area .signature-box {height: 25px; border-top: none;} /* Rimosso il bordo per far spazio all'input */
         .info-footer { text-align: justify; margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc; font-size: 0.8rem; color: #444; }
         .info-footer p { font-size: inherit; }
         .info-footer .attachment-note { font-style: italic; text-align: center; margin-bottom: 15px; }
@@ -58,27 +58,31 @@
                     <b style="font-size:1rem;">DATI ACQUIRENTE (obbligatori)</b>
                     <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:2;"><label>Denominazione</label><input type="text" id="acq-denominazione"></span><span class="form-field" style="flex:1;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></span></div>
                 </section>
-                
-                <!-- === SEZIONE "ALTRE FINALITA" CORRETTA === -->
                 <section id="section-altre-finalita">
                     <label class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
-                    <div style="display:flex;gap:30px; margin-top: 15px;">
-                        <span class="form-field" style="flex:2;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></span>
-                        <span class="form-field" style="flex:1;"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></span>
-                    </div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:2;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></span><span class="form-field" style="flex:1;"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></span></div>
                     <p style="font-weight:bold;margin:15px 0 10px 0;">OPPURE</p>
-                    <div style="display:flex;gap:30px; margin-top: 15px;">
-                        <span class="form-field" style="flex:2;"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></span>
-                        <span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></span>
+                    <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:2;"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></span><span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></span></div>
+                </section>
+                <section class="declaration-box"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
+                
+                <!-- === SEZIONE FIRMA CORRETTA E COMPILABILE === -->
+                <section class="signature-area">
+                    <div class="form-field">
+                        <label>Luogo e data</label>
+                        <input type="text">
+                    </div>
+                    <div>
+                        <div class="form-field">
+                            <label>Nome e cognome del dichiarante</label>
+                            <input type="text">
+                        </div>
+                        <label style="margin-top:40px;">Firma</label>
+                        <div class="signature-box" style="height:40px; border-bottom:1px solid #333; margin-top:5px;"></div>
                     </div>
                 </section>
-                <!-- === FINE SEZIONE CORRETTA === -->
+                <!-- === FINE SEZIONE FIRMA === -->
 
-                <section class="declaration-box"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
-                <section class="signature-area">
-                    <div><label>Luogo e data</label><div class="signature-box"></div></div>
-                    <div><label>Nome e cognome del dichiarante</label><div class="signature-box"></div><label style="margin-top:40px;">Firma</label><div class="signature-box"></div></div>
-                </section>
                 <footer class="info-footer"><p class="attachment-note">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p><p><b>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</b> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall’articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
             </form>
             <div class="form-actions" style="margin-top: 30px;"><button id="print-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa Modulo</button></div>
@@ -89,69 +93,8 @@
         const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
         const auth=firebase.auth();
-        
-        function initializeForm() {
-            const checkImpresa = document.getElementById('is-impresa-certificata');
-            const checkAltre = document.getElementById('is-altre-finalita');
-            if (!checkImpresa) return;
-
-            // Aggiorniamo la selezione degli input per includere i nuovi campi
-            const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
-            const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
-
-            const setSectionState = (inputs, isEnabled) => {
-                inputs.forEach(input => {
-                    input.disabled = !isEnabled;
-                    if (!isEnabled) input.value = '';
-                });
-            };
-
-            checkImpresa.addEventListener('change', () => {
-                setSectionState(inputsImpresa, checkImpresa.checked);
-                if (checkImpresa.checked) {
-                    checkAltre.checked = false;
-                    setSectionState(inputsAltre, false);
-                }
-            });
-
-            checkAltre.addEventListener('change', () => {
-                setSectionState(inputsAltre, checkAltre.checked);
-                if (checkAltre.checked) {
-                    checkImpresa.checked = false;
-                    setSectionState(inputsImpresa, false);
-                }
-            });
-
-            document.getElementById('print-button').addEventListener('click', () => window.print());
-
-            // Stato iniziale
-            setSectionState(inputsImpresa, false);
-            setSectionState(inputsAltre, false);
-        }
-        
-        document.addEventListener("DOMContentLoaded", () => {
-            const loader = document.getElementById("auth-loader");
-            const contentArea = document.getElementById("content-area");
-            const userDashboard = document.getElementById("user-dashboard");
-            const userEmailDisplay = document.getElementById("user-email-display");
-            const logoutButton = document.getElementById("logout-button");
-            const dataBollaInput = document.getElementById('data-bolla');
-
-            if(dataBollaInput) dataBollaInput.valueAsDate = new Date();
-
-            auth.onAuthStateChanged(user => {
-                if (user) {
-                    loader.classList.add("hidden");
-                    contentArea.classList.remove("hidden");
-                    userDashboard.classList.remove("hidden");
-                    userEmailDisplay.textContent = user.email;
-                    logoutButton.onclick = () => auth.signOut().then(() => window.location.href = "/");
-                    initializeForm();
-                } else {
-                    window.location.href = "/";
-                }
-            });
-        });
+        function initializeForm(){const e=document.getElementById("is-impresa-certificata"),t=document.getElementById("is-altre-finalita");if(e){const a=Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])')),n=Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));function l(e,l){e.forEach(e=>{e.disabled=!l,l||(e.value="")})}e.addEventListener("change",()=>{l(a,e.checked),e.checked&&(t.checked=!1,l(n,!1))}),t.addEventListener("change",()=>{l(n,t.checked),t.checked&&(e.checked=!1,l(a,!1))}),document.getElementById("print-button").addEventListener("click",()=>window.print()),l(a,!1),l(n,!1)}}
+        document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("auth-loader"),t=document.getElementById("content-area"),a=document.getElementById("user-dashboard"),n=document.getElementById("user-email-display"),l=document.getElementById("logout-button"),c=document.getElementById("data-bolla");c&&(c.valueAsDate=new Date),auth.onAuthStateChanged(i=>{i?(e.classList.add("hidden"),t.classList.remove("hidden"),a.classList.remove("hidden"),n.textContent=i.email,l.onclick=()=>{auth.signOut().then(()=>{window.location.href="/"})},initializeForm()):window.location.href="/"})});
     </script>
 </body>
 </html>
