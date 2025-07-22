@@ -6,12 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- NON SERVE PIU' html2pdf.js -->
 
     <style>
         body { background-color: #f0f2f5; font-family: Arial, sans-serif; }
         .modulo-wrapper { max-width: 850px; margin: 20px auto; }
         .paper-form { background: #fff; padding: 40px; border: 1px solid #ccc; color: #000; }
+        .form-actions { text-align: center; padding: 20px 0; }
+
+        /* ----- STILI DEL FORM (rimangono invariati) ----- */
         h1, h2, h3, p, label { margin: 0; padding: 0; font-weight: normal; }
         input[type="text"], input[type="date"] {
             border: none; border-bottom: 1px solid #000; background: transparent; width: 100%; padding: 2px 0; font-size: 0.9rem; font-family: Arial, sans-serif; border-radius: 0;
@@ -44,6 +47,30 @@
         .modulo-footer .informativa { margin-top: 20px; }
         .modulo-footer .informativa p { font-size: 0.8rem; text-align: justify; line-height: 1.4;}
         .modulo-footer .informativa strong { font-size: 0.9rem; }
+
+        /* ============================================= */
+        /* STILI PER LA STAMPA: QUESTA È LA SOLUZIONE    */
+        /* ============================================= */
+        @media print {
+            body * {
+                visibility: hidden; /* Nasconde tutto di default */
+            }
+            #form-to-print, #form-to-print * {
+                visibility: visible; /* Rende visibile solo il modulo e i suoi figli */
+            }
+            #form-to-print {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none !important; /* Rimuove bordi e ombre solo in stampa */
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .form-actions, .app-header {
+                display: none !important; /* Nasconde l'header e il bottone di stampa */
+            }
+        }
     </style>
 </head>
 <body>
@@ -55,67 +82,22 @@
 
     <main id="content-area" class="hidden modulo-wrapper">
         <div id="form-to-print" class="paper-form">
-             <header class="modulo-header">
-                <h1>MODULO DICHIARAZIONE ACQUISTO <span class="highlight">APPARECCHIATURE FGAS</span></h1>
-                <p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
-            </header>
+            <!-- Il contenuto del form non cambia -->
+            <header class="modulo-header"><h1>MODULO DICHIARAZIONE ACQUISTO <span class="highlight">APPARECCHIATURE FGAS</span></h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
-                <section class="riga">
-                    <div class="campo"><label>Codice cliente</label><input type="text" id="pdf-cliente"></div>
-                    <div class="campo"><label>N. bolla</label><input type="text" id="pdf-ddt"></div>
-                    <div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div>
-                </section>
+                <section class="riga"><div class="campo"><label>Codice cliente</label><input type="text" id="pdf-cliente"></div><div class="campo"><label>N. bolla</label><input type="text" id="pdf-ddt"></div><div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div></section>
                 <hr class="separatore">
-                <section id="section-impresa-certificata">
-                    <div class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</div>
-                    <div class="riga"><div class="campo"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div></div>
-                    <div class="riga">
-                        <div class="campo"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></div>
-                        <div class="campo"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></div>
-                    </div>
-                </section>
-                <section id="section-dati-acquirente" style="margin-top: 20px;">
-                    <p class="dati-acquirente-title">DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</p>
-                     <div class="riga">
-                        <div class="campo"><label>Denominazione</label><input type="text" id="acq-denominazione"></div>
-                        <div class="campo"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></div>
-                    </div>
-                </section>
+                <section id="section-impresa-certificata"><div class="checkbox-label"><input type="checkbox" id="is-impresa-certificata">IMPRESA CERTIFICATA</div><div class="riga"><div class="campo"><label>Ragione sociale</label><input type="text" id="cert-ragione-sociale"></div></div><div class="riga"><div class="campo"><label>N. certificazione</label><input type="text" id="cert-n-certificazione"></div><div class="campo"><label>COD. FISC.</label><input type="text" id="cert-cod-fisc"></div></div></section>
+                <section id="section-dati-acquirente" style="margin-top: 20px;"><p class="dati-acquirente-title">DATI ACQUIRENTE (dati obbligatori se nell'ordine o nella bolla è indicato)</p><div class="riga"><div class="campo"><label>Denominazione</label><input type="text" id="acq-denominazione"></div><div class="campo"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></div></div></section>
                 <hr class="separatore">
-                <section id="section-altre-finalita">
-                    <div class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</div>
-                    <div class="riga">
-                         <div class="campo"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
-                         <div class="campo"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></div>
-                    </div>
-                    <p class="oppure">OPPURE</p>
-                    <div class="riga">
-                         <div class="campo"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
-                         <div class="campo"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></div>
-                    </div>
-                </section>
-                <section class="dichiarazione">
-                    <h2>Ai sensi dell'art. 16, comme 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h2>
-                    <h3>DICHIARA</h3>
-                    <p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p>
-                </section>
-                <section class="signature-area">
-                     <div class="campo"><label>Luogo e data</label><input type="text"></div>
-                     <div class="firma">
-                         <div class="campo"><label>Nome e cognome del dichiarante</label><input type="text"></div>
-                         <div class="campo"><label>Firma</label><input type="text" readonly style="cursor: default;"></div>
-                     </div>
-                </section>
-                <footer class="modulo-footer">
-                    <p class="allegato">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p>
-                    <div class="informativa">
-                        <p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
-                    </div>
-                </footer>
+                <section id="section-altre-finalita"><div class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</div><div class="riga"><div class="campo"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div><div class="campo"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></div></div><p class="oppure">OPPURE</p><div class="riga"><div class="campo"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div><div class="campo"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></div></div></section>
+                <section class="dichiarazione"><h2>Ai sensi dell'art. 16, comme 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h2><h3>DICHIARA</h3><p>L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
+                <section class="signature-area"><div class="campo"><label>Luogo e data</label><input type="text"></div><div class="firma"><div class="campo"><label>Nome e cognome del dichiarante</label><input type="text"></div><div class="campo"><label>Firma</label><input type="text" readonly style="cursor: default;"></div></div></section>
+                <footer class="modulo-footer"><p class="allegato">Si allega alla presente dichiarazione copia di un documento di identità in corso di validità.</p><div class="informativa"><p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></div></footer>
             </form>
         </div>
-        <div class="form-actions" style="text-align:center; padding: 20px 0;">
-            <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-file-pdf"></i> Salva come PDF</button>
+        <div class="form-actions">
+            <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa o Salva PDF</button>
         </div>
     </main>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -127,18 +109,11 @@
 
         document.addEventListener("DOMContentLoaded",() => {
             auth.onAuthStateChanged(user => {
-                const authLoader = document.getElementById("auth-loader");
-                const contentArea = document.getElementById("content-area");
-                if (user) {
-                    authLoader.style.display = "none";
-                    contentArea.classList.remove("hidden");
-                    document.getElementById("user-dashboard").classList.remove("hidden");
-                    document.getElementById("user-email-display").textContent = user.email;
-                    document.getElementById("logout-button").onclick = () => auth.signOut().then(() => window.location.href = "/");
+                const authLoader=document.getElementById("auth-loader"),contentArea=document.getElementById("content-area");
+                if(user){
+                    authLoader.style.display="none";contentArea.classList.remove("hidden");document.getElementById("user-dashboard").classList.remove("hidden");document.getElementById("user-email-display").textContent=user.email;document.getElementById("logout-button").onclick=()=>auth.signOut().then(()=>window.location.href="/");
                     initializeForm();
-                } else {
-                    window.location.href = "/";
-                }
+                }else{window.location.href="/";}
             });
         });
 
@@ -150,50 +125,17 @@
             const saveButton = document.getElementById("save-pdf-button");
             const dataBollaInput = document.getElementById("data-bolla");
             
-            if (dataBollaInput) dataBollaInput.valueAsDate = new Date();
-
-            function toggleFields(inputs, isEnabled) {
-                inputs.forEach(input => {
-                    input.disabled = !isEnabled;
-                    if (!isEnabled) input.value = "";
-                });
-            }
-
-            checkImpresa.addEventListener("change", () => {
-                toggleFields(inputsImpresa, checkImpresa.checked);
-                if (checkImpresa.checked) {
-                    checkAltre.checked = false;
-                    toggleFields(inputsAltre, false);
-                }
-            });
-
-            checkAltre.addEventListener("change", () => {
-                toggleFields(inputsAltre, checkAltre.checked);
-                if (checkAltre.checked) {
-                    checkImpresa.checked = false;
-                    toggleFields(inputsImpresa, false);
-                }
-            });
+            if(dataBollaInput) dataBollaInput.valueAsDate = new Date();
+            function toggleFields(inputs, isEnabled){inputs.forEach(input=>{input.disabled=!isEnabled;if(!isEnabled)input.value=""});}
+            checkImpresa.addEventListener("change",()=>{toggleFields(inputsImpresa,checkImpresa.checked);if(checkImpresa.checked){checkAltre.checked=false;toggleFields(inputsAltre,false)}});
+            checkAltre.addEventListener("change",()=>{toggleFields(inputsAltre,checkAltre.checked);if(checkAltre.checked){checkImpresa.checked=false;toggleFields(inputsImpresa,false)}});
             
+            // LA SOLUZIONE FINALE E CORRETTA
             saveButton.addEventListener("click", () => {
-                const elementToPrint = document.getElementById("form-to-print");
-                const options = {
-                    // Impostiamo margini generosi per evitare tagli
-                    margin:       1.5,
-                    // Nome del file statico, come richiesto
-                    filename:     'Modulo_FGAS.pdf',
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    // Questa è la chiave: lasciamo che la libreria adatti il contenuto all'A4
-                    jsPDF:        { unit: 'cm', format: 'a4', orientation: 'portrait' }
-                };
-
-                // Questo è il modo standard e corretto di usare la libreria
-                html2pdf().from(elementToPrint).set(options).save();
+                window.print();
             });
 
-            toggleFields(inputsImpresa, false);
-            toggleFields(inputsAltre, false);
+            toggleFields(inputsImpresa,false);toggleFields(inputsAltre,false);
         }
     </script>
 </body>
