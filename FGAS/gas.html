@@ -9,6 +9,7 @@
 
     <style>
         body { background-color: #f0f2f5; font-family: Arial, sans-serif; }
+        /* La classe wrapper per la centratura */
         .modulo-wrapper { max-width: 800px; margin: 20px auto; }
         .paper-form { background: #fff; padding: 30px; border: 1px solid #ccc; color: #000; }
         .form-actions { text-align: center; padding: 20px 0; }
@@ -67,49 +68,28 @@
     </header>
     <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
 
-    <div id="content-area" class="hidden modulo-wrapper">
-        <div id="form-to-print" class="paper-form">
-            <header class="modulo-header"><h1>MODULO DICHIARAZIONE <span class="highlight">ACQUISTO FGAS</span></h1><p>da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
-            <form id="gas-form" onsubmit="return false;">
-                <section class="riga"><div class="campo"><label>Codice cliente</label><input type="text"></div><div class="campo"><label>N. bolla</label><input type="text"></div><div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div></section>
-                <hr class="separatore">
-                <h2 class="section-title">ALTRE FINALITA' (IMPRESA NON CERTIFICATA PERSONA CERTIFICATA)</h2>
-                
-                <section class="declaration-box">
-                    <h3 class="title">DICHIARAZIONE</h3>
-                    <p><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146</strong><br>Il Regolamento (UE) n. 517/2014, stabilisce, all'articolo 11, paragrafo 4, che, ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del predetto regolamento, i gas fluorurati a effetto serra sono esclusivamente venduti a e acquistati da imprese in possesso dei certificati o degli attestati pertinenti a norma dell'articolo 10 o da imprese che impiegano persone in possesso di un certificato o di un attestato di formazione ai sensi dell'articolo 10, paragrafi 2 e 5.</p>
-                    <p style="margin-top: 15px;"><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146, l'acquirente</strong></p>
-                </section>
-                
-                <table class="dati-table">
-                    <tr><td colspan="2" class="header-cell">Persona Fisica</td></tr>
-                    <tr><td class="label-cell">Nome / Cognome</td><td class="input-cell"><input type="text"></td></tr>
-                    <tr><td class="label-cell">Codice Fiscale /<br>identificativo univoco</td><td class="input-cell"><input type="text"></td></tr>
-                    <tr><td colspan="2" class="oppure-cell">oppure</td></tr>
-                    <tr><td colspan="2" class="header-cell">Impresa</td></tr>
-                    <tr><td class="label-cell">Ragione Sociale</td><td class="input-cell"><input type="text"></td></tr>
-                    <tr><td class="label-cell">Codice Fiscale / VAT</td><td class="input-cell"><input type="text"></td></tr>
-                </table>
-
-                <section class="final-declaration">
-                    <h3 class="title">DICHIARA</h3>
-                    <p>Che i gas fluorurati non vengono acquistati ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas, <strong>per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</strong></p>
-                </section>
-
-                <section class="signature-area">
-                    <div class="campo"><label>Luogo e data</label><input type="text"></div>
-                    <div class="campo" style="flex-grow:0.8;"><label>Firma</label><input type="text" readonly style="cursor: default;"></div>
-                </section>
-                
-                <footer class="informativa-footer">
-                    <p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
-                </footer>
-            </form>
+    <!-- Struttura corretta: il contenitore esterno è #content-area... -->
+    <main id="content-area" class="hidden">
+        <!-- ...e all'interno c'è il div per la centratura -->
+        <div class="modulo-wrapper">
+            <div id="form-to-print" class="paper-form">
+                <header class="modulo-header"><h1>MODULO DICHIARAZIONE <span class="highlight">ACQUISTO FGAS</span></h1><p>da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
+                <form id="gas-form" onsubmit="return false;">
+                    <section class="riga"><div class="campo"><label>Codice cliente</label><input type="text"></div><div class="campo"><label>N. bolla</label><input type="text"></div><div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div></section>
+                    <hr class="separatore">
+                    <h2 class="section-title">ALTRE FINALITA' (IMPRESA NON CERTIFICATA PERSONA CERTIFICATA)</h2>
+                    <section class="declaration-box"><h3 class="title">DICHIARAZIONE</h3><p><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146</strong><br>Il Regolamento (UE) n. 517/2014, stabilisce, all'articolo 11, paragrafo 4, che, ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del predetto regolamento, i gas fluorurati a effetto serra sono esclusivamente venduti a e acquistati da imprese in possesso dei certificati o degli attestati pertinenti a norma dell'articolo 10 o da imprese che impiegano persone in possesso di un certificato o di un attestato di formazione ai sensi dell'articolo 10, paragrafi 2 e 5.</p><p style="margin-top: 15px;"><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146, l'acquirente</strong></p></section>
+                    <table class="dati-table"><tr><td colspan="2" class="header-cell">Persona Fisica</td></tr><tr><td class="label-cell">Nome / Cognome</td><td class="input-cell"><input type="text"></td></tr><tr><td class="label-cell">Codice Fiscale /<br>identificativo univoco</td><td class="input-cell"><input type="text"></td></tr><tr><td colspan="2" class="oppure-cell">oppure</td></tr><tr><td colspan="2" class="header-cell">Impresa</td></tr><tr><td class="label-cell">Ragione Sociale</td><td class="input-cell"><input type="text"></td></tr><tr><td class="label-cell">Codice Fiscale / VAT</td><td class="input-cell"><input type="text"></td></tr></table>
+                    <section class="final-declaration"><h3 class="title">DICHIARA</h3><p>Che i gas fluorurati non vengono acquistati ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas, <strong>per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</strong></p></section>
+                    <section class="signature-area"><div class="campo"><label>Luogo e data</label><input type="text"></div><div class="campo" style="flex-grow:0.8;"><label>Firma</label><input type="text" readonly style="cursor: default;"></div></section>
+                    <footer class="informativa-footer"><p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
+                </form>
+            </div>
+            <div class="form-actions">
+                <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa o Salva PDF</button>
+            </div>
         </div>
-        <div class="form-actions">
-            <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa o Salva PDF</button>
-        </div>
-    </div>
+    </main>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -120,9 +100,9 @@
 
         document.addEventListener("DOMContentLoaded",() => {
             auth.onAuthStateChanged(user => {
-                const authLoader=document.getElementById("auth-loader"),contentWrapper=document.getElementById("content-area");
+                const authLoader=document.getElementById("auth-loader"),contentArea=document.getElementById("content-area");
                 if(user){
-                    authLoader.style.display="none";contentWrapper.classList.remove("hidden");document.getElementById("user-dashboard").classList.remove("hidden");document.getElementById("user-email-display").textContent=user.email;document.getElementById("logout-button").onclick=()=>auth.signOut().then(()=>window.location.href="/");
+                    authLoader.style.display="none";contentArea.classList.remove("hidden");document.getElementById("user-dashboard").classList.remove("hidden");document.getElementById("user-email-display").textContent=user.email;document.getElementById("logout-button").onclick=()=>auth.signOut().then(()=>window.location.href="/");
                     initializeForm();
                 }else{window.location.href="/";}
             });
