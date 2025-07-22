@@ -58,12 +58,22 @@
                     <b style="font-size:1rem;">DATI ACQUIRENTE (obbligatori)</b>
                     <div style="display:flex;gap:30px; margin-top: 15px;"><span class="form-field" style="flex:2;"><label>Denominazione</label><input type="text" id="acq-denominazione"></span><span class="form-field" style="flex:1;"><label>CODICE FISCALE</label><input type="text" id="acq-cod-fisc"></span></div>
                 </section>
+                
+                <!-- === SEZIONE "ALTRE FINALITA" CORRETTA === -->
                 <section id="section-altre-finalita">
                     <label class="checkbox-label"><input type="checkbox" id="is-altre-finalita">ALTRE FINALITA' (IMPRESA/ENTE/PROFESSIONISTA/ PERSONA NON CERTIFICATA)</label>
-                    <div class="form-field" style="margin-top: 15px;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;">
+                        <span class="form-field" style="flex:2;"><label>Nome Cognome</label><input type="text" id="altre-nome-cognome"></span>
+                        <span class="form-field" style="flex:1;"><label>COD.FISC.</label><input type="text" id="altre-cod-fisc-persona"></span>
+                    </div>
                     <p style="font-weight:bold;margin:15px 0 10px 0;">OPPURE</p>
-                    <div class="form-field"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></div>
+                    <div style="display:flex;gap:30px; margin-top: 15px;">
+                        <span class="form-field" style="flex:2;"><label>Ragione sociale</label><input type="text" id="altre-ragione-sociale"></span>
+                        <span class="form-field" style="flex:1;"><label>COD. FISC.</label><input type="text" id="altre-cod-fisc-impresa"></span>
+                    </div>
                 </section>
+                <!-- === FINE SEZIONE CORRETTA === -->
+
                 <section class="declaration-box"><h3>Ai sensi dell'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146</h3><h2>DICHIARA</h2><p style="text-align:justify;font-size:0.95rem;">L'impegno ad ottemperare a quanto previsto dall'art. 16, comma 3, lettera d), del d.P.R. 16 novembre 2018, n. 146, assumendosi l'obbligo che l'installazione sarà effettuata da un'impresa certificata a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</p></section>
                 <section class="signature-area">
                     <div><label>Luogo e data</label><div class="signature-box"></div></div>
@@ -80,53 +90,44 @@
         if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
         const auth=firebase.auth();
         
-        // --- INIZIO SCRIPT CORRETTO PER IL FORM ---
         function initializeForm() {
             const checkImpresa = document.getElementById('is-impresa-certificata');
             const checkAltre = document.getElementById('is-altre-finalita');
             if (!checkImpresa) return;
 
+            // Aggiorniamo la selezione degli input per includere i nuovi campi
             const inputsImpresa = Array.from(document.querySelectorAll('#section-impresa-certificata input:not([type="checkbox"])'));
             const inputsAltre = Array.from(document.querySelectorAll('#section-altre-finalita input:not([type="checkbox"])'));
 
-            // Funzione unica per abilitare/disabilitare una sezione
             const setSectionState = (inputs, isEnabled) => {
                 inputs.forEach(input => {
                     input.disabled = !isEnabled;
-                    if (!isEnabled) {
-                        input.value = '';
-                    }
+                    if (!isEnabled) input.value = '';
                 });
             };
 
-            // Evento per checkbox "IMPRESA CERTIFICATA"
             checkImpresa.addEventListener('change', () => {
                 setSectionState(inputsImpresa, checkImpresa.checked);
-                // Se viene spuntato, deseleziona e disabilita l'altro
                 if (checkImpresa.checked) {
                     checkAltre.checked = false;
                     setSectionState(inputsAltre, false);
                 }
             });
 
-            // Evento per checkbox "ALTRE FINALITA'"
             checkAltre.addEventListener('change', () => {
                 setSectionState(inputsAltre, checkAltre.checked);
-                // Se viene spuntato, deseleziona e disabilita l'altro
                 if (checkAltre.checked) {
                     checkImpresa.checked = false;
                     setSectionState(inputsImpresa, false);
                 }
             });
 
-            // Pulsante di stampa
             document.getElementById('print-button').addEventListener('click', () => window.print());
 
-            // Stato iniziale al caricamento della pagina: tutto disabilitato
+            // Stato iniziale
             setSectionState(inputsImpresa, false);
             setSectionState(inputsAltre, false);
         }
-        // --- FINE SCRIPT CORRETTO PER IL FORM ---
         
         document.addEventListener("DOMContentLoaded", () => {
             const loader = document.getElementById("auth-loader");
@@ -136,9 +137,7 @@
             const logoutButton = document.getElementById("logout-button");
             const dataBollaInput = document.getElementById('data-bolla');
 
-            if(dataBollaInput) {
-                dataBollaInput.valueAsDate = new Date();
-            }
+            if(dataBollaInput) dataBollaInput.valueAsDate = new Date();
 
             auth.onAuthStateChanged(user => {
                 if (user) {
@@ -146,13 +145,13 @@
                     contentArea.classList.remove("hidden");
                     userDashboard.classList.remove("hidden");
                     userEmailDisplay.textContent = user.email;
-                    logoutButton.onclick = () => { auth.signOut().then(() => { window.location.href = "/" }) };
-                    initializeForm(); // Lancia la logica del form
+                    logoutButton.onclick = () => auth.signOut().then(() => window.location.href = "/");
+                    initializeForm();
                 } else {
-                    window.location.href = "/"
+                    window.location.href = "/";
                 }
             });
         });
     </script>
 </body>
-</html>
+</html>```
