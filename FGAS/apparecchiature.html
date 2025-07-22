@@ -10,7 +10,8 @@
 
     <style>
         /* STILI OTTIMIZZATI PER LA STAMPA SU FOGLIO A4 */
-        .paper-form {font-family: Arial, sans-serif; background: #fff; padding: 25px; border: 1px solid #ddd; border-radius: 8px; max-width: 680px; margin: auto;}
+        body { background-color: #f0f2f5; } /* Sfondo grigio solo per la pagina web */
+        .paper-form {font-family: Arial, sans-serif; background: #fff; padding: 25px; border: 1px solid #ddd; border-radius: 8px; max-width: 680px; margin: 20px auto;}
         .paper-form .form-header { text-align: center; margin-bottom: 20px;}
         .paper-form h1 {font-size: 1rem; font-weight: bold; margin-bottom: 5px;}
         .paper-form p {font-size: 0.8rem; line-height: 1.4;}
@@ -21,8 +22,8 @@
         /* Stile migliorato per la stampa: la linea resta visibile ma grigia e non compilabile */
         .paper-form input:disabled { background: transparent; cursor: not-allowed; border-bottom-style: solid; border-color: #bbb;}
         
-        .paper-form section { margin-top: 20px; } /* Aumentato margine sezioni */
-        .form-field-group { margin-top: 15px; } /* Aumentato margine tra campi */
+        .paper-form section { margin-top: 25px; } /* Aumentato margine sezioni */
+        .form-field-group { margin-top: 15px; } 
 
         .checkbox-label {display: flex;align-items: center;font-weight: bold;font-size: 0.9rem;margin-bottom: 10px; cursor: pointer;}
         .checkbox-label input {width: 15px;height: 15px;margin-right: 8px;}
@@ -52,7 +53,7 @@
         <div id="form-to-print" class="paper-form">
             <header class="form-header"><h1>MODULO DICHIARAZIONE ACQUISTO APPARECCHIATURE FGAS</h1><p>Da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
             <form id="apparecchiature-form" onsubmit="return false;">
-                <section style="display:flex;justify-content:space-between;border-bottom:1px dotted #333;padding-bottom:10px;">
+                <section style="display:flex;justify-content:space-between;border-bottom:1px solid #ccc;padding-bottom:10px; margin-bottom: 20px;">
                     <span class="form-field"><label>Codice cliente</label><input type="text" id="pdf-cliente" style="width:130px;"></span>
                     <span class="form-field"><label>N. bolla</label><input type="text" id="pdf-ddt" style="width:130px;"></span>
                     <span class="form-field"><label>data bolla</label><input type="date" id="data-bolla" style="width:130px;"></span>
