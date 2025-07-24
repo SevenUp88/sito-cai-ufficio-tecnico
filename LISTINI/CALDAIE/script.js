@@ -1,4 +1,4 @@
-// --- START OF FILE script.js (COMPLETO CON ULTIME MODIFICHE) ---
+// --- START OF FILE script.js (COMPLETO E CORRETTO) ---
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("DOM Contenuto Caricato - Inizio script.js (Listini Caldaie)");
@@ -112,10 +112,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error("Error fetching boilers:", error);
             if(noResultsMessage) {
                 if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
-                    noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Effettua il login.';
+                    noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Per favore, contatta l\'amministratore.';
                 } else if (error.message && error.message.toLowerCase().includes('missing an index')) {
                     noResultsMessage.textContent = 'Configurazione database in corso. Riprova tra poco o contatta supporto.';
-                    console.error("INDICE MANCANTE IN FIRESTORE. Se sei admin, vai al link nell'errore completo in console per crearlo.");
+                    console.error("INDICE MANCANTE IN FIRESTORE. Contatta l'amministratore fornendo il link nell'errore completo in console per crearlo.");
                 } else {
                     noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
                 }
@@ -375,7 +375,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return card;
     }
 
-
     function displayBoilers(boilersToDisplay) {
         if (!boilerListContainer) return;
         boilerListContainer.innerHTML = '';
@@ -397,38 +396,59 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function showBoilerDetailsPopup(boiler) {
         if (!boilerDetailsPopupOverlay || !boilerDetailsPopupContentArea || !popupBoilerTitle) return;
-        popupBoilerTitle.textContent = escapeHtml(boiler.model || "Dettagli Caldaia"); 
+        popupBoilerTitle.textContent = escapeHtml(boiler.model || "Dettagli Caldaia");
         boilerDetailsPopupContentArea.innerHTML = '';
-
-        for (const fieldKeyInFirestore in ALL_BOILER_FIELDS_MAP) { 
-            if (Object.prototype.hasOwnProperty.call(ALL_BOILER_FIELDS_MAP, fieldKeyInFirestore)) { 
+    
+        for (const fieldKeyInFirestore in ALL_BOILER_FIELDS_MAP) {
+            // CORREZIONE SINTASSI hasOwnProperty
+            if (Object.prototype.hasOwnProperty.call(ALL_BOILER_FIELDS_MAP, fieldKeyInFirestore)) {
                 const displayLabel = ALL_BOILER_FIELDS_MAP[fieldKeyInFirestore];
-                let value = boiler[fieldKeyInFirestore]; 
-                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
-                     continue;
-                }
-                 if (fieldKeyInFirestore === 'litri_accumulo') {
-                    if (boiler.con_accumulo !== true) continue; 
-                    if (boiler.con_accumulo === true && (typeof value !== 'number' || value <= 0)) {
-                        value = "Sì (capacità non specificata)"; 
+                let value = boiler[fieldKeyInFirestore];
+                let displayValueHtml = '';
+    
+                // Gestione del valore litri_accumulo, mostrato solo se con_accumulo è true
+                if (fieldKeyInFirestore === 'litri_accumulo') {
+                    if (boiler.con_accumulo !== true) continue; // Salta se non c'è accumulo
+                    if (typeof value === 'number' && value > 0) {
+                        value = `${value} Litri`;
                     } else {
-                         value = `${value} Litri`; 
+                        value = "Sì (capacità non specificata)";
                     }
                 }
-                
-                let displayValueHtml; 
-                if (typeof value === 'boolean') {
+    
+                const isValueMissing = (
+                    value === undefined || 
+                    value === null || 
+                    (typeof value === 'string' && value.trim() === '') ||
+                    (
+                        typeof value === 'number' && value === 0 && 
+                        !['price', 'listPrice', 'litri_accumulo'].includes(fieldKeyInFirestore)
+                    )
+                );
+
+                if (isValueMissing) {
+                    // Gestione di booleani che sono esplicitamente `false` e non devono essere saltati
+                    if (value === false && ['nearingEndOfStock', 'builtIn', 'wifi', 'novita', 'outdoorInstallation', 'withBase', 'splitterIncluded'].includes(fieldKeyInFirestore)) {
+                        displayValueHtml = 'No';
+                    } else if (value === 0 && (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice')) {
+                         displayValueHtml = escapeHtml(formatPrice(0));
+                    }
+                    else {
+                        continue; // Salta il campo se il valore è effettivamente mancante
+                    }
+                } else if (typeof value === 'boolean') {
                     displayValueHtml = value ? 'Sì' : 'No';
-                } else if (fieldKeyInFirestore === 'datasheetUrl' || fieldKeyInFirestore === 'manualeUrl') { 
+                } else if (['datasheetUrl', 'manualeUrl'].includes(fieldKeyInFirestore)) {
                     displayValueHtml = `<a href="${escapeHtml(String(value))}" target="_blank" rel="noopener noreferrer">${escapeHtml(String(value))}</a>`;
-                } else if (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice') { 
+                } else if (['price', 'listPrice'].includes(fieldKeyInFirestore)) {
                     const formatted = formatPrice(value);
                     displayValueHtml = formatted ? escapeHtml(formatted) : '<span class="unknown-value">SCONOSCIUTO</span>';
-                } else if (fieldKeyInFirestore === 'dimensions' && boiler[fieldKeyInFirestore]) { 
-                     displayValueHtml = `${escapeHtml(String(boiler[fieldKeyInFirestore]))} mm`;
+                } else if (fieldKeyInFirestore === 'dimensions') {
+                    displayValueHtml = `${escapeHtml(String(value))} mm`;
                 } else {
                     displayValueHtml = escapeHtml(String(value));
                 }
+                
                 boilerDetailsPopupContentArea.innerHTML += `<p><strong>${escapeHtml(displayLabel)}:</strong> <span class="popup-value">${displayValueHtml}</span></p>`;
             }
         }
@@ -454,7 +474,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-
     async function loadAndDisplayPrimaryData() {
         if (!authInitialized) {
             console.log("Auth non ancora inizializzato, in attesa...");
@@ -462,15 +481,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (!auth.currentUser) {
-            console.log("Nessun utente loggato. Non si effettua il fetch dei listini protetti.");
+            console.log("Nessun utente loggato. Accesso ai listini negato.");
             if(boilerListContainer) boilerListContainer.innerHTML = ''; 
             if(noResultsMessage) {
-                noResultsMessage.textContent = 'Devi essere autenticato per visualizzare i listini.';
+                // Modificato per non suggerire login ma contatto admin
+                noResultsMessage.textContent = 'Accesso ai listini riservato. Per favore, contatta l\'amministratore per le credenziali.';
                 noResultsMessage.style.display = 'block';
             }
             if(loadingIndicator) loadingIndicator.style.display = 'none';
             
-            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '<p style="color: var(--secondary-color); font-size: 0.9em; text-align: center; width:100%;">Autenticati per visualizzare i prodotti.</p>';
+            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = `<p style="color: var(--secondary-color); font-size: 0.9em; text-align: center; width:100%;">Area riservata. Accesso richiesto.</p>`;
             if (economicoFilterBtn) economicoFilterBtn.style.display = 'none';
             if (searchInput) { searchInput.value = ''; searchInput.disabled = true; }
             if (resetFiltersBtn) resetFiltersBtn.style.display = 'none';
@@ -478,6 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
+        // Se l'utente è loggato, abilita i controlli
         if (economicoFilterBtn) economicoFilterBtn.style.display = 'inline-block';
         if (searchInput) searchInput.disabled = false;
 
@@ -487,10 +508,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (allBoilers.length > 0) {
             if(noResultsMessage) noResultsMessage.style.display = 'none'; 
             populateFilterButtons(allBoilers);
-            displayBoilers(allBoilers); 
+            applyFiltersAndSearch(); 
         } else {
-            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage && noResultsMessage.style.display !== 'block') {
-                 noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non trovati.';
+            // Se non ci sono caldaie DOPO il fetch (e l'utente è loggato)
+            if (boilerListContainer && !noResultsMessage.textContent.includes('Accesso ai listini non autorizzato')) {
+                 noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento.';
                  noResultsMessage.style.display = 'block';
             }
             if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '';
@@ -537,4 +559,3 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     initializeCaldaiePage();
 });
-// --- END OF FILE script.js ---
