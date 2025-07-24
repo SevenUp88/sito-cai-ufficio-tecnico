@@ -11,39 +11,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div id="login-modal-caldaie" class="modal" style="display: none;">
-      <div class="modal-content">
-          <span class="close-btn-caldaie close-btn">×</span>
-          <h2 id="login-modal-title-caldaie">Accesso Amministratore</h2>
-          <form id="login-form-caldaie">
-              <div class="form-group">
-                  <label for="login-email-caldaie">Email:</label>
-                  <input type="email" id="login-email-caldaie" required class="form-control">
-              </div>
-              <div class="form-group">
-                  <label for="login-password-caldaie">Password:</label>
-                  <input type="password" id="login-password-caldaie" required class="form-control">
-              </div>
-              <div id="login-error-caldaie" class="error-message" style="display: none;"></div>
-              <button type="submit" class="btn btn-primary btn-block">Accedi</button>
-          </form>
-          <button id="logout-button-caldaie" class="btn btn-danger btn-block" style="display: none; margin-top: 1rem;">Logout</button>
-      </div>
-    </div>
-
     <div class="listini-page-container">
         <header class="app-header">
             <a href="../../index.html" class="logo-link">
-                <!-- Assuming CAI_Logo_Ufficio_Tecnico.png is at the project root -->
                 <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
             </a>
+            <div class="header-user-info" style="display: none;">
+                Utente: <strong id="user-email-display"></strong>
+            </div>
             <div class="header-controls">
-                <button id="admin-trigger" class="header-action-button" title="Accesso Admin">
-                     <i class="fas fa-user-shield"></i>
-                </button>
-                 <a href="../../configuratore/configuratore.html" class="header-action-button" title="Configuratore Climatizzatori">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"></path><path d="M15.061 9.061h.01"></path><path d="M8.939 9.061h.01"></path><path d="M15.061 15.061h.01"></path><path d="M8.939 15.061h.01"></path><path d="M18.121 12h.01"></path><path d="M5.879 12h.01"></path><path d="M12 18.121v.01"></path><path d="M12 5.879v.01"></path></svg>
+                 <a href="../../index.html" class="header-action-button" title="Home">
+                    <i class="fas fa-home"></i>
                 </a>
+                 <button id="logout-button" class="button-logout" style="display: none;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
             </div>
         </header>
 
@@ -55,13 +37,7 @@
                 <span>Filtra per:</span>
                 <div id="brand-filter-buttons" class="filter-button-group">
                     <!-- Brand filter buttons will be inserted here by JS -->
-                    <!-- Example: <button class="filter-btn active" data-filter-group="brand" data-filter-value="">Tutte</button> -->
-                    <!-- Example: <button class="filter-btn" data-filter-group="brand" data-filter-value="BAXI">BAXI</button> -->
                 </div>
-                <!-- Optional: Placeholder for Category filter buttons if you add them -->
-                <!-- <div id="category-filter-buttons" class="filter-button-group">
-                    <button class="filter-btn active" data-filter-group="category" data-filter-value="">Tutte</button>
-                </div> -->
                 <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
 
                 <div class="search-group">
@@ -86,14 +62,6 @@
                 <!-- Boiler cards will be dynamically inserted here by JavaScript -->
             </div>
         </main>
-
-        <div id="admin-section-caldaie" style="display: none; margin-top: 30px; padding: 20px; border: 1px solid var(--warning-color); border-radius: var(--border-radius); background-color: #fff8e1;">
-            <h2>Gestione Listino Caldaie (Admin)</h2>
-            <p>Funzionalità per aggiungere, modificare o eliminare caldaie.</p>
-            <button id="add-boiler-btn" class="btn btn-primary">Aggiungi Nuova Caldaia</button>
-            <div id="admin-boilers-list" style="margin-top:20px;">
-            </div>
-        </div>
     </div>
 
     <!-- Popup for Boiler Details -->
