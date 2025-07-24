@@ -22,6 +22,56 @@ body {
 }
 /* --- FINE GLOBAL RESET --- */
 
+/* --- HEADER STYLES (Adattato da pagina Consegne) --- */
+header.app-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 10px 20px;
+    background-color: var(--background-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    border-radius: 16px; /* Simile a --radius-xl dell'altro file */
+    border: 1px solid #e2e8f0; /* Colore simile a --border-color */
+    margin-bottom: 25px; /* Allineato con margin-bottom di page-controls */
+}
+
+header.app-header .logo {
+    height: 45px;
+    width: auto;
+    flex-shrink: 0;
+}
+
+header.app-header a.logo-link {
+    line-height: 0;
+}
+
+header.app-header .header-controls {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+header.app-header .header-action-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.5em; /* 24px */
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    line-height: 1;
+}
+
+header.app-header .header-action-button:hover {
+    color: #003d6b; /* Un blu più scuro, come in consegne */
+}
+/* --- FINE HEADER STYLES --- */
+
 
 :root {
     --primary-color: #0056a8;       
@@ -33,7 +83,7 @@ body {
     --border-radius: 8px;           
     --danger-color: #dc3545;        
     --warning-color: #ffc107; /* Orange */      
-    --header-height: 65px;    
+    /* --header-height: 65px;    -- RIMOSSA */
     --matrice-accent-success: #198754; /* Green, from other file */
     --true-black: #000000; /* Added from other file */
 }
@@ -41,7 +91,7 @@ body {
 .listini-page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 20px 20px 20px;
+    padding: 20px 20px 20px 20px;
     background-color: var(--background-color);
 }
 
@@ -49,7 +99,7 @@ body {
     text-align: center;
     border-bottom: 1px solid #eee;
     position: sticky;
-    top: var(--header-height);
+    top: 0; /* Modificato: si attacca al bordo superiore della finestra */
     background-color: var(--background-color);
     z-index: 990;
     padding: 15px 20px;
@@ -467,6 +517,7 @@ main {
 @media print {
     body { font-size: 10pt; background-color: #fff; color: #000; }
     .listini-page-container { max-width: none; padding: 0; margin: 0; }
+    header.app-header { display: none !important; } /* Aggiunto per nascondere header in stampa */
     .page-controls, .filters-container, #reset-filters-btn, 
     .boiler-card-footer .price-list, .boiler-card-footer .price-section > *:not(.price-discounted), 
     .economico-badge, .storage-badge, .wifi-icon-display, 
