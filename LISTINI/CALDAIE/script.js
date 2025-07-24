@@ -35,13 +35,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const noResultsMessage = document.getElementById('no-results-message');
     const dataUpdateDateEl = document.getElementById('data-update-date');
     const currentYearEl = document.getElementById('current-year');
+    
+    // Header elements
+    const headerUserInfo = document.querySelector('.header-user-info');
+    const userEmailDisplay = document.getElementById('user-email-display');
+    const logoutButton = document.getElementById('logout-button');
 
     const boilerDetailsPopupOverlay = document.getElementById('boiler-details-popup-overlay');
     const boilerDetailsPopupContentArea = document.getElementById('popup-boiler-content-area');
     const closeBoilerDetailsPopupBtn = document.getElementById('close-boiler-details-popup');
     const popupBoilerTitle = document.getElementById('popup-boiler-title');
-
-    let adminTriggerBtn = null; 
 
     // --- App State for Caldaie Page ---
     let allBoilers = [];
@@ -51,7 +54,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchTerm: ""
     };
     let metadataListener = null;
-    window.currentUserRole = null; 
     let authInitialized = false; 
 
     const ALL_BOILER_FIELDS_MAP = { // NOMI CAMPI DA FIRESTORE -> LABEL
@@ -68,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         datasheetUrl: "Scheda Tecnica",
         manualeUrl: "Manuale", 
         wifi: "WiFi Presente",
-        novita: "Novità Prodotto" // Aggiunto per il popup se si vuole mostrare
+        novita: "Novità Prodotto"
     };
 
     // --- Utility Functions ---
@@ -77,10 +79,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             unsafeString = String(unsafeString || '');
         }
         return unsafeString
-            .replace(/&/g, "&") // Modificato per correttezza escaping
+            .replace(/&/g, "&")
             .replace(/</g, "<")
             .replace(/>/g, ">")
-            .replace(/"/g, "'")
+            .replace(/"/g, """)
             .replace(/'/g, "'");
     }
 
@@ -103,15 +105,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.log("Snapshot prodottiCaldaie is empty.");
             }
 
-            const boilers = snapshot.docs.map(doc => {
-                const data = doc.data();
-                // Aggiungi log per ogni documento se necessario per debug
-                // console.log(`Boiler ID: ${doc.id}, Data Firestore:`, JSON.parse(JSON.stringify(data)));
-                return {
-                    id: doc.id,
-                    ...data
-                };
-            });
+            const boilers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             console.log(`Fetched ${boilers.length} boilers after mapping.`);
             return boilers;
         } catch (error) {
@@ -120,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
                     noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Effettua il login.';
                 } else if (error.message && error.message.toLowerCase().includes('missing an index')) {
-                    noResultsMessage.textContent = 'Configurazione database in corso. Riprova tra poco o contatta supporto. (Dettagli per admin in console).';
+                    noResultsMessage.textContent = 'Configurazione database in corso. Riprova tra poco o contatta supporto.';
                     console.error("INDICE MANCANTE IN FIRESTORE. Se sei admin, vai al link nell'errore completo in console per crearlo.");
                 } else {
                     noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
@@ -242,12 +236,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             filteredBoilers = filteredBoilers.filter(b =>
                 (b.model || '').toLowerCase().includes(term) ||
                 (b.productCode || '').toLowerCase().includes(term) ||
-                (b.description || '').toLowerCase().includes(term) // Assicurati che description esista o aggiungi controllo
+                (b.description || '').toLowerCase().includes(term)
             );
         }
         displayBoilers(filteredBoilers);
         updateResetButtonVisibility();
     }
+    
     // --- Boiler Card Creation and Display ---
     function createBoilerCard(boiler) {
         const card = document.createElement('div');
@@ -264,8 +259,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const productImgName = boiler.imageName || 'placeholder.png';
         const productImgUrl = imageBaseUrl + productImgName;
 
-        const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '_') : ''; // Modificato per coerenza con scaldabagni
-        const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : ''; // Assicurati che i loghi delle caldaie seguano questa convenzione
+        const brandNameForLogo = boiler.brand ? boiler.brand.toLowerCase().replace(/\s+/g, '_') : '';
+        const brandLogoImgName = brandNameForLogo ? `${brandNameForLogo}.png` : '';
         const brandLogoUrl = brandLogoImgName ? brandLogoBaseUrl + brandLogoImgName : '';
 
         const displayPriceVal = boiler.price;
@@ -283,19 +278,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             priceHTML = `<span class="price-discounted no-discount">Prezzo su richiesta</span>`;
         }
 
-        let disponibilityText = "Disponibile"; // Default
+        let disponibilityText = "Disponibile";
         let disponibilityClass = "available";
-        // MODIFICATO: La logica per "In Esaurimento" viene ora gestita dalla classe e testo,
-        // ma per questa pagina il testo del p sarà "Disponibile" o "In Esaurimento".
-        // La classe 'in-esaurimento' sarà stilata arancione dal CSS.
-        if (boiler.nearingEndOfStock === true) { // 'nearingEndOfStock' viene da Firestore
+        if (boiler.nearingEndOfStock === true) {
             disponibilityText = "In Esaurimento";
             disponibilityClass = "in-esaurimento";
         }
         
-        // NOVITÀ BADGE
         let novitaBadgeHtml = "";
-        if (boiler.novita === true) { // 'novita' viene da Firestore
+        if (boiler.novita === true) {
             novitaBadgeHtml = '<span class="status-text status-novita-caldaie" title="Nuovo articolo!"><i class="fas fa-star"></i> Novità</span>';
         }
             
@@ -336,7 +327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         let dimensionsHTML = '';
-        if (boiler.dimensions) { // Aggiungiamo AxLxP qui se la logica delle dimensioni per caldaie lo richiede
+        if (boiler.dimensions) {
             dimensionsHTML = `<p><strong>Dimensioni (AxLxP):</strong> ${escapeHtml(boiler.dimensions)} mm</p>`;
         }
 
@@ -347,9 +338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ${boiler.wifi === true ? '<span class="wifi-icon-display"><i class="fas fa-wifi" title="WiFi Presente"></i></span>' : ''}
             </div>
             <div class="boiler-card-header">
-                ${brandLogoUrl ? `<img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(boiler.brand || '')} Logo" class="boiler-logo" onerror="this.style.display='none'; this.parentElement.querySelector('.boiler-logo-placeholder')?.style.display='block';">
-                                  <div class="boiler-logo-placeholder" style="display:none; width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">Logo mancante</div>`
-                               : `<div class="boiler-logo-placeholder" style="width:100px; height:35px; text-align:center; line-height:35px; font-size:0.8em; color: #ccc;">(No Logo)</div>`}
+                ${brandLogoUrl ? `<img src="${escapeHtml(brandLogoUrl)}" alt="${escapeHtml(boiler.brand || '')} Logo" class="boiler-logo" onerror="this.style.display='none';">` : ''}
                 <div class="boiler-title-brand">
                     <h3 class="model">
                         ${escapeHtml(boiler.model || 'Modello non Specificato')}
@@ -358,7 +347,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="brand-text">${escapeHtml(boiler.brand || 'Marca non Specificata')}</span>
                 </div>
             </div>
-
             <div class="boiler-card-body-flex">
                 <div class="boiler-card-info-column">
                     <div class="boiler-info">
@@ -378,14 +366,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                 </div>
             </div>
-
             <div class="boiler-card-footer">
-                <div class="price-section"> <!-- Modificato per raggruppare -->
+                <div class="price-section">
                     ${priceHTML}
                 </div>
-                <!-- Il testo "in esaurimento" viene già mostrato sopra con la classe .in-esaurimento, 
-                     non lo duplichiamo nel footer a meno che non sia un design diverso.
-                     Se il testo di esaurimento dovesse essere solo nel footer, allora andrebbe qui. -->
             </div>
         `;
         return card;
@@ -398,19 +382,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (boilersToDisplay.length === 0) {
             if (noResultsMessage) {
-                if (auth.currentUser && (currentFilters.brand || currentFilters.economico || currentFilters.searchTerm)) {
-                    noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.';
-                } else if (auth.currentUser) {
-                    // Condizione di default se l'utente è loggato ma non ci sono caldaie
-                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non conformi.';
-                }
-                // Il resto della logica per mostrare noResultsMessage rimane invariato...
-                const currentNoResultsText = noResultsMessage.textContent ? noResultsMessage.textContent.toLowerCase() : "";
-                 if (auth.currentUser || (!auth.currentUser && currentNoResultsText !== 'devi essere autenticato per visualizzare i listini.')) {
-                     if (!currentNoResultsText.includes('configurazione database') && !currentNoResultsText.includes('accesso ai listini non autorizzato')) {
-                        noResultsMessage.style.display = 'block';
-                     }
-                }
+                noResultsMessage.textContent = auth.currentUser ? 'Nessun prodotto trovato con i filtri selezionati.' : 'Nessun listino disponibile al momento.';
+                noResultsMessage.style.display = 'block';
             }
             return;
         }
@@ -428,47 +401,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         boilerDetailsPopupContentArea.innerHTML = '';
 
         for (const fieldKeyInFirestore in ALL_BOILER_FIELDS_MAP) { 
-            if (ALL_BOILER_FIELDS_MAP.hasOwnProperty(fieldKeyInFirestore)) { 
+            if (Object.prototype.hasOwnProperty.call(ALL_BOILER_FIELDS_MAP, fieldKeyInFirestore)) { 
                 const displayLabel = ALL_BOILER_FIELDS_MAP[fieldKeyInFirestore];
                 let value = boiler[fieldKeyInFirestore]; 
-
-                if (fieldKeyInFirestore === 'litri_accumulo') {
-                    if (boiler.con_accumulo !== true) { 
-                        continue; 
-                    }
-                    if (boiler.con_accumulo === true && (value === null || value === undefined || typeof value !== 'number' || value <= 0)) {
+                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
+                     continue;
+                }
+                 if (fieldKeyInFirestore === 'litri_accumulo') {
+                    if (boiler.con_accumulo !== true) continue; 
+                    if (boiler.con_accumulo === true && (typeof value !== 'number' || value <= 0)) {
                         value = "Sì (capacità non specificata)"; 
-                    } else if (typeof value === 'number' && value > 0) {
-                        value = `${value} Litri`; 
                     } else {
-                        continue; 
+                         value = `${value} Litri`; 
                     }
                 }
                 
                 let displayValueHtml; 
-                if (value === undefined || value === null || (typeof value === 'string' && value.trim() === "") || (typeof value === 'number' && value === 0 && fieldKeyInFirestore !== 'litri_accumulo' && fieldKeyInFirestore !== 'price' && fieldKeyInFirestore !== 'listPrice') ) {
-                     if (fieldKeyInFirestore === 'price' || fieldKeyInFirestore === 'listPrice') {
-                        if (typeof value === 'number' && value === 0) {
-                             displayValueHtml = escapeHtml(formatPrice(0)); // Mostra 0,00 € se il prezzo è 0
-                        } else {
-                             displayValueHtml = '<span class="unknown-value">SCONOSCIUTO</span>';
-                        }
-                    } else if (fieldKeyInFirestore === 'nearingEndOfStock' && value === false){
-                         displayValueHtml = 'No'; // Per "Articolo in Esaurimento: No"
-                    } else if (fieldKeyInFirestore === 'builtIn' && value === false) {
-                         displayValueHtml = 'No'; // Per "Incasso: No"
-                    } else if (fieldKeyInFirestore === 'wifi' && value === false) {
-                         displayValueHtml = 'No';
-                    } else if (fieldKeyInFirestore === 'litri_accumulo' && boiler.con_accumulo === true && value !== "Sì (capacità non specificata)") { 
-                         displayValueHtml = '<span class="unknown-value">Non specificata</span>';
-                    } else if (fieldKeyInFirestore === 'novita' && value === false){
-                         displayValueHtml = 'No';
-                    }
-                    
-                    else {
-                        continue; 
-                    }
-                } else if (typeof value === 'boolean') {
+                if (typeof value === 'boolean') {
                     displayValueHtml = value ? 'Sì' : 'No';
                 } else if (fieldKeyInFirestore === 'datasheetUrl' || fieldKeyInFirestore === 'manualeUrl') { 
                     displayValueHtml = `<a href="${escapeHtml(String(value))}" target="_blank" rel="noopener noreferrer">${escapeHtml(String(value))}</a>`;
@@ -499,111 +448,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function toggleAdminCaldaieSectionVisibility() {
-        const adminSectionCaldaie = document.getElementById('admin-section-caldaie');
-        if (adminSectionCaldaie) {
-            adminSectionCaldaie.style.display = window.currentUserRole === 'admin' ? 'block' : 'none';
-        }
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            auth.signOut();
+        });
     }
 
-    function setupAuthUI_Caldaie() {
-        const loginModal = document.getElementById('login-modal-caldaie');
-        const loginForm = document.getElementById('login-form-caldaie');
-        const logoutButton = document.getElementById('logout-button-caldaie');
-        
-        adminTriggerBtn = document.getElementById('admin-trigger'); 
-
-        const loginEmailInput = document.getElementById('login-email-caldaie');
-        const loginPasswordInput = document.getElementById('login-password-caldaie');
-        const loginErrorEl = document.getElementById('login-error-caldaie');
-        const closeModalBtn = loginModal ? loginModal.querySelector('.close-btn-caldaie') : null;
-        const loginModalTitle = document.getElementById('login-modal-title-caldaie');
-
-        if (adminTriggerBtn && loginModal) { 
-            adminTriggerBtn.addEventListener('click', () => {
-                const currentUser = auth.currentUser;
-                if (currentUser) {
-                    if (logoutButton) logoutButton.style.display = 'block';
-                    if (loginForm) loginForm.style.display = 'none';
-                    if (loginErrorEl) loginErrorEl.style.display = 'none';
-                    if (loginModalTitle) loginModalTitle.textContent = `Loggato: ${currentUser.email}`;
-                } else {
-                    if (logoutButton) logoutButton.style.display = 'none';
-                    if (loginForm) loginForm.style.display = 'block';
-                    if (loginModalTitle) loginModalTitle.textContent = 'Accesso Amministratore';
-                    if (loginEmailInput) loginEmailInput.value = ''; 
-                    if (loginPasswordInput) loginPasswordInput.value = '';
-                    if (loginErrorEl) loginErrorEl.style.display = 'none';
-                }
-                loginModal.style.display = 'flex'; 
-                loginModal.classList.add('visible');
-            });
-        }
-
-        if (closeModalBtn) {
-            closeModalBtn.addEventListener('click', () => {
-                if (loginModal) {
-                    loginModal.style.display = 'none';
-                    loginModal.classList.remove('visible');
-                }
-            });
-        }
-        if (loginModal && loginModal.classList.contains('modal')) { 
-            loginModal.addEventListener('click', (event) => {
-                if (event.target === loginModal) {
-                    loginModal.style.display = 'none';
-                    loginModal.classList.remove('visible');
-                }
-            });
-        }
-
-        if (loginForm) {
-            loginForm.addEventListener('submit', (event) => {
-                event.preventDefault();
-                if(!loginEmailInput || !loginPasswordInput) return;
-                const email = loginEmailInput.value;
-                const password = loginPasswordInput.value;
-                if (!email || !password) {
-                    if (loginErrorEl) { loginErrorEl.textContent = 'Email e Password obbligatori.'; loginErrorEl.style.display = 'block'; }
-                    return;
-                }
-                if (loginErrorEl) loginErrorEl.style.display = 'none'; 
-
-                auth.signInWithEmailAndPassword(email, password)
-                    .then(userCredential => {
-                        if (loginModal) {
-                            loginModal.style.display = 'none';
-                            loginModal.classList.remove('visible');
-                        }
-                        if (loginPasswordInput) loginPasswordInput.value = '';
-                    })
-                    .catch(error => {
-                        console.error("Login error:", error);
-                        if (loginErrorEl) {
-                            let message = "Errore di accesso. Riprova.";
-                            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-                                message = 'Email o Password non validi.';
-                            } else if (error.code === 'auth/invalid-email') {
-                                message = 'Formato Email non valido.';
-                            }
-                            loginErrorEl.textContent = message;
-                            loginErrorEl.style.display = 'block';
-                        }
-                    });
-            });
-        }
-
-        if (logoutButton) {
-            logoutButton.addEventListener('click', () => {
-                auth.signOut().then(() => {
-                    if (loginModal) {
-                        loginModal.style.display = 'none';
-                        loginModal.classList.remove('visible');
-                    }
-                });
-            });
-        }
-    }
 
     async function loadAndDisplayPrimaryData() {
         if (!authInitialized) {
@@ -620,7 +470,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if(loadingIndicator) loadingIndicator.style.display = 'none';
             
-            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '<p style="color: var(--secondary-color); font-size: 0.9em; text-align: center; width:100%;">Autenticati per visualizzare e filtrare i prodotti.</p>';
+            if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '<p style="color: var(--secondary-color); font-size: 0.9em; text-align: center; width:100%;">Autenticati per visualizzare i prodotti.</p>';
             if (economicoFilterBtn) economicoFilterBtn.style.display = 'none';
             if (searchInput) { searchInput.value = ''; searchInput.disabled = true; }
             if (resetFiltersBtn) resetFiltersBtn.style.display = 'none';
@@ -639,16 +489,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             populateFilterButtons(allBoilers);
             displayBoilers(allBoilers); 
         } else {
-            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage) {
-                 const currentNoResultsText = noResultsMessage.textContent ? noResultsMessage.textContent.toLowerCase() : "";
-                 if (noResultsMessage.style.display !== 'block' || 
-                    (!currentNoResultsText.includes('accesso ai listini non autorizzato') && 
-                     !currentNoResultsText.includes('configurazione database in corso'))) {
-                    noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non trovati.';
-                 }
-                 if (noResultsMessage.textContent.toLowerCase().includes('nessun listino caldaie')) { // Questa condizione sembra ridondante
-                    noResultsMessage.style.display = 'block';
-                 }
+            if (boilerListContainer && !boilerListContainer.hasChildNodes() && noResultsMessage && noResultsMessage.style.display !== 'block') {
+                 noResultsMessage.textContent = 'Nessun listino caldaie disponibile al momento o dati non trovati.';
+                 noResultsMessage.style.display = 'block';
             }
             if (brandFilterButtonsContainer) brandFilterButtonsContainer.innerHTML = '';
         }
@@ -664,11 +507,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (dataUpdateDateEl) {
                     if (doc.exists && doc.data()?.caldaieLastUpdate) { 
                         const ts = doc.data().caldaieLastUpdate;
-                        if (ts && typeof ts.toDate === 'function') { 
-                             dataUpdateDateEl.textContent = ts.toDate().toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
-                        } else if (ts && ts.seconds) { 
-                             dataUpdateDateEl.textContent = new Date(ts.seconds * 1000).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
-                        } else { dataUpdateDateEl.textContent = "Non disponibile"; }
+                        const date = ts?.toDate ? ts.toDate() : (ts?.seconds ? new Date(ts.seconds * 1000) : null);
+                        dataUpdateDateEl.textContent = date ? date.toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : "Non disponibile";
                     } else { dataUpdateDateEl.textContent = "Non specificato"; }
                 }
             }, error => {
@@ -676,41 +516,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (dataUpdateDateEl) dataUpdateDateEl.textContent = "Errore caricamento data";
             });
         
-        setupAuthUI_Caldaie(); 
-
         auth.onAuthStateChanged(async user => { 
             authInitialized = true; 
 
             if (user) {
-                try {
-                    const userDoc = await db.collection('users').doc(user.uid).get();
-                    window.currentUserRole = userDoc.exists && userDoc.data().role ? userDoc.data().role : 'user';
-                    console.log("User Authenticated. Role:", window.currentUserRole);
-                    
-                    if (adminTriggerBtn) { 
-                        adminTriggerBtn.title = (window.currentUserRole === 'admin' ? `Pannello Admin (${user.email.split('@')[0]})` : `Profilo Utente (${user.email.split('@')[0]})`);
-                    }
-                } catch (error) {
-                    console.error("Error fetching user role:", error);
-                    window.currentUserRole = 'user'; 
-                    if (adminTriggerBtn) {
-                        adminTriggerBtn.title = "Accesso Admin"; 
-                    }
-                }
+                console.log("Utente Autenticato:", user.email);
+                if(headerUserInfo) headerUserInfo.style.display = 'block';
+                if(userEmailDisplay) userEmailDisplay.textContent = user.email;
+                if(logoutButton) logoutButton.style.display = 'inline-flex';
             } else {
-                console.log("User logged out or not authenticated.");
-                window.currentUserRole = null;
-                if (adminTriggerBtn) {
-                    adminTriggerBtn.title = "Accesso Admin";
-                }
+                console.log("Utente non autenticato.");
+                if(headerUserInfo) headerUserInfo.style.display = 'none';
+                if(userEmailDisplay) userEmailDisplay.textContent = '';
+                if(logoutButton) logoutButton.style.display = 'none';
             }
             
             await loadAndDisplayPrimaryData(); 
-            toggleAdminCaldaieSectionVisibility(); 
         });
     }
 
     initializeCaldaiePage();
 });
-
 // --- END OF FILE script.js ---
