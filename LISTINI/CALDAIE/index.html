@@ -11,21 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header class="app-header">
-        <a href="../../index.html" class="logo-link">
-            <!-- Assuming CAI_Logo_Ufficio_Tecnico.png is at the project root -->
-            <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
-        </a>
-        <div class="header-controls">
-            <button id="admin-trigger" class="header-action-button" title="Accesso Admin">
-                 <i class="fas fa-user-shield"></i>
-            </button>
-             <a href="../../configuratore/configuratore.html" class="header-action-button" title="Configuratore Climatizzatori">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"></path><path d="M15.061 9.061h.01"></path><path d="M8.939 9.061h.01"></path><path d="M15.061 15.061h.01"></path><path d="M8.939 15.061h.01"></path><path d="M18.121 12h.01"></path><path d="M5.879 12h.01"></path><path d="M12 18.121v.01"></path><path d="M12 5.879v.01"></path></svg>
-            </a>
-        </div>
-    </header>
-
     <div id="login-modal-caldaie" class="modal" style="display: none;">
       <div class="modal-content">
           <span class="close-btn-caldaie close-btn">×</span>
@@ -47,6 +32,21 @@
     </div>
 
     <div class="listini-page-container">
+        <header class="app-header">
+            <a href="../../index.html" class="logo-link">
+                <!-- Assuming CAI_Logo_Ufficio_Tecnico.png is at the project root -->
+                <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
+            </a>
+            <div class="header-controls">
+                <button id="admin-trigger" class="header-action-button" title="Accesso Admin">
+                     <i class="fas fa-user-shield"></i>
+                </button>
+                 <a href="../../configuratore/configuratore.html" class="header-action-button" title="Configuratore Climatizzatori">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12h.01"></path><path d="M15.061 9.061h.01"></path><path d="M8.939 9.061h.01"></path><path d="M15.061 15.061h.01"></path><path d="M8.939 15.061h.01"></path><path d="M18.121 12h.01"></path><path d="M5.879 12h.01"></path><path d="M12 18.121v.01"></path><path d="M12 5.879v.01"></path></svg>
+                </a>
+            </div>
+        </header>
+
         <div class="page-controls"> <!-- This will be sticky -->
             <h1>Listini Caldaie</h1>
             <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
