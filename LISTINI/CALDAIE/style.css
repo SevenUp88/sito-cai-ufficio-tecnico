@@ -30,9 +30,9 @@ header.app-header {
     padding: 10px 20px;
     background-color: var(--background-color);
     box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-    border-radius: 16px; /* Simile a --radius-xl dell'altro file */
-    border: 1px solid #e2e8f0; /* Colore simile a --border-color */
-    margin-bottom: 25px; /* Allineato con margin-bottom di page-controls */
+    border-radius: 16px; 
+    border: 1px solid #e2e8f0; 
+    margin-bottom: 25px; 
 }
 
 header.app-header .logo {
@@ -43,6 +43,15 @@ header.app-header .logo {
 
 header.app-header a.logo-link {
     line-height: 0;
+}
+
+.header-user-info {
+    font-size: 0.9em;
+    color: var(--secondary-color);
+}
+.header-user-info strong {
+    color: var(--dark-color);
+    font-weight: 500;
 }
 
 header.app-header .header-controls {
@@ -68,7 +77,29 @@ header.app-header .header-action-button {
 }
 
 header.app-header .header-action-button:hover {
-    color: #003d6b; /* Un blu più scuro, come in consegne */
+    color: #003d6b; 
+}
+
+.button-logout {
+    background: none;
+    border: 1px solid #ced4da;
+    color: var(--dark-color);
+    font-size: 0.9em;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+.button-logout:hover {
+     border-color: var(--danger-color);
+     color: var(--danger-color);
+}
+.button-logout i {
+    font-size: 1.1em;
 }
 /* --- FINE HEADER STYLES --- */
 
@@ -83,7 +114,6 @@ header.app-header .header-action-button:hover {
     --border-radius: 8px;           
     --danger-color: #dc3545;        
     --warning-color: #ffc107; /* Orange */      
-    /* --header-height: 65px;    -- RIMOSSA */
     --matrice-accent-success: #198754; /* Green, from other file */
     --true-black: #000000; /* Added from other file */
 }
@@ -99,7 +129,7 @@ header.app-header .header-action-button:hover {
     text-align: center;
     border-bottom: 1px solid #eee;
     position: sticky;
-    top: 0; /* Modificato: si attacca al bordo superiore della finestra */
+    top: 0; 
     background-color: var(--background-color);
     z-index: 990;
     padding: 15px 20px;
@@ -309,8 +339,8 @@ main {
     min-height: 40px;
 }
 .boiler-logo {
-    max-height: 40px; /* Può essere sovrascritto da JS per caldaie */
-    max-width: 110px; /* Può essere sovrascritto da JS per caldaie */
+    max-height: 40px; 
+    max-width: 110px;
     object-fit: contain;
     flex-shrink: 0;
 }
@@ -320,10 +350,9 @@ main {
 .boiler-card h3.model {
     margin: 0 0 1px 0;
     font-size: 1.05em;
-    color: var(--true-black); /* MODIFICATO A NERO ASSOLUTO */
-    font-weight: 700;       /* Confermato grassetto */
+    color: var(--true-black);
+    font-weight: 700;
     line-height: 1.25;
-     /* display: flex; align-items: center; gap: 8px; */ /* Opzionale se il badge Novità non si allinea bene */
 }
 .boiler-card .brand-text {
     font-size: 0.8em;
@@ -394,19 +423,16 @@ main {
     display: inline-block;
 }
 
-/* Testo "In Esaurimento" arancione nella lista principale (dentro <p class="availability in-esaurimento">) */
 .boiler-card .boiler-info .availability.in-esaurimento {
-    color: var(--warning-color) !important; /* Forza il colore arancione */
+    color: var(--warning-color) !important; 
     font-weight: bold;
 }
 
-/* Badge "Novità" per CALDAIE, vicino al nome modello */
 .status-novita-caldaie {
     background-color: var(--matrice-accent-success);
     color: white;
-    /* border: 1px solid #107548; */
     margin-left: 8px;
-    padding: 4px 8px; /* Coerente con scaldabagni se si vuole lo stesso aspetto */
+    padding: 4px 8px;
     font-size: 0.8em;
 }
 .status-novita-caldaie i {
@@ -463,7 +489,6 @@ main {
 }
 .boiler-card .price-section {
     margin:0; padding:0; border:0;
-    /* display: flex; align-items: center; gap: 8px; /* Per allineare prezzo e testo esaurimento */
 }
 .boiler-card .price-discounted,
 .boiler-card .price-discounted.no-discount {
@@ -512,16 +537,15 @@ main {
     grid-column: 1 / -1; text-align: center; padding: 30px 20px;
     color: var(--secondary-color); font-size: 1.05em;
 }
-#admin-section-caldaie { border-top: 2px solid var(--warning-color); }
 
 @media print {
     body { font-size: 10pt; background-color: #fff; color: #000; }
     .listini-page-container { max-width: none; padding: 0; margin: 0; }
-    header.app-header { display: none !important; } /* Aggiunto per nascondere header in stampa */
+    header.app-header { display: none !important; }
     .page-controls, .filters-container, #reset-filters-btn, 
     .boiler-card-footer .price-list, .boiler-card-footer .price-section > *:not(.price-discounted), 
     .economico-badge, .storage-badge, .wifi-icon-display, 
-    .boiler-card .product-documents-links, .status-novita-caldaie /* Nascondi badge novita in stampa */ {
+    .boiler-card .product-documents-links, .status-novita-caldaie {
         display: none !important; 
     }
     .product-grid { display: block; }
