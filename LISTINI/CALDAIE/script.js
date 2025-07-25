@@ -93,39 +93,84 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Data Fetching & Processing for Caldaie ---
     async function fetchBoilersFromFirestore() {
-        console.log("Fetching 'prodottiCaldaie' from Firestore..."); 
-        if(loadingIndicator) loadingIndicator.style.display = 'block';
-        if(noResultsMessage) noResultsMessage.style.display = 'none';
-        if(boilerListContainer) boilerListContainer.innerHTML = '';
-        try {
-            const snapshot = await db.collection('prodottiCaldaie').get();
-            
-            console.log(`Firestore snapshot size: ${snapshot.size}`);
-            if (snapshot.empty) {
-                console.log("Snapshot prodottiCaldaie is empty.");
-            }
-
-            const boilers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            console.log(`Fetched ${boilers.length} boilers after mapping.`);
-            return boilers;
-        } catch (error) {
-            console.error("Error fetching boilers:", error);
-            if(noResultsMessage) {
-                if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
-                    noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Per favore, contatta l\'amministratore.';
-                } else if (error.message && error.message.toLowerCase().includes('missing an index')) {
-                    noResultsMessage.textContent = 'Configurazione database in corso. Riprova tra poco o contatta supporto.';
-                    console.error("INDICE MANCANTE IN FIRESTORE. Contatta l'amministratore fornendo il link nell'errore completo in console per crearlo.");
-                } else {
-                    noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
-                }
-                noResultsMessage.style.display = 'block';
-            }
+    console.log("Fetching 'prodottiCaldaie' from Firestore...");
+    if(loadingIndicator) loadingIndicator.style.display = 'block';
+    if(noResultsMessage) noResultsMessage.style.display = 'none';
+    if(boilerListContainer) boilerListContainer.innerHTML = '';
+    
+    try {
+        const snapshot = await db.collection('prodottiCaldaie').get();
+        console.log(`Firestore snapshot size: ${snapshot.size}`);
+        
+        if (snapshot.empty) {
+            console.log("Snapshot prodottiCaldaie is empty.");
             return [];
-        } finally {
-            if(loadingIndicator) loadingIndicator.style.display = 'none';
         }
+
+        // --- INIZIO PARTE CRUCIALE DELLA CORREZIONE: LA MAPPATURA ---
+        const boilers = snapshot.docs.map(doc => {
+            const data = doc.data();
+            // "Traduciamo" i nomi dei campi da Firestore a quelli usati dal resto del script
+            return {
+                id: doc.id,
+                brand: data.marca,                      // era: boiler.brand
+                model: data.modello,                    // era: boiler.model
+                imageName: data.nome_immagine,          // era: boiler.imageName
+                productCode: data.codice_prodotto,      // era: boiler.productCode
+                price: data.prezzo,                     // era: boiler.price
+                nearingEndOfStock: data.articolo_in_esaurimento, // era: boiler.nearingEndOfStock
+                novita: data.novita,                    // era: boiler.novita
+                powerKw: data.potenza_kw,               // era: boiler.powerKw
+                type: data.tipologia,                   // era: boiler.type
+                builtIn: data.incasso,                  // era: boiler.builtIn
+                con_accumulo: data.con_accumulo,        // Nome mantenuto per logica interna
+                litri_accumulo: data.litri_accumulo,    // Nome mantenuto per logica interna
+                outdoorInstallation: data.da_esterno,   // era: boiler.outdoorInstallation
+                withBase: data.con_basamento,           // era: boiler.withBase
+                splitterIncluded: data.sdoppiatore_incluso, // era: boiler.splitterIncluded
+                dimensions: data.dimensioni,            // era: boiler.dimensions
+                weightKg: data.peso,                    // era: boiler.weightKg
+                datasheetUrl: data.scheda_tecnica_url,  // era: boiler.datasheetUrl
+                manualeUrl: data.manuale_url,           // era: boiler.manualeUrl
+                wifi: data.wifi,                        // Mantenuto (probabilmente non presente)
+                sanitaryPower: data.potenza_sanitario,  // era: boiler.sanitaryPower
+                heatingPower: data.potenza_riscaldamento,// era: boiler.heatingPower
+                classe_efficienza: data.classe_efficienza, // aggiunto per i dettagli
+                
+                // Manca listPrice nel tuo foglio, puoi aggiungerlo o lo ignoriamo
+                listPrice: data.prezzo_listino || null
+            };
+        });
+        // --- FINE PARTE CRUCIALE DELLA CORREZIONE ---
+
+        console.log(`Fetched ${boilers.length} boilers after mapping.`);
+        
+        // AGGIUNTA DI UN LOG DI DEBUG FONDAMENTALE
+        if (boilers.length > 0) {
+            console.log("Esempio del primo prodotto mappato:", boilers[0]);
+        }
+        
+        return boilers;
+        
+    } catch (error) {
+        console.error("Error fetching boilers:", error);
+        if(noResultsMessage) {
+            // ... (la tua gestione degli errori va benissimo, non la cambio) ...
+            if (error.code === 'permission-denied' || (error.message && error.message.toLowerCase().includes('insufficient permissions'))) {
+                noResultsMessage.textContent = 'Accesso ai listini non autorizzato. Per favore, contatta l\'amministratore.';
+            } else if (error.message && error.message.toLowerCase().includes('missing an index')) {
+                noResultsMessage.textContent = 'Configurazione database in corso. Riprova tra poco o contatta supporto.';
+                console.error("INDICE MANCANTE IN FIRESTORE. Contatta l'amministratore fornendo il link nell'errore completo in console per crearlo.");
+            } else {
+                noResultsMessage.textContent = 'Errore nel caricamento dei listini. Riprova più tardi.';
+            }
+            noResultsMessage.style.display = 'block';
+        }
+        return [];
+    } finally {
+        if(loadingIndicator) loadingIndicator.style.display = 'none';
     }
+}
 
     // --- Filter UI and Logic for Caldaie ---
     function populateFilterButtons(boilers) {
