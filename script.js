@@ -163,105 +163,117 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} product - L'oggetto prodotto completo.
      */
     const populateAndShowModal = (product) => {
-        if (!product || !detailsModalOverlay) return;
+    if (!product || !detailsModalOverlay) return;
 
-        const modalBrandLogo = document.getElementById('modal-brand-logo');
-        const modalProductBrand = document.getElementById('modal-product-brand');
-        const modalProductModel = document.getElementById('modal-product-model');
-        const modalProductCode = document.getElementById('modal-product-code');
-        const modalTypeBadge = document.getElementById('modal-product-type-badge');
-        const modalWifiIcon = document.getElementById('modal-wifi-icon');
-        const modalImageUi = document.getElementById('modal-image-ui');
-        const modalImageUe = document.getElementById('modal-image-ue');
-        const modalEnergyBadges = document.querySelector('.modal-energy-badges-container');
-        const modalProductPrice = document.getElementById('modal-product-price');
-        const modalDatasheetLink = document.getElementById('modal-datasheet-link');
-        const modalTechDetails = document.getElementById('modal-tech-details');
+    // --- 1. Seleziona tutti gli elementi, inclusi quelli nuovi ---
+    const modalBrandLogo = document.getElementById('modal-brand-logo');
+    const modalProductBrand = document.getElementById('modal-product-brand');
+    const modalProductModel = document.getElementById('modal-product-model');
+    const modalProductCode = document.getElementById('modal-product-code');
+    const modalTypeBadge = document.getElementById('modal-product-type-badge');
+    const modalWifiIcon = document.getElementById('modal-wifi-icon');
+    const modalImageUi = document.getElementById('modal-image-ui');
+    const modalImageUe = document.getElementById('modal-image-ue');
+    const modalEnergyBadges = document.querySelector('.modal-energy-badges-container');
+    const modalProductPrice = document.getElementById('modal-product-price');
+    const modalDatasheetLink = document.getElementById('modal-datasheet-link');
+    const modalTechDetails = document.getElementById('modal-tech-details');
+    
+    // Seleziona anche gli elementi dell'overlay degli attacchi
+    const attachmentsOverlay = document.getElementById('attachments-overlay');
+    const attachmentsImage = document.getElementById('attachments-image');
+    const closeAttachmentsBtn = document.getElementById('close-attachments-btn');
 
-        const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
-        const brandName = marca || brand || 'N/D';
-        const modelName = modello || model || product.nome || 'N/D';
-        const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
-        const powerText = potenza_kw || powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
-        const codeText = product[product.config.code_field] || 'N/D';
+    // --- 2. Prepara dati comuni ---
+    const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
+    const brandName = marca || brand || 'N/D';
+    const modelName = modello || model || product.nome || 'N/D';
+    const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
+    const powerText = potenza_kw || powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
+    const codeText = product[product.config.code_field] || 'N/D';
+    
+    let logoCategory = 'clima';
+    if (derived_type === 'Caldaia') logoCategory = 'caldaie';
+    if (derived_type === 'Scaldabagno') logoCategory = 'scaldabagni';
+    modalBrandLogo.src = getCorrectedPath(`${safeBrandName}.png`, logoCategory, true);
+    
+    modalProductBrand.textContent = brandName;
+    modalProductModel.textContent = modelName;
+    modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codeText}</strong>`;
+    modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText} kW`;
+    modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
+
+    let techDetailsHTML = '';
+    modalImageUi.style.display = 'none';
+    modalImageUe.style.display = 'none';
+    if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
+
+    const setImage = (el, path) => { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; };
+
+    if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
+         // (Logica clima)
+    } else if (derived_type === 'Caldaia') {
+        setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
         
-        let logoCategory = 'clima';
-        if (derived_type === 'Caldaia') logoCategory = 'caldaie';
-        if (derived_type === 'Scaldabagno') logoCategory = 'scaldabagni';
-        modalBrandLogo.src = getCorrectedPath(`${safeBrandName}.png`, logoCategory, true);
-        
-        modalProductBrand.textContent = brandName;
-        modalProductModel.textContent = modelName;
-        modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codeText}</strong>`;
-        modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText} kW`;
-        modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
+        const safeModelForAttachments = (modelName || '').toLowerCase().replace(/ /g, '').replace(/\+/g, 'plus');
+        const attachmentsImagePath = `LISTINI/CALDAIE/img/attacchi_${safeModelForAttachments}.png`;
 
-        let techDetailsHTML = '';
-        modalImageUi.style.display = 'none';
-        modalImageUe.style.display = 'none';
-        if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
+        techDetailsHTML = `
+            <h3>Specifiche Tecniche</h3>
+            <ul>
+                ${createDetailRowHTML('Tipologia', product.tipologia)}
+                ${createDetailRowHTML('Potenza Nominale', product.potenza_kw, ' kW')}
+                ${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensioni, ' mm')}
+                ${createDetailRowHTML('Peso', product.peso, ' kg')}
+                ${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}
+            </ul>
+            <button class="attachments-button" data-image-src="${attachmentsImagePath}">
+                <i class="fas fa-project-diagram"></i> Mostra Attacchi
+            </button>
+        `;
+    } else if (derived_type === 'Scaldabagno') {
+         // (Logica scaldabagno)
+    }
+    
+    modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
+    const datasheetUrl = product.scheda_tecnica_url || product.datasheetUrl;
+    const hasValidUrl = !!(datasheetUrl && String(datasheetUrl).trim());
+    modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
+    if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
 
-        const setImage = (el, path) => { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; };
+    let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
+    finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, '');
+    modalTechDetails.innerHTML = finalHTML;
 
-        if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
-            // (Logica clima)
-        } else if (derived_type === 'Caldaia') {
-            setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
-            const hasEnergyData = !!product.classe_efficienza;
-           const safeModelName = (modelName || '').toLowerCase().replace(/ /g, '');
-            const attachmentsImagePath = `LISTINI/CALDAIE/img/attacchi_${safeModelName}.png`;
-
-            techDetailsHTML = `
-                <h3>Specifiche Tecniche</h3>
-                <ul>
-                    ${createDetailRowHTML('Tipologia', product.tipologia)}
-                    ${createDetailRowHTML('Potenza Nominale', product.potenza_kw, ' kW')}
-                    ${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensioni, ' mm')}
-                    ${createDetailRowHTML('Peso', product.peso, ' kg')}
-                    ${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}
-                </ul>
-                <button class="attachments-button" data-image-src="${attachmentsImagePath}">
-                    <i class="fas fa-project-diagram"></i> Mostra Attacchi
-                </button>
-            `;
-            
-        } else if (derived_type === 'Scaldabagno') {
-            // (Logica scaldabagno)
-        }
-        
-        modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
-        const datasheetUrl = product.scheda_tecnica_url || product.datasheetUrl;
-        const hasValidUrl = !!(datasheetUrl && String(datasheetUrl).trim());
-        modalDatasheetLink.classList.toggle('hidden', !hasValidUrl);
-        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
-
-        let finalHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
-        finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, '');
-        modalTechDetails.innerHTML = finalHTML;
-        
-        document.body.classList.add('modal-open');
-        detailsModalOverlay.classList.add('visible');
+    // ======================================================================
+    // === CODICE SPOSTATO QUI, NEL POSTO GIUSTO (DENTRO LA FUNZIONE) ===
+    // ======================================================================
+    const attachmentsButton = modalTechDetails.querySelector('.attachments-button');
+    if (attachmentsButton) {
+        attachmentsButton.addEventListener('click', () => {
+            const imgSrc = attachmentsButton.dataset.imageSrc;
+            if (imgSrc && attachmentsOverlay && attachmentsImage) {
+                attachmentsImage.src = imgSrc;
+                attachmentsOverlay.classList.add('visible');
+            }
+        });
+    }
+    
+    const hideAttachments = () => {
+        if (attachmentsOverlay) attachmentsOverlay.classList.remove('visible');
     };
-    // --- NUOVO: Aggiungi event listener per il pulsante "Mostra Attacchi" ---
-        const attachmentsButton = modalTechDetails.querySelector('.attachments-button');
-        if (attachmentsButton) {
-            attachmentsButton.addEventListener('click', () => {
-                const imgSrc = attachmentsButton.dataset.imageSrc;
-                if (imgSrc && attachmentsOverlay && attachmentsImage) {
-                    attachmentsImage.src = imgSrc;
-                    attachmentsOverlay.classList.add('visible');
-                }
-            });
-        }
-        
-        // --- NUOVO: Aggiungi event listener per chiudere l'overlay degli attacchi ---
-        const hideAttachments = () => {
-            if (attachmentsOverlay) attachmentsOverlay.classList.remove('visible');
-        };
-        if (closeAttachmentsBtn) closeAttachmentsBtn.onclick = hideAttachments;
-        if (attachmentsOverlay) attachmentsOverlay.onclick = (e) => {
+    if (closeAttachmentsBtn) closeAttachmentsBtn.onclick = hideAttachments;
+    if (attachmentsOverlay) {
+        attachmentsOverlay.onclick = (e) => {
             if (e.target === attachmentsOverlay) hideAttachments();
         };
+    }
+    // ======================================================================
+    
+    document.body.classList.add('modal-open');
+    detailsModalOverlay.classList.add('visible');
+};
+    
     /** Carica tutti i dati ricercabili da Firebase. */
     const fetchAllSearchableData = async () => {
         if (isDataFetched) return;
