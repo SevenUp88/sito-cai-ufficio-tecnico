@@ -208,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (derived_type === 'Caldaia') {
             setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
             const hasEnergyData = !!product.classe_efficienza;
+           const safeModelName = (modelName || '').toLowerCase().replace(/ /g, '');
+            const attachmentsImagePath = `LISTINI/CALDAIE/img/attacchi_${safeModelName}.png`;
+
             techDetailsHTML = `
                 <h3>Specifiche Tecniche</h3>
                 <ul>
@@ -217,12 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${createDetailRowHTML('Peso', product.peso, ' kg')}
                     ${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}
                 </ul>
-                ${hasEnergyData ? `
-                <h3>Dati Energetici</h3>
-                <ul>
-                    ${createDetailRowHTML('Classe Efficienza', product.classe_efficienza)}
-                </ul>` : ''}
+                <button class="attachments-button" data-image-src="${attachmentsImagePath}">
+                    <i class="fas fa-project-diagram"></i> Mostra Attacchi
+                </button>
             `;
+            
         } else if (derived_type === 'Scaldabagno') {
             // (Logica scaldabagno)
         }
