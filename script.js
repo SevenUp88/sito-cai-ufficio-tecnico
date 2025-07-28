@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const safeModelForAttachments = (modelName || '').toLowerCase().replace(/ /g, '').replace(/\+/g, 'plus');
         const attachmentsImagePath = `LISTINI/CALDAIE/img/attacchi_${safeModelForAttachments}.png`;
-
+        const attachmentsImagePath = getCorrectedPath(product.attacchi_immagine_url, 'caldaie');
         techDetailsHTML = `
             <h3>Specifiche Tecniche</h3>
             <ul>
