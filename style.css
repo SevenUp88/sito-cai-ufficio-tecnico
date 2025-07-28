@@ -571,3 +571,73 @@ body.modal-open { overflow: hidden; }
     visibility: hidden;
     pointer-events: none;
 }
+/* ========================================================== */
+/* === STILI PER PULSANTE E OVERLAY ATTACCHI CALDAIA === */
+/* ========================================================== */
+
+/* Pulsante "Mostra Attacchi" */
+.attachments-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0056a8;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-top: 15px; /* Spazio dal blocco precedente */
+    transition: background-color 0.2s;
+}
+.attachments-button:hover {
+    background-color: #004182;
+}
+.attachments-button i {
+    margin-right: 8px;
+}
+
+/* Overlay per l'immagine degli attacchi */
+.attachments-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1070; /* Sopra il modale principale */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.attachments-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+#attachments-image {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 5px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.attachments-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 3em;
+    font-weight: 100;
+    line-height: 1;
+    cursor: pointer;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
