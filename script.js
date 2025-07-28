@@ -166,26 +166,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalImageUi = document.getElementById('modal-image-ui');
         const modalImageUe = document.getElementById('modal-image-ue');
         const modalEnergyBadges = document.querySelector('.modal-energy-badges-container');
-        const modalEnergyCooling = document.getElementById('modal-energy-cooling');
-        const modalEnergyHeating = document.getElementById('modal-energy-heating');
         const modalProductPrice = document.getElementById('modal-product-price');
         const modalDatasheetLink = document.getElementById('modal-datasheet-link');
         const modalTechDetails = document.getElementById('modal-tech-details');
 
         // --- 2. Prepara dati comuni ---
-        const { marca, brand, modello, model, potenza, powerKw, wifi, derived_type } = product;
+        const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
         const brandName = marca || brand || 'N/D';
         const modelName = modello || model || product.nome || product.nome_modello_ue || product.nome_modello_ui || 'N/D';
         const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
-        const powerText = powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
+        const powerText = potenza_kw || powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
         const codeText = product[product.config.code_field] || 'N/D';
 
         // --- 3. Popola l'Header (comune a tutti) ---
-        modalBrandLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`, 'clima'); // I loghi sono sempre in clima
+        modalBrandLogo.src = getCorrectedPath(`../images/logos/${safeBrandName}.png`, 'clima');
         modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
         modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codeText}</strong>`;
-        modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText}`;
+        modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText} kW`;
         modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
 
         // --- 4. Popola il resto del modale in base al tipo ---
@@ -217,14 +215,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <ul>${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}</ul>
             `;
         } else if (derived_type === 'Caldaia') {
-            setImage(modalImageUi, getCorrectedPath(`images/${product.imageName}`, 'caldaie'));
+            setImage(modalImageUi, getCorrectedPath(`images/${product.nome_immagine}`, 'caldaie'));
             techDetailsHTML = `
                 <h3>Specifiche Tecniche</h3>
                 <ul>
-                    ${createDetailRowHTML('Tipo', product.type)}
-                    ${createDetailRowHTML('Potenza Nominale', product.powerKw, ' kW')}
-                    ${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensions, ' mm')}
-                    ${createDetailRowHTML('Peso', product.weightKg, ' kg')}
+                    ${createDetailRowHTML('Tipologia', product.tipologia)}
+                    ${createDetailRowHTML('Potenza Nominale', product.potenza_kw, ' kW')}
+                    ${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensioni, ' mm')}
+                    ${createDetailRowHTML('Peso', product.peso, ' kg')}
+                    ${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}
+                </ul>
+                <h3>Dati Energetici</h3>
+                <ul>
+                    ${createDetailRowHTML('Classe Efficienza', product.classe_efficienza)}
                 </ul>`;
         } else if (derived_type === 'Scaldabagno') {
             setImage(modalImageUi, getCorrectedPath(`images/${product.image_url}`, 'scaldabagni'));
@@ -267,9 +270,24 @@ document.addEventListener('DOMContentLoaded', () => {
             { name: 'prodottiClimaMonosplit', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
             { name: 'outdoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
             { name: 'indoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } },
-            // === AGGIUNTO: Caldaie e Scaldabagni ===
-            { name: 'prodottiCaldaie', config: { code_field: 'productCode', price_field: 'price', type: 'Caldaia' } },
-            { name: 'prodottiScaldabagno', config: { code_field: 'codice_prodotto', price_field: 'prezzo', type: 'Scaldabagno' } }
+            
+            // === CORREZIONE DEFINITIVA PER LA CONFIGURAZIONE DELLE CALDAIE ===
+            { 
+                name: 'prodottiCaldaie', 
+                config: { 
+                    code_field: 'codice_prodotto', // Corretto da 'productCode'
+                    price_field: 'prezzo',       // Corretto da 'price'
+                    type: 'Caldaia' 
+                } 
+            },
+            { 
+                name: 'prodottiScaldabagno', 
+                config: { 
+                    code_field: 'codice_prodotto', 
+                    price_field: 'prezzo', 
+                    type: 'Scaldabagno' 
+                } 
+            }
         ];
         
         const promises = collectionConfigs.map(async (collectionConfig) => {
