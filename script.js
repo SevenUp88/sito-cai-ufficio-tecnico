@@ -242,7 +242,26 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
-    
+    // --- NUOVO: Aggiungi event listener per il pulsante "Mostra Attacchi" ---
+        const attachmentsButton = modalTechDetails.querySelector('.attachments-button');
+        if (attachmentsButton) {
+            attachmentsButton.addEventListener('click', () => {
+                const imgSrc = attachmentsButton.dataset.imageSrc;
+                if (imgSrc && attachmentsOverlay && attachmentsImage) {
+                    attachmentsImage.src = imgSrc;
+                    attachmentsOverlay.classList.add('visible');
+                }
+            });
+        }
+        
+        // --- NUOVO: Aggiungi event listener per chiudere l'overlay degli attacchi ---
+        const hideAttachments = () => {
+            if (attachmentsOverlay) attachmentsOverlay.classList.remove('visible');
+        };
+        if (closeAttachmentsBtn) closeAttachmentsBtn.onclick = hideAttachments;
+        if (attachmentsOverlay) attachmentsOverlay.onclick = (e) => {
+            if (e.target === attachmentsOverlay) hideAttachments();
+        };
     /** Carica tutti i dati ricercabili da Firebase. */
     const fetchAllSearchableData = async () => {
         if (isDataFetched) return;
