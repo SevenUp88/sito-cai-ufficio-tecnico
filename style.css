@@ -489,12 +489,44 @@ body.modal-open { overflow: hidden; }
 
 /* Colonna destra */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
-#modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
+
+#modal-tech-details h3 { 
+    font-size: 1.2rem; 
+    color: #0056a8; 
+    margin: 20px 0 10px 0; 
+    padding-bottom: 5px; 
+    border-bottom: 2px solid #e0e0e0; 
+}
 #modal-tech-details h3:first-child { margin-top: 0; }
-#modal-tech-details ul { list-style: none; padding: 0; margin: 0; }
-#modal-tech-details li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #dcdcdc; }
-#modal-tech-details li strong { margin-right: 15px; }
-#modal-tech-details li span { text-align: right; }
+
+/* --- STILI UNIFICATI PER ELENCO PUNTATO --- */
+#modal-tech-details ul { 
+    list-style: none;
+    padding-left: 0;
+    margin: 0; 
+}
+#modal-tech-details li { 
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0; 
+    border-bottom: 1px dotted #dcdcdc; 
+    line-height: 1.5;
+}
+#modal-tech-details li::before {
+    content: '•';
+    color: #0056a8;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-right: 12px;
+    line-height: 1.4;
+}
+#modal-tech-details li strong { 
+    margin-right: 5px; 
+}
+#modal-tech-details li span { 
+    text-align: left;
+    flex-grow: 1;
+}
 /* === NUOVO: STILI PER IL LOADER INIZIALE === */
 
 .loader-container {
