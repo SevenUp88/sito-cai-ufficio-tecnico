@@ -144,25 +144,18 @@ body.modal-open {
 .hidden { display: none !important; }
 
 /* ========================================================== */
-/* === STILI DEFINITIVI PER MODALE E OVERLAY ATTACCHI === */
+/* === STILI DEFINITIVI PER MODALE (con effetto HOVER) === */
 /* ========================================================== */
-
-/* Overlay Modale Prodotto (Z-INDEX BASE) */
 #product-details-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
     z-index: 1050; 
-    display: none; /* Inizialmente nascosto */
-    align-items: center; justify-content: center;
+    display: none; align-items: center; justify-content: center;
     padding: 20px;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
-#product-details-modal-overlay.visible {
-    display: flex;
-    opacity: 1;
-}
+#product-details-modal-overlay.visible { display: flex; opacity: 1; }
 
-/* Contenitore Modale */
 .modal-container {
     background: #ffffff; padding: 25px 30px; border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.25);
@@ -170,12 +163,9 @@ body.modal-open {
     max-height: 90vh;
     position: relative;
     display: flex; flex-direction: column;
-    transform: scale(0.95);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-#product-details-modal-overlay.visible .modal-container { transform: scale(1); }
 
-/* --- Elementi Interni Modale Prodotto --- */
+/* --- Header del Modale --- */
 .modal-header { display: flex; align-items: center; gap: 20px; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; }
 .modal-brand-logo { height: 40px; width: auto; max-width: 140px; object-fit: contain; flex-shrink: 0; }
 .modal-header-main { display: flex; flex-direction: column; flex-grow: 1; }
@@ -186,15 +176,49 @@ body.modal-open {
 .modal-header-right { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
 .modal-type-badge { background-color: #343a40; color: white; padding: 8px 12px; border-radius: 5px; text-align: center; font-size: 0.9em; font-weight: 500; line-height: 1.3; }
 #modal-wifi-icon { font-size: 1.8em; color: #0d6efd; display: none; }
-.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; /* Relativo al .modal-container */ }
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
 
 /* Corpo del Modale */
 .modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
-/* Colonna sinistra */
+/* --- Colonna Sinistra con Effetto Hover --- */
 .modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; }
-.modal-images-container { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; height: 380px; margin-bottom: 15px; justify-content: center; }
-.modal-product-image { width: 100%; height: 48%; object-fit: contain; display: none; background-color: transparent; }
+.modal-images-container {
+    position: relative; /* Contesto per posizionamento assoluto delle immagini */
+    width: 100%;
+    height: 380px;
+    margin-bottom: 15px;
+    cursor: help; /* Il cursore a punto di domanda indica interattività */
+    overflow: hidden; /* Nasconde eventuali bordi sporgenti */
+    border: 1px solid #eee;
+    border-radius: 5px;
+}
+/* Stile comune per tutte le immagini nel contenitore */
+.modal-images-container img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+    transition: opacity 0.3s ease-in-out;
+}
+/* L'immagine degli attacchi è invisibile di default */
+#modal-image-attachments {
+    opacity: 0;
+}
+/* Al passaggio del mouse sul contenitore... */
+.modal-images-container:hover #modal-image-attachments {
+    opacity: 1; /* Mostra l'immagine degli attacchi */
+}
+.modal-images-container:hover #modal-image-ui,
+.modal-images-container:hover #modal-image-ue {
+    opacity: 0; /* Nasconde le immagini del prodotto */
+}
+
+/* Badge energetici, prezzo e scheda tecnica (invariati) */
 .modal-energy-badges-container { text-align: center; margin-bottom: 15px; }
 .energy-badge { display: none; width: 38px; height: 38px; line-height: 38px; border-radius: 50%; color: white; text-align: center; font-weight: bold; font-size: 1em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin: 0 5px; }
 .energy-badge.visible { display: inline-block; }
@@ -206,7 +230,7 @@ body.modal-open {
 #modal-datasheet-link.visible { display: flex; }
 #modal-datasheet-link i { margin-right: 8px; }
 
-/* Colonna destra (Elenco Puntato) */
+/* Colonna Destra (Elenco Puntato) */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
 #modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
@@ -215,31 +239,3 @@ body.modal-open {
 #modal-tech-details li::before { content: '•'; color: #0056a8; font-weight: bold; font-size: 1.2em; margin-right: 12px; line-height: 1.4; }
 #modal-tech-details li strong { margin-right: 5px; }
 #modal-tech-details li span { text-align: left; flex-grow: 1; }
-
-/* Pulsante "Mostra Attacchi" */
-.attachments-button { display: inline-flex; align-items: center; justify-content: center; background-color: #0056a8; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600; margin-top: 15px; transition: background-color 0.2s; }
-.attachments-button:hover { background-color: #004182; }
-.attachments-button i { margin-right: 8px; }
-
-/* Overlay per Immagine Attacchi (Z-INDEX SUPERIORE) */
-.attachments-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
-    z-index: 1100; /* Valore alto, SUPERIORE al modale principale */
-    display: none; /* Nascosto di default */
-    justify-content: center; align-items: center;
-    padding: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.attachments-overlay.visible {
-    display: flex; /* La classe .visible lo fa apparire */
-    opacity: 1;
-}
-#attachments-image { max-width: 90%; max-height: 90%; object-fit: contain; }
-.attachments-close-btn { 
-    position: absolute; top: 20px; right: 30px;
-    color: white; font-size: 3em; cursor: pointer;
-    background: none; border: none;
-    z-index: 1110; /* Ancora più in alto per essere sempre cliccabile */
-}
