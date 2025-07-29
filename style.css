@@ -152,7 +152,7 @@ body.modal-open { overflow: hidden; }
     transition: opacity 0.3s ease;
 }
 .image-viewer-overlay.visible { display: flex; opacity: 1; }
-#viewer-image { max-width: 100%; max-height: 95%; object-fit: contain; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
+#viewer-image { max-width: 110%; max-height: 110%; object-fit: contain; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
 .viewer-close-btn { 
     position: absolute; top: 15px; right: 25px;
     color: white; font-size: 3em; cursor: pointer;
