@@ -6,20 +6,15 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // 1. SELEZIONE DEGLI ELEMENTI DOM
-    // ===================================
+    const db = firebase.firestore();
     const mainNav = document.getElementById('mainNav');
     const appContent = document.getElementById('app-content');
-    const db = firebase.firestore();
-
-    // Elementi Navigazione e Sottomenu
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
     const btnConfiguratori = document.getElementById('btn-configuratori');
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
     const btnFgas = document.getElementById('btn-fgas');
     const submenuFgas = document.getElementById('submenu-fgas');
-
-    // Elementi Pannello Admin
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -27,30 +22,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryPathInput = document.getElementById('category-path');
     const categoryIconInput = document.getElementById('category-icon');
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
-    const addCategoryFeedback = document.getElementById('add-category-feedback');
     const adminOverlay = document.getElementById('admin-overlay');
-
-    // Elementi Ricerca
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results');
-
-    // Elementi Modale Dettagli Prodotto
     const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
     // 2. VARIABILI DI STATO
-    // =======================
     let allSearchableData = [];
     let currentlyDisplayedResults = [];
     let isDataFetched = false;
-    const currentlyOpenSubmenu = {
-        btn: null,
-        menu: null
-    };
+    const currentlyOpenSubmenu = { btn: null, menu: null };
 
     // 3. FUNZIONI
-    // =============
-
     const toggleSubmenu = (button, submenu) => {
         if (!button || !submenu) return;
         const isVisible = submenu.classList.toggle('visible');
@@ -131,8 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalImageAttachments) modalImageAttachments.src = '';
         modalImageUi.style.display = 'none'; modalImageUe.style.display = 'none';
         if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
-        if (modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
-        if (modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
+        if(modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
+        if(modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
         
         const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
         const brandName = marca || brand || 'N/D';
@@ -154,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const setImage = (el, path) => { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; };
 
         if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
-            if (modalEnergyBadges) modalEnergyBadges.style.display = 'block';
+            if(modalEnergyBadges) modalEnergyBadges.style.display = 'block';
             const uiImagePath = product.image_url ? getCorrectedPath(product.image_url, 'clima') : `LISTINI/CLIMA/images/${(modelName).toLowerCase().replace(/\s+/g, '')}.png`;
             const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
             if (derived_type === 'Monosplit') { setImage(modalImageUi, uiImagePath); setImage(modalImageUe, ueImagePath); }
@@ -293,7 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // 4. EVENT LISTENERS
-    // ====================
     if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
     if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
     if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
@@ -340,7 +323,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 5. INIZIALIZZAZIONE
-    // =====================
     if (appContent) {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach(mutation => {
