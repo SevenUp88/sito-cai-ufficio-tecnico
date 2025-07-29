@@ -36,6 +36,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Elementi Modale Dettagli Prodotto
     const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
     const closeModalBtn = document.getElementById('close-modal-btn');
+    
+    // Elementi Overlay Attacchi
+    const attachmentsOverlay = document.getElementById('attachments-overlay');
+    const attachmentsImage = document.getElementById('attachments-image');
+    const closeAttachmentsBtn = document.getElementById('close-attachments-btn');
 
     // 2. VARIABILI DI STATO
     // =======================
@@ -135,13 +140,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     /**
      * Popola e mostra il modale con i dettagli del prodotto selezionato.
-     * Gestisce layout diversi per Clima, Caldaie e Scaldabagni.
-     * @param {object} product - L'oggetto prodotto completo.
      */
     const populateAndShowModal = (product) => {
         if (!product || !detailsModalOverlay) return;
 
-        // --- 1. Seleziona tutti gli elementi, inclusi quelli nuovi ---
         const modalBrandLogo = document.getElementById('modal-brand-logo');
         const modalProductBrand = document.getElementById('modal-product-brand');
         const modalProductModel = document.getElementById('modal-product-model');
@@ -154,11 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalProductPrice = document.getElementById('modal-product-price');
         const modalDatasheetLink = document.getElementById('modal-datasheet-link');
         const modalTechDetails = document.getElementById('modal-tech-details');
-        const attachmentsOverlay = document.getElementById('attachments-overlay');
-        const attachmentsImage = document.getElementById('attachments-image');
-        const closeAttachmentsBtn = document.getElementById('close-attachments-btn');
 
-        // --- 2. Prepara dati comuni ---
         const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
         const brandName = marca || brand || 'N/D';
         const modelName = modello || model || product.nome || 'N/D';
@@ -177,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText} kW`;
         modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
 
-        // --- 3. Popola il resto del modale in base al tipo ---
         let techDetailsHTML = '';
         modalImageUi.style.display = 'none';
         modalImageUe.style.display = 'none';
@@ -192,7 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (derived_type === 'Monosplit') { setImage(modalImageUi, uiImagePath); setImage(modalImageUe, ueImagePath); }
             else if (derived_type === 'U. Esterna') { setImage(modalImageUe, ueImagePath); }
             else if (derived_type === 'U. Interna') { setImage(modalImageUi, uiImagePath); }
-            
             techDetailsHTML = `
                 <h3>Specifiche Tecniche</h3>
                 <ul>${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui, ' mm')}${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}</ul>
@@ -204,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (derived_type === 'Caldaia') {
             setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
             const attachmentsImagePath = getCorrectedPath(product.attacchi_immagine_url, 'caldaie');
-
             techDetailsHTML = `
                 <h3>Specifiche Tecniche</h3>
                 <ul>
@@ -232,7 +227,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </ul>`;
         }
         
-        // --- 4. Popola elementi comuni finali ---
         modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
         const datasheetUrl = product.scheda_tecnica_url || product.datasheetUrl;
         const hasValidUrl = !!(datasheetUrl && String(datasheetUrl).trim());
@@ -243,29 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         finalHTML = finalHTML.replace(/<h3[^>]*>\s*(?=<h3|$)/g, '');
         modalTechDetails.innerHTML = finalHTML;
         
-        // --- 5. Aggiungi event listener per elementi dinamici (pulsante attacchi) ---
-        const attachmentsButton = modalTechDetails.querySelector('.attachments-button');
-        if (attachmentsButton) {
-            attachmentsButton.addEventListener('click', () => {
-                const imgSrc = attachmentsButton.dataset.imageSrc;
-                if (imgSrc && attachmentsOverlay && attachmentsImage) {
-                    attachmentsImage.src = imgSrc;
-                    attachmentsOverlay.classList.add('visible');
-                }
-            });
-        }
-        
-        const hideAttachments = () => {
-            if (attachmentsOverlay) attachmentsOverlay.classList.remove('visible');
-        };
-        if (closeAttachmentsBtn) closeAttachmentsBtn.onclick = hideAttachments;
-        if (attachmentsOverlay) {
-            attachmentsOverlay.onclick = (e) => {
-                if (e.target === attachmentsOverlay) hideAttachments();
-            };
-        }
-        
-        // --- 6. Mostra il modale ---
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
@@ -395,10 +366,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
     if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
+
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
         searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } });
     }
+
     if (searchResultsContainer) {
         searchResultsContainer.addEventListener('click', (e) => {
             const resultItem = e.target.closest('.result-item');
@@ -413,6 +386,47 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const closeModalAndClearSearch = () => { closeModal(); };
+    const hideAttachments = () => {
+        if (attachmentsOverlay) attachmentsOverlay.classList.remove('visible');
+    };
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModalAndClearSearch);
+    if (detailsModalOverlay) {
+        detailsModalOverlay.addEventListener('click', (e) => {
+            const attachmentsButton = e.target.closest('.attachments-button');
+            if (attachmentsButton) {
+                const imgSrc = attachmentsButton.dataset.imageSrc;
+                if (imgSrc && attachmentsOverlay && attachmentsImage) {
+                    attachmentsImage.src = imgSrc;
+                    attachmentsOverlay.classList.add('visible');
+                }
+                return;
+            }
+            if (e.target === detailsModalOverlay) {
+                closeModalAndClearSearch();
+            }
+        });
+    }
+    if (closeAttachmentsBtn) closeAttachmentsBtn.addEventListener('click', hideAttachments);
+    if (attachmentsOverlay) {
+        attachmentsOverlay.addEventListener('click', (e) => {
+            if (e.target === attachmentsOverlay) {
+                hideAttachments();
+            }
+        });
+    }
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (attachmentsOverlay?.classList.contains('visible')) {
+                hideAttachments();
+            } else if (detailsModalOverlay?.classList.contains('visible')) {
+                closeModalAndClearSearch();
+            }
+        }
+    });
+    
     document.addEventListener('click', (e) => {
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(e.target) && !currentlyOpenSubmenu.btn.contains(e.target)) {
             toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
@@ -420,14 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchResultsContainer && !searchResultsContainer.contains(e.target) && e.target !== searchInput) {
             searchResultsContainer.style.display = 'none';
         }
-    });
-    const closeModalAndClearSearch = () => { closeModal(); };
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModalAndClearSearch);
-    if (detailsModalOverlay) {
-        detailsModalOverlay.addEventListener('click', (e) => { if (e.target === detailsModalOverlay) { closeModalAndClearSearch(); } });
-    }
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && detailsModalOverlay?.classList.contains('visible')) { e.preventDefault(); closeModalAndClearSearch(); }
     });
 
     // 5. INIZIALIZZAZIONE
