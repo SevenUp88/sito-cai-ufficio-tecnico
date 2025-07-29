@@ -69,6 +69,7 @@
             </div>
         </div>
     </main>
+
     <div id="add-category-panel" class="admin-popup hidden">
         <button class="close-panel-btn" id="add-category-close" aria-label="Chiudi pannello">×</button>
         <h3>Aggiungi Nuova Categoria</h3>
@@ -79,7 +80,8 @@
         <p id="add-category-feedback" class="feedback-message hidden"></p>
     </div>
     <div id="admin-overlay" class="overlay hidden"></div>
-    <!-- === LAYOUT DEL MODALE (ADATTATO PER EFFETTO HOVER) === -->
+
+    <!-- === LAYOUT DEL MODALE (con Wrapper per Zoom) === -->
     <div id="product-details-modal-overlay">
         <div class="modal-container">
             <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
@@ -103,6 +105,7 @@
                         <img id="modal-image-ui" src="" alt="Immagine Prodotto">
                         <img id="modal-image-ue" src="" alt="Unità Esterna">
                         <img id="modal-image-attachments" src="" alt="Schema attacchi">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
                     </div>
                     <div class="modal-energy-badges-container">
                          <span id="modal-energy-cooling" class="energy-badge cooling"></span>
@@ -122,6 +125,12 @@
         </div>
     </div>
     
+    <!-- === OVERLAY GENERICO PER VISUALIZZATORE IMMAGINI === -->
+    <div id="image-viewer-overlay" class="image-viewer-overlay">
+        <button id="close-viewer-btn" class="viewer-close-btn">×</button>
+        <img id="viewer-image" src="" alt="Immagine ingrandita">
+    </div>
+
     <!-- Firebase SDKs e altri script -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
