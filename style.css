@@ -21,405 +21,162 @@ body {
     min-height: 100vh; 
     position: relative; 
 }
+body.modal-open { 
+    overflow: hidden; 
+}
+
+/* --- Loader Iniziale --- */
+.loader-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #f8f9fa;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+.loader-spinner {
+    border: 5px solid #e9ecef; border-top: 5px solid #0056a8;
+    border-radius: 50%; width: 50px; height: 50px;
+    animation: spin 1s linear infinite;
+}
+.loader-container p { margin-top: 15px; color: #6c757d; font-size: 1.1em; }
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
 /* --- Header e Logo --- */
 .app-header { 
-    display: flex; 
-    align-items: center; 
-    justify-content: space-between; 
+    display: flex; align-items: center; justify-content: space-between; 
     padding: 10px 30px; 
     background-color: #ffffff; 
     box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); 
-    position: sticky; 
-    top: 0; 
+    position: sticky; top: 0; 
     z-index: 1000; 
 }
-.logo { 
-    height: 45px; 
-    width: auto; 
-    flex-shrink: 0; 
-}
+.logo { height: 45px; width: auto; flex-shrink: 0; }
+.header-controls { display: flex; align-items: center; gap: 15px; }
+.admin-button { background: none; border: none; color: #0056a8; font-size: 1.8em; cursor: pointer; }
+.admin-button:hover { color: #d71920; }
 
-/* --- Contenitore pulsanti admin header --- */
-.header-controls { 
-    display: flex; 
-    align-items: center; 
-    gap: 15px; 
-}
-
-/* Pulsante Admin (Generico) */
-.admin-button { 
-    background: none; 
-    border: none; 
-    color: #0056a8; 
-    font-size: 1.8em; 
-    cursor: pointer; 
-}
-.admin-button:hover { 
-    color: #d71920; 
-}
-
-/* --- Stili specifici per la sezione di login --- */
+/* --- Sezione di login --- */
 #login-section { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    justify-content: center; 
-    padding: 20px; 
-    margin: 20px auto; 
-    background-color: #fff; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
-    max-width: 400px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    padding: 20px; margin: 20px auto; background-color: #fff; 
+    border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; 
 }
-#login-section h2 { 
-    color: #0056a8; 
-    margin-bottom: 20px; 
-}
-.form-group { 
-    margin-bottom: 15px; 
-    width: 100%; 
-}
-.form-group label { 
-    display: block; 
-    margin-bottom: 5px; 
-    font-weight: 500; 
-}
-#login-section .form-group input { 
-    width: 100%;
-    padding: 10px; 
-    border: 1px solid #ccc; 
-    border-radius: 4px; 
-}
+#login-section h2 { color: #0056a8; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; width: 100%; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+#login-section .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-login { 
-    background-color: #0056a8; 
-    color: white; 
-    padding: 12px 20px; 
-    border: none; 
-    border-radius: 4px; 
-    cursor: pointer; 
-    width: 100%; 
-    font-size: 1em; 
+    background-color: #0056a8; color: white; padding: 12px 20px; border: none; 
+    border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; 
 }
-.btn-login:hover { 
-    background-color: #004182; 
-}
-#login-error { 
-    color: #dc3545; 
-    margin-top: 10px; 
-    font-size: 0.9em; 
-    min-height: 1.2em; 
-}
-#user-dashboard { 
-    text-align: right; 
-}
-#user-dashboard p { 
-    margin: 0 0 10px 0; 
-    font-size: 0.9em; 
-}
-#logout-button { 
-    background-color: #6c757d; 
-    color: white; 
-    padding: 8px 15px; 
-    font-size: 0.9em; 
-}
+.btn-login:hover { background-color: #004182; }
+#login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; }
+#user-dashboard { text-align: right; }
+#user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
+#logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
 
 /* --- Area Contenuto Principale --- */
 #content-area { 
-    padding: 30px; 
-    flex-grow: 1; 
-    margin: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); 
+    padding: 30px; flex-grow: 1; margin: 20px; 
+    border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); 
 }
-#app-content { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-}
+#app-content { display: flex; flex-direction: column; align-items: center; }
 
 /* --- Messaggio Benvenuto --- */
-.welcome-message { 
-    text-align: center; 
-    margin-bottom: 30px; 
-}
-.welcome-message h2 { 
-    color: #0056a8; 
-    font-size: 2em; 
-    margin-bottom: 5px; 
-}
-.welcome-message p { 
-    font-size: 1.1em; 
-    color: #6c757d; 
-}
+.welcome-message { text-align: center; margin-bottom: 30px; }
+.welcome-message h2 { color: #0056a8; font-size: 2em; margin-bottom: 5px; }
+.welcome-message p { font-size: 1.1em; color: #6c757d; }
 
 /* --- Navigazione Principale --- */
-.main-nav { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 15px; 
-    justify-content: center; 
-    max-width: 900px; 
-    margin: 0 auto 20px auto;
-}
+.main-nav { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 900px; margin: 0 auto 20px auto; }
 .nav-button { 
-    padding: 12px 25px; 
-    font-size: 16px; 
-    font-weight: 600; 
-    cursor: pointer; 
-    border: none; 
-    border-radius: 6px; 
-    background-color: #0056a8; 
-    color: white; 
-    transition: all 0.2s ease; 
-    display: inline-flex; 
-    align-items: center; 
-    text-decoration: none; 
+    padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; 
+    border-radius: 6px; background-color: #0056a8; color: white; 
+    transition: all 0.2s ease; display: inline-flex; align-items: center; text-decoration: none; 
 }
-.nav-button i { 
-    margin-right: 8px; 
-}
-.nav-button:hover { 
-    background-color: #004182; 
-    transform: translateY(-2px); 
-}
-.nav-button.active { 
-    background-color: #003566; 
-}
+.nav-button i { margin-right: 8px; }
+.nav-button:hover { background-color: #004182; transform: translateY(-2px); }
+.nav-button.active { background-color: #003566; }
 
 /* --- Sottomenu --- */
 .submenu { 
-    background-color: #f8f9fa; 
-    border-radius: 6px; 
-    padding: 0 15px; 
-    overflow: hidden; 
-    max-height: 0; 
-    opacity: 0; 
-    display: flex; 
-    justify-content: center; 
-    gap: 10px; 
-    transition: all 0.4s ease-out; 
-    margin: 0 auto 0; 
-    border: 1px solid #e0e0e0; 
+    background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; 
+    max-height: 0; opacity: 0; display: flex; justify-content: center; 
+    gap: 10px; transition: all 0.4s ease-out; margin: 0 auto 0; border: 1px solid #e0e0e0; 
 }
-.submenu.visible { 
-    max-height: 200px; 
-    opacity: 1; 
-    padding: 15px; 
-    margin-bottom: 25px; 
-}
+.submenu.visible { max-height: 200px; opacity: 1; padding: 15px; margin-bottom: 25px; }
 .submenu-button { 
-    padding: 8px 16px; 
-    font-size: 14px; 
-    font-weight: 500; 
-    cursor: pointer; 
-    border: none; 
-    border-radius: 5px; 
-    background-color: #e8f0f7; 
-    color: #0056a8; 
-    display: inline-flex; 
-    align-items: center; 
-    text-decoration: none; 
+    padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; 
+    border-radius: 5px; background-color: #e8f0f7; color: #0056a8; 
+    display: inline-flex; align-items: center; text-decoration: none; 
 }
-.submenu-button i { 
-    margin-right: 6px; 
-}
-.submenu-button:hover { 
-    background-color: #d71920; 
-    color: white; 
-}
+.submenu-button i { margin-right: 6px; }
+.submenu-button:hover { background-color: #d71920; color: white; }
 
 /* --- Ricerca e Risultati --- */
-#search-container { 
-    margin: 25px auto; 
-    max-width: 800px; 
-    width: 100%; 
-}
-#search-input { 
-    width: 100%; 
-    padding: 12px 15px; 
-    font-size: 1.1em; 
-    border: 1px solid #ccc; 
-    border-radius: 6px; 
-}
+#search-container { margin: 25px auto; max-width: 800px; width: 100%; }
+#search-input { width: 100%; padding: 12px 15px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px; }
 #search-results { 
-    margin-top: 5px; 
-    max-height: 400px; 
-    overflow-y: auto; 
-    border: 1px solid #ddd; 
-    border-radius: 6px; 
-    background-color: #fff; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-    display: none; 
+    margin-top: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; 
+    border-radius: 6px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; 
 }
-/* Stile base del contenitore di un risultato */
-.result-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    color: #343a40;
-    text-decoration: none;
-    transition: background-color 0.2s;
-    cursor: pointer;
-}
-.result-item:hover {
-    background-color: #f5f5f5;
-}
-.result-item:last-child {
-    border-bottom: none;
-}
+.result-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-bottom: 1px solid #eee; color: #343a40; text-decoration: none; transition: background-color 0.2s; cursor: pointer; }
+.result-item:hover { background-color: #f5f5f5; }
+.result-item-empty { padding: 15px; color: #6c757d; text-align: center; }
+.result-image, .result-image-placeholder { width: 60px; height: 60px; object-fit: contain; flex-shrink: 0; background-color: transparent; border-radius: 4px; border: 1px solid #eee; }
+.result-info { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
+.result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.result-name { font-weight: 600; font-size: 1em; color: #0056a8; }
+.result-type { background-color: #e9ecef; color: #495057; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.result-supplier-item { font-size: 0.85em; color: #6c757d; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-price { font-size: 1.1em; font-weight: 700; color: #0056a8; white-space: nowrap; margin-left: 15px; flex-shrink: 0; }
 
-/* Stile per l'immagine nel risultato della ricerca */
-.result-image, .result-image-placeholder {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    flex-shrink: 0;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    border: 1px solid #eee;
-}
-
-/* Stile per il messaggio "Nessun risultato" */
-.result-item-empty {
-    padding: 15px;
-    color: #6c757d;
-    text-align: center;
-}
-
-/* Contenitore delle informazioni nel risultato (nome, tipo, etc.) */
-.result-info {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    overflow: hidden;
-}
-
-/* Header del risultato (nome + tipo) */
-.result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-/* Nome del prodotto nel risultato */
-.result-name {
-    font-weight: 600;
-    font-size: 1em;
-    color: #0056a8;
-}
-
-/* Categoria/Tipo del prodotto (es. Monosplit) */
-.result-type {
-    background-color: #e9ecef;
-    color: #495057;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 0.75em;
-    font-weight: 500;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-/* Codice fornitore sotto il nome */
-.result-supplier-item {
-    font-size: 0.85em;
-    color: #6c757d;
-    margin-top: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Prezzo nel risultato */
-.result-price {
-    font-size: 1.1em;
-    font-weight: 700;
-    color: #0056a8;
-    white-space: nowrap;
-    margin-left: 15px;
-    flex-shrink: 0;
-}
-
-
-/* --- Popup Generico --- */
-.admin-popup { 
-    position: fixed; 
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    background-color: #ffffff; 
-    padding: 25px 30px; 
-    border-radius: 8px; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
-    z-index: 1060; 
-}
-.close-panel-btn { 
-    position: absolute; 
-    top: 10px; 
-    right: 15px; 
-    background: none; 
-    border: none; 
-    font-size: 2em; 
-    line-height: 1;
-    color: #aaa; 
-    cursor: pointer; 
-}
-.admin-popup h3 { 
-    margin-top: 0; 
-    margin-bottom: 20px; 
-    color: #0056a8; 
-}
-.admin-popup-buttons.centered { 
-    justify-content: center; 
-}
-.feedback-message.success { 
-    color: #198754; 
-    font-weight: bold;
-}
+/* --- Popup Admin --- */
+.admin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1040; }
+.close-panel-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; line-height: 1; color: #aaa; cursor: pointer; }
+.admin-popup h3 { margin-top: 0; margin-bottom: 20px; color: #0056a8; }
 
 /* --- Overlay e Helper --- */
-.overlay { 
-    position: fixed; 
-    top: 0; left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background-color: rgba(0,0,0,0.6); 
-    z-index: 1050; 
-}
-.hidden { 
-    display: none !important; 
-}
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1030; }
+.hidden { display: none !important; }
 
 /* ========================================================== */
-/* === NUOVO CSS DEL MODALE (secondo la tua maquette) === */
+/* === STILI DEFINITIVI PER MODALE E OVERLAY ATTACCHI === */
 /* ========================================================== */
-body.modal-open { overflow: hidden; }
 
+/* Overlay Modale Prodotto (Z-INDEX BASE) */
 #product-details-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
-    z-index: 1050; display: flex; align-items: center; justify-content: center;
-    padding: 20px; visibility: hidden; opacity: 0; transition: opacity 0.3s ease;
+    z-index: 1050; 
+    display: none; /* Inizialmente nascosto */
+    align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
-#product-details-modal-overlay.visible { visibility: visible; opacity: 1; }
+#product-details-modal-overlay.visible {
+    display: flex;
+    opacity: 1;
+}
 
+/* Contenitore Modale */
 .modal-container {
-    background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    width: 100%; max-width: 950px; height: auto; max-height: 90vh;
-    position: relative; display: flex; flex-direction: column;
-    transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: #ffffff; padding: 25px 30px; border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    width: 100%; max-width: 950px;
+    max-height: 90vh;
+    position: relative;
+    display: flex; flex-direction: column;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 #product-details-modal-overlay.visible .modal-container { transform: scale(1); }
 
-/* --- NUOVO HEADER --- */
-.modal-header {
-    display: flex; align-items: center; gap: 20px;
-    padding-bottom: 15px; margin-bottom: 20px; 
-    border-bottom: 1px solid #e9e9e9;
-}
+/* --- Elementi Interni Modale Prodotto --- */
+.modal-header { display: flex; align-items: center; gap: 20px; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; }
 .modal-brand-logo { height: 40px; width: auto; max-width: 140px; object-fit: contain; flex-shrink: 0; }
 .modal-header-main { display: flex; flex-direction: column; flex-grow: 1; }
 .modal-title-group { display: flex; align-items: baseline; gap: 10px; }
@@ -427,227 +184,62 @@ body.modal-open { overflow: hidden; }
 .modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; }
 .modal-product-code { font-size: 0.9rem; color: #6c757d; margin-top: 4px; }
 .modal-header-right { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
-.modal-type-badge {
-    background-color: #343a40; color: white;
-    padding: 8px 12px; border-radius: 5px; text-align: center;
-    font-size: 0.9em; font-weight: 500; line-height: 1.3;
-}
+.modal-type-badge { background-color: #343a40; color: white; padding: 8px 12px; border-radius: 5px; text-align: center; font-size: 0.9em; font-weight: 500; line-height: 1.3; }
 #modal-wifi-icon { font-size: 1.8em; color: #0d6efd; display: none; }
-.modal-close-btn { 
-    position: absolute; 
-    top: 10px; 
-    right: 15px; 
-    background: transparent; 
-    border: none; 
-    font-size: 2.2rem; 
-    cursor: pointer; 
-    z-index: 10; /* Z-index RELATIVO al suo contenitore, va bene */
-}
-/* --- NUOVO CORPO --- */
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; /* Relativo al .modal-container */ }
+
+/* Corpo del Modale */
 .modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
 /* Colonna sinistra */
-.modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; align-items: center; }
-.modal-images-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-    height: 380px; 
-    margin-bottom: 15px;
-    justify-content: center;}
-.modal-product-image { width: 100%; height: auto; max-height: 180px; object-fit: contain; display: none;background-color: transparent; } /* Nascoste di default */
-.modal-energy-badges-container { margin: 20px 0; display: flex; gap: 10px; }
-.energy-badge {
-    width: 38px; height: 38px; line-height: 38px; border-radius: 50%;
-    color: white; text-align: center; font-weight: bold; font-size: 1em;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: none; /* Nascosti di default */
-}
+.modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; }
+.modal-images-container { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; height: 380px; margin-bottom: 15px; justify-content: center; }
+.modal-product-image { width: 100%; height: 48%; object-fit: contain; display: none; background-color: transparent; }
+.modal-energy-badges-container { text-align: center; margin-bottom: 15px; }
+.energy-badge { display: none; width: 38px; height: 38px; line-height: 38px; border-radius: 50%; color: white; text-align: center; font-weight: bold; font-size: 1em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin: 0 5px; }
+.energy-badge.visible { display: inline-block; }
 .energy-badge.cooling { background-color: #0d6efd; }
 .energy-badge.heating { background-color: #dc3545; }
-.modal-product-price { 
-    font-size: 2.8rem; 
-    font-weight: 700; 
-    color: #0056a8; 
-    text-align: center; 
-    margin: 10px 0;
-    margin-top: auto;  /* <<< AGGIUNTA CHIAVE */
-    padding-top: 20px; /* <<< AGGIUNTA CHIAVE (per dare spazio) */
-}
-#modal-datasheet-link {
-    /* Rimuovi 'display: none' se presente, JS lo gestisce con 'visible' */
-    display: none; 
-    align-items: center;
-    justify-content: center;
-    background-color: #dc3545;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    width: 100%;
-}
-#modal-datasheet-link.visible {
-    display: flex; /* La classe 'visible' lo mostra */
-} /* <<< PARENTESI MANCANTE AGGIUNTA QUI */
+.modal-bottom-info { margin-top: auto; width: 100%; padding-top: 15px; border-top: 1px solid #eee; }
+.modal-product-price { font-size: 2.5rem; font-weight: 700; color: #0056a8; text-align: center; margin-bottom: 15px; }
+#modal-datasheet-link { display: none; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; width: 100%; }
+#modal-datasheet-link.visible { display: flex; }
+#modal-datasheet-link i { margin-right: 8px; }
 
-#modal-datasheet-link i { 
-    margin-right: 8px; 
-}
-
-/* Colonna destra */
+/* Colonna destra (Elenco Puntato) */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
-
-#modal-tech-details h3 { 
-    font-size: 1.2rem; 
-    color: #0056a8; 
-    margin: 20px 0 10px 0; 
-    padding-bottom: 5px; 
-    border-bottom: 2px solid #e0e0e0; 
-}
+#modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
-
-/* --- STILI UNIFICATI PER ELENCO PUNTATO --- */
-#modal-tech-details ul { 
-    list-style: none;
-    padding-left: 0;
-    margin: 0; 
-}
-#modal-tech-details li { 
-    display: flex;
-    align-items: flex-start;
-    padding: 8px 0; 
-    border-bottom: 1px dotted #dcdcdc; 
-    line-height: 1.5;
-}
-#modal-tech-details li::before {
-    content: '•';
-    color: #0056a8;
-    font-weight: bold;
-    font-size: 1.2em;
-    margin-right: 12px;
-    line-height: 1.4;
-}
-#modal-tech-details li strong { 
-    margin-right: 5px; 
-}
-#modal-tech-details li span { 
-    text-align: left;
-    flex-grow: 1;
-}
-/* === NUOVO: STILI PER IL LOADER INIZIALE === */
-
-.loader-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #f8f9fa; /* Stesso sfondo del body */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    transition: opacity 0.3s ease-out;
-}
-
-.loader-spinner {
-    border: 5px solid #e9ecef; /* Grigio chiaro */
-    border-top: 5px solid #0056a8; /* Blu CAI */
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-}
-
-.loader-container p {
-    margin-top: 15px;
-    color: #6c757d;
-    font-size: 1.1em;
-}
-
-/* Animazione per la rotazione */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Classe per nascondere il loader con una transizione */
-.loader-container.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-}
-/* ========================================================== */
-/* === STILI PER PULSANTE E OVERLAY ATTACCHI CALDAIA === */
-/* ========================================================== */
+#modal-tech-details ul { list-style: none; padding-left: 0; margin: 0; }
+#modal-tech-details li { display: flex; align-items: flex-start; padding: 8px 0; border-bottom: 1px dotted #dcdcdc; line-height: 1.5; }
+#modal-tech-details li::before { content: '•'; color: #0056a8; font-weight: bold; font-size: 1.2em; margin-right: 12px; line-height: 1.4; }
+#modal-tech-details li strong { margin-right: 5px; }
+#modal-tech-details li span { text-align: left; flex-grow: 1; }
 
 /* Pulsante "Mostra Attacchi" */
-.attachments-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #0056a8;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 600;
-    margin-top: 15px; /* Spazio dal blocco precedente */
-    transition: background-color 0.2s;
-}
-.attachments-button:hover {
-    background-color: #004182;
-}
-.attachments-button i {
-    margin-right: 8px;
-}
+.attachments-button { display: inline-flex; align-items: center; justify-content: center; background-color: #0056a8; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: 600; margin-top: 15px; transition: background-color 0.2s; }
+.attachments-button:hover { background-color: #004182; }
+.attachments-button i { margin-right: 8px; }
 
-/* Overlay per l'immagine degli attacchi */
+/* Overlay per Immagine Attacchi (Z-INDEX SUPERIORE) */
 .attachments-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
-    z-index: 1060; /* Sopra il modale principale */
-    display: none;
-    justify-content: center;
-    align-items: center;
+    z-index: 1100; /* Valore alto, SUPERIORE al modale principale */
+    display: none; /* Nascosto di default */
+    justify-content: center; align-items: center;
     padding: 20px;
-    z-index: 1100;
     opacity: 0;
-    visibility: hidden;
     transition: opacity 0.3s ease;
 }
 .attachments-overlay.visible {
-    display: flex;
+    display: flex; /* La classe .visible lo fa apparire */
     opacity: 1;
-    }
-
-#attachments-image {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    border-radius: 5px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
 }
-
-.attachments-close-btn {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    z-index: 1100;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 3em;
-    font-weight: 100;
-    line-height: 1;
-    cursor: pointer;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+#attachments-image { max-width: 90%; max-height: 90%; object-fit: contain; }
+.attachments-close-btn { 
+    position: absolute; top: 20px; right: 30px;
+    color: white; font-size: 3em; cursor: pointer;
+    background: none; border: none;
+    z-index: 1110; /* Ancora più in alto per essere sempre cliccabile */
 }
