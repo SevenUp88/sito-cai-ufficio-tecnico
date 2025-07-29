@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContent = document.getElementById('app-content');
     const db = firebase.firestore();
 
+    // Elementi Navigazione e Sottomenu
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
     const btnConfiguratori = document.getElementById('btn-configuratori');
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnFgas = document.getElementById('btn-fgas');
     const submenuFgas = document.getElementById('submenu-fgas');
 
+    // Elementi Pannello Admin
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -25,10 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryPathInput = document.getElementById('category-path');
     const categoryIconInput = document.getElementById('category-icon');
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
-
+    const addCategoryFeedback = document.getElementById('add-category-feedback');
     const adminOverlay = document.getElementById('admin-overlay');
+
+    // Elementi Ricerca
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results');
+
+    // Elementi Modale Dettagli Prodotto
     const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
     const closeModalBtn = document.getElementById('close-modal-btn');
 
@@ -37,7 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let allSearchableData = [];
     let currentlyDisplayedResults = [];
     let isDataFetched = false;
-    const currentlyOpenSubmenu = { btn: null, menu: null };
+    const currentlyOpenSubmenu = {
+        btn: null,
+        menu: null
+    };
 
     // 3. FUNZIONI
     // =============
@@ -56,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const showAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.remove('hidden'); if (adminOverlay) adminOverlay.classList.remove('hidden'); };
     const hideAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.add('hidden'); if (adminOverlay) adminOverlay.classList.add('hidden'); };
+
     const handleAddCategorySubmit = () => {
         if (!categoryNameInput || !categoryPathInput || !categoryIconInput) return;
         const name = categoryNameInput.value.trim();
@@ -121,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalImageAttachments) modalImageAttachments.src = '';
         modalImageUi.style.display = 'none'; modalImageUe.style.display = 'none';
         if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
-        if(modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
-        if(modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
+        if (modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
+        if (modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
         
         const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
         const brandName = marca || brand || 'N/D';
@@ -144,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const setImage = (el, path) => { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; };
 
         if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
-            if(modalEnergyBadges) modalEnergyBadges.style.display = 'block';
+            if (modalEnergyBadges) modalEnergyBadges.style.display = 'block';
             const uiImagePath = product.image_url ? getCorrectedPath(product.image_url, 'clima') : `LISTINI/CLIMA/images/${(modelName).toLowerCase().replace(/\s+/g, '')}.png`;
             const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
             if (derived_type === 'Monosplit') { setImage(modalImageUi, uiImagePath); setImage(modalImageUe, ueImagePath); }
@@ -169,21 +179,118 @@ document.addEventListener('DOMContentLoaded', () => {
         modalEnergyHeating.classList.toggle('visible', !!heatingClass);
         if (coolingClass) modalEnergyCooling.textContent = coolingClass;
         if (heatingClass) modalEnergyHeating.textContent = heatingClass;
-        
         modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
         const datasheetUrl = product.scheda_tecnica_url || product.datasheetUrl;
         const hasValidUrl = !!(datasheetUrl && String(datasheetUrl).trim());
         modalDatasheetLink.classList.toggle('visible', hasValidUrl);
         if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
         modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
-        
         document.body.classList.add('modal-open');
         detailsModalOverlay.classList.add('visible');
     };
     
-    const fetchAllSearchableData = async () => { /* ... Il tuo codice esistente ... */ };
-    const handleSearch = () => { /* ... Il tuo codice esistente ... */ };
-    const displayResults = (results) => { /* ... Il tuo codice esistente ... */ };
+    const fetchAllSearchableData = async () => {
+        if (isDataFetched) return;
+        searchInput.disabled = true;
+        searchInput.placeholder = 'Caricamento dati...';
+        const collectionConfigs = [
+            { name: 'prodottiClimaMonosplit', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
+            { name: 'outdoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
+            { name: 'indoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } },
+            { name: 'prodottiCaldaie', config: { code_field: 'codice_prodotto', price_field: 'prezzo', type: 'Caldaia' } },
+            { name: 'prodottiScaldabagno', config: { code_field: 'codice_prodotto', price_field: 'prezzo', type: 'Scaldabagno' } }
+        ];
+        const promises = collectionConfigs.map(async (collectionConfig) => {
+            try {
+                const snapshot = await db.collection(collectionConfig.name).get();
+                return snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    let productType = collectionConfig.config.type || 'Prodotto';
+                    if (!collectionConfig.config.type) {
+                        const hasUI = data.dimensioni_ui || data.dimensioni_peso_ui;
+                        const hasUE = data.dimensioni_ue;
+                        if (hasUI && hasUE) productType = 'Monosplit';
+                        else if (hasUE) productType = 'U. Esterna';
+                        else if (hasUI) productType = 'U. Interna';
+                    }
+                    return { ...data, id: doc.id, derived_type: productType, config: collectionConfig.config };
+                });
+            } catch (error) {
+                console.error(`Errore nel caricamento della collezione '${collectionConfig.name}':`, error);
+                return []; 
+            }
+        });
+        const results = await Promise.all(promises);
+        allSearchableData = results.flat(); 
+        isDataFetched = true;
+        searchInput.disabled = false;
+        searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
+        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
+    };
+
+    const handleSearch = () => {
+        if (!searchInput) return;
+        const query = searchInput.value.trim();
+        if (query.length < 3) {
+            displayResults([]);
+            return;
+        }
+        const isNumericQuery = /^\d+$/.test(query);
+        const lowerCaseQuery = query.toLowerCase();
+        const results = allSearchableData.filter(item => {
+            const config = item.config;
+            const productCode = item[config.code_field];
+            const brand = item.marca || item.brand;
+            const model = item.modello || item.model || item.nome;
+            if (isNumericQuery) {
+                if (!productCode) return false;
+                return String(productCode).includes(query);
+            }
+            return (
+                model?.toLowerCase().includes(lowerCaseQuery) ||
+                brand?.toLowerCase().includes(lowerCaseQuery)
+            );
+        });
+        currentlyDisplayedResults = results;
+        displayResults(results);
+    };
+
+    const displayResults = (results) => {
+        if (!searchResultsContainer) return;
+        searchResultsContainer.innerHTML = '';
+        if (results.length === 0 && searchInput.value.length > 2) {
+            searchResultsContainer.style.display = 'block';
+            searchResultsContainer.innerHTML = `<div class="result-item-empty">Nessun risultato trovato.</div>`;
+            return;
+        }
+        if (results.length === 0) {
+            searchResultsContainer.style.display = 'none';
+            return;
+        }
+        searchResultsContainer.style.display = 'block';
+        results.slice(0, 20).forEach((item, index) => { 
+            const resultElement = document.createElement('a');
+            resultElement.href = "#";
+            resultElement.className = 'result-item';
+            resultElement.dataset.resultIndex = index;
+            const brand = item.marca || item.brand;
+            const model = item.modello || item.model || item.nome;
+            const description = [brand, model].filter(Boolean).join(' ');
+            const price = formatPrice(item[item.config.price_field]);
+            const codeInfo = `Codice: ${item[item.config.code_field] || 'N/D'}`;
+            resultElement.innerHTML = `
+                <div class="result-info">
+                    <div class="result-header">
+                        <span class="result-name">${description || 'Prodotto'}</span>
+                        <span class="result-type">${item.derived_type}</span>
+                    </div>
+                    <p class="result-supplier-item">${codeInfo}</p>
+                </div>
+                <div class="result-price">${price}</div>
+            `;
+            searchResultsContainer.appendChild(resultElement);
+        });
+    };
     
     // 4. EVENT LISTENERS
     // ====================
