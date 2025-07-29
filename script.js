@@ -1,25 +1,19 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE DEFINITIVA: Gestisce ricerca e visualizzazione per tutti i prodotti
- * con funzionalità di zoom al click sull'immagine.
+ * VERSIONE DEFINITIVA: Correzione bug di visualizzazione ricerca e diagnostica integrata.
  */
 document.addEventListener('DOMContentLoaded', () => {
 
     // 1. SELEZIONE DEGLI ELEMENTI DOM
-    // ===================================
+    const db = firebase.firestore();
     const mainNav = document.getElementById('mainNav');
     const appContent = document.getElementById('app-content');
-    const db = firebase.firestore();
-
-    // Elementi Navigazione e Sottomenu
     const btnListini = document.getElementById('btn-listini');
     const submenuListini = document.getElementById('submenu-listini');
     const btnConfiguratori = document.getElementById('btn-configuratori');
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
     const btnFgas = document.getElementById('btn-fgas');
     const submenuFgas = document.getElementById('submenu-fgas');
-
-    // Elementi Pannello Admin
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -28,12 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryIconInput = document.getElementById('category-icon');
     const addCategorySubmitBtn = document.getElementById('add-category-submit');
     const adminOverlay = document.getElementById('admin-overlay');
-
-    // Elementi Ricerca
     const searchInput = document.getElementById('search-input');
     const searchResultsContainer = document.getElementById('search-results');
-
-    // Elementi Modali e Visualizzatore
     const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
     const closeModalBtn = document.getElementById('close-modal-btn');
     const imageViewerOverlay = document.getElementById('image-viewer-overlay');
@@ -41,15 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeViewerBtn = document.getElementById('close-viewer-btn');
 
     // 2. VARIABILI DI STATO
-    // =======================
     let allSearchableData = [];
     let currentlyDisplayedResults = [];
     let isDataFetched = false;
     const currentlyOpenSubmenu = { btn: null, menu: null };
 
     // 3. FUNZIONI
-    // =============
-
     const toggleSubmenu = (button, submenu) => {
         if (!button || !submenu) return;
         const isVisible = submenu.classList.toggle('visible');
@@ -130,8 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalImageAttachments) modalImageAttachments.src = '';
         modalImageUi.style.display = 'none'; modalImageUe.style.display = 'none';
         if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
-        if (modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
-        if (modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
+        if(modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
+        if(modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
         
         const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
         const brandName = marca || brand || 'N/D';
@@ -139,12 +126,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
         const powerText = potenza_kw || powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
         const codeText = product[product.config.code_field] || 'N/D';
-        
         let logoCategory = 'clima';
         if (derived_type === 'Caldaia') logoCategory = 'caldaie';
         if (derived_type === 'Scaldabagno') logoCategory = 'scaldabagni';
         modalBrandLogo.src = getCorrectedPath(`${safeBrandName}.png`, logoCategory, true);
-        
         modalProductBrand.textContent = brandName;
         modalProductModel.textContent = modelName;
         modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codeText}</strong>`;
@@ -152,10 +137,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
 
         let techDetailsHTML = '';
-        const setImage = (el, path) => { if (el) { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; } };
+        const setImage = (el, path) => { if (el) { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; }};
 
         if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
-            if (modalEnergyBadges) modalEnergyBadges.style.display = 'block';
+            if(modalEnergyBadges) modalEnergyBadges.style.display = 'block';
             const uiImagePath = product.image_url ? getCorrectedPath(product.image_url, 'clima') : `LISTINI/CLIMA/images/${(modelName).toLowerCase().replace(/\s+/g, '')}.png`;
             const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
             if (derived_type === 'Monosplit') { setImage(modalImageUi, uiImagePath); setImage(modalImageUe, ueImagePath); }
@@ -165,7 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (derived_type === 'Caldaia') {
             setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
             const attachmentsImagePath = getCorrectedPath(product.attacchi_immagine_url, 'caldaie');
-            if (modalImageAttachments) modalImageAttachments.src = attachmentsImagePath;
+            if (modalImageAttachments) {
+                modalImageAttachments.src = attachmentsImagePath;
+            }
             techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${createDetailRowHTML('Tipologia', product.tipologia)}${createDetailRowHTML('Potenza Nominale', product.potenza_kw, ' kW')}${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensioni, ' mm')}${createDetailRowHTML('Peso', product.peso, ' kg')}${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}</ul>`;
         } else if (derived_type === 'Scaldabagno') {
             setImage(modalImageUi, getCorrectedPath(product.image_url, 'scaldabagni'));
@@ -236,13 +223,20 @@ document.addEventListener('DOMContentLoaded', () => {
             displayResults([]);
             return;
         }
+        
+        console.log(`Sto cercando: "${query}"`); // DIAGNOSTICA
+
         const isNumericQuery = /^\d+$/.test(query);
         const lowerCaseQuery = query.toLowerCase();
+        
         const results = allSearchableData.filter(item => {
+            if (!item || !item.config) return false;
+            
             const config = item.config;
             const productCode = item[config.code_field];
             const brand = item.marca || item.brand;
             const model = item.modello || item.model || item.nome;
+            
             if (isNumericQuery) {
                 if (!productCode) return false;
                 return String(productCode).includes(query);
@@ -252,6 +246,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 brand?.toLowerCase().includes(lowerCaseQuery)
             );
         });
+
+        console.log(`Trovati ${results.length} risultati.`); // DIAGNOSTICA
         currentlyDisplayedResults = results;
         displayResults(results);
     };
@@ -269,31 +265,40 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         searchResultsContainer.style.display = 'block';
+        
         results.slice(0, 20).forEach((item, index) => { 
-            const resultElement = document.createElement('a');
-            resultElement.href = "#";
-            resultElement.className = 'result-item';
-            resultElement.dataset.resultIndex = index;
-            const brand = item.marca || item.brand;
-            const model = item.modello || item.model || item.nome;
-            const description = [brand, model].filter(Boolean).join(' ');
-            const price = formatPrice(item[item.config.price_field]);
-            const codeInfo = `Codice: ${item[item.config.code_field] || 'N/D'}`;
-            resultElement.innerHTML = `
-                <div class="result-info">
-                    <div class="result-header">
-                        <span class="result-name">${description || 'Prodotto'}</span>
-                        <span class="result-type">${item.derived_type}</span>
+            try {
+                const resultElement = document.createElement('a');
+                resultElement.href = "#";
+                resultElement.className = 'result-item';
+                resultElement.dataset.resultIndex = index;
+
+                const brand = item.marca || item.brand;
+                const model = item.modello || item.model || item.nome;
+                const description = [brand, model].filter(Boolean).join(' ');
+                const price = formatPrice(item[item.config.price_field]);
+                const codeInfo = `Codice: ${item[item.config.code_field] || 'N/D'}`;
+
+                // --- ERRORE DI BATTITURA CORRETTO ---
+                resultElement.innerHTML = `
+                    <div class="result-info">
+                        <div class="result-header">
+                            <span class="result-name">${description || 'Prodotto'}</span>
+                            <span class="result-type">${item.derived_type}</span>
+                        </div>
+                        <p class="result-supplier-item">${codeInfo}</p>
                     </div>
-                    <p class="result-supplier-item">${codeInfo}</p>
-                </div>
-                <div class.result-price">${price}</div>
-            `;
+                    <div class="result-price">${price}</div>
+                `;
+                
+                searchResultsContainer.appendChild(resultElement);
+            } catch (error) {
+                console.error("Errore durante la creazione di un elemento del risultato:", error, "Dati dell'elemento:", item);
+            }
         });
     };
     
     // 4. EVENT LISTENERS
-    // ====================
     if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
     if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
     if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
@@ -328,15 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (imageWrapper) {
                 const attachmentsImg = imageWrapper.querySelector('#modal-image-attachments');
                 let targetImage = null;
-                // Controlla se il mouse è sopra il wrapper (quindi l'immagine attacchi DOVREBBE essere visibile)
                 const isHovering = imageWrapper.matches(':hover');
-                
                 if (isHovering && attachmentsImg && attachmentsImg.src && !attachmentsImg.src.includes('placeholder')) {
                     targetImage = attachmentsImg;
                 } else {
                     targetImage = Array.from(imageWrapper.querySelectorAll('img')).find(img => img.style.display === 'block' && img.src && !img.src.includes('placeholder'));
                 }
-
                 if (targetImage) {
                     viewerImage.src = targetImage.src;
                     imageViewerOverlay.classList.add('visible');
@@ -358,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (detailsModalOverlay?.classList.contains('visible')) closeModalAndClearSearch();
         }
     });
-
+    
     document.addEventListener('click', (e) => {
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(e.target) && !currentlyOpenSubmenu.btn.contains(e.target)) toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
         if (searchResultsContainer && !searchResultsContainer.contains(e.target) && e.target !== searchInput) searchResultsContainer.style.display = 'none';
