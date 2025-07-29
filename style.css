@@ -615,18 +615,19 @@ body.modal-open { overflow: hidden; }
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
     z-index: 1060; /* Sopra il modale principale */
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    z-index: 1100;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.3s ease;
 }
 .attachments-overlay.visible {
+    display: flex;
     opacity: 1;
-    visibility: visible;
-}
+    }
 
 #attachments-image {
     max-width: 90%;
@@ -640,7 +641,7 @@ body.modal-open { overflow: hidden; }
     position: absolute;
     top: 20px;
     right: 30px;
-    z-index: 1070;
+    z-index: 1100;
     background: transparent;
     border: none;
     color: white;
