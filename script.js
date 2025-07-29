@@ -1,332 +1,154 @@
-/*
- * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE FINALE: Gestisce la ricerca e la visualizzazione per Clima, Caldaie e Scaldabagni
- * con effetto HOVER per gli attacchi caldaia.
- */
-document.addEventListener('DOMContentLoaded', () => {
+/* ========================================================== */
+/*           File CSS Principale - Home Page             */
+/* ========================================================== */
 
-    // 1. SELEZIONE DEGLI ELEMENTI DOM
-    // ===================================
-    const mainNav = document.getElementById('mainNav');
-    const appContent = document.getElementById('app-content');
-    const db = firebase.firestore();
+/* --- Reset base e stili generali --- */
+html { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    line-height: 1.6; background-color: #f8f9fa; color: #343a40; 
+    display: flex; flex-direction: column; min-height: 100vh; position: relative; 
+}
+body.modal-open { overflow: hidden; }
 
-    const btnListini = document.getElementById('btn-listini');
-    const submenuListini = document.getElementById('submenu-listini');
-    const btnConfiguratori = document.getElementById('btn-configuratori');
-    const submenuConfiguratori = document.getElementById('submenu-configuratori');
-    const btnFgas = document.getElementById('btn-fgas');
-    const submenuFgas = document.getElementById('submenu-fgas');
+/* --- Loader Iniziale --- */
+.loader-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #f8f9fa; display: flex; flex-direction: column; 
+    justify-content: center; align-items: center; z-index: 9999;
+    transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+}
+.loader-spinner {
+    border: 5px solid #e9ecef; border-top: 5px solid #0056a8;
+    border-radius: 50%; width: 50px; height: 50px;
+    animation: spin 1s linear infinite;
+}
+.loader-container p { margin-top: 15px; color: #6c757d; font-size: 1.1em; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-    const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
-    const addCategoryPanel = document.getElementById('add-category-panel');
-    const addCategoryCloseBtn = document.getElementById('add-category-close');
-    const categoryNameInput = document.getElementById('category-name');
-    const categoryPathInput = document.getElementById('category-path');
-    const categoryIconInput = document.getElementById('category-icon');
-    const addCategorySubmitBtn = document.getElementById('add-category-submit');
-    const adminOverlay = document.getElementById('admin-overlay');
+/* --- Header e altre sezioni --- */
+.app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: sticky; top: 0; z-index: 1000; }
+.logo { height: 45px; width: auto; flex-shrink: 0; }
+.header-controls { display: flex; align-items: center; gap: 15px; }
+.admin-button { background: none; border: none; color: #0056a8; font-size: 1.8em; cursor: pointer; }
+.admin-button:hover { color: #d71920; }
+#login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; margin: 20px auto; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 400px; }
+#login-section h2 { color: #0056a8; margin-bottom: 20px; }
+.form-group { margin-bottom: 15px; width: 100%; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+#login-section .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-login { background-color: #0056a8; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
+.btn-login:hover { background-color: #004182; }
+#login-error { color: #dc3545; margin-top: 10px; font-size: 0.9em; min-height: 1.2em; }
+#user-dashboard { text-align: right; }
+#user-dashboard p { margin: 0 0 10px 0; font-size: 0.9em; }
+#logout-button { background-color: #6c757d; color: white; padding: 8px 15px; font-size: 0.9em; }
+#content-area { padding: 30px; flex-grow: 1; margin: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); }
+#app-content { display: flex; flex-direction: column; align-items: center; }
+.welcome-message { text-align: center; margin-bottom: 30px; }
+.welcome-message h2 { color: #0056a8; font-size: 2em; margin-bottom: 5px; }
+.welcome-message p { font-size: 1.1em; color: #6c757d; }
+.main-nav { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; max-width: 900px; margin: 0 auto 20px auto; }
+.nav-button { padding: 12px 25px; font-size: 16px; font-weight: 600; cursor: pointer; border: none; border-radius: 6px; background-color: #0056a8; color: white; transition: all 0.2s ease; display: inline-flex; align-items: center; text-decoration: none; }
+.nav-button i { margin-right: 8px; }
+.nav-button:hover { background-color: #004182; transform: translateY(-2px); }
+.nav-button.active { background-color: #003566; }
+.submenu { background-color: #f8f9fa; border-radius: 6px; padding: 0 15px; overflow: hidden; max-height: 0; opacity: 0; display: flex; justify-content: center; gap: 10px; transition: all 0.4s ease-out; margin: 0 auto 0; border: 1px solid #e0e0e0; }
+.submenu.visible { max-height: 200px; opacity: 1; padding: 15px; margin-bottom: 25px; }
+.submenu-button { padding: 8px 16px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; background-color: #e8f0f7; color: #0056a8; display: inline-flex; align-items: center; text-decoration: none; }
+.submenu-button i { margin-right: 6px; }
+.submenu-button:hover { background-color: #d71920; color: white; }
+#search-container { margin: 25px auto; max-width: 800px; width: 100%; }
+#search-input { width: 100%; padding: 12px 15px; font-size: 1.1em; border: 1px solid #ccc; border-radius: 6px; }
+#search-results { margin-top: 5px; max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background-color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; }
+.result-item { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-bottom: 1px solid #eee; color: #343a40; text-decoration: none; transition: background-color 0.2s; cursor: pointer; }
+.result-item:hover { background-color: #f5f5f5; }
+.result-item-empty { padding: 15px; color: #6c757d; text-align: center; }
+.result-info { display: flex; flex-direction: column; flex-grow: 1; overflow: hidden; }
+.result-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.result-name { font-weight: 600; font-size: 1em; color: #0056a8; }
+.result-type { background-color: #e9ecef; color: #495057; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+.result-supplier-item { font-size: 0.85em; color: #6c757d; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.result-price { font-size: 1.1em; font-weight: 700; color: #0056a8; white-space: nowrap; margin-left: 15px; flex-shrink: 0; }
+.admin-popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); z-index: 1040; }
+.close-panel-btn { position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 2em; line-height: 1; color: #aaa; cursor: pointer; }
+.admin-popup h3 { margin-top: 0; margin-bottom: 20px; color: #0056a8; }
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1030; }
+.hidden { display: none !important; }
 
-    const searchInput = document.getElementById('search-input');
-    const searchResultsContainer = document.getElementById('search-results');
+/* ========================================================== */
+/* === STILI MODALE (con effetto HOVER per attacchi) === */
+/* ========================================================== */
+#product-details-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7);
+    z-index: 1050; 
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+#product-details-modal-overlay.visible { display: flex; opacity: 1; }
+.modal-container { background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 100%; max-width: 950px; max-height: 90vh; position: relative; display: flex; flex-direction: column; }
+.modal-header { display: flex; align-items: center; gap: 20px; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; }
+.modal-brand-logo { height: 40px; width: auto; max-width: 140px; object-fit: contain; flex-shrink: 0; }
+.modal-header-main { display: flex; flex-direction: column; flex-grow: 1; }
+.modal-title-group { display: flex; align-items: baseline; gap: 10px; }
+.modal-title-group #modal-product-brand { font-size: 1.1rem; color: #6c757d; }
+.modal-title-group #modal-product-model { font-size: 1.8rem; font-weight: 700; margin: 0; }
+.modal-product-code { font-size: 0.9rem; color: #6c757d; margin-top: 4px; }
+.modal-header-right { display: flex; align-items: center; gap: 15px; flex-shrink: 0; }
+.modal-type-badge { background-color: #343a40; color: white; padding: 8px 12px; border-radius: 5px; text-align: center; font-size: 0.9em; font-weight: 500; line-height: 1.3; }
+#modal-wifi-icon { font-size: 1.8em; color: #0d6efd; display: none; }
+.modal-close-btn { position: absolute; top: 10px; right: 15px; background: transparent; border: none; font-size: 2.2rem; cursor: pointer; z-index: 10; }
+.modal-body-split { display: flex; gap: 30px; flex-grow: 1; overflow: hidden; }
 
-    const detailsModalOverlay = document.getElementById('product-details-modal-overlay');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-
-    // 2. VARIABILI DI STATO
-    // =======================
-    let allSearchableData = [];
-    let currentlyDisplayedResults = [];
-    let isDataFetched = false;
-    const currentlyOpenSubmenu = { btn: null, menu: null };
-
-    // 3. FUNZIONI
-    // =============
-
-    const toggleSubmenu = (button, submenu) => {
-        if (!button || !submenu) return;
-        const isVisible = submenu.classList.toggle('visible');
-        button.setAttribute('aria-expanded', isVisible);
-        if (currentlyOpenSubmenu.menu && currentlyOpenSubmenu.menu !== submenu) {
-            currentlyOpenSubmenu.menu.classList.remove('visible');
-            if (currentlyOpenSubmenu.btn) currentlyOpenSubmenu.btn.setAttribute('aria-expanded', 'false');
-        }
-        currentlyOpenSubmenu.btn = isVisible ? button : null;
-        currentlyOpenSubmenu.menu = isVisible ? submenu : null;
-    };
-
-    const showAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.remove('hidden'); if (adminOverlay) adminOverlay.classList.remove('hidden'); };
-    const hideAddCategoryPanel = () => { if (addCategoryPanel) addCategoryPanel.classList.add('hidden'); if (adminOverlay) adminOverlay.classList.add('hidden'); };
-
-    const handleAddCategorySubmit = () => {
-        if (!categoryNameInput || !categoryPathInput || !categoryIconInput) return;
-        const name = categoryNameInput.value.trim();
-        const path = categoryPathInput.value.trim();
-        const iconClass = categoryIconInput.value.trim() || 'fas fa-folder';
-        if (!name || !path) return;
-        const link = document.createElement('a');
-        link.href = path;
-        link.className = 'nav-button';
-        const icon = document.createElement('i');
-        icon.className = iconClass;
-        link.append(icon, ` ${name}`);
-        mainNav.appendChild(link);
-    };
-
-    const formatPrice = (price) => {
-        const numericPrice = Number(price);
-        return !isNaN(numericPrice) ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice) : 'N/D';
-    };
-    
-    const createDetailRowHTML = (label, value, unit = '') => {
-        if (value == null || String(value).trim() === '') return '';
-        let displayValue = !isNaN(parseFloat(value)) && isFinite(value) ? String(value).replace('.', ',') : value;
-        return `<li><strong>${label}:</strong><span>${displayValue}${unit}</span></li>`;
-    };
-    
-    const getCorrectedPath = (path, category, isLogo = false) => {
-        const placeholder = 'LISTINI/CLIMA/images/placeholder.png';
-        if (!path || !category) return placeholder;
-        const imageFolder = (category === 'clima') ? 'images' : 'img';
-        let basePath = `LISTINI/${category.toUpperCase()}/${imageFolder}/`;
-        if (isLogo) basePath += 'logos/';
-        if (path.startsWith('../')) path = path.substring(path.lastIndexOf('../') + 3);
-        path = path.replace(/^(images|img)\//, '');
-        return `${basePath}${path}`;
-    };
-
-    const closeModal = () => {
-        document.body.classList.remove('modal-open');
-        if (detailsModalOverlay) detailsModalOverlay.classList.remove('visible');
-    };
-    
-    const populateAndShowModal = (product) => {
-        if (!product || !detailsModalOverlay) return;
-        const modalBrandLogo = document.getElementById('modal-brand-logo');
-        const modalProductBrand = document.getElementById('modal-product-brand');
-        const modalProductModel = document.getElementById('modal-product-model');
-        const modalProductCode = document.getElementById('modal-product-code');
-        const modalTypeBadge = document.getElementById('modal-product-type-badge');
-        const modalWifiIcon = document.getElementById('modal-wifi-icon');
-        const modalImageUi = document.getElementById('modal-image-ui');
-        const modalImageUe = document.getElementById('modal-image-ue');
-        const modalImageAttachments = document.getElementById('modal-image-attachments');
-        const modalEnergyBadges = document.querySelector('.modal-energy-badges-container');
-        const modalEnergyCooling = document.getElementById('modal-energy-cooling');
-        const modalEnergyHeating = document.getElementById('modal-energy-heating');
-        const modalProductPrice = document.getElementById('modal-product-price');
-        const modalDatasheetLink = document.getElementById('modal-datasheet-link');
-        const modalTechDetails = document.getElementById('modal-tech-details');
-
-        modalImageUi.src = ''; modalImageUe.src = '';
-        if (modalImageAttachments) modalImageAttachments.src = '';
-        modalImageUi.style.display = 'none'; modalImageUe.style.display = 'none';
-        if (modalEnergyBadges) modalEnergyBadges.style.display = 'none';
-        if(modalEnergyCooling) modalEnergyCooling.classList.remove('visible');
-        if(modalEnergyHeating) modalEnergyHeating.classList.remove('visible');
-        
-        const { marca, brand, modello, model, potenza, powerKw, potenza_kw, wifi, derived_type } = product;
-        const brandName = marca || brand || 'N/D';
-        const modelName = modello || model || product.nome || 'N/D';
-        const safeBrandName = brandName.toLowerCase().replace(/\s+/g, '');
-        const powerText = potenza_kw || powerKw || (typeof potenza === 'number' ? `${potenza.toFixed(1).replace('.',',')} kW` : (String(potenza) || '').split('-')[0].trim());
-        const codeText = product[product.config.code_field] || 'N/D';
-        let logoCategory = 'clima';
-        if (derived_type === 'Caldaia') logoCategory = 'caldaie';
-        if (derived_type === 'Scaldabagno') logoCategory = 'scaldabagni';
-        modalBrandLogo.src = getCorrectedPath(`${safeBrandName}.png`, logoCategory, true);
-        modalProductBrand.textContent = brandName;
-        modalProductModel.textContent = modelName;
-        modalProductCode.innerHTML = `CODICE PRODOTTO: <strong>${codeText}</strong>`;
-        modalTypeBadge.innerHTML = `Sistema<br>${derived_type} - ${powerText}`;
-        modalWifiIcon.style.display = wifi === true ? 'block' : 'none';
-
-        let techDetailsHTML = '';
-        const setImage = (el, path) => { el.src = path; el.style.display = 'block'; el.onerror = () => { el.src = 'LISTINI/CLIMA/images/placeholder.png'; }; };
-
-        if (derived_type === 'Monosplit' || derived_type === 'U. Interna' || derived_type === 'U. Esterna') {
-            if(modalEnergyBadges) modalEnergyBadges.style.display = 'block';
-            const uiImagePath = product.image_url ? getCorrectedPath(product.image_url, 'clima') : `LISTINI/CLIMA/images/${(modelName).toLowerCase().replace(/\s+/g, '')}.png`;
-            const ueImagePath = `LISTINI/CLIMA/images/est_${safeBrandName}.png`;
-            if (derived_type === 'Monosplit') { setImage(modalImageUi, uiImagePath); setImage(modalImageUe, ueImagePath); }
-            else if (derived_type === 'U. Esterna') { setImage(modalImageUe, ueImagePath); }
-            else if (derived_type === 'U. Interna') { setImage(modalImageUi, uiImagePath); }
-            techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${createDetailRowHTML('Articolo Fornitore', product.articolo_fornitore)}${createDetailRowHTML('Dimensioni UI (AxLxP)', product.dimensioni_ui, ' mm')}${createDetailRowHTML('Peso UI', product.peso_ui, ' kg')}${createDetailRowHTML('Dimensioni UE (AxLxP)', product.dimensioni_ue, ' mm')}${createDetailRowHTML('Peso UE', product.peso_ue, ' kg')}</ul><h3>Dettagli Energetici</h3><ul>${createDetailRowHTML('Gas Refrigerante', product.gas)}${createDetailRowHTML('Contenuto Gas', product.quantita_gas, ' kg')}${createDetailRowHTML('EER', product.eer)}${createDetailRowHTML('COP', product.cop)}</ul><h3>Attacchi Tubazioni</h3><ul>${createDetailRowHTML('Liquido', product.tubazione_liquido, ' "')}${createDetailRowHTML('Gas', product.tubazione_gas, ' "')}</ul>`;
-        } else if (derived_type === 'Caldaia') {
-            setImage(modalImageUi, getCorrectedPath(product.nome_immagine, 'caldaie'));
-            const attachmentsImagePath = getCorrectedPath(product.attacchi_immagine_url, 'caldaie');
-            if (modalImageAttachments && attachmentsImagePath) {
-                modalImageAttachments.src = attachmentsImagePath;
-            }
-            techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${createDetailRowHTML('Tipologia', product.tipologia)}${createDetailRowHTML('Potenza Nominale', product.potenza_kw, ' kW')}${createDetailRowHTML('Dimensioni (AxLxP)', product.dimensioni, ' mm')}${createDetailRowHTML('Peso', product.peso, ' kg')}${createDetailRowHTML('Incasso', product.incasso ? 'Sì' : 'No')}</ul>`;
-        } else if (derived_type === 'Scaldabagno') {
-            setImage(modalImageUi, getCorrectedPath(product.image_url, 'scaldabagni'));
-            techDetailsHTML = `<h3>Specifiche Tecniche</h3><ul>${createDetailRowHTML('Tecnologia', product.tecnologia)}${createDetailRowHTML('Configurazione', product.configurazione)}${createDetailRowHTML('Capacità', product.litri, ' litri')}${createDetailRowHTML('Installazione', product.installazione)}${createDetailRowHTML('Orientamento', product.orientamento)}${createDetailRowHTML('Dimensioni', product.dimensioni)}</ul>`;
-        }
-        
-        const coolingClass = product.classe_energetica_raffrescamento;
-        const heatingClass = product.classe_energetica_riscaldamento;
-        modalEnergyCooling.classList.toggle('visible', !!coolingClass);
-        modalEnergyHeating.classList.toggle('visible', !!heatingClass);
-        if (coolingClass) modalEnergyCooling.textContent = coolingClass;
-        if (heatingClass) modalEnergyHeating.textContent = heatingClass;
-        modalProductPrice.textContent = formatPrice(product[product.config.price_field]);
-        const datasheetUrl = product.scheda_tecnica_url || product.datasheetUrl;
-        const hasValidUrl = !!(datasheetUrl && String(datasheetUrl).trim());
-        modalDatasheetLink.classList.toggle('visible', hasValidUrl);
-        if (hasValidUrl) modalDatasheetLink.href = datasheetUrl.trim();
-        modalTechDetails.innerHTML = techDetailsHTML.replace(/<ul[^>]*>\s*<\/ul>/g, '');
-        document.body.classList.add('modal-open');
-        detailsModalOverlay.classList.add('visible');
-    };
-    
-    const fetchAllSearchableData = async () => {
-        if (isDataFetched) return;
-        searchInput.disabled = true;
-        searchInput.placeholder = 'Caricamento dati...';
-        const collectionConfigs = [
-            { name: 'prodottiClimaMonosplit', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
-            { name: 'outdoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo' } },
-            { name: 'indoorUnits', config: { code_field: 'codice_prodotto', price_field: 'prezzo_ui' } },
-            { name: 'prodottiCaldaie', config: { code_field: 'codice_prodotto', price_field: 'prezzo', type: 'Caldaia' } },
-            { name: 'prodottiScaldabagno', config: { code_field: 'codice_prodotto', price_field: 'prezzo', type: 'Scaldabagno' } }
-        ];
-        const promises = collectionConfigs.map(async (collectionConfig) => {
-            try {
-                const snapshot = await db.collection(collectionConfig.name).get();
-                return snapshot.docs.map(doc => {
-                    const data = doc.data();
-                    let productType = collectionConfig.config.type || 'Prodotto';
-                    if (!collectionConfig.config.type) {
-                        const hasUI = data.dimensioni_ui || data.dimensioni_peso_ui;
-                        const hasUE = data.dimensioni_ue;
-                        if (hasUI && hasUE) productType = 'Monosplit';
-                        else if (hasUE) productType = 'U. Esterna';
-                        else if (hasUI) productType = 'U. Interna';
-                    }
-                    return { ...data, id: doc.id, derived_type: productType, config: collectionConfig.config };
-                });
-            } catch (error) {
-                console.error(`Errore nel caricamento della collezione '${collectionConfig.name}':`, error);
-                return []; 
-            }
-        });
-        const results = await Promise.all(promises);
-        allSearchableData = results.flat(); 
-        isDataFetched = true;
-        searchInput.disabled = false;
-        searchInput.placeholder = 'Cerca per codice o descrizione articolo...';
-        console.log(`Caricamento completato. ${allSearchableData.length} articoli indicizzati.`);
-    };
-
-    const handleSearch = () => {
-        if (!searchInput) return;
-        const query = searchInput.value.trim();
-        if (query.length < 3) {
-            displayResults([]);
-            return;
-        }
-        const isNumericQuery = /^\d+$/.test(query);
-        const lowerCaseQuery = query.toLowerCase();
-        const results = allSearchableData.filter(item => {
-            const config = item.config;
-            const productCode = item[config.code_field];
-            const brand = item.marca || item.brand;
-            const model = item.modello || item.model || item.nome;
-            if (isNumericQuery) {
-                if (!productCode) return false;
-                return String(productCode).includes(query);
-            }
-            return (
-                model?.toLowerCase().includes(lowerCaseQuery) ||
-                brand?.toLowerCase().includes(lowerCaseQuery)
-            );
-        });
-        currentlyDisplayedResults = results;
-        displayResults(results);
-    };
-
-    const displayResults = (results) => {
-        if (!searchResultsContainer) return;
-        searchResultsContainer.innerHTML = '';
-        if (results.length === 0 && searchInput.value.length > 2) {
-            searchResultsContainer.style.display = 'block';
-            searchResultsContainer.innerHTML = `<div class="result-item-empty">Nessun risultato trovato.</div>`;
-            return;
-        }
-        if (results.length === 0) {
-            searchResultsContainer.style.display = 'none';
-            return;
-        }
-        searchResultsContainer.style.display = 'block';
-        results.slice(0, 20).forEach((item, index) => { 
-            const resultElement = document.createElement('a');
-            resultElement.href = "#";
-            resultElement.className = 'result-item';
-            resultElement.dataset.resultIndex = index;
-            const brand = item.marca || item.brand;
-            const model = item.modello || item.model || item.nome;
-            const description = [brand, model].filter(Boolean).join(' ');
-            const price = formatPrice(item[item.config.price_field]);
-            const codeInfo = `Codice: ${item[item.config.code_field] || 'N/D'}`;
-            resultElement.innerHTML = `
-                <div class="result-info">
-                    <div class="result-header">
-                        <span class="result-name">${description || 'Prodotto'}</span>
-                        <span class="result-type">${item.derived_type}</span>
-                    </div>
-                    <p class="result-supplier-item">${codeInfo}</p>
-                </div>
-                <div class="result-price">${price}</div>
-            `;
-            searchResultsContainer.appendChild(resultElement);
-        });
-    };
-    
-    // 4. EVENT LISTENERS
-    // ====================
-    if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
-    if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
-    if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
-    if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
-    if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
-    if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
-    if (adminOverlay) adminOverlay.addEventListener('click', hideAddCategoryPanel);
-    if (searchInput) { searchInput.addEventListener('input', handleSearch); searchInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearch(); } }); }
-    if (searchResultsContainer) {
-        searchResultsContainer.addEventListener('click', (e) => {
-            const resultItem = e.target.closest('.result-item');
-            if (!resultItem) return;
-            e.preventDefault();
-            const resultIndex = parseInt(resultItem.dataset.resultIndex, 10);
-            const product = currentlyDisplayedResults[resultIndex];
-            if (product) {
-                populateAndShowModal(product);
-                searchResultsContainer.style.display = 'none'; 
-                searchInput.value = '';
-            }
-        });
-    }
-
-    const closeModalAndClearSearch = () => { closeModal(); };
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModalAndClearSearch);
-
-    // 5. INIZIALIZZAZIONE
-    // =====================
-    if (appContent) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach(mutation => {
-                if (mutation.attributeName === 'class') {
-                    const isHidden = appContent.classList.contains('hidden');
-                    if (!isHidden && !isDataFetched) {
-                        fetchAllSearchableData();
-                    } else if (isHidden) {
-                        allSearchableData = [];
-                        isDataFetched = false;
-                    }
-                }
-            });
-        });
-        observer.observe(appContent, { attributes: true });
-    }
-});
+/* Colonna Sinistra e Nuova Logica Immagini */
+.modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; }
+.modal-image-wrapper {
+    position: relative; /* Contesto per posizionamento assoluto delle immagini */
+    width: 100%;
+    height: 380px;
+    margin-bottom: 15px;
+    cursor: help; /* Il cursore a punto di domanda indica interattività */
+    border: 1px solid #eee;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.modal-image-wrapper img {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; height: 100%;
+    padding: 10px; object-fit: contain;
+    transition: opacity 0.3s ease-in-out;
+    background-color: transparent; /* Sfondo trasparente */
+}
+/* Di default, l'immagine degli attacchi è invisibile e non interagibile */
+#modal-image-attachments { opacity: 0; pointer-events: none; }
+/* Quando il mouse è sul wrapper... */
+.modal-image-wrapper:hover #modal-image-attachments {
+    opacity: 1; /* ...mostra l'immagine degli attacchi */
+    pointer-events: all;
+}
+.modal-image-wrapper:hover #modal-image-ui,
+.modal-image-wrapper:hover #modal-image-ue {
+    opacity: 0; /* ...e nasconde le immagini del prodotto */
+}
+.modal-energy-badges-container { text-align: center; margin-bottom: 15px; }
+.energy-badge { display: none; width: 38px; height: 38px; line-height: 38px; border-radius: 50%; color: white; text-align: center; font-weight: bold; font-size: 1em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin: 0 5px; }
+.energy-badge.visible { display: inline-block; }
+.energy-badge.cooling { background-color: #0d6efd; }
+.energy-badge.heating { background-color: #dc3545; }
+.modal-bottom-info { margin-top: auto; width: 100%; padding-top: 15px; border-top: 1px solid #eee; }
+.modal-product-price { font-size: 2.5rem; font-weight: 700; color: #0056a8; text-align: center; margin-bottom: 15px; }
+#modal-datasheet-link { display: none; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; width: 100%; }
+#modal-datasheet-link.visible { display: flex; }
+#modal-datasheet-link i { margin-right: 8px; }
+.modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
+#modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
+#modal-tech-details h3:first-child { margin-top: 0; }
+#modal-tech-details ul { list-style: none; padding-left: 0; margin: 0; }
+#modal-tech-details li { display: flex; align-items: flex-start; padding: 8px 0; border-bottom: 1px dotted #dcdcdc; line-height: 1.5; }
+#modal-tech-details li::before { content: '•'; color: #0056a8; font-weight: bold; font-size: 1.2em; margin-right: 12px; line-height: 1.4; }
+#modal-tech-details li strong { margin-right: 5px; }
+#modal-tech-details li span { text-align: left; flex-grow: 1; }
