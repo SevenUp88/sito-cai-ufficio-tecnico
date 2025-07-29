@@ -1,8 +1,6 @@
 /* ========================================================== */
 /*           File CSS Principale - Home Page             */
 /* ========================================================== */
-
-/* --- Reset base e stili generali --- */
 html { box-sizing: border-box; }
 *, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
 body { 
@@ -11,8 +9,6 @@ body {
     display: flex; flex-direction: column; min-height: 100vh; position: relative; 
 }
 body.modal-open { overflow: hidden; }
-
-/* --- Loader Iniziale --- */
 .loader-container {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background-color: #f8f9fa; display: flex; flex-direction: column; 
@@ -26,9 +22,6 @@ body.modal-open { overflow: hidden; }
 }
 .loader-container p { margin-top: 15px; color: #6c757d; font-size: 1.1em; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- Header, Login e UI Principale --- */
-.app-header, #login-section, #content-area, .main-nav, .submenu, #search-container { /* ... (sezione compressa per brevità) ... */ }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 30px; background-color: #ffffff; box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1); position: sticky; top: 0; z-index: 1000; }
 .logo { height: 45px; width: auto; flex-shrink: 0; }
 .header-controls { display: flex; align-items: center; gap: 15px; }
@@ -73,7 +66,7 @@ body.modal-open { overflow: hidden; }
 .hidden { display: none !important; }
 
 /* ========================================================== */
-/* === STILI DEFINITIVI PER MODALE (con effetto HOVER) === */
+/* === STILI DEFINITIVI PER MODALE (con Funzione Zoom) === */
 /* ========================================================== */
 #product-details-modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.75);
@@ -84,7 +77,6 @@ body.modal-open { overflow: hidden; }
     transition: opacity 0.3s ease;
 }
 #product-details-modal-overlay.visible { display: flex; opacity: 1; }
-
 .modal-container { background: #ffffff; padding: 25px 30px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.25); width: 100%; max-width: 950px; max-height: 90vh; position: relative; display: flex; flex-direction: column; }
 .modal-header { display: flex; align-items: center; gap: 20px; padding-bottom: 15px; margin-bottom: 20px; border-bottom: 1px solid #e9e9e9; }
 .modal-brand-logo { height: 40px; width: auto; max-width: 140px; object-fit: contain; flex-shrink: 0; }
@@ -103,8 +95,9 @@ body.modal-open { overflow: hidden; }
 .modal-left-panel { flex: 0 0 320px; display: flex; flex-direction: column; }
 .modal-image-wrapper {
     position: relative; width: 100%; height: 380px;
-    margin-bottom: 15px; cursor: help; border: 1px solid #eee;
+    margin-bottom: 15px; border: 1px solid #eee;
     border-radius: 5px; overflow: hidden;
+    cursor: zoom-in;
 }
 .modal-image-wrapper img {
     position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
@@ -117,6 +110,18 @@ body.modal-open { overflow: hidden; }
 .modal-image-wrapper:hover #modal-image-ue {
     opacity: 0; pointer-events: none;
 }
+.zoom-icon {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 60px; height: 60px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5em;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+.modal-image-wrapper:hover .zoom-icon { opacity: 1; }
 .modal-energy-badges-container { text-align: center; margin-bottom: 15px; }
 .energy-badge { display: none; width: 38px; height: 38px; line-height: 38px; border-radius: 50%; color: white; text-align: center; font-weight: bold; font-size: 1em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin: 0 5px; }
 .energy-badge.visible { display: inline-block; }
@@ -127,8 +132,6 @@ body.modal-open { overflow: hidden; }
 #modal-datasheet-link { display: none; align-items: center; justify-content: center; background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; width: 100%; }
 #modal-datasheet-link.visible { display: flex; }
 #modal-datasheet-link i { margin-right: 8px; }
-
-/* Colonna Destra (Elenco Puntato) */
 .modal-right-panel { flex-grow: 1; overflow-y: auto; padding-right: 15px; }
 #modal-tech-details h3 { font-size: 1.2rem; color: #0056a8; margin: 20px 0 10px 0; padding-bottom: 5px; border-bottom: 2px solid #e0e0e0; }
 #modal-tech-details h3:first-child { margin-top: 0; }
@@ -137,3 +140,22 @@ body.modal-open { overflow: hidden; }
 #modal-tech-details li::before { content: '•'; color: #0056a8; font-weight: bold; font-size: 1.2em; margin-right: 12px; line-height: 1.4; }
 #modal-tech-details li strong { margin-right: 5px; }
 #modal-tech-details li span { text-align: left; flex-grow: 1; }
+
+/* --- VISUALIZZATORE IMMAGINI (LIGHTBOX) --- */
+.image-viewer-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 1100; /* Sopra a tutto */
+    display: none; justify-content: center; align-items: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.image-viewer-overlay.visible { display: flex; opacity: 1; }
+#viewer-image { max-width: 95%; max-height: 95%; object-fit: contain; box-shadow: 0 5px 25px rgba(0,0,0,0.5); }
+.viewer-close-btn { 
+    position: absolute; top: 15px; right: 25px;
+    color: white; font-size: 3em; cursor: pointer;
+    background: none; border: none; z-index: 1110;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+}
