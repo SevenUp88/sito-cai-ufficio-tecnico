@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Impianto a Radiatori</title>
+    <link rel="stylesheet" href="../style.css"> <!-- Assicurati che il percorso sia corretto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Aggiungi altri CSS o JS specifici se necessari -->
+</head>
+<body>
+    <header class="app-header">
+        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <div class="header-controls">
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main id="content-area">
+        <section id="radiator-configurator" class="calculator-section">
+            <h2>Calcolo Impianto Radiatori</h2>
+            <p class="section-description">Inserisci i dati relativi all'edificio e al sistema di riscaldamento per ottenere una stima.</p>
+
+            <!-- FORMS PER L'INSERIMENTO DEI DATI -->
+            <div class="configurator-form-container">
+                <h3>Dati Edificio</h3>
+                <form id="building-data-form">
+                    <div class="form-group">
+                        <label for="building-type">Tipologia Edificio:</label>
+                        <select id="building-type" required>
+                            <option value="residenziale_nuovo">Residenziale (Nuova Costruzione, Buon Isolamento)</option>
+                            <option value="residenziale_medio">Residenziale (Manutenzione, Isolamento Medio)</option>
+                            <option value="commerciale">Commerciale/Uffici (Standard)</option>
+                            <option value="alto_prestazione">Alto Prestazionali (Energetico)</option>
+                            <!-- Aggiungere altre opzioni se necessario -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="building-surface">Superficie Totale (mq):</label>
+                        <input type="number" id="building-surface" placeholder="Es: 120" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="building-volume">Volume Riscaldato Totale (mc):</label>
+                        <input type="number" id="building-volume" placeholder="Es: 336" step="1"> <!-- Potrebbe essere opzionale se calcolabile da superficie + altezza standard -->
+                    </div>
+                    <!-- POTREBBERO ESSERCI ALTRI CAMPI PER L'ISOLAMENTO, L'ANNO, ETC. -->
+                </form>
+
+                <hr class="form-separator">
+
+                <h3>Dati Impianto Riscaldamento</h3>
+                <form id="heating-system-form">
+                    <div class="form-group">
+                        <label for="target-temperature">Temperatura Ambiente Desiderata (°C):</label>
+                        <input type="number" id="target-temperature" value="20" step="0.5" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="heat-loss-factor">Perdite di Calore Specifiche (W/mc o Kcal/m³h):</label>
+                        <input type="number" id="heat-loss-factor" placeholder="Es: 30 (W/mc)" step="1" required>
+                        <small>Usa W/mc o la corrispondente Kcal/m³h a seconda delle tabelle che utilizzerai.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="design-temperature">Temperatura Esterna di Progetto (°C):</label>
+                        <input type="number" id="design-temperature" value="-5" step="0.5" required>
+                        <small>Valore tipico per zone temperate.</small>
+                    </div>
+                    <!-- Aggiungere Temperatura Mandata/Ritorno per la scelta dei radiatori -->
+                     <div class="form-group">
+                        <label for="flow-temperature">Temperatura di Mandata (°C):</label>
+                        <input type="number" id="flow-temperature" value="75" step="0.5" required>
+                    </div>
+                     <div class="form-group">
+                        <label for="return-temperature">Temperatura di Ritorno (°C):</label>
+                        <input type="number" id="return-temperature" value="65" step="0.5" required>
+                    </div>
+                </form>
+
+                <hr class="form-separator">
+
+                <h3>Dati Radiatore</h3>
+                <form id="radiator-data-form">
+                    <div class="form-group">
+                        <label for="radiator-material">Materiale Radiatore:</label>
+                        <select id="radiator-material" required>
+                            <option value="ghisa">Ghisa</option>
+                            <option value="alluminio">Alluminio</option>
+                            <option value="acciaio">Acciaio</option>
+                            <!-- Aggiungere altri materiali se supportati -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="radiator-template">Modello Radiatore (Ricerca per Nome/Sigla):</label>
+                        <input type="text" id="radiator-template" placeholder="Es: Gialli, K8, XLT...">
+                        <!-- QUI POTREBBE ESSERE UTULIZZIATA LA TUA FUNZIONE DI RICERCA PRECEDENTE SE HAI DATI RADIATORI IN FIRESTORE -->
+                    </div>
+                     <div class="form-group">
+                        <label for="radiator-power-rating">Potenza per Elemento/Modello (Specificare Unità):</label>
+                        <input type="text" id="radiator-power-rating" placeholder="Es: 150W / 130 Kcal/h per elemento (a 75/65°C)" required>
+                        <small>Assicurati che la temperatura di riferimento sia indicata!</small>
+                    </div>
+                     <div class="form-group">
+                        <label for="radiator-element-dims">Dimensioni Elemento (AxLxP) / Area:</label>
+                        <input type="text" id="radiator-element-dims" placeholder="Es: 500x80x180 mm">
+                    </div>
+                    <div class="form-group">
+                        <label for="radiator-elements-count">Numero Elementi per Stanza:</label>
+                        <input type="number" id="radiator-elements-count" placeholder="Es: 10">
+                    </div>
+                </form>
+            </div>
+
+            <div class="configurator-action">
+                <button id="calculate-radiator-system" class="btn-calculate">Calcola Impianto</button>
+            </div>
+
+            <!-- RISULTATI DEL CALCOLO -->
+            <div id="radiator-results" class="results-display hidden">
+                <h3>Risultati Stima Impianto Radiatori</h3>
+                <div id="results-summary"></div>
+                <h4>Dettaglio per Stanza:</h4>
+                <div id="room-details">
+                    <!-- Qui verranno generati i dettagli per ogni stanza -->
+                </div>
+                <div id="configurator-error" class="error-message hidden"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SEGREGARE I GESTORI DI LOGOUT E AGGIORNAMENTI PROFILO UTILIZZANDO IL VOSTRO ESISTENTE framework. -->
+    <!-- NON MOSTRARE QUI LOGOUT E USER-DASHBOARD PER SIMPLICITA, QUESTI DEVONO VENIRE DA HOME. -->
+
+    <!-- FIREBASE SCRIPTS -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../auth.js"></script> <!-- Presumendo che auth.js gestisca lo stato di login/logout -->
+
+    <!-- SCRIPT SPECIFICO PER IL CALCOLATORE DI RADIATORI -->
+    <script src="script.js"></script> <!-- CREIAMO QUESTO NUOVO FILE -->
+
+</body>
+</html>
