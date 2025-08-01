@@ -28,8 +28,25 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .local-selector-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
 #added-locals-container { border: 1px solid var(--border-color); padding: 10px; border-radius: var(--radius-md); overflow-y: auto; min-height: 0; }
 #add-local-form { padding-top: 1rem; border-top: 1px solid var(--border-color); }
-.local-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px 15px; margin-bottom: 10px; background-color: white; font-weight: 500; }
-#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; }
+.local-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border: 1px solid var(--border-color, #e2e8f0); 
+    border-radius: var(--radius-md, 8px); 
+    padding: 10px 15px; /* Leggermente meno padding verticale */
+    margin-bottom: 8px; 
+    background-color: white; 
+    
+    /* --- MODIFICHE CHIAVE --- */
+    font-size: 0.9em;   /* Rende il font più piccolo */
+    font-weight: 500;   /* Leggermente meno grassetto */
+}
+
+/* Potrebbe essere utile stilare il testo MQ separatamente se vuoi */
+.local-item .local-details {
+    font-size: 1em; /* Assicura che il font di "MQ: X" non venga ulteriormente rimpicciolito se è dentro un altro elemento */
+}#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
 .form-section { margin-bottom: 1.5rem; }
