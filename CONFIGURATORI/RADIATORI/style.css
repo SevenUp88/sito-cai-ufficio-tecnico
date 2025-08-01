@@ -1,6 +1,6 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
-/*   --- VERSIONE FINALE: FORM IN BASSO, LISTA SCROLLABILE --- */
+/*    --- VERSIONE FINALE: LISTA STANZE SCROLLABILE ---       */
 /* ========================================================== */
 :root { 
     --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
@@ -8,7 +8,6 @@
     --text-primary: #1e293b; --text-secondary: #64748b; 
     --border-color: #e2e8f0; 
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
     --font-family: 'Inter', sans-serif; 
     --danger-color: #ef4444; 
     --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
@@ -44,32 +43,33 @@ body:not(.hidden) { visibility: visible; }
 /* Contenitore principale a colonne */
 main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; min-height: 0; }
 .radiator-configurator-container {
-    display: flex; /* Usiamo flex per avere le due colonne affiancate */
+    display: flex; 
     gap: 1rem;
-    height: 100%; /* Occupa tutta l'altezza disponibile */
+    height: calc(100vh - 180px); /* REGOLA QUESTO VALORE IN BASE ALL'ALTEZZA DEL TUO HEADER + TITOLO */
+    overflow: hidden; /* Impedisce lo scroll del container principale */
 }
 
 /* Colonna sinistra */
 .configurator-col.left-col {
-    flex-basis: 400px; /* Larghezza fissa */
+    flex-basis: 400px; 
     flex-shrink: 0;
     display: flex;
     flex-direction: column; /* Elementi interni in colonna */
-    height: 100%; /* Occupa tutta l'altezza del suo genitore */
-    overflow: hidden; /* Impedisce lo scroll della colonna stessa */
+    height: 100%; 
+    overflow: hidden; /* Niente scroll sulla colonna stessa */
 }
 
 /* Colonna destra */
 .configurator-col.right-col {
     flex-grow: 1;
-    overflow-y: auto; /* Scroll SOLO sulla colonna destra */
+    overflow-y: auto; /* Scrollo SOLO sulla colonna destra */
     padding: 25px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
     height: 100%;
     display: flex;
-    flex-direction: column; /* Contenuti interni in colonna */
+    flex-direction: column;
 }
 
 /* Titolo colonna sinistra */
@@ -77,7 +77,7 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
     font-size: 1.3rem; font-weight: 600; color: var(--primary-color);
     margin: 0 0 1rem 0; padding-bottom: 0.5rem;
     border-bottom: 2px solid var(--primary-color);
-    flex-shrink: 0; /* Il titolo non si rimpicciolisce */
+    flex-shrink: 0; 
 }
 
 /* --- MODIFICA CHIAVE: IL BOX DELLA LISTA STANZE HA LO SCROLL --- */
@@ -86,24 +86,13 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
     border-radius: var(--radius-md);
     padding: 10px;
     
-    flex-grow: 1; /* La lista cresce per riempire lo spazio */
+    flex-grow: 1; /* La lista cresce per riempire lo spazio tra titolo e form */
     min-height: 0; /* Essenziale per flexbox */
-    overflow-y: auto; /* Scroll interno se necessario */
+    overflow-y: auto; /* Attiva lo scroll solo per questo box */
+    margin-bottom: 1.5rem; /* Spazio sotto la lista stanze */
 }
 
-/* Form di aggiunta stanza */
-#add-local-form {
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-    margin-top: 1.5rem; /* Spazio sopra il form */
-    flex-shrink: 0; /* Il form non si rimpicciolisce */
-}
-#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
-#add-local-form .form-row { display: flex; gap: 15px; }
-#add-local-form .form-row .form-group { flex: 1; }
-#custom-local-name { margin-top: 10px; }
-
-/* Stili per ogni stanza aggiunta */
+/* Stile per ogni stanza aggiunta */
 .local-item { 
     display: flex; justify-content: space-between; align-items: center; 
     border: 1px solid var(--border-color); 
@@ -122,7 +111,18 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
 .remove-local-btn:hover { transform: scale(1.1); }
 
-/* Stili per la colonna destra */
+/* Form di aggiunta stanza */
+#add-local-form {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem; /* Spazio sopra il form */
+    flex-shrink: 0; /* Il form non si rimpicciolisce */
+}
+#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
+#add-local-form .form-row { display: flex; gap: 15px; }
+#add-local-form .form-row .form-group { flex: 1; }
+
+/* Sezioni informative colonna destra */
 .form-section { margin-bottom: 1.5rem; }
 .box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
 .configurator-action { margin-top: 2rem; text-align: center; }
@@ -138,10 +138,7 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .results-table th { background-color: #f8f9fa; font-weight: 600; }
 .total-price-summary { text-align: right; margin-top: 2rem; }
 .total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-
-/* Stili generici form */
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
+.form-group label { font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
 .configurator-action .btn-calculate { width: auto; margin: 0 auto; display: block; }
