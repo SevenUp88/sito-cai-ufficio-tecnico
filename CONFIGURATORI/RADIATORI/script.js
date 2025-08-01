@@ -1,23 +1,17 @@
-// Questo script parte quando il DOM è completamente caricato.
-// A quel punto, anche lo script auth.js dovrebbe aver già fatto il suo lavoro iniziale.
 document.addEventListener('DOMContentLoaded', () => {
-
     // Verifichiamo che Firebase sia disponibile (caricato dagli script nell'HTML)
     if (typeof firebase === 'undefined') {
         console.error("Firebase non trovato. Lo script della pagina radiatori non può partire.");
-        return; // Blocca l'esecuzione se Firebase non c'è
+        return;
     }
     const db = firebase.firestore();
 
     // --- Selezione Elementi DOM ---
     const addLocalBtn = document.getElementById('add-local-btn');
-
-    // Controllo fondamentale: se non trova il pulsante, qualcosa è andato storto.
     if (!addLocalBtn) {
         console.error("Pulsante 'Aggiungi Locale' non trovato. Lo script si interrompe.");
         return;
     }
-    
     const addedLocalsContainer = document.getElementById('added-locals-container');
     const localTypeSelect = document.getElementById('local-type-select');
     const customLocalNameInput = document.getElementById('custom-local-name');
@@ -43,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalPriceSpan = document.getElementById('estimated-total-price');
     const errorDiv = document.getElementById('calculation-error');
 
-    // --- Stato dell'applicazione ---
+    // --- Stato e Dati ---
     let addedLocals = [];
     let radiatorData = {};
 
@@ -56,20 +50,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const isolationModifiers = { BUONO: 1.0, MEDIO: 1.15, BASSO: 1.3 };
 
-    // --- EVENT LISTENERS E LOGICA ---
-    console.log("Script della pagina Radiatori caricato correttamente.");
-
+    // --- FUNZIONI E LISTENER ---
     localTypeSelect.addEventListener('change', () => {
         customLocalNameInput.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO');
     });
 
     addLocalBtn.addEventListener('click', () => {
-        console.log("Pulsante 'Aggiungi Locale' cliccato!"); // Aggiunto per debug
         const type = localTypeSelect.value;
         let name = type === 'ALTRO' ? customLocalNameInput.value.trim().toUpperCase() : type;
         const sqm = parseFloat(localSqmInput.value);
         const height = parseFloat(localHeightInput.value);
-        
         if (!name || isNaN(sqm) || sqm <= 0) {
             alert('Per favore, compila tipo/nome e metri quadri.');
             return;
@@ -91,17 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAddedLocals() {
         addedLocalsContainer.innerHTML = '';
         if (addedLocals.length === 0) {
-             addedLocalsContainer.innerHTML = '<p class="empty-message">Nessun locale aggiunto.</p>';
+            // Non mostriamo nessun messaggio per mantenere il box pulito
         } else {
             addedLocals.forEach(local => {
                 const div = document.createElement('div');
                 div.className = 'local-item';
-                div.innerHTML = `<h4>${local.name}</h4> <div class="local-details"><span class="local-sqm">MQ: ${local.sqm}</span><button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button></div>`;
+                div.innerHTML = `<span>${local.name}</span> <div class="local-details"><span class="local-sqm">MQ: ${local.sqm}</span><button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button></div>`;
                 addedLocalsContainer.appendChild(div);
             });
         }
     }
-
+    
     function resetAddLocalForm() {
         localTypeSelect.value = '';
         customLocalNameInput.value = '';
@@ -110,12 +100,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadRadiatorData() {
-        radiatorData['IRSAP'] = {
-            'TESI 2': { config: '2 Colonne', power: 50.5, price: 15.50 },
-            'TESI 3': { config: '3 Colonne', power: 75.2, price: 18.70 },
-            'TESI 4': { config: '4 Colonne', power: 95.8, price: 22.30 },
-        };
-        populateRadiatorModels('IRSAP');
+        // Ipotizziamo che il db sia strutturato con documenti che rappresentano i modelli
+        // Esempio con dati statici. Sostituisci con la chiamata reale a Firestore.
+        try {
+            // const snapshot = await db.collection('radiatoriIrsapTesi').get();
+            // radiatorData['IRSAP'] = {};
+            // snapshot.forEach(doc => {
+            //     radiatorData['IRSAP'][doc.id] = doc.data();
+            // });
+
+            // DATI DI ESEMPIO CORRETTI
+            radiatorData['IRSAP'] = {
+                // Il nome del modello ora è la chiave
+                'TESI 2': { columns: 2, power: 50.5, price: 15.50, height: 565 },
+                'TESI 3': { columns: 3, power: 75.2, price: 18.70, height: 565 },
+                'TESI 4': { columns: 4, power: 95.8, price: 22.30, height: 565 },
+                'TESI 5': { columns: 5, power: 115.1, price: 26.80, height: 565 },
+                'TESI 6': { columns: 6, power: 135.0, price: 31.50, height: 565 }
+            };
+
+            populateRadiatorModels('IRSAP');
+        } catch(error) {
+            console.error("Errore caricamento dati radiatori:", error);
+            showError("Impossibile caricare i dati dei radiatori.");
+        }
     }
 
     function populateRadiatorModels(brand) {
@@ -127,13 +135,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // *** LOGICA CORRETTA PER VISUALIZZARE LA CONFIGURAZIONE ***
     radiatorModelSelect.addEventListener('change', () => {
-        const data = radiatorData[radiatorBrandSelect.value]?.[radiatorModelSelect.value];
-        radiatorConfigInput.value = data ? data.config : 'Seleziona modello';
-        radiatorPowerInput.value = data ? data.power : 'Seleziona modello';
+        const brand = radiatorBrandSelect.value;
+        const modelKey = radiatorModelSelect.value;
+        if (brand && modelKey && radiatorData[brand][modelKey]) {
+            const modelData = radiatorData[brand][modelKey];
+            
+            // Estraiamo il numero di colonne dal nome del modello (es. da "TESI 4" prende 4)
+            // o usiamo il campo `columns` se presente nel DB
+            const numColonne = modelData.columns || modelKey.replace(/[^0-9]/g, ''); 
+            
+            radiatorConfigInput.value = `${numColonne} Colonne`; // Mostra l'informazione corretta
+            radiatorPowerInput.value = modelData.power;
+        } else {
+            radiatorConfigInput.value = 'Seleziona modello';
+            radiatorPowerInput.value = 'Seleziona modello';
+        }
     });
 
     calculateBtn.addEventListener('click', () => {
+        // Il resto della funzione di calcolo rimane invariata
         clearError();
         if (addedLocals.length === 0 || !radiatorModelSelect.value) {
             showError("Aggiungi almeno un locale e seleziona un modello di radiatore.");
@@ -143,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const baseCoeff = heatLossCoefficients[habitationTypeSelect.value] || 40;
         const isolationMod = isolationModifiers[isolationSelect.value] || 1.15;
         const coefficient = baseCoeff * isolationMod;
-
         const radiatorInfo = radiatorData[radiatorBrandSelect.value][radiatorModelSelect.value];
         let totalSqm = 0, totalVolume = 0, totalDemand = 0, totalPrice = 0;
 
@@ -155,7 +176,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const installedPower = neededElements * radiatorInfo.power;
             
             totalSqm += local.sqm; totalVolume += volume; totalDemand += demand; totalPrice += neededElements * radiatorInfo.price;
-
             resultsTbody.innerHTML += `<tr><td>${local.name}</td><td>${local.sqm}</td><td>${demand.toFixed(0)}</td><td>${radiatorModelSelect.value}</td><td>${neededElements}</td><td>${installedPower.toFixed(0)}</td></tr>`;
         });
 
@@ -169,7 +189,5 @@ document.addEventListener('DOMContentLoaded', () => {
     function showError(message) { errorDiv.textContent = message; errorDiv.classList.remove('hidden'); }
     function clearError() { errorDiv.textContent = ''; errorDiv.classList.add('hidden'); }
     
-    // Inizializzazione pagina
     loadRadiatorData();
-    renderAddedLocals(); // Mostra il messaggio "Nessun locale aggiunto" all'inizio
 });
