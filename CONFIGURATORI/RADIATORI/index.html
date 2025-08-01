@@ -5,19 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Configuratore Radiatori</title>
     
-    <!-- COLLEGAMENTO AL CSS NELLA STESSA CARTELLA -->
     <link rel="stylesheet" href="style.css"> 
-    
-    <!-- COLLEGAMENTO AL CSS PRINCIPALE PER STILI COMUNI (ES. HEADER, COLORI) -->
-    <!-- Questo è fondamentale per la coerenza grafica ("family feeding") -->
-    <!-- ../style.css significa: vai su di una cartella (in CONFIGURATORI), poi un'altra (nella ROOT) e trova style.css -->
     <link rel="stylesheet" href="../../style.css">
-
-    <!-- FontAwesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <!-- HEADER GENERALE (Preso dalla tua Home per coerenza) -->
     <header class="app-header">
         <a href="../../index.html">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
@@ -34,41 +26,43 @@
         <h2 class="page-title configurator-title">CONFIGURATORE RADIATORI</h2>
         
         <div class="radiator-configurator-container">
-
-            <!-- COLONNA DI SINISTRA: SELEZIONE LOCALI DINAMICA -->
             <div class="configurator-col left-col">
                 <div class="local-selector-box">
                     <h3 class="local-selector-title">SELETTORE LOCALI</h3>
-                    <div id="added-locals-container">
-                        <!-- I locali aggiunti dinamicamente appariranno qui -->
-                    </div>
-
+                    <div id="added-locals-container"></div>
                     <div id="add-local-form">
-                        <h4>AGGIUNGI NUOVA STANZA</h4>
-                        <div class="form-group">
-                            <label for="local-type-select">Tipo di Locale:</label>
-                            <select id="local-type-select">
-                                <option value="" disabled selected>Seleziona tipo...</option>
-                                <option value="BAGNO">Bagno</option>
-                                <option value="CUCINA">Cucina</option>
-                                <option value="CORRIDOIO">Corridoio</option>
-                                <option value="CAMERA SINGOLA">Camera Singola</option>
-                                <option value="CAMERA MATRIMONIALE">Camera Matrimoniale</option>
-                                <option value="STUDIO">Studio</option>
-                                <option value="SOGGIORNO">Soggiorno</option>
-                                <option value="GARAGE">Garage</option>
-                                <option value="ALTRO">Altro (Nome personalizzato)</option>
-                            </select>
-                            <input type="text" id="custom-local-name" class="hidden" placeholder="Nome locale personalizzato">
+                        <h4 class="form-subtitle">AGGIUNGI NUOVA STANZA</h4>
+                        
+                        <!-- ============================================= -->
+                        <!-- === MODIFICA CHIAVE PER IL LAYOUT AFFIANCATO === -->
+                        <!-- ============================================= -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="local-type-select">Tipo di Locale:</label>
+                                <select id="local-type-select">
+                                    <option value="" disabled selected>Seleziona tipo...</option>
+                                    <option value="BAGNO">Bagno</option>
+                                    <option value="CUCINA">Cucina</option>
+                                    <option value="CORRIDOIO">Corridoio</option>
+                                    <option value="CAMERA SINGOLA">Camera Singola</option>
+                                    <option value="CAMERA MATRIMONIALE">Camera Matrimoniale</option>
+                                    <option value="STUDIO">Studio</option>
+                                    <option value="SOGGIORNO">Soggiorno</option>
+                                    <option value="GARAGE">Garage</option>
+                                    <option value="ALTRO">Altro (Nome personalizzato)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="local-sqm-input">Metri Quadri (MQ):</label>
+                                <input type="number" id="local-sqm-input" placeholder="Es. 15" min="1">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="local-sqm-input">Metri Quadri (MQ):</label>
-                            <input type="number" id="local-sqm-input" placeholder="Es. 15" min="1" required>
-                        </div>
+                        
                         <div class="form-group">
                             <label for="local-height-input">Altezza Locale (m):</label>
-                            <input type="number" id="local-height-input" placeholder="Es. 2.70" step="0.10" min="1.5" value="2.70">
+                            <input type="number" id="local-height-input" step="0.10" min="1.5" value="2.70">
                         </div>
+                        <input type="text" id="custom-local-name" class="hidden" placeholder="Nome locale personalizzato">
                         
                         <button id="add-local-btn" class="btn-add-local">
                             <i class="fas fa-plus"></i> Aggiungi Locale
@@ -77,18 +71,16 @@
                 </div>
             </div>
 
-            <!-- COLONNA DI DESTRA: INFORMAZIONI ABITAZIONE, IMPIANTO & PROGETTO -->
+            <!-- Colonna destra (resta invariata) -->
             <div class="configurator-col right-col">
                 <div class="housing-info-box">
                     <h3 class="box-title">INFORMAZIONI ABITAZIONE</h3>
                     <div class="form-group"><label for="habitation-type">Tipologia Edificio:</label><select id="habitation-type"><option value="RESIDENZIALE_MODERNO">Residenziale (Moderno, Buon Isolamento)</option><option value="RESIDENZIALE_TRADIZIONALE">Residenziale (Tradizionale, Isolamento Medio)</option><option value="COMMERCIALE">Commerciale/Uffici</option><option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento scarso)</option><option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option></select></div>
                     <div class="form-group"><label for="habitation-isolation">Livello di Isolamento:</label><select id="habitation-isolation"><option value="BUONO">Buono</option><option value="MEDIO">Medio</option><option value="BASSO">Basso</option></select></div>
-                    <div class="form-group"><label for="design-temperature-input">Temp. Ambiente Desiderata (°C):</label><input type="number" id="design-temperature-input" value="20" placeholder="Es: 20" min="15" max="28"></div>
-                    <div class="form-group"><label for="outside-design-temp-input">Temp. Esterna di Progetto (°C):</label><input type="number" id="outside-design-temp-input" value="-5" placeholder="Es: -5"><small>Valore tipico per zona climatica media italiana.</small></div>
+                    <div class="form-group"><label for="design-temperature-input">Temp. Ambiente Desiderata (°C):</label><input type="number" id="design-temperature-input" value="20" min="15" max="28"></div>
+                    <div class="form-group"><label for="outside-design-temp-input">Temp. Esterna di Progetto (°C):</label><input type="number" id="outside-design-temp-input" value="-5"><small>Valore tipico per zona climatica media italiana.</small></div>
                 </div>
-
                 <hr class="section-separator">
-
                 <div class="housing-info-box">
                     <h3 class="box-title">INFORMAZIONI IMPIANTO</h3>
                     <div class="form-group"><label for="radiator-brand">Marca Radiatore:</label><select id="radiator-brand"><option value="IRSAP">IRSAP</option></select></div>
@@ -96,14 +88,10 @@
                     <div class="form-group"><label for="radiator-element-config">Configurazione Elemento:</label><input type="text" id="radiator-element-config" readonly placeholder="Seleziona modello"></div>
                     <div class="form-group"><label for="radiator-element-power-base">Potenza Base Elemento (W):</label><input type="text" id="radiator-element-power-base" readonly placeholder="Seleziona modello"><small>Potenza a ΔT 50°C (es. 75/65/20).</small></div>
                 </div>
-                 <hr class="section-separator">
-                
+                <hr class="section-separator">
                 <div class="configurator-action">
-                    <button id="calculate-radiator-system" class="btn-calculate">
-                        <i class="fas fa-calculator"></i> Calcola Impianto
-                    </button>
+                    <button id="calculate-radiator-system" class="btn-calculate"><i class="fas fa-calculator"></i> Calcola Impianto</button>
                 </div>
-
                 <div id="calculation-results" class="results-display hidden">
                     <h3 class="results-title">PROGETTO IMPIANTO</h3>
                     <div class="project-summary">
@@ -111,47 +99,28 @@
                          <div class="summary-line"><span class="label">Volume Totale:</span><strong id="total-habitation-volume"></strong></div>
                          <div class="summary-line"><span class="label">Fabbisogno Termico Totale:</span><strong id="total-habitation-demand"></strong></div>
                     </div>
-                    
                     <h4>Dettaglio Stanze e Radiatori</h4>
                     <div class="results-table-container">
                         <table class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Locale</th>
-                                    <th>MQ</th>
-                                    <th>Fabbisogno (W)</th>
-                                    <th>Radiatore</th>
-                                    <th>Elementi</th>
-                                    <th>Potenza Installata (W)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="results-tbody">
-                                <!-- Righe inserite da JS -->
-                            </tbody>
+                            <thead><tr><th>Locale</th><th>MQ</th><th>Fabbisogno (W)</th><th>Radiatore</th><th>Elementi</th><th>Potenza Installata (W)</th></tr></thead>
+                            <tbody id="results-tbody"></tbody>
                         </table>
                     </div>
-                     
                     <div class="total-price-summary">
                          <h3>Prezzo Totale Stimato Impianto</h3>
                          <div class="price-value" id="estimated-total-price">€ 0,00</div>
                     </div>
-                     
                     <div id="calculation-error" class="error-message hidden"></div>
                 </div>
             </div>
         </div>
     </main>
-
-    <!-- Script di Firebase (necessari per interagire con il database) -->
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
-    <!-- Script di configurazione e autenticazione della root -->
     <script src="../../firebase-config.js"></script> 
     <script src="../../auth.js"></script> 
-    
-    <!-- SCRIPT SPECIFICO PER QUESTA PAGINA -->
     <script src="script.js"></script> 
 </body>
 </html>
