@@ -25,15 +25,10 @@
 
     <main id="content-area">
         <div class="radiator-configurator-container">
-            <!-- Colonna sinistra -->
+            <!-- Colonna sinistra - Struttura Semplificata -->
             <div class="configurator-col left-col">
-                
-                <!-- *** NUOVA STRUTTURA INTERNA ALLA COLONNA *** -->
-                <div class="left-col-top-content">
-                    <h3 class="local-selector-title">INFORMAZIONI STANZE</h3>
-                    <div id="added-locals-container"></div>
-                </div>
-                
+                <h3 class="local-selector-title">INFORMAZIONI STANZE</h3>
+                <div id="added-locals-container"></div>
                 <div id="add-local-form">
                     <h4 class="form-subtitle">AGGIUNGI NUOVA STANZA</h4>
                     <div class="form-row">
@@ -44,12 +39,10 @@
                     <input type="text" id="custom-local-name" class="hidden" placeholder="Nome locale personalizzato">
                     <button id="add-local-btn" class="btn-add-local"><i class="fas fa-plus"></i> Aggiungi Locale</button>
                 </div>
-
             </div>
 
             <!-- Colonna destra -->
             <div class="configurator-col right-col">
-                 <!-- Contenuto colonna destra (invariato) -->
                  <div class="form-section">
                     <h3 class="box-title">INFORMAZIONI ABITAZIONE</h3>
                     <div class="form-group"><label for="habitation-type">Tipologia Edificio:</label><select id="habitation-type"><option value="RESIDENZIALE_MODERNO">Residenziale (Moderno, Buon Isolamento)</option><option value="RESIDENZIALE_TRADIZIONALE">Residenziale (Tradizionale, Isolamento Medio)</option><option value="COMMERCIALE">Commerciale/Uffici</option><option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento scarso)</option><option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option></select></div>
