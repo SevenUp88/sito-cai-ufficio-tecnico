@@ -3,7 +3,6 @@
 /*            --- VERSIONE CON COLONNA FISSA ---              */
 /* ========================================================== */
 
-/* Titolo della pagina (resta uguale) */
 .configurator-title {
     text-align: center;
     color: var(--primary-color, #0056a8);
@@ -11,19 +10,14 @@
     margin-bottom: 2rem;
 }
 
-/* --- MODIFICA CHIAVE: LAYOUT PRINCIPALE --- */
-/* Cambiamo da 'grid' a 'flex' per gestire meglio il posizionamento e lo scroll */
 .radiator-configurator-container {
-    display: flex; /* Usa Flexbox per il layout */
+    display: flex;
     gap: 30px;
     margin-top: 20px;
-    /* Impostiamo un'altezza massima per il contenitore, relativa alla viewport,
-       per evitare che lo scroll della pagina interferisca con quello della colonna.
-       'calc(100vh - H)' dove H è l'altezza dell'header + padding. Da affinare. */
-    height: calc(100vh - 150px); /* Esempio: 150px per header e margini */
+    height: calc(100vh - 150px); /* REGOLA QUESTO VALORE IN BASE ALL'ALTEZZA DEL TUO HEADER */
 }
 
-/* --- MODIFICA CHIAVE: COLONNA DI SINISTRA (FISSA E PIÙ AMPIA) --- */
+/* Colonna sinistra (Fissa e più ampia) */
 .configurator-col.left-col {
     background: var(--card-background, #ffffff);
     padding: 25px;
@@ -32,31 +26,26 @@
     box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
     display: flex;
     flex-direction: column;
-
-    /* --- ISTRUZIONI PER RENDERLA FISSA E PIÙ AMPIA --- */
-    flex-basis: 450px; /* Imposta una larghezza base fissa e più ampia */
-    flex-shrink: 0; /* Impedisce alla colonna di restringersi */
-    position: sticky; /* Rende la colonna "appiccicosa" */
-    top: 20px; /* Distanza dal bordo superiore quando scrolla */
-    height: calc(100vh - 170px); /* Altezza calcolata per riempire lo spazio, meno padding */
-    overflow-y: auto; /* Aggiunge uno scroll verticale SE IL CONTENUTO ECCEDE */
+    flex-basis: 450px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+    height: calc(100vh - 190px); /* Altezza calcolata, considera anche il padding del contenitore */
+    overflow-y: auto;
 }
 
-/* --- MODIFICA CHIAVE: COLONNA DI DESTRA (SCROLLABILE E PIÙ STRETTA) --- */
+/* Colonna destra (Scrollabile) */
 .configurator-col.right-col {
-    flex-grow: 1; /* Occupa tutto lo spazio rimanente */
-    overflow-y: auto; /* --- AGGIUNGE LO SCROLL VERTICALE INDIPENDENTE --- */
-    padding: 10px 20px 10px 10px; /* Aggiunge un po' di padding per la scrollbar */
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 10px 20px 10px 10px;
     border-radius: var(--radius-lg, 12px);
     border: 1px solid var(--border-color, #e2e8f0);
     background: var(--card-background, #ffffff);
     box-shadow: var(--shadow-md);
 }
 
-/* ----------------------------------------------------------------- */
-/*            IL RESTO DELLO STILE RIMANE PRESSOCHÉ UGUALE            */
-/* ----------------------------------------------------------------- */
-
+/* Titolo principale della colonna sinistra */
 .local-selector-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -73,106 +62,48 @@
     padding: 10px;
     border-radius: var(--radius-lg, 12px);
     background: #fdfdff;
-    flex-grow: 1; /* Permette a questo contenitore di espandersi */
+    flex-grow: 1;
 }
 
-.local-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--card-background, #ffffff);
-    border: 1px solid var(--border-color, #e2e8f0);
-    border-radius: var(--radius-md, 8px);
-    padding: 10px 15px;
-    margin-bottom: 10px;
-    transition: all 0.2s ease;
-}
-.local-item:hover {
-    background: var(--primary-light, #E6F0F8);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
-}
-.local-item h4 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #1e293b);
-}
-.local-details {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.local-sqm {
-    font-size: 0.9rem;
-    color: var(--text-secondary, #64748b);
-}
-.remove-local-btn {
-    background: none;
-    border: none;
-    color: var(--danger-color, #ef4444);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 5px;
-    line-height: 1;
-    transition: all 0.2s ease;
-}
-.remove-local-btn:hover {
-    transform: scale(1.1);
-}
+.local-item { display: flex; justify-content: space-between; align-items: center; background: var(--card-background, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: var(--radius-md, 8px); padding: 10px 15px; margin-bottom: 10px; transition: all 0.2s ease; }
+.local-item:hover { background: var(--primary-light, #E6F0F8); transform: translateY(-1px); box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)); }
+.local-item h4 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #1e293b); }
+.local-details { display: flex; align-items: center; gap: 10px; }
+.local-sqm { font-size: 0.9rem; color: var(--text-secondary, #64748b); }
+.remove-local-btn { background: none; border: none; color: var(--danger-color, #ef4444); font-size: 1.2rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
+.remove-local-btn:hover { transform: scale(1.1); }
 
-#add-local-form {
-    margin-top: 15px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color, #e2e8f0);
-}
-#add-local-form h4 {
+#add-local-form { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); }
+
+/* Sottotitolo del form di aggiunta */
+#add-local-form .form-subtitle {
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--primary-color, #0056a8);
     margin: 0 0 1rem 0;
 }
-#custom-local-name { margin-top: 10px; }
-.btn-add-local {
-    width: 100%;
-    margin-top: 10px;
-}
 
-/* Stili per la colonna destra */
-.housing-info-box {
-    background: transparent; /* Rimuoviamo lo sfondo per non creare doppi box */
-    padding: 25px 0; /* Meno padding laterale */
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-    margin-bottom: 0;
+/* *** NUOVE REGOLE PER IL LAYOUT DEL FORM *** */
+.form-row {
+    display: flex;
+    gap: 15px; /* Spazio tra i campi affiancati */
+    align-items: flex-start;
 }
-.box-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-color, #0056a8);
-    margin: 0 0 1.5rem 0;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color, #0056a8);
+.form-row .form-group {
+    flex: 1; /* Fa in modo che ogni campo occupi metà dello spazio */
 }
-.section-separator {
-    margin: 25px 0;
-    border: none;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent);
-}
-.results-display {
-    margin-top: 2rem;
-    padding: 2rem 0;
-    background: transparent;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-}
-.results-title {
-    font-size: 1.6rem;
-    color: var(--primary-color, #0056a8);
-}
+/* *** FINE NUOVE REGOLE *** */
+
+#custom-local-name { margin-top: 10px; }
+.btn-add-local { width: 100%; margin-top: 1rem; }
+
+/* Stili per la colonna destra (semplificati) */
+.housing-info-box { padding: 25px 0; }
+.box-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color, #0056a8); margin: 0 0 1.5rem 0; padding-bottom: 0.75rem; border-bottom: 2px solid var(--primary-color, #0056a8); }
+.section-separator { margin: 25px 0; border: none; height: 1px; background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent); }
+
+.results-display { margin-top: 2rem; padding: 2rem 0; }
+.results-title { font-size: 1.6rem; color: var(--primary-color, #0056a8); }
 .project-summary { margin: 1rem 0 2rem 0; }
 .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
 .summary-line .label { color: var(--text-secondary, #64748b); }
@@ -188,7 +119,7 @@
 .total-price-summary h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
 .total-price-summary .price-value { font-size: 2.2rem; font-weight: 700; color: var(--primary-color, #0056a8); }
 
-/* Stili generici ripresi per coerenza */
+/* Stili generici per coerenza */
 .form-group { margin-bottom: 1rem; }
 .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
 .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
@@ -198,17 +129,7 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .radiator-configurator-container {
-        display: flex; /* Cambiamo anche qui a flex */
-        flex-direction: column; /* Le colonne vanno una sotto l'altra */
-        height: auto; /* L'altezza non è più fissa */
-    }
-    .configurator-col.left-col {
-        position: static; /* Rimuoviamo lo sticky */
-        height: auto; /* L'altezza si adatta al contenuto */
-        margin-bottom: 20px;
-    }
-    .configurator-col.right-col {
-        overflow-y: visible; /* Rimuoviamo lo scroll indipendente */
-    }
+    .radiator-configurator-container { flex-direction: column; height: auto; }
+    .configurator-col.left-col { position: static; height: auto; margin-bottom: 20px; }
+    .configurator-col.right-col { overflow-y: visible; }
 }
