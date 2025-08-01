@@ -17,10 +17,9 @@
              <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo">
         </a>
         <div class="header-user-info">
-             <!-- *** ID CORRETTO: ORA auth.js LO TROVERÀ *** -->
             Utente: <strong id="user-email-display">Caricamento...</strong> 
         </div>
-        <div id="user-dashboard" class="header-controls hidden"> <!-- Spostato ID per coerenza -->
+        <div id="user-dashboard" class="header-controls hidden">
             <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
             <button id="logout-button" class="button-logout" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
@@ -34,8 +33,10 @@
         <div class="radiator-configurator-container">
             <!-- Colonna sinistra -->
             <div class="configurator-col left-col">
-                <h3 class="local-selector-title">SELETTORE LOCALI</h3>
+                <!-- *** TITOLO MODIFICATO *** -->
+                <h3 class="local-selector-title">INFORMAZIONI STANZE</h3>
                 <div id="added-locals-container"></div>
+                
                 <div id="add-local-form">
                     <h4 class="form-subtitle">AGGIUNGI NUOVA STANZA</h4>
                     <div class="form-row">
@@ -111,12 +112,11 @@
         </div>
     </main>
     
-    <!-- Script caricati nell'ordine corretto -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../../firebase-config.js"></script> 
-    <script src="../../auth.js"></script> <!-- Prima l'autenticazione -->
-    <script src="script.js"></script> <!-- Poi lo script specifico della pagina -->
+    <script src="../../auth.js"></script> 
+    <script src="script.js"></script> 
 </body>
 </html>
