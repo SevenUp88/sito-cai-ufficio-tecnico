@@ -2,48 +2,66 @@
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
 /* ========================================================== */
 
-.configurator-title {
+/* --- Layout Generale della Pagina --- */
+#content-area {
+    /* Rimuoviamo il padding di default se presente, per un controllo maggiore */
+    padding: 1.5rem; 
+}
+
+.page-title.configurator-title {
     text-align: center;
     color: var(--primary-color, #0056a8);
-    font-size: 2.2rem;
-    margin-bottom: 2rem;
+    font-size: 2rem;
+    padding-bottom: 1rem;
+    margin: 0 0 1.5rem 0;
+    
+    /* --- MODIFICA CHIAVE: TITOLO FISSO --- */
+    position: sticky;
+    top: 0; /* Si attacca in cima allo scroll del suo contenitore (main) */
+    background: rgba(255, 255, 255, 0.8); /* Sfondo semi-trasparente per leggibilità */
+    backdrop-filter: blur(5px); /* Effetto blur per lo sfondo */
+    z-index: 100; /* Assicura che stia sopra al contenuto che scorre */
+    width: 100%;
 }
 
 .radiator-configurator-container {
     display: flex;
     gap: 30px;
-    margin-top: 20px;
-    height: calc(100vh - 150px); /* REGOLA QUESTO VALORE IN BASE ALL'ALTEZZA DEL TUO HEADER */
+    /* L'altezza viene gestita dinamicamente, non più fissa */
 }
 
-/* Colonna sinistra (Fissa e più ampia) */
+/* --- MODIFICA CHIAVE: COLONNA SINISTRA --- */
+/* La colonna non è più sticky e non ha uno scroll suo */
 .configurator-col.left-col {
     background: var(--card-background, #ffffff);
     padding: 25px;
     border-radius: var(--radius-lg, 12px);
     border: 1px solid var(--border-color, #e2e8f0);
     box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+    
     display: flex;
-    flex-direction: column;
-    flex-basis: 450px;
+    flex-direction: column; /* Organizza gli elementi interni in colonna */
+    
+    flex-basis: 420px; /* Larghezza fissa */
     flex-shrink: 0;
-    position: sticky;
-    top: 20px;
-    height: calc(100vh - 190px);
-    overflow-y: auto;
+    
+    /* L'altezza si adatta al contenuto, non è più calcolata */
+    height: fit-content;
 }
 
 /* Colonna destra (Scrollabile) */
 .configurator-col.right-col {
     flex-grow: 1;
-    overflow-y: auto;
-    padding: 10px 20px 10px 10px;
+    overflow-y: auto; /* Mantiene il suo scroll verticale */
+    height: calc(100vh - 180px); /* Altezza calcolata per permettere lo scroll. REGOLA 180px! */
+    padding: 15px 25px;
     border-radius: var(--radius-lg, 12px);
     border: 1px solid var(--border-color, #e2e8f0);
     background: var(--card-background, #ffffff);
     box-shadow: var(--shadow-md);
 }
 
+/* Titolo colonna sinistra */
 .local-selector-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -53,14 +71,20 @@
     border-bottom: 2px solid var(--primary-color, #0056a8);
 }
 
+/* --- MODIFICA CHIAVE: BOX ELENCO STANZE --- */
+/* Questo è ora il contenitore con lo scroll */
 #added-locals-container {
-    margin-bottom: 20px;
-    min-height: 150px;
     border: 1px dashed var(--border-color, #e2e8f0);
     padding: 10px;
     border-radius: var(--radius-lg, 12px);
     background: #fdfdff;
-    flex-grow: 1;
+    
+    /* Istruzioni per lo scroll interno */
+    flex-grow: 1; /* Occupa lo spazio verticale disponibile */
+    min-height: 150px; /* Altezza minima per non collassare */
+    max-height: 300px; /* Altezza massima prima che appaia lo scroll. REGOLA QUESTO VALORE! */
+    overflow-y: auto; /* Abilita lo scroll verticale solo per questo box */
+    margin-bottom: 20px;
 }
 
 .local-item { display: flex; justify-content: space-between; align-items: center; background: var(--card-background, #ffffff); border: 1px solid var(--border-color, #e2e8f0); border-radius: var(--radius-md, 8px); padding: 10px 15px; margin-bottom: 10px; transition: all 0.2s ease; }
@@ -71,38 +95,19 @@
 .remove-local-btn { background: none; border: none; color: var(--danger-color, #ef4444); font-size: 1.2rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
 .remove-local-btn:hover { transform: scale(1.1); }
 
+/* Form di aggiunta */
 #add-local-form { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); }
-
-#add-local-form .form-subtitle {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #1e293b);
-    margin: 0 0 1rem 0;
-    text-transform: uppercase;
-}
-
-/* ============================================= */
-/* === REGOLE CSS PER IL LAYOUT AFFIANCATO === */
-/* ============================================= */
-#add-local-form .form-row {
-    display: flex;
-    gap: 15px; /* Spazio tra i campi */
-    align-items: flex-start;
-}
-
-#add-local-form .form-row .form-group {
-    flex: 1; /* Ciascun campo occupa metà dello spazio */
-}
-/* ============================================= */
-
+#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #1e293b); margin: 0 0 1rem 0; text-transform: uppercase; }
+#add-local-form .form-row { display: flex; gap: 15px; align-items: flex-start; }
+#add-local-form .form-row .form-group { flex: 1; }
 #custom-local-name { margin-top: 10px; }
 .btn-add-local { width: 100%; margin-top: 1rem; }
 
-/* Stili colonna destra */
-.housing-info-box { padding: 25px 0; }
+/* Stili colonna destra (semplificati per pulizia) */
+.housing-info-box { padding: 10px 0; }
 .box-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color, #0056a8); margin: 0 0 1.5rem 0; padding-bottom: 0.75rem; border-bottom: 2px solid var(--primary-color, #0056a8); }
 .section-separator { margin: 25px 0; border: none; height: 1px; background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent); }
-.results-display { margin-top: 2rem; padding: 2rem 0; }
+.results-display { margin-top: 2rem; padding: 1rem 0; }
 .results-title { font-size: 1.6rem; color: var(--primary-color, #0056a8); }
 .project-summary { margin: 1rem 0 2rem 0; }
 .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
@@ -127,7 +132,7 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .radiator-configurator-container { flex-direction: column; height: auto; }
-    .configurator-col.left-col { position: static; height: auto; margin-bottom: 20px; }
-    .configurator-col.right-col { overflow-y: visible; }
+    .page-title.configurator-title { position: static; } /* Rimuoviamo lo sticky su mobile */
+    .radiator-configurator-container { flex-direction: column; }
+    .configurator-col.right-col { height: auto; overflow-y: visible; }
 }
