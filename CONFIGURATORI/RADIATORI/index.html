@@ -3,144 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Impianto a Radiatori</title>
-    <link rel="stylesheet" href="../style.css"> <!-- Assicurati che il percorso sia corretto -->
+    <title>CAI - Configuratore Radiatori</title>
+    
+    <!-- COLLEGA SEMPRE IL TUO STYLE.CSS PRINCIPALE QUI -->
+    <link rel="stylesheet" href="../style.css"> <!-- Assicurati che questo percorso sia corretto per la posizione del file! -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Aggiungi altri CSS o JS specifici se necessari -->
+    
+    <!-- Per la parte del calendario/altri stili specifici, potrebbero servire collegamenti aggiuntivi qui -->
 </head>
 <body>
+    <!-- Header dell'App (COPIALO DA LA TUA HOME SE VUOI QUELLO GENERICO) -->
     <header class="app-header">
         <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
         <div class="header-controls">
-            <div id="user-dashboard" class="hidden">
-                <p>Utente: <span id="user-email-display"></span></p>
-                <button id="logout-button" class="btn-login">Logout</button>
-            </div>
+            <!-- Controlle utente, se necessario -->
         </div>
     </header>
 
     <main id="content-area">
-        <section id="radiator-configurator" class="calculator-section">
-            <h2>Calcolo Impianto Radiatori</h2>
-            <p class="section-description">Inserisci i dati relativi all'edificio e al sistema di riscaldamento per ottenere una stima.</p>
+        <!-- TITOLO DELLA PAGINA COME NELLA TUA BOZZA -->
+        <h2 class="page-title configurator-title">CONFIGURATORE RADIATORI</h2>
+        
+        <!-- CONTAINER PRINCIPALE DELLA PAGINA, SUDDIVISO IN DUE COLONNE -->
+        <div class="radiator-configurator-container">
 
-            <!-- FORMS PER L'INSERIMENTO DEI DATI -->
-            <div class="configurator-form-container">
-                <h3>Dati Edificio</h3>
-                <form id="building-data-form">
-                    <div class="form-group">
-                        <label for="building-type">Tipologia Edificio:</label>
-                        <select id="building-type" required>
-                            <option value="residenziale_nuovo">Residenziale (Nuova Costruzione, Buon Isolamento)</option>
-                            <option value="residenziale_medio">Residenziale (Manutenzione, Isolamento Medio)</option>
-                            <option value="commerciale">Commerciale/Uffici (Standard)</option>
-                            <option value="alto_prestazione">Alto Prestazionali (Energetico)</option>
-                            <!-- Aggiungere altre opzioni se necessario -->
-                        </select>
+            <!-- COLONNA DI SINISTRA: SELEZIONE LOCALI -->
+            <div class="configurator-col left-col">
+                <div class="local-selector-box">
+                    <h3 class="local-selector-title">SELETTORE LOCALI</h3>
+                    
+                    <!-- Area dove vengono aggiunte dinamicamente le stanze -->
+                    <div id="added-locals-container">
+                        <!-- Esempio di come potrebbe apparire una stanza aggiunta -->
+                        <!--
+                        <div class="local-item">
+                            <h4>BAGNO</h4>
+                            <div class="local-details">
+                                <span class="local-sqm">MQ: 7</span>
+                                <button class="remove-local-btn"><i class="fas fa-times-circle"></i></button>
+                            </div>
+                        </div>
+                        -->
                     </div>
-                    <div class="form-group">
-                        <label for="building-surface">Superficie Totale (mq):</label>
-                        <input type="number" id="building-surface" placeholder="Es: 120" step="0.1" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="building-volume">Volume Riscaldato Totale (mc):</label>
-                        <input type="number" id="building-volume" placeholder="Es: 336" step="1"> <!-- Potrebbe essere opzionale se calcolabile da superficie + altezza standard -->
-                    </div>
-                    <!-- POTREBBERO ESSERCI ALTRI CAMPI PER L'ISOLAMENTO, L'ANNO, ETC. -->
-                </form>
 
-                <hr class="form-separator">
-
-                <h3>Dati Impianto Riscaldamento</h3>
-                <form id="heating-system-form">
-                    <div class="form-group">
-                        <label for="target-temperature">Temperatura Ambiente Desiderata (°C):</label>
-                        <input type="number" id="target-temperature" value="20" step="0.5" required>
+                    <!-- Form per aggiungere una NUOVA STANZA -->
+                    <div id="add-local-form">
+                        <h4>AGGIUNGI NUOVA STANZA</h4>
+                        <div class="form-group">
+                            <label for="local-type-select">Tipo di Locale:</label>
+                            <!-- MENÙ A TENDINA CON OPZIONI DA LA TUA IMMAGINE E ALTRE POTENZIALI -->
+                            <select id="local-type-select">
+                                <option value="">Seleziona...</option>
+                                <option value="BAGNO">Bagno</option>
+                                <option value="CUCINA">Cucina</option>
+                                <option value="CORRIDOIO">Corridoio</option>
+                                <option value="CAMERA SINGOLA">Camera Singola</option>
+                                <option value="CAMERA MATRIMONIALE">Camera Matrimoniale</option>
+                                <option value="STUDIO">Studio</option>
+                                <option value="SOGGIORNO">Soggiorno</option>
+                                <option value="GARAGE">Garage</option>
+                                <option value="ALTRO">Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="local-sqm-input">Metri Quadri (MQ):</label>
+                            <input type="number" id="local-sqm-input" placeholder="Es. 15">
+                        </div>
+                         <div class="form-group">
+                            <label for="local-height-input">Altezza Locale (m):</label>
+                            <input type="number" id="local-height-input" placeholder="Es. 2.70" step="0.10">
+                        </div>
+                        <!-- POSSIBILMENTE AGGIUNGERE UN CAMPO PER EVENTUALI CARATTERISTICHE SPECIALI PER STANZA -->
+                        <button id="add-local-btn" class="btn-add-local">Aggiungi Locale</button>
                     </div>
-                    <div class="form-group">
-                        <label for="heat-loss-factor">Perdite di Calore Specifiche (W/mc o Kcal/m³h):</label>
-                        <input type="number" id="heat-loss-factor" placeholder="Es: 30 (W/mc)" step="1" required>
-                        <small>Usa W/mc o la corrispondente Kcal/m³h a seconda delle tabelle che utilizzerai.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="design-temperature">Temperatura Esterna di Progetto (°C):</label>
-                        <input type="number" id="design-temperature" value="-5" step="0.5" required>
-                        <small>Valore tipico per zone temperate.</small>
-                    </div>
-                    <!-- Aggiungere Temperatura Mandata/Ritorno per la scelta dei radiatori -->
-                     <div class="form-group">
-                        <label for="flow-temperature">Temperatura di Mandata (°C):</label>
-                        <input type="number" id="flow-temperature" value="75" step="0.5" required>
-                    </div>
-                     <div class="form-group">
-                        <label for="return-temperature">Temperatura di Ritorno (°C):</label>
-                        <input type="number" id="return-temperature" value="65" step="0.5" required>
-                    </div>
-                </form>
-
-                <hr class="form-separator">
-
-                <h3>Dati Radiatore</h3>
-                <form id="radiator-data-form">
-                    <div class="form-group">
-                        <label for="radiator-material">Materiale Radiatore:</label>
-                        <select id="radiator-material" required>
-                            <option value="ghisa">Ghisa</option>
-                            <option value="alluminio">Alluminio</option>
-                            <option value="acciaio">Acciaio</option>
-                            <!-- Aggiungere altri materiali se supportati -->
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="radiator-template">Modello Radiatore (Ricerca per Nome/Sigla):</label>
-                        <input type="text" id="radiator-template" placeholder="Es: Gialli, K8, XLT...">
-                        <!-- QUI POTREBBE ESSERE UTULIZZIATA LA TUA FUNZIONE DI RICERCA PRECEDENTE SE HAI DATI RADIATORI IN FIRESTORE -->
-                    </div>
-                     <div class="form-group">
-                        <label for="radiator-power-rating">Potenza per Elemento/Modello (Specificare Unità):</label>
-                        <input type="text" id="radiator-power-rating" placeholder="Es: 150W / 130 Kcal/h per elemento (a 75/65°C)" required>
-                        <small>Assicurati che la temperatura di riferimento sia indicata!</small>
-                    </div>
-                     <div class="form-group">
-                        <label for="radiator-element-dims">Dimensioni Elemento (AxLxP) / Area:</label>
-                        <input type="text" id="radiator-element-dims" placeholder="Es: 500x80x180 mm">
-                    </div>
-                    <div class="form-group">
-                        <label for="radiator-elements-count">Numero Elementi per Stanza:</label>
-                        <input type="number" id="radiator-elements-count" placeholder="Es: 10">
-                    </div>
-                </form>
-            </div>
-
-            <div class="configurator-action">
-                <button id="calculate-radiator-system" class="btn-calculate">Calcola Impianto</button>
-            </div>
-
-            <!-- RISULTATI DEL CALCOLO -->
-            <div id="radiator-results" class="results-display hidden">
-                <h3>Risultati Stima Impianto Radiatori</h3>
-                <div id="results-summary"></div>
-                <h4>Dettaglio per Stanza:</h4>
-                <div id="room-details">
-                    <!-- Qui verranno generati i dettagli per ogni stanza -->
                 </div>
-                <div id="configurator-error" class="error-message hidden"></div>
             </div>
-        </section>
+
+            <!-- COLONNA DI DESTRA: INFORMAZIONI E PROGETTO -->
+            <div class="configurator-col right-col">
+
+                <!-- SEZIONE INFORMAZIONI ABITAZIONE -->
+                <div class="housing-info-box">
+                    <h3 class="box-title">INFORMAZIONI ABITAZIONE</h3>
+                    
+                    <div class="form-group">
+                        <label for="habitation-type">Tipo di Edificio:</label>
+                        <select id="habitation-type">
+                            <option value="0">Tipologia A</option>
+                            <option value="1">Tipologia B</option>
+                            <!-- ... Aggiungere le categorie che abbiamo definito -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="habitation-isolation">Caratteristiche Isolamento:</label>
+                        <select id="habitation-isolation">
+                            <option value="0">Isolamento Scarso</option>
+                            <option value="1">Isolamento Medio</option>
+                            <option value="2">Isolamento Buono</option>
+                            <option value="3">Isolamento Ottimo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="design-temperature-input">Temperatura Ambiente Desiderata (°C):</label>
+                        <input type="number" id="design-temperature-input" value="20" placeholder="Es: 20">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="outside-design-temp-input">Temperatura Esterna di Progetto (°C):</label>
+                        <input type="number" id="outside-design-temp-input" value="-5" placeholder="Es: -5">
+                    </div>
+                    <!-- ... ALTRI CAMPI PER ABITAZIONE -->
+                </div>
+
+                <hr class="section-separator"> <!-- Separatore -->
+
+                <!-- SEZIONE INFORMAZIONI IMPIANTO -->
+                <div class="housing-info-box">
+                    <h3 class="box-title">INFORMAZIONI IMPIANTO</h3>
+                    
+                    <div class="form-group">
+                        <label for="radiator-brand">Marca Radiatore:</label>
+                        <select id="radiator-brand">
+                            <option value="IRSAP">IRSAP</option>
+                            <!-- Qui potremmo aggiungere altre marche in futuro -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="radiator-model">Modello Radiatore:</label>
+                        <!-- Questo menu a tendina si popolerà dinamicamente una volta selezionata la Marca (in questo caso IRSAP) -->
+                        <select id="radiator-model">
+                            <option value="">Seleziona Marca prima</option>
+                            <!-- Opzioni per TESI saranno aggiunte da JS -->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="radiator-columns">Numero Colonne per Modello (se rilevante):</label>
+                        <input type="number" id="radiator-columns" placeholder="Es: 4 o 10">
+                    </div>
+                     <div class="form-group">
+                        <label for="radiator-temp-ref">Temp. Riferimento Potenza (per leg. termica):</label>
+                        <input type="text" id="radiator-temp-ref" readonly placeholder="Es. 75/65°C"> <!-- Probabilmente letto dalla potenza del radiatore -->
+                    </div>
+                     <div class="form-group">
+                        <label for="radiator-element-power">Potenza Base per Elemento (W):</label>
+                        <input type="text" id="radiator-element-power" readonly placeholder="Da selezionare il modello">
+                    </div>
+
+                </div>
+                 <hr class="section-separator"> <!-- Separatore -->
+                
+                 <!-- BOTTONE PER AVVIARE IL CALCOLO -->
+                <div class="configurator-action">
+                    <button id="calculate-radiator-system" class="btn-calculate">
+                        <i class="fas fa-calculator"></i> Calcola Impianto
+                    </button>
+                </div>
+
+                <!-- AREA DEI RISULTATI -->
+                <div id="calculation-results" class="results-display hidden">
+                    <h3 class="results-title">PROGETTO IMPIANTO</h3>
+                    <p class="summary-info">Riepilogo dell'abitazione e fabbisogno termico.</p>
+
+                    <div class="project-summary">
+                         <div class="summary-line">
+                            <span class="label">Superficie Totale Abitazione:</span>
+                            <span id="total-habitation-sqm" class="value"></span>
+                         </div>
+                          <div class="summary-line">
+                            <span class="label">Volume Totale da Riscaldare:</span>
+                            <span id="total-habitation-volume" class="value"></span>
+                         </div>
+                        <div class="summary-line">
+                            <span class="label">Fabbisogno Termico Abitazione:</span>
+                            <span id="total-habitation-demand" class="value"></span>
+                         </div>
+                    </div>
+                    
+                    <h4>Dettaglio Stanze e Radiatori</h4>
+                    <!-- TABELLA DEI RISULTATI per ogni stanza -->
+                    <div id="results-table-container">
+                        <!-- L'output JS creerà qui le righe della tabella -->
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Locale</th>
+                                    <th>MQ</th>
+                                    <th>Volume (mc)</th>
+                                    <th>Fabb. Termico Stima (W)</th>
+                                    <th>Radiatore Consigliato</th>
+                                    <th>Elementi (n.)</th>
+                                    <th>Potenza Elemento (W)</th>
+                                    <th>Potenza Totale Locale (W)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-tbody">
+                                <!-- Dati inseriti da JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                     
+                    <!-- Riassunto Prezzo Totale -->
+                    <div class="total-price-summary">
+                         <h3>Prezzo Totale Stimato</h3>
+                         <div class="price-value" id="estimated-total-price">€ 0,00</div>
+                    </div>
+                     
+                    <div id="calculation-error" class="error-message hidden"></div>
+
+                </div>
+            </div>
+        </div>
     </main>
 
-    <!-- SEGREGARE I GESTORI DI LOGOUT E AGGIORNAMENTI PROFILO UTILIZZANDO IL VOSTRO ESISTENTE framework. -->
-    <!-- NON MOSTRARE QUI LOGOUT E USER-DASHBOARD PER SIMPLICITA, QUESTI DEVONO VENIRE DA HOME. -->
+    <!-- QUI CI VUOLE ANCHE IL TUO FOOTER SE NE HAI UNO -->
+    <!-- <footer class="app-footer"></footer> -->
 
-    <!-- FIREBASE SCRIPTS -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="../firebase-config.js"></script>
-    <script src="../auth.js"></script> <!-- Presumendo che auth.js gestisca lo stato di login/logout -->
-
-    <!-- SCRIPT SPECIFICO PER IL CALCOLATORE DI RADIATORI -->
-    <script src="script.js"></script> <!-- CREIAMO QUESTO NUOVO FILE -->
+    <!-- Script Specifico per il Configuratore -->
+    <!-- COLLEGA SEMPRE IL TUO SCRIPT PRINCIPALE ANCHE SE QUI SERVONO DATI SPECIFICI -->
+    <script src="script.js"></script> 
+    <!-- Assicurati che il tuo script.js sia compatibile con la logica descritta per aggiungere stanze, popolare modelli etc. -->
 
 </body>
 </html>
