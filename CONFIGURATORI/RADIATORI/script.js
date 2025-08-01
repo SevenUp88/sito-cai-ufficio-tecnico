@@ -1,15 +1,28 @@
-// Aggiungiamo un listener per essere sicuri che la logica parta solo DOPO che auth.js ha finito
-document.addEventListener('authReady', () => {
+// Questo script parte quando il DOM è completamente caricato.
+// A quel punto, anche lo script auth.js dovrebbe aver già fatto il suo lavoro iniziale.
+document.addEventListener('DOMContentLoaded', () => {
 
+    // Verifichiamo che Firebase sia disponibile (caricato dagli script nell'HTML)
+    if (typeof firebase === 'undefined') {
+        console.error("Firebase non trovato. Lo script della pagina radiatori non può partire.");
+        return; // Blocca l'esecuzione se Firebase non c'è
+    }
     const db = firebase.firestore();
 
-    // --- Elementi DOM ---
+    // --- Selezione Elementi DOM ---
+    const addLocalBtn = document.getElementById('add-local-btn');
+
+    // Controllo fondamentale: se non trova il pulsante, qualcosa è andato storto.
+    if (!addLocalBtn) {
+        console.error("Pulsante 'Aggiungi Locale' non trovato. Lo script si interrompe.");
+        return;
+    }
+    
     const addedLocalsContainer = document.getElementById('added-locals-container');
     const localTypeSelect = document.getElementById('local-type-select');
     const customLocalNameInput = document.getElementById('custom-local-name');
     const localSqmInput = document.getElementById('local-sqm-input');
     const localHeightInput = document.getElementById('local-height-input');
-    const addLocalBtn = document.getElementById('add-local-btn');
     
     const habitationTypeSelect = document.getElementById('habitation-type');
     const isolationSelect = document.getElementById('habitation-isolation');
@@ -34,22 +47,24 @@ document.addEventListener('authReady', () => {
     let addedLocals = [];
     let radiatorData = {};
 
-    // --- Coefficienti di calcolo ---
     const heatLossCoefficients = {
-        RESIDENZIALE_MODERNO: { BUONO: 30, MEDIO: 35, BASSO: 40 },
-        RESIDENZIALE_TRADIZIONALE: { BUONO: 35, MEDIO: 40, BASSO: 50 },
-        COMMERCIALE: { BUONO: 40, MEDIO: 50, BASSO: 60 },
-        VECCHIO_EDIFICIO: { BUONO: 50, MEDIO: 60, BASSO: 75 },
-        ALTA_EFFICIENZA: { BUONO: 20, MEDIO: 25, BASSO: 30 }
+        RESIDENZIALE_MODERNO: 30,
+        RESIDENZIALE_TRADIZIONALE: 40,
+        COMMERCIALE: 50,
+        VECCHIO_EDIFICIO: 60,
+        ALTA_EFFICIENZA: 25,
     };
+    const isolationModifiers = { BUONO: 1.0, MEDIO: 1.15, BASSO: 1.3 };
 
     // --- EVENT LISTENERS E LOGICA ---
+    console.log("Script della pagina Radiatori caricato correttamente.");
 
     localTypeSelect.addEventListener('change', () => {
         customLocalNameInput.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO');
     });
 
     addLocalBtn.addEventListener('click', () => {
+        console.log("Pulsante 'Aggiungi Locale' cliccato!"); // Aggiunto per debug
         const type = localTypeSelect.value;
         let name = type === 'ALTRO' ? customLocalNameInput.value.trim().toUpperCase() : type;
         const sqm = parseFloat(localSqmInput.value);
@@ -75,12 +90,16 @@ document.addEventListener('authReady', () => {
 
     function renderAddedLocals() {
         addedLocalsContainer.innerHTML = '';
-        addedLocals.forEach(local => {
-            const div = document.createElement('div');
-            div.className = 'local-item';
-            div.innerHTML = `<h4>${local.name}</h4> <div class="local-details"><span class="local-sqm">MQ: ${local.sqm}</span><button class="remove-local-btn" data-id="${local.id}">×</button></div>`;
-            addedLocalsContainer.appendChild(div);
-        });
+        if (addedLocals.length === 0) {
+             addedLocalsContainer.innerHTML = '<p class="empty-message">Nessun locale aggiunto.</p>';
+        } else {
+            addedLocals.forEach(local => {
+                const div = document.createElement('div');
+                div.className = 'local-item';
+                div.innerHTML = `<h4>${local.name}</h4> <div class="local-details"><span class="local-sqm">MQ: ${local.sqm}</span><button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button></div>`;
+                addedLocalsContainer.appendChild(div);
+            });
+        }
     }
 
     function resetAddLocalForm() {
@@ -91,7 +110,6 @@ document.addEventListener('authReady', () => {
     }
 
     async function loadRadiatorData() {
-        // DATI STATICI DI ESEMPIO, DA SOSTITUIRE CON CHIAMATA A FIRESTORE
         radiatorData['IRSAP'] = {
             'TESI 2': { config: '2 Colonne', power: 50.5, price: 15.50 },
             'TESI 3': { config: '3 Colonne', power: 75.2, price: 18.70 },
@@ -111,8 +129,8 @@ document.addEventListener('authReady', () => {
 
     radiatorModelSelect.addEventListener('change', () => {
         const data = radiatorData[radiatorBrandSelect.value]?.[radiatorModelSelect.value];
-        radiatorConfigInput.value = data ? data.config : '';
-        radiatorPowerInput.value = data ? data.power : '';
+        radiatorConfigInput.value = data ? data.config : 'Seleziona modello';
+        radiatorPowerInput.value = data ? data.power : 'Seleziona modello';
     });
 
     calculateBtn.addEventListener('click', () => {
@@ -122,7 +140,10 @@ document.addEventListener('authReady', () => {
             return;
         }
         
-        const coefficient = heatLossCoefficients[habitationTypeSelect.value]?.[isolationSelect.value] || 40;
+        const baseCoeff = heatLossCoefficients[habitationTypeSelect.value] || 40;
+        const isolationMod = isolationModifiers[isolationSelect.value] || 1.15;
+        const coefficient = baseCoeff * isolationMod;
+
         const radiatorInfo = radiatorData[radiatorBrandSelect.value][radiatorModelSelect.value];
         let totalSqm = 0, totalVolume = 0, totalDemand = 0, totalPrice = 0;
 
@@ -150,10 +171,5 @@ document.addEventListener('authReady', () => {
     
     // Inizializzazione pagina
     loadRadiatorData();
+    renderAddedLocals(); // Mostra il messaggio "Nessun locale aggiunto" all'inizio
 });
-
-// Aggiungi questo al tuo script auth.js nella ROOT
-// if (user) { 
-//   ... 
-//   document.dispatchEvent(new Event('authReady')); 
-// }
