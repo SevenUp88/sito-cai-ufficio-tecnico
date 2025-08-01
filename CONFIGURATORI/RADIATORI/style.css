@@ -1,59 +1,158 @@
-/* CSS FINALE - DA USARE */
-:root { --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b; --background-color: #f8fafc; --card-background: #ffffff; --text-primary: #1e293b; --text-secondary: #64748b; --border-color: #e2e8f0; --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); --font-family: 'Inter', sans-serif; --danger-color: #ef4444; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;}
+/* ========================================================== */
+/*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*   --- VERSIONE FINALE: FORM IN BASSO, LISTA SCROLLABILE --- */
+/* ========================================================== */
+:root { 
+    --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
+    --background-color: #f8fafc; --card-background: #ffffff; 
+    --text-primary: #1e293b; --text-secondary: #64748b; 
+    --border-color: #e2e8f0; 
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    --font-family: 'Inter', sans-serif; 
+    --danger-color: #ef4444; 
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+}
 * { box-sizing: border-box; }
-body { font-family: var(--font-family); background: var(--background-color); margin: 0; color: var(--text-primary); display: flex; flex-direction: column; height: 100vh; overflow: hidden; visibility: hidden; }
+body { 
+    font-family: var(--font-family); background: var(--background-color);
+    margin: 0; color: var(--text-primary);
+    display: flex; flex-direction: column;
+    height: 100vh; overflow: hidden;
+    visibility: hidden; 
+}
 body:not(.hidden) { visibility: visible; }
-.app-header { padding: 0.75rem 1.5rem; background-color: var(--card-background); box-shadow: var(--shadow-md); border-radius: var(--radius-xl); margin: 1rem; display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+
+/* Header e Titolo */
+.app-header {
+    padding: 0.75rem 1.5rem; background-color: var(--card-background);
+    box-shadow: var(--shadow-md); border-radius: var(--radius-xl);
+    margin: 1rem;
+    display: flex; align-items: center; gap: 20px;
+    flex-shrink: 0; 
+}
 .app-header .logo { height: 45px; }
 .header-user-info { margin-left: 1rem; color: var(--text-secondary); }
+.header-user-info strong { color: var(--text-primary); font-weight: 600; }
 .header-controls { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
 .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer; }
 .button-logout { background-color: #f1f5f9; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
 .button-logout:hover { background-color: #e2e8f0; }
 .page-header { margin: 0 1rem 1rem 1rem; flex-shrink: 0; }
 .page-title { text-align: center; font-size: 1.8rem; font-weight: 700; color: var(--primary-color); margin: 0; }
+
+/* Contenitore principale a colonne */
 main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; min-height: 0; }
-.radiator-configurator-container { display: grid; grid-template-columns: 400px 1fr; gap: 1rem; height: 100%; }
+.radiator-configurator-container {
+    display: flex; /* Usiamo flex per avere le due colonne affiancate */
+    gap: 1rem;
+    height: 100%; /* Occupa tutta l'altezza disponibile */
+}
 
+/* Colonna sinistra */
 .configurator-col.left-col {
-    display: grid;
-    grid-template-rows: auto 1fr auto; /* Titolo(auto), Lista Stanze(prende tutto lo spazio), Form(auto) */
-    gap: 1.5rem;
-    padding: 25px;
-    background: var(--card-background); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
-    height: 100%;
-    overflow: hidden; /* Cruciale! */
-}
-.configurator-col.right-col { background: var(--card-background); padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-md); height: 100%; overflow-y: auto; }
-.local-selector-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
-#added-locals-container { border: 1px solid var(--border-color); padding: 10px; border-radius: var(--radius-md); overflow-y: auto; min-height: 0; }
-#add-local-form { padding-top: 1rem; border-top: 1px solid var(--border-color); }
-.local-item { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    border: 1px solid var(--border-color, #e2e8f0); 
-    border-radius: var(--radius-md, 8px); 
-    padding: 10px 15px; /* Leggermente meno padding verticale */
-    margin-bottom: 8px; 
-    background-color: white; 
-    
-    /* --- MODIFICHE CHIAVE --- */
-    font-size: 0.9em;   /* Rende il font più piccolo */
-    font-weight: 500;   /* Leggermente meno grassetto */
+    flex-basis: 400px; /* Larghezza fissa */
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column; /* Elementi interni in colonna */
+    height: 100%; /* Occupa tutta l'altezza del suo genitore */
+    overflow: hidden; /* Impedisce lo scroll della colonna stessa */
 }
 
-/* Potrebbe essere utile stilare il testo MQ separatamente se vuoi */
-.local-item .local-details {
-    font-size: 1em; /* Assicura che il font di "MQ: X" non venga ulteriormente rimpicciolito se è dentro un altro elemento */
-}#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; }
+/* Colonna destra */
+.configurator-col.right-col {
+    flex-grow: 1;
+    overflow-y: auto; /* Scroll SOLO sulla colonna destra */
+    padding: 25px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    height: 100%;
+    display: flex;
+    flex-direction: column; /* Contenuti interni in colonna */
+}
+
+/* Titolo colonna sinistra */
+.local-selector-title {
+    font-size: 1.3rem; font-weight: 600; color: var(--primary-color);
+    margin: 0 0 1rem 0; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    flex-shrink: 0; /* Il titolo non si rimpicciolisce */
+}
+
+/* --- MODIFICA CHIAVE: IL BOX DELLA LISTA STANZE HA LO SCROLL --- */
+#added-locals-container {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    
+    flex-grow: 1; /* La lista cresce per riempire lo spazio */
+    min-height: 0; /* Essenziale per flexbox */
+    overflow-y: auto; /* Scroll interno se necessario */
+}
+
+/* Form di aggiunta stanza */
+#add-local-form {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem; /* Spazio sopra il form */
+    flex-shrink: 0; /* Il form non si rimpicciolisce */
+}
+#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
+#custom-local-name { margin-top: 10px; }
+
+/* Stili per ogni stanza aggiunta */
+.local-item { 
+    display: flex; justify-content: space-between; align-items: center; 
+    border: 1px solid var(--border-color); 
+    border-radius: var(--radius-md); 
+    padding: 12px 15px; 
+    margin-bottom: 8px; 
+    background-color: white; 
+    font-size: 0.9em; 
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.local-item:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.local-item h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.local-details { display: flex; align-items: center; gap: 10px; }
+.local-sqm { font-size: 0.9rem; color: var(--text-secondary); }
+.remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
+.remove-local-btn:hover { transform: scale(1.1); }
+
+/* Stili per la colonna destra */
 .form-section { margin-bottom: 1.5rem; }
 .box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
-.form-group label { font-size: 0.9em; }
+.configurator-action { margin-top: 2rem; text-align: center; }
+.results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+.results-title { font-size: 1.6rem; color: var(--primary-color); }
+.project-summary { margin: 1rem 0 2rem 0; }
+.summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
+.summary-line .label { color: var(--text-secondary); }
+.summary-line strong { color: var(--text-primary); }
+.results-table-container { overflow-x: auto; }
+.results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
+.results-table th { background-color: #f8f9fa; font-weight: 600; }
+.total-price-summary { text-align: right; margin-top: 2rem; }
+.total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
+
+/* Stili generici form */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-.btn-add-local { width: 100%; }
-.configurator-action .btn-calculate { width: auto; }
-.btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+.btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+.configurator-action .btn-calculate { width: auto; margin: 0 auto; display: block; }
 .hidden { display: none !important; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    body { overflow: auto; height: auto; } 
+    main#content-area { height: auto; overflow: visible; }
+    .radiator-configurator-container { grid-template-columns: 1fr; height: auto; }
+    .configurator-col.left-col { height: auto; /* L'altezza si adatta al contenuto */ }
+    .configurator-col.right-col { overflow-y: visible; height: auto; }
+    #added-locals-container { max-height: none; } /* Rimuove il limite di altezza su mobile */
+}
