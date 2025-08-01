@@ -10,14 +10,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="hidden"> <!-- Nasconde il corpo fino a che l'auth non è verificato -->
+<body class="hidden"> 
 
     <header class="app-header">
         <a href="../../index.html" class="logo-link">
              <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo">
         </a>
         <div class="header-user-info">
-            Utente: <strong id="user-email-display">Caricamento...</strong>
+            <!-- *** ID CORRETTO PER LA VISUALIZZAZIONE DELL'UTENTE *** -->
+            Utente: <strong id="user-email-display">Caricamento...</strong> 
         </div>
         <div class="header-controls">
             <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
@@ -29,12 +30,15 @@
         <h1 class="page-title">Configuratore Radiatori</h1>
     </div>
 
+    <!-- MAIN è il contenitore che si occuperà dello scroll a due colonne -->
     <main id="content-area">
         <div class="radiator-configurator-container">
-            <!-- Colonna sinistra -->
+            <!-- Colonna sinistra (NON scrolla più) -->
             <div class="configurator-col left-col">
                 <h3 class="local-selector-title">SELETTORE LOCALI</h3>
+                <!-- Box stanze CON scroll -->
                 <div id="added-locals-container"></div>
+                
                 <div id="add-local-form">
                     <h4 class="form-subtitle">AGGIUNGI NUOVA STANZA</h4>
                     <div class="form-row">
@@ -67,24 +71,22 @@
                 </div>
             </div>
 
-            <!-- Colonna destra -->
+            <!-- Colonna destra (con scroll) -->
             <div class="configurator-col right-col">
-                <div class="housing-info-box">
+                <div class="form-section">
                     <h3 class="box-title">INFORMAZIONI ABITAZIONE</h3>
                     <div class="form-group"><label for="habitation-type">Tipologia Edificio:</label><select id="habitation-type"><option value="RESIDENZIALE_MODERNO">Residenziale (Moderno, Buon Isolamento)</option><option value="RESIDENZIALE_TRADIZIONALE">Residenziale (Tradizionale, Isolamento Medio)</option><option value="COMMERCIALE">Commerciale/Uffici</option><option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento scarso)</option><option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option></select></div>
                     <div class="form-group"><label for="habitation-isolation">Livello di Isolamento:</label><select id="habitation-isolation"><option value="BUONO">Buono</option><option value="MEDIO">Medio</option><option value="BASSO">Basso</option></select></div>
                     <div class="form-group"><label for="design-temperature-input">Temp. Ambiente Desiderata (°C):</label><input type="number" id="design-temperature-input" value="20" min="15" max="28"></div>
                     <div class="form-group"><label for="outside-design-temp-input">Temp. Esterna di Progetto (°C):</label><input type="number" id="outside-design-temp-input" value="-5"><small>Valore tipico per zona climatica media italiana.</small></div>
                 </div>
-                <hr class="section-separator">
-                <div class="housing-info-box">
+                <div class="form-section">
                     <h3 class="box-title">INFORMAZIONI IMPIANTO</h3>
                     <div class="form-group"><label for="radiator-brand">Marca Radiatore:</label><select id="radiator-brand"><option value="IRSAP">IRSAP</option></select></div>
                     <div class="form-group"><label for="radiator-model">Modello Radiatore:</label><select id="radiator-model" required><option value="">Seleziona modello...</option></select></div>
                     <div class="form-group"><label for="radiator-element-config">Configurazione Elemento:</label><input type="text" id="radiator-element-config" readonly placeholder="Seleziona modello"></div>
                     <div class="form-group"><label for="radiator-element-power-base">Potenza Base Elemento (W):</label><input type="text" id="radiator-element-power-base" readonly placeholder="Seleziona modello"><small>Potenza a ΔT 50°C (es. 75/65/20).</small></div>
                 </div>
-                <hr class="section-separator">
                 <div class="configurator-action">
                     <button id="calculate-radiator-system" class="btn-calculate"><i class="fas fa-calculator"></i> Calcola Impianto</button>
                 </div>
