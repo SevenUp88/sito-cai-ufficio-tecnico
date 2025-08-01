@@ -2,7 +2,6 @@
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
 /* ========================================================== */
 
-/* Importiamo stili simili a quelli dell'Agenda per la base */
 :root { 
     --primary-color: #005A9C; 
     --primary-light: #E6F0F8; 
@@ -29,14 +28,17 @@ body {
     padding: 1.5rem; 
     color: var(--text-primary);
     line-height: 1.6;
+    visibility: hidden; /* Nasconde il corpo di default */
+}
+body:not(.hidden) {
+    visibility: visible; /* Lo script di auth lo renderà visibile */
 }
 
 .app-container { 
-    max-width: 1400px; /* Layout più largo per il configuratore */
+    max-width: 1400px; 
     margin: 0 auto;
 }
 
-/* Header identico alla pagina Agenda */
 .app-header {
     display: flex; align-items: center; gap: 20px; padding: 10px 20px;
     background-color: var(--card-background); box-shadow: var(--shadow-md);
@@ -48,12 +50,9 @@ body {
 .header-user-info strong { color: var(--text-primary); font-weight: 600; }
 .header-controls { margin-left: auto; display: flex; align-items: center; gap: 15px; }
 .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer; padding: 5px; text-decoration: none; }
-.header-action-button:hover { color: var(--primary-dark); }
 .button-logout { background: none; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
 .button-logout:hover { border-color: var(--danger-color); color: var(--danger-color); }
 
-
-/* --- MODIFICA CHIAVE: TITOLO PIÙ SOTTILE E COMPATTO --- */
 .page-header {
     background: var(--card-background);
     border-radius: var(--radius-lg);
@@ -65,30 +64,20 @@ body {
 
 .page-title {
     text-align: center;
-    font-size: 1.8rem; /* Titolo più piccolo */
+    font-size: 1.8rem;
     font-weight: 700;
     color: var(--primary-color);
     margin: 0;
 }
 
-/* Contenitore a due colonne */
 .radiator-configurator-container {
     display: grid;
-    grid-template-columns: 400px 1fr; /* Larghezza fissa per colonna sinistra */
+    grid-template-columns: 400px 1fr; 
     gap: 30px;
-    align-items: start; /* Allinea gli elementi all'inizio */
+    align-items: start;
 }
 
-/* Colonna sinistra */
-.configurator-col.left-col {
-    background: var(--card-background);
-    padding: 25px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-md);
-}
-
-/* Colonna destra */
+.configurator-col.left-col,
 .configurator-col.right-col {
     background: var(--card-background);
     padding: 25px;
@@ -105,11 +94,10 @@ body {
     padding-bottom: 0.5rem;
     border-bottom: 2px solid var(--primary-color);
 }
-
 #added-locals-container {
     margin-bottom: 20px;
     min-height: 120px;
-    max-height: 250px; /* Regola questa altezza per il box scrollabile */
+    max-height: 250px; 
     overflow-y: auto;
     border: 1px dashed var(--border-color);
     padding: 10px;
@@ -117,11 +105,10 @@ body {
 }
 
 .local-item { display: flex; justify-content: space-between; align-items: center; background: var(--card-background); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; margin-bottom: 8px; }
-.local-item h4 { margin: 0; font-size: 1rem; font-weight: 500; }
 .remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1.1rem; cursor: pointer; }
 
 #add-local-form { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color); }
-#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin: 0 0 1rem 0; text-transform: uppercase; }
+#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
 
@@ -129,21 +116,15 @@ body {
 .section-separator { margin: 2rem 0; border: none; border-top: 1px solid var(--border-color); }
 
 .results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
-.results-title { font-size: 1.3rem; color: var(--primary-color); }
-.project-summary { margin: 1rem 0 2rem 0; }
-.summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
 .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 .results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
 .results-table th { background-color: #f8f9fa; }
-
 .total-price-summary { text-align: right; margin-top: 2rem; }
 .total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
 
-.form-group { margin-bottom: 1rem; }
 .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
-.btn-add-local:hover, .btn-calculate:hover { background-color: var(--primary-dark); }
 .hidden { display: none !important; }
 
 @media (max-width: 1024px) {
