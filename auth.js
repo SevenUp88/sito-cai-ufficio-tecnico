@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // In ogni caso, mostra il contenuto della pagina corrente e l'header utente
             showPageContent(user);
+            document.dispatchEvent(new Event('authReady'));
 
         } else {
             // L'UTENTE NON È LOGGATO
