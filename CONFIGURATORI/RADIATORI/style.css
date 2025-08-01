@@ -1,6 +1,5 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
-/*            --- VERSIONE CON COLONNA FISSA ---              */
 /* ========================================================== */
 
 .configurator-title {
@@ -30,7 +29,7 @@
     flex-shrink: 0;
     position: sticky;
     top: 20px;
-    height: calc(100vh - 190px); /* Altezza calcolata, considera anche il padding del contenitore */
+    height: calc(100vh - 190px);
     overflow-y: auto;
 }
 
@@ -45,7 +44,6 @@
     box-shadow: var(--shadow-md);
 }
 
-/* Titolo principale della colonna sinistra */
 .local-selector-title {
     font-size: 1.5rem;
     font-weight: 700;
@@ -75,46 +73,46 @@
 
 #add-local-form { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); }
 
-/* Sottotitolo del form di aggiunta */
 #add-local-form .form-subtitle {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--primary-color, #0056a8);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #1e293b);
     margin: 0 0 1rem 0;
+    text-transform: uppercase;
 }
 
-/* *** NUOVE REGOLE PER IL LAYOUT DEL FORM *** */
-.form-row {
+/* ============================================= */
+/* === REGOLE CSS PER IL LAYOUT AFFIANCATO === */
+/* ============================================= */
+#add-local-form .form-row {
     display: flex;
-    gap: 15px; /* Spazio tra i campi affiancati */
+    gap: 15px; /* Spazio tra i campi */
     align-items: flex-start;
 }
-.form-row .form-group {
-    flex: 1; /* Fa in modo che ogni campo occupi metà dello spazio */
+
+#add-local-form .form-row .form-group {
+    flex: 1; /* Ciascun campo occupa metà dello spazio */
 }
-/* *** FINE NUOVE REGOLE *** */
+/* ============================================= */
 
 #custom-local-name { margin-top: 10px; }
 .btn-add-local { width: 100%; margin-top: 1rem; }
 
-/* Stili per la colonna destra (semplificati) */
+/* Stili colonna destra */
 .housing-info-box { padding: 25px 0; }
 .box-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color, #0056a8); margin: 0 0 1.5rem 0; padding-bottom: 0.75rem; border-bottom: 2px solid var(--primary-color, #0056a8); }
 .section-separator { margin: 25px 0; border: none; height: 1px; background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent); }
-
 .results-display { margin-top: 2rem; padding: 2rem 0; }
 .results-title { font-size: 1.6rem; color: var(--primary-color, #0056a8); }
 .project-summary { margin: 1rem 0 2rem 0; }
 .summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
 .summary-line .label { color: var(--text-secondary, #64748b); }
 .summary-line strong { color: var(--text-primary, #1e293b); }
-
 .results-table-container { overflow-x: auto; }
 .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 .results-table th, .results-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border-color, #e2e8f0); }
 .results-table th { background-color: #f8f9fa; font-weight: 600; }
 .results-table td:nth-child(3), .results-table td:nth-child(6) { font-weight: 600; color: var(--primary-color, #0056a8); }
-
 .total-price-summary { text-align: right; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color, #e2e8f0); }
 .total-price-summary h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
 .total-price-summary .price-value { font-size: 2.2rem; font-weight: 700; color: var(--primary-color, #0056a8); }
