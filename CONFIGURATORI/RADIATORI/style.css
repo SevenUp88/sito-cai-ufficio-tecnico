@@ -1,24 +1,29 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*            --- VERSIONE CON COLONNA FISSA ---              */
 /* ========================================================== */
 
-/* Titolo della pagina */
+/* Titolo della pagina (resta uguale) */
 .configurator-title {
     text-align: center;
-    color: var(--primary-color, #0056a8); /* Usa la variabile se esiste, altrimenti un colore di fallback */
+    color: var(--primary-color, #0056a8);
     font-size: 2.2rem;
     margin-bottom: 2rem;
 }
 
-/* Contenitore principale a due colonne */
+/* --- MODIFICA CHIAVE: LAYOUT PRINCIPALE --- */
+/* Cambiamo da 'grid' a 'flex' per gestire meglio il posizionamento e lo scroll */
 .radiator-configurator-container {
-    display: grid;
-    grid-template-columns: 350px 1fr; /* Colonna sinistra fissa, destra flessibile */
+    display: flex; /* Usa Flexbox per il layout */
     gap: 30px;
     margin-top: 20px;
+    /* Impostiamo un'altezza massima per il contenitore, relativa alla viewport,
+       per evitare che lo scroll della pagina interferisca con quello della colonna.
+       'calc(100vh - H)' dove H è l'altezza dell'header + padding. Da affinare. */
+    height: calc(100vh - 150px); /* Esempio: 150px per header e margini */
 }
 
-/* Colonna sinistra (Selettore Locali) */
+/* --- MODIFICA CHIAVE: COLONNA DI SINISTRA (FISSA E PIÙ AMPIA) --- */
 .configurator-col.left-col {
     background: var(--card-background, #ffffff);
     padding: 25px;
@@ -27,8 +32,30 @@
     box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
     display: flex;
     flex-direction: column;
-    height: fit-content;
+
+    /* --- ISTRUZIONI PER RENDERLA FISSA E PIÙ AMPIA --- */
+    flex-basis: 450px; /* Imposta una larghezza base fissa e più ampia */
+    flex-shrink: 0; /* Impedisce alla colonna di restringersi */
+    position: sticky; /* Rende la colonna "appiccicosa" */
+    top: 20px; /* Distanza dal bordo superiore quando scrolla */
+    height: calc(100vh - 170px); /* Altezza calcolata per riempire lo spazio, meno padding */
+    overflow-y: auto; /* Aggiunge uno scroll verticale SE IL CONTENUTO ECCEDE */
 }
+
+/* --- MODIFICA CHIAVE: COLONNA DI DESTRA (SCROLLABILE E PIÙ STRETTA) --- */
+.configurator-col.right-col {
+    flex-grow: 1; /* Occupa tutto lo spazio rimanente */
+    overflow-y: auto; /* --- AGGIUNGE LO SCROLL VERTICALE INDIPENDENTE --- */
+    padding: 10px 20px 10px 10px; /* Aggiunge un po' di padding per la scrollbar */
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--card-background, #ffffff);
+    box-shadow: var(--shadow-md);
+}
+
+/* ----------------------------------------------------------------- */
+/*            IL RESTO DELLO STILE RIMANE PRESSOCHÉ UGUALE            */
+/* ----------------------------------------------------------------- */
 
 .local-selector-title {
     font-size: 1.5rem;
@@ -46,7 +73,7 @@
     padding: 10px;
     border-radius: var(--radius-lg, 12px);
     background: #fdfdff;
-    flex-grow: 1;
+    flex-grow: 1; /* Permette a questo contenitore di espandersi */
 }
 
 .local-item {
@@ -111,13 +138,14 @@
     margin-top: 10px;
 }
 
-/* Colonna destra (Informazioni e Progetto) */
+/* Stili per la colonna destra */
 .housing-info-box {
-    background: var(--card-background, #ffffff);
-    padding: 25px;
-    border-radius: var(--radius-xl, 16px);
-    border: 1px solid var(--border-color, #e2e8f0);
-    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+    background: transparent; /* Rimuoviamo lo sfondo per non creare doppi box */
+    padding: 25px 0; /* Meno padding laterale */
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    margin-bottom: 0;
 }
 .box-title {
     font-size: 1.5rem;
@@ -133,15 +161,13 @@
     height: 1px;
     background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent);
 }
-
-/* Risultati */
 .results-display {
     margin-top: 2rem;
-    padding: 2rem;
-    background: var(--card-background, #ffffff);
-    border-radius: var(--radius-xl, 16px);
-    border: 1px solid var(--border-color, #e2e8f0);
-    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+    padding: 2rem 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
 }
 .results-title {
     font-size: 1.6rem;
@@ -172,5 +198,17 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .radiator-configurator-container { grid-template-columns: 1fr; }
+    .radiator-configurator-container {
+        display: flex; /* Cambiamo anche qui a flex */
+        flex-direction: column; /* Le colonne vanno una sotto l'altra */
+        height: auto; /* L'altezza non è più fissa */
+    }
+    .configurator-col.left-col {
+        position: static; /* Rimuoviamo lo sticky */
+        height: auto; /* L'altezza si adatta al contenuto */
+        margin-bottom: 20px;
+    }
+    .configurator-col.right-col {
+        overflow-y: visible; /* Rimuoviamo lo scroll indipendente */
+    }
 }
