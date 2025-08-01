@@ -1,37 +1,47 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*   --- VERSIONE FINALE: NESSUNO SCROLL SULLA PAGINA ---     */
 /* ========================================================== */
 
-/* --- Layout Generale della Pagina --- */
-#content-area {
-    /* Rimuoviamo il padding di default se presente, per un controllo maggiore */
-    padding: 1.5rem; 
+/* --- MODIFICA CHIAVE: BLOCCA LO SCROLL DELLA PAGINA --- */
+/* Aggiungi queste regole al tuo CSS principale o qui se vuoi che valga solo per questa pagina */
+html, body {
+    overflow: hidden; /* Impedisce lo scroll dell'intera pagina */
+    height: 100%;     /* Assicura che html e body occupino l'intera altezza */
 }
+/* Applichiamo lo scroll solo al contenitore principale dell'app */
+main#content-area {
+    height: calc(100vh - 80px); /* Altezza calcolata (100% viewport - altezza header). REGOLA 80px! */
+    overflow-y: auto;          /* Permette lo scroll SOLO all'interno del main */
+    padding: 1.5rem;
+}
+/* ======================================================== */
 
 .page-title.configurator-title {
     text-align: center;
     color: var(--primary-color, #0056a8);
     font-size: 2rem;
-    padding-bottom: 1rem;
     margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
     
-    /* --- MODIFICA CHIAVE: TITOLO FISSO --- */
+    /* Titolo fisso rispetto al contenitore 'main' */
     position: sticky;
-    top: 0; /* Si attacca in cima allo scroll del suo contenitore (main) */
-    background: rgba(255, 255, 255, 0.8); /* Sfondo semi-trasparente per leggibilità */
-    backdrop-filter: blur(5px); /* Effetto blur per lo sfondo */
-    z-index: 100; /* Assicura che stia sopra al contenuto che scorre */
-    width: 100%;
+    top: -1.5rem; /* Compensa il padding del parent per attaccarsi in cima */
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    padding-top: 1.5rem; /* Aggiunge padding per compensare il top negativo */
 }
 
+/* Contenitore a due colonne */
 .radiator-configurator-container {
     display: flex;
     gap: 30px;
-    /* L'altezza viene gestita dinamicamente, non più fissa */
+    /* L'altezza è ereditata dal contenitore genitore 'main' */
+    height: calc(100% - 80px); /* Occupa lo spazio rimanente sotto al titolo. REGOLA 80px! */
 }
 
-/* --- MODIFICA CHIAVE: COLONNA SINISTRA --- */
-/* La colonna non è più sticky e non ha uno scroll suo */
+/* Colonna sinistra (fissa in altezza, non sticky) */
 .configurator-col.left-col {
     background: var(--card-background, #ffffff);
     padding: 25px;
@@ -40,25 +50,25 @@
     box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
     
     display: flex;
-    flex-direction: column; /* Organizza gli elementi interni in colonna */
+    flex-direction: column;
     
-    flex-basis: 420px; /* Larghezza fissa */
+    flex-basis: 420px;
     flex-shrink: 0;
     
-    /* L'altezza si adatta al contenuto, non è più calcolata */
-    height: fit-content;
+    /* L'altezza massima è quella del contenitore, non ha scroll proprio */
+    max-height: 100%; 
 }
 
-/* Colonna destra (Scrollabile) */
+/* Colonna destra (con scroll) */
 .configurator-col.right-col {
     flex-grow: 1;
     overflow-y: auto; /* Mantiene il suo scroll verticale */
-    height: calc(100vh - 180px); /* Altezza calcolata per permettere lo scroll. REGOLA 180px! */
     padding: 15px 25px;
     border-radius: var(--radius-lg, 12px);
     border: 1px solid var(--border-color, #e2e8f0);
     background: var(--card-background, #ffffff);
     box-shadow: var(--shadow-md);
+    max-height: 100%;
 }
 
 /* Titolo colonna sinistra */
@@ -69,20 +79,18 @@
     margin: 0 0 1.2rem 0;
     padding-bottom: 0.75rem;
     border-bottom: 2px solid var(--primary-color, #0056a8);
+    flex-shrink: 0; /* Impedisce al titolo di restringersi */
 }
 
-/* --- MODIFICA CHIAVE: BOX ELENCO STANZE --- */
-/* Questo è ora il contenitore con lo scroll */
+/* Box elenco stanze (con scroll interno) */
 #added-locals-container {
     border: 1px dashed var(--border-color, #e2e8f0);
     padding: 10px;
     border-radius: var(--radius-lg, 12px);
     background: #fdfdff;
     
-    /* Istruzioni per lo scroll interno */
     flex-grow: 1; /* Occupa lo spazio verticale disponibile */
-    min-height: 150px; /* Altezza minima per non collassare */
-    max-height: 300px; /* Altezza massima prima che appaia lo scroll. REGOLA QUESTO VALORE! */
+    min-height: 100px;
     overflow-y: auto; /* Abilita lo scroll verticale solo per questo box */
     margin-bottom: 20px;
 }
@@ -96,14 +104,14 @@
 .remove-local-btn:hover { transform: scale(1.1); }
 
 /* Form di aggiunta */
-#add-local-form { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); }
+#add-local-form { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color, #e2e8f0); flex-shrink: 0; }
 #add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; color: var(--text-primary, #1e293b); margin: 0 0 1rem 0; text-transform: uppercase; }
 #add-local-form .form-row { display: flex; gap: 15px; align-items: flex-start; }
 #add-local-form .form-row .form-group { flex: 1; }
 #custom-local-name { margin-top: 10px; }
 .btn-add-local { width: 100%; margin-top: 1rem; }
 
-/* Stili colonna destra (semplificati per pulizia) */
+/* Stili colonna destra */
 .housing-info-box { padding: 10px 0; }
 .box-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color, #0056a8); margin: 0 0 1.5rem 0; padding-bottom: 0.75rem; border-bottom: 2px solid var(--primary-color, #0056a8); }
 .section-separator { margin: 25px 0; border: none; height: 1px; background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent); }
@@ -132,7 +140,9 @@
 
 /* Responsive */
 @media (max-width: 1024px) {
-    .page-title.configurator-title { position: static; } /* Rimuoviamo lo sticky su mobile */
-    .radiator-configurator-container { flex-direction: column; }
+    html, body { overflow: auto; } /* Riabilita lo scroll su mobile */
+    main#content-area { height: auto; overflow-y: visible; }
+    .page-title.configurator-title { position: static; }
+    .radiator-configurator-container { flex-direction: column; height: auto; }
     .configurator-col.right-col { height: auto; overflow-y: visible; }
 }
