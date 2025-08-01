@@ -1,7 +1,9 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*   --- VERSIONE FINALE: NESSUNO SCROLL SULLA PAGINA ---     */
 /* ========================================================== */
 
+/* Variabili di base per coerenza se quelle globali non caricano */
 :root { 
     --primary-color: #005A9C; 
     --primary-light: #E6F0F8; 
@@ -11,41 +13,53 @@
     --text-primary: #1e293b; 
     --text-secondary: #64748b; 
     --border-color: #e2e8f0; 
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+    --font-family: 'Inter', sans-serif; 
     --danger-color: #ef4444; 
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 16px;
 }
-* { box-sizing: border-box; }
+
+/* --- LOGICA CHIAVE: LAYOUT A SCHERMO INTERO SENZA SCROLL --- */
+html {
+    font-family: var(--font-family);
+    line-height: 1.6;
+}
 body { 
-    font-family: var(--font-family); 
     background: var(--background-color);
     margin: 0; 
-    padding: 1.5rem; 
     color: var(--text-primary);
-    line-height: 1.6;
-    visibility: hidden; /* Nasconde il corpo di default */
+    
+    /* Imposta il layout a colonna per il corpo della pagina */
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Occupa il 100% dell'altezza della viewport */
+    overflow: hidden; /* NIENTE SCROLLBAR SULLA PAGINA! */
+
+    visibility: hidden; /* Nasconde il body fino a che auth non è verificato */
 }
 body:not(.hidden) {
-    visibility: visible; /* Lo script di auth lo renderà visibile */
+    visibility: visible; /* Lo script auth.js rimuoverà la classe 'hidden' */
 }
 
-.app-container { 
-    max-width: 1400px; 
-    margin: 0 auto;
-}
-
+/* --- HEADER UNIFICATO --- */
 .app-header {
-    display: flex; align-items: center; gap: 20px; padding: 10px 20px;
-    background-color: var(--card-background); box-shadow: var(--shadow-md);
-    border-radius: var(--radius-xl); border: 1px solid var(--border-color); margin-bottom: 2rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--card-background);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color); 
+    border-radius: var(--radius-xl);
+    margin: 1.5rem 1.5rem 0 1.5rem; /* Margini per staccarlo dai bordi */
+
+    display: flex; 
+    align-items: center; 
+    gap: 20px;
+    flex-shrink: 0; /* Impedisce all'header di rimpicciolirsi */
 }
-.app-header .logo { height: 45px; width: auto; flex-shrink: 0; }
-.app-header a.logo-link { line-height: 0; }
+.app-header .logo { height: 45px; width: auto; }
+.app-header .logo-link { line-height: 0; }
 .header-user-info { font-size: 0.9em; color: var(--text-secondary); }
 .header-user-info strong { color: var(--text-primary); font-weight: 600; }
 .header-controls { margin-left: auto; display: flex; align-items: center; gap: 15px; }
@@ -53,21 +67,24 @@ body:not(.hidden) {
 .button-logout { background: none; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
 .button-logout:hover { border-color: var(--danger-color); color: var(--danger-color); }
 
+/* --- TITOLO COMPATTO --- */
 .page-header {
     background: var(--card-background);
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     padding: 1rem 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow-sm);
+    margin: 1.5rem 1.5rem 1rem 1.5rem;
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
 }
+.page-title { text-align: center; font-size: 1.8rem; font-weight: 700; color: var(--primary-color); margin: 0; }
 
-.page-title {
-    text-align: center;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary-color);
-    margin: 0;
+/* --- CONTENITORE PRINCIPALE (PRENDE SPAZIO RIMANENTE) --- */
+main#content-area {
+    flex-grow: 1; /* Cresce per riempire lo spazio verticale rimanente */
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    overflow: hidden; /* Impedisce al main di creare uno scroll suo */
+    min-height: 0; /* Fix per flexbox per far funzionare l'overflow correttamente */
 }
 
 .radiator-configurator-container {
@@ -75,6 +92,7 @@ body:not(.hidden) {
     grid-template-columns: 400px 1fr; 
     gap: 30px;
     align-items: start;
+    height: 100%; /* Occupa tutta l'altezza del genitore 'main' */
 }
 
 .configurator-col.left-col,
@@ -84,49 +102,41 @@ body:not(.hidden) {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
+    height: 100%; /* Le colonne occupano il 100% dell'altezza del loro contenitore */
+    display: flex;
+    flex-direction: column;
 }
 
-.local-selector-title {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    margin: 0 0 1rem 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--primary-color);
-}
-#added-locals-container {
-    margin-bottom: 20px;
-    min-height: 120px;
-    max-height: 250px; 
-    overflow-y: auto;
-    border: 1px dashed var(--border-color);
-    padding: 10px;
-    border-radius: var(--radius-md);
+/* Colonna destra (con il suo scroll) */
+.configurator-col.right-col {
+    overflow-y: auto; 
 }
 
-.local-item { display: flex; justify-content: space-between; align-items: center; background: var(--card-background); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; margin-bottom: 8px; }
+/* Colonna sinistra (form) */
+.local-selector-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); flex-shrink: 0; }
+#added-locals-container { margin-bottom: 20px; min-height: 100px; max-height: 200px; overflow-y: auto; border: 1px dashed var(--border-color); padding: 10px; border-radius: var(--radius-md); flex-grow: 1; }
+.local-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; margin-bottom: 8px; }
 .remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1.1rem; cursor: pointer; }
-
-#add-local-form { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color); }
+#add-local-form { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--border-color); flex-shrink: 0; }
 #add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
 
 .box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
 .section-separator { margin: 2rem 0; border: none; border-top: 1px solid var(--border-color); }
-
 .results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
 .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 .results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
-.results-table th { background-color: #f8f9fa; }
 .total-price-summary { text-align: right; margin-top: 2rem; }
 .total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
+.form-group label { font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
 .hidden { display: none !important; }
 
+/* Responsive */
 @media (max-width: 1024px) {
-    .radiator-configurator-container { grid-template-columns: 1fr; }
+    body { overflow: auto; height: auto; } /* Riabilita lo scroll su mobile */
+    main#content-area { height: auto; overflow: visible; }
+    .radiator-configurator-container { grid-template-columns: 1fr; height: auto; }
 }
