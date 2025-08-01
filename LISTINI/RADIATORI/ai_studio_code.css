@@ -1,0 +1,141 @@
+/* ========================================================== */
+/*       CSS SPECIFICO per la Pagina Listini Radiatori        */
+/* ========================================================== */
+
+/* Estende gli stili generali dalla root, ma aggiunge specifici */
+/* Assicurati che i selettori comuni (header, button, form) siano coerenti */
+
+/* --- Layout Principale della Pagina Listini --- */
+main#content-area {
+    padding: 1.5rem; /* Padding generale */
+}
+.radiator-configurator-container { /* Riusiamo questo classe se vuoi lo stesso grid */
+    display: grid;
+    grid-template-columns: 300px 1fr; /* Colonna marche più stretta, prodotti più larga */
+    gap: 30px;
+    margin-top: 1rem;
+    align-items: start;
+}
+
+/* === SEZIONE MARCHE === */
+.brands-section {
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 25px;
+    box-shadow: var(--shadow-md);
+    height: fit-content; /* Si adatta al contenuto */
+}
+.brands-section h3 {
+    font-size: 1.4rem; font-weight: 700; color: var(--primary-color);
+    margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+.brands-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.btn-primary { /* Stile generico per i bottoni primari */
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+#brands-list {
+    margin-top: 15px;
+}
+.brand-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+.brand-item:last-child { border-bottom: none; }
+.brand-actions { display: flex; gap: 10px; }
+.brand-actions button { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 0.9rem; }
+.brand-actions button.btn-edit-brand { color: var(--primary-color); }
+.brand-actions button.btn-delete-brand { color: var(--danger-color); }
+
+
+/* === SEZIONE PRODOTTI === */
+.products-section {
+    background: var(--card-background);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 25px;
+    box-shadow: var(--shadow-lg);
+}
+.products-section h3 {
+    font-size: 1.4rem; font-weight: 700; color: var(--primary-color);
+    margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+.products-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 15px;
+}
+.products-controls input[type="text"] {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    flex-grow: 1; /* Input occupa lo spazio rimanente */
+}
+#products-list {
+    margin-top: 15px;
+}
+.product-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+.product-item:hover {
+    background: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+.product-info { flex-grow: 1; margin-right: 20px; }
+.product-name { font-weight: 600; color: var(--text-primary); }
+.product-code { font-size: 0.85em; color: var(--text-secondary); margin-top: 5px; }
+.product-details { display: flex; gap: 20px; align-items: center; }
+.product-tech-spec { font-size: 0.85em; color: var(--text-secondary); }
+.product-price { font-weight: 700; color: var(--primary-color); font-size: 1.1em; }
+.product-actions { display: flex; gap: 10px; }
+.product-actions button { background: none; border: none; cursor: pointer; font-size: 0.9em; }
+.product-actions button.btn-edit-product { color: var(--primary-color); }
+.product-actions button.btn-delete-product { color: var(--danger-color); }
+
+/* --- Responsive --- */
+@media (max-width: 1024px) {
+    .radiator-configurator-container {
+        grid-template-columns: 1fr; /* Una sola colonna su schermi piccoli */
+        gap: 20px;
+    }
+    .configurator-col.left-col,
+    .configurator-col.right-col {
+        height: auto; /* Altezza automatica */
+    }
+    .brands-controls, .products-controls { flex-direction: column; gap: 10px; }
+    .products-controls input[type="text"] { width: 100%; }
+}

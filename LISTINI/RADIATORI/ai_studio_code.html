@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Listini Radiatori</title>
+    
+    <!-- COLLEGAMENTO AL CSS PRINCIPALE (ASSICURATI CHE IL PERCORSO SIA CORRETTO) -->
+    <link rel="stylesheet" href="../../style.css"> 
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="hidden"> 
+
+    <!-- Header (COPIA IL TUO HEADER GENERALE PER COERENZA) -->
+    <header class="app-header">
+        <a href="../../index.html" class="logo-link">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo">
+        </a>
+        <div class="header-user-info">
+            Utente: <strong id="user-email-display">Caricamento...</strong>
+        </div>
+        <div id="user-dashboard" class="header-controls hidden">
+            <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="button-logout" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+    </header>
+
+    <main id="content-area">
+        <h2 class="page-title">Gestione Listini Radiatori</h2>
+
+        <div class="listini-container">
+
+            <!-- SEZIONE MARCHE RADIATORI -->
+            <div class="listini-section brands-section">
+                <h3>Marche Radiatori</h3>
+                <div class="brands-controls">
+                    <button id="add-brand-btn" class="btn-primary">Aggiungi Marca</button>
+                    <!-- Potresti aggiungere un menu a tendina per selezionare la marca qui -->
+                </div>
+                <div id="brands-list">
+                    <!-- Qui verranno visualizzate le marche (es. IRSAP) -->
+                    <!-- La gestione delle marche potrebbe essere fatta in modo più dinamico -->
+                    <div class="brand-item">
+                        <span>IRSAP</span>
+                        <div class="brand-actions">
+                            <button class="btn-edit-brand"><i class="fas fa-edit"></i></button>
+                            <button class="btn-delete-brand"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>
+                    <!-- Aggiungi altre marche dinamicamente -->
+                </div>
+            </div>
+
+            <hr class="section-separator">
+
+            <!-- SEZIONE PRODOTTI PER MARCA SELEZIONATA -->
+            <div class="listini-section products-section">
+                <h3>Prodotti Radiatori - <span id="current-brand-title">Seleziona una Marca</span></h3>
+                
+                <div class="products-controls">
+                    <button id="add-product-btn" class="btn-primary">Aggiungi Prodotto</button>
+                    <input type="text" id="search-products-input" placeholder="Cerca per codice o descrizione...">
+                </div>
+
+                <div id="products-list">
+                    <!-- Qui verranno visualizzati i prodotti (radiatori) -->
+                    <!-- Esempio struttura prodotto: -->
+                    <!--
+                    <div class="product-item">
+                        <div class="product-info">
+                            <div class="product-name">TESI 4 Colonne</div>
+                            <div class="product-code">Articolo Fornitore: A123 | Codice: R456</div>
+                        </div>
+                        <div class="product-details">
+                            <span class="product-tech-spec">Potenza: 95.8W</span>
+                            <span class="product-price">€ 22.30</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-edit-product">Modifica</button>
+                            <button class="btn-delete-product">Elimina</button>
+                        </div>
+                    </div>
+                    -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SCRIPT DI AUTENTICAZIONE E FIREBASE GLOBALI -->
+    <script src="https://wwwa.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../../firebase-config.js"></script> 
+    <script src="../../auth.js"></script> 
+
+    <!-- SCRIPT SPECIFICO PER QUESTA PAGINA DEI LISTINI -->
+    <script src="script.js"></script> 
+</body>
+</html>
