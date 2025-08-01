@@ -25,10 +25,14 @@
 
     <main id="content-area">
         <div class="radiator-configurator-container">
-            <!-- Colonna sinistra - Struttura Semplificata -->
+            
+            <!-- Colonna sinistra -->
             <div class="configurator-col left-col">
+                
+                <!-- === ORDINE CORRETTO: TITOLO -> FORM AGGIUNTA -> LISTA STANZE CON SCROLL === -->
                 <h3 class="local-selector-title">INFORMAZIONI STANZE</h3>
-                <div id="added-locals-container"></div>
+                
+                <!-- IL FORM DI AGGIUNTA ORA STA SOPRA -->
                 <div id="add-local-form">
                     <h4 class="form-subtitle">AGGIUNGI NUOVA STANZA</h4>
                     <div class="form-row">
@@ -39,6 +43,9 @@
                     <input type="text" id="custom-local-name" class="hidden" placeholder="Nome locale personalizzato">
                     <button id="add-local-btn" class="btn-add-local"><i class="fas fa-plus"></i> Aggiungi Locale</button>
                 </div>
+                
+                <!-- LA LISTA DELLE STANZE AGGIUNTE ORA STA SOTTO, CON LO SCROLL -->
+                <div id="added-locals-container"></div> 
             </div>
 
             <!-- Colonna destra -->
@@ -66,8 +73,16 @@
                          <div class="summary-line"><span class="label">Fabbisogno Termico Totale:</span><strong id="total-habitation-demand"></strong></div>
                     </div>
                     <h4>Dettaglio Stanze e Radiatori</h4>
-                    <div class="results-table-container"><table class="results-table"><thead><tr><th>Locale</th><th>MQ</th><th>Fabbisogno (W)</th><th>Radiatore</th><th>Elementi</th><th>Potenza Installata (W)</th></tr></thead><tbody id="results-tbody"></tbody></table></div>
-                    <div class="total-price-summary"><h3>Prezzo Totale Stimato Impianto</h3><div class="price-value" id="estimated-total-price">€ 0,00</div></div>
+                    <div class="results-table-container">
+                        <table class="results-table">
+                            <thead><tr><th>Locale</th><th>MQ</th><th>Fabbisogno (W)</th><th>Radiatore</th><th>Elementi</th><th>Potenza Installata (W)</th></tr></thead>
+                            <tbody id="results-tbody"></tbody>
+                        </table>
+                    </div>
+                    <div class="total-price-summary">
+                         <h3>Prezzo Totale Stimato Impianto</h3>
+                         <div class="price-value" id="estimated-total-price">€ 0,00</div>
+                    </div>
                     <div id="calculation-error" class="error-message hidden"></div>
                 </div>
             </div>
