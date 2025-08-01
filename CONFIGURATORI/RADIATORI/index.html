@@ -5,24 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Configuratore Radiatori</title>
     
-    <!-- Link ai CSS necessari -->
+    <!-- CSS dedicato a questa pagina -->
     <link rel="stylesheet" href="style.css"> 
+    
+    <!-- CSS principale per stili comuni (header, font, colori) -->
+    <!-- ../../ perché sei in ROOT/CONFIGURATORI/RADIATORI/, devi salire di 2 livelli per la ROOT -->
     <link rel="stylesheet" href="../../style.css">
+    
+    <!-- Altri link comuni -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
+<body class="hidden"> <!-- Aggiunta classe hidden al body -->
+    
     <div id="app" class="app-container">
         
-        <!-- ============================================= -->
-        <!--   HEADER PRESO DALLA TUA PAGINA "AGENDA"      -->
-        <!-- ============================================= -->
         <header class="app-header">
             <a href="../../index.html" class="logo-link">
                  <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo">
             </a>
             <div class="header-user-info">
-                Utente: <strong id="user-info-display"></strong>
+                Utente: <strong id="user-email-display">Caricamento...</strong>
             </div>
             <div class="header-controls">
                 <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
@@ -30,9 +33,6 @@
             </div>
         </header>
 
-        <!-- ============================================= -->
-        <!--  NUOVO BLOCCO PER IL TITOLO, PIÙ COMPATTO     -->
-        <!-- ============================================= -->
         <div class="page-header">
             <h1 class="page-title">Configuratore Radiatori</h1>
         </div>
@@ -121,11 +121,14 @@
         </main>
     </div>
     
+    <!-- SCRIPT FIREBASE E AUTENTICAZIONE CENTRALI (DALLA ROOT) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../../firebase-config.js"></script> 
-    <script src="../../auth-radiatori.js"></script> <!-- Script Auth modificato -->
+    <script src="../../auth.js"></script> <!-- USA L'UNICO SCRIPT DI AUTENTICAZIONE DELLA HOME -->
+    
+    <!-- SCRIPT DEDICATO A QUESTA PAGINA -->
     <script src="script.js"></script> 
 </body>
 </html>
