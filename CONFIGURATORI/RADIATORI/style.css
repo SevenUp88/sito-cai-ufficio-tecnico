@@ -1,6 +1,6 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
-/*    --- VERSIONE FINALE: LISTA STANZE SCROLLABILE ---       */
+/*   --- VERSIONE FINALE: TITOLO FISSO, FORM FISSO, LISTA SCROLLABILE --- */
 /* ========================================================== */
 :root { 
     --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
@@ -8,6 +8,7 @@
     --text-primary: #1e293b; --text-secondary: #64748b; 
     --border-color: #e2e8f0; 
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
     --font-family: 'Inter', sans-serif; 
     --danger-color: #ef4444; 
     --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
@@ -45,8 +46,8 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .radiator-configurator-container {
     display: flex; 
     gap: 1rem;
-    height: calc(100vh - 180px); /* REGOLA QUESTO VALORE IN BASE ALL'ALTEZZA DEL TUO HEADER + TITOLO */
-    overflow: hidden; /* Impedisce lo scroll del container principale */
+    height: calc(100vh - 180px); /* REGOLA 180px IN BASE ALL'ALTEZZA DEL TUO HEADER + TITOLO */
+    overflow: hidden; /* Niente scroll qui */
 }
 
 /* Colonna sinistra */
@@ -80,16 +81,16 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
     flex-shrink: 0; 
 }
 
-/* --- MODIFICA CHIAVE: IL BOX DELLA LISTA STANZE HA LO SCROLL --- */
+/* --- BOX LISTA STANZE: DEVE SCROLLARE INTERNAMENTE --- */
 #added-locals-container {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 10px;
     
-    flex-grow: 1; /* La lista cresce per riempire lo spazio tra titolo e form */
+    flex-grow: 1; /* La lista CRESCE per occupare lo spazio */
     min-height: 0; /* Essenziale per flexbox */
-    overflow-y: auto; /* Attiva lo scroll solo per questo box */
-    margin-bottom: 1.5rem; /* Spazio sotto la lista stanze */
+    overflow-y: auto; /* Attiva lo scroll SOLO qui */
+    margin-bottom: 1.5rem; /* Spazio sotto la lista */
 }
 
 /* Stile per ogni stanza aggiunta */
@@ -111,35 +112,33 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
 .remove-local-btn:hover { transform: scale(1.1); }
 
-/* Form di aggiunta stanza */
+/* Form di aggiunta stanza: sempre visibile in fondo */
 #add-local-form {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border-color);
-    margin-top: 1.5rem; /* Spazio sopra il form */
-    flex-shrink: 0; /* Il form non si rimpicciolisce */
+    margin-top: 1.5rem; 
+    flex-shrink: 0; /* Il form NON si rimpicciolisce */
 }
 #add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
 
-/* Sezioni informative colonna destra */
+/* Stili per sezioni nella colonna destra */
 .form-section { margin-bottom: 1.5rem; }
 .box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
 .configurator-action { margin-top: 2rem; text-align: center; }
 .results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
-.results-title { font-size: 1.6rem; color: var(--primary-color); }
-.project-summary { margin: 1rem 0 2rem 0; }
-.summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
-.summary-line .label { color: var(--text-secondary); }
-.summary-line strong { color: var(--text-primary); }
-.results-table-container { overflow-x: auto; }
 .results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
 .results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
-.results-table th { background-color: #f8f9fa; font-weight: 600; }
 .total-price-summary { text-align: right; margin-top: 2rem; }
 .total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-.form-group label { font-size: 0.9em; }
+
+/* Stili generici form */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+
+/* Bottoni */
 .btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
 .configurator-action .btn-calculate { width: auto; margin: 0 auto; display: block; }
 .hidden { display: none !important; }
@@ -149,7 +148,7 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
     body { overflow: auto; height: auto; } 
     main#content-area { height: auto; overflow: visible; }
     .radiator-configurator-container { grid-template-columns: 1fr; height: auto; }
-    .configurator-col.left-col { height: auto; /* L'altezza si adatta al contenuto */ }
+    .configurator-col.left-col { height: auto; }
     .configurator-col.right-col { overflow-y: visible; height: auto; }
     #added-locals-container { max-height: none; } /* Rimuove il limite di altezza su mobile */
 }
