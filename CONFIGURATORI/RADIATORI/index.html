@@ -5,24 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Configuratore Radiatori</title>
     
-    <!-- *** QUESTO È IL COLLEGAMENTO CORRETTO PER TROVARE IL style.css NELLA CARTELLA ATTUALE *** -->
+    <!-- COLLEGAMENTO AL CSS NELLA STESSA CARTELLA -->
     <link rel="stylesheet" href="style.css"> 
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Nota: se per caso avessi delle classi definite globalmente nel tuo style.css principale, 
-         potresti comunque volerlo includere ANCHE qui per mantenere alcuni stili comuni.
-         In quel caso, NON sarebbe style.css (che sta nella cartella attuale)
-         ma ../style.css per quello principale. Dipende dalla tua struttura interna.
-         Se hai solo stili per questa pagina in style.css qui dentro, questo è sufficiente. -->
+    <!-- COLLEGAMENTO AL CSS PRINCIPALE PER STILI COMUNI (ES. HEADER, COLORI) -->
+    <!-- Questo è fondamentale per la coerenza grafica ("family feeding") -->
+    <!-- ../style.css significa: vai su di una cartella (in CONFIGURATORI), poi un'altra (nella ROOT) e trova style.css -->
+    <link rel="stylesheet" href="../../style.css">
 
+    <!-- FontAwesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-    <!-- === HEADER GENERALE (COPIA IL TUO HEADER DALLA HOME O LASCIALO PIU' SEMPLICE PER LA PAGINA CONFIGURATORE) === -->
+    <!-- HEADER GENERALE (Preso dalla tua Home per coerenza) -->
     <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <a href="../../index.html">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        </a>
         <div class="header-controls">
-            <!-- -->
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
         </div>
     </header>
 
@@ -35,14 +39,16 @@
             <div class="configurator-col left-col">
                 <div class="local-selector-box">
                     <h3 class="local-selector-title">SELETTORE LOCALI</h3>
-                    <div id="added-locals-container"></div>
+                    <div id="added-locals-container">
+                        <!-- I locali aggiunti dinamicamente appariranno qui -->
+                    </div>
 
                     <div id="add-local-form">
                         <h4>AGGIUNGI NUOVA STANZA</h4>
                         <div class="form-group">
                             <label for="local-type-select">Tipo di Locale:</label>
                             <select id="local-type-select">
-                                <option value="">Seleziona...</option>
+                                <option value="" disabled selected>Seleziona tipo...</option>
                                 <option value="BAGNO">Bagno</option>
                                 <option value="CUCINA">Cucina</option>
                                 <option value="CORRIDOIO">Corridoio</option>
@@ -51,8 +57,9 @@
                                 <option value="STUDIO">Studio</option>
                                 <option value="SOGGIORNO">Soggiorno</option>
                                 <option value="GARAGE">Garage</option>
-                                <option value="ALTRO">Altro</option>
+                                <option value="ALTRO">Altro (Nome personalizzato)</option>
                             </select>
+                            <input type="text" id="custom-local-name" class="hidden" placeholder="Nome locale personalizzato">
                         </div>
                         <div class="form-group">
                             <label for="local-sqm-input">Metri Quadri (MQ):</label>
@@ -85,10 +92,9 @@
                 <div class="housing-info-box">
                     <h3 class="box-title">INFORMAZIONI IMPIANTO</h3>
                     <div class="form-group"><label for="radiator-brand">Marca Radiatore:</label><select id="radiator-brand"><option value="IRSAP">IRSAP</option></select></div>
-                    <div class="form-group"><label for="radiator-model">Modello Radiatore:</label><select id="radiator-model" required><option value="">Seleziona...</option><!-- Opzioni per TESI saranno aggiunte da JS --></select></div>
-                    <div class="form-group"><label for="radiator-element-config">Configurazione Elemento:</label><input type="text" id="radiator-element-config" readonly placeholder="Seleziona modello per vedere dettagli"></div>
-                    <div class="form-group"><label for="radiator-element-power-base">Potenza Base per Elemento (W):</label><input type="text" id="radiator-element-power-base" readonly placeholder="Seleziona modello"><small>Potenza a 75/65°C.</small></div>
-                    <div class="form-group"><label for="radiator-temp-ref">Temp. Riferimento Potenza:</label><input type="text" id="radiator-temp-ref" readonly placeholder="Seleziona modello"></div>
+                    <div class="form-group"><label for="radiator-model">Modello Radiatore:</label><select id="radiator-model" required><option value="">Seleziona modello...</option></select></div>
+                    <div class="form-group"><label for="radiator-element-config">Configurazione Elemento:</label><input type="text" id="radiator-element-config" readonly placeholder="Seleziona modello"></div>
+                    <div class="form-group"><label for="radiator-element-power-base">Potenza Base Elemento (W):</label><input type="text" id="radiator-element-power-base" readonly placeholder="Seleziona modello"><small>Potenza a ΔT 50°C (es. 75/65/20).</small></div>
                 </div>
                  <hr class="section-separator">
                 
@@ -100,11 +106,10 @@
 
                 <div id="calculation-results" class="results-display hidden">
                     <h3 class="results-title">PROGETTO IMPIANTO</h3>
-                    <p class="summary-info">Riepilogo del fabbisogno termico calcolato.</p>
                     <div class="project-summary">
-                         <div class="summary-line"><span class="label">Superficie Totale Abitazione:</span><span id="total-habitation-sqm" class="value"></span></div>
-                         <div class="summary-line"><span class="label">Volume Totale da Riscaldare:</span><span id="total-habitation-volume" class="value"></span></div>
-                        <div class="summary-line"><span class="label">Fabbisogno Termico Abitazione Stimato:</span><span id="total-habitation-demand" class="value"></span></div>
+                         <div class="summary-line"><span class="label">Superficie Totale:</span><strong id="total-habitation-sqm"></strong></div>
+                         <div class="summary-line"><span class="label">Volume Totale:</span><strong id="total-habitation-volume"></strong></div>
+                         <div class="summary-line"><span class="label">Fabbisogno Termico Totale:</span><strong id="total-habitation-demand"></strong></div>
                     </div>
                     
                     <h4>Dettaglio Stanze e Radiatori</h4>
@@ -114,16 +119,14 @@
                                 <tr>
                                     <th>Locale</th>
                                     <th>MQ</th>
-                                    <th>Volume (mc)</th>
-                                    <th>Fabb. Termico (W)</th>
+                                    <th>Fabbisogno (W)</th>
                                     <th>Radiatore</th>
-                                    <th>Elementi (n.)</th>
-                                    <th>Pot. El. (W)</th>
-                                    <th>Pot. Locale (W)</th>
+                                    <th>Elementi</th>
+                                    <th>Potenza Installata (W)</th>
                                 </tr>
                             </thead>
                             <tbody id="results-tbody">
-                                <!-- Dati verranno inseriti da JS -->
+                                <!-- Righe inserite da JS -->
                             </tbody>
                         </table>
                     </div>
@@ -137,12 +140,18 @@
                 </div>
             </div>
         </div>
-    </div>
-</main>
+    </main>
 
-<!-- FOOTER (Opzionale) -->
-<!-- <footer class="app-footer"></footer> -->
-
-<!-- === SCRIPT PER IL FUNZIONAMENTO DEL CONFIGURATORE === -->
-<!-- ASSICURATI CHE QUESTO SCRIPT SI TROVI NELLA CARTELLA RADIATORI -->
-<script src="script.js"></script> 
+    <!-- Script di Firebase (necessari per interagire con il database) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Script di configurazione e autenticazione della root -->
+    <script src="../../firebase-config.js"></script> 
+    <script src="../../auth.js"></script> 
+    
+    <!-- SCRIPT SPECIFICO PER QUESTA PAGINA -->
+    <script src="script.js"></script> 
+</body>
+</html>
