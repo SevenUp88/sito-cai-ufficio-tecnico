@@ -1,350 +1,176 @@
 /* ========================================================== */
-/*       CSS per la Pagina Configuratore Radiatori         */
+/*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
 /* ========================================================== */
 
-/* --- Variabili che si potrebbero aggiungere al tuo :root globale --- */
-/* :root { */
-    /* --primary-color: #005A9C; (già presente?) */
-    /* --primary-light: #E6F0F8; */
-    /* --primary-dark: #003d6b; */
-    /* --background-color: #f8fafc; */
-    /* --card-background: #ffffff; */
-    /* --text-primary: #1e293b; */
-    /* --text-secondary: #64748b; */
-    /* --border-color: #e2e8f0; */
-    /* --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); */
-    /* --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); */
-    /* --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); */
-    /* --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); */
-    /* --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; */
-    /* --success-color: #10b981; */
-    /* --danger-color: #ef4444; */
-    /* --warning-color: #f59e0b; */
-    /* --info-color: #3b82f6; */
-    /* --radius-sm: 6px; */
-    /* --radius-md: 8px; */
-    /* --radius-lg: 12px; */
-    /* --radius-xl: 16px; */
-/* } */
+/* Titolo della pagina */
+.configurator-title {
+    text-align: center;
+    color: var(--primary-color, #0056a8); /* Usa la variabile se esiste, altrimenti un colore di fallback */
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+}
 
-/* --- Contenitore principale pagina configuratore --- */
+/* Contenitore principale a due colonne */
 .radiator-configurator-container {
-    display: grid; /* Usa Grid per il layout delle colonne */
-    grid-template-columns: 1fr 2fr; /* Colonna di sinistra più piccola, destra più grande */
-    gap: 30px; /* Spazio tra le colonne */
-    margin-top: 20px; /* Margine superiore */
+    display: grid;
+    grid-template-columns: 350px 1fr; /* Colonna sinistra fissa, destra flessibile */
+    gap: 30px;
+    margin-top: 20px;
 }
 
-/* --- Colonna sinistra (Locale Selector) --- */
+/* Colonna sinistra (Selettore Locali) */
 .configurator-col.left-col {
-    /* Stili base per la colonna */
-    background: var(--card-background);
-    padding: 25px 30px;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    display: flex; /* Usa flex per organizzare al meglio i suoi elementi */
+    background: var(--card-background, #ffffff);
+    padding: 25px;
+    border-radius: var(--radius-lg, 12px);
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+    display: flex;
     flex-direction: column;
-    height: fit-content; /* Altezza si adatta al contenuto */
+    height: fit-content;
 }
 
-/* Titolo del Selettore Locali */
 .local-selector-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 1.2rem;
+    color: var(--primary-color, #0056a8);
+    margin: 0 0 1.2rem 0;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--primary-color, #0056a8);
 }
 
-/* Box che contiene i locali aggiunti */
 #added-locals-container {
     margin-bottom: 20px;
-    min-height: 150px; /* Minimo spazio visibile */
-    border: 1px dashed var(--border-color); /* Bordo tratteggiato per visibilità */
+    min-height: 150px;
+    border: 1px dashed var(--border-color, #e2e8f0);
     padding: 10px;
-    border-radius: var(--radius-lg);
-    background: #fefeff; /* Leggermente diverso dal background carte */
-    flex-grow: 1; /* Per occupare lo spazio disponibile se i form sono piccoli */
+    border-radius: var(--radius-lg, 12px);
+    background: #fdfdff;
+    flex-grow: 1;
 }
 
-/* Singolo locale nella lista */
 .local-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--card-background);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+    background: var(--card-background, #ffffff);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius-md, 8px);
     padding: 10px 15px;
     margin-bottom: 10px;
     transition: all 0.2s ease;
 }
-
 .local-item:hover {
-    background: var(--primary-light); /* Hover chiaro */
+    background: var(--primary-light, #E6F0F8);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
 }
-
-.local-item h4 { /* Nome della stanza */
+.local-item h4 {
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--text-primary, #1e293b);
 }
-
 .local-details {
     display: flex;
     align-items: center;
-    gap: 10px; /* Spazio tra MQ e bottone rimozione */
+    gap: 10px;
 }
-
-.local-sqm { /* Etichetta MQ */
+.local-sqm {
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: var(--text-secondary, #64748b);
 }
-
-/* Bottone per rimuovere un locale */
 .remove-local-btn {
     background: none;
     border: none;
-    color: var(--danger-color);
+    color: var(--danger-color, #ef4444);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 5px;
+    line-height: 1;
     transition: all 0.2s ease;
 }
-
 .remove-local-btn:hover {
-    color: var(--danger-color); /* Manteniamo colore più scuro */
     transform: scale(1.1);
 }
 
-/* Form per aggiungere nuovi locali */
 #add-local-form {
     margin-top: 15px;
     padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--border-color, #e2e8f0);
 }
-
-#add-local-form h4 { /* Titolo di aggiunta stanza */
+#add-local-form h4 {
     font-size: 1.2rem;
     font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
+    color: var(--primary-color, #0056a8);
+    margin: 0 0 1rem 0;
 }
-
-/* Stile per form group all'interno di add-local-form */
-#add-local-form .form-group {
-    margin-bottom: 15px;
-}
-
-#add-local-form label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-#add-local-form input[type="number"],
-#add-local-form select {
-    padding: 10px 14px; /* Padding comodo per input/select */
-    border: 1px solid var(--border-color); /* Bordo consistente */
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-family: var(--font-family);
-    transition: all 0.2s ease;
-}
-
-#add-local-form input:focus,
-#add-local-form select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1);
-    transform: translateY(-1px);
-}
-
-/* Bottone Aggiungi Locale */
+#custom-local-name { margin-top: 10px; }
 .btn-add-local {
-    width: 100%; /* Occupa tutta la larghezza */
-    padding: 12px 20px;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    border-radius: 6px;
-    background-color: var(--primary-color);
-    color: white;
-    transition: all 0.2s ease;
-}
-.btn-add-local:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-1px);
+    width: 100%;
+    margin-top: 10px;
 }
 
-
-/* --- COLONNA DI DESTRA (Informazioni Abitazione & Impianto, Progetto) --- */
-.configurator-col.right-col {
-    /* Base styles for the column */
+/* Colonna destra (Informazioni e Progetto) */
+.housing-info-box {
+    background: var(--card-background, #ffffff);
+    padding: 25px;
+    border-radius: var(--radius-xl, 16px);
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 }
-
-/* Box per Informazioni */
-.housing-info-box,
-.project-info-box { /* Usiamo la stessa classe per le due sezioni informative */
-    background: var(--card-background);
-    padding: 25px 30px;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-lg);
-    margin-bottom: 20px; /* Spazio tra le sezioni */
-}
-
-/* Titoli dei Box Informativi */
-.housing-info-box .box-title,
-.project-info-box .box-title {
+.box-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
-    margin-bottom: 1.2rem;
+    color: var(--primary-color, #0056a8);
+    margin: 0 0 1.5rem 0;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--primary-color, #0056a8);
 }
-
-/* Separatore */
 .section-separator {
     margin: 25px 0;
     border: none;
     height: 1px;
-    background: linear-gradient(to right, transparent, var(--border-color), transparent); /* Separatore più sottile */
+    background: linear-gradient(to right, transparent, var(--border-color, #e2e8f0), transparent);
 }
 
-/* Stile per i Form Group nella colonna destra */
-.housing-info-box .form-group,
-.project-info-box .form-group {
-    margin-bottom: 15px; /* Minor spazio tra i campi rispetto alla sinistra, visto che è più conciso */
-}
-
-.housing-info-box label,
-.project-info-box label {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
-}
-
-.housing-info-box input[type="number"],
-.housing-info-box select,
-.project-info-box input[type="text"], /* Assumi che siano testuali, ma se servono numerici, */
-.project-info-box input[type="number"], /* assicurati che sia corretto */
-.project-info-box select {
-    padding: 10px 14px;
-    border: 1px solid var(--border-color); /* Bordo leggero */
-    border-radius: var(--radius-md);
-    font-size: 1rem;
-    font-family: var(--font-family);
-    transition: all 0.2s ease;
-}
-
-.housing-info-box input:focus,
-.housing-info-box select:focus,
-.project-info-box input:focus,
-.project-info-box select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 90, 156, 0.1);
-}
-
-/* Input readonly */
-.housing-info-box input[readonly],
-.project-info-box input[readonly] {
-    background-color: #f8f9fa; /* Colore leggermente grigio */
-    cursor: not-allowed; /* Indica che non è modificabile */
-}
-
-/* Stile per la tabella dei risultati del Progetto Impianto */
-.results-table-container {
-    margin-top: 1.5rem;
-    overflow-x: auto; /* Per schermi stretti, per avere scroll orizzontale */
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: separate; /* Permette di avere bordi curvi */
-    border-spacing: 0; /* Nessuno spazio tra le celle */
-    border-radius: var(--radius-lg); /* Angoli arrotondati per l'intera tabella */
-    overflow: hidden; /* Nasconde gli angoli eccedenti dei bordi delle celle */
-    box-shadow: var(--shadow-sm); /* Ombra leggera */
-    border: 1px solid var(--border-color); /* Bordo generale tabella */
-}
-
-.results-table th,
-.results-table td {
-    border: 1px solid var(--border-color); /* Bordi per ogni cella */
-    padding: 12px 10px; /* Padding nelle celle */
-    text-align: center;
-    font-size: 0.875rem; /* Font più piccolo per le tabelle */
-    vertical-align: top; /* Allineamento in alto */
-}
-
-.results-table th {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); /* Sfondo leggermente diverso per intestazione */
-    font-weight: 600;
-    color: var(--text-primary);
-    font-size: 0.9rem;
-}
-
-.results-table .locale-column { text-align: left; min-width: 120px; } /* Locale a sinistra */
-.results-table .mq-column { width: 70px; }
-.results-table .volume-column { width: 80px; }
-.results-table .demand-column { width: 100px; font-weight: 500; color: var(--primary-color); }
-.results-table .radiator-name-column { min-width: 150px; }
-.results-table .elements-column { width: 70px; font-weight: 500; }
-.results-table .element-power-column { width: 100px; }
-.results-table .total-room-power-column { width: 100px; font-weight: 700; color: var(--primary-color); }
-
-
-/* Riassunto Prezzo Totale */
-.total-price-summary {
-    text-align: right; /* Allinea a destra */
+/* Risultati */
+.results-display {
     margin-top: 2rem;
-    padding: 1rem 0; /* Spazio verticale sopra */
-    border-top: 1px solid var(--border-color); /* Linea divisoria */
+    padding: 2rem;
+    background: var(--card-background, #ffffff);
+    border-radius: var(--radius-xl, 16px);
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
 }
-
-.total-price-summary h3 {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
+.results-title {
+    font-size: 1.6rem;
+    color: var(--primary-color, #0056a8);
 }
+.project-summary { margin: 1rem 0 2rem 0; }
+.summary-line { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
+.summary-line .label { color: var(--text-secondary, #64748b); }
+.summary-line strong { color: var(--text-primary, #1e293b); }
 
-.total-price-summary .price-value {
-    font-size: 2rem; /* Font grande per il prezzo */
-    font-weight: 700;
-    color: var(--primary-color); /* Prezzo con colore primario */
-}
+.results-table-container { overflow-x: auto; }
+.results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.results-table th, .results-table td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border-color, #e2e8f0); }
+.results-table th { background-color: #f8f9fa; font-weight: 600; }
+.results-table td:nth-child(3), .results-table td:nth-child(6) { font-weight: 600; color: var(--primary-color, #0056a8); }
 
-/* Responsive design per il configuratore */
-@media (max-width: 1024px) { /* Tablet e schermi più piccoli */
-    .radiator-configurator-container {
-        grid-template-columns: 1fr; /* Unica colonna */
-    }
-    .configurator-col.left-col,
-    .configurator-col.right-col {
-        margin-bottom: 20px; /* Spazio tra le colonne quando sono una sotto l'altra */
-    }
-    #added-locals-container { min-height: 100px; }
-    #add-local-form { padding-top: 15px; }
-    .local-item h4 { font-size: 1rem; }
-    .local-details { gap: 8px; }
-    .remove-local-btn { font-size: 1rem; }
-    .configurator-form-container { padding: 1.5rem; }
-    #add-local-form h4 { font-size: 1.1rem; }
-    .btn-calculate { font-size: 1em; padding: 12px 25px; }
-    .results-display { padding: 1.5rem; }
-    .results-display h3 { font-size: 1.4rem; }
-    .results-display h4 { font-size: 1.1rem; }
-    .room-result-item { padding: 1rem 1rem; }
-    .total-price-summary .price-value { font-size: 1.8rem; }
+.total-price-summary { text-align: right; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border-color, #e2e8f0); }
+.total-price-summary h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+.total-price-summary .price-value { font-size: 2.2rem; font-weight: 700; color: var(--primary-color, #0056a8); }
+
+/* Stili generici ripresi per coerenza */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+.form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-add-local, .btn-calculate { background-color: var(--primary-color, #0056a8); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; }
+.btn-add-local:hover, .btn-calculate:hover { background-color: var(--primary-dark, #004182); }
+.hidden { display: none !important; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .radiator-configurator-container { grid-template-columns: 1fr; }
 }
