@@ -1,6 +1,8 @@
 /* ========================================================== */
 /*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*   --- VERSIONE FINALE: NESSUNO SCROLL SULLA PAGINA ---     */
 /* ========================================================== */
+
 :root { 
     --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
     --background-color: #f8fafc; --card-background: #ffffff; 
@@ -36,13 +38,13 @@ body:not(.hidden) { visibility: visible; }
 .header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer; }
 .button-logout { background-color: #f1f5f9; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
 .button-logout:hover { background-color: #e2e8f0; }
-
 .page-header { margin: 0 1rem 1rem 1rem; flex-shrink: 0; }
 .page-title { text-align: center; font-size: 1.8rem; font-weight: 700; color: var(--primary-color); margin: 0; }
 
 /* Contenitore principale a colonne */
 main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; min-height: 0; }
 .radiator-configurator-container { display: grid; grid-template-columns: 400px 1fr; gap: 1rem; height: 100%; }
+.configurator-col.right-col { overflow-y: auto; }
 .configurator-col.left-col,
 .configurator-col.right-col {
     background: var(--card-background);
@@ -50,21 +52,39 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
     border: 1px solid var(--border-color); box-shadow: var(--shadow-md);
     height: 100%; display: flex; flex-direction: column;
 }
-.configurator-col.right-col { overflow-y: auto; }
 
-/* Dettagli colonna sinistra */
-.local-selector-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); flex-shrink: 0; }
-#added-locals-container { margin-bottom: 1.5rem; min-height: 100px; max-height: 35vh; overflow-y: auto; border: 1px dashed var(--border-color); padding: 10px; border-radius: var(--radius-md); flex-grow: 1; display: flex; flex-direction: column; }
-#added-locals-container .empty-message { margin: auto; color: var(--text-secondary); font-style: italic; }
+/* --- MODIFICA CHIAVE: COLONNA SINISTRA --- */
+.local-selector-title {
+    font-size: 1.3rem; font-weight: 600; color: var(--primary-color);
+    margin: 0 0 1rem 0; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    flex-shrink: 0; /* Il titolo non si rimpicciolisce */
+}
+#added-locals-container {
+    border: 1px dashed var(--border-color); padding: 10px;
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+
+    /* Questo è il trucco: il box cresce, ma non all'infinito */
+    flex-grow: 1; 
+    overflow-y: auto; /* Attiva lo scroll solo per questo box */
+    min-height: 0; /* Fix essenziale per far funzionare overflow con flexbox */
+}
+#add-local-form {
+    margin-top: auto; /* Spinge il form in fondo */
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0; /* Il form non si rimpicciolisce */
+}
+/* ------------------------------------------- */
+
 .local-item { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; margin-bottom: 8px; animation: fadeIn 0.3s ease-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; }
-#add-local-form { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color); flex-shrink: 0; }
 #add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; }
 #add-local-form .form-row { display: flex; gap: 15px; }
 #add-local-form .form-row .form-group { flex: 1; }
 
-/* Dettagli colonna destra */
 .form-section { margin-bottom: 1.5rem; }
 .box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
 .configurator-action { margin-top: 2rem; }
@@ -73,8 +93,6 @@ main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; m
 .results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
 .total-price-summary { text-align: right; margin-top: 2rem; }
 .total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-
-/* Stili generici */
 .form-group label { font-size: 0.9em; }
 .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
