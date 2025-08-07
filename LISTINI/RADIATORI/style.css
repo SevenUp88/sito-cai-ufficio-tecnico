@@ -1,141 +1,154 @@
 /* ========================================================== */
-/*       CSS SPECIFICO per la Pagina Listini Radiatori        */
+/*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
+/*   --- VERSIONE FINALE: TITOLO FISSO, FORM FISSO, LISTA SCROLLABILE --- */
 /* ========================================================== */
-
-/* Estende gli stili generali dalla root, ma aggiunge specifici */
-/* Assicurati che i selettori comuni (header, button, form) siano coerenti */
-
-/* --- Layout Principale della Pagina Listini --- */
-main#content-area {
-    padding: 1.5rem; /* Padding generale */
+:root { 
+    --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
+    --background-color: #f8fafc; --card-background: #ffffff; 
+    --text-primary: #1e293b; --text-secondary: #64748b; 
+    --border-color: #e2e8f0; 
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+    --font-family: 'Inter', sans-serif; 
+    --danger-color: #ef4444; 
+    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
 }
-.radiator-configurator-container { /* Riusiamo questo classe se vuoi lo stesso grid */
-    display: grid;
-    grid-template-columns: 300px 1fr; /* Colonna marche più stretta, prodotti più larga */
-    gap: 30px;
-    margin-top: 1rem;
-    align-items: start;
+* { box-sizing: border-box; }
+body { 
+    font-family: var(--font-family); background: var(--background-color);
+    margin: 0; color: var(--text-primary);
+    display: flex; flex-direction: column;
+    height: 100vh; overflow: hidden;
+    visibility: hidden; 
+}
+body:not(.hidden) { visibility: visible; }
+
+/* Header e Titolo */
+.app-header {
+    padding: 0.75rem 1.5rem; background-color: var(--card-background);
+    box-shadow: var(--shadow-md); border-radius: var(--radius-xl);
+    margin: 1rem;
+    display: flex; align-items: center; gap: 20px;
+    flex-shrink: 0; 
+}
+.app-header .logo { height: 45px; }
+.header-user-info { margin-left: 1rem; color: var(--text-secondary); }
+.header-user-info strong { color: var(--text-primary); font-weight: 600; }
+.header-controls { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
+.header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer; }
+.button-logout { background-color: #f1f5f9; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.button-logout:hover { background-color: #e2e8f0; }
+
+.page-header { margin: 0 1rem 1rem 1rem; flex-shrink: 0; }
+.page-title { text-align: center; font-size: 1.8rem; font-weight: 700; color: var(--primary-color); margin: 0; }
+
+/* Contenitore principale a colonne */
+main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; min-height: 0; }
+.radiator-configurator-container {
+    display: flex; 
+    gap: 1rem;
+    height: calc(100vh - 180px); /* REGOLA 180px IN BASE ALL'ALTEZZA DEL TUO HEADER + TITOLO */
+    overflow: hidden; /* Niente scroll sul container generale */
 }
 
-/* === SEZIONE MARCHE === */
-.brands-section {
-    background: var(--card-background);
+/* Colonna sinistra */
+.configurator-col.left-col {
+    flex-basis: 400px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column; /* Elementi interni in colonna */
+    height: 100%; 
+    overflow: hidden; /* Niente scroll sulla colonna stessa */
+}
+
+/* Colonna destra */
+.configurator-col.right-col {
+    flex-grow: 1;
+    overflow-y: auto; /* Scrollo SOLO sulla colonna destra */
+    padding: 25px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
-    padding: 25px;
     box-shadow: var(--shadow-md);
-    height: fit-content; /* Si adatta al contenuto */
-}
-.brands-section h3 {
-    font-size: 1.4rem; font-weight: 700; color: var(--primary-color);
-    margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color);
-}
-.brands-controls {
+    height: 100%;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
 }
-.btn-primary { /* Stile generico per i bottoni primari */
-    padding: 10px 20px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
+
+/* Titolo colonna sinistra */
+.local-selector-title {
+    font-size: 1.3rem; font-weight: 600; color: var(--primary-color);
+    margin: 0 0 1rem 0; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+    flex-shrink: 0; 
+}
+
+/* --- IL BOX DELLA LISTA STANZE CHE DOVRÀ SCORRERE --- */
+#added-locals-container {
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    cursor: pointer;
-    font-weight: 600;
+    padding: 10px;
+    
+    flex-grow: 1; /* Occupa tutto lo spazio rimanente */
+    min-height: 0; /* Cruciale per flexbox */
+    overflow-y: auto; /* Abilita lo scroll solo qui */
+}
+
+/* Stile per ogni stanza aggiunta */
+.local-item { 
+    display: flex; justify-content: space-between; align-items: center; 
+    border: 1px solid var(--border-color); 
+    border-radius: var(--radius-md); 
+    padding: 12px 15px; 
+    margin-bottom: 8px; 
+    background-color: white; 
+    font-size: 0.9em; 
+    font-weight: 500;
     transition: all 0.2s ease;
 }
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-    transform: translateY(-1px);
-}
-#brands-list {
-    margin-top: 15px;
-}
-.brand-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px dashed var(--border-color);
-    font-size: 1rem;
-    color: var(--text-primary);
-}
-.brand-item:last-child { border-bottom: none; }
-.brand-actions { display: flex; gap: 10px; }
-.brand-actions button { background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 0.9rem; }
-.brand-actions button.btn-edit-brand { color: var(--primary-color); }
-.brand-actions button.btn-delete-brand { color: var(--danger-color); }
+.local-item:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.local-item h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+.local-details { display: flex; align-items: center; gap: 10px; }
+.local-sqm { font-size: 0.9rem; color: var(--text-secondary); }
+.remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
+.remove-local-btn:hover { transform: scale(1.1); }
 
+/* Il FORM DI AGGIUNTA RIMANE FISSO IN FONDO */
+#add-local-form {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 1.5rem; 
+    flex-shrink: 0; /* Il form NON si rimpicciolisce */
+}
+#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
+#add-local-form .form-row { display: flex; gap: 15px; }
+#add-local-form .form-row .form-group { flex: 1; }
 
-/* === SEZIONE PRODOTTI === */
-.products-section {
-    background: var(--card-background);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-    padding: 25px;
-    box-shadow: var(--shadow-lg);
-}
-.products-section h3 {
-    font-size: 1.4rem; font-weight: 700; color: var(--primary-color);
-    margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
-    border-bottom: 2px solid var(--primary-color);
-}
-.products-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 15px;
-}
-.products-controls input[type="text"] {
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    flex-grow: 1; /* Input occupa lo spazio rimanente */
-}
-#products-list {
-    margin-top: 15px;
-}
-.product-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--card-background);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 15px 20px;
-    margin-bottom: 10px;
-    transition: all 0.2s ease;
-}
-.product-item:hover {
-    background: var(--primary-light);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-}
-.product-info { flex-grow: 1; margin-right: 20px; }
-.product-name { font-weight: 600; color: var(--text-primary); }
-.product-code { font-size: 0.85em; color: var(--text-secondary); margin-top: 5px; }
-.product-details { display: flex; gap: 20px; align-items: center; }
-.product-tech-spec { font-size: 0.85em; color: var(--text-secondary); }
-.product-price { font-weight: 700; color: var(--primary-color); font-size: 1.1em; }
-.product-actions { display: flex; gap: 10px; }
-.product-actions button { background: none; border: none; cursor: pointer; font-size: 0.9em; }
-.product-actions button.btn-edit-product { color: var(--primary-color); }
-.product-actions button.btn-delete-product { color: var(--danger-color); }
+/* Sezioni informative colonna destra */
+.form-section { margin-bottom: 1.5rem; }
+.box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
+.configurator-action { margin-top: 2rem; text-align: center; }
+.results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
+.results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+.results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
+.total-price-summary { text-align: right; margin-top: 2rem; }
+.total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
 
-/* --- Responsive --- */
+/* Stili generici form */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
+.form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+
+/* Bottoni */
+.btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+.configurator-action .btn-calculate { width: auto; margin: 0 auto; display: block; }
+.hidden { display: none !important; }
+
+/* Responsive */
 @media (max-width: 1024px) {
-    .radiator-configurator-container {
-        grid-template-columns: 1fr; /* Una sola colonna su schermi piccoli */
-        gap: 20px;
-    }
-    .configurator-col.left-col,
-    .configurator-col.right-col {
-        height: auto; /* Altezza automatica */
-    }
-    .brands-controls, .products-controls { flex-direction: column; gap: 10px; }
-    .products-controls input[type="text"] { width: 100%; }
+    body { overflow: auto; height: auto; } 
+    main#content-area { height: auto; overflow: visible; }
+    .radiator-configurator-container { grid-template-columns: 1fr; height: auto; }
+    .configurator-col.left-col { height: auto; }
+    .configurator-col.right-col { overflow-y: visible; height: auto; }
+    #added-locals-container { max-height: none; } 
 }
