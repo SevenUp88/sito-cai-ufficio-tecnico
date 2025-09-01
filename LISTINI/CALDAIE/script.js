@@ -19,6 +19,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const db = firebase.firestore();
     const auth = firebase.auth();
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    // La persistenza è stata impostata con successo.
+    // Ora possiamo inizializzare il resto della pagina.
+    console.log("Persistenza Firebase impostata su LOCAL.");
+    initializeCaldaiePage(); // <-- SPOSTIAMO LA CHIAMATA QUI
+  })
+  .catch((error) => {
+    // Gestione di eventuali errori nell'impostare la persistenza
+    console.error("Errore nell'impostare la persistenza:", error);
+  });
 
     // --- Constants for Caldaie Page ---
     const imageBaseUrl = 'img/'; 
