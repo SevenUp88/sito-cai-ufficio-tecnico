@@ -27,11 +27,28 @@
                 <div class="form-section">
                     <h3 class="section-title">1. Aggiungi e Configura Stanze</h3>
                     <div id="add-local-form">
-                        <!-- Info Stanza -->
+                        <!-- NUOVO: Menu a tendina per il tipo di stanza -->
                         <div class="form-group">
-                            <label for="local-name-input">Nome Stanza</label>
-                            <input type="text" id="local-name-input" placeholder="Es. Soggiorno">
+                            <label for="local-type-select">Tipo di Stanza</label>
+                            <select id="local-type-select">
+                                <option value="" disabled selected>Seleziona un tipo...</option>
+                                <option value="Soggiorno">Soggiorno</option>
+                                <option value="Cucina">Cucina</option>
+                                <option value="Camera Matrimoniale">Camera Matrimoniale</option>
+                                <option value="Camera Singola">Camera Singola</option>
+                                <option value="Bagno">Bagno</option>
+                                <option value="Studio">Studio</option>
+                                <option value="Corridoio">Corridoio</option>
+                                <option value="Ripostiglio">Ripostiglio</option>
+                                <option value="ALTRO">Altro (Specifica nome)</option>
+                            </select>
                         </div>
+                        <div class="form-group hidden" id="custom-local-name-container">
+                             <label for="custom-local-name-input">Nome Personalizzato</label>
+                             <input type="text" id="custom-local-name-input" placeholder="Es. Taverna">
+                        </div>
+
+                        <!-- Info Stanza -->
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="local-sqm-input">Metri Quadri (mq)</label>
