@@ -609,4 +609,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         await loadAndDisplayPrimaryData(); 
     });
-}```
