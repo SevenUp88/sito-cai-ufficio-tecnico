@@ -36,18 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- STATO APPLICAZIONE ---
     let addedLocals = [];
 
-    // --- COEFFICIENTI DI CALCOLO (W/m³) ---
     const heatLossCoefficients = {
         RESIDENZIALE_MODERNO: 30, RESIDENZIALE_TRADIZIONALE: 40,
         VECCHIO_EDIFICIO: 55, ALTA_EFFICIENZA: 25,
     };
     const SCONTO_VENDITA = -0.40;
 
-    // --- SELEZIONE ELEMENTI DOM ---
-    const localNameInput = document.getElementById('local-name-input');
+    const localTypeSelect = document.getElementById('local-type-select');
+    const customNameContainer = document.getElementById('custom-local-name-container');
+    const customNameInput = document.getElementById('custom-local-name-input');
     const localSqmInput = document.getElementById('local-sqm-input');
     const localHeightInput = document.getElementById('local-height-input');
     const addLocalBtn = document.getElementById('add-local-btn');
@@ -59,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('results-container');
     const errorDiv = document.getElementById('error-message');
 
-    // --- FUNZIONI ---
     function populateModels() {
         const models = Object.keys(radiatorCatalog.IRSAP);
         modelSelect.innerHTML = '<option value="">Seleziona...</option>';
@@ -100,15 +98,30 @@ document.addEventListener('DOMContentLoaded', () => {
             addedLocalsList.appendChild(div);
         });
     }
+
+    function resetAddForm() {
+        localTypeSelect.value = '';
+        customNameInput.value = '';
+        customNameContainer.classList.add('hidden');
+        localSqmInput.value = '';
+        modelSelect.value = '';
+        heightSelect.innerHTML = '<option value="">...</option>';
+        heightSelect.disabled = true;
+    }
     
     function handleAddLocal() {
-        const name = localNameInput.value.trim();
+        const type = localTypeSelect.value;
+        let name = type;
+        if (type === 'ALTRO') {
+            name = customNameInput.value.trim();
+        }
+
         const sqm = parseFloat(localSqmInput.value);
         const roomHeight = parseFloat(localHeightInput.value);
         const radiatorId = parseInt(heightSelect.value, 10);
         const model = modelSelect.value;
 
-        if (!name || !sqm || !roomHeight) { return alert('Compila i dati della stanza.'); }
+        if (!name || !sqm || !roomHeight) { return alert('Compila tutti i dati della stanza.'); }
         if (!radiatorId) { return alert('Seleziona un modello e un\'altezza per il radiatore.'); }
 
         const radiator = radiatorCatalog.IRSAP[model].find(r => r.id === radiatorId);
@@ -119,9 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         renderAddedLocals();
-        localNameInput.value = '';
-        localSqmInput.value = '';
-        localNameInput.focus();
+        resetAddForm();
     }
 
     function handleCalculate() {
@@ -169,8 +180,15 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsContainer.classList.remove('hidden');
     }
 
-    // --- EVENT LISTENERS ---
-    brandSelect.addEventListener('change', populateModels);
+    localTypeSelect.addEventListener('change', () => {
+        if (localTypeSelect.value === 'ALTRO') {
+            customNameContainer.classList.remove('hidden');
+            customNameInput.focus();
+        } else {
+            customNameContainer.classList.add('hidden');
+        }
+    });
+
     modelSelect.addEventListener('change', populateHeights);
     addLocalBtn.addEventListener('click', handleAddLocal);
     calculateBtn.addEventListener('click', handleCalculate);
@@ -184,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- INIZIALIZZAZIONE ---
     populateModels();
     renderAddedLocals();
 });
