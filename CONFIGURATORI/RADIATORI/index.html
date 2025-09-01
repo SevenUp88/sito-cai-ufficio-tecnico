@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Configuratore Radiatori Avanzato</title>
+    <title>CAI - Configuratore Radiatori Dettagliato</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,9 +13,6 @@
     <header class="app-header">
         <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecni-co/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo">
         <div class="header-user-info">Utente: <strong>demo@cai.it</strong></div>
-        <div class="header-controls">
-            <button class="button-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
     </header>
 
     <div class="page-header">
@@ -25,35 +22,58 @@
     <main id="content-area">
         <div class="configurator-container">
 
-            <!-- Colonna Sinistra: Input Stanze -->
+            <!-- Colonna Sinistra: Aggiunta e Lista Stanze -->
             <div class="configurator-col left-col">
-                <h3 class="section-title">1. Dati Stanze</h3>
-                <div id="add-local-form">
-                    <div class="form-group">
-                        <label for="local-name-input">Nome Stanza</label>
-                        <input type="text" id="local-name-input" placeholder="Es. Camera Matrimoniale">
-                    </div>
-                    <div class="form-row">
+                <div class="form-section">
+                    <h3 class="section-title">1. Aggiungi e Configura Stanze</h3>
+                    <div id="add-local-form">
+                        <!-- Info Stanza -->
                         <div class="form-group">
-                            <label for="local-sqm-input">Metri Quadri (mq)</label>
-                            <input type="number" id="local-sqm-input" placeholder="16" min="1">
+                            <label for="local-name-input">Nome Stanza</label>
+                            <input type="text" id="local-name-input" placeholder="Es. Soggiorno">
                         </div>
-                        <div class="form-group">
-                            <label for="local-height-input">Altezza (m)</label>
-                            <input type="number" id="local-height-input" value="2.70" step="0.1" min="1.5">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="local-sqm-input">Metri Quadri (mq)</label>
+                                <input type="number" id="local-sqm-input" placeholder="25" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label for="local-height-input">Altezza (m)</label>
+                                <input type="number" id="local-height-input" value="2.70" step="0.1" min="1.5">
+                            </div>
                         </div>
+                        
+                        <!-- Selezione Radiatore per QUESTA Stanza -->
+                        <h4 class="form-subtitle">Radiatore per questa stanza</h4>
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="radiator-brand">Marca</label>
+                                <select id="radiator-brand"><option value="IRSAP">IRSAP</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="radiator-model">Modello</label>
+                                <select id="radiator-model" disabled><option>...</option></select>
+                            </div>
+                         </div>
+                         <div class="form-group">
+                            <label for="radiator-height">Altezza Radiatore</label>
+                            <select id="radiator-height" disabled><option>Seleziona modello...</option></select>
+                        </div>
+
+                        <button id="add-local-btn" class="btn btn-add"><i class="fas fa-plus"></i> Aggiungi Stanza alla Lista</button>
                     </div>
-                    <button id="add-local-btn" class="btn"><i class="fas fa-plus"></i> Aggiungi Stanza</button>
                 </div>
-                <div id="added-locals-list-container">
-                    <h4>Stanze Aggiunte</h4>
+                
+                <!-- Lista Stanze Aggiunte (con scroll) -->
+                <div id="added-locals-container">
+                    <h3 class="section-title">Elenco Stanze Progetto</h3>
                     <div id="added-locals-list">
                         <p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Colonna Destra: Opzioni e Risultati -->
+            <!-- Colonna Destra: Opzioni Globali e Risultati -->
             <div class="configurator-col right-col">
                 <div class="form-section">
                     <h3 class="section-title">2. Info Abitazione</h3>
@@ -66,43 +86,15 @@
                             <option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option>
                         </select>
                     </div>
-                     <div class="form-group">
-                        <label for="outside-design-temp-input">Temperatura Esterna di Progetto (°C)</label>
-                        <input type="number" id="outside-design-temp-input" value="-5">
-                    </div>
-                </div>
-
-                <div class="form-section">
-                    <h3 class="section-title">3. Info Impianto</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="radiator-brand">Marca Radiatore</label>
-                            <select id="radiator-brand"><option value="IRSAP">IRSAP</option></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="radiator-model">Modello</label>
-                            <select id="radiator-model" disabled><option>Seleziona marca...</option></select>
-                        </div>
-                         <div class="form-group">
-                            <label for="radiator-height">Altezza</label>
-                            <select id="radiator-height" disabled><option>Seleziona modello...</option></select>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="configurator-action">
-                    <button id="calculate-btn" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcola Preventivo</button>
+                    <button id="calculate-btn" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcola Preventivo Finale</button>
                 </div>
 
                 <div id="results-container" class="hidden">
                     <h2 class="results-main-title">Risultato Configurazione</h2>
                     <div id="error-message" class="error-box hidden"></div>
-
-                    <h4>Riepilogo Dati</h4>
-                    <div class="summary-grid">
-                        <div><strong>Tipologia Abitazione:</strong> <span id="summary-habitation-type"></span></div>
-                        <div><strong>Radiatore Selezionato:</strong> <span id="summary-radiator-model"></span></div>
-                    </div>
 
                     <h4>Dettaglio Radiatori per Stanza</h4>
                     <div class="table-container">
@@ -110,9 +102,9 @@
                             <thead>
                                 <tr>
                                     <th>Stanza</th>
+                                    <th>Radiatore Scelto</th>
                                     <th>Fabbisogno (W)</th>
                                     <th>N. Elementi</th>
-                                    <th>Potenza Installata (W)</th>
                                     <th>Prezzo Stanza</th>
                                 </tr>
                             </thead>
@@ -121,8 +113,8 @@
                     </div>
 
                     <div class="totals-summary">
-                        <h3>Preventivo Totale</h3>
-                        <div class="total-line"><span>Fabbisogno Termico Totale:</span><strong id="total-demand">0 W</strong></div>
+                        <h3>Preventivo Totale Impianto</h3>
+                        <div class="total-line"><span>Fabbisogno Termico Complessivo:</span><strong id="total-demand">0 W</strong></div>
                         <div class="total-line price"><span>Prezzo Totale Stimato:</span><strong id="total-price">€ 0,00</strong></div>
                         <small>I prezzi sono calcolati applicando uno sconto del 40% sul listino.</small>
                     </div>
