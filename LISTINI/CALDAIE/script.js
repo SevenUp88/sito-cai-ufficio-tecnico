@@ -566,41 +566,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function initializeCaldaiePage() {
-        if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+    if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
 
-        if (metadataListener) metadataListener(); 
-        metadataListener = db.collection('metadata').doc('listiniInfo')
-            .onSnapshot(doc => {
-                if (dataUpdateDateEl) {
-                    if (doc.exists && doc.data()?.caldaieLastUpdate) { 
-                        const ts = doc.data().caldaieLastUpdate;
-                        const date = ts?.toDate ? ts.toDate() : (ts?.seconds ? new Date(ts.seconds * 1000) : null);
-                        dataUpdateDateEl.textContent = date ? date.toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : "Non disponibile";
-                    } else { dataUpdateDateEl.textContent = "Non specificato"; }
-                }
-            }, error => {
-                console.error("Error fetching metadata for update date:", error);
-                if (dataUpdateDateEl) dataUpdateDateEl.textContent = "Errore caricamento data";
-            });
+    // STOP LISTENER PRECEDENTE: Previene l'esecuzione di listener "zombie"
+    if (metadataListener) metadataListener();
+    if(dataUpdateDateEl) dataUpdateDateEl.textContent = "Caricamento..."; // Testo iniziale
         
-        auth.onAuthStateChanged(async user => { 
-            authInitialized = true; 
+    auth.onAuthStateChanged(async user => { 
+        authInitialized = true; 
 
-            if (user) {
-                console.log("Utente Autenticato:", user.email);
-                if(headerUserInfo) headerUserInfo.style.display = 'block';
-                if(userEmailDisplay) userEmailDisplay.textContent = user.email;
-                if(logoutButton) logoutButton.style.display = 'inline-flex';
-            } else {
-                console.log("Utente non autenticato.");
-                if(headerUserInfo) headerUserInfo.style.display = 'none';
-                if(userEmailDisplay) userEmailDisplay.textContent = '';
-                if(logoutButton) logoutButton.style.display = 'none';
-            }
+        if (user) {
+            console.log("Utente Autenticato:", user.email);
+            if(headerUserInfo) headerUserInfo.style.display = 'block';
+            if(userEmailDisplay) userEmailDisplay.textContent = user.email;
+            if(logoutButton) logoutButton.style.display = 'inline-flex';
             
-            await loadAndDisplayPrimaryData(); 
-        });
-    }
+            // --- PARTE FONDAMENTALE DELLA CORREZIONE ---
+            // IL LISTENER DEI METADATI VIENE ATTIVATO SOLO ORA CHE SIAMO SICURI CHE L'UTENTE È AUTENTICATO
+            metadataListener = db.collection('metadata').doc('listiniInfo')
+                .onSnapshot(doc => {
+                    if (dataUpdateDateEl) {
+                        if (doc.exists && doc.data()?.caldaieLastUpdate) { 
+                            const ts = doc.data().caldaieLastUpdate;
+                            const date = ts?.toDate ? ts.toDate() : (ts?.seconds ? new Date(ts.seconds * 1000) : null);
+                            dataUpdateDateEl.textContent = date ? date.toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' }) : "Non disponibile";
+                        } else { dataUpdateDateEl.textContent = "Non specificato"; }
+                    }
+                }, error => {
+                    // Anche questo errore ora sarà meno frequente, ma la gestione è corretta
+                    console.error("Error fetching metadata for update date:", error);
+                    if (dataUpdateDateEl) dataUpdateDateEl.textContent = "Errore caricamento data";
+                });
+            // --- FINE PARTE DELLA CORREZIONE ---
 
-    initializeCaldaiePage();
-});
+        } else {
+            console.log("Utente non autenticato.");
+            if(headerUserInfo) headerUserInfo.style.display = 'none';
+            if(userEmailDisplay) userEmailDisplay.textContent = '';
+            if(logoutButton) logoutButton.style.display = 'none';
+            if (dataUpdateDateEl) dataUpdateDateEl.textContent = "Accesso richiesto";
+        }
+        
+        await loadAndDisplayPrimaryData(); 
+    });
+}```
