@@ -1,72 +1,181 @@
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof firebase === 'undefined') {
-        console.error("Firebase non trovato. Lo script della pagina radiatori non può partire.");
-        return;
-    }
-    const db = firebase.firestore();
 
-    // --- Selezione Elementi DOM ---
-    const addedLocalsContainer = document.getElementById('added-locals-container');
-    const localTypeSelect = document.getElementById('local-type-select');
-    const customLocalNameInput = document.getElementById('custom-local-name');
+    // --- DATABASE PRODOTTI ---
+    const radiatorCatalog = {
+        "IRSAP": {
+            "TESI 2": [
+                { id: 5, altezza: 565, watt: 40.9, prezzo: 15.9 }, { id: 18, altezza: 1000, watt: 69.2, prezzo: 22.1 },
+                { id: 19, altezza: 1200, watt: 82.5, prezzo: 26.1 }, { id: 20, altezza: 1500, watt: 103.0, prezzo: 34.8 },
+                { id: 22, altezza: 1800, watt: 124.3, prezzo: 40.4 }, { id: 24, altezza: 2000, watt: 139.0, prezzo: 43.2 },
+                { id: 26, altezza: 2200, watt: 154.2, prezzo: 52.6 }, { id: 27, altezza: 2500, watt: 177.8, prezzo: 58.6 }
+            ],
+            "TESI 3": [
+                { id: 32, altezza: 565, watt: 57.4, prezzo: 17.0 }, { id: 45, altezza: 1000, watt: 96.8, prezzo: 26.7 },
+                { id: 46, altezza: 1200, watt: 114.8, prezzo: 32.9 }, { id: 47, altezza: 1500, watt: 141.7, prezzo: 44.2 },
+                { id: 49, altezza: 1800, watt: 168.9, prezzo: 52.6 }, { id: 51, altezza: 2000, watt: 187.2, prezzo: 58.5 },
+                { id: 53, altezza: 2200, watt: 205.7, prezzo: 68.7 }, { id: 54, altezza: 2500, watt: 233.7, prezzo: 74.9 }
+            ],
+            "TESI 4": [
+                { id: 59, altezza: 565, watt: 74.8, prezzo: 19.6 }, { id: 72, altezza: 1000, watt: 125.9, prezzo: 31.9 },
+                { id: 73, altezza: 1200, watt: 148.8, prezzo: 40.3 }, { id: 74, altezza: 1500, watt: 182.6, prezzo: 54.4 },
+                { id: 76, altezza: 1800, watt: 216.0, prezzo: 65.3 }, { id: 78, altezza: 2000, watt: 238.1, prezzo: 71.6 },
+                { id: 80, altezza: 2200, watt: 260.0, prezzo: 83.7 }, { id: 81, altezza: 2500, watt: 292.8, prezzo: 91.0 }
+            ],
+            "TESI 5": [
+                { id: 86, altezza: 565, watt: 90.8, prezzo: 31.0 }, { id: 95, altezza: 1000, watt: 152.4, prezzo: 42.9 },
+                { id: 96, altezza: 1200, watt: 180.0, prezzo: 51.5 }, { id: 97, altezza: 1500, watt: 220.9, prezzo: 69.2 },
+                { id: 98, altezza: 1800, watt: 261.3, prezzo: 83.4 }, { id: 99, altezza: 2000, watt: 288.0, prezzo: 92.4 },
+                { id: 100, altezza: 2200, watt: 317.7, prezzo: 102.8 }, { id: 101, altezza: 2500, watt: 354.5, prezzo: 112.5 }
+            ],
+            "TESI 6": [
+                { id: 106, altezza: 565, watt: 106.9, prezzo: 36.3 }, { id: 115, altezza: 1000, watt: 178.9, prezzo: 53.2 },
+                { id: 116, altezza: 1200, watt: 211.2, prezzo: 64.9 }, { id: 117, altezza: 1500, watt: 259.1, prezzo: 84.9 },
+                { id: 118, altezza: 1800, watt: 306.5, prezzo: 101.9 }, { id: 119, altezza: 2000, watt: 337.9, prezzo: 113.0 },
+                { id: 120, altezza: 2200, watt: 369.3, prezzo: 122.9 }, { id: 121, altezza: 2500, watt: 416.2, prezzo: 137.0 }
+            ]
+        }
+    };
+
+    // --- STATO APPLICAZIONE ---
+    let addedLocals = [];
+
+    // --- COEFFICIENTI DI CALCOLO (W/m³) ---
+    const heatLossCoefficients = {
+        RESIDENZIALE_MODERNO: 30, RESIDENZIALE_TRADIZIONALE: 40,
+        VECCHIO_EDIFICIO: 55, ALTA_EFFICIENZA: 25,
+    };
+    const SCONTO_VENDITA = -0.40;
+
+    // --- SELEZIONE ELEMENTI DOM ---
+    const localNameInput = document.getElementById('local-name-input');
     const localSqmInput = document.getElementById('local-sqm-input');
     const localHeightInput = document.getElementById('local-height-input');
     const addLocalBtn = document.getElementById('add-local-btn');
-    
-    const habitationTypeSelect = document.getElementById('habitation-type');
-    const isolationSelect = document.getElementById('habitation-isolation');
-    const designTempInput = document.getElementById('design-temperature-input');
-    const outsideTempInput = document.getElementById('outside-design-temp-input');
+    const addedLocalsList = document.getElementById('added-locals-list');
+    const brandSelect = document.getElementById('radiator-brand');
+    const modelSelect = document.getElementById('radiator-model');
+    const heightSelect = document.getElementById('radiator-height');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const resultsContainer = document.getElementById('results-container');
+    const errorDiv = document.getElementById('error-message');
 
-    const radiatorBrandSelect = document.getElementById('radiator-brand');
-    const radiatorModelSelect = document.getElementById('radiator-model');
-    const radiatorConfigInput = document.getElementById('radiator-element-config');
-    const radiatorPowerInput = document.getElementById('radiator-element-power-base');
+    // --- FUNZIONI ---
+    function populateModels() {
+        const models = Object.keys(radiatorCatalog.IRSAP);
+        modelSelect.innerHTML = '<option value="">Seleziona...</option>';
+        heightSelect.innerHTML = '<option value="">...</option>';
+        heightSelect.disabled = true;
+        models.forEach(model => modelSelect.innerHTML += `<option value="${model}">${model}</option>`);
+        modelSelect.disabled = false;
+    }
 
-    const calculateBtn = document.getElementById('calculate-radiator-system');
-    const resultsContainer = document.getElementById('calculation-results');
-    const resultsTbody = document.getElementById('results-tbody');
-    const totalSqmSpan = document.getElementById('total-habitation-sqm');
-    const totalVolumeSpan = document.getElementById('total-habitation-volume');
-    const totalDemandSpan = document.getElementById('total-habitation-demand');
-    const totalPriceSpan = document.getElementById('estimated-total-price');
-    const errorDiv = document.getElementById('calculation-error');
+    function populateHeights() {
+        const model = modelSelect.value;
+        const heights = radiatorCatalog.IRSAP[model] || [];
+        heightSelect.innerHTML = '<option value="">Seleziona...</option>';
+        if (heights.length > 0) {
+            heights.forEach(v => heightSelect.innerHTML += `<option value="${v.id}">${v.altezza} mm</option>`);
+            heightSelect.disabled = false;
+        } else {
+            heightSelect.disabled = true;
+        }
+    }
 
-    // --- Stato e Dati ---
-    let addedLocals = [];
-    let radiatorData = {};
-
-    // Coefficienti di calcolo
-    const heatLossCoefficients = {
-        RESIDENZIALE_MODERNO: 30,
-        RESIDENZIALE_TRADIZIONALE: 40,
-        COMMERCIALE: 50,
-        VECCHIO_EDIFICIO: 60,
-        ALTA_EFFICIENZA: 25,
-    };
-    const isolationModifiers = { BUONO: 1.0, MEDIO: 1.15, BASSO: 1.3 };
-
-    // --- FUNZIONI E LISTENER ---
-    localTypeSelect.addEventListener('change', () => {
-        customLocalNameInput.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO');
-    });
-
-    addLocalBtn.addEventListener('click', () => {
-        const type = localTypeSelect.value;
-        let name = type === 'ALTRO' ? customLocalNameInput.value.trim().toUpperCase() : type;
-        const sqm = parseFloat(localSqmInput.value);
-        const height = parseFloat(localHeightInput.value);
-        
-        if (!name || isNaN(sqm) || sqm <= 0 || isNaN(height) || height <= 0) { // Aggiunto controllo altezza
-            alert('Per favore, compila tipo/nome locale, metri quadri e altezza.');
+    function renderAddedLocals() {
+        addedLocalsList.innerHTML = '';
+        if (addedLocals.length === 0) {
+            addedLocalsList.innerHTML = '<p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>';
             return;
         }
-        addedLocals.push({ id: Date.now(), name, sqm, height });
-        renderAddedLocals();
-        resetAddLocalForm();
-    });
+        addedLocals.forEach(local => {
+            const div = document.createElement('div');
+            div.className = 'local-item';
+            div.innerHTML = `
+                <div class="local-item-info">
+                    <strong>${local.name} (${local.sqm} mq)</strong>
+                    <span class="radiator-details">${local.radiatorInfo}</span>
+                </div>
+                <button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button>
+            `;
+            addedLocalsList.appendChild(div);
+        });
+    }
     
-    addedLocalsContainer.addEventListener('click', (e) => {
+    function handleAddLocal() {
+        const name = localNameInput.value.trim();
+        const sqm = parseFloat(localSqmInput.value);
+        const roomHeight = parseFloat(localHeightInput.value);
+        const radiatorId = parseInt(heightSelect.value, 10);
+        const model = modelSelect.value;
+
+        if (!name || !sqm || !roomHeight) { return alert('Compila i dati della stanza.'); }
+        if (!radiatorId) { return alert('Seleziona un modello e un\'altezza per il radiatore.'); }
+
+        const radiator = radiatorCatalog.IRSAP[model].find(r => r.id === radiatorId);
+        
+        addedLocals.push({
+            id: Date.now(), name, sqm, roomHeight, radiatorId, model,
+            radiatorInfo: `Radiatore: IRSAP ${model} (H: ${radiator.altezza}mm)`
+        });
+        
+        renderAddedLocals();
+        localNameInput.value = '';
+        localSqmInput.value = '';
+        localNameInput.focus();
+    }
+
+    function handleCalculate() {
+        resultsContainer.classList.add('hidden');
+        errorDiv.classList.add('hidden');
+
+        if (addedLocals.length === 0) {
+            errorDiv.textContent = "Aggiungi almeno una stanza prima di calcolare il preventivo.";
+            errorDiv.classList.remove('hidden');
+            resultsContainer.classList.remove('hidden');
+            return;
+        }
+
+        const habitationType = document.getElementById('habitation-type').value;
+        const coefficient = heatLossCoefficients[habitationType];
+        
+        let totalDemand = 0;
+        let totalPrice = 0;
+        const resultsTbody = document.getElementById('results-tbody');
+        resultsTbody.innerHTML = '';
+
+        addedLocals.forEach(local => {
+            const radiator = radiatorCatalog.IRSAP[local.model].find(r => r.id === local.radiatorId);
+            const volume = local.sqm * local.roomHeight;
+            const demand = volume * coefficient;
+            const neededElements = Math.ceil(demand / radiator.watt);
+            const roomPrice = neededElements * radiator.prezzo * (1 + SCONTO_VENDITA);
+
+            totalDemand += demand;
+            totalPrice += roomPrice;
+
+            resultsTbody.innerHTML += `
+                <tr>
+                    <td>${local.name}</td>
+                    <td>${local.radiatorInfo.replace('Radiatore: ', '')}</td>
+                    <td>${demand.toFixed(0)} W</td>
+                    <td>${neededElements}</td>
+                    <td>€ ${roomPrice.toFixed(2)}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('total-demand').textContent = `${totalDemand.toFixed(0)} W`;
+        document.getElementById('total-price').textContent = `€ ${totalPrice.toFixed(2)}`;
+        resultsContainer.classList.remove('hidden');
+    }
+
+    // --- EVENT LISTENERS ---
+    brandSelect.addEventListener('change', populateModels);
+    modelSelect.addEventListener('change', populateHeights);
+    addLocalBtn.addEventListener('click', handleAddLocal);
+    calculateBtn.addEventListener('click', handleCalculate);
+    
+    addedLocalsList.addEventListener('click', (e) => {
         const btn = e.target.closest('.remove-local-btn');
         if (btn) {
             const idToRemove = parseInt(btn.dataset.id, 10);
@@ -75,119 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function renderAddedLocals() {
-        addedLocalsContainer.innerHTML = '';
-        if (addedLocals.length === 0) {
-            addedLocalsContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary); font-style: italic;">Nessun locale aggiunto.</p>';
-        } else {
-            addedLocals.forEach(local => {
-                const div = document.createElement('div');
-                div.className = 'local-item';
-                div.innerHTML = `
-                    <span>${local.name}</span> 
-                    <div class="local-details">
-                        <span class="local-sqm">MQ: ${local.sqm}</span>
-                        <button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button>
-                    </div>
-                `;
-                addedLocalsContainer.appendChild(div);
-            });
-        }
-    }
-    
-    function resetAddLocalForm() {
-        localTypeSelect.value = '';
-        customLocalNameInput.value = '';
-        localSqmInput.value = '';
-        localHeightInput.value = '2.70'; // Reset altezza al default
-        customLocalNameInput.classList.add('hidden');
-    }
-
-    async function loadRadiatorData() {
-        try {
-            radiatorData['IRSAP'] = {
-                'TESI 2': { columns: 2, power: 50.5, price: 15.50, height: 565 },
-                'TESI 3': { columns: 3, power: 75.2, price: 18.70, height: 565 },
-                'TESI 4': { columns: 4, power: 95.8, price: 22.30, height: 565 },
-                'TESI 5': { columns: 5, power: 115.1, price: 26.80, height: 565 },
-                'TESI 6': { columns: 6, power: 135.0, price: 31.50, height: 565 }
-            };
-            populateRadiatorModels('IRSAP');
-        } catch(error) {
-            console.error("Errore caricamento dati radiatori:", error);
-            showError("Impossibile caricare i dati dei radiatori.");
-        }
-    }
-
-    function populateRadiatorModels(brand) {
-        radiatorModelSelect.innerHTML = '<option value="">Seleziona modello...</option>';
-        if (radiatorData[brand]) {
-            Object.keys(radiatorData[brand]).forEach(model => {
-                radiatorModelSelect.innerHTML += `<option value="${model}">${model}</option>`;
-            });
-        }
-    }
-
-    radiatorModelSelect.addEventListener('change', () => {
-        const brand = radiatorBrandSelect.value;
-        const modelKey = radiatorModelSelect.value;
-        const data = radiatorData[brand]?.[modelKey];
-        
-        if (data) {
-            const numColonne = data.columns || modelKey.replace(/[^0-9]/g, ''); 
-            radiatorConfigInput.value = `${numColonne} Colonne`;
-            radiatorPowerInput.value = data.power;
-        } else {
-            radiatorConfigInput.value = '';
-            radiatorPowerInput.value = '';
-        }
-    });
-
-    calculateBtn.addEventListener('click', () => {
-        clearError();
-        if (addedLocals.length === 0) {
-            showError("Aggiungi almeno un locale.");
-            return;
-        }
-        const modelSelected = radiatorModelSelect.value;
-        if (!modelSelected) {
-            showError("Seleziona un modello di radiatore.");
-            return;
-        }
-
-        const habitationType = habitationTypeSelect.value;
-        const isolationLevel = isolationSelect.value;
-        const targetTemp = parseFloat(designTempInput.value);
-        const outsideTemp = parseFloat(outsideTempInput.value);
-        
-        const baseCoeff = heatLossCoefficients[habitationType] || 40;
-        const isolationMod = isolationModifiers[isolationLevel] || 1.15;
-        const coefficient = baseCoeff * isolationMod;
-        const radiatorInfo = radiatorData[radiatorBrandSelect.value][modelSelected];
-
-        let totalSqm = 0, totalVolume = 0, totalDemand = 0, totalPrice = 0;
-
-        resultsTbody.innerHTML = '';
-        addedLocals.forEach(local => {
-            const volume = local.sqm * local.height;
-            const demand = volume * coefficient;
-            const neededElements = Math.ceil(demand / radiatorInfo.power);
-            const installedPower = neededElements * radiatorInfo.power;
-            
-            totalSqm += local.sqm; totalVolume += volume; totalDemand += demand; totalPrice += neededElements * radiatorInfo.price;
-            resultsTbody.innerHTML += `<tr><td>${local.name}</td><td>${local.sqm}</td><td>${demand.toFixed(0)}</td><td>${modelSelected}</td><td>${neededElements}</td><td>${installedPower.toFixed(0)}</td></tr>`;
-        });
-
-        totalSqmSpan.textContent = `${totalSqm.toFixed(1)} mq`;
-        totalVolumeSpan.textContent = `${totalVolume.toFixed(1)} m³`;
-        totalDemandSpan.textContent = `${totalDemand.toFixed(0)} W`;
-        totalPriceSpan.textContent = `€ ${totalPrice.toFixed(2)}`;
-        resultsContainer.classList.remove('hidden');
-    });
-
-    function showError(message) { errorDiv.textContent = message; errorDiv.classList.remove('hidden'); }
-    function clearError() { errorDiv.textContent = ''; errorDiv.classList.add('hidden'); }
-    
-    loadRadiatorData();
-    renderAddedLocals(); // Mostra il messaggio "Nessun locale aggiunto." se la lista è vuota
+    // --- INIZIALIZZAZIONE ---
+    populateModels();
+    renderAddedLocals();
 });
