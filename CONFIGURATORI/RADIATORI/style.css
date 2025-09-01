@@ -1,154 +1,424 @@
 /* ========================================================== */
-/*       CSS SPECIFICO per la Pagina Configuratore Radiatori  */
-/*   --- VERSIONE FINALE: TITOLO FISSO, FORM FISSO, LISTA SCROLLABILE --- */
+/*       CSS per Pagina Configuratore Radiatori (V2)        */
 /* ========================================================== */
-:root { 
+:root {
     --primary-color: #005A9C; --primary-light: #E6F0F8; --primary-dark: #003d6b;
-    --background-color: #f8fafc; --card-background: #ffffff; 
-    --text-primary: #1e293b; --text-secondary: #64748b; 
-    --border-color: #e2e8f0; 
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
-    --font-family: 'Inter', sans-serif; 
-    --danger-color: #ef4444; 
-    --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+    --background-color: #f4f7f9; --card-background: #ffffff;
+    --text-primary: #1e293b; --text-secondary: #64748b;
+    --border-color: #e2e8f0; --danger-color: #ef4444;
+    --success-color: #10b981;
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.07);
+    --font-family: 'Inter', sans-serif;
+    --radius: 8px;
 }
+
 * { box-sizing: border-box; }
-body { 
-    font-family: var(--font-family); background: var(--background-color);
-    margin: 0; color: var(--text-primary);
-    display: flex; flex-direction: column;
-    height: 100vh; overflow: hidden;
-    visibility: hidden; 
-}
-body:not(.hidden) { visibility: visible; }
 
-/* Header e Titolo */
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Header */
 .app-header {
-    padding: 0.75rem 1.5rem; background-color: var(--card-background);
-    box-shadow: var(--shadow-md); border-radius: var(--radius-xl);
-    margin: 1rem;
-    display: flex; align-items: center; gap: 20px;
-    flex-shrink: 0; 
-}
-.app-header .logo { height: 45px; }
-.header-user-info { margin-left: 1rem; color: var(--text-secondary); }
-.header-user-info strong { color: var(--text-primary); font-weight: 600; }
-.header-controls { margin-left: auto; display: flex; align-items: center; gap: 1rem; }
-.header-action-button { background: none; border: none; color: var(--primary-color); font-size: 1.5em; cursor: pointer; }
-.button-logout { background-color: #f1f5f9; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.9em; padding: 8px 16px; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
-.button-logout:hover { background-color: #e2e8f0; }
-.page-header { margin: 0 1rem 1rem 1rem; flex-shrink: 0; }
-.page-title { text-align: center; font-size: 1.8rem; font-weight: 700; color: var(--primary-color); margin: 0; }
-
-/* Contenitore principale a colonne */
-main#content-area { flex-grow: 1; padding: 0 1rem 1rem 1rem; overflow: hidden; min-height: 0; }
-.radiator-configurator-container {
-    display: flex; 
-    gap: 1rem;
-    height: calc(100vh - 180px); /* REGOLA 180px IN BASE ALL'ALTEZZA DEL TUO HEADER + TITOLO */
-    overflow: hidden; /* Niente scroll qui */
-}
-
-/* Colonna sinistra */
-.configurator-col.left-col {
-    flex-basis: 400px; 
-    flex-shrink: 0;
+    background-color: var(--card-background);
+    padding: 1rem 1.5rem;
     display: flex;
-    flex-direction: column; /* Elementi interni in colonna */
-    height: 100%; 
-    overflow: hidden; /* Niente scroll sulla colonna stessa */
-}
-
-/* Colonna destra */
-.configurator-col.right-col {
-    flex-grow: 1;
-    overflow-y: auto; /* Scrollo SOLO sulla colonna destra */
-    padding: 25px;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
+    align-items: center;
     box-shadow: var(--shadow-md);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    border-bottom: 1px solid var(--border-color);
+}
+.app-header .logo { height: 40px; }
+.header-user-info { margin-left: 1.5rem; }
+.header-controls { margin-left: auto; }
+
+/* Titolo Pagina */
+.page-header { padding: 1.5rem; text-align: center; }
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 0;
 }
 
-/* Titolo colonna sinistra */
-.local-selector-title {
-    font-size: 1.3rem; font-weight: 600; color: var(--primary-color);
-    margin: 0 0 1rem 0; padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--primary-color);
-    flex-shrink: 0; 
+/* Layout Principale */
+main#content-area { padding: 0 1.5rem 1.5rem; }
+.configurator-container {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-/* --- BOX LISTA STANZE: DEVE SCROLLARE INTERNAMENTE --- */
-#added-locals-container {
+.configurator-col {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 10px;
-    
-    flex-grow: 1; /* La lista CRESCE per occupare lo spazio */
-    min-height: 0; /* Essenziale per flexbox */
-    overflow-y: auto; /* Attiva lo scroll SOLO qui */
-    margin-bottom: 1.5rem; /* Spazio sotto la lista */
 }
 
-/* Stile per ogni stanza aggiunta */
-.local-item { 
-    display: flex; justify-content: space-between; align-items: center; 
-    border: 1px solid var(--border-color); 
-    border-radius: var(--radius-md); 
-    padding: 12px 15px; 
-    margin-bottom: 8px; 
-    background-color: white; 
-    font-size: 0.9em; 
-    font-weight: 500;
-    transition: all 0.2s ease;
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-color);
 }
-.local-item:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-.local-item h4 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-.local-details { display: flex; align-items: center; gap: 10px; }
-.local-sqm { font-size: 0.9rem; color: var(--text-secondary); }
-.remove-local-btn { background: none; border: none; color: var(--danger-color); font-size: 1rem; cursor: pointer; padding: 5px; line-height: 1; transition: all 0.2s ease; }
-.remove-local-btn:hover { transform: scale(1.1); }
 
-/* Form di aggiunta stanza: sempre visibile in fondo */
-#add-local-form {
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    margin-top: 1.5rem; 
-    flex-shrink: 0; /* Il form NON si rimpicciolisce */
-}
-#add-local-form .form-subtitle { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; text-transform: uppercase; }
-#add-local-form .form-row { display: flex; gap: 15px; }
-#add-local-form .form-row .form-group { flex: 1; }
-
-/* Stili per sezioni nella colonna destra */
-.form-section { margin-bottom: 1.5rem; }
-.box-title { font-size: 1.3rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color); }
-.configurator-action { margin-top: 2rem; text-align: center; }
-.results-display { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); }
-.results-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-.results-table th, .results-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.9em; }
-.total-price-summary { text-align: right; margin-top: 2rem; }
-.total-price-summary .price-value { font-size: 1.8rem; font-weight: 700; color: var(--primary-color); }
-
-/* Stili generici form */
+/* Form Generici */
 .form-group { margin-bottom: 1rem; }
-.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
-.form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: var(--font-family);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+}
+.form-group select[disabled] { background-color: #f1f1f1; cursor: not-allowed; }
+.form-row { display: flex; gap: 1rem; }
+.form-row .form-group { flex: 1; }
 
 /* Bottoni */
-.btn-add-local, .btn-calculate { background-color: var(--primary-color); color: white; padding: 10px 15px; border: none; border-radius: var(--radius-md); cursor: pointer; display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center; }
-.configurator-action .btn-calculate { width: auto; margin: 0 auto; display: block; }
+.btn {
+    width: 100%;
+    background-color: var(--text-secondary);
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+.btn:hover { background-color: #4a5568; }
+.btn-primary { background-color: var(--primary-color); }
+.btn-primary:hover { background-color: var(--primary-dark); }
+.configurator-action { margin-top: 2rem; }
+
+/* Lista Stanze */
+#added-locals-list-container { margin-top: 2rem; }
+#added-locals-list-container h4 { margin: 0 0 1rem 0; color: var(--text-primary); }
+.empty-list-msg { text-align: center; color: var(--text-secondary); font-style: italic; }
+.local-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background-color: var(--primary-light);
+    border: 1px solid #bde0fe;
+    font-weight: 500;
+}
+.remove-local-btn {
+    background: none; border: none; color: var(--danger-color); font-size: 1.2rem;
+    cursor: pointer; line-height: 1; padding: 2px 5px;
+}
+.remove-local-btn:hover { color: #b91c1c; }
+
+/* Risultati */
 .hidden { display: none !important; }
+#results-container { margin-top: 2rem; }
+.results-main-title { text-align: center; color: var(--primary-dark); font-size: 1.8rem; }
+.error-box { background-color: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; padding: 1rem; border-radius: 6px; margin: 1rem 0; }
+.summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin: 1.5rem 0; padding: 1rem; background-color: #f8fafc; border-radius: 6px;
+}
+.table-container { overflow-x: auto; }
+table {
+    width: 100%; border-collapse: collapse; margin-top: 1rem;
+}
+th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+th { background-color: #f1f5f9; font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+
+.totals-summary {
+    margin-top: 2rem; padding-top: 1.5rem;
+    border-top: 2px solid var(--border-color); text-align: right;
+}
+.totals-summary h3 { margin: 0 0 1rem 0; }
+.total-line { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1.1rem; }
+.total-line.price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
+.totals-summary small { color: var(--text-secondary); display: block; margin-top: 1rem; }
 
 /* Responsive */
 @media (max-width: 1024px) {
-    body { overflow: auto; height: auto; } 
-    main#content-area { height: auto; overflow: visible; }
-    .radiator-configurator-container { grid-template-columns: 1fr; height: auto; }
-    .configurator-col.left-col { height: auto; }
-    .configurator-col.right-col { overflow-y: visible; height: auto; }
-    #added-locals-container { max-height: none; } /* Rimuove il limite di altezza su mobile */
-}
+    .configurator-container { grid-template-columns: 1fr; }
+}```
+
+### 3. `script.js` (La Logica di Funzionamento)
+Questo è il cuore del configuratore. Include i dati completi dei radiatori IRSAP e gestisce tutta l'interattività: l'aggiunta delle stanze, l'aggiornamento dinamico dei menu a tendina, il calcolo del fabbisogno e la generazione del preventivo finale.
+
+```javascript
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- DATABASE PRODOTTI ---
+    // Ho convertito la tua tabella in un formato JSON per un facile accesso
+    const radiatorCatalog = {
+        "IRSAP": {
+            "TESI 2": [
+                { id: 5, altezza: 565, interasse: 500, watt: 40.9, prezzo: 15.9 },
+                { id: 18, altezza: 1000, interasse: 935, watt: 69.2, prezzo: 22.1 },
+                { id: 19, altezza: 1200, interasse: 1135, watt: 82.5, prezzo: 26.1 },
+                { id: 20, altezza: 1500, interasse: 1435, watt: 103.0, prezzo: 34.8 },
+                { id: 22, altezza: 1800, interasse: 1735, watt: 124.3, prezzo: 40.4 },
+                { id: 24, altezza: 2000, interasse: 1935, watt: 139.0, prezzo: 43.2 },
+                { id: 26, altezza: 2200, interasse: 2135, watt: 154.2, prezzo: 52.6 },
+                { id: 27, altezza: 2500, interasse: 2435, watt: 177.8, prezzo: 58.6 }
+            ],
+            "TESI 3": [
+                { id: 32, altezza: 565, interasse: 500, watt: 57.4, prezzo: 17.0 },
+                { id: 45, altezza: 1000, interasse: 935, watt: 96.8, prezzo: 26.7 },
+                { id: 46, altezza: 1200, interasse: 1135, watt: 114.8, prezzo: 32.9 },
+                { id: 47, altezza: 1500, interasse: 1435, watt: 141.7, prezzo: 44.2 },
+                { id: 49, altezza: 1800, interasse: 1735, watt: 168.9, prezzo: 52.6 },
+                { id: 51, altezza: 2000, interasse: 1935, watt: 187.2, prezzo: 58.5 },
+                { id: 53, altezza: 2200, interasse: 2135, watt: 205.7, prezzo: 68.7 },
+                { id: 54, altezza: 2500, interasse: 2435, watt: 233.7, prezzo: 74.9 }
+            ],
+            "TESI 4": [
+                { id: 59, altezza: 565, interasse: 500, watt: 74.8, prezzo: 19.6 },
+                { id: 72, altezza: 1000, interasse: 935, watt: 125.9, prezzo: 31.9 },
+                { id: 73, altezza: 1200, interasse: 1135, watt: 148.8, prezzo: 40.3 },
+                { id: 74, altezza: 1500, interasse: 1435, watt: 182.6, prezzo: 54.4 },
+                { id: 76, altezza: 1800, interasse: 1735, watt: 216.0, prezzo: 65.3 },
+                { id: 78, altezza: 2000, interasse: 1935, watt: 238.1, prezzo: 71.6 },
+                { id: 80, altezza: 2200, interasse: 2135, watt: 260.0, prezzo: 83.7 },
+                { id: 81, altezza: 2500, interasse: 2435, watt: 292.8, prezzo: 91.0 }
+            ],
+            "TESI 5": [
+                { id: 86, altezza: 565, interasse: 500, watt: 90.8, prezzo: 31.0 },
+                { id: 95, altezza: 1000, interasse: 935, watt: 152.4, prezzo: 42.9 },
+                { id: 96, altezza: 1200, interasse: 1135, watt: 180.0, prezzo: 51.5 },
+                { id: 97, altezza: 1500, interasse: 1435, watt: 220.9, prezzo: 69.2 },
+                { id: 98, altezza: 1800, interasse: 1735, watt: 261.3, prezzo: 83.4 },
+                { id: 99, altezza: 2000, interasse: 1935, watt: 288.0, prezzo: 92.4 },
+                { id: 100, altezza: 2200, interasse: 2135, watt: 317.7, prezzo: 102.8 },
+                { id: 101, altezza: 2500, interasse: 2435, watt: 354.5, prezzo: 112.5 }
+            ],
+            "TESI 6": [
+                { id: 106, altezza: 565, interasse: 500, watt: 106.9, prezzo: 36.3 },
+                { id: 115, altezza: 1000, interasse: 935, watt: 178.9, prezzo: 53.2 },
+                { id: 116, altezza: 1200, interasse: 1135, watt: 211.2, prezzo: 64.9 },
+                { id: 117, altezza: 1500, interasse: 1435, watt: 259.1, prezzo: 84.9 },
+                { id: 118, altezza: 1800, interasse: 1735, watt: 306.5, prezzo: 101.9 },
+                { id: 119, altezza: 2000, interasse: 1935, watt: 337.9, prezzo: 113.0 },
+                { id: 120, altezza: 2200, interasse: 2135, watt: 369.3, prezzo: 122.9 },
+                { id: 121, altezza: 2500, interasse: 2435, watt: 416.2, prezzo: 137.0 }
+            ]
+        }
+    };
+
+    // --- STATO APPLICAZIONE ---
+    let addedLocals = [];
+
+    // --- COEFFICIENTI DI CALCOLO (W/m³) ---
+    const heatLossCoefficients = {
+        RESIDENZIALE_MODERNO: 30,
+        RESIDENZIALE_TRADIZIONALE: 40,
+        VECCHIO_EDIFICIO: 55,
+        ALTA_EFFICIENZA: 25,
+    };
+    const SCONTO_VENDITA = -0.40; // 40% di sconto
+
+    // --- SELEZIONE ELEMENTI DOM ---
+    const localNameInput = document.getElementById('local-name-input');
+    const localSqmInput = document.getElementById('local-sqm-input');
+    const localHeightInput = document.getElementById('local-height-input');
+    const addLocalBtn = document.getElementById('add-local-btn');
+    const addedLocalsList = document.getElementById('added-locals-list');
+
+    const brandSelect = document.getElementById('radiator-brand');
+    const modelSelect = document.getElementById('radiator-model');
+    const heightSelect = document.getElementById('radiator-height');
+    const calculateBtn = document.getElementById('calculate-btn');
+    const resultsContainer = document.getElementById('results-container');
+    const errorDiv = document.getElementById('error-message');
+
+    // --- FUNZIONI ---
+
+    function populateModels() {
+        const brand = brandSelect.value;
+        const models = Object.keys(radiatorCatalog[brand] || {});
+        modelSelect.innerHTML = '<option value="">Seleziona modello...</option>';
+        heightSelect.innerHTML = '<option value="">Seleziona modello...</option>';
+        heightSelect.disabled = true;
+
+        if (models.length > 0) {
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+            modelSelect.disabled = false;
+        } else {
+            modelSelect.disabled = true;
+        }
+    }
+
+    function populateHeights() {
+        const brand = brandSelect.value;
+        const model = modelSelect.value;
+        const heights = radiatorCatalog[brand]?.[model] || [];
+        heightSelect.innerHTML = '<option value="">Seleziona altezza...</option>';
+
+        if (heights.length > 0) {
+            heights.forEach(variant => {
+                const option = document.createElement('option');
+                option.value = variant.id;
+                option.textContent = `${variant.altezza} mm`;
+                heightSelect.appendChild(option);
+            });
+            heightSelect.disabled = false;
+        } else {
+            heightSelect.disabled = true;
+        }
+    }
+
+    function renderAddedLocals() {
+        addedLocalsList.innerHTML = '';
+        if (addedLocals.length === 0) {
+            addedLocalsList.innerHTML = '<p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>';
+            return;
+        }
+        addedLocals.forEach(local => {
+            const div = document.createElement('div');
+            div.className = 'local-item';
+            div.innerHTML = `
+                <span><strong>${local.name}</strong> (${local.sqm} mq)</span>
+                <button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">×</button>
+            `;
+            addedLocalsList.appendChild(div);
+        });
+    }
+
+    function showError(message) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+
+    function clearError() {
+        errorDiv.classList.add('hidden');
+    }
+
+    function handleAddLocal() {
+        const name = localNameInput.value.trim();
+        const sqm = parseFloat(localSqmInput.value);
+        const height = parseFloat(localHeightInput.value);
+
+        if (!name || isNaN(sqm) || sqm <= 0 || isNaN(height) || height <= 0) {
+            alert('Per favore, compila nome, metri quadri e altezza della stanza.');
+            return;
+        }
+        addedLocals.push({ id: Date.now(), name, sqm, height });
+        renderAddedLocals();
+        localNameInput.value = '';
+        localSqmInput.value = '';
+        localNameInput.focus();
+    }
+    
+    function handleCalculate() {
+        clearError();
+        resultsContainer.classList.add('hidden');
+
+        // Validazione
+        if (addedLocals.length === 0) {
+            showError("Aggiungi almeno una stanza prima di calcolare.");
+            resultsContainer.classList.remove('hidden');
+            return;
+        }
+        const selectedRadiatorId = parseInt(heightSelect.value, 10);
+        if (isNaN(selectedRadiatorId)) {
+            showError("Seleziona una marca, un modello e un'altezza per il radiatore.");
+            resultsContainer.classList.remove('hidden');
+            return;
+        }
+        
+        // Trova il radiatore selezionato
+        const brand = brandSelect.value;
+        const model = modelSelect.value;
+        const selectedRadiator = radiatorCatalog[brand][model].find(r => r.id === selectedRadiatorId);
+
+        // Calcoli
+        const habitationType = document.getElementById('habitation-type').value;
+        const coefficient = heatLossCoefficients[habitationType];
+        
+        let totalDemand = 0;
+        let totalPrice = 0;
+        const resultsTbody = document.getElementById('results-tbody');
+        resultsTbody.innerHTML = '';
+
+        addedLocals.forEach(local => {
+            const volume = local.sqm * local.height;
+            const demand = volume * coefficient;
+            const neededElements = Math.ceil(demand / selectedRadiator.watt);
+            const installedPower = neededElements * selectedRadiator.watt;
+            const roomPrice = neededElements * selectedRadiator.prezzo * (1 + SCONTO_VENDITA);
+
+            totalDemand += demand;
+            totalPrice += roomPrice;
+
+            const row = `
+                <tr>
+                    <td>${local.name}</td>
+                    <td>${demand.toFixed(0)} W</td>
+                    <td>${neededElements}</td>
+                    <td>${installedPower.toFixed(0)} W</td>
+                    <td>€ ${roomPrice.toFixed(2)}</td>
+                </tr>
+            `;
+            resultsTbody.innerHTML += row;
+        });
+
+        // Mostra risultati
+        document.getElementById('summary-habitation-type').textContent = habitationType.replace(/_/g, ' ');
+        document.getElementById('summary-radiator-model').textContent = `${brand} ${model} (H: ${selectedRadiator.altezza}mm)`;
+        document.getElementById('total-demand').textContent = `${totalDemand.toFixed(0)} W`;
+        document.getElementById('total-price').textContent = `€ ${totalPrice.toFixed(2)}`;
+        resultsContainer.classList.remove('hidden');
+    }
+
+    // --- EVENT LISTENERS ---
+    brandSelect.addEventListener('change', populateModels);
+    modelSelect.addEventListener('change', populateHeights);
+    addLocalBtn.addEventListener('click', handleAddLocal);
+    calculateBtn.addEventListener('click', handleCalculate);
+    
+    addedLocalsList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-local-btn')) {
+            const idToRemove = parseInt(e.target.dataset.id, 10);
+            addedLocals = addedLocals.filter(local => local.id !== idToRemove);
+            renderAddedLocals();
+        }
+    });
+
+    // --- INIZIALIZZAZIONE ---
+    populateModels(); // Popola i modelli all'avvio
+    renderAddedLocals(); // Mostra il messaggio iniziale se la lista è vuota
+});
