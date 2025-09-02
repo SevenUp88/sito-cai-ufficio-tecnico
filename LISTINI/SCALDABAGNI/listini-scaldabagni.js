@@ -1,20 +1,18 @@
-// --- File: listini-scaldabagni.js (con layout e info aggiornate) ---
+// --- File: listini-scaldabagni.js (con Loghi Ripristinati) ---
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
     const IMAGE_BASE_URL = "img/";
-    const LOGO_BASE_URL = "img/";
+    const LOGO_BASE_URL = "../../images/logos/"; // Percorso corretto ai loghi centralizzati
     const PLACEHOLDER_IMAGE = "../../placeholder.png";
 
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
     const filtersToWatch = {
-        'brand-filter': 'marca',
-        'tecnologia-filter': 'tecnologia',
-        'litri-filter': 'litri',
-        'configurazione-filter': 'configurazione',
+        'brand-filter': 'marca', 'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri', 'configurazione-filter': 'configurazione',
         'installazione-filter': 'installazione'
     };
 
@@ -27,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateFilters(allProducts);
             applyFilters();
-        } catch (error) { console.error("Errore nel caricamento dati:", error); } 
+        } catch (error) { console.error("Errore:", error); } 
         finally { if (appLoader) appLoader.style.display = 'none'; }
     }
     
@@ -65,13 +63,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
-            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '')}.png` : '';
+            // --- RIGA DEL LOGO CORRETTA E REINSERITA ---
+            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
             card.innerHTML = `
                  <div class="product-card-header">
+                     <!-- LOGO MOSTRATO QUI -->
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">` : `<span class="product-card-brand">${p.marca || ''}</span>`}
                      <div class="product-title-brand">
-                        <span class="product-card-brand">${p.marca || ''}</span>
                         <h3 class="product-card-model">${p.modello || ''}</h3>
                      </div>
                  </div>
@@ -80,7 +80,6 @@ document.addEventListener('DOMContentLoaded', () => {
                        <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
                        <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
                        <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
-                       <!-- Dimensioni aggiunte qui -->
                        <p><strong>Dimensioni:</strong> ${p.dimensioni || 'N/A'}</p>
                     </div>
                     <div class="product-card-image-container">
@@ -98,13 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     for (const id in filtersToWatch) {
         const el = document.getElementById(id);
-        if (el) {
-            el.addEventListener('change', () => {
-                const key = filtersToWatch[id];
-                currentFilters[key] = el.value;
-                applyFilters();
-            });
-        }
+        if (el) { el.addEventListener('change', () => { currentFilters[filtersToWatch[id]] = el.value; applyFilters(); }); }
     }
 
     document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
