@@ -4,16 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listino Scaldabagni - CAI Ufficio Tecnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="../../style.css"> 
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
+    
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="hidden">
 
     <div id="initial-loader"></div>
-    
-    <!-- HEADER UNIFICATO -->
+
+    <!-- Header -->
     <header class="app-header">
         <a href="../../index.html" class="logo-link"><img src="../../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
         <div id="user-dashboard" class="header-controls hidden">
@@ -25,13 +28,14 @@
 
     <main id="content-area">
         <div class="main-container">
-            <div id="app-loader" class="loader"></div>
+            <div id="app-loader" class="loader" style="display: none;"></div>
+            
             <div class="page-title-actions">
                 <h1>Listino Scaldabagni</h1>
                 <p class="page-subtitle">Verificare sempre la disponibilità effettiva su gestionale.</p>
             </div>
 
-            <!-- FILTRI TECNICI RIPRISTINATI -->
+            <!-- FILTRI TECNICI -->
             <div class="content-card filters-container">
                 <div class="filters">
                     <label for="brand-filter">Marca:</label> <select id="brand-filter"></select>
@@ -49,6 +53,8 @@
     </main>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../../firebase-config.js"></script>
     <script src="../../auth.js"></script>
     <script src="listini-scaldabagni.js"></script>
