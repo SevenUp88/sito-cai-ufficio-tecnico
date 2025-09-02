@@ -24,40 +24,40 @@
         </div>
     </header>
 
-    <!-- STRUTTURA PER SFONDO AZZURRO E CONTENITORE BIANCO -->
+    <!-- STRUTTURA <main> PER SFONDO AZZURRO E MARGINI CORRETTI -->
     <main id="content-area">
-        <div class="listini-page-container">
-            
-            <!-- TITOLO E SOTTOTITOLO DELLA PAGINA -->
-            <div class="page-header-local">
-                 <h1>Listini Caldaie</h1>
-                 <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
-            </div>
-
-            <!-- BARRA DEI FILTRI (ORA SEPARATA E STILABILE INDIVIDUALMENTE) -->
-            <div class="filters-bar">
-                <div class="filters-container">
-                    <span>Filtra per:</span>
-                    <div id="brand-filter-buttons" class="filter-button-group"></div>
-                    <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
-                    <div class="search-group">
-                        <input type="text" id="search-input" placeholder="Cerca Modello, Codice..." disabled>
-                    </div>
-                    <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
-                </div>
-            </div>
-
-            <div id="loading-indicator" style="display: none;">
-                 <div class="loading-spinner"></div>
-                 <p>Caricamento listini...</p>
-            </div>
-            <div id="no-results-message" style="display: none;"></div>
-            
-            <div id="boiler-list-container" class="product-grid">
-                <!-- Le card verranno inserite qui dal JS -->
-            </div>
-            
+        
+        <!-- Abbiamo rimosso il div .listini-page-container -->
+        
+        <!-- TITOLO E SOTTOTITOLO DELLA PAGINA -->
+        <div class="page-header-local">
+             <h1>Listini Caldaie</h1>
+             <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
         </div>
+
+        <!-- BARRA DEI FILTRI -->
+        <div class="filters-bar">
+            <div class="filters-container">
+                <span>Filtra per:</span>
+                <div id="brand-filter-buttons" class="filter-button-group"></div>
+                <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
+                <div class="search-group">
+                    <input type="text" id="search-input" placeholder="Cerca Modello, Codice..." disabled>
+                </div>
+                <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
+            </div>
+        </div>
+
+        <div id="loading-indicator" style="display: none;">
+             <div class="loading-spinner"></div>
+             <p>Caricamento listini...</p>
+        </div>
+        <div id="no-results-message" style="display: none;"></div>
+        
+        <div id="boiler-list-container" class="product-grid">
+            <!-- Le card (che sono bianche) verranno inserite qui -->
+        </div>
+            
     </main>
     
     <!-- Popup per Dettagli Prodotto -->
