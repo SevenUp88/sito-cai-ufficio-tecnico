@@ -1,0 +1,24 @@
+/* Stili per la pagina Scontistiche */
+.main-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 30px; }
+.page-title-actions { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 25px; }
+.page-title-actions h1 { color: #0056a8; }
+.content-card { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
+.filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center; }
+.filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9em; min-width: 180px; }
+.button-secondary { border: 1px solid #ccc; background: #f1f1f1; border-radius: 6px; padding: 8px 12px; cursor: pointer;}
+
+/* Stili Tabella */
+.discounts-matrix-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.discounts-matrix-table th, .discounts-matrix-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; font-size: 0.9em; }
+.discounts-matrix-table th { font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; background-color: #f8f9fa; }
+.discounts-matrix-table tbody tr:hover { background-color: #e9f5fd; }
+.category-link { color: #0056a8; font-weight: 600; text-decoration: none; }
+.category-link:hover { text-decoration: underline; }
+.not-available { color: #aaa; font-style: italic; }
+.no-results-cell, .error-cell { text-align: center; padding: 40px; color: #6c757d; }
+.error-cell { color: #dc3545; font-weight: 500; }
+.loader { border: 5px solid #f3f3f3; border-top: 5px solid #0056a8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.toast { /* stili toast ... */ }
