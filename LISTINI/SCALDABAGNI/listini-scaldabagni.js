@@ -1,12 +1,10 @@
-```javascript
-// --- File: listini-scaldabagni.js ---
-
+// --- File: listini-scaldabagni.js (Sintassi Corretta) ---
 document.addEventListener('DOMContentLoaded', () => {
+    
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
     const IMAGE_BASE_URL = "img/";
 
-    // Seleziona elementi DOM
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
@@ -63,12 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2)} €` : 'N/D';
+            const price = p.prezzo ? parseFloat(p.prezzo).toFixed(2) + ' €' : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : '';
             const logoUrl = p.marca ? `../../images/logos/${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            card.innerHTML = `
+            // --- INIZIO BLOCCO CON SINTASSI CORRETTA (USANDO i backtick ``) ---
+            card.innerHTML = ` 
                  <div class="product-card-header">
                      ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
                      <div class="product-title-brand">
@@ -89,12 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
                  <div class="product-card-footer">
                     <p class="product-card-price">${price}</p>
                     ${datasheetBtn}
-                 </div>`;
+                 </div>
+            `;
+            // --- FINE BLOCCO CON SINTASSI CORRETTA ---
+            
             container.appendChild(card);
         });
     }
     
-    // Aggiungi event listener ai filtri
     for(const id in filtersToWatch){
         const el = document.getElementById(id);
         if(el){
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
-        for(const id in filtersToWatch){
+       for(const id in filtersToWatch){
            const el = document.getElementById(id);
            if (el) el.value = '';
         }
