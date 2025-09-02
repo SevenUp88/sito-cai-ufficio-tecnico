@@ -2,7 +2,8 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Contenuto Caricato - Inizio listini-caldaie.js");
-
+    
+    // --- Inizializzazione Firebase e riferimenti DOM ---
     const db = firebase.firestore();
     const auth = firebase.auth();
     const boilerListContainer = document.getElementById('boiler-list-container');
@@ -19,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBoilerDetailsPopupBtn = document.getElementById('close-boiler-details-popup');
     const popupBoilerTitle = document.getElementById('popup-boiler-title');
 
+    // --- Stato e costanti ---
     let allBoilers = [];
     let currentFilters = { brand: "", economico: false, searchTerm: "" };
     let metadataListener = null;
