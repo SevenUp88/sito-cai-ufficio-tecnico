@@ -1,25 +1,92 @@
-/* ============================================== */
-/* File CSS per Listini Scaldabagni (con Etichette) */
-/* ============================================== */
+/* ========================================================== */
+/*   File CSS per Listini Scaldabagni (con Etichette)           */
+/* ========================================================== */
 
-/* Layout e stili generali (invariati) */
-.main-container { background-color: #ffffff; /* ... */ }
-.page-title-actions { text-align: center; /* ... */ }
-.content-card.filters-container { padding: 20px; /* ... */ }
-.filters-container, .filters, .button-secondary { /* ... */ }
-.product-grid { display: grid; /* ... */ }
-.no-data, .loader { text-align: center; /* ... */ }
-
-/* CARD PRODOTTO (con position: relative per le etichette) */
-.product-card {
-    position: relative; /* FONDAMENTALE per posizionare i tag */
-    border: 1px solid #ddd; border-radius: 8px; padding: 20px;
-    display: flex; flex-direction: column; background-color: white;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.2s ease;
+.main-container {
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+    padding: 30px;
 }
-.product-card:hover { transform: translateY(-3px); }
 
-/* --- ETICHETTE RIPRISTINATE --- */
+.page-title-actions {
+    text-align: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 25px;
+}
+
+.page-title-actions h1 {
+    color: #0056a8;
+}
+
+.content-card.filters-container {
+    padding: 20px;
+    border: 1px solid #eee;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.filters-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filters {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.filters select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 0.9em;
+}
+
+.button-secondary {
+    border: 1px solid #ccc;
+    background: #f1f1f1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.product-grid {
+    display: grid;
+    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+}
+
+.no-data, .loader {
+    text-align: center;
+    padding: 40px;
+}
+
+/* CARD PRODOTTO */
+.product-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+    position: relative; /* FONDAMENTALE per posizionare i tag */
+}
+
+.product-card:hover {
+    transform: translateY(-3px);
+}
+
+/* --- [NUOVO] Stili per i TAG --- */
 .card-tags-container {
     position: absolute;
     top: 20px;
@@ -30,6 +97,7 @@
     gap: 8px;
     z-index: 2;
 }
+
 .card-tag {
     padding: 5px 12px;
     font-size: 0.8em;
@@ -37,34 +105,123 @@
     color: white;
     border-radius: 5px;
     text-transform: uppercase;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 .card-tag.novita { background-color: #198754; } /* Verde */
+.card-tag.esaurimento { background-color: #ffc107; color: #333; } /* Giallo */
 .card-tag.installazione { background-color: #6c757d; } /* Grigio */
 
-/* Stile testo "In esaurimento" (ora è testo e non etichetta) */
+/* Testo "in esaurimento" */
 .availability.in-esaurimento {
     color: #E57300; /* Arancione */
     font-weight: 700;
     font-size: 0.85em;
     margin-top: auto; /* Spinge in fondo */
+    flex-grow: 1; /* Occupa lo spazio rimanente */
+    display: flex;
+    align-items: flex-end;
+}
+.availability.in-esaurimento i {
+    margin-right: 5px;
 }
 
-/* Resto della card (layout corretto) */
-.product-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
-.product-logo { max-height: 35px; max-width: 120px; object-fit: contain; flex-shrink: 0; }
-.product-card-model { font-size: 1.3em; font-weight: 700; color: #333; margin: 0; line-height: 1.2; }
+/* HEADER CARD */
+.product-card-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-right: 90px; /* Spazio per i tag */
+}
 
-.product-card-body-flex { display: flex; justify-content: space-between; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
-.product-card-info-column { display: flex; flex-direction: column; gap: 8px; }
-.product-card-info-column p { font-size: 0.95em; margin: 0; color: #555; }
-.product-card-info-column p strong { color: #222; }
-.product-card-image-container { flex-basis: 150px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-.product-card-image { max-width: 100%; max-height: 150px; object-fit: contain; }
+.product-logo {
+    max-height: 35px;
+    max-width: 120px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.product-card-brand {
+    font-size: 1.3em;
+    font-weight: 700;
+}
+.product-card-model {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: #333;
+    line-height: 1.2;
+}
 
-.product-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
-.product-card-price { font-weight: 700; font-size: 1.8em; color: #0056a8; }
+/* BODY CARD */
+.product-card-body-flex {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-grow: 1;
+    margin-bottom: 15px;
+}
+
+.product-card-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card-info-column {
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+     flex-grow: 1;
+}
+
+.product-card-info-column p {
+    font-size: 0.95em;
+    margin: 0;
+    color: #555;
+}
+
+.product-card-info-column p strong {
+    color: #222;
+}
+
+.product-card-image-container {
+    flex-basis: 150px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-card-image {
+    max-width: 100%;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+/* FOOTER CARD */
+.product-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    margin-top: auto;
+}
+
+.product-card-price {
+    font-weight: 700;
+    font-size: 1.8em;
+    color: #0056a8;
+}
+
 .card-link-button {
-    display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px;
-    font-size: 0.9em; text-decoration: none; border: 1px solid #ccc;
-    border-radius: 5px; background-color: #f1f1f1; color: #333;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    font-size: 0.9em;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    color: #333;
 }
