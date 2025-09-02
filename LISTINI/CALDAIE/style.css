@@ -1,131 +1,156 @@
-/* ========================================================== */
-/*     File: LISTINI/CALDAIE/style.css (Versione Corretta)    */
-/* ========================================================== */
+/* ================================================================= */
+/*  File CSS per la Pagina Listini Caldaie (Versione Finale)       */
+/*  Include header unificato, layout corretto e tutti gli stili.    */
+/* ================================================================= */
 
-/* --- VARIABILI DI BASE --- */
+/* --- VARIABILI, RESET E SETUP DI BASE --- */
 :root {
-    --primary-color: #0056a8;
-    --secondary-color: #6c757d;
-    --light-color: #f8f9fa;
-    --dark-color: #343a40;
-    --background-color: #ffffff;
-    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --border-radius: 8px;
-    --danger-color: #dc3545;
-    --warning-color: #ffc107;
+    --primary-color: #0056a8;       
+    --secondary-color: #6c757d;     
+    --light-color: #f8f9fa;         
+    --dark-color: #343a40;          
+    --background-color: #ffffff;    
+    --card-background: #ffffff;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
+    --border-radius: 8px;           
+    --danger-color: #dc3545;        
+    --warning-color: #ffc107;      
 }
 
-/* --- CONTENITORE PRINCIPALE DELLA PAGINA --- */
+html { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    line-height: 1.6; 
+    background-color: var(--light-color); 
+    color: var(--dark-color);
+}
+.hidden { display: none !important; }
+
+/* --- HEADER UNIFICATO (dalla Home Page) --- */
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 30px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.app-header .logo {
+    height: 45px;
+    width: auto;
+    flex-shrink: 0;
+}
+.app-header .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+#user-dashboard { /* Modifica per includere le info utente */
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.9em;
+    color: var(--secondary-color);
+}
+#user-dashboard strong {
+    color: var(--dark-color);
+    font-weight: 500;
+}
+.header-action-button {
+    background: none;
+    border: none;
+    color: #0056a8;
+    font-size: 1.8em;
+    cursor: pointer;
+    text-decoration: none;
+}
+.header-action-button:hover { color: #d71920; }
+#logout-button {
+    background-color: #6c757d;
+    color: white;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+#logout-button:hover { background-color: #5a6268; }
+
+/* --- LAYOUT DI PAGINA SPECIFICO --- */
 .listini-page-container {
-    /* Usa il 95% della larghezza disponibile, ma non più di 1800px */
     max-width: 95%;
-    width: 1800px; /* Larghezza massima */
-    margin: 0 auto; /* Centra il contenitore nella pagina */
+    width: 1800px;
+    margin: 20px auto;
+    background-color: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
     padding: 20px;
-    background-color: var(--background-color);
 }
 
-/* --- BARRA SUPERIORE CON FILTRI E TITOLO --- */
 .page-controls {
     text-align: center;
-    border-bottom: 1px solid #eee;
-    padding: 15px 20px;
+    padding-bottom: 25px;
     margin-bottom: 25px;
-    /* Rimosso 'sticky' per semplicità, può essere riattivato se necessario */
+    border-bottom: 1px solid #eee;
 }
-
 .page-controls h1 {
-    color: var(--primary-color);
-    margin: 0 0 10px 0;
-    font-weight: 700;
     font-size: 2.2em;
+    margin-bottom: 10px;
+    color: var(--primary-color);
 }
-
-.page-controls > p {
+.page-controls p {
+    font-size: 1.1em;
     margin-bottom: 20px;
-    font-size: 1em;
     color: var(--secondary-color);
 }
 
-/* --- FILTRI E BARRA DI RICERCA --- */
 .filters-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 15px; /* Aumentato lo spazio */
+    gap: 15px;
     align-items: center;
 }
-
-.filters-container > span {
-    font-weight: 500;
-    color: var(--dark-color);
-}
-
-.filter-button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-
 .filter-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    cursor: pointer;
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     color: var(--dark-color);
-    padding: 8px 16px; /* Leggermente più grande */
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 0.9em;
 }
-
-.filter-btn:hover {
-    background-color: #d1d5db;
-}
-
 .filter-btn.active {
     background-color: var(--primary-color);
     color: white;
     border-color: var(--primary-color);
-    font-weight: 500;
 }
-
-#economico-filter-btn.active {
-    background-color: #e6a007;
-    border-color: #c79100;
-    color: white;
-}
-
-.search-group input[type="text"] {
-    border-radius: 20px;
-    min-width: 220px; /* Più largo */
-    font-size: 0.9em;
+.search-group input {
     padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9em;
     border: 1px solid #ced4da;
+    min-width: 220px;
 }
 
-#reset-filters-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    background-color: var(--secondary-color);
-    color: white;
-    border: none;
-}
-
-/* --- GRIGLIA PRODOTTI (REGOLA FONDAMENTALE E UNICA) --- */
+/* --- GRIGLIA PRODOTTI --- */
 .product-grid {
     display: grid;
-    gap: 25px; /* Aumentato spazio tra card */
-    margin-bottom: 30px;
-    /* Questa regola crea colonne flessibili che si adattano automaticamente.
-       Ogni colonna avrà una larghezza minima di 350px. */
+    gap: 25px;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
 
 /* --- CARD PRODOTTO --- */
 .boiler-card {
-    background-color: var(--background-color);
+    background-color: var(--card-background);
     border: 1px solid #e0e0e0;
     border-radius: var(--border-radius);
     padding: 20px;
@@ -135,97 +160,29 @@
     flex-direction: column;
     cursor: pointer;
 }
+.boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+.boiler-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
+.boiler-title-brand h3 { margin: 0; font-size: 1.1em; }
+.boiler-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
+.boiler-card-info-column { flex: 1; }
+.boiler-card-info-column p { margin-bottom: 8px; font-size: 0.9em; }
+.boiler-card-image-column { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
+.boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
+.boiler-card-footer { border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
+.boiler-card .price { font-size: 1.5em; font-weight: 700; color: var(--primary-color); }
+.product-documents-links { display: flex; gap: 15px; margin-top: 10px; }
+.product-documents-links a { color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
+.product-documents-links a:hover { text-decoration: underline; }
 
-.boiler-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
+/* --- STATO DI CARICAMENTO, NOTIFICHE E POPUP --- */
+#loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; }
+.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.boiler-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    gap: 15px;
-}
-
-.boiler-logo {
-    max-height: 40px;
-    max-width: 120px;
-    object-fit: contain;
-}
-
-.boiler-title-brand h3 {
-    margin: 0;
-    font-size: 1.1em;
-    color: var(--dark-color);
-    font-weight: 700;
-}
-
-.boiler-card-body-flex {
-    display: flex;
-    gap: 20px;
-    flex-grow: 1; /* Permette al corpo di occupare lo spazio disponibile */
-    margin-bottom: 15px;
-}
-
-.boiler-card-info-column {
-    flex: 1;
-}
-
-.boiler-card-info-column p {
-    margin-bottom: 8px;
-    font-size: 0.9em;
-}
-
-.boiler-card-image-column {
-    flex-basis: 150px; /* Larghezza fissa per l'immagine */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.boiler-card-image-column img {
-    max-width: 100%;
-    max-height: 150px;
-    object-fit: contain;
-}
-
-.boiler-card-footer {
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    margin-top: auto; /* Spinge il footer in fondo alla card */
-}
-
-.boiler-card .price {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-/* --- STATO DI CARICAMENTO E NESSUN RISULTATO --- */
-#loading-indicator, #no-results-message {
-    grid-column: 1 / -1; /* Occupa tutta la larghezza della griglia */
-    text-align: center;
-    padding: 40px;
-    color: var(--secondary-color);
-}
-
-.loading-spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 15px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* --- Stili POPUP (invariati) --- */
-.popup-overlay { /* ... */ }
-.popup-content { /* ... */ }
-/* (Tutte le altre regole per il popup sono qui) */
+.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1050; }
+.popup-overlay.visible { display: flex; }
+.popup-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
+.close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2em; background: none; border: none; cursor: pointer; }
+#popup-boiler-title { margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+#popup-boiler-content-area p { margin-bottom: 10px; }
