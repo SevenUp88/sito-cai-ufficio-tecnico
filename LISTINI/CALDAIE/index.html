@@ -6,7 +6,7 @@
     <title>Listini Caldaie - CAI Ufficio Tecnico</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- CARICA SIA LO STILE GLOBALE (per header, layout) SIA QUELLO LOCALE -->
+    <!-- CARICA SIA LO STILE GLOBALE (per l'header) SIA QUELLO LOCALE -->
     <link rel="stylesheet" href="../../style.css"> 
     <link rel="stylesheet" href="style.css">
     
@@ -18,7 +18,7 @@
     <div id="initial-loader"></div>
     
     <div class="listini-page-container">
-        <!-- L'header è definito qui, ma lo stile viene SOLO dal file ../../style.css -->
+        <!-- HEADER IDENTICO A QUELLO DELLA HOME, CON GLI STESSI ID E CLASSI -->
         <header class="app-header">
             <a href="../../index.html" class="logo-link">
                 <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
@@ -33,16 +33,29 @@
         </header>
 
         <div class="page-controls">
-            <!-- ... Il resto del contenuto della pagina rimane invariato ... -->
+            <h1>Listini Caldaie</h1>
+            <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
+            <div class="filters-container">
+                <span>Filtra per:</span>
+                <div id="brand-filter-buttons" class="filter-button-group"></div>
+                <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
+                <div class="search-group">
+                    <input type="text" id="search-input" placeholder="Cerca Modello, Codice..." disabled>
+                </div>
+                <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
+            </div>
         </div>
+
+        <div id="loading-indicator" style="display: none;"></div>
+        <div id="no-results-message" style="display: none;"></div>
+
         <main>
             <div id="boiler-list-container" class="product-grid"></div>
         </main>
     </div>
 
-    <!-- Popup, Footer e Script (invariati) -->
-    
-    <!-- SCRIPT CORRETTI -->
+    <!-- Popup, Footer e Script (tutto il resto è invariato e corretto) -->
+    <!-- ... -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
