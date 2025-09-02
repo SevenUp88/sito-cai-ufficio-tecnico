@@ -114,4 +114,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     auth.onAuthStateChanged(initializePage);
 });
-```Sostituisci questo file. La nuova logica per `brandDisplay` mostrerà il tag `<img>` se l'URL del logo esiste, altrimenti mostrerà uno `<span>` con il nome della marca. Questo risolverà il problema dell'immagine rotta e del testo duplicato.
