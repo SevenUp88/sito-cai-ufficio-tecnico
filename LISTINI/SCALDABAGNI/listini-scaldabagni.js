@@ -1,9 +1,13 @@
-// --- File: listini-scaldabagni.js (Sintassi Corretta) ---
+// --- File: listini-scaldabagni.js (con Card Arricchite) ---
+
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+    // --- PERCORSI IMMAGINI CORRETTI ---
     const IMAGE_BASE_URL = "img/";
+    const LOGO_BASE_URL = "../../images/logos/"; // Loghi centralizzati
+    const PLACEHOLDER_IMAGE = "../../placeholder.png"; // Placeholder centralizzato
 
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
@@ -25,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateFilters(allProducts);
             applyFilters();
-        } catch (error) { console.error("Errore:", error); } 
+        } catch (error) { console.error("Errore nel caricamento dati:", error); } 
         finally { if (appLoader) appLoader.style.display = 'none'; }
     }
     
@@ -55,19 +59,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCards(products) {
         if (!container) return;
         container.innerHTML = '';
-        (noDataMsg) && (noDataMsg.style.display = products.length === 0 ? 'block' : 'none');
+        if(noDataMsg) noDataMsg.style.display = products.length === 0 ? 'block' : 'none';
         
         products.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            const price = p.prezzo ? parseFloat(p.prezzo).toFixed(2) + ' €' : 'N/D';
-            const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : '';
-            const logoUrl = p.marca ? `../../images/logos/${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
+            // Logica per le informazioni aggiuntive
+            const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2)} €` : 'N/D';
+            const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
+            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            // --- INIZIO BLOCCO CON SINTASSI CORRETTA (USANDO i backtick ``) ---
-            card.innerHTML = ` 
+            // --- NUOVI TAG DINAMICI ---
+            const novitaTag = p.novita ? '<span class="card-tag novita">Novità</span>' : '';
+            const esaurimentoTag = p.articolo_in_esaurimento ? '<span class="card-tag esaurimento">In Esaurimento</span>' : '';
+            const installazioneTag = p.installazione ? `<span class="card-tag installazione">${p.installazione}</span>` : '';
+
+            card.innerHTML = `
+                 <div class="card-tags-container">
+                    ${installazioneTag}
+                    ${esaurimentoTag}
+                    ${novitaTag}
+                 </div>
                  <div class="product-card-header">
                      ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
                      <div class="product-title-brand">
@@ -78,11 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
                  <div class="product-card-body-flex">
                     <div class="product-card-info-column">
                        <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
-                       <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
                        <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
+                       <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
+                       ${p.dimensioni ? `<p><strong>Dimensioni:</strong> ${p.dimensioni}</p>` : ''}
+                       ${p.peso ? `<p><strong>Peso:</strong> ${p.peso} kg</p>` : ''}
                     </div>
                     <div class="product-card-image-container">
-                        ${imageUrl ? `<img src="${imageUrl}" class="product-card-image" alt="${p.modello}">` : ''}
+                        <img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
                     </div>
                  </div>
                  <div class="product-card-footer">
@@ -90,12 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ${datasheetBtn}
                  </div>
             `;
-            // --- FINE BLOCCO CON SINTASSI CORRETTA ---
-            
             container.appendChild(card);
         });
     }
     
+    // Aggiungi event listener ai filtri
     for(const id in filtersToWatch){
         const el = document.getElementById(id);
         if(el){
