@@ -6,7 +6,7 @@
     <title>Listini Caldaie - CAI Ufficio Tecnico</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     
-    <!-- CARICA SIA LO STILE GLOBALE (per l'header) SIA QUELLO LOCALE -->
+    <!-- Carica sia lo stile globale (per l'header) sia quello locale -->
     <link rel="stylesheet" href="../../style.css"> 
     <link rel="stylesheet" href="style.css">
     
@@ -18,19 +18,26 @@
     <div id="initial-loader"></div>
     
     <div class="listini-page-container">
-        <!-- HEADER IDENTICO A QUELLO DELLA HOME, CON GLI STESSI ID E CLASSI -->
+        
+        <!-- ========================================================== -->
+        <!--  HEADER CON LA STRUTTURA HTML DELLA HOME PAGE              -->
+        <!-- ========================================================== -->
         <header class="app-header">
             <a href="../../index.html" class="logo-link">
                 <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
             </a>
+            <!-- L'id #user-dashboard viene usato da auth.js per mostrare/nascondere il blocco intero -->
+            <!-- La classe .header-controls viene usata da style.css per allineare gli elementi -->
             <div id="user-dashboard" class="header-controls hidden">
-                 <div class="header-user-info">
-                    Utente: <strong id="user-email-display"></strong>
-                 </div>
+                 <!-- L'email dell'utente va qui dentro, gestita da auth.js -->
+                 <p>Utente: <strong id="user-email-display"></strong></p>
+
+                 <!-- Pulsante Home e Logout (struttura semplificata, lo stile fa il resto) -->
                  <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-                 <button id="logout-button" class="button-logout" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                 <button id="logout-button" class="btn-login">Logout</button> 
             </div>
         </header>
+        <!-- ========================================================== -->
 
         <div class="page-controls">
             <h1>Listini Caldaie</h1>
@@ -54,8 +61,20 @@
         </main>
     </div>
 
-    <!-- Popup, Footer e Script (tutto il resto è invariato e corretto) -->
-    <!-- ... -->
+    <!-- Popup, Footer e Script sono corretti e non necessitano di modifiche -->
+    <div id="boiler-details-popup-overlay" class="popup-overlay" style="display: none;">
+        <div class="popup-content boiler-details-popup">
+            <button class="close-popup-btn" id="close-boiler-details-popup">×</button>
+            <h2 id="popup-boiler-title">Dettagli Caldaia</h2>
+            <div id="popup-boiler-content-area"></div>
+        </div>
+    </div>
+    <footer class="app-footer">
+        <p>© <span id="current-year"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico.</p>
+        <p class="data-info">Listino aggiornato al: <span id="data-update-date">--/--/----</span></p>
+    </footer>
+    
+    <!-- Blocco script corretto -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
