@@ -40,10 +40,9 @@ body {
 }
 
 .listini-page-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px 20px 20px;
-    background-color: var(--background-color);
+    max-width: 95%; /* Usa il 95% della larghezza dello schermo */
+    margin: 0 auto;   /* Centra il contenitore */
+    padding: 20px;
 }
 
 .page-controls {
