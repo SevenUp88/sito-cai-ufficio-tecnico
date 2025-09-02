@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
     const IMAGE_BASE_URL = "img/";
-    const LOGO_BASE_URL = "../../images/logos/";
+    const LOGO_BASE_URL = "img/";
     const PLACEHOLDER_IMAGE = "../../placeholder.png";
 
     const appLoader = document.getElementById('app-loader');
