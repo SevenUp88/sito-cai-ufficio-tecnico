@@ -1,22 +1,18 @@
-// --- File: listini-scaldabagni.js (con Card Arricchite) ---
-
+// --- File: listini-scaldabagni.js (con layout card "Bozza" - VERSIONE 100% COMPLETA) ---
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
-    // --- PERCORSI IMMAGINI CORRETTI ---
     const IMAGE_BASE_URL = "img/";
-    const LOGO_BASE_URL = "../../images/logos/"; // Loghi centralizzati
-    const PLACEHOLDER_IMAGE = "../../placeholder.png"; // Placeholder centralizzato
+    const LOGO_BASE_URL = "../../images/logos/";
+    const PLACEHOLDER_IMAGE = "../../placeholder.png";
 
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
     const filtersToWatch = {
-        'brand-filter': 'marca',
-        'tecnologia-filter': 'tecnologia',
-        'litri-filter': 'litri',
-        'configurazione-filter': 'configurazione',
+        'brand-filter': 'marca', 'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri', 'configurazione-filter': 'configurazione',
         'installazione-filter': 'installazione'
     };
 
@@ -65,52 +61,52 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.className = 'product-card';
             
-            // Logica per le informazioni aggiuntive
-            const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2)} €` : 'N/D';
+            const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
-            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            // --- NUOVI TAG DINAMICI ---
-            const novitaTag = p.novita ? '<span class="card-tag novita">Novità</span>' : '';
-            const esaurimentoTag = p.articolo_in_esaurimento ? '<span class="card-tag esaurimento">In Esaurimento</span>' : '';
+            const novitaTag = p.novita ? '<span class="card-tag novita">NOVITÀ</span>' : '';
+            const accumuloTag = p.litri ? `<span class="card-tag accumulo">${p.litri} L</span>` : '';
             const installazioneTag = p.installazione ? `<span class="card-tag installazione">${p.installazione}</span>` : '';
-
+            const esaurimentoText = p.articolo_in_esaurimento ? '<p class="availability in-esaurimento">ART. IN ESAURIMENTO</p>' : '';
+            const pesoText = p.peso ? `<p><strong>Peso:</strong> ${p.peso} kg</p>` : '<p><strong>Peso:</strong> N/D</p>';
+            
             card.innerHTML = `
-                 <div class="card-tags-container">
+                <div class="card-tags-container">
                     ${installazioneTag}
-                    ${esaurimentoTag}
+                    ${accumuloTag}
                     ${novitaTag}
-                 </div>
-                 <div class="product-card-header">
-                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
-                     <div class="product-title-brand">
-                        <span class="product-card-brand" style="${logoUrl ? 'display:none;' : ''}">${p.marca || ''}</span>
-                        <h3 class="product-card-model">${p.modello || ''}</h3>
-                     </div>
-                 </div>
-                 <div class="product-card-body-flex">
-                    <div class="product-card-info-column">
-                       <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
-                       <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
-                       <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
-                       ${p.dimensioni ? `<p><strong>Dimensioni:</strong> ${p.dimensioni}</p>` : ''}
-                       ${p.peso ? `<p><strong>Peso:</strong> ${p.peso} kg</p>` : ''}
+                </div>
+
+                <div class="product-card-header">
+                    <h3 class="product-card-model">${p.modello || ''}</h3>
+                </div>
+
+                <div class="product-card-body">
+                    <div class="product-card-details">
+                        <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
+                        <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
+                        <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
+                        <p><strong>Dimensioni:</strong> ${p.dimensioni || 'N/A'}</p>
+                        ${pesoText}
                     </div>
                     <div class="product-card-image-container">
                         <img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
                     </div>
-                 </div>
-                 <div class="product-card-footer">
-                    <p class="product-card-price">${price}</p>
+                </div>
+
+                <div class="product-card-footer">
+                    <div class="footer-price-info">
+                         ${esaurimentoText}
+                        <p class="product-card-price">${price}</p>
+                    </div>
                     ${datasheetBtn}
-                 </div>
+                </div>
             `;
             container.appendChild(card);
         });
     }
     
-    // Aggiungi event listener ai filtri
     for(const id in filtersToWatch){
         const el = document.getElementById(id);
         if(el){
