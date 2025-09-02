@@ -1,3 +1,6 @@
+```javascript
+// --- File: listini-scaldabagni.js ---
+
 document.addEventListener('DOMContentLoaded', () => {
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
@@ -7,7 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
-    const filtersToWatch = ['brand-filter', 'tecnologia-filter', 'litri-filter', 'configurazione-filter', 'installazione-filter'];
+    const filtersToWatch = {
+        'brand-filter': 'marca',
+        'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri',
+        'configurazione-filter': 'configurazione',
+        'installazione-filter': 'installazione'
+    };
 
     function initializePage(user) { if (user) loadAndDisplayData(); }
 
@@ -23,17 +32,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function populateFilters(products) {
-        const createOptions = (key) => [...new Set(products.map(p => p[key]).filter(Boolean))].sort((a,b) => key === 'litri' ? a - b : String(a).localeCompare(String(b)));
-        const filtersSetup = {
-            'brand-filter': createOptions('marca'), 'tecnologia-filter': createOptions('tecnologia'),
-            'litri-filter': createOptions('litri'), 'configurazione-filter': createOptions('configurazione'),
-            'installazione-filter': createOptions('installazione')
-        };
-        for(const id in filtersSetup) {
+       for (const id in filtersToWatch) {
+            const key = filtersToWatch[id];
             const select = document.getElementById(id);
             if(select) {
+                const options = [...new Set(products.map(p => p[key]).filter(Boolean))].sort((a,b) => key === 'litri' ? a - b : String(a).localeCompare(String(b)));
                 select.innerHTML = '<option value="">Tutte</option>';
-                filtersSetup[id].forEach(val => select.add(new Option(val, val)));
+                options.forEach(val => select.add(new Option(val, val)));
             }
         }
     }
@@ -57,15 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
         products.forEach(p => {
             const card = document.createElement('div');
             card.className = 'product-card';
+            
             const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2)} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : '';
             const logoUrl = p.marca ? `../../images/logos/${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
-            const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>` : '<div></div>';
+            const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
             card.innerHTML = `
                  <div class="product-card-header">
-                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'">` : ''}
-                     <div class="product-title-brand"><h3>${p.modello || ''}</h3></div>
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
+                     <div class="product-title-brand">
+                        <span class="product-card-brand" style="${logoUrl ? 'display:none;' : ''}">${p.marca || ''}</span>
+                        <h3 class="product-card-model">${p.modello || ''}</h3>
+                     </div>
                  </div>
                  <div class="product-card-body-flex">
                     <div class="product-card-info-column">
@@ -86,25 +95,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Aggiungi event listener ai filtri
-    filtersToWatch.forEach(id => {
-        const filterEl = document.getElementById(id);
-        if (filterEl) {
-            filterEl.addEventListener('change', () => {
-                currentFilters[id.split('-')[0]] = filterEl.value;
+    for(const id in filtersToWatch){
+        const el = document.getElementById(id);
+        if(el){
+            el.addEventListener('change', () => {
+                const key = filtersToWatch[id];
+                currentFilters[key] = el.value;
                 applyFilters();
             });
         }
-    });
+    }
 
     document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
-       filtersToWatch.forEach(id => { 
-           const el = document.getElementById(id); 
+        for(const id in filtersToWatch){
+           const el = document.getElementById(id);
            if (el) el.value = '';
-        });
+        }
        currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
        applyFilters();
     });
 
     auth.onAuthStateChanged(initializePage);
 });
-```Sostituisci questi tre file e la pagina degli scaldabagni sarà finalmente perfetta, funzionale e coerente con il resto del sito.
