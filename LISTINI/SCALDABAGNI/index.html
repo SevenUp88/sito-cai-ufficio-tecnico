@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listino Scaldabagni - CAI Ufficio Tecnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- COLLEGA I FILE CSS GLOBALE E LOCALE -->
+    <link rel="stylesheet" href="../../style.css"> 
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body class="hidden">
+
+    <div id="initial-loader"></div>
+    
+    <!-- HEADER UNIFICATO -->
+    <header class="app-header">
+        <a href="../../index.html" class="logo-link"><img src="../../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="header-controls hidden">
+            <p>Utente: <strong id="user-email-display"></strong></p>
+            <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="btn-login">Logout</button> 
+        </div>
+    </header>
+
+    <!-- AREA DI CONTENUTO PRINCIPALE -->
+    <main id="content-area">
+        <div class="main-container">
+            <div id="app-loader" class="loader"></div>
+
+            <div class="page-title-actions">
+                <div class="title-group">
+                    <h1>Listino Scaldabagni</h1>
+                    <p class="page-subtitle">Verificare sempre la disponibilità effettiva su gestionale.</p>
+                </div>
+            </div>
+
+            <div class="content-card filters-container">
+                <div class="filters">
+                    <div> <label for="brand-filter">Marca:</label> <select id="brand-filter"></select> </div>
+                    <div> <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter"></select> </div>
+                    <div> <label for="litri-filter">Litri:</label> <select id="litri-filter"></select> </div>
+                    <div> <label for="configurazione-filter">Conf.:</label> <select id="configurazione-filter"></select> </div>
+                </div>
+                <button id="reset-filters-btn" class="button button-secondary"><i class="fas fa-undo"></i> Reset</button>
+            </div>
+
+            <div id="products-card-container" class="products-card-container">
+                <!-- Le card verranno inserite qui -->
+            </div>
+            <div id="no-data-message" class="no-data" style="display: none;">Nessun prodotto trovato.</div>
+        </div>
+    </main>
+    
+    <!-- SCRIPT (Nuova Struttura Centralizzata) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="../../firebase-config.js"></script>
+    <script src="../../auth.js"></script>
+    <script src="listini-scaldabagni.js"></script> <!-- SCRIPT SPECIFICO RINOMINATO -->
+</body>
+</html>

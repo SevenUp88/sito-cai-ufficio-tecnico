@@ -1,0 +1,36 @@
+/* --- Stili specifici per la pagina SCALDABAGNI --- */
+
+.main-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+    padding: 25px;
+    width: 100%;
+}
+
+.page-title-actions h1 { color: #0056a8; }
+.content-card { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 8px; }
+.filters-container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+.filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+.filters select { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+.products-card-container { display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.no-data { text-align: center; padding: 40px; }
+
+.product-card {
+    border: 1px solid #ddd; border-radius: 8px; padding: 15px;
+    display: flex; flex-direction: column;
+}
+.product-card-body { display: flex; gap: 15px; flex-grow: 1; margin-bottom: 10px; }
+.product-card-details { flex: 2; }
+.product-card-image-container { flex: 1; display: flex; align-items: center; }
+.product-card-image { max-width: 100%; max-height: 120px; object-fit: contain; }
+.product-card-brand { font-size: 1.1em; font-weight: bold; color: #0056a8; }
+.product-card-model { font-weight: 500; margin: 5px 0; }
+.product-card-details p { font-size: 0.9em; margin: 4px 0; color: #666; }
+.product-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 10px; margin-top: auto; }
+.product-card-price { font-weight: bold; font-size: 1.2em; }
+.datasheet-link { text-decoration: none; color: #0056a8; }
+
+.status-text { font-weight: bold; font-size: 0.85em; }
+.status-esaurimento { color: #ffc107; }
+.status-novita { color: #198754; margin-left: 8px; }
