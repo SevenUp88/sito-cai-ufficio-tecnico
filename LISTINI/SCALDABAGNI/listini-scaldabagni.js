@@ -1,4 +1,5 @@
-// --- File: listini-scaldabagni.js (con layout card "Bozza" - VERSIONE 100% COMPLETA) ---
+// --- File: listini-scaldabagni.js (con Loghi, senza Peso - VERSIONE 100% COMPLETA) ---
+
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
@@ -63,13 +64,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
+            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
             const novitaTag = p.novita ? '<span class="card-tag novita">NOVITÀ</span>' : '';
             const accumuloTag = p.litri ? `<span class="card-tag accumulo">${p.litri} L</span>` : '';
             const installazioneTag = p.installazione ? `<span class="card-tag installazione">${p.installazione}</span>` : '';
             const esaurimentoText = p.articolo_in_esaurimento ? '<p class="availability in-esaurimento">ART. IN ESAURIMENTO</p>' : '';
-            const pesoText = p.peso ? `<p><strong>Peso:</strong> ${p.peso} kg</p>` : '<p><strong>Peso:</strong> N/D</p>';
             
             card.innerHTML = `
                 <div class="card-tags-container">
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="product-card-header">
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">` : ''}
                     <h3 class="product-card-model">${p.modello || ''}</h3>
                 </div>
 
@@ -88,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
                         <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
                         <p><strong>Dimensioni:</strong> ${p.dimensioni || 'N/A'}</p>
-                        ${pesoText}
                     </div>
                     <div class="product-card-image-container">
                         <img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
