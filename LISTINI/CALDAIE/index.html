@@ -14,7 +14,7 @@
 
     <div id="initial-loader"></div>
 
-    <!-- Header (Struttura corretta, come da Home) -->
+    <!-- Header (Struttura corretta) -->
     <header class="app-header">
         <a href="../../index.html" class="logo-link"><img src="../../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
         <div id="user-dashboard" class="header-controls hidden">
@@ -24,14 +24,18 @@
         </div>
     </header>
 
-    <!-- STRUTTURA <main> PER SFONDO AZZURRO E MARGINI CORRETTI -->
+    <!-- STRUTTURA PER SFONDO AZZURRO E CONTENITORE BIANCO -->
     <main id="content-area">
-        <!-- Contenitore bianco che contiene tutta la logica della pagina -->
         <div class="listini-page-container">
             
-            <div class="page-controls">
-                <h1>Listini Caldaie</h1>
-                <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
+            <!-- TITOLO E SOTTOTITOLO DELLA PAGINA -->
+            <div class="page-header-local">
+                 <h1>Listini Caldaie</h1>
+                 <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
+            </div>
+
+            <!-- BARRA DEI FILTRI (ORA SEPARATA E STILABILE INDIVIDUALMENTE) -->
+            <div class="filters-bar">
                 <div class="filters-container">
                     <span>Filtra per:</span>
                     <div id="brand-filter-buttons" class="filter-button-group"></div>
@@ -49,9 +53,8 @@
             </div>
             <div id="no-results-message" style="display: none;"></div>
             
-            <!-- La vecchia <main> interna è stata rimossa, ora c'è solo il contenitore della griglia -->
             <div id="boiler-list-container" class="product-grid">
-                <!-- Le card verranno inserite qui da listini-caldaie.js -->
+                <!-- Le card verranno inserite qui dal JS -->
             </div>
             
         </div>
