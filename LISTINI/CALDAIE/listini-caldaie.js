@@ -28,8 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let allBoilers = [];
     let currentFilters = { brand: "", economico: false, searchTerm: "" };
     let metadataListener = null;
-    const imageBaseUrl = '../../images/prodotti/caldaie/';
-    const brandLogoBaseUrl = '../../images/logos/';
+    const imageBaseUrl = 'img/';
+const brandLogoBaseUrl = 'img/logos/';
     const placeholderImage = imageBaseUrl + 'placeholder.png';
 
     const ALL_BOILER_FIELDS_MAP = {
