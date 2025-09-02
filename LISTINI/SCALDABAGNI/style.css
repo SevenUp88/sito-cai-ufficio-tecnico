@@ -1,29 +1,45 @@
-/* ========================================================== */
-/*   File CSS per Listini Scaldabagni (Stile Definitivo)     */
-/* ========================================================== */
-.main-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 25px; }
+/* Stili per pagina SCALDABAGNI (coerenti con caldaie) */
+.main-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
+    padding: 30px;
+}
 .page-title-actions { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 25px; }
 .page-title-actions h1 { color: #0056a8; }
-.content-card.filters-container { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.content-card.filters-container {
+    padding: 20px;
+    border: 1px solid #eee;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 .filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
 .filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;}
 .filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9em; }
-.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.button-secondary { border: 1px solid #ccc; background: #f1f1f1; border-radius: 6px; padding: 8px 12px; }
+.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
 .no-data, .loader { text-align: center; padding: 40px; }
 
-.product-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.product-card {
+    border: 1px solid #ddd; border-radius: 8px; padding: 20px;
+    display: flex; flex-direction: column; background-color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.2s ease;
+}
+.product-card:hover { transform: translateY(-5px); }
 .product-card-body { display: flex; gap: 15px; flex-grow: 1; margin-bottom: 10px; }
-.product-card-details { flex: 2; display: flex; flex-direction: column; }
-.product-card-image-container { flex: 1; display: flex; align-items: center; }
+.product-card-details { flex: 2; }
+.product-card-image-container { flex: 1; display: flex; align-items: center; justify-content: center; }
 .product-card-image { max-width: 100%; max-height: 140px; object-fit: contain; }
-.product-card-brand { font-size: 1.1em; font-weight: bold; color: #0056a8; margin:0 0 5px 0; }
-.product-card-model { font-weight: 500; margin: 5px 0; }
-.product-card-details p { font-size: 0.9em; margin: 4px 0; color: #666; }
-.product-card-details p strong { color: #333; }
+.product-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.product-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
+.product-title-brand h3 { margin: 0; font-size: 1.1em; }
+.product-card-info p { font-size: 0.9em; margin: 4px 0; color: #666; }
+.product-card-info p strong { color: #333; }
 .product-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
 .product-card-price { font-weight: 700; font-size: 1.5em; color: #0056a8;}
 
-/* Stile Pulsante Scheda Tecnica (IDENTICO a CALDAIE) */
+/* Pulsante Scheda Tecnica (uguale a caldaie) */
 .card-link-button {
     display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
     font-size: 0.8em; font-weight: 500; text-decoration: none; border: 1px solid transparent;
@@ -31,7 +47,128 @@
     background-color: #e8f0f7; color: #0056a8; border-color: #d1e0ee;
 }
 .card-link-button:hover { background-color: #d1e0ee; }
-.card-link-button i { font-size: 1em; }
+.card-link-button i { font-size: 1em; }```
 
-.button { border-radius: 6px; }
-.button-secondary { border: 1px solid #ccc; background: #f1f1f1;}
+---
+
+### File 3: Sostituisci `listini/scaldabagni/listini-scaldabagni.js` (Completo)
+
+```javascript
+// --- File: listini-scaldabagni.js ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    let allProducts = [];
+    let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+    const IMAGE_BASE_URL = "img/";
+
+    // Seleziona elementi DOM
+    const appLoader = document.getElementById('app-loader');
+    const container = document.getElementById('products-card-container');
+    const noDataMsg = document.getElementById('no-data-message');
+    const filtersToWatch = {
+        'brand-filter': 'marca',
+        'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri',
+        'configurazione-filter': 'configurazione',
+        'installazione-filter': 'installazione'
+    };
+
+    function initializePage(user) { if (user) loadAndDisplayData(); }
+
+    async function loadAndDisplayData() {
+        if (appLoader) appLoader.style.display = 'block';
+        try {
+            const snapshot = await db.collection("prodottiScaldabagno").orderBy("marca").get();
+            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            populateFilters(allProducts);
+            applyFilters();
+        } catch (error) { console.error("Errore:", error); } 
+        finally { if (appLoader) appLoader.style.display = 'none'; }
+    }
+    
+    function populateFilters(products) {
+       for (const id in filtersToWatch) {
+            const key = filtersToWatch[id];
+            const select = document.getElementById(id);
+            if(select) {
+                const options = [...new Set(products.map(p => p[key]).filter(Boolean))].sort((a,b) => key === 'litri' ? a - b : String(a).localeCompare(String(b)));
+                select.innerHTML = '<option value="">Tutte</option>';
+                options.forEach(val => select.add(new Option(val, val)));
+            }
+        }
+    }
+    
+    function applyFilters() {
+       let filtered = allProducts.filter(p => {
+           return (!currentFilters.marca || p.marca === currentFilters.marca) &&
+                  (!currentFilters.tecnologia || p.tecnologia === currentFilters.tecnologia) &&
+                  (!currentFilters.litri || String(p.litri) === currentFilters.litri) &&
+                  (!currentFilters.configurazione || p.configurazione === currentFilters.configurazione) &&
+                  (!currentFilters.installazione || p.installazione === currentFilters.installazione);
+       });
+       renderCards(filtered);
+    }
+    
+    function renderCards(products) {
+        if (!container) return;
+        container.innerHTML = '';
+        (noDataMsg) && (noDataMsg.style.display = products.length === 0 ? 'block' : 'none');
+        
+        products.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2)} €` : 'N/D';
+            const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : '';
+            const logoUrl = p.marca ? `../../images/logos/${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
+            const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
+            
+            card.innerHTML = `
+                 <div class="product-card-header">
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
+                     <div class="product-title-brand">
+                        <span class="product-card-brand" style="${logoUrl ? 'display:none;' : ''}">${p.marca || ''}</span>
+                        <h3 class="product-card-model">${p.modello || ''}</h3>
+                     </div>
+                 </div>
+                 <div class="product-card-body-flex">
+                    <div class="product-card-info-column">
+                       <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
+                       <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
+                       <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
+                    </div>
+                    <div class="product-card-image-container">
+                        ${imageUrl ? `<img src="${imageUrl}" class="product-card-image" alt="${p.modello}">` : ''}
+                    </div>
+                 </div>
+                 <div class="product-card-footer">
+                    <p class="product-card-price">${price}</p>
+                    ${datasheetBtn}
+                 </div>`;
+            container.appendChild(card);
+        });
+    }
+    
+    // Aggiungi event listener ai filtri
+    for(const id in filtersToWatch){
+        const el = document.getElementById(id);
+        if(el){
+            el.addEventListener('change', () => {
+                const key = filtersToWatch[id];
+                currentFilters[key] = el.value;
+                applyFilters();
+            });
+        }
+    }
+
+    document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
+        for(const id in filtersToWatch){
+           const el = document.getElementById(id);
+           if (el) el.value = '';
+        }
+       currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+       applyFilters();
+    });
+
+    auth.onAuthStateChanged(initializePage);
+});
