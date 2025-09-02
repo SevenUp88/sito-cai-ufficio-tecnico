@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFilters = { brand: "", economico: false, searchTerm: "" };
     let metadataListener = null;
     const imageBaseUrl = 'img/';
-const brandLogoBaseUrl = 'img/logos/';
+    const brandLogoBaseUrl = 'img/logos/';
     const placeholderImage = imageBaseUrl + 'placeholder.png';
 
     const ALL_BOILER_FIELDS_MAP = {
