@@ -1,17 +1,24 @@
-/* ========================================================== */
-/*     File: LISTINI/CALDAIE/style.css (con Sfondo Azzurro)   */
-/* ========================================================== */
+/* ==================================================================== */
+/*     File: LISTINI/CALDAIE/style.css (Versione con Stile Autonomo)    */
+/* ==================================================================== */
 
-/* Lo stile del body (azzurro) e del tag <main> viene definito
-   nel file ../../style.css globale. */
+/* --- REGOLE FONDAMENTALI PER IL LAYOUT (per renderlo indipendente) --- */
+body {
+    background-color: #f8f9fa; /* Sfondo azzurrino/grigio chiaro, come sulla home */
+}
 
-/* Contenitore bianco specifico per la pagina dei listini */
+main#content-area {
+    /* Crea lo spazio/margine attorno al contenitore bianco */
+    padding: 20px;
+}
+
+/* Contenitore bianco specifico per questa pagina */
 .listini-page-container {
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
     padding: 25px;
-    width: 100%; 
+    width: 100%;
     max-width: 1800px;
     margin: 0 auto;
 }
@@ -26,7 +33,7 @@
 .page-controls h1 { color: #0056a8; margin-bottom: 10px; font-size: 2.2em; }
 .page-controls p { font-size: 1.1em; margin-bottom: 20px; color: #6c757d; }
 
-/* --- FILTRI E BARRA DI RICERCA (Layout Stabile) --- */
+/* --- FILTRI E BARRA DI RICERCA --- */
 .filters-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
 .filters-container > span { font-weight: 500; color: #343a40; }
 .filter-button-group { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -44,15 +51,9 @@
 
 /* --- CARD PRODOTTO --- */
 .boiler-card {
-    background-color: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
+    padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; 
+    flex-direction: column; cursor: pointer; transition: all 0.2s ease;
 }
 .boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
 .boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
@@ -65,39 +66,16 @@
 .boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
 .boiler-card-footer { border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
 .boiler-card .price { font-size: 1.5em; font-weight: 700; color: #0056a8; }
-.product-documents-links { display: flex; gap: 15px; margin-top: 10px; }
-.product-documents-links a { color: #0056a8; text-decoration: none; font-size: 0.9em; }
-.product-documents-links a:hover { text-decoration: underline; }
 
-/* --- STATO DI CARICAMENTO E NOTIFICHE --- */
+/* --- STATO DI CARICAMENTO, POPUP, ETC. (Tutto il resto del codice è qui) --- */
 #loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d; }
 .loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0056a8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- POPUP --- */
-.popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.6);
-    display: none; justify-content: center; align-items: center;
-    z-index: 1050; opacity: 0; transition: opacity 0.3s ease;
-}
+.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
 .popup-overlay.visible { display: flex; opacity: 1; }
-.popup-content {
-    background: white; padding: 30px; border-radius: 8px;
-    max-width: 600px; width: 90%; position: relative;
-    max-height: 90vh; overflow-y: auto;
-    transform: scale(0.95); transition: transform 0.3s ease;
-}
+.popup-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s ease; }
 .popup-overlay.visible .popup-content { transform: scale(1); }
-.close-popup-btn {
-    position: absolute; top: 10px; right: 15px;
-    font-size: 2em; background: none; border: none;
-    cursor: pointer; color: #aaa;
-}
-#popup-boiler-title {
-    margin-top: 0; margin-bottom: 20px;
-    border-bottom: 1px solid #eee; padding-bottom: 15px;
-    color: #0056a8;
-}
+.close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2em; background: none; border: none; cursor: pointer; color: #aaa; }
+#popup-boiler-title { margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; color: #0056a8; }
 #popup-boiler-content-area p { margin-bottom: 12px; }
 #popup-boiler-content-area p strong { font-weight: 500; }
