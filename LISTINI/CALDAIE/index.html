@@ -5,88 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listini Caldaie - CAI Ufficio Tecnico</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Carica sia lo stile globale (per l'header) sia quello locale -->
     <link rel="stylesheet" href="../../style.css"> 
     <link rel="stylesheet" href="style.css">
-    
     <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="hidden">
 
     <div id="initial-loader"></div>
-    
-    <div class="listini-page-container">
-        
-        <!-- ========================================================== -->
-        <!--  HEADER CON LA STRUTTURA HTML ESATTA DELLA HOME PAGE        -->
-        <!-- ========================================================== -->
-        <header class="app-header">
-            <a href="../../index.html" class="logo-link">
-                <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
-            </a>
+
+    <!-- HEADER IDENTICO A QUELLO DELLA HOME -->
+    <header class="app-header">
+        <a href="../../index.html" class="logo-link">
+            <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
+        </a>
+        <div id="user-dashboard" class="header-controls hidden">
+            <p>Utente: <strong id="user-email-display"></strong></p>
+            <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="btn-login">Logout</button> 
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main id="content-area">
+        <!-- Contenitore specifico della pagina (ora con sfondo bianco) -->
+        <div class="listini-page-container">
+            <div class="page-controls">
+                <h1>Listini Caldaie</h1>
+                <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
+                <div class="filters-container">
+                    <span>Filtra per:</span>
+                    <div id="brand-filter-buttons" class="filter-button-group"></div>
+                    <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
+                    <div class="search-group">
+                        <input type="text" id="search-input" placeholder="Cerca Modello, Codice..." disabled>
+                    </div>
+                    <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
+                </div>
+            </div>
+
+            <div id="loading-indicator" style="display: none;"></div>
+            <div id="no-results-message" style="display: none;"></div>
             
-            <div class="header-controls">
-                <!-- La dashboard utente che contiene tutto (verrà mostrata da auth.js) -->
-                <div id="user-dashboard" class="hidden">
-                    <p>Utente: <span id="user-email-display"></span></p>
-                    
-                    <!-- Pulsante Home, messo qui dentro per coerenza se necessario -->
-                    <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-                    
-                    <!-- Il pulsante di logout con la classe corretta -->
-                    <button id="logout-button" class="btn-login">Logout</button>
-                </div>
-            </div>
-        </header>
-        <!-- ========================================================== -->
-
-        <div class="page-controls">
-            <h1>Listini Caldaie</h1>
-            <p>Consulta i prezzi e le caratteristiche delle caldaie disponibili.</p>
-            <div class="filters-container">
-                <span>Filtra per:</span>
-                <div id="brand-filter-buttons" class="filter-button-group"></div>
-                <button class="filter-btn" id="economico-filter-btn" data-filter-type="economico">Economici</button>
-                <div class="search-group">
-                    <input type="text" id="search-input" placeholder="Cerca Modello, Codice..." disabled>
-                </div>
-                <button id="reset-filters-btn" style="display:none;">Resetta Filtri</button>
-            </div>
+            <div id="boiler-list-container" class="product-grid"></div>
         </div>
+    </main>
 
-        <div id="loading-indicator" style="display: none;">
-            <div class="loading-spinner"></div>
-            <p>Caricamento listini...</p>
-        </div>
-        <div id="no-results-message" style="display: none;"></div>
-
-        <main>
-            <div id="boiler-list-container" class="product-grid">
-                <!-- Le schede prodotto delle caldaie verranno inserite qui dal JS -->
-            </div>
-        </main>
+    <!-- Popup e Footer -->
+    <div id="boiler-details-popup-overlay" class="popup-overlay">
+        <!-- Contenuto del popup -->
     </div>
-
-    <!-- Popup per Dettagli Prodotto -->
-    <div id="boiler-details-popup-overlay" class="popup-overlay" style="display: none;">
-        <div class="popup-content boiler-details-popup">
-            <button class="close-popup-btn" id="close-boiler-details-popup">×</button>
-            <h2 id="popup-boiler-title">Dettagli Caldaia</h2>
-            <div id="popup-boiler-content-area">
-                <!-- I dettagli verranno popolati qui dal JS -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
     <footer class="app-footer">
-        <p>© <span id="current-year"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico.</p>
-        <p class="data-info">Listino aggiornato al: <span id="data-update-date">--/--/----</span></p>
+        <!-- Contenuto del footer -->
     </footer>
     
-    <!-- Blocco script corretto -->
+    <!-- SCRIPT (blocco corretto) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -94,4 +67,4 @@
     <script src="../../auth.js"></script>
     <script src="listini-caldaie.js"></script>
 </body>
-</html>
+</html>```
