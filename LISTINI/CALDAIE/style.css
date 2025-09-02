@@ -1,164 +1,54 @@
-/* ================================================================= */
-/*  File CSS per la Pagina Listini Caldaie (Versione Finale)       */
-/*  Include header unificato, layout corretto e tutti gli stili.    */
-/* ================================================================= */
+/* ========================================================== */
+/*     File: LISTINI/CALDAIE/style.css (Versione Corretta)    */
+/*  Questo file ora contiene SOLO stili specifici per la pagina */
+/*  L'header è gestito dal file ../../style.css               */
+/* ========================================================== */
 
-/* --- VARIABILI, RESET E SETUP DI BASE --- */
+/* --- VARIABILI USATE DA QUESTA PAGINA --- */
 :root {
-    --primary-color: #0056a8;       
-    --secondary-color: #6c757d;     
-    --light-color: #f8f9fa;         
-    --dark-color: #343a40;          
-    --background-color: #ffffff;    
-    --card-background: #ffffff;
-    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); 
-    --border-radius: 8px;           
-    --danger-color: #dc3545;        
-    --warning-color: #ffc107;      
+    --warning-color: #ffc107;
+    /* Le altre variabili (--primary-color, etc) vengono ereditate da ../../style.css */
 }
-
-html { box-sizing: border-box; }
-*, *::before, *::after { box-sizing: inherit; margin: 0; padding: 0; }
-
-body { 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    line-height: 1.6; 
-    background-color: var(--light-color); 
-    color: var(--dark-color);
-}
-.hidden { display: none !important; }
-
-/* --- HEADER UNIFICATO (dalla Home Page) --- */
-.app-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 30px;
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-.app-header .logo {
-    height: 45px;
-    width: auto;
-    flex-shrink: 0;
-}
-.app-header .header-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-#user-dashboard { /* Modifica per includere le info utente */
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 0.9em;
-    color: var(--secondary-color);
-}
-#user-dashboard strong {
-    color: var(--dark-color);
-    font-weight: 500;
-}
-.header-action-button {
-    background: none;
-    border: none;
-    color: #0056a8;
-    font-size: 1.8em;
-    cursor: pointer;
-    text-decoration: none;
-}
-.header-action-button:hover { color: #d71920; }
-#logout-button {
-    background-color: #6c757d;
-    color: white;
-    padding: 8px 15px;
-    font-size: 0.9em;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-#logout-button:hover { background-color: #5a6268; }
 
 /* --- LAYOUT DI PAGINA SPECIFICO --- */
 .listini-page-container {
     max-width: 95%;
-    width: 1800px;
+    width: 1800px; /* Larghezza massima */
     margin: 20px auto;
-    background-color: var(--card-background);
+    background-color: #ffffff; /* Sostituita var(--card-background) per sicurezza */
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
     padding: 20px;
 }
 
+/* --- CONTROLLI DI PAGINA (Titolo e Filtri) --- */
 .page-controls {
     text-align: center;
-    padding-bottom: 25px;
-    margin-bottom: 25px;
     border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+    margin-bottom: 25px;
 }
-.page-controls h1 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    color: var(--primary-color);
-}
-.page-controls p {
-    font-size: 1.1em;
-    margin-bottom: 20px;
-    color: var(--secondary-color);
-}
+.page-controls h1 { color: var(--primary-color, #0056a8); margin-bottom: 10px; font-size: 2.2em; }
+.page-controls p { font-size: 1.1em; margin-bottom: 20px; color: var(--secondary-color, #6c757d); }
 
-.filters-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 15px;
-    align-items: center;
-}
-.filter-btn {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    cursor: pointer;
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
-    color: var(--dark-color);
-}
-.filter-btn.active {
-    background-color: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-.search-group input {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    border: 1px solid #ced4da;
-    min-width: 220px;
-}
+/* --- FILTRI E BARRA DI RICERCA --- */
+.filters-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; align-items: center; }
+.filter-btn { background-color: #e9ecef; border: 1px solid #ced4da; color: var(--dark-color, #343a40); padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9em; }
+.filter-btn.active { background-color: var(--primary-color, #0056a8); color: white; border-color: var(--primary-color, #0056a8); }
+.search-group input { border-radius: 20px; min-width: 220px; font-size: 0.9em; padding: 8px 16px; border: 1px solid #ced4da; }
 
-/* --- GRIGLIA PRODOTTI --- */
-.product-grid {
-    display: grid;
-    gap: 25px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-}
+/* --- GRIGLIA PRODOTTI (viene da ../../style.css, questa è un fallback di sicurezza) --- */
+.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
 
 /* --- CARD PRODOTTO --- */
 .boiler-card {
-    background-color: var(--card-background);
+    background-color: #ffffff;
     border: 1px solid #e0e0e0;
-    border-radius: var(--border-radius);
+    border-radius: 8px; /* usata var(--border-radius) */
     padding: 20px;
-    box-shadow: var(--card-shadow);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* usata var(--card-shadow) */
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
+    display: flex; flex-direction: column; cursor: pointer;
 }
 .boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
 .boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
@@ -170,19 +60,15 @@ body {
 .boiler-card-image-column { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
 .boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
 .boiler-card-footer { border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
-.boiler-card .price { font-size: 1.5em; font-weight: 700; color: var(--primary-color); }
-.product-documents-links { display: flex; gap: 15px; margin-top: 10px; }
-.product-documents-links a { color: var(--primary-color); text-decoration: none; font-size: 0.9em; }
-.product-documents-links a:hover { text-decoration: underline; }
+.boiler-card .price { font-size: 1.5em; font-weight: 700; color: var(--primary-color, #0056a8); }
 
-/* --- STATO DI CARICAMENTO, NOTIFICHE E POPUP --- */
+/* --- STATO DI CARICAMENTO E NOTIFICHE --- */
 #loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; }
-.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color, #0056a8); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* --- POPUP (stile invariato) --- */
 .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1050; }
 .popup-overlay.visible { display: flex; }
 .popup-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
 .close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2em; background: none; border: none; cursor: pointer; }
-#popup-boiler-title { margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-#popup-boiler-content-area p { margin-bottom: 10px; }
