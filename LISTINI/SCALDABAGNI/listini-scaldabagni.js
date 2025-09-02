@@ -123,4 +123,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     auth.onAuthStateChanged(initializePage);
 
-}); // <-- QUESTA È LA PARENTESI CHE MANCAVA
+}); // <-- QUESTA È LA PARENTESI CHE RISOLVE L'ERRORE.
