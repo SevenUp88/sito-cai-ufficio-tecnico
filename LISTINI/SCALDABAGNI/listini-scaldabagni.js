@@ -1,6 +1,6 @@
-// --- File: listini-scaldabagni.js (Sintassi Corretta e Completo) ---
-
+// --- File: listini-scaldabagni.js (con layout e info aggiornate) ---
 document.addEventListener('DOMContentLoaded', () => {
+    
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
     const IMAGE_BASE_URL = "img/";
@@ -18,11 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'installazione-filter': 'installazione'
     };
 
-    function initializePage(user) {
-        if (user) {
-            loadAndDisplayData();
-        }
-    }
+    function initializePage(user) { if (user) loadAndDisplayData(); }
 
     async function loadAndDisplayData() {
         if (appLoader) appLoader.style.display = 'block';
@@ -31,18 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             populateFilters(allProducts);
             applyFilters();
-        } catch (error) {
-            console.error("Errore nel caricamento dati:", error);
-        } finally {
-            if (appLoader) appLoader.style.display = 'none';
-        }
+        } catch (error) { console.error("Errore nel caricamento dati:", error); } 
+        finally { if (appLoader) appLoader.style.display = 'none'; }
     }
     
     function populateFilters(products) {
        for (const id in filtersToWatch) {
             const key = filtersToWatch[id];
             const select = document.getElementById(id);
-            if (select) {
+            if(select) {
                 const options = [...new Set(products.map(p => p[key]).filter(Boolean))].sort((a,b) => key === 'litri' ? a - b : String(a).localeCompare(String(b)));
                 select.innerHTML = '<option value="">Tutte</option>';
                 options.forEach(val => select.add(new Option(val, val)));
@@ -64,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderCards(products) {
         if (!container) return;
         container.innerHTML = '';
-        if (noDataMsg) noDataMsg.style.display = products.length === 0 ? 'block' : 'none';
+        if(noDataMsg) noDataMsg.style.display = products.length === 0 ? 'block' : 'none';
         
         products.forEach(p => {
             const card = document.createElement('div');
@@ -77,9 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             card.innerHTML = `
                  <div class="product-card-header">
-                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">` : ''}
-                     <div class="product-title-brand" style="${logoUrl ? '' : 'margin-left: 0;'}">
-                        <span class="product-card-brand" style="display:none;">${p.marca || ''}</span>
+                     <div class="product-title-brand">
+                        <span class="product-card-brand">${p.marca || ''}</span>
                         <h3 class="product-card-model">${p.modello || ''}</h3>
                      </div>
                  </div>
@@ -88,15 +80,18 @@ document.addEventListener('DOMContentLoaded', () => {
                        <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
                        <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
                        <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
+                       <!-- Dimensioni aggiunte qui -->
+                       <p><strong>Dimensioni:</strong> ${p.dimensioni || 'N/A'}</p>
                     </div>
                     <div class="product-card-image-container">
-                        ${imageUrl ? `<img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">` : ''}
+                        <img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
                     </div>
                  </div>
                  <div class="product-card-footer">
                     <p class="product-card-price">${price}</p>
                     ${datasheetBtn}
-                 </div>`;
+                 </div>
+            `;
             container.appendChild(card);
         });
     }
@@ -122,5 +117,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     auth.onAuthStateChanged(initializePage);
-
-}); // <-- QUESTA È LA PARENTESI CHE RISOLVE L'ERRORE.
+});
