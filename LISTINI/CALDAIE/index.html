@@ -20,21 +20,24 @@
     <div class="listini-page-container">
         
         <!-- ========================================================== -->
-        <!--  HEADER CON LA STRUTTURA HTML DELLA HOME PAGE              -->
+        <!--  HEADER CON LA STRUTTURA HTML ESATTA DELLA HOME PAGE        -->
         <!-- ========================================================== -->
         <header class="app-header">
             <a href="../../index.html" class="logo-link">
                 <img src="../../LOGO CAI_.png" alt="Logo CAI Ufficio Tecnico" class="logo">
             </a>
-            <!-- L'id #user-dashboard viene usato da auth.js per mostrare/nascondere il blocco intero -->
-            <!-- La classe .header-controls viene usata da style.css per allineare gli elementi -->
-            <div id="user-dashboard" class="header-controls hidden">
-                 <!-- L'email dell'utente va qui dentro, gestita da auth.js -->
-                 <p>Utente: <strong id="user-email-display"></strong></p>
-
-                 <!-- Pulsante Home e Logout (struttura semplificata, lo stile fa il resto) -->
-                 <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-                 <button id="logout-button" class="btn-login">Logout</button> 
+            
+            <div class="header-controls">
+                <!-- La dashboard utente che contiene tutto (verrà mostrata da auth.js) -->
+                <div id="user-dashboard" class="hidden">
+                    <p>Utente: <span id="user-email-display"></span></p>
+                    
+                    <!-- Pulsante Home, messo qui dentro per coerenza se necessario -->
+                    <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+                    
+                    <!-- Il pulsante di logout con la classe corretta -->
+                    <button id="logout-button" class="btn-login">Logout</button>
+                </div>
             </div>
         </header>
         <!-- ========================================================== -->
@@ -53,22 +56,31 @@
             </div>
         </div>
 
-        <div id="loading-indicator" style="display: none;"></div>
+        <div id="loading-indicator" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Caricamento listini...</p>
+        </div>
         <div id="no-results-message" style="display: none;"></div>
 
         <main>
-            <div id="boiler-list-container" class="product-grid"></div>
+            <div id="boiler-list-container" class="product-grid">
+                <!-- Le schede prodotto delle caldaie verranno inserite qui dal JS -->
+            </div>
         </main>
     </div>
 
-    <!-- Popup, Footer e Script sono corretti e non necessitano di modifiche -->
+    <!-- Popup per Dettagli Prodotto -->
     <div id="boiler-details-popup-overlay" class="popup-overlay" style="display: none;">
         <div class="popup-content boiler-details-popup">
             <button class="close-popup-btn" id="close-boiler-details-popup">×</button>
             <h2 id="popup-boiler-title">Dettagli Caldaia</h2>
-            <div id="popup-boiler-content-area"></div>
+            <div id="popup-boiler-content-area">
+                <!-- I dettagli verranno popolati qui dal JS -->
+            </div>
         </div>
     </div>
+
+    <!-- Footer -->
     <footer class="app-footer">
         <p>© <span id="current-year"></span> Consorzio Artigiani Idraulici - Ufficio Tecnico.</p>
         <p class="data-info">Listino aggiornato al: <span id="data-update-date">--/--/----</span></p>
