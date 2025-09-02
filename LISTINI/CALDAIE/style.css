@@ -1,8 +1,8 @@
 /* ========================================================== */
-/*   File CSS per Listini Caldaie (con card aggiornate)       */
+/*   File CSS per Listini Caldaie (con layout card corretto)    */
 /* ========================================================== */
 
-/* --- Layout e Filtri (invariati) --- */
+/* --- Layout, Filtri e Griglia --- */
 .page-header-local { text-align: center; margin-bottom: 25px; }
 .page-header-local h1 { color: #0056a8; font-size: 2.2em; margin: 0; }
 .page-header-local p { color: #6c757d; font-size: 1.1em; margin-top: 5px; }
@@ -17,38 +17,42 @@
 .product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
 
 /* ======================================================== */
-/*               MODIFICHE E AGGIUNTE ALLA CARD             */
+/*               MODIFICHE CARD PRODOTTO                    */
 /* ======================================================== */
 .boiler-card {
     background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
     padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     display: flex; flex-direction: column; cursor: pointer;
     transition: all 0.2s ease;
-    position: relative; overflow: hidden;
+    position: relative; overflow: visible; /* Permette allo sticker di uscire leggermente senza essere tagliato */
 }
 .boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
 
-/* --- [NUOVO] Stili per lo Sticker Novità (in alto a destra) --- */
+/* --- [NUOVO] Stili per lo Sticker Novità (Posizionato in alto a destra, senza accavallare) --- */
 .card-stickers-container {
     position: absolute;
     top: 15px;
-    right: -5px;
+    right: 15px; /* Spostato all'interno della card per evitare problemi */
     z-index: 3;
 }
 .card-sticker.novita {
-    padding: 5px 12px 5px 15px;
+    padding: 5px 12px;
     font-size: 0.75em;
     font-weight: 700;
     color: white;
     background-color: #198754;
-    border-radius: 5px 0 0 5px;
+    border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     text-transform: uppercase;
 }
 
-.boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+.boiler-card-header { 
+    display: flex; align-items: center; margin-bottom: 15px; gap: 15px;
+    /* Aggiungiamo padding a destra per evitare sovrapposizione tra titolo e sticker */
+    padding-right: 80px;
+}
 .boiler-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
-.boiler-title-brand h3 { margin: 0; font-size: 1.2em; line-height: 1.3; } /* Titolo più grande e interlinea */
+.boiler-title-brand h3 { margin: 0; font-size: 1.2em; line-height: 1.3; }
 .boiler-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
 .boiler-card-info-column { flex: 1; display: flex; flex-direction: column; }
 .boiler-card-info-column p { margin: 0 0 10px 0; font-size: 0.9em; }
@@ -57,25 +61,26 @@
 .boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
 
 .availability.in-esaurimento {
-    color: #ff8c00; font-weight: 700;
-    font-size: 0.85em !important; margin-top: auto;
+    color: #ff8c00; font-weight: 700; font-size: 0.85em !important; margin-top: auto;
 }
 .availability.in-esaurimento i { margin-right: 5px; }
 
-/* --- [MODIFICATO] Footer della Card per ospitare il nuovo badge --- */
+/* --- [MODIFICATO] Footer della Card per ospitare il badge SOPRA il prezzo --- */
 .boiler-card-footer { 
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: space-between; align-items: flex-end; /* Allinea gli elementi sul fondo */
     flex-wrap: wrap; gap: 10px;
     border-top: 1px solid #eee; padding-top: 15px; margin-top: auto;
 }
-.footer-left { display: flex; align-items: baseline; gap: 10px; }
-
-/* --- [NUOVO] Stile per il badge accumulo nel footer --- */
+.footer-left {
+    display: flex; flex-direction: column; /* Colonna per mettere il badge SOPRA il prezzo */
+    align-items: flex-start; /* Allinea a sinistra */
+}
 .accumulo-badge-footer {
     padding: 5px 10px; font-size: 0.8em; font-weight: 700;
     color: white; background-color: #0056a8; border-radius: 5px;
+    margin-bottom: 8px; /* Spazio tra badge e prezzo */
 }
-.boiler-card .price { font-size: 1.6em; font-weight: 700; color: #0056a8; }
+.boiler-card .price { font-size: 1.6em; font-weight: 700; color: #0056a8; line-height: 1; }
 .card-links-container { display: flex; gap: 10px; }
 .card-link-button {
     display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
