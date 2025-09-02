@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrice Sconti & Calcolatore - CAI Ufficio Tecnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Link ai CSS Globale e Locale -->
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="hidden">
+    <div id="initial-loader"></div>
+
+    <!-- Header (Struttura Unificata) -->
+    <header class="app-header">
+        <a href="../index.html" class="logo-link"><img src="../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="header-controls hidden">
+            <p>Utente: <strong id="user-email-display"></strong></p>
+            <a href="../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="btn-login">Logout</button>
+        </div>
+    </header>
+
+    <main id="content-area">
+        <div id="main-content-wrapper" class="main-container">
+            <div id="app-loader" class="loader" style="display: none;"></div>
+            <div class="page-title-actions">
+                <h1>Scontistiche in vigore</h1>
+                <p class="page-subtitle">Le percentuali di sconto devono essere applicate al valore di listino.</p>
+            </div>
+            
+            <!-- Filtri Tabella -->
+            <div class="content-card filters-container">
+                <div class="filters">
+                    <label for="category-filter">Categoria:</label> <select id="category-filter"></select>
+                    <label for="brand-filter">Marca:</label> <select id="brand-filter"></select>
+                </div>
+                <button id="reset-filters-btn" class="button button-secondary"><i class="fas fa-undo"></i> Reset Filtri</button>
+            </div>
+
+            <!-- Tabella Sconti -->
+            <div class="content-card">
+                <table class="discounts-matrix-table">
+                    <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto</th><th>Trasporto (%)</th><th>Sconti Vendita</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
+                    <tbody id="discounts-table-body"></tbody>
+                </table>
+                <div id="no-data-message" class="no-data" style="display: none;">Nessuna regola.</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast-notification" class="toast"></div>
+
+    <!-- Script (Struttura Centralizzata) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../firebase-config.js"></script>
+    <script src="../auth.js"></script>
+    <script src="scontistiche.js"></script> 
+</body>
+</html>
