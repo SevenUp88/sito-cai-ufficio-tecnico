@@ -1,201 +1,121 @@
 /* ========================================================== */
-/*   File CSS per Listini Caldaie (Versione Definitiva e Completa) */
+/*   File CSS per Listini Caldaie (con Nuovi Stili per Card)    */
 /* ========================================================== */
 
-/* Lo stile del body (azzurro) e del tag <main id="content-area"> 
-   vengono definiti nel file ../../style.css globale. */
+/* --- LAYOUT DI PAGINA (invariato) --- */
+.page-header-local { text-align: center; margin-bottom: 25px; }
+.page-header-local h1 { color: #0056a8; font-size: 2.2em; margin: 0; }
+.page-header-local p { color: #6c757d; font-size: 1.1em; margin-top: 5px; }
 
-/* Stile per il titolo e sottotitolo, ora diretti figli di #content-area */
-.page-header-local {
-    text-align: center;
-    margin-bottom: 25px;
-}
-.page-header-local h1 { 
-    color: #0056a8; 
-    font-size: 2.2em; 
-    margin: 0; 
-}
-.page-header-local p { 
-    color: #6c757d; 
-    font-size: 1.1em; 
-    margin-top: 5px; 
-}
+/* --- BARRA DEI FILTRI (invariata) --- */
+.filters-bar { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.filters-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
+.filters-container > span { font-weight: 500; color: #343a40; }
+.filter-button-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.filter-btn { padding: 8px 18px; border-radius: 20px; font-size: 0.9em; font-weight: 500; cursor: pointer; background-color: #f1f1f1; border: 1px solid #ddd; color: #343a40; transition: all 0.2s ease; }
+.filter-btn:hover { background-color: #e0e0e0; }
+.filter-btn.active { background-color: #0056a8; color: white; border-color: #0056a8; }
+.search-group input { border-radius: 20px; min-width: 250px; font-size: 0.9em; padding: 8px 18px; border: 1px solid #ccc; }
 
-/* NUOVA BARRA DEI FILTRI con sfondo bianco e bordi, come da immagine di riferimento */
-.filters-bar {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+/* --- GRIGLIA PRODOTTI (invariata) --- */
+.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
 
-.filters-container { 
-    display: flex; 
-    flex-wrap: wrap; 
-    justify-content: center; 
-    align-items: center; 
-    gap: 15px; 
-}
-.filters-container > span { 
-    font-weight: 500; 
-    color: #343a40; 
-}
-.filter-button-group { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 10px; 
-}
-.filter-btn { 
-    padding: 8px 18px; 
-    border-radius: 20px; 
-    font-size: 0.9em; 
-    font-weight: 500; 
-    cursor: pointer; 
-    background-color: #f1f1f1; 
-    border: 1px solid #ddd; 
-    color: #343a40; 
-    transition: all 0.2s ease; 
-}
-.filter-btn:hover { 
-    background-color: #e0e0e0; 
-}
-.filter-btn.active { 
-    background-color: #0056a8; 
-    color: white; 
-    border-color: #0056a8; 
-}
-.search-group input { 
-    border-radius: 20px; 
-    min-width: 250px; 
-    font-size: 0.9em; 
-    padding: 8px 18px; 
-    border: 1px solid #ccc; 
-}
-
-/* --- GRIGLIA PRODOTTI --- */
-.product-grid { 
-    display: grid; 
-    gap: 25px; 
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
-}
-
-/* --- CARD PRODOTTO --- */
+/* ======================================================== */
+/*               MODIFICHE E AGGIUNTE ALLA CARD             */
+/* ======================================================== */
 .boiler-card {
-    background-color: #ffffff; /* Sfondo bianco della card */
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex; 
-    flex-direction: column; 
-    cursor: pointer;
+    background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
+    padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex; flex-direction: column; cursor: pointer;
     transition: all 0.2s ease;
+    position: relative; /* Necessario per posizionare gli sticker */
+    overflow: hidden; /* Nasconde le parti degli sticker che escono */
 }
-.boiler-card:hover { 
-    transform: translateY(-5px); 
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); 
+.boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+
+/* --- [NUOVO] Stili per il contenitore degli sticker --- */
+.card-stickers-container {
+    position: absolute;
+    top: 15px;
+    right: -5px; /* Spostato leggermente per l'effetto "nastro" */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    z-index: 3;
 }
-.boiler-card-header { 
-    display: flex; 
-    align-items: center; 
-    margin-bottom: 15px; 
-    gap: 15px; 
+.card-sticker {
+    padding: 5px 12px 5px 15px;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: white;
+    border-radius: 5px 0 0 5px; /* Angoli smussati solo a sinistra */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    text-transform: uppercase;
 }
-.boiler-logo { 
-    max-height: 40px; 
-    max-width: 120px; 
-    object-fit: contain; 
+.card-sticker.novita { background-color: #198754; }
+.card-sticker.accumulo { background-color: #0056a8; }
+
+/* --- Header e corpo card (invariati) --- */
+.boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+.boiler-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
+.boiler-title-brand h3 { margin: 0; font-size: 1.2em; /* Leggermente più grande */ }
+.boiler-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
+.boiler-card-info-column { flex: 1; display: flex; flex-direction: column; } /* Aggiunto flex */
+.boiler-card-info-column p { margin: 0 0 10px 0; font-size: 0.9em; }
+.boiler-card-info-column p strong { font-weight: 500; color: #333; }
+.boiler-card-image-column { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
+.boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
+
+/* --- [NUOVO] Stile per avviso "In Esaurimento" --- */
+.availability.in-esaurimento {
+    color: #ff8c00; /* Arancione scuro per visibilità */
+    font-weight: 700;
+    font-size: 0.85em !important;
+    margin-top: auto; /* Lo spinge in fondo alla colonna info */
 }
-.boiler-title-brand h3 { 
-    margin: 0; 
-    font-size: 1.1em; 
-}
-.boiler-card-body-flex { 
-    display: flex; 
-    gap: 20px; 
-    flex-grow: 1; 
-    margin-bottom: 15px; 
-}
-.boiler-card-info-column { 
-    flex: 1; 
-}
-.boiler-card-info-column p { 
-    margin-bottom: 8px; 
-    font-size: 0.9em; 
-}
-.boiler-card-image-column { 
-    flex-basis: 150px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-}
-.boiler-card-image-column img { 
-    max-width: 100%; 
-    max-height: 150px; 
-    object-fit: contain; 
-}
+.availability.in-esaurimento i { margin-right: 5px; }
+
+
+/* --- Footer e nuovi bottoni link --- */
 .boiler-card-footer { 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
     border-top: 1px solid #eee; 
     padding-top: 15px; 
-    margin-top: auto; 
+    margin-top: auto;
 }
-.boiler-card .price { 
-    font-size: 1.5em; 
-    font-weight: 700; 
-    color: #0056a8; 
-}
+.boiler-card .price { font-size: 1.6em; font-weight: 700; color: #0056a8; }
 
-/* --- STATO DI CARICAMENTO E NOTIFICHE --- */
-#loading-indicator, #no-results-message { 
-    grid-column: 1 / -1; 
-    text-align: center; 
-    padding: 40px; 
-    color: #6c757d; 
+.card-links-container { display: flex; gap: 10px; }
+.card-link-button {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    font-size: 0.8em;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    transition: all 0.2s ease;
 }
-.loading-spinner { 
-    border: 4px solid #f3f3f3; 
-    border-top: 4px solid #0056a8; 
-    border-radius: 50%; 
-    width: 40px; height: 40px; 
-    animation: spin 1s linear infinite; 
-    margin: 0 auto 15px auto; 
-}
-@keyframes spin { 
-    0% { transform: rotate(0deg); } 
-    100% { transform: rotate(360deg); } 
-}
+.card-link-button i { font-size: 1em; }
+.card-link-button.scheda-tecnica { background-color: #e8f0f7; color: #0056a8; border-color: #d1e0ee; }
+.card-link-button.scheda-tecnica:hover { background-color: #d1e0ee; }
+.card-link-button.manuale { background-color: #f1f3f5; color: #495057; border-color: #dee2e6; }
+.card-link-button.manuale:hover { background-color: #e9ecef; }
 
-/* --- POPUP --- */
-.popup-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.6); display: none; 
-    justify-content: center; align-items: center;
-    z-index: 1050; opacity: 0; transition: opacity 0.3s ease;
-}
-.popup-overlay.visible { 
-    display: flex; 
-    opacity: 1; 
-}
-.popup-content {
-    background: white; padding: 30px; border-radius: 8px;
-    max-width: 600px; width: 90%; position: relative;
-    max-height: 90vh; overflow-y: auto;
-    transform: scale(0.95); transition: transform 0.3s ease;
-}
-.popup-overlay.visible .popup-content { 
-    transform: scale(1); 
-}
-.close-popup-btn {
-    position: absolute; top: 10px; right: 15px;
-    font-size: 2em; background: none; border: none;
-    cursor: pointer; color: #aaa;
-}
-#popup-boiler-title {
-    margin-top: 0; margin-bottom: 20px;
-    border-bottom: 1px solid #eee; padding-bottom: 15px;
-    color: #0056a8;
-}
+/* --- STATO DI CARICAMENTO, POPUP, ETC. (Completo) --- */
+#loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d; }
+.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0056a8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
+.popup-overlay.visible { display: flex; opacity: 1; }
+.popup-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s ease; }
+.popup-overlay.visible .popup-content { transform: scale(1); }
+.close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2em; background: none; border: none; cursor: pointer; color: #aaa; }
+#popup-boiler-title { margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; color: #0056a8; }
 #popup-boiler-content-area p { margin-bottom: 12px; }
 #popup-boiler-content-area p strong { font-weight: 500; }
