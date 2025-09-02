@@ -1,57 +1,37 @@
 /* ========================================================== */
-/*     File: LISTINI/SCALDABAGNI/style.css (Stile Unificato)    */
+/*   File CSS per Listini Scaldabagni (Stile Definitivo)     */
 /* ========================================================== */
-
-/* Contenitore bianco della pagina */
-.listini-page-container {
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
-    padding: 30px;
-}
-
-/* Titolo e sottotitolo, centrati */
-.page-header-local {
-    text-align: center;
-    margin-bottom: 25px;
-}
-.page-header-local h1 { color: #0056a8; font-size: 2.2em; margin: 0; }
-.page-header-local p { color: #6c757d; font-size: 1.1em; margin-top: 5px; }
-
-/* BARRA DEI FILTRI con bordatura (identica a CALDAIE) */
-.filters-bar {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
-
-.filters-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
-.filter-main-group { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; }
-.filter-main-group > span { font-weight: 500; color: #343a40; }
-.filter-button-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.filter-btn { padding: 8px 18px; border-radius: 20px; font-size: 0.9em; font-weight: 500; cursor: pointer; background-color: #f1f1f1; border: 1px solid #ddd; color: #343a40; transition: all 0.2s ease; }
-.filter-btn:hover { background-color: #e0e0e0; }
-.filter-btn.active { background-color: #0056a8; color: white; border-color: #0056a8; }
-
-/* GRIGLIA E CARD (identiche a CALDAIE) */
-.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
-.product-card {
-    background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
-    padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex; flex-direction: column; cursor: pointer; transition: all 0.2s ease;
-}
-.product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-.product-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
-.product-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
-.product-title-brand h3 { margin: 0; font-size: 1.1em; }
-.product-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
-.product-card-info-column { flex: 1; }
-.product-card-info-column p { margin-bottom: 8px; font-size: 0.9em; }
-.product-card-image-container { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
-.product-card-image { max-width: 100%; max-height: 150px; object-fit: contain; }
-.product-card-footer { border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; display: flex; justify-content: space-between; align-items: center;}
-.product-card-price { font-size: 1.5em; font-weight: 700; color: #0056a8; }
-.datasheet-link { color: #0056a8; }
+.main-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 25px; }
+.page-title-actions { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 25px; }
+.page-title-actions h1 { color: #0056a8; }
+.content-card.filters-container { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
+.filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;}
+.filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9em; }
+.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
 .no-data, .loader { text-align: center; padding: 40px; }
+
+.product-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.product-card-body { display: flex; gap: 15px; flex-grow: 1; margin-bottom: 10px; }
+.product-card-details { flex: 2; display: flex; flex-direction: column; }
+.product-card-image-container { flex: 1; display: flex; align-items: center; }
+.product-card-image { max-width: 100%; max-height: 140px; object-fit: contain; }
+.product-card-brand { font-size: 1.1em; font-weight: bold; color: #0056a8; margin:0 0 5px 0; }
+.product-card-model { font-weight: 500; margin: 5px 0; }
+.product-card-details p { font-size: 0.9em; margin: 4px 0; color: #666; }
+.product-card-details p strong { color: #333; }
+.product-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
+.product-card-price { font-weight: 700; font-size: 1.5em; color: #0056a8;}
+
+/* Stile Pulsante Scheda Tecnica (IDENTICO a CALDAIE) */
+.card-link-button {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    font-size: 0.8em; font-weight: 500; text-decoration: none; border: 1px solid transparent;
+    border-radius: 5px; transition: all 0.2s ease;
+    background-color: #e8f0f7; color: #0056a8; border-color: #d1e0ee;
+}
+.card-link-button:hover { background-color: #d1e0ee; }
+.card-link-button i { font-size: 1em; }
+
+.button { border-radius: 6px; }
+.button-secondary { border: 1px solid #ccc; background: #f1f1f1;}
