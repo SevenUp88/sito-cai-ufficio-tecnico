@@ -1,18 +1,22 @@
-// --- File: listini-scaldabagni.js (con Loghi Corretti) ---
+// --- File: listini-scaldabagni.js (con Loghi e Percorsi Corretti) ---
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+
+    // --- PERCORSI IMMAGINI FINALI E CORRETTI ---
     const IMAGE_BASE_URL = "img/";
-    const LOGO_BASE_URL = "../../images/logos/";
+    const LOGO_BASE_URL = "img/"; // I loghi sono nella cartella img locale, come hai detto tu.
     const PLACEHOLDER_IMAGE = "../../placeholder.png";
 
     const appLoader = document.getElementById('app-loader');
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
     const filtersToWatch = {
-        'brand-filter': 'marca', 'tecnologia-filter': 'tecnologia',
-        'litri-filter': 'litri', 'configurazione-filter': 'configurazione',
+        'brand-filter': 'marca',
+        'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri',
+        'configurazione-filter': 'configurazione',
         'installazione-filter': 'installazione'
     };
 
@@ -63,17 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
-            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
+            // Correzione nome file logo
+            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            // --- Logica Semplificata per il Logo ---
-            const brandDisplay = logoUrl 
-                ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">`
-                : `<span class="product-card-brand">${p.marca || ''}</span>`;
-
             card.innerHTML = `
                  <div class="product-card-header">
-                     ${brandDisplay}
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">` : `<span class="product-card-brand">${p.marca || ''}</span>`}
                      <div class="product-title-brand">
                         <h3 class="product-card-model">${p.modello || ''}</h3>
                      </div>
@@ -98,13 +98,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    for (const id in filtersToWatch) {
+    for(const id in filtersToWatch){
         const el = document.getElementById(id);
-        if (el) { el.addEventListener('change', () => { currentFilters[filtersToWatch[id]] = el.value; applyFilters(); }); }
+        if(el){
+            el.addEventListener('change', () => {
+                const key = filtersToWatch[id];
+                currentFilters[key] = el.value;
+                applyFilters();
+            });
+        }
     }
 
     document.getElementById('reset-filters-btn')?.addEventListener('click', () => {
-       for (const id in filtersToWatch) {
+       for(const id in filtersToWatch){
            const el = document.getElementById(id);
            if (el) el.value = '';
         }
