@@ -24,41 +24,33 @@
     </header>
 
     <main id="content-area">
-        <div class="listini-page-container">
-            <!-- TITOLO E SOTTOTITOLO -->
-            <div class="page-header-local">
-                 <h1>Listino Scaldabagni</h1>
-                 <p>Verificare sempre la disponibilità effettiva su gestionale.</p>
+        <div class="main-container">
+            <div id="app-loader" class="loader"></div>
+            <div class="page-title-actions">
+                <h1>Listino Scaldabagni</h1>
+                <p class="page-subtitle">Verificare sempre la disponibilità effettiva su gestionale.</p>
             </div>
 
-            <!-- BARRA DEI FILTRI (Layout identico a CALDAIE) -->
-            <div class="filters-bar">
-                <div class="filters-container">
-                    <div class="filter-main-group">
-                        <span>Filtra per:</span>
-                        <div id="brand-filter-buttons" class="filter-button-group">
-                            <!-- Bottoni marca verranno inseriti qui -->
-                        </div>
-                    </div>
+            <!-- FILTRI TECNICI RIPRISTINATI -->
+            <div class="content-card filters-container">
+                <div class="filters">
+                    <label for="brand-filter">Marca:</label> <select id="brand-filter"></select>
+                    <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter"></select>
+                    <label for="litri-filter">Litri:</label> <select id="litri-filter"></select>
+                    <label for="configurazione-filter">Conf.:</label> <select id="configurazione-filter"></select>
+                    <label for="installazione-filter">Install.:</label> <select id="installazione-filter"></select>
                 </div>
+                <button id="reset-filters-btn" class="button button-secondary"><i class="fas fa-undo"></i> Reset Filtri</button>
             </div>
 
-            <div id="loading-indicator"></div>
-            <div id="no-data-message" class="no-data" style="display: none;">Nessun prodotto trovato.</div>
-            
-            <div id="products-card-container" class="product-grid">
-                <!-- Le card verranno inserite qui -->
-            </div>
+            <div id="products-card-container" class="product-grid"></div>
+            <div id="no-data-message" class="no-data" style="display: none;"></div>
         </div>
     </main>
     
-    <!-- Script -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    
     <script src="../../firebase-config.js"></script>
     <script src="../../auth.js"></script>
-    <script src="listini-scaldabagni.js"></script> 
+    <script src="listini-scaldabagni.js"></script>
 </body>
 </html>
