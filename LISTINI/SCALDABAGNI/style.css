@@ -3,7 +3,9 @@
 /* ========================================================== */
 
 /* Layout e Stili Generali (invariati) */
-.main-container { background-color: #ffffff; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 25px; }
+.main-container { border-radius: 8px; 
+    padding: 25px; 
+    width: 100%; }
 .page-title-actions { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 25px; }
 .page-title-actions h1 { color: #0056a8; }
 .content-card.filters-container { padding: 20px; border: 1px solid #eee; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
