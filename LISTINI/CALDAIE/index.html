@@ -14,7 +14,7 @@
 
     <div id="initial-loader"></div>
 
-    <!-- Header (Struttura corretta) -->
+    <!-- Header (Struttura corretta, come da Home) -->
     <header class="app-header">
         <a href="../../index.html" class="logo-link"><img src="../../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
         <div id="user-dashboard" class="header-controls hidden">
@@ -24,8 +24,9 @@
         </div>
     </header>
 
-    <!-- STRUTTURA PER SFONDO AZZURRO E CONTENITORE BIANCO -->
+    <!-- STRUTTURA <main> PER SFONDO AZZURRO E MARGINI CORRETTI -->
     <main id="content-area">
+        <!-- Contenitore bianco che contiene tutta la logica della pagina -->
         <div class="listini-page-container">
             
             <div class="page-controls">
@@ -48,6 +49,7 @@
             </div>
             <div id="no-results-message" style="display: none;"></div>
             
+            <!-- La vecchia <main> interna è stata rimossa, ora c'è solo il contenitore della griglia -->
             <div id="boiler-list-container" class="product-grid">
                 <!-- Le card verranno inserite qui da listini-caldaie.js -->
             </div>
