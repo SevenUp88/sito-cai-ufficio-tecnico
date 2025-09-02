@@ -1,4 +1,7 @@
-/* --- File CSS per Listini Scaldabagni (Layout Ottimizzato) --- */
+/* ========================================================== */
+/*     File CSS per Listini Scaldabagni (Layout Card Finale)     */
+/* ========================================================== */
+
 .main-container {
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 25px;
@@ -10,12 +13,15 @@
     border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 .filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
-.filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;}
+.filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9em; }
-.button-secondary { border: 1px solid #ccc; background: #f1f1f1; border-radius: 6px; padding: 8px 12px; cursor: pointer;}
-.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
+.button-secondary { border: 1px solid #ccc; background: #f1f1f1; border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); }
 .no-data, .loader { text-align: center; padding: 40px; }
 
+/* ============================================== */
+/*          CARD PRODOTTO - SEZIONE CORRETTA        */
+/* ============================================== */
 .product-card {
     border: 1px solid #ddd; border-radius: 8px; padding: 20px;
     display: flex; flex-direction: column; background-color: white;
@@ -23,46 +29,53 @@
 }
 .product-card:hover { transform: translateY(-3px); }
 
-/* LAYOUT OTTIMIZZATO PER LE CARD */
+/* HEADER DELLA CARD */
+.product-card-header {
+    display: flex;
+    justify-content: space-between; /* Spinge logo e modello ai lati */
+    align-items: flex-start; /* Allinea in alto */
+    margin-bottom: 15px;
+    gap: 15px;
+}
+.product-logo {
+    max-height: 35px;
+    max-width: 120px;
+    object-fit: contain;
+    flex-shrink: 0; /* Impedisce al logo di rimpicciolirsi */
+}
+.product-card-model {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+    text-align: right; /* Allinea il modello a destra */
+}
+
+/* CORPO DELLA CARD */
 .product-card-body-flex {
     display: flex;
-    justify-content: space-between; /* Spinge testo a sx e img a dx */
+    justify-content: space-between;
     gap: 20px;
     flex-grow: 1;
     margin-bottom: 15px;
 }
-.product-card-details {
-    flex-grow: 1;
-}
+.product-card-details p { font-size: 0.95em; margin: 0 0 8px 0; color: #555; }
+.product-card-details p strong { color: #222; }
 .product-card-image-container {
-    flex-shrink: 0;
-    flex-basis: 120px; /* Larghezza fissa per l'immagine */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-basis: 150px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
 }
-.product-card-image { max-width: 100%; max-height: 120px; object-fit: contain; }
+.product-card-image { max-width: 100%; max-height: 150px; object-fit: contain; }
 
-/* Stili Testo Card */
-.product-card-header { margin-bottom: 15px; }
-.product-card-brand { font-size: 1.2em; font-weight: 700; color: #0056a8; }
-.product-card-model { font-size: 1em; font-weight: 500; margin-top: 5px; }
-.product-card-info-column p { font-size: 0.9em; margin: 4px 0; color: #666; }
-.product-card-info-column p strong { color: #333; }
-
-/* Footer Card */
+/* FOOTER DELLA CARD */
 .product-card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    margin-top: auto;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid #eee; padding-top: 15px; margin-top: auto;
 }
-.product-card-price { font-weight: 700; font-size: 1.5em; color: #0056a8;}
+.product-card-price { font-weight: 700; font-size: 1.8em; color: #0056a8; }
 .card-link-button {
-    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-    font-size: 0.8em; font-weight: 500; text-decoration: none; border: 1px solid #ccc;
+    display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px;
+    font-size: 0.9em; text-decoration: none; border: 1px solid #ccc;
     border-radius: 5px; background-color: #f1f1f1; color: #333;
 }
-```Con questi due file, il layout delle card sarà pulito, ottimizzerà lo spazio e conterrà tutte le informazioni corrette.
