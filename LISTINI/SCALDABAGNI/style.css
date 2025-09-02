@@ -1,7 +1,7 @@
 /* --- File CSS per Listini Scaldabagni (con layout "Bozza") --- */
 
 .main-container {
-    background-color: #ffffff; border-radius: 8px;
+    border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.07); padding: 25px;
 }
 .page-title-actions { text-align: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 25px; }
