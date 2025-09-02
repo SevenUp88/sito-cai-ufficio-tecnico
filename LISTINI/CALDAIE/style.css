@@ -1,44 +1,33 @@
+```css
 /* ========================================================== */
-/*     File: LISTINI/CALDAIE/style.css (Versione Corretta)    */
-/*  Questo file ora contiene SOLO stili specifici per la pagina */
-/*  L'header è gestito dal file ../../style.css               */
+/*     File: LISTINI/CALDAIE/style.css (Versione Finale)      */
+/*  Stili specifici per la pagina, ereditando il resto.       */
 /* ========================================================== */
 
-:root {
-    /* Definiamo solo le variabili non presenti nel file globale, se ce ne sono */
-    --warning-color: #ffc107;
-    /* Le altre variabili (--primary-color, etc) vengono ereditate da ../../style.css */
-}
-
-/* --- LAYOUT DI PAGINA SPECIFICO --- */
+/* Contenitore bianco specifico per questa pagina, dentro il body azzurrino */
 .listini-page-container {
-    max-width: 95%;
-    width: 1800px; /* Larghezza massima */
-    margin: 20px auto;
-    background-color: #ffffff; /* Sostituita var(--card-background) per sicurezza */
+    background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.07);
-    padding: 20px;
+    padding: 25px;
 }
 
 /* --- CONTROLLI DI PAGINA (Titolo e Filtri) --- */
 .page-controls {
     text-align: center;
-    border-bottom: 1px solid #eee;
-    padding: 15px 20px;
+    padding-bottom: 25px;
     margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
 }
-
 .page-controls h1 {
-    color: var(--primary-color, #0056a8);
+    color: #0056a8; /* Codice colore esplicito */
     margin-bottom: 10px;
     font-size: 2.2em;
 }
-
-.page-controls > p {
+.page-controls p {
     font-size: 1.1em;
     margin-bottom: 20px;
-    color: var(--secondary-color, #6c757d);
+    color: #6c757d; /* Codice colore esplicito */
 }
 
 /* --- FILTRI E BARRA DI RICERCA --- */
@@ -53,17 +42,18 @@
 .filter-btn {
     background-color: #e9ecef;
     border: 1px solid #ced4da;
-    color: var(--dark-color, #343a40);
+    color: #343a40; /* Codice colore esplicito */
     padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
     font-size: 0.9em;
+    transition: background-color 0.2s;
 }
-
+.filter-btn:hover { background-color: #dee2e6; }
 .filter-btn.active {
-    background-color: var(--primary-color, #0056a8);
+    background-color: #0056a8;
     color: white;
-    border-color: var(--primary-color, #0056a8);
+    border-color: #0056a8;
 }
 
 .search-group input {
@@ -74,176 +64,41 @@
     border: 1px solid #ced4da;
 }
 
-/* --- GRIGLIA PRODOTTI (Potrebbe essere già nel globale, ma lo teniamo per sicurezza) --- */
-.product-grid {
-    display: grid;
-    gap: 25px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+/* --- GRIGLIA PRODOTTI --- */
+.product-grid { 
+    display: grid; 
+    gap: 25px; 
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
 }
 
 /* --- CARD PRODOTTO --- */
 .boiler-card {
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
-    border-radius: 8px; /* usata var(--border-radius) */
+    border-radius: 8px;
     padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* usata var(--card-shadow) */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex; 
+    flex-direction: column; 
     cursor: pointer;
+    transition: all 0.2s ease;
 }
-
-.boiler-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-.boiler-card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    gap: 15px;
-}
-
-.boiler-logo {
-    max-height: 40px;
-    max-width: 120px;
-    object-fit: contain;
-}
-
-.boiler-title-brand h3 {
-    margin: 0;
-    font-size: 1.1em;
-}
-
-.boiler-card-body-flex {
-    display: flex;
-    gap: 20px;
-    flex-grow: 1;
-    margin-bottom: 15px;
-}
-
-.boiler-card-info-column {
-    flex: 1;
-}
-
-.boiler-card-info-column p {
-    margin-bottom: 8px;
-    font-size: 0.9em;
-}
-
-.boiler-card-image-column {
-    flex-basis: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.boiler-card-image-column img {
-    max-width: 100%;
-    max-height: 150px;
-    object-fit: contain;
-}
-
-.boiler-card-footer {
-    border-top: 1px solid #eee;
-    padding-top: 15px;
-    margin-top: auto;
-}
-
-.boiler-card .price {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: var(--primary-color, #0056a8);
-}
+.boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.boiler-card-header { display: flex; align-items: center; margin-bottom: 15px; gap: 15px; }
+.boiler-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
+.boiler-title-brand h3 { margin: 0; font-size: 1.1em; }
+.boiler-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
+.boiler-card-info-column { flex: 1; }
+.boiler-card-info-column p { margin-bottom: 8px; font-size: 0.9em; }
+.boiler-card-image-column { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
+.boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
+.boiler-card-footer { border-top: 1px solid #eee; padding-top: 15px; margin-top: auto; }
+.boiler-card .price { font-size: 1.5em; font-weight: 700; color: #0056a8; }
+.product-documents-links { display: flex; gap: 15px; margin-top: 10px; }
+.product-documents-links a { color: #0056a8; text-decoration: none; font-size: 0.9em; }
+.product-documents-links a:hover { text-decoration: underline; }
 
 /* --- STATO DI CARICAMENTO E NOTIFICHE --- */
-#loading-indicator,
-#no-results-message {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px;
-}
-
-.loading-spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--primary-color, #0056a8);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 15px auto;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* --- POPUP (stile completo e non omesso) --- */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    display: none; /* Inizia nascosto */
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
-    transition: opacity 0.3s ease;
-    opacity: 0;
-}
-
-.popup-overlay.visible {
-    display: flex;
-    opacity: 1;
-}
-
-.popup-content {
-    background: white;
-    padding: 30px;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 90%;
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-.popup-overlay.visible .popup-content {
-    transform: scale(1);
-}
-
-.close-popup-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 2em;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #aaa;
-}
-.close-popup-btn:hover {
-    color: #333;
-}
-
-#popup-boiler-title {
-    margin-top: 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    color: var(--primary-color, #0056a8);
-}
-
-#popup-boiler-content-area p {
-    margin-bottom: 12px;
-}
-
-#popup-boiler-content-area p strong {
-    font-weight: 500;
-}
+#loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; }
+.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0056a8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
