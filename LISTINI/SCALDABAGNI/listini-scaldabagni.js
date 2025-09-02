@@ -1,5 +1,4 @@
-// --- File: listini-scaldabagni.js (con Etichette Ripristinate) ---
-
+// --- File: listini-scaldabagni.js (con Etichette Ripristinate - 100% COMPLETO) ---
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
@@ -12,8 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('products-card-container');
     const noDataMsg = document.getElementById('no-data-message');
     const filtersToWatch = {
-        'brand-filter': 'marca', 'tecnologia-filter': 'tecnologia',
-        'litri-filter': 'litri', 'configurazione-filter': 'configurazione',
+        'brand-filter': 'marca',
+        'tecnologia-filter': 'tecnologia',
+        'litri-filter': 'litri',
+        'configurazione-filter': 'configurazione',
         'installazione-filter': 'installazione'
     };
 
@@ -67,10 +68,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            // --- LOGICA ETICHETTE RIPRISTINATA ---
+            // LOGICA ETICHETTE RIPRISTINATA
             const novitaTag = p.novita ? '<span class="card-tag novita">Novità</span>' : '';
             const installazioneTag = p.installazione ? `<span class="card-tag installazione">${p.installazione}</span>` : '';
-            const esaurimentoText = p.articolo_in_esaurimento ? '<p class="availability in-esaurimento">Articolo in esaurimento</p>' : '';
+            const esaurimentoText = p.articolo_in_esaurimento ? '<p class="availability in-esaurimento"><i class="fas fa-exclamation-triangle"></i> Articolo in esaurimento</p>' : '';
             
             const brandDisplay = logoUrl 
                 ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">`
