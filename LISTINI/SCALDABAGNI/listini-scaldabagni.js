@@ -1,11 +1,11 @@
-// --- File: listini-scaldabagni.js (con Loghi, senza Peso - VERSIONE 100% COMPLETA) ---
-
+// --- File: listini-scaldabagni.js (con Loghi, Percorsi Corretti) ---
 document.addEventListener('DOMContentLoaded', () => {
     
     let allProducts = [];
     let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+    // --- PERCORSI IMMAGINI FINALI E CORRETTI ---
     const IMAGE_BASE_URL = "img/";
-    const LOGO_BASE_URL = "../../images/logos/";
+    const LOGO_BASE_URL = "img/"; // I loghi sono nella cartella img locale
     const PLACEHOLDER_IMAGE = "../../placeholder.png";
 
     const appLoader = document.getElementById('app-loader');
@@ -64,46 +64,33 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : 'N/D';
             const imageUrl = p.nome_immagine ? IMAGE_BASE_URL + p.nome_immagine : PLACEHOLDER_IMAGE;
-            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : '';
+            // Correzione nome file logo
+            const logoUrl = p.marca ? `${LOGO_BASE_URL}${p.marca.toLowerCase().replace(/\s+/g, '')}.png` : '';
             const datasheetBtn = p.scheda_tecnica_url ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda</a>` : '<div></div>';
             
-            const novitaTag = p.novita ? '<span class="card-tag novita">NOVITÀ</span>' : '';
-            const accumuloTag = p.litri ? `<span class="card-tag accumulo">${p.litri} L</span>` : '';
-            const installazioneTag = p.installazione ? `<span class="card-tag installazione">${p.installazione}</span>` : '';
-            const esaurimentoText = p.articolo_in_esaurimento ? '<p class="availability in-esaurimento">ART. IN ESAURIMENTO</p>' : '';
-            
             card.innerHTML = `
-                <div class="card-tags-container">
-                    ${installazioneTag}
-                    ${accumuloTag}
-                    ${novitaTag}
-                </div>
-
-                <div class="product-card-header">
-                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}">` : ''}
-                    <h3 class="product-card-model">${p.modello || ''}</h3>
-                </div>
-
-                <div class="product-card-body">
-                    <div class="product-card-details">
-                        <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
-                        <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
-                        <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
-                        <p><strong>Dimensioni:</strong> ${p.dimensioni || 'N/A'}</p>
+                 <div class="product-card-header">
+                     ${logoUrl ? `<img src="${logoUrl}" class="product-logo" alt="${p.marca}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">` : ''}
+                     <div class="product-title-brand">
+                        <!-- Il testo del brand viene mostrato solo se l'immagine del logo non si carica -->
+                        <span class="product-card-brand" style="display:none;">${p.marca || ''}</span>
+                        <h3 class="product-card-model">${p.modello || ''}</h3>
+                     </div>
+                 </div>
+                 <div class="product-card-body-flex">
+                    <div class="product-card-info-column">
+                       <p><strong>Codice:</strong> ${p.codice_prodotto || 'N/A'}</p>
+                       <p><strong>Litri:</strong> ${p.litri || 'N/A'}</p>
+                       <p><strong>Tecnologia:</strong> ${p.tecnologia || 'N/A'}</p>
                     </div>
                     <div class="product-card-image-container">
-                        <img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">
+                        ${imageUrl ? `<img src="${imageUrl}" class="product-card-image" alt="${p.modello}" onerror="this.onerror=null;this.src='${PLACEHOLDER_IMAGE}';">` : ''}
                     </div>
-                </div>
-
-                <div class="product-card-footer">
-                    <div class="footer-price-info">
-                         ${esaurimentoText}
-                        <p class="product-card-price">${price}</p>
-                    </div>
+                 </div>
+                 <div class="product-card-footer">
+                    <p class="product-card-price">${price}</p>
                     ${datasheetBtn}
-                </div>
-            `;
+                 </div>`;
             container.appendChild(card);
         });
     }
@@ -130,3 +117,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     auth.onAuthStateChanged(initializePage);
 });
+```Sostituisci questo file. Una volta ricaricata la pagina, i loghi verranno caricati dalla cartella corretta e il testo della marca sparirà come previsto.
