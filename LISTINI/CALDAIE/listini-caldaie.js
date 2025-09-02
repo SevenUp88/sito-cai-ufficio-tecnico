@@ -1,9 +1,8 @@
-// --- File: listini-caldaie.js (con card aggiornate - VERSIONE 100% COMPLETA) ---
+// --- File: listini-caldaie.js (con layout card aggiornato - VERSIONE 100% COMPLETA) ---
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM Contenuto Caricato - Inizio listini-caldaie.js");
-    
-    // --- Inizializzazione Firebase e riferimenti DOM ---
+
     const db = firebase.firestore();
     const auth = firebase.auth();
     const boilerListContainer = document.getElementById('boiler-list-container');
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBoilerDetailsPopupBtn = document.getElementById('close-boiler-details-popup');
     const popupBoilerTitle = document.getElementById('popup-boiler-title');
 
-    // --- Stato e costanti ---
     let allBoilers = [];
     let currentFilters = { brand: "", economico: false, searchTerm: "" };
     let metadataListener = null;
@@ -29,17 +27,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const placeholderImage = '../../placeholder.png';
     const ALL_BOILER_FIELDS_MAP = {
         brand: "Marca", model: "Modello", productCode: "Codice Articolo",
-        type: "Tipologia", powerKw: "Potenza (kW)", dimensions: "Dimensioni AxLxP (mm)", 
-        weightKg: "Peso (kg)", price: "Prezzo", listPrice: "Prezzo di Listino", 
-        nearingEndOfStock: "Articolo in Esaurimento", builtIn: "Incasso", 
-        litri_accumulo: "Capacità Accumulo", outdoorInstallation: "Da Esterno", 
-        withBase: "Con Basamento", splitterIncluded: "Sdoppiatore Incluso", 
+        type: "Tipologia", powerKw: "Potenza (kW)", dimensions: "Dimensioni AxLxP (mm)",
+        weightKg: "Peso (kg)", price: "Prezzo", listPrice: "Prezzo di Listino",
+        nearingEndOfStock: "Articolo in Esaurimento", builtIn: "Incasso",
+        litri_accumulo: "Capacità Accumulo", outdoorInstallation: "Da Esterno",
+        withBase: "Con Basamento", splitterIncluded: "Sdoppiatore Incluso",
         sanitaryPower: "Potenza Sanitario (kW)", heatingPower: "Potenza Riscaldamento (kW)",
-        datasheetUrl: "Scheda Tecnica", manualeUrl: "Manuale", 
+        datasheetUrl: "Scheda Tecnica", manualeUrl: "Manuale",
         wifi: "WiFi Presente", novita: "Novità Prodotto"
     };
 
-    // --- Funzioni Utility ---
     function escapeHtml(unsafeString) {
         if (typeof unsafeString !== 'string') unsafeString = String(unsafeString || '');
         return unsafeString.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, "'").replace(/'/g, "'");
@@ -66,27 +63,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (loadingIndicator) loadingIndicator.style.display = 'none';
         }
     }
-    
-    // --- FUNZIONE createBoilerCard (MODIFICATA COME RICHIESTO) ---
+
     function createBoilerCard(boiler) {
         const card = document.createElement('div');
         card.className = 'boiler-card';
         card.addEventListener('click', () => showBoilerDetailsPopup(boiler));
 
         const novitaSticker = boiler.novita ? '<span class="card-sticker novita">NOVITÀ</span>' : '';
-        const accumuloSticker = (boiler.con_accumulo && boiler.litri_accumulo) ? `<span class="card-sticker accumulo">${boiler.litri_accumulo} L</span>` : '';
         const esaurimentoText = boiler.nearingEndOfStock ? '<p class="availability in-esaurimento"><i class="fas fa-exclamation-triangle"></i> In esaurimento</p>' : '';
         const datasheetBtn = boiler.datasheetUrl ? `<a href="${escapeHtml(boiler.datasheetUrl)}" target="_blank" rel="noopener noreferrer" class="card-link-button scheda-tecnica" onclick="event.stopPropagation()"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>` : '';
         const manualeBtn = boiler.manualeUrl ? `<a href="${escapeHtml(boiler.manualeUrl)}" target="_blank" rel="noopener noreferrer" class="card-link-button manuale" onclick="event.stopPropagation()"><i class="fas fa-book"></i> Manuale</a>` : '';
         const linksContainer = (datasheetBtn || manualeBtn) ? `<div class="card-links-container">${datasheetBtn}${manualeBtn}</div>` : '';
-        
+        const accumuloBadgeFooter = (boiler.con_accumulo && boiler.litri_accumulo) ? `<span class="accumulo-badge-footer">${boiler.litri_accumulo} L</span>` : '';
         const productImgUrl = imageBaseUrl + (boiler.imageName || 'placeholder.png');
         const brandLogoUrl = boiler.brand ? `${brandLogoBaseUrl}${boiler.brand.toLowerCase().replace(/\s+/g, '_')}.png` : '';
         const priceHTML = formatPrice(boiler.price);
 
         card.innerHTML = `
             <div class="card-stickers-container">
-                ${accumuloSticker}
                 ${novitaSticker}
             </div>
             <div class="boiler-card-header">
@@ -104,7 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
                  </div>
             </div>
             <div class="boiler-card-footer">
-                <span class="price">${priceHTML}</span>
+                <div class="footer-left">
+                    ${accumuloBadgeFooter}
+                    <span class="price">${priceHTML}</span>
+                </div>
                 ${linksContainer}
             </div>
         `;
@@ -162,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!boilerListContainer) return;
         boilerListContainer.innerHTML = '';
         if (boilersToDisplay.length === 0) {
-            if (noResultsMessage) { noResultsMessage.textContent = 'Nessun prodotto trovato con i filtri selezionati.'; noResultsMessage.style.display = 'block'; }
+            if (noResultsMessage) { noResultsMessage.textContent = 'Nessun prodotto trovato.'; noResultsMessage.style.display = 'block'; }
             return;
         }
         if (noResultsMessage) noResultsMessage.style.display = 'none';
@@ -184,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializePage(user) {
         if (user) {
-            console.log(`Pagina Caldaie: Utente ${user.email} riconosciuto. Inizializzazione...`);
+            console.log(`Pagina Caldaie: Utente ${user.email} riconosciuto.`);
             if (currentYearEl) currentYearEl.textContent = new Date().getFullYear();
             if (searchInput) searchInput.disabled = false;
             if (economicoFilterBtn) economicoFilterBtn.style.display = 'inline-block';
@@ -202,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     populateFilterButtons(allBoilers);
                     applyFiltersAndSearch();
                 } else if (auth.currentUser) {
-                     if (noResultsMessage) { noResultsMessage.textContent = 'Nessun listino caldaie disponibile.'; noResultsMessage.style.display = 'block'; }
+                     if (noResultsMessage) { noResultsMessage.textContent = 'Nessun listino disponibile.'; noResultsMessage.style.display = 'block'; }
                 }
             })();
         } else {
