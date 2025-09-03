@@ -3,17 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scontistiche & Calcolatore</title>
+    <title>Scontistiche & Calcolatore - CAI Ufficio Tecnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="hidden">
-    <header class="app-header"><!-- ... Header ... --></header>
+    <div id="initial-loader"></div>
+
+    <header class="app-header">
+        <a href="../index.html" class="logo-link"><img src="../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
+        <div id="user-dashboard" class="header-controls hidden">
+            <p>Utente: <strong id="user-email-display"></strong></p>
+            <a href="../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
+            <button id="logout-button" class="btn-login">Logout</button>
+        </div>
+    </header>
+
     <main id="content-area">
         <div class="main-container">
-            <h1>Scontistiche e Calcolatore</h1>
-            
+            <div id="app-loader" class="loader" style="display: none;"></div>
+            <div class="page-title-actions">
+                <h1>Scontistiche e Calcolatore</h1>
+                <p class="page-subtitle">Consulta le regole di sconto e calcola i prezzi netti.</p>
+            </div>
+
+            <!-- Calcolatore con layout corretto -->
             <div class="content-card calculator-panel">
                 <h2><i class="fas fa-calculator"></i> Calcolatore Unificato</h2>
                 <div class="calculator-grid">
@@ -25,18 +41,26 @@
                             <input type="number" id="calc-sconto3" placeholder="S3"><input type="number" id="calc-sconto4" placeholder="S4">
                             <input type="number" id="calc-sconto5" placeholder="S5"><input type="number" id="calc-sconto6" placeholder="S6">
                         </div></div>
-                        <button id="calculate-discount-button" class="calc-button">Calcola Sconto</button>
-                        <div class="result-box"><p>Risultato Sconto Cascata</p><div id="cascade-result-price">0,00 €</div><div id="cascade-result-percentage">Sconto: 0,00 %</div></div>
+                        <div class="result-box">
+                            <p>Risultato Sconto Cascata</p>
+                            <div id="cascade-result-price">0,00 €</div>
+                            <div id="cascade-result-percentage">Sconto: 0,00 %</div>
+                        </div>
                     </div>
                     <!-- Colonna Percentuale Singola -->
                     <div class="calc-column">
                          <div class="form-group"><label for="single-price-input">Importo di Riferimento (€)</label><input type="number" id="single-price-input" placeholder="Es. 1000"></div>
                          <div class="form-group"><label for="single-percentage-input">Calcola Percentuale Singola (%)</label><input type="number" id="single-percentage-input" placeholder="Es. 22"></div>
-                         <button id="calculate-percentage-button" class="calc-button">Calcola Percentuale</button>
-                         <div class="result-box"><p>Risultato Percentuale</p><div id="single-perc-result-value">0,00 €</div></div>
+                         <div class="result-box">
+                            <p>Risultato Percentuale</p>
+                            <div id="single-perc-result-value">0,00 €</div>
+                        </div>
                     </div>
                 </div>
-                <button id="reset-calculator-button" class="calc-button reset">Reset Calcolatore</button>
+                <div class="calculator-buttons-container">
+                    <button id="calculate-all-button" class="calc-button">Calcola</button>
+                    <button id="reset-calculator-button" class="calc-button reset">Reset Calcolatore</button>
+                </div>
             </div>
 
             <!-- Filtri e Tabella -->
@@ -49,14 +73,19 @@
                  <h3>MATRICE SCONTI FORNITORI</h3>
                  <div class="table-wrapper">
                     <table class="discounts-matrix-table">
-                         <thead><!-- ... Intestazioni ... --></thead>
+                         <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto (%)</th><th>Trasporto (%)</th><th>Sconti Vendita (%)</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
                          <tbody id="discounts-table-body"></tbody>
                     </table>
                  </div>
+                 <div id="no-data-message" class="no-data" style="display: none;"></div>
             </div>
         </div>
     </main>
+
     <!-- Script -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="../firebase-config.js"></script>
     <script src="../auth.js"></script>
     <script src="scontistiche.js"></script> 
