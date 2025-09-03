@@ -5,26 +5,9 @@
 .content-card { padding: 25px; border: 1px solid #eee; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 .content-card h3 { margin: 0 0 20px 0; font-size: 1.2em; }
 .filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
-.filters select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+.filters-container label { font-weight: 500; }
+.filters select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; min-width: 200px; }
 .button-secondary { font-size: 0.9em; border: 1px solid #ccc; background-color: #f1f1f1; border-radius: 6px; padding: 8px 15px; cursor:pointer;}
-
-/* LAYOUT CALCOLATORE COME DA BOZZA */
-.calculator-panel h2 { margin-bottom: 24px; color: #0056a8; display: flex; align-items: center; gap: 10px; }
-.calculator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-.calc-column { display: flex; flex-direction: column; gap: 15px; }
-.form-group label { font-weight: 500; color: #6c757d; }
-.form-group input { width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; }
-.sconto-fields-calculator { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.calc-button { padding: 12px; font-size: 1em; border:none; border-radius:6px; color:white; cursor:pointer; background-color:#0056a8; width: 100%;}
-.calc-button.reset { background-color: #6c757d; max-width: 400px; margin: 20px auto 0 auto; display: block; }
-.result-box { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 5px; }
-.result-box p { margin: 0; color: #6c757d; font-size: 0.9em; }
-.result-box div { font-size: 2.2em; font-weight: 700; color: #0056a8; }
-.result-box div+div { font-size: 1em; font-weight: 400; color: #343a40;}
-.calculator-buttons-container { grid-column: 1 / -1; margin-top: 10px; }
-
-
-/* Tabella */
 .table-wrapper { overflow-x: auto; }
 .discounts-matrix-table { width: 100%; border-collapse: collapse; }
 .discounts-matrix-table th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; font-size: 0.9em; vertical-align: middle;}
@@ -33,3 +16,45 @@
 .no-data { text-align: center; padding: 40px; }
 .loader { border: 5px solid #f3f3f3; border-top: 5px solid #0056a8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 30px auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* ========================================================== */
+/*           CALCOLATORE - Stili Compatti e Rivisti           */
+/* ========================================================== */
+.calculator-panel { padding-bottom: 15px; } /* Ridotto padding inferiore */
+.calculator-panel h2 { margin-bottom: 20px; color: #0056a8; display: flex; align-items: center; gap: 10px; font-size: 1.4em; }
+.calculator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+.calc-column { display: flex; flex-direction: column; gap: 12px; }
+.form-group { margin-bottom: 10px; }
+.form-group label { font-weight: 500; color: #6c757d; margin-bottom: 5px; font-size: 0.9em; display: block; }
+.form-group input { width: 100%; padding: 8px; font-size: 0.95em; border: 1px solid #ccc; border-radius: 4px; }
+.sconto-fields-calculator { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.calc-button {
+    padding: 10px; /* Padding ridotto */
+    font-size: 0.9em; /* Testo più piccolo */
+    border: none; border-radius: 6px;
+    color: white; cursor: pointer;
+    background-color: #0056a8;
+    width: 100%;
+    margin-top: 5px; /* Margine ridotto */
+}
+.calc-button.reset {
+    background-color: #6c757d;
+    max-width: 250px; /* Più stretto */
+    margin: 15px auto 0 auto;
+    display: block;
+}
+.result-box {
+    background: #f8f9fa;
+    padding: 12px; /* Padding ridotto */
+    border-radius: 8px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px; /* Spazio ridotto */
+}
+.result-box p { margin: 0; color: #6c757d; font-size: 0.85em; }
+.result-box div { font-size: 1.8em; font-weight: 700; color: #0056a8; line-height: 1.2; }
+.result-box div+div { font-size: 0.9em; font-weight: 400; color: #343a40;}
+.calculator-buttons-container { grid-column: 1 / -1; margin-top: 15px; }
