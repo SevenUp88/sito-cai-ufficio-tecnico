@@ -1,4 +1,34 @@
 /* ========================================================== */
+/*           VARIABILI GLOBALI DEL TEMA                      */
+/* ========================================================== */
+:root {
+    --primary-color: #0056a8;       /* Blu principale CAI */
+    --primary-color-dark: #004182;  /* Blu per hover e stati attivi */
+    --accent-color-red: #d71920;    /* Rosso per accenti e hover secondari */
+    --accent-color-pdf: #dc3545;    /* Rosso per pulsante PDF */
+    
+    --text-dark: #343a40;           /* Testo principale scuro */
+    --text-secondary-gray: #6c757d; /* Testo secondario grigio */
+    --color-white: #ffffff;
+    
+    --background-light: #f8f9fa;   /* Sfondo principale della pagina */
+    --background-medium: #e9ecef; /* Sfondi/bordi leggermente più scuri */
+    --background-card: #ffffff;    /* Sfondo per card e modali */
+    
+    --border-color: #dee2e6;
+    
+    --border-radius-main: 8px;     /* Raggio bordi principale */
+    --border-radius-small: 6px;    /* Raggio bordi per elementi interni */
+    
+    --shadow-light: 0 2px 5px rgba(0, 86, 168, 0.1);
+    --shadow-medium: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* ========================================================== */
+/*           File CSS Principale - Home Page             */
+/* ========================================================== */
+
+/* ========================================================== */
 /*           File CSS Principale - Home Page             */
 /* ========================================================== */
 html { box-sizing: border-box; }
