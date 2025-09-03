@@ -1,3 +1,4 @@
+```css
 .main-container { background: #fff; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.07); padding: 30px; }
 .page-title-actions { text-align: center; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #eee; }
 .page-title-actions h1 { color: #0056a8; }
@@ -6,19 +7,18 @@
 .filters-container { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 20px; }
 .filters { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center; }
 .filters select { padding: 8px 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9em; min-width: 180px; }
-.button-secondary { /* ... */ }
 .table-wrapper { overflow-x: auto; }
 .discounts-matrix-table { width: 100%; border-collapse: collapse; }
 .discounts-matrix-table th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; font-size: 0.9em; vertical-align: middle;}
 .discounts-matrix-table th { font-weight: 600; text-transform: uppercase; color: #6c757d; background-color: #f8f9fa; }
 .not-available { color: #aaa; font-style: italic; }
 .no-data { text-align: center; padding: 40px; }
-.loader { /* ... */ }
+
+/* CALCOLATORE CORRETTO */
 .calculator-panel h2 { margin-bottom: 24px; color: #0056a8; display: flex; align-items: center; gap: 10px; }
 .calculator-main-layout { display: flex; flex-wrap: wrap; gap: 30px; }
 .calculator-actions { flex: 2; min-width: 320px; }
-.calculator-results { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 15px; }
-.calc-group { margin-bottom: 20px; }
+.calculator-results { flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 15px; justify-content: center; }
 .calc-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #6c757d; }
 .calculator-panel input[type="number"] { width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; }
 .sconto-fields-calculator { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -26,8 +26,6 @@
 .result-label { color: #6c757d; font-size: 0.9em; }
 .result-value { font-size: 2em; font-weight: 700; color: #0056a8; }
 .result-sub-value { font-size: 1em; color: #343a40; }
-.calc-button { padding: 10px; border:none; border-radius:6px; color:white; width:100%; margin-top:10px; cursor:pointer; }
-.calc-button.discount { background-color: #198754; }
-.calc-button.percentage { background-color: #0056a8; }
+.calculator-buttons-group { display: flex; gap: 10px; margin-top: 15px; }
+.calc-button { flex: 1; padding: 12px; border-radius: 6px; border: none; color: white; cursor: pointer; background-color: #0056a8; font-size: 1em;}
 .calc-button.reset { background-color: #6c757d; }
-.toast { /* ... */ }
