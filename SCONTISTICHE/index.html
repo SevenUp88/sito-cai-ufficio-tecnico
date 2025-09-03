@@ -11,6 +11,8 @@
 </head>
 <body class="hidden">
     <div id="initial-loader"></div>
+
+    <!-- Header (Struttura corretta) -->
     <header class="app-header">
         <a href="../index.html" class="logo-link"><img src="../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
         <div id="user-dashboard" class="header-controls hidden">
@@ -19,19 +21,22 @@
             <button id="logout-button" class="btn-login">Logout</button>
         </div>
     </header>
+
     <main id="content-area">
         <div id="main-content-wrapper" class="main-container">
             <div id="app-loader" class="loader" style="display: none;"></div>
+            
             <div class="page-title-actions">
                 <h1>Scontistiche e Calcolatore</h1>
                 <p class="page-subtitle">Consulta le regole di sconto e calcola i prezzi netti.</p>
             </div>
             
+            <!-- Calcolatore (struttura corretta) -->
             <div id="unified-calculator" class="content-card calculator-panel">
-                <h2><i class="fas fa-calculator"></i> Calcolatore Unificato</h2>
+                 <h2><i class="fas fa-calculator"></i> Calcolatore Unificato</h2>
                 <div class="form-group">
                     <label for="main-value-input">Importo di Riferimento (€):</label>
-                    <input type="number" id="main-value-input" placeholder="Es. 1000">
+                    <input type="number" id="main-value-input" placeholder="Es. 1000" step="0.01">
                 </div>
                 <div class="calculator-main-layout">
                     <div class="calculator-actions">
@@ -41,14 +46,14 @@
                                 <input type="number" id="calc-sconto1" placeholder="S1"><input type="number" id="calc-sconto2" placeholder="S2">
                                 <input type="number" id="calc-sconto3" placeholder="S3"><input type="number" id="calc-sconto4" placeholder="S4">
                             </div>
-                            <button id="calculate-discount-button" class="calc-button discount">Calcola Sconto</button>
+                            <button id="calculate-discount-button" class="calc-button discount"><i class="fas fa-cogs"></i> Calcola Sconto</button>
                         </div>
                         <div class="calc-group">
-                            <label for="single-percentage-input">Calcola Percentuale Singola (%):</label>
-                            <input type="number" id="single-percentage-input" placeholder="Es. 22">
-                            <button id="calculate-percentage-button" class="calc-button percentage">Calcola Percentuale</button>
+                             <label for="single-percentage-input">Calcola Percentuale Singola (%):</label>
+                             <input type="number" id="single-percentage-input" placeholder="Es. 22">
+                             <button id="calculate-percentage-button" class="calc-button percentage"><i class="fas fa-percentage"></i> Calcola Percentuale</button>
                         </div>
-                         <button id="reset-calculator-button" class="calc-button reset">Reset Calcolatore</button>
+                         <button id="reset-calculator-button" class="calc-button reset"><i class="fas fa-undo"></i> Reset Calcolatore</button>
                     </div>
                     <div class="calculator-results">
                         <div class="result-box">
@@ -63,7 +68,8 @@
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Filtri e Tabella -->
             <div class="content-card filters-container">
                 <div class="filters">
                     <label for="category-filter">Categoria:</label> <select id="category-filter"></select>
@@ -83,10 +89,18 @@
             </div>
         </div>
     </main>
+
     <div id="toast-notification" class="toast"></div>
+    
+    <!-- ========================================================== -->
+    <!--  SCRIPT CORRETTI E RIPRISTINATI                            -->
+    <!-- ========================================================== -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script src="../firebase-config.js"></script>
     <script src="../auth.js"></script>
-    <script src="scontistiche.js"></script> 
+    <script src="scontistiche.js"></script>
 </body>
 </html>
