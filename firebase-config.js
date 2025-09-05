@@ -1,36 +1,31 @@
-// firebase-config.js (DEVE essere così ora)
+/*
+ * ==========================================================
+ *     File di Configurazione Globale di Firebase
+ * ==========================================================
+ *  Questo file legge le chiavi dalle variabili d'ambiente di Netlify.
+ *  In questo modo, il sito di produzione userà le chiavi di produzione
+ *  e il sito di test userà le chiavi di test, in modo sicuro.
+ */
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
-    authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
-    projectId: "consorzio-artigiani-idraulici",
-    storageBucket: "consorzio-artigiani-idraulici.appspot.com", // Assicurati che questo sia corretto
-    messagingSenderId: "136848104008",
-    appId: "1:136848104008:web:2724f60607dbe91d09d67d",
-    measurementId: "G-NNPV2607G7"
+  apiKey:             process.env.apiKey,
+  authDomain:         process.env.authDomain,
+  projectId:          process.env.PROJECT_ID,
+  storageBucket:      process.env.STORAGE_BUCKET,
+  messagingSenderId:  process.env.messagingSenderId,
+  appId:              process.env.appId
 };
 
-let app;
-if (!firebase.apps.length) {
-    app = firebase.initializeApp(firebaseConfig);
-    console.log("Firebase initialized in firebase-config.js (Home)");
+// Controlla che le variabili siano state caricate
+// Se questo controllo fallisce, significa che le variabili d'ambiente su Netlify
+// non sono state lette correttamente.
+if (!firebaseConfig.projectId) {
+    console.error("ERRORE CRITICO: Le variabili d'ambiente di Firebase non sono state caricate!");
+    document.body.innerHTML = '<h1>Errore di Configurazione Applicazione. Contattare l\'amministratore.</h1>';
 } else {
-    app = firebase.app();
-    console.log("Firebase already initialized, using existing app in firebase-config.js (Home)");
-}
-
-window.db = firebase.firestore();
-window.auth = firebase.auth();
-
-// Set persistence after auth is initialized
-if (window.auth) {
-    window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => {
-            console.log("Home Page: Firebase Auth persistence set to LOCAL.");
-        })
-        .catch((error) => {
-            console.error("Home Page: Error setting Firebase Auth persistence:", error);
-        });
-} else {
-    console.error("Home Page firebase-config.js: window.auth not defined, cannot set persistence.");
+    // Inizializza Firebase solo se non è già stato fatto
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+        console.log(`Firebase inizializzato per il progetto: ${firebaseConfig.projectId}`);
+    }
 }
