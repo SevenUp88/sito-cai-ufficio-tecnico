@@ -1,7 +1,10 @@
 # ==========================================================
-#     File di Configurazione Globale di Netlify (Sintassi Corretta)
+#     File di Configurazione Globale di Netlify (con Build Command)
 # ==========================================================
-# Questa è l'unica fonte di verità per le variabili d'ambiente.
+
+# Questa sezione definisce un comando da eseguire durante il deploy
+[build]
+  command = "cp firebase-config.js.template firebase-config.js && sed -i 's|__FIREBASE_API_KEY__|'\"$apiKey\"'|g' firebase-config.js && sed -i 's|__FIREBASE_AUTH_DOMAIN__|'\"$authDomain\"'|g' firebase-config.js && sed -i 's|__FIREBASE_PROJECT_ID__|'\"$PROJECT_ID\"'|g' firebase-config.js && sed -i 's|__FIREBASE_STORAGE_BUCKET__|'\"$STORAGE_BUCKET\"'|g' firebase-config.js && sed -i 's|__FIREBASE_MESSAGING_SENDER_ID__|'\"$messagingSenderId\"'|g' firebase-config.js && sed -i 's|__FIREBASE_APP_ID__|'\"$appId\"'|g' firebase-config.js"
 
 # --- Configurazione per il sito di PRODUZIONE (branch 'main') ---
 [context.production.environment]
