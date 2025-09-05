@@ -1,8 +1,28 @@
-[build]
-  # Cartella dove Netlify trova le funzioni
-  functions = "netlify/functions"
-  
-  # Cartella che Netlify deve pubblicare
-  # Poiché il tuo sito ha più "sezioni", probabilmente la radice è la cartella da pubblicare.
-  # Se invece pubblichi solo una sottocartella, specificala qui. Lasciamo la radice per ora.
-  publish = "." 
+# ==========================================================
+#     File di Configurazione Globale di Netlify
+# ==========================================================
+# Questa è l'unica fonte di verità per le variabili d'ambiente.
+# Netlify leggerà questo file e userà le chiavi corrette
+# a seconda della branch che sta deployando.
+
+# --- Configurazione per il sito di PRODUZIONE (branch 'main') ---
+[context.production]
+  environment = {
+    apiKey = "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+    authDomain = "consorzio-artigiani-idraulici.firebaseapp.com",
+    PROJECT_ID = "consorzio-artigiani-idraulici",
+    STORAGE_BUCKET = "consorzio-artigiani-idraulici.firebasestorage.app",
+    messagingSenderId = "136848104008",
+    appId = "1:136848104008:web:2724f60607dbe91d09d67d"
+  }
+
+# --- Configurazione per i DEPLOY DI TEST (branch 'CAI-TEST') ---
+[context.branch-deploy]
+  environment = {
+    apiKey = "AIzaSyCccw1e4CAV9voUzHpKQRDyicUG7Mc_Q2U",
+    authDomain = "cai-test-4e97e.firebaseapp.com",
+    PROJECT_ID = "cai-test-4e97e",
+    STORAGE_BUCKET = "cai-test-4e97e.firebasestorage.app",
+    messagingSenderId = "212585761230",
+    appId = "1:212585761230:web:dda0a06fa85f7dfb7b839f"
+  }
