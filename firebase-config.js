@@ -1,31 +1,19 @@
 /*
  * ==========================================================
- *     File di Configurazione Globale di Firebase
+ *     File di Configurazione Globale di Firebase (Versione Definitiva)
  * ==========================================================
- *  Questo file legge le chiavi dalle variabili d'ambiente di Netlify.
- *  In questo modo, il sito di produzione userà le chiavi di produzione
- *  e il sito di test userà le chiavi di test, in modo sicuro.
+ *  Questo file si aspetta di trovare un oggetto 'window.firebaseConfigFromNetlify'
+ *  che viene creato e iniettato direttamente da Netlify.
  */
 
-const firebaseConfig = {
-  apiKey:             process.env.apiKey,
-  authDomain:         process.env.authDomain,
-  projectId:          process.env.PROJECT_ID,
-  storageBucket:      process.env.STORAGE_BUCKET,
-  messagingSenderId:  process.env.messagingSenderId,
-  appId:              process.env.appId
-};
-
-// Controlla che le variabili siano state caricate
-// Se questo controllo fallisce, significa che le variabili d'ambiente su Netlify
-// non sono state lette correttamente.
-if (!firebaseConfig.projectId) {
-    console.error("ERRORE CRITICO: Le variabili d'ambiente di Firebase non sono state caricate!");
+// Controlla se lo snippet di Netlify ha funzionato
+if (typeof window.firebaseConfigFromNetlify === 'undefined' || !window.firebaseConfigFromNetlify.projectId) {
+    console.error("ERRORE CRITICO: La configurazione di Firebase da Netlify non è stata trovata o è incompleta!");
     document.body.innerHTML = '<h1>Errore di Configurazione Applicazione. Contattare l\'amministratore.</h1>';
 } else {
-    // Inizializza Firebase solo se non è già stato fatto
+    // Inizializza Firebase usando la configurazione iniettata da Netlify
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-        console.log(`Firebase inizializzato per il progetto: ${firebaseConfig.projectId}`);
+        firebase.initializeApp(window.firebaseConfigFromNetlify);
+        console.log(`Firebase inizializzato per il progetto: ${window.firebaseConfigFromNetlify.projectId}`);
     }
 }
