@@ -1132,10 +1132,7 @@ const setupEventListeners = () => {
 }; // End of setupEventListeners
 
     // --- Authentication and Global Setup ---
-    document.addEventListener("DOMContentLoaded", () => {
-        setupEventListeners();
-    });
-
+    
     window.initializeApp = initializeApp;
     window.loadInventoryData = loadInventoryData;
     window.loadRentalData = loadRentalData;
