@@ -310,6 +310,7 @@
     // --- Main Application Initialization (Accepts userRole from onAuthStateChanged) ---
     const initializeApp = async (userRole) => {
         if (window.appInitialized) { console.log("initializeApp: Already initialized."); return; }
+setupEventListeners();
         console.log(`Noleggi App: Initializing application UI and loading data for role: ${userRole}`);
         window.appInitialized = true;
         
