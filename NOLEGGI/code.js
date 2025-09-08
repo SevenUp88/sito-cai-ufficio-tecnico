@@ -310,7 +310,6 @@
     // --- Main Application Initialization (Accepts userRole from onAuthStateChanged) ---
     const initializeApp = async (userRole) => {
         if (window.appInitialized) { console.log("initializeApp: Already initialized."); return; }
-setupEventListeners();
         console.log(`Noleggi App: Initializing application UI and loading data for role: ${userRole}`);
         window.appInitialized = true;
         
@@ -1132,7 +1131,12 @@ const setupEventListeners = () => {
     console.log("Noleggi App: Event listeners attached successfully.");
 }; // End of setupEventListeners
 
-       window.initializeApp = initializeApp;
+    // --- Authentication and Global Setup ---
+    document.addEventListener("DOMContentLoaded", () => {
+        setupEventListeners();
+    });
+
+    window.initializeApp = initializeApp;
     window.loadInventoryData = loadInventoryData;
     window.loadRentalData = loadRentalData;
 
