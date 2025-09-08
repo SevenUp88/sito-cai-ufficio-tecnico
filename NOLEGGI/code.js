@@ -1132,9 +1132,7 @@ const setupEventListeners = () => {
     console.log("Noleggi App: Event listeners attached successfully.");
 }; // End of setupEventListeners
 
-    // --- Authentication and Global Setup ---
-    
-    window.initializeApp = initializeApp;
+       window.initializeApp = initializeApp;
     window.loadInventoryData = loadInventoryData;
     window.loadRentalData = loadRentalData;
 
