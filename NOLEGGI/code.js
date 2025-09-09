@@ -187,26 +187,39 @@
         }
     };
     const updateBrandFilters = (inventory, brandSelectElement, itemSelectElement = null, availableInfoElement = null, quantityInputElement = null, currentItemId = null, currentItemQuantity = 0) => {
-        const brands = [...new Set(inventory.map(item => item.brand))].sort();
-        if (brandSelectElement) {
-            const currentValue = brandSelectElement.value;
+    // --- INIZIO MODIFICA: Usiamo la proprietà corretta 'brand' che abbiamo già mappato ---
+    // 'inventory' qui è l'array che abbiamo già processato in loadInventoryData, quindi ha 'brand'
+    const brands = [...new Set(inventory.map(item => item.brand))].sort(); 
+    // --- FINE MODIFICA ---
+
+    if (brandSelectElement) {
+        const currentValue = brandSelectElement.value;
+        // La label 'Tutte le marche' è diversa tra il filtro principale e il modal di noleggio
+        if (brandSelectElement.id === 'filter-brand') {
             brandSelectElement.innerHTML = '<option value="">Tutte le marche</option>';
-            brands.forEach(brand => {
+        } else {
+            brandSelectElement.innerHTML = '<option value="">-- Seleziona Marca --</option>';
+        }
+
+        brands.forEach(brand => {
+            if (brand) { // Aggiungiamo un controllo per non mostrare 'undefined' se dovesse passare
                 const option = document.createElement('option');
                 option.value = brand;
                 option.textContent = escapeHtml(brand);
                 brandSelectElement.appendChild(option);
-            });
-            if (currentValue && brands.includes(currentValue)) {
-                brandSelectElement.value = currentValue;
-            } else {
-                if (itemSelectElement) { populateItemDropdown(null, itemSelectElement, availableInfoElement, quantityInputElement, currentItemId, currentItemQuantity); }
             }
+        });
+
+        if (currentValue && brands.includes(currentValue)) {
+            brandSelectElement.value = currentValue;
+        } else {
+            if (itemSelectElement) { populateItemDropdown(null, itemSelectElement, availableInfoElement, quantityInputElement, currentItemId, currentItemQuantity); }
         }
-        if (itemSelectElement) {
-            populateItemDropdown(brandSelectElement ? brandSelectElement.value : null, itemSelectElement, availableInfoElement, quantityInputElement, currentItemId, currentItemQuantity);
-        }
-    };
+    }
+    if (itemSelectElement) {
+        populateItemDropdown(brandSelectElement ? brandSelectElement.value : null, itemSelectElement, availableInfoElement, quantityInputElement, currentItemId, currentItemQuantity);
+    }
+};
     const loadInventoryData = async () => {
     console.log("Attempting to load inventory data...");
     const filterBrandSelect = document.getElementById('filter-brand');
