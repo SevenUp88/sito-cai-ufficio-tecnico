@@ -591,13 +591,19 @@ if (newItemBtn) {
                     const docRef = db.collection("inventory").doc(itemId);
                     const docSnap = await docRef.get();
                     if (docSnap.exists) {
-                        const itemToEdit = { id: docSnap.id, ...docSnap.data() };
-                        getElement('edit-item-id').value = itemToEdit.id;
-                        getElement('edit-item-brand').value = itemToEdit.brand;
-                        getElement('edit-item-name').value = itemToEdit.name;
-                        getElement('edit-item-total-quantity').value = itemToEdit.totalQuantity;
-                        getElement('edit-item-available-quantity').value = itemToEdit.availableQuantity;
-                        getElement('edit-item-daily-rate').value = itemToEdit.dailyRate;
+                        const itemToEdit = docSnap.data();
+                        getElement('edit-item-id').value = docSnap.id; // L'ID del documento
+            getElement('edit-item-brand').value = itemToEdit.marca;
+            getElement('edit-item-name').value = itemToEdit.nome;
+            getElement('edit-item-total-quantity').value = itemToEdit.quantita_totale;
+            // Calcoliamo la disponibile al volo (il DB non ce l'ha)
+            const rentalsSnapshot = await db.collection("activeRentals").where("itemId", "==", docSnap.id).get();
+            let rentedCount = 0;
+            rentalsSnapshot.forEach(doc => { rentedCount += doc.data().quantity; });
+            const availableQuantity = (itemToEdit.quantita_totale || 0) - rentedCount;
+            getElement('edit-item-available-quantity').value = availableQuantity;
+
+            getElement('edit-item-daily-rate').value = itemToEdit.costo_giornaliero;
                         openModal('edit-item-modal');
                     } else { showError("Articolo non trovato."); }
                 } catch (err) { showError("Errore recupero dati articolo."); }
