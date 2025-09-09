@@ -340,9 +340,16 @@
         try {
             const snapshot = await db.collection("inventory").get();
             const inventory = [];
-            snapshot.forEach(doc => inventory.push({ id: doc.id, ...doc.data() }));
-            updateBrandFilters(inventory, rentalBrandSelect, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput);
-        } catch (err) {
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            inventory.push({
+                id: doc.id,
+                brand: data.marca,
+                name: data.nome
+                // non servono gli altri campi per popolare i dropdown
+            });
+        });
+updateBrandFilters(inventory, rentalBrandSelect, rentalItemSelect, quantityAvailableInfo, rentalQuantityInput);        } catch (err) {
             console.error("Errore lettura inventario per popolare marche:", err);
             showError("Errore caricamento marche.");
             if (rentalBrandSelect) rentalBrandSelect.innerHTML = '<option value="">Errore</option>';
@@ -819,22 +826,73 @@ if (newItemBtn) {
             } else if (target.classList.contains('btn-edit-rental')) {
                 try {
                     const rentalRef = db.collection("activeRentals").doc(rentalDocId);
-                    const rentalDoc = await rentalRef.get();
-                    if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; }
-                    const rentalToEdit = { id: rentalDoc.id, ...rentalDoc.data() };
-                    if (editRentalModal && editRentalForm) {
-                        getElement('edit-rental-id').value = rentalToEdit.id;
-                        getElement('edit-rental-original-item-id').value = rentalToEdit.itemId;
-                        getElement('edit-rental-original-quantity').value = rentalToEdit.quantity;
-                        getElement('edit-rental-number-display').value = rentalToEdit.rentalNumber || 'N/A';
-                        getElement('edit-rental-warehouse-display').value = rentalToEdit.warehouse || 'N/D';
-                        getElement('edit-rental-startdate-display').value = formatDate(rentalToEdit.startDate);
-                        getElement('edit-rental-client-name').value = rentalToEdit.client;
-                        populateOperatorDropdown(getElement('edit-rental-operator'));
-                        getElement('edit-rental-operator').value = rentalToEdit.operator || "";
-                        getElement('edit-rental-notes').value = rentalToEdit.notes || "";
-                        const inventorySnapshot = await db.collection("inventory").get();
-                        const inventoryForEdit = inventorySnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        const rentalDoc = await rentalRef.get();
+        if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; }
+        const rentalToEdit = { id: rentalDoc.id, ...rentalDoc.data() };
+        
+        if (editRentalModal && editRentalForm) {
+            // Popola i campi statici e modificabili
+            getElement('edit-rental-id').value = rentalToEdit.id;
+            getElement('edit-rental-original-item-id').value = rentalToEdit.itemId;
+            getElement('edit-rental-original-quantity').value = rentalToEdit.quantity;
+            getElement('edit-rental-number-display').value = rentalToEdit.rentalNumber || 'N/A';
+            getElement('edit-rental-warehouse-display').value = rentalToEdit.warehouse || 'N/D';
+            getElement('edit-rental-startdate-display').value = formatDate(rentalToEdit.startDate);
+            getElement('edit-rental-client-name').value = rentalToEdit.client;
+            populateOperatorDropdown(getElement('edit-rental-operator'));
+            getElement('edit-rental-operator').value = rentalToEdit.operator || "";
+            getElement('edit-rental-notes').value = rentalToEdit.notes || "";
+
+            // --- INIZIO MODIFICA CHIAVE: Carica e mappa l'inventario per i dropdown ---
+            const inventorySnapshot = await db.collection("inventory").get();
+            const inventoryForEdit = [];
+            inventorySnapshot.forEach(doc => {
+                const data = doc.data();
+                inventoryForEdit.push({
+                    id: doc.id,
+                    brand: data.marca,
+                    name: data.nome,
+                    totalQuantity: data.quantita_totale,
+                    // availableQuantity verrà ricalcolato dove serve
+                });
+            });
+
+            // Trova l'articolo originale nei dati mappati
+            const originalItemDetails = inventoryForEdit.find(i => i.id === rentalToEdit.itemId);
+
+            // Popola i dropdown usando i dati mappati
+            updateBrandFilters(
+                inventoryForEdit, 
+                getElement('edit-rental-brand-selection'), 
+                getElement('edit-rental-item-selection'), 
+                getElement('edit-quantity-available-info'), 
+                getElement('edit-rental-quantity'), 
+                rentalToEdit.itemId, 
+                rentalToEdit.quantity
+            );
+            
+            // Imposta i valori iniziali corretti
+            if (originalItemDetails) {
+                getElement('edit-rental-brand-selection').value = originalItemDetails.brand;
+                
+                // Ricrea l'elenco degli articoli per la marca selezionata
+                await populateItemDropdown(
+                    originalItemDetails.brand, 
+                    getElement('edit-rental-item-selection'), 
+                    getElement('edit-quantity-available-info'), 
+                    getElement('edit-rental-quantity'), 
+                    rentalToEdit.itemId, 
+                    rentalToEdit.quantity
+                );
+                
+                getElement('edit-rental-item-selection').value = rentalToEdit.itemId;
+            }
+            getElement('edit-rental-quantity').value = rentalToEdit.quantity;
+            
+            // Simula un evento change per aggiornare le info sulla quantità
+            setTimeout(() => {
+                getElement('edit-rental-item-selection').dispatchEvent(new Event('change'));
+            }, 100);
                         const originalItemDetails = inventoryForEdit.find(i => i.id === rentalToEdit.itemId);
                         updateBrandFilters(inventoryForEdit, getElement('edit-rental-brand-selection'), getElement('edit-rental-item-selection'), getElement('edit-quantity-available-info'), getElement('edit-rental-quantity'), rentalToEdit.itemId, rentalToEdit.quantity);
                         if (originalItemDetails) {
