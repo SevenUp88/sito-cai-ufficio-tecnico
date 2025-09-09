@@ -208,26 +208,70 @@
         }
     };
     const loadInventoryData = async () => {
-        console.log("Attempting to load inventory data...");
-        const filterBrandSelect = document.getElementById('filter-brand');
-        let currentInventory = [];
-        if (!db) { console.warn("DB not ready for loadInventoryData"); return; }
-        try {
-            const inventoryCollection = db.collection("inventory");
-            const snapshot = await inventoryCollection.get();
-            snapshot.forEach(doc => currentInventory.push({ id: doc.id, ...doc.data() }));
-            console.log(`Loaded ${currentInventory.length} items from Firestore.`);
-        } catch (error) {
-            console.error("Error loading inventory from Firestore:", error);
-            if (!error.message?.includes('permission')) {
-                 showError("Errore nel caricamento dell'inventario dal database.");
+    console.log("Attempting to load inventory data...");
+    const filterBrandSelect = document.getElementById('filter-brand');
+    let currentInventory = [];
+    if (!db) { console.warn("DB not ready for loadInventoryData"); return; }
+    try {
+        const inventoryCollection = db.collection("inventory");
+        const activeRentalsCollection = db.collection("activeRentals");
+        
+        // Carichiamo sia l'inventario che i noleggi attivi per calcolare la quantità disponibile
+        const [inventorySnapshot, rentalsSnapshot] = await Promise.all([
+            inventoryCollection.get(),
+            activeRentalsCollection.get()
+        ]);
+
+        // Creiamo una mappa dei noleggi per un accesso rapido
+        const rentedQuantities = {};
+        rentalsSnapshot.forEach(doc => {
+            const rental = doc.data();
+            // L'ID dell'item noleggiato potrebbe essere diverso dal doc.id dell'inventario
+            // Assicuriamoci di usare l'ID corretto che lega i due.
+            // Presumiamo che sia 'itemId' nel noleggio e 'id' nell'inventario.
+            const itemId = rental.itemId; // O qualunque sia il campo che collega noleggio a inventario
+            if (itemId) {
+                rentedQuantities[itemId] = (rentedQuantities[itemId] || 0) + rental.quantity;
             }
-        } finally {
-            renderInventoryTable(currentInventory);
-            if(filterBrandSelect) { updateBrandFilters(currentInventory, filterBrandSelect); }
-            updateInventoryStats(currentInventory);
+        });
+
+        // --- INIZIO MODIFICA FONDAMENTALE: Mappatura dei campi ---
+        inventorySnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            // L'ID del documento in Firestore (es. '1', '10', '11')
+            const firestoreDocId = doc.id;
+            
+            // Calcoliamo la quantità disponibile
+            const totalQuantity = data.quantita_totale || 0;
+            const rentedCount = rentedQuantities[firestoreDocId] || 0;
+            const availableQuantity = totalQuantity - rentedCount;
+
+            currentInventory.push({
+                // Mappiamo i nomi corretti!
+                id: firestoreDocId, // Usiamo l'ID del documento Firestore
+                brand: data.marca,
+                name: data.nome,
+                totalQuantity: totalQuantity,
+                dailyRate: data.costo_giornaliero,
+                // Aggiungiamo il campo mancante
+                availableQuantity: availableQuantity 
+            });
+        });
+        // --- FINE MODIFICA FONDAMENTALE ---
+
+        console.log(`Loaded and processed ${currentInventory.length} items from Firestore.`);
+    } catch (error) {
+        console.error("Error loading inventory from Firestore:", error);
+        if (!error.message?.includes('permission')) {
+             showError("Errore nel caricamento dell'inventario dal database.");
         }
-     };
+    } finally {
+        renderInventoryTable(currentInventory);
+        if(filterBrandSelect) { updateBrandFilters(currentInventory, filterBrandSelect); }
+        updateInventoryStats(currentInventory);
+    }
+ };
     const renderOldestRentals = (activeRentals = []) => {
         const oldestRentalsList = document.getElementById('oldest-rentals-list');
         if (!oldestRentalsList) return;
