@@ -658,7 +658,13 @@ if (newItemBtn) {
                 if (availableQuantity < (totalQuantity - rentedQuantity)) {
                     return showError(`Nuova Q.tà Disponibile (${availableQuantity}) deve essere almeno ${totalQuantity - rentedQuantity}.`);
                 }
-                await itemRef.update({ brand, name, totalQuantity, availableQuantity, dailyRate });
+                await itemRef.update({
+                marca: brand,
+                nome: name,
+                quantita_totale: totalQuantity,
+                costo_giornaliero: dailyRate
+                // NON salviamo 'availableQuantity' perché è un campo calcolato
+            });
                 loadInventoryData();
                 closeModal(editItemModal);
             } catch (err) { showError("Errore salvataggio modifiche articolo."); }
