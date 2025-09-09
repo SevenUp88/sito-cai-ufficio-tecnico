@@ -470,7 +470,7 @@ const setupEventListeners = () => {
             console.log("Export inventory clicked.");
             try {
                 // 1. Recupera tutti i dati dell'inventario da Firestore
-                const snapshot = await db.collection("inventory").orderBy("brand").orderBy("name").get();
+                const snapshot = await db.collection("inventory").orderBy("marca").orderBy("nome").get();
                 if (snapshot.empty) {
                     alert("L'inventario è vuoto. Nessun dato da esportare.");
                     return;
