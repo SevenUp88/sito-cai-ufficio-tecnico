@@ -215,6 +215,22 @@
       window.auth = firebase.auth();
       console.log("Noleggi Page: Firebase Services (db, auth) set on window (compat).");
 
+      // --- INIZIO CODICE AGGIUNTO PER LOGOUT ---
+      const logoutButton = document.getElementById('logout-button');
+      if (logoutButton) {
+          logoutButton.addEventListener('click', () => {
+              if (window.auth) {
+                  window.auth.signOut().then(() => {
+                      console.log('User signed out successfully.');
+                      // La funzione onAuthStateChanged gestirà automaticamente il cambio UI
+                  }).catch((error) => {
+                      console.error('Sign out error', error);
+                      alert('Errore durante il logout. Riprova.');
+                  });
+              }
+          });
+      }
+
       if (window.auth) {
           window.auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
               .then(() => {
