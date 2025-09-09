@@ -804,28 +804,6 @@ if (newItemBtn) {
             if (target.classList.contains('btn-complete-rental')) {
                 try {
                     const rentalRef = db.collection("activeRentals").doc(rentalDocId);
-                    const rentalDoc = await rentalRef.get();
-                    if (!rentalDoc.exists) return showError("Noleggio non trovato.");
-                    const rentalToComplete = { id: rentalDoc.id, ...rentalDoc.data() };
-                    const today = new Date().toISOString().split('T')[0];
-                    const endDate = prompt(`Data fine noleggio per #${rentalToComplete.rentalNumber} (${rentalToComplete.itemName}) (AAAA-MM-GG):`, today);
-                    if (endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)) {
-                        if (new Date(endDate) < new Date(rentalToComplete.startDate)) return showError("Data fine non può precedere data inizio.");
-                        const completedData = { ...rentalToComplete, endDate, status: "completed" };
-                        delete completedData.id;
-                        const itemRef = db.collection("inventory").doc(rentalToComplete.itemId);
-                        const batch = db.batch();
-                        batch.set(db.collection("completedRentals").doc(), completedData);
-                        batch.delete(rentalRef);
-                        batch.update(itemRef, { availableQuantity: firebase.firestore.FieldValue.increment(rentalToComplete.quantity) });
-                        await batch.commit();
-                        loadInventoryData();
-                        loadRentalData();
-                    } else if (endDate) { showError("Formato data non valido."); }
-                } catch (err) { showError("Errore completamento noleggio: " + err.message); }
-            } else if (target.classList.contains('btn-edit-rental')) {
-                try {
-                    const rentalRef = db.collection("activeRentals").doc(rentalDocId);
         const rentalDoc = await rentalRef.get();
         if (!rentalDoc.exists) { showError("Noleggio non trovato."); loadRentalData(); return; }
         const rentalToEdit = { id: rentalDoc.id, ...rentalDoc.data() };
