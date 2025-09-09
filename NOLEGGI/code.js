@@ -465,15 +465,14 @@ const setupEventListeners = () => {
                 
                 // 2. Prepara i dati per il file Excel, mappando le chiavi con nomi più leggibili
                 const inventoryData = snapshot.docs.map(doc => {
-                    const item = doc.data();
-                    return {
-                        "Marca": item.brand,
-                        "Articolo": item.name,
-                        "Quantità Totale": item.totalQuantity,
-                        "Quantità Disponibile": item.availableQuantity,
-                        "Costo Giornaliero (€)": item.dailyRate
-                    };
-                });
+                const item = doc.data();
+                return {
+                    "Marca": item.marca,                  // <-- Usa 'marca'
+                    "Articolo": item.nome,                // <-- Usa 'nome'
+                    "Quantità Totale": item.quantita_totale, // <-- Usa 'quantita_totale'
+                    "Costo Giornaliero (€)": item.costo_giornaliero // <-- Usa 'costo_giornaliero'
+                };
+            });
 
                 // 3. Usa la libreria XLSX per creare il file
                 const worksheet = XLSX.utils.json_to_sheet(inventoryData);
