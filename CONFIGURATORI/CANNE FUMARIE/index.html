@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        body { visibility: hidden; }
+        /* LA RIGA PROBLEMATICA 'body { visibility: hidden; }' È STATA RIMOSSA */
+
+        /* Stili specifici del configuratore */
         #content-area { padding: 15px; }
         .configuratore-container { width: 100%; max-width: 900px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
         .config-header { background-color: #0056a8; color: white; padding: 1.5rem 2rem; text-align: center; }
@@ -47,7 +49,7 @@
         #loader { padding: 2rem; text-align: center; color: #6c757d; font-size: 1.2em; }
     </style>
 </head>
-<body class="hidden">
+<body class="hidden"> <!-- Questa classe viene gestita correttamente da auth.js -->
 
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
@@ -186,7 +188,6 @@
             const monoDiameterGroup = document.getElementById('diametro-monoparete-group');
             const verticalComponents = document.getElementById('vertical-components');
             let currentStep = 1;
-
             const goToStep = (step) => {
                 currentStep = step;
                 formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
@@ -204,7 +205,6 @@
             nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
             prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
             calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
-
             const calcolaPreventivo = () => {
                 const isMonoparete = tipologiaSelect.value === 'monoparete';
                 let diametroText = isMonoparete ? document.querySelector('#diametro-mono option:checked').text : `${document.querySelector('#diametro-interno option:checked').text} / ${document.querySelector('#diametro-esterno option:checked').text}`;
