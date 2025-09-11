@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Configuratore Canne Fumarie</title>
     
+    <!-- I percorsi ai CSS e a FontAwesome sono relativi alla posizione di questo file -->
     <link rel="stylesheet" href="../../style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* Stili CSS invariati... */
+        /* Nascondiamo il body di default per evitare sfarfallii prima del controllo auth */
+        body { visibility: hidden; }
+
+        /* Stili specifici del configuratore */
         #content-area { padding: 15px; }
         .configuratore-container { width: 100%; max-width: 900px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); overflow: hidden; }
         .config-header { background-color: #0056a8; color: white; padding: 1.5rem 2rem; text-align: center; }
@@ -47,19 +51,32 @@
         #loader { padding: 2rem; text-align: center; color: #6c757d; font-size: 1.2em; }
     </style>
 </head>
-<body>
+<body class="hidden">
+
+    <!-- Loader iniziale (identico alla home) -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Verifica in corso...</p>
+    </div>
+
+    <!-- HEADER IDENTICO ALLA HOME PAGE per coerenza e per far funzionare auth.js -->
     <header class="app-header">
-        <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecniCO/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo"></a>
-        <div class="header-controls"><a href="../../index.html" class="nav-button"><i class="fas fa-home"></i> Torna alla Home</a></div>
+        <a href="../../index.html">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecniCO/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        </a>
+        <div class="header-controls">
+            <!-- Questo blocco è necessario per auth.js -->
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
+        </div>
     </header>
 
     <main id="content-area">
         <div class="configuratore-container">
             <div class="config-header"><h1>Configuratore Canne Fumarie</h1></div>
-
-            <!-- Loader per i dati -->
             <div id="loader">Caricamento dati prodotti...</div>
-
             <form id="configForm" class="hidden">
                 <!-- Step 1: Installazione Visiva -->
                 <div class="form-step active" data-step="1">
@@ -89,127 +106,172 @@
                     <div class="btn-container"><button type="button" class="nav-button btn-prev">Indietro</button><button type="button" class="nav-button btn-next">Avanti</button></div>
                 </div>
                 
-                <!-- Step 3: Componenti (ora con identificativi per il collegamento) -->
+                <!-- Step 3: Componenti -->
                 <div class="form-step" data-step="3">
                     <h2>3. Aggiungi i componenti necessari</h2>
                     <div class="component-row" data-codice-prodotto="281069"><div class="image-wrapper"><img src=""></div><div class="component-details"><label>ELEM.RETTILINEO L. 200MM</label><span class="code">Cod. 281069</span></div><div class="component-quantity"><input type="number" value="0" min="0" data-prezzo="0.00" data-nome="ELEM.RETTILINEO L. 200MM"></div></div>
                     <div class="component-row" data-codice-prodotto="281074"><div class="image-wrapper"><img src=""></div><div class="component-details"><label>ELEM.RETTILINEO L. 950MM</label><span class="code">Cod. 281074</span></div><div class="component-quantity"><input type="number" value="3" min="0" data-prezzo="0.00" data-nome="ELEM.RETTILINEO L. 950MM"></div></div>
                     <div class="component-row" data-codice-prodotto="281080"><div class="image-wrapper"><img src=""></div><div class="component-details"><label>CURVA 90°</label><span class="code">Cod. 281080</span></div><div class="component-quantity"><input type="number" value="1" min="0" data-prezzo="0.00" data-nome="CURVA 90°"></div></div>
-                    <!-- Aggiungi qui altre righe per gli altri componenti, seguendo questo modello -->
                     
+                    <div id="vertical-components" class="hidden">
+                        <!-- Componenti che appaiono solo in verticale -->
+                    </div>
                     <div class="btn-container"><button type="button" class="nav-button btn-prev">Indietro</button><button type="button" class="nav-button btn-calculate">Calcola Preventivo</button></div>
                 </div>
                 
                 <!-- Step 4: Riepilogo -->
-                <div class="form-step" data-step="4"><h2>4. Riepilogo e Preventivo</h2><div id="riepilogo"><h3>Dettaglio Configurazione</h3><p><strong>Installazione:</strong> <span id="riepilogo-installazione"></span></p><p><strong>Tipologia:</strong> <span id="riepilogo-tipologia"></span></p><p><strong>Materiale:</strong> <span id="riepilogo-materiale"></span></p><p><strong>Diametri:</strong> <span id="riepilogo-diametro"></span></p><h3 style="margin-top: 2rem;">Lista Componenti</h3><ul id="lista-prodotti"></ul><div class="total-price">Totale Stimato: <span id="prezzo-totale">€ 0.00</span></div></div><div class="btn-container"><button type="button" class="nav-button btn-prev">Modifica</button><button type="button" class="nav-button btn-send">Invia Richiesta</button></div></div>
+                <div class="form-step" data-step="4">
+                    <h2>4. Riepilogo e Preventivo</h2>
+                    <div id="riepilogo">
+                        <h3>Dettaglio Configurazione</h3>
+                        <p><strong>Installazione:</strong> <span id="riepilogo-installazione"></span></p>
+                        <p><strong>Tipologia:</strong> <span id="riepilogo-tipologia"></span></p>
+                        <p><strong>Materiale:</strong> <span id="riepilogo-materiale"></span></p>
+                        <p><strong>Diametri:</strong> <span id="riepilogo-diametro"></span></p>
+                        <h3 style="margin-top: 2rem;">Lista Componenti</h3>
+                        <ul id="lista-prodotti"></ul>
+                        <div class="total-price">Totale Stimato: <span id="prezzo-totale">€ 0.00</span></div>
+                    </div>
+                    <div class="btn-container">
+                        <button type="button" class="nav-button btn-prev">Modifica</button>
+                        <button type="button" class="nav-button btn-send">Invia Richiesta</button>
+                    </div>
+                </div>
             </form>
         </div>
     </main>
 
-    <!-- NUOVO: Script Firebase -->
+    <!-- ========================================================== -->
+    <!-- === BLOCCO SCRIPT UNIFICATO E COMPLETO === -->
+    <!-- ========================================================== -->
+
+    <!-- 1. Librerie Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    
+    <!-- 2. I tuoi script condivisi (con percorso relativo corretto) -->
+    <script src="../../firebase-config.js"></script> 
+    <script src="../../auth.js"></script> 
 
-<script>
-    // --- NUOVO: Firebase Config ---
-    // !!! INCOLLA QUI IL TUO OGGETTO firebaseConfig DAL FILE firebase-config.js !!!
-    const firebaseConfig = {
-        apiKey: "...",
-        authDomain: "...",
-        projectId: "consorzio-artigiani-idraulici",
-        storageBucket: "...",
-        messagingSenderId: "...",
-        appId: "..."
-    };
+    <!-- 3. Lo script specifico per questo configuratore -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loader = document.getElementById('loader');
+            const configForm = document.getElementById('configForm');
+            const db = window.db;
 
-    // Inizializza Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+            async function fetchProductData() {
+                if (!db) {
+                    console.error("Firestore (db) non è inizializzato.");
+                    loader.textContent = "Errore di configurazione.";
+                    return;
+                }
+                try {
+                    const snapshot = await db.collection("prodottiCanneFumarie").get();
+                    const products = snapshot.docs.map(doc => doc.data());
+                    
+                    products.forEach(product => {
+                        const componentRow = document.querySelector(`.component-row[data-codice-prodotto="${product.codice_prodotto}"]`);
+                        if (componentRow) {
+                            const input = componentRow.querySelector('input[type="number"]');
+                            const img = componentRow.querySelector('img');
+                            if (product.prezzo !== undefined && product.prezzo !== null) {
+                                input.dataset.prezzo = product.prezzo;
+                            }
+                            if (product.image_url) {
+                                img.src = `../immagini/${product.image_url}`;
+                                img.alt = product.descrizione;
+                            }
+                        }
+                    });
 
-    // --- SCRIPT DEL CONFIGURATORE (MODIFICATO) ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const loader = document.getElementById('loader');
-        const configForm = document.getElementById('configForm');
-        
-        // Funzione per caricare i dati da Firestore
-        async function fetchProductData() {
-            try {
-                const snapshot = await db.collection("prodottiCanneFumarie").get();
-                const products = snapshot.docs.map(doc => doc.data());
+                    loader.classList.add('hidden');
+                    configForm.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Errore nel caricamento dei dati da Firestore:", error);
+                    loader.textContent = "Errore nel caricamento dei dati. Riprova più tardi.";
+                }
+            }
+            
+            // Attende un istante per assicurarsi che auth.js abbia fatto il suo controllo
+            setTimeout(() => {
+                if (firebase.auth().currentUser) {
+                    fetchProductData();
+                } else {
+                    console.log("Nessun utente loggato, attendo il reindirizzamento da auth.js");
+                }
+            }, 100);
+
+            // Logica del configuratore
+            const nextButtons = document.querySelectorAll('.btn-next');
+            const prevButtons = document.querySelectorAll('.btn-prev');
+            const calculateButton = document.querySelector('.btn-calculate');
+            const formSteps = document.querySelectorAll('.form-step');
+            const tipologiaSelect = document.getElementById('tipologia');
+            const doppiapareteFields = document.getElementById('doppiaparete-fields');
+            const monoMaterialGroup = document.getElementById('materiale-monoparete-group');
+            const monoDiameterGroup = document.getElementById('diametro-monoparete-group');
+            const verticalComponents = document.getElementById('vertical-components');
+            let currentStep = 1;
+
+            const goToStep = (step) => {
+                currentStep = step;
+                formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
+            };
+
+            const updateConditionalFields = () => {
+                const isMonoparete = tipologiaSelect.value === 'monoparete';
+                doppiapareteFields.classList.toggle('hidden', isMonoparete);
+                monoMaterialGroup.classList.toggle('hidden', !isMonoparete);
+                monoDiameterGroup.classList.toggle('hidden', !isMonoparete);
+                const installazioneValue = document.querySelector('input[name="installazione"]:checked').value;
+                verticalComponents.classList.toggle('hidden', installazioneValue !== 'verticale');
+            };
+
+            document.querySelectorAll('input[name="installazione"]').forEach(radio => { radio.addEventListener('change', updateConditionalFields); });
+            tipologiaSelect.addEventListener('change', updateConditionalFields);
+            nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
+            prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
+            calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
+
+            const calcolaPreventivo = () => {
+                const isMonoparete = tipologiaSelect.value === 'monoparete';
+                let diametroText = isMonoparete ? document.querySelector('#diametro-mono option:checked').text : `${document.querySelector('#diametro-interno option:checked').text} / ${document.querySelector('#diametro-esterno option:checked').text}`;
                 
-                // Popola i dati nel configuratore
-                products.forEach(product => {
-                    // Trova la riga del componente usando il codice prodotto
-                    const componentRow = document.querySelector(`.component-row[data-codice-prodotto="${product.codice_prodotto}"]`);
-                    if (componentRow) {
-                        const input = componentRow.querySelector('input[type="number"]');
-                        const img = componentRow.querySelector('img');
+                document.getElementById('riepilogo-installazione').textContent = document.querySelector('input[name="installazione"]:checked + label span').textContent;
+                document.getElementById('riepilogo-tipologia').textContent = document.querySelector('#tipologia option:checked').text;
+                document.getElementById('riepilogo-materiale').textContent = isMonoparete ? document.querySelector('#materiale-monoparete option:checked').text : document.querySelector('#materiale-doppiaparete option:checked').text;
+                document.getElementById('riepilogo-diametro').textContent = diametroText;
 
-                        // Aggiorna il prezzo nell'attributo data-prezzo dell'input
-                        if (product.prezzo !== undefined && product.prezzo !== null) {
-                            input.dataset.prezzo = product.prezzo;
-                        }
-                        
-                        // Aggiorna l'immagine
-                        if (product.image_url) {
-                            img.src = `../immagini/${product.image_url}`;
-                            img.alt = product.descrizione;
-                        }
+                const componentInputs = document.querySelectorAll('.form-step[data-step="3"] input[type="number"]');
+                const listaProdottiEl = document.getElementById('lista-prodotti');
+                const prezzoTotaleEl = document.getElementById('prezzo-totale');
+                listaProdottiEl.innerHTML = '';
+                let totale = 0;
+
+                componentInputs.forEach(input => {
+                    const row = input.closest('.component-row');
+                    if(row && (window.getComputedStyle(row).display === 'none' || (row.parentElement.id === 'vertical-components' && window.getComputedStyle(row.parentElement).display === 'none'))) return;
+
+                    const quantita = parseInt(input.value);
+                    if (quantita > 0) {
+                        const prezzoUnitario = parseFloat(input.dataset.prezzo);
+                        const nomeProdotto = input.dataset.nome;
+                        const codiceProdotto = row.dataset.codiceProdotto;
+                        const subTotale = quantita * prezzoUnitario;
+                        totale += subTotale;
+                        const li = document.createElement('li');
+                        li.innerHTML = `<div class="product-info">${nomeProdotto} (x${quantita})<span class="product-code">Cod. ${codiceProdotto}</span></div><strong>€ ${subTotale.toFixed(2)}</strong>`;
+                        listaProdottiEl.appendChild(li);
                     }
                 });
-
-                // Mostra il form e nascondi il loader
-                loader.classList.add('hidden');
-                configForm.classList.remove('hidden');
-
-            } catch (error) {
-                console.error("Errore nel caricamento dei dati da Firestore:", error);
-                loader.textContent = "Errore nel caricamento dei dati. Riprova più tardi.";
-            }
-        }
-        
-        // Avvia il caricamento dei dati
-        fetchProductData();
-
-        // --- Il resto della logica del configuratore rimane invariata ---
-        const nextButtons = document.querySelectorAll('.btn-next');
-        const prevButtons = document.querySelectorAll('.btn-prev');
-        const calculateButton = document.querySelector('.btn-calculate');
-        const formSteps = document.querySelectorAll('.form-step');
-        let currentStep = 1;
-        const goToStep = (step) => { currentStep = step; formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep)); };
-        
-        nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
-        prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
-        calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
-
-        const calcolaPreventivo = () => {
-            const componentInputs = document.querySelectorAll('.form-step[data-step="3"] input[type="number"]');
-            const listaProdottiEl = document.getElementById('lista-prodotti');
-            const prezzoTotaleEl = document.getElementById('prezzo-totale');
-            listaProdottiEl.innerHTML = '';
-            let totale = 0;
-            componentInputs.forEach(input => {
-                const quantita = parseInt(input.value);
-                if (quantita > 0) {
-                    const prezzoUnitario = parseFloat(input.dataset.prezzo);
-                    const nomeProdotto = input.dataset.nome;
-                    const codiceProdotto = input.closest('.component-row').dataset.codiceProdotto;
-                    const subTotale = quantita * prezzoUnitario;
-                    totale += subTotale;
-                    const li = document.createElement('li');
-                    li.innerHTML = `<div class="product-info">${nomeProdotto} (x${quantita})<span class="product-code">Cod. ${codiceProdotto}</span></div><strong>€ ${subTotale.toFixed(2)}</strong>`;
-                    listaProdottiEl.appendChild(li);
-                }
-            });
-            prezzoTotaleEl.textContent = `€ ${totale.toFixed(2)}`;
+                prezzoTotaleEl.textContent = `€ ${totale.toFixed(2)}`;
+            };
             
-            // Logica di riepilogo
-            document.getElementById('riepilogo-installazione').textContent = document.querySelector('input[name="installazione"]:checked + label span').textContent;
-            // ... (aggiungi qui le altre righe del riepilogo se necessario)
-        };
-    });
-</script>
-
+            goToStep(1);
+            updateConditionalFields();
+        });
+    </script>
 </body>
 </html>
