@@ -9,7 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* LA RIGA PROBLEMATICA 'body { visibility: hidden; }' È STATA RIMOSSA */
+        /* Stile di base per nascondere la pagina fino al login */
+        body.hidden { display: none !important; }
 
         /* Stili specifici del configuratore */
         #content-area { padding: 15px; }
@@ -21,6 +22,7 @@
         .form-step.active { display: block; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .form-step h2 { color: #0056a8; margin-top: 0; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; }
+        
         .visual-selector { text-align: center; margin-top: 2rem; }
         .selection-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; }
         .selection-card { border: 2px solid #dee2e6; border-radius: 8px; padding: 1rem; cursor: pointer; transition: all 0.2s ease-in-out; width: 220px; }
@@ -30,26 +32,74 @@
         .selection-card span { font-weight: 600; font-size: 1.1em; color: #343a40; }
         input[type="radio"].hidden-radio { display: none; }
         input[type="radio"].hidden-radio:checked + .selection-card { border-color: #d71920; background-color: #fdf2f2; }
+        
         .component-row { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #e9ecef; }
         .component-row .image-wrapper { flex-shrink: 0; width: 60px; height: 60px; display:flex; align-items:center; justify-content:center; }
         .component-row .image-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; color: #495057; }
         .component-details { flex-grow: 1; }
         .component-details .code { font-size: 0.8em; color: #777; }
         .component-quantity input { width: 80px; text-align: center; }
+        
         #riepilogo { background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #e9ecef; }
         #riepilogo h3 { color: #0056a8; }
         #lista-prodotti li { border-bottom: 1px dotted #ced4da; }
         .total-price span { color: #28a745; }
-        .nav-button.btn-prev { background-color: #6c757d; }
-        .nav-button.btn-prev:hover { background-color: #5a6268; }
-        .nav-button.btn-calculate { background-color: #28a745; }
-        .nav-button.btn-calculate:hover { background-color: #218838; }
-        .nav-button.btn-send { background-color: #ff8c00; }
-        .nav-button.btn-send:hover { background-color: #e67e00; }
         #loader { padding: 2rem; text-align: center; color: #6c757d; font-size: 1.2em; }
+
+        /* ========================================================== */
+        /* === NUOVI STILI PER FORM E PULSANTI (INTEGRATI QUI) === */
+        /* ========================================================== */
+
+        /* Stile per i menu a tendina (select) */
+        .form-group select {
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 1em;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5z%22%20fill%3D%22%23333%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+
+        /* Contenitore per i pulsanti di navigazione */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+        }
+
+        /* Classe base per i pulsanti del configuratore, uguale a .nav-button */
+        .config-nav-button {
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Colori specifici per i vari pulsanti */
+        .config-nav-button.btn-next { background-color: #0056a8; color: white; }
+        .config-nav-button.btn-next:hover { background-color: #004182; transform: translateY(-2px); }
+        .config-nav-button.btn-prev { background-color: #6c757d; color: white; }
+        .config-nav-button.btn-prev:hover { background-color: #5a6268; transform: translateY(-2px); }
+        .config-nav-button.btn-calculate { background-color: #28a745; color: white; }
+        .config-nav-button.btn-calculate:hover { background-color: #218838; transform: translateY(-2px); }
+        .config-nav-button.btn-send { background-color: #ff8c00; color: white; }
+        .config-nav-button.btn-send:hover { background-color: #e67e00; transform: translateY(-2px); }
     </style>
 </head>
-<body class="hidden"> <!-- Questa classe viene gestita correttamente da auth.js -->
+<body class="hidden"> 
 
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
@@ -82,7 +132,9 @@
                             <label for="install-orizzontale" class="selection-card"><div class="image-wrapper"><img src="../immagini/scarico_orizzontale.png" alt="Scarico Orizzontale"></div><span>Orizzontale</span></label>
                         </div>
                     </div>
-                    <div class="btn-container" style="justify-content: flex-end;"><button type="button" class="nav-button btn-next">Avanti</button></div>
+                    <div class="btn-container" style="justify-content: flex-end;">
+                        <button type="button" class="config-nav-button btn-next">Avanti</button>
+                    </div>
                 </div>
 
                 <!-- Step 2: Dimensioni e Materiali -->
@@ -96,7 +148,10 @@
                         <div class="form-group"><label for="diametro-interno">Diametro Interno</label><select id="diametro-interno" name="diametro-interno"><option value="80" selected>Ø 80 mm</option></select></div>
                         <div class="form-group"><label for="diametro-esterno">Diametro Esterno</label><select id="diametro-esterno" name="diametro-esterno"><option value="130" selected>Ø 130 mm</option></select></div>
                     </div>
-                    <div class="btn-container"><button type="button" class="nav-button btn-prev">Indietro</button><button type="button" class="nav-button btn-next">Avanti</button></div>
+                    <div class="btn-container">
+                        <button type="button" class="config-nav-button btn-prev">Indietro</button>
+                        <button type="button" class="config-nav-button btn-next">Avanti</button>
+                    </div>
                 </div>
                 
                 <!-- Step 3: Componenti -->
@@ -107,7 +162,10 @@
                     <div class="component-row" data-codice-prodotto="281080"><div class="image-wrapper"><img src=""></div><div class="component-details"><label>CURVA 90°</label><span class="code">Cod. 281080</span></div><div class="component-quantity"><input type="number" value="1" min="0" data-prezzo="0.00" data-nome="CURVA 90°"></div></div>
                     
                     <div id="vertical-components" class="hidden"></div>
-                    <div class="btn-container"><button type="button" class="nav-button btn-prev">Indietro</button><button type="button" class="nav-button btn-calculate">Calcola Preventivo</button></div>
+                    <div class="btn-container">
+                        <button type="button" class="config-nav-button btn-prev">Indietro</button>
+                        <button type="button" class="config-nav-button btn-calculate">Calcola Preventivo</button>
+                    </div>
                 </div>
                 
                 <!-- Step 4: Riepilogo -->
@@ -123,7 +181,10 @@
                         <ul id="lista-prodotti"></ul>
                         <div class="total-price">Totale Stimato: <span id="prezzo-totale">€ 0.00</span></div>
                     </div>
-                    <div class="btn-container"><button type="button" class="nav-button btn-prev">Modifica</button><button type="button" class="nav-button btn-send">Invia Richiesta</button></div>
+                    <div class="btn-container">
+                        <button type="button" class="config-nav-button btn-prev">Modifica</button>
+                        <button type="button" class="config-nav-button btn-send">Invia Richiesta</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -188,6 +249,7 @@
             const monoDiameterGroup = document.getElementById('diametro-monoparete-group');
             const verticalComponents = document.getElementById('vertical-components');
             let currentStep = 1;
+
             const goToStep = (step) => {
                 currentStep = step;
                 formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
@@ -205,6 +267,7 @@
             nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
             prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
             calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
+
             const calcolaPreventivo = () => {
                 const isMonoparete = tipologiaSelect.value === 'monoparete';
                 let diametroText = isMonoparete ? document.querySelector('#diametro-mono option:checked').text : `${document.querySelector('#diametro-interno option:checked').text} / ${document.querySelector('#diametro-esterno option:checked').text}`;
