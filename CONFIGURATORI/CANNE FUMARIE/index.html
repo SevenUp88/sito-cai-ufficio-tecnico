@@ -141,8 +141,8 @@
         </div>
     </main>
 
-    <!-- ========================================================== -->
-    <!-- === BLOCCO SCRIPT UNIFICATO E COMPLETO === -->
+        <!-- ========================================================== -->
+    <!-- === BLOCCO SCRIPT UNIFICATO E CORRETTO === -->
     <!-- ========================================================== -->
 
     <!-- 1. Librerie Firebase -->
@@ -150,24 +150,26 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
-    <!-- 2. I tuoi script condivisi (con percorso relativo corretto) -->
+    <!-- 2. I tuoi script condivisi -->
     <script src="../../firebase-config.js"></script> 
     <script src="../../auth.js"></script> 
 
-    <!-- 3. Lo script specifico per questo configuratore -->
+    <!-- 3. Lo script specifico per questo configuratore (LOGICA CORRETTA) -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loader');
             const configForm = document.getElementById('configForm');
             const db = window.db;
 
+            // FUNZIONE PER CARICARE I DATI DA FIRESTORE
             async function fetchProductData() {
                 if (!db) {
-                    console.error("Firestore (db) non è inizializzato.");
+                    console.error("Configuratore: Firestore (db) non è inizializzato.");
                     loader.textContent = "Errore di configurazione.";
                     return;
                 }
                 try {
+                    console.log("Configuratore: Avvio fetchProductData()...");
                     const snapshot = await db.collection("prodottiCanneFumarie").get();
                     const products = snapshot.docs.map(doc => doc.data());
                     
@@ -188,24 +190,31 @@
 
                     loader.classList.add('hidden');
                     configForm.classList.remove('hidden');
+                    console.log("Configuratore: Dati caricati e form visualizzato.");
                 } catch (error) {
-                    console.error("Errore nel caricamento dei dati da Firestore:", error);
+                    console.error("Configuratore: Errore nel caricamento dei dati da Firestore:", error);
                     loader.textContent = "Errore nel caricamento dei dati. Riprova più tardi.";
                 }
             }
             
-            // Attende un istante per assicurarsi che auth.js abbia fatto il suo controllo
-            setTimeout(() => {
-                if (firebase.auth().currentUser) {
+            // NUOVA LOGICA DI CONTROLLO AUTENTICAZIONE
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    // Se l'utente è autenticato (o la sessione è stata appena confermata),
+                    // facciamo partire il caricamento dei dati.
+                    console.log("Configuratore: Utente confermato. Avvio caricamento dati.");
                     fetchProductData();
                 } else {
-                    console.log("Nessun utente loggato, attendo il reindirizzamento da auth.js");
+                    // Se l'utente non è autenticato, auth.js gestirà il reindirizzamento.
+                    // Noi non facciamo nulla e attendiamo.
+                    console.log("Configuratore: Nessun utente, attendo reindirizzamento da auth.js.");
                 }
-            }, 100);
+            });
 
-            // Logica del configuratore
+            // Logica del configuratore (navigazione, calcolo, etc.)
             const nextButtons = document.querySelectorAll('.btn-next');
             const prevButtons = document.querySelectorAll('.btn-prev');
+            // ... (il resto della logica del configuratore rimane identica)
             const calculateButton = document.querySelector('.btn-calculate');
             const formSteps = document.querySelectorAll('.form-step');
             const tipologiaSelect = document.getElementById('tipologia');
@@ -214,12 +223,10 @@
             const monoDiameterGroup = document.getElementById('diametro-monoparete-group');
             const verticalComponents = document.getElementById('vertical-components');
             let currentStep = 1;
-
             const goToStep = (step) => {
                 currentStep = step;
                 formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep));
             };
-
             const updateConditionalFields = () => {
                 const isMonoparete = tipologiaSelect.value === 'monoparete';
                 doppiapareteFields.classList.toggle('hidden', isMonoparete);
@@ -228,32 +235,26 @@
                 const installazioneValue = document.querySelector('input[name="installazione"]:checked').value;
                 verticalComponents.classList.toggle('hidden', installazioneValue !== 'verticale');
             };
-
             document.querySelectorAll('input[name="installazione"]').forEach(radio => { radio.addEventListener('change', updateConditionalFields); });
             tipologiaSelect.addEventListener('change', updateConditionalFields);
             nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
             prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
             calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
-
             const calcolaPreventivo = () => {
                 const isMonoparete = tipologiaSelect.value === 'monoparete';
                 let diametroText = isMonoparete ? document.querySelector('#diametro-mono option:checked').text : `${document.querySelector('#diametro-interno option:checked').text} / ${document.querySelector('#diametro-esterno option:checked').text}`;
-                
                 document.getElementById('riepilogo-installazione').textContent = document.querySelector('input[name="installazione"]:checked + label span').textContent;
                 document.getElementById('riepilogo-tipologia').textContent = document.querySelector('#tipologia option:checked').text;
                 document.getElementById('riepilogo-materiale').textContent = isMonoparete ? document.querySelector('#materiale-monoparete option:checked').text : document.querySelector('#materiale-doppiaparete option:checked').text;
                 document.getElementById('riepilogo-diametro').textContent = diametroText;
-
                 const componentInputs = document.querySelectorAll('.form-step[data-step="3"] input[type="number"]');
                 const listaProdottiEl = document.getElementById('lista-prodotti');
                 const prezzoTotaleEl = document.getElementById('prezzo-totale');
                 listaProdottiEl.innerHTML = '';
                 let totale = 0;
-
                 componentInputs.forEach(input => {
                     const row = input.closest('.component-row');
                     if(row && (window.getComputedStyle(row).display === 'none' || (row.parentElement.id === 'vertical-components' && window.getComputedStyle(row.parentElement).display === 'none'))) return;
-
                     const quantita = parseInt(input.value);
                     if (quantita > 0) {
                         const prezzoUnitario = parseFloat(input.dataset.prezzo);
@@ -268,7 +269,6 @@
                 });
                 prezzoTotaleEl.textContent = `€ ${totale.toFixed(2)}`;
             };
-            
             goToStep(1);
             updateConditionalFields();
         });
