@@ -1,34 +1,3 @@
-<!-- Submenu: Configuratori -->
-<div id="submenu-configuratori" class="submenu">
-     <a href="CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="submenu-button"> <i class="fas fa-border-all"></i> Impianto Radiante </a>
-     <!-- *** COLLEGAMENTO CORRETTO PER L'IMPIANTO RADIATORI *** -->
-     <a href="CONFIGURATORI/RADIATORI/index.html" class="submenu-button"> <i class="fas fa-thermometer-half"></i> Impianto Radiatori </a>
-</div>```
-
-**Aggiungi questa nuova riga** all'interno del `div` per creare il link al configuratore delle canne fumarie:
-
-```html
-<!-- Submenu: Configuratori -->
-<div id="submenu-configuratori" class="submenu">
-     <a href="CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="submenu-button"> <i class="fas fa-border-all"></i> Impianto Radiante </a>
-     <a href="CONFIGURATORI/RADIATORI/index.html" class="submenu-button"> <i class="fas fa-thermometer-half"></i> Impianto Radiatori </a>
-     <!-- NUOVO LINK DA AGGIUNGERE -->
-     <a href="CONFIGURATORI/CANNE-FUMARIE/configuratore-canne-fumarie.html" class="submenu-button"> <i class="fas fa-smog"></i> Canne Fumarie </a>
-</div>```
-
-### Passaggio 2: Crea il nuovo file del configuratore
-
-Ora, crea una struttura di cartelle come questa: `CONFIGURATORI/CANNE-FUMARIE/`.
-All'interno di questa nuova cartella, crea un file chiamato `configuratore-canne-fumarie.html` e incolla il seguente codice al suo interno.
-
-Ho adattato il configuratore che abbiamo costruito per:
-*   **Includere l'header della tua app** e il tuo file `style.css` principale.
-*   **Adattare i colori e i font** per essere identici a quelli della tua homepage (es. il rosso del titolo è stato sostituito dal blu `#0056a8`).
-*   Aggiungere un comodo pulsante **"Torna alla Home"**.
-
-Ecco il codice completo per il nuovo file:
-
-```html
 <!DOCTYPE html>
 <html lang="it">
 <head>
