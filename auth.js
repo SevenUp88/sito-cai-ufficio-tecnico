@@ -1,3 +1,5 @@
+// auth.js - VERSIONE CON CONTROLLO ADMIN
+
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof firebase === 'undefined') {
         console.error("Firebase non caricato.");
@@ -6,46 +8,65 @@ document.addEventListener('DOMContentLoaded', function () {
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    // Elementi HOME
+    // Elementi DOM
     const loginSection = document.getElementById('login-section');
     const appContent = document.getElementById('app-content');
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
-    
-    // Elementi COMUNI (trovati in header)
     const userDashboard = document.getElementById('user-dashboard');
     const userEmailDisplay = document.getElementById('user-email-display');
     const logoutButton = document.getElementById('logout-button');
     const initialLoader = document.getElementById('initial-loader');
+
+    // --- NUOVO: Selettore per il pulsante Configuratori ---
+    const btnConfiguratori = document.getElementById('btn-configuratori');
     
-    const isHomePage = !!loginSection; // Un modo semplice per sapere se siamo sulla home
+    const isHomePage = !!loginSection;
 
     auth.onAuthStateChanged(user => {
         if (initialLoader) initialLoader.classList.add('hidden');
         document.body.classList.remove('hidden');
+        document.body.style.visibility = 'visible';
 
         if (user) {
-            // Utente Loggato
+            // --- INIZIO LOGICA ADMIN ---
+            if (btnConfiguratori) { // Controlla se il pulsante esiste nella pagina
+                if (user.email === 'tecnicovillalta@gmail.com') {
+                    // È l'admin: il pulsante è attivo e funzionante
+                    btnConfiguratori.disabled = false;
+                    btnConfiguratori.classList.remove('disabled');
+                    btnConfiguratori.title = "Accedi ai configuratori";
+                } else {
+                    // È un utente normale: il pulsante viene disabilitato
+                    btnConfiguratori.disabled = true;
+                    btnConfiguratori.classList.add('disabled');
+                    btnConfiguratori.title = "Accesso riservato all'amministratore";
+                }
+            }
+            // --- FINE LOGICA ADMIN ---
+
+            // Il resto della logica rimane invariato
             console.log("Utente autenticato:", user.email);
-            
-            // Aggiorna sempre l'header
             if (userDashboard) userDashboard.classList.remove('hidden');
             if (userEmailDisplay) userEmailDisplay.textContent = user.email;
-
-            // Logica specifica per la HOME
             if (isHomePage) {
                 if(loginSection) loginSection.classList.add('hidden');
                 if(appContent) appContent.classList.remove('hidden');
             }
-
         } else {
-            // Utente NON loggato
+            // Se l'utente non è loggato, disabilita comunque il pulsante per sicurezza
+            if (btnConfiguratori) {
+                btnConfiguratori.disabled = true;
+                btnConfiguratori.classList.add('disabled');
+            }
+
             if (!isHomePage) {
-                // Se non siamo sulla home, reindirizza
-                console.log("Utente non loggato, reindirizzo...");
-                window.location.href = '../../index.html'; // Assumendo che la pagina sia 2 livelli sotto
+                console.log("Utente non loggato, reindirizzo alla home...");
+                const pathSegments = window.location.pathname.split('/').filter(Boolean);
+                const depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
+                const rootPath = '../'.repeat(depth) || './';
+                window.location.href = `${rootPath}index.html`;
             } else {
-                // Se siamo sulla home, mostra il login
                 if(loginSection) loginSection.classList.remove('hidden');
                 if(appContent) appContent.classList.add('hidden');
             }
@@ -55,10 +76,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(loginForm.email.value, loginForm.password.value)
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            if (loginError) loginError.textContent = "";
+            auth.signInWithEmailAndPassword(email, password)
                 .catch(error => {
-                    if (loginError) loginError.textContent = "Credenziali non valide.";
-                    console.error(error);
+                    if (loginError) loginError.textContent = "Credenziali non valide. Riprova.";
+                    console.error("Errore di login:", error);
                 });
         });
     }
