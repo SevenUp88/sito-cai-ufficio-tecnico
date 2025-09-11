@@ -15,7 +15,6 @@
     <style>
         /* Questo CSS si aggiunge a quello principale del tuo sito (style.css) */
         
-        /* Sovrascriviamo il padding di #content-area per dare più spazio */
         #content-area { padding: 15px; }
 
         .configuratore-container {
@@ -28,9 +27,8 @@
             overflow: hidden;
         }
 
-        /* Usiamo i colori del tuo brand per coerenza */
         .config-header {
-            background-color: #0056a8; /* Blu primario della tua app */
+            background-color: #0056a8;
             color: white;
             padding: 1.5rem 2rem;
             text-align: center;
@@ -43,28 +41,26 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .form-step h2 {
-            color: #0056a8; /* Blu primario */
+            color: #0056a8;
             margin-top: 0;
             border-bottom: 2px solid #e9ecef;
             padding-bottom: 10px;
         }
 
-        /* Stili per la selezione visiva (caldaia, schemi, etc.) */
         .visual-selector { text-align: center; }
-        .visual-selector .static-image svg { height: 100px; margin-bottom: 1.5rem; }
+        .visual-selector .static-image img { height: 120px; margin-bottom: 1.5rem; }
         .selection-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; }
         .selection-card { border: 2px solid #dee2e6; border-radius: 8px; padding: 1rem; cursor: pointer; transition: all 0.2s ease-in-out; width: 220px; }
         .selection-card:hover { border-color: #0056a8; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .selection-card .image-wrapper { height: 120px; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; }
-        .selection-card svg { max-height: 100%; max-width: 100%; }
+        .selection-card .image-wrapper img { max-height: 100%; max-width: 100%; object-fit: contain; }
         .selection-card span { font-weight: 600; font-size: 1.1em; color: #343a40; }
         input[type="radio"].hidden-radio { display: none; }
         input[type="radio"].hidden-radio:checked + .selection-card {
-            border-color: #d71920; /* Rosso secondario per la selezione */
+            border-color: #d71920;
             background-color: #fdf2f2;
         }
 
-        /* Stili per le righe dei componenti */
         .component-row { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid #e9ecef; }
         .component-row:last-child { border-bottom: none; }
         .component-row .image-wrapper { flex-shrink: 0; width: 60px; height: 60px; display:flex; align-items:center; justify-content:center; }
@@ -72,7 +68,6 @@
         .component-details { flex-grow: 1; }
         .component-quantity input { width: 80px; text-align: center; }
 
-        /* Stili per il riepilogo finale */
         #riepilogo { background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; border: 1px solid #e9ecef; }
         #riepilogo h3 { color: #0056a8; }
         #lista-prodotti li { border-bottom: 1px dotted #ced4da; }
@@ -94,23 +89,30 @@
             </div>
 
             <form id="configForm">
-                <!-- Step 1: Installazione Visiva -->
+                <!-- Step 1: Installazione Visiva con le TUE IMMAGINI -->
                 <div class="form-step active" data-step="1">
                     <h2>1. Scegli il tipo di scarico</h2>
                     <div class="visual-selector">
                         <div class="static-image">
-                            <!-- SVG Caldaia -->
-                            <svg viewBox="0 0 100 120" fill="currentColor"><path d="M10 5 H90 V60 H10 Z" fill="#333"></path><path d="M10 60 H90 V110 H10 Z" fill="#f0f0f0"></path><rect x="10" y="110" width="15" height="5" fill="#333"></rect><rect x="75" y="110" width="15" height="5" fill="#333"></rect><rect x="5" y="0" width="90" height="5" fill="#333"></rect><rect x="35" y="68" width="30" height="10" fill="#333"></rect><circle cx="35" cy="95" r="8" fill="#333"></circle><circle cx="65" cy="95" r="8" fill="#333"></circle></svg>
+                            <!-- IMMAGINE CALDAIA SOSTITUITA -->
+                            <img src="../immagini/caldaia.png" alt="Caldaia">
                         </div>
                         <div class="selection-container">
                             <input type="radio" id="install-verticale" name="installazione" value="verticale" class="hidden-radio" checked>
                             <label for="install-verticale" class="selection-card">
-                                <div class="image-wrapper"><!-- SVG Scarico Verticale --><svg viewBox="0 0 150 150"><g fill="none" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M120 140 v-20 h-10 v-10 h-20 v-15 a 10 10 0 0 0 -10 -10 h -20 a 10 10 0 0 0 -10 10 v 10 "/><path d="M40 105 v -55"/><path d="M5 60 L75 20"/><path d="M15 70 L85 30"/><path d="M40 50 l -12 -5 h 24 z" fill="#333"/><path d="M40 50 v -25 h -5 v -5 h 10 v 5 h -5"/><rect x="110" y="115" width="20" height="30" stroke-width="2"/></g></svg></div>
+                                <div class="image-wrapper">
+                                    <!-- IMMAGINE SCARICO VERTICALE SOSTITUITA -->
+                                    <img src="../immagini/scarico_verticale.png" alt="Scarico Verticale">
+                                </div>
                                 <span>Verticale (a tetto)</span>
                             </label>
+                            
                             <input type="radio" id="install-orizzontale" name="installazione" value="orizzontale" class="hidden-radio">
                             <label for="install-orizzontale" class="selection-card">
-                                <div class="image-wrapper"><!-- SVG Scarico Orizzontale --><svg viewBox="0 0 200 120"><g fill="none" stroke="#333" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M190 110 v -20 a 10 10 0 0 0 -10 -10 h -10 a 10 10 0 0 0 -10 10 v 20"/><path d="M160 80 h -125"/><path d="M35 80 q -10 0 -10 -10 v -10"/><path d="M25 60 h -10 v -5 h -10 v -5 h 10 v-5 h -10 v-5 h10"/><rect x="0" y="20" width="30" height="60" stroke-width="2"/><path d="M5 25 h20 M5 35 h20 M5 45 h20 M5 55 h20 M5 65 h20 M5 75 h20" stroke-width="1"/></g></svg></div>
+                                <div class="image-wrapper">
+                                    <!-- IMMAGINE SCARICO ORIZZONTALE SOSTITUITA -->
+                                    <img src="../immagini/scarico_orizzontale.png" alt="Scarico Orizzontale">
+                                </div>
                                 <span>Orizzontale (a parete)</span>
                             </label>
                         </div>
@@ -118,7 +120,7 @@
                     <div class="btn-container" style="justify-content: flex-end;"><button type="button" class="btn btn-next">Avanti</button></div>
                 </div>
 
-                <!-- Step 2, 3, 4 e lo script JS sono identici alla nostra ultima versione -->
+                <!-- Step 2, 3, 4 e lo script JS rimangono invariati -->
                  <!-- Step 2: Dimensioni e Materiali -->
                 <div class="form-step" data-step="2">
                     <h2>2. Scegli materiali e diametri</h2>
@@ -154,80 +156,4 @@
                         <h3>Dettaglio Configurazione</h3>
                         <p><strong>Installazione:</strong> <span id="riepilogo-installazione"></span></p>
                         <p><strong>Tipologia:</strong> <span id="riepilogo-tipologia"></span></p>
-                        <p><strong>Materiale:</strong> <span id="riepilogo-materiale"></span></p>
-                        <p><strong>Diametri:</strong> <span id="riepilogo-diametro"></span></p>
-                        <h3 style="margin-top: 2rem;">Lista Componenti</h3>
-                        <ul id="lista-prodotti"></ul>
-                        <div class="total-price">Totale Stimato: <span id="prezzo-totale">€ 0.00</span></div>
-                    </div>
-                    <div class="btn-container"><button type="button" class="btn btn-prev">Modifica</button><button type="button" class="btn" style="background-color: #ff8c00; color: white;">Invia Richiesta</button></div>
-                </div>
-            </form>
-        </div>
-    </main>
-
-<script>
-    // Lo script JavaScript è autocontenuto e non necessita di modifiche.
-    document.addEventListener('DOMContentLoaded', () => {
-        const nextButtons = document.querySelectorAll('.btn-next');
-        const prevButtons = document.querySelectorAll('.btn-prev');
-        const calculateButton = document.querySelector('.btn-calculate');
-        const formSteps = document.querySelectorAll('.form-step');
-        const tipologiaSelect = document.getElementById('tipologia');
-        const doppiapareteFields = document.getElementById('doppiaparete-fields');
-        const monoMaterialGroup = document.getElementById('materiale-monoparete-group');
-        const monoDiameterGroup = document.getElementById('diametro-monoparete-group');
-        const verticalComponents = document.getElementById('vertical-components');
-        let currentStep = 1;
-        const goToStep = (step) => { currentStep = step; formSteps.forEach(s => s.classList.toggle('active', parseInt(s.dataset.step) === currentStep)); };
-        const updateConditionalFields = () => {
-            const isMonoparete = tipologiaSelect.value === 'monoparete';
-            doppiapareteFields.classList.toggle('hidden', isMonoparete);
-            monoMaterialGroup.classList.toggle('hidden', !isMonoparete);
-            monoDiameterGroup.classList.toggle('hidden', !isMonoparete);
-            const installazioneValue = document.querySelector('input[name="installazione"]:checked').value;
-            verticalComponents.classList.toggle('hidden', installazioneValue !== 'verticale');
-        };
-        document.querySelectorAll('input[name="installazione"]').forEach(radio => { radio.addEventListener('change', updateConditionalFields); });
-        tipologiaSelect.addEventListener('change', updateConditionalFields);
-        nextButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep + 1)));
-        prevButtons.forEach(b => b.addEventListener('click', () => goToStep(currentStep - 1)));
-        calculateButton.addEventListener('click', () => { calcolaPreventivo(); goToStep(currentStep + 1); });
-        const calcolaPreventivo = () => {
-            const isMonoparete = tipologiaSelect.value === 'monoparete';
-            const diametroSelezionato = isMonoparete ? document.getElementById('diametro-mono').value : document.getElementById('diametro-interno').value;
-            const codiceAttr = `data-codice-${diametroSelezionato}`;
-            let diametroText = isMonoparete ? document.querySelector('#diametro-mono option:checked').text : `${document.querySelector('#diametro-interno option:checked').text} / ${document.querySelector('#diametro-esterno option:checked').text}`;
-            document.getElementById('riepilogo-installazione').textContent = document.querySelector('input[name="installazione"]:checked + label span').textContent;
-            document.getElementById('riepilogo-tipologia').textContent = document.querySelector('#tipologia option:checked').text;
-            document.getElementById('riepilogo-materiale').textContent = isMonoparete ? document.querySelector('#materiale-monoparete option:checked').text : document.querySelector('#materiale-doppiaparete option:checked').text;
-            document.getElementById('riepilogo-diametro').textContent = diametroText;
-            const componentInputs = document.querySelectorAll('.form-step[data-step="3"] input[type="number"]');
-            const listaProdottiEl = document.getElementById('lista-prodotti');
-            const prezzoTotaleEl = document.getElementById('prezzo-totale');
-            listaProdottiEl.innerHTML = '';
-            let totale = 0;
-            componentInputs.forEach(input => {
-                const row = input.closest('.component-row');
-                if (row && (window.getComputedStyle(row).display === 'none' || window.getComputedStyle(row.parentElement).display === 'none')) return;
-                const quantita = parseInt(input.value);
-                if (quantita > 0) {
-                    const prezzoUnitario = parseFloat(input.dataset.prezzo);
-                    const nomeProdotto = input.dataset.nome;
-                    const codiceProdotto = input.getAttribute(codiceAttr) || 'N/D';
-                    const subTotale = quantita * prezzoUnitario;
-                    totale += subTotale;
-                    const li = document.createElement('li');
-                    li.innerHTML = `<div class="product-info">${nomeProdotto} (x${quantita})<span class="product-code">Cod. ${codiceProdotto}</span></div><strong>€ ${subTotale.toFixed(2)}</strong>`;
-                    listaProdottiEl.appendChild(li);
-                }
-            });
-            prezzoTotaleEl.textContent = `€ ${totale.toFixed(2)}`;
-        };
-        goToStep(1);
-        updateConditionalFields();
-    });
-</script>
-
-</body>
-</html>
+                        <p><strong>Materiale:<
