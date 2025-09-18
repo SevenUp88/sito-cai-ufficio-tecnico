@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gasMatricolaInput = document.getElementById('gas-matricola');
     const gasMatricolaOriginalInput = document.getElementById('gas-form-matricola-original');
     const gasLitriInput = document.getElementById('gas-litri');
-    // RIMOSSO: const gasQuantitaInput = document.getElementById('gas-quantita');
     const gasDataRicezioneInput = document.getElementById('gas-data-ricezione');
     const gasNoleggiatoAInput = document.getElementById('gas-noleggiato-a');
     const gasDataAperturaNoleggioInput = document.getElementById('gas-data-apertura-noleggio');
@@ -111,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gasMatricolaOriginalInput.value = cylinderData.matricola || '';
             gasMatricolaInput.disabled = true;
             gasLitriInput.value = cylinderData.litri || '';
-            // RIMOSSO: gasQuantitaInput.value = cylinderData.quantita || '';
             gasDataRicezioneInput.value = formatDate(cylinderData.data_ricezione);
             gasNoleggiatoAInput.value = cylinderData.noleggiato_a || '';
             gasDataAperturaNoleggioInput.value = formatDate(cylinderData.data_apertura_noleggio);
@@ -169,11 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
-    // !!! SOSTITUISCI QUESTO URL CON L'URL EFFETTIVO DELLA TUA WEB APP DEPLOYATA !!!
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; // VERIFICA CHE SIA L'URL CORRETTO
+    // URL EFFETTIVO DELLA TUA WEB APP DEPLOYATA (come da tua indicazione)
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; 
 
     const sendDataToGoogleSheet = async (action, data) => {
-        if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec' || !WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) {
+        if (!WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) { // Controlliamo solo se è un URL valido
             console.error("ERRORE: WEB_APP_URL non configurato o non valido.");
             showFeedback("Errore di configurazione: URL della Web App non impostato o non valido.", "error");
             return { status: 'error', message: "WEB_APP_URL non configurato." };
@@ -209,14 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("gas.js: Gas form submitted.");
 
             const cylinderData = {
-                tipologia_gas: gasTipologiaGasInput.value.trim() || '', // Non obbligatorio
-                matricola: gasMatricolaInput.value.trim(),             // Obbligatorio
-                litri: parseInt(gasLitriInput.value, 10),              // Non obbligatorio, ma se presente deve essere un numero valido
-                // RIMOSSO: quantita: parseInt(gasQuantitaInput.value, 10),
-                data_ricezione: gasDataRicezioneInput.value || '',     // Non obbligatorio, ma auto-popolato
-                noleggiato_a: gasNoleggiatoAInput.value.trim() || '',   // Non obbligatorio
-                data_apertura_noleggio: gasDataAperturaNoleggioInput.value || '', // Non obbligatorio
-                data_chiusura_noleggio: gasDataChiusuraNoleggioInput.value || '', // Non obbligatorio
+                tipologia_gas: gasTipologiaGasInput.value.trim() || '',
+                matricola: gasMatricolaInput.value.trim(),
+                litri: parseInt(gasLitriInput.value, 10),
+                data_ricezione: gasDataRicezioneInput.value || '',
+                noleggiato_a: gasNoleggiatoAInput.value.trim() || '',
+                data_apertura_noleggio: gasDataAperturaNoleggioInput.value || '',
+                data_chiusura_noleggio: gasDataChiusuraNoleggioInput.value || '',
             };
 
             // Validazione: solo la matricola è obbligatoria e i litri devono essere un numero valido (anche 0)
@@ -225,15 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn("gas.js: Validation failed: Matricola is required.");
                 return;
             }
-            if (isNaN(cylinderData.litri) || cylinderData.litri < 0) { // Litri può essere 0 o positivo
-                 showFeedback('I Litri devono essere un numero valido e non negativo.', 'error');
-                 console.warn("gas.js: Validation failed: Litri must be a non-negative number.");
-                 return;
+            // Verifica se il campo litri è vuoto o non un numero valido, e imposta a 0 se necessario
+            if (gasLitriInput.value.trim() === '' || isNaN(cylinderData.litri) || cylinderData.litri < 0) {
+                 cylinderData.litri = 0; // Imposta a 0 se vuoto o non valido
+                 gasLitriInput.value = 0; // Aggiorna il campo input nel form per coerenza
             }
-             // Imposta litri a 0 se non specificato
-            if (gasLitriInput.value.trim() === '') {
-                cylinderData.litri = 0;
-            }
+
 
             let result;
             if (isEditMode) {
@@ -273,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`gas.js: Found ${allGasCylinders.length} gas cylinders.`);
         } catch (error) {
             console.error("gas.js: Errore nel caricamento delle bombole gas da Firestore:", error);
-            gasTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">Errore nel caricamento delle bombole gas. ${error.message}</td></tr>`; // Modificato colspan a 8
+            gasTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Errore nel caricamento delle bombole gas. ${error.message}</td></tr>`; // Modificato colspan a 7
             if (noGasMessage) noGasMessage.style.display = 'block';
         }
     };
@@ -293,8 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             row.innerHTML = `
                 <td>${cylinder.tipologia_gas || 'N/D'}</td>
                 <td>${cylinder.matricola || 'N/D'}</td>
-                <td>${cylinder.litri !== undefined && cylinder.litri !== null ? cylinder.litri : 'N/D'}</td> <!-- Visualizza 0 se il valore è 0 -->
-                <!-- RIMOSSO: <td>${cylinder.quantita || 'N/D'}</td> -->
+                <td>${cylinder.litri !== undefined && cylinder.litri !== null ? cylinder.litri : 'N/D'}</td>
                 <td>${cylinder.data_ricezione || 'N/D'}</td>
                 <td>${cylinder.noleggiato_a || 'N/D'}</td>
                 <td>${cylinder.data_apertura_noleggio || 'N/D'}</td>
@@ -318,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 cylinder.matricola?.toLowerCase().includes(query) ||
                 String(cylinder.litri)?.includes(query) ||
                 cylinder.noleggiato_a?.toLowerCase().includes(query) ||
-                // RIMOSSO: String(cylinder.quantita)?.includes(query) ||
                 cylinder.data_ricezione?.includes(query) ||
                 cylinder.data_apertura_noleggio?.includes(query) ||
                 cylinder.data_chiusura_noleggio?.includes(query)
