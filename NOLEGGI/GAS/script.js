@@ -257,9 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${cylinder.tipologia_gas || 'N/D'}</td>
                 <td>${cylinder.matricola || 'N/D'}</td>
                 <td>${cylinder.litri || 'N/D'}</td>
-                <td>${cylinder.noleggiato_a || 'N/D'}</td>
-                <td>${cylinder.quantita || 'N/D'}</td>
-                <td>${cylinder.data_ricezione || 'N/D'}</td>
+                <td>${cylinder.quantita || 'N/D'}</td>             <!-- Nuova posizione -->
+                <td>${cylinder.data_ricezione || 'N/D'}</td>      <!-- Nuova posizione -->
+                <td>${cylinder.noleggiato_a || 'N/D'}</td>         <!-- Nuova posizione -->
                 <td>${cylinder.data_apertura_noleggio || 'N/D'}</td>
                 <td>${cylinder.data_chiusura_noleggio || 'N/D'}</td>
                 <td class="actions-cell">
