@@ -143,11 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
     // !!! SOSTITUISCI QUESTO URL CON L'URL EFFETTIVO DELLA TUA WEB APP DEPLOYATA !!!
-    const WEB_APP_URL = 'YOUR_WEB_APP_URL_HERE'; // Esempio: 'https://script.google.com/macros/s/AKfycbzzxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec'
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; // Esempio: 'https://script.google.com/macros/s/AKfycbzzxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec'
 
 
     const sendDataToGoogleSheet = async (action, data) => {
-        if (WEB_APP_URL === 'YOUR_WEB_APP_URL_HERE') {
+        if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec') {
             console.error("ERRORE: WEB_APP_URL non configurato. Sostituisci il placeholder.");
             showFeedback("Errore di configurazione: WEB_APP_URL non impostato.", "error");
             return { status: 'error', message: "WEB_APP_URL non configurato." };
