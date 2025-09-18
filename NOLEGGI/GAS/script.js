@@ -1,3 +1,4 @@
+```javascript
 document.addEventListener('DOMContentLoaded', () => {
     // Assicurati che Firebase sia inizializzato globalmente (da firebase-config.js)
     if (typeof firebase === 'undefined' || !window.db || !window.auth) {
@@ -31,9 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const gasMatricolaInput = document.getElementById('gas-matricola');
     const gasMatricolaOriginalInput = document.getElementById('gas-form-matricola-original'); // Campo nascosto per la matricola originale in caso di modifica
     const gasLitriInput = document.getElementById('gas-litri');
-    const gasNoleggiatoAInput = document.getElementById('gas-noleggiato-a');
-    const gasQuantitaInput = document.getElementById('gas-quantita');
-    const gasDataRicezioneInput = document.getElementById('gas-data-ricezione');
+    const gasQuantitaInput = document.getElementById('gas-quantita'); // MODIFICATO: per ordine
+    const gasDataRicezioneInput = document.getElementById('gas-data-ricezione'); // MODIFICATO: per ordine
+    const gasNoleggiatoAInput = document.getElementById('gas-noleggiato-a'); // MODIFICATO: per ordine
     const gasDataAperturaNoleggioInput = document.getElementById('gas-data-apertura-noleggio');
     const gasDataChiusuraNoleggioInput = document.getElementById('gas-data-chiusura-noleggio');
 
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             console.log("Utente non loggato, reindirizzo alla home dalla pagina Gas...");
             const pathSegments = window.location.pathname.split('/').filter(Boolean);
-            const depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
+            const depth = pathSegments.length > 2 ? pathSegments.length - 2 : 0; // Risali due livelli dalla cartella GAS
             const rootPath = '../'.repeat(depth) || './';
             window.location.href = `${rootPath}index.html`;
         }
@@ -111,9 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
             gasMatricolaOriginalInput.value = cylinderData.matricola || ''; // Salva la matricola originale
             gasMatricolaInput.disabled = true; // La matricola non è modificabile
             gasLitriInput.value = cylinderData.litri || '';
-            gasNoleggiatoAInput.value = cylinderData.noleggiato_a || '';
-            gasQuantitaInput.value = cylinderData.quantita || '';
-            gasDataRicezioneInput.value = formatDate(cylinderData.data_ricezione);
+            gasQuantitaInput.value = cylinderData.quantita || ''; // MODIFICATO: per ordine
+            gasDataRicezioneInput.value = formatDate(cylinderData.data_ricezione); // MODIFICATO: per ordine
+            gasNoleggiatoAInput.value = cylinderData.noleggiato_a || ''; // MODIFICATO: per ordine
             gasDataAperturaNoleggioInput.value = formatDate(cylinderData.data_apertura_noleggio);
             gasDataChiusuraNoleggioInput.value = formatDate(cylinderData.data_chiusura_noleggio);
         } else {
@@ -164,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({
                     action: action,
-                    sheetName: 'gasCylinders', // Specifica il nome del foglio target in Google Sheet
+                    sheetName: 'gas', // MODIFICATO: Specifica il nome del foglio target "gas"
                     ...data
                 }),
             });
@@ -190,9 +191,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 tipologia_gas: gasTipologiaGasInput.value.trim(),
                 matricola: gasMatricolaInput.value.trim(),
                 litri: parseInt(gasLitriInput.value, 10),
-                noleggiato_a: gasNoleggiatoAInput.value.trim(),
-                quantita: parseInt(gasQuantitaInput.value, 10),
-                data_ricezione: gasDataRicezioneInput.value, // Formato YYYY-MM-DD
+                quantita: parseInt(gasQuantitaInput.value, 10), // MODIFICATO: per ordine
+                data_ricezione: gasDataRicezioneInput.value, // MODIFICATO: per ordine (Formato YYYY-MM-DD)
+                noleggiato_a: gasNoleggiatoAInput.value.trim(), // MODIFICATO: per ordine
                 data_apertura_noleggio: gasDataAperturaNoleggioInput.value,
                 data_chiusura_noleggio: gasDataChiusuraNoleggioInput.value,
             };
@@ -232,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Carica e Mostra Bombole Gas ---
     const fetchAndDisplayGasCylinders = async () => {
         try {
-            const snapshot = await db.collection('gasCylinders').get();
+            const snapshot = await db.collection('gasCylinders').get(); // La collezione Firestore rimane 'gasCylinders'
             allGasCylinders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); // Includi l'ID del documento
             renderGasTable(allGasCylinders);
         } catch (error) {
@@ -257,9 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${cylinder.tipologia_gas || 'N/D'}</td>
                 <td>${cylinder.matricola || 'N/D'}</td>
                 <td>${cylinder.litri || 'N/D'}</td>
-                <td>${cylinder.quantita || 'N/D'}</td>             <!-- Nuova posizione -->
-                <td>${cylinder.data_ricezione || 'N/D'}</td>      <!-- Nuova posizione -->
-                <td>${cylinder.noleggiato_a || 'N/D'}</td>         <!-- Nuova posizione -->
+                <td>${cylinder.quantita || 'N/D'}</td>             <!-- MODIFICATO: per ordine -->
+                <td>${cylinder.data_ricezione || 'N/D'}</td>      <!-- MODIFICATO: per ordine -->
+                <td>${cylinder.noleggiato_a || 'N/D'}</td>         <!-- MODIFICATO: per ordine -->
                 <td>${cylinder.data_apertura_noleggio || 'N/D'}</td>
                 <td>${cylinder.data_chiusura_noleggio || 'N/D'}</td>
                 <td class="actions-cell">
@@ -318,3 +319,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+```
