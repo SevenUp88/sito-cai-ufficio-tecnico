@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gasTableBody = document.getElementById('gas-table-body');
     const gasSearchInput = document.getElementById('gas-search-input');
     const addGasButton = document.getElementById('add-gas-button');
-    const printTableButton = document.getElementById('print-table-button'); // NUOVO: Pulsante Stampa
+    const printTableButton = document.getElementById('print-table-button');
     console.log("gas.js: addGasButton element:", addGasButton);
     const noGasMessage = document.getElementById('no-gas-message');
-    const headerLogo = document.querySelector('.app-header .logo'); // Seleziona il logo per il click
+    const headerLogo = document.querySelector('.app-header .logo');
 
     // Elementi del Modal Bombole Gas
     const gasModalOverlay = document.getElementById('gas-modal-overlay');
@@ -69,10 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // NUOVO: Listener per il click sul logo (torna alla Home)
     if (headerLogo) {
         headerLogo.addEventListener('click', () => {
-            window.location.href = '../../index.html'; // Percorso relativo alla Home
+            window.location.href = '../../index.html';
         });
     }
 
@@ -87,7 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
         gasFormFeedback.classList.add('hidden');
     };
 
-    const formatDate = (dateString) => {
+    // NUOVO: Funzione per formattare la data per la visualizzazione nella tabella
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return 'N/D';
+        // Prova a creare un oggetto Date. Se fallisce, usiamo la stringa originale
+        let dateObj;
+        try {
+            dateObj = new Date(dateString);
+            // Se la stringa è già nel formato 'GG/MM/AA' o 'AAAA-MM-GG', non formattiamo ulteriormente
+            // Questo evita la conversione di "11/09/25" in "11/09/2025" o simili, mantenedo il tuo formato Excel.
+            if (dateString.match(/^\d{2}\/\d{2}\/\d{2}$/) || dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                return dateString;
+            }
+            // Se è un oggetto Date valido e non era già in un formato desiderato, lo formattiamo.
+            if (!isNaN(dateObj.getTime())) {
+                const day = dateObj.getDate().toString().padStart(2, '0');
+                const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // Mesi sono 0-based
+                const year = dateObj.getFullYear().toString().substring(2); // Prende le ultime due cifre
+                return `${day}/${month}/${year}`;
+            }
+        } catch (e) {
+            console.warn("gas.js: Error parsing date for display, using original string:", dateString, e);
+        }
+        return dateString; // Se non riusciamo a formattare, restituisci la stringa originale
+    };
+
+    // La funzione formatDate originale per gli input type="date" (YYYY-MM-DD)
+    const formatDateForInput = (dateString) => { // RINOMINATA per chiarezza
         if (!dateString) return '';
         try {
             const date = new Date(dateString);
@@ -99,10 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const day = date.getDate().toString().padStart(2, '0');
             return `${year}-${month}-${day}`;
         } catch (e) {
-            console.warn("gas.js: Could not parse date string:", dateString, e);
+            console.warn("gas.js: Could not parse date string for input:", dateString, e);
             return dateString;
         }
     };
+
 
     // --- Logica Modal ---
     const openGasModal = (cylinderData = null) => {
@@ -118,10 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
             gasMatricolaOriginalInput.value = cylinderData.matricola || '';
             gasMatricolaInput.disabled = true;
             gasLitriInput.value = cylinderData.litri || '';
-            gasDataRicezioneInput.value = formatDate(cylinderData.data_ricezione);
+            gasDataRicezioneInput.value = formatDateForInput(cylinderData.data_ricezione); // Usa formatDateForInput
             gasNoleggiatoAInput.value = cylinderData.noleggiato_a || '';
-            gasDataAperturaNoleggioInput.value = formatDate(cylinderData.data_apertura_noleggio);
-            gasDataChiusuraNoleggioInput.value = formatDate(cylinderData.data_chiusura_noleggio);
+            gasDataAperturaNoleggioInput.value = formatDateForInput(cylinderData.data_apertura_noleggio); // Usa formatDateForInput
+            gasDataChiusuraNoleggioInput.value = formatDateForInput(cylinderData.data_chiusura_noleggio); // Usa formatDateForInput
         } else {
             gasModalTitle.textContent = 'Aggiungi Nuova Bombola Gas';
             gasMatricolaInput.disabled = false;
@@ -131,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const year = today.getFullYear();
             const month = (today.getMonth() + 1).toString().padStart(2, '0');
             const day = today.getDate().toString().padStart(2, '0');
-            gasDataRicezioneInput.value = `${year}-${month}-${day}`;
+            gasDataRicezioneInput.value = `${year}-${month}-${day}`; // Formato YYYY-MM-DD per input type="date"
         }
         gasModalOverlay.classList.add('visible');
         console.log("gas.js: Added 'visible' class to modal overlay. Modal should be visible.");
@@ -155,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (printTableButton) { // NUOVO: Listener per il pulsante Stampa
+    if (printTableButton) {
         console.log("gas.js: Attaching click listener to printTableButton.");
         printTableButton.addEventListener('click', () => {
             console.log("gas.js: 'Stampa Tabella' button clicked!");
@@ -193,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const printWindow = window.open('', '', 'height=600,width=800');
         printWindow.document.write('<html><head><title>Stampa Bombole Gas</title>');
-        // Includi solo il CSS necessario per la tabella e il testo
         printWindow.document.write('<link rel="stylesheet" href="../../style.css" type="text/css" />');
         printWindow.document.write('<style>');
         printWindow.document.write(`
@@ -211,14 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
         printWindow.document.write('</style>');
         printWindow.document.write('</head><body>');
         printWindow.document.write('<h2>Gestione Bombole Gas a Noleggio</h2>');
-        printWindow.document.write(table.outerHTML); // Includi l'HTML della tabella
+        printWindow.document.write(table.outerHTML);
         printWindow.document.write('</body></html>');
         printWindow.document.close();
         printWindow.focus();
         printWindow.print();
         printWindow.close();
 
-        table.style.display = originalDisplay; // Ripristina lo stile originale
+        table.style.display = originalDisplay;
     };
 
     // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
@@ -242,7 +267,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({
                     action: action,
                     sheetName: 'gas',
-                    ...data
+                    // Qui inviamo la data nel formato YYYY-MM-DD per il foglio
+                    tipologia_gas: data.tipologia_gas,
+                    matricola: data.matricola,
+                    litri: data.litri,
+                    data_ricezione: data.data_ricezione, // Il frontend invia YYYY-MM-DD
+                    noleggiato_a: data.noleggiato_a,
+                    data_apertura_noleggio: data.data_apertura_noleggio,
+                    data_chiusura_noleggio: data.data_chiusura_noleggio,
                 }),
             });
             console.log(`gas.js: Action '${action}' sent. Assuming success (due to no-cors).`);
@@ -270,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 data_chiusura_noleggio: gasDataChiusuraNoleggioInput.value || '',
             };
 
-            // Validazione: solo la matricola è obbligatoria e i litri devono essere un numero valido (anche 0)
             if (!cylinderData.matricola) {
                 showFeedback('La Matricola è un campo obbligatorio.', 'error');
                 console.warn("gas.js: Validation failed: Matricola is required.");
@@ -301,8 +332,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFeedback('Operazione completata con successo! Aggiorno i dati...', 'success');
                 setTimeout(() => {
                     closeGasModal();
-                    fetchAndDisplayGasCylinders(); // Aggiorna i dati da Firestore
-                }, 1500); // Ritardo per dare tempo ad Apps Script di sincronizzare con Firestore
+                    fetchAndDisplayGasCylinders();
+                }, 1500);
             } else {
                 showFeedback(`Errore: ${result.message}`, 'error');
             }
@@ -310,18 +341,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Carica e Mostra Bombole Gas ---
-    // MODIFICATO: Aggiunto { source: 'server' } per forzare la lettura dei dati più recenti
     const fetchAndDisplayGasCylinders = async () => {
         console.log("gas.js: Fetching and displaying gas cylinders from Firestore.");
         try {
-            // Forziamo la lettura dei dati direttamente dal server Firestore, ignorando la cache locale
             const snapshot = await db.collection('gasCylinders').get({ source: 'server' }); 
             allGasCylinders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderGasTable(allGasCylinders);
             console.log(`gas.js: Found ${allGasCylinders.length} gas cylinders.`);
         } catch (error) {
             console.error("gas.js: Errore nel caricamento delle bombole gas da Firestore:", error);
-            gasTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Errore nel caricamento delle bombole gas. ${error.message}</td></tr>`; // Modificato colspan a 7
+            gasTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Errore nel caricamento delle bombole gas. ${error.message}</td></tr>`;
             if (noGasMessage) noGasMessage.style.display = 'block';
         }
     };
@@ -342,10 +371,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${cylinder.tipologia_gas || 'N/D'}</td>
                 <td>${cylinder.matricola || 'N/D'}</td>
                 <td>${cylinder.litri !== undefined && cylinder.litri !== null ? cylinder.litri : 'N/D'}</td>
-                <td>${cylinder.data_ricezione || 'N/D'}</td>
+                <td>${formatDateForDisplay(cylinder.data_ricezione)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
                 <td>${cylinder.noleggiato_a || 'N/D'}</td>
-                <td>${cylinder.data_apertura_noleggio || 'N/D'}</td>
-                <td>${cylinder.data_chiusura_noleggio || 'N/D'}</td>
+                <td>${formatDateForDisplay(cylinder.data_apertura_noleggio)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
+                <td>${formatDateForDisplay(cylinder.data_chiusura_noleggio)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
                 <td class="actions-cell">
                     <button class="action-btn edit" title="Modifica"><i class="fas fa-edit"></i></button>
                     <button class="action-btn delete" title="Elimina"><i class="fas fa-trash-alt"></i></button>
@@ -365,9 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 cylinder.matricola?.toLowerCase().includes(query) ||
                 String(cylinder.litri)?.includes(query) ||
                 cylinder.noleggiato_a?.toLowerCase().includes(query) ||
-                cylinder.data_ricezione?.includes(query) ||
-                cylinder.data_apertura_noleggio?.includes(query) ||
-                cylinder.data_chiusura_noleggio?.includes(query)
+                // MODIFICATO: La ricerca per data dovrebbe funzionare sul formato visualizzato
+                formatDateForDisplay(cylinder.data_ricezione).toLowerCase().includes(query) ||
+                formatDateForDisplay(cylinder.data_apertura_noleggio).toLowerCase().includes(query) ||
+                formatDateForDisplay(cylinder.data_chiusura_noleggio).toLowerCase().includes(query)
             );
             renderGasTable(filteredCylinders);
         });
