@@ -14,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
     const btnFgas = document.getElementById('btn-fgas');
     const submenuFgas = document.getElementById('submenu-fgas');
+    // NUOVO: Elementi per il sottomenu Noleggi
+    const btnNoleggi = document.getElementById('btn-noleggi');
+    const submenuNoleggi = document.getElementById('submenu-noleggi');
+
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -34,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allSearchableData = [];
     let currentlyDisplayedResults = [];
     let isDataFetched = false;
-    const currentlyOpenSubmenu = { btn: null, menu: null };
+    let currentlyOpenSubmenu = { btn: null, menu: null }; // MODIFICATO: da const a let
 
     // 3. FUNZIONI
     const toggleSubmenu = (button, submenu) => {
@@ -279,7 +283,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const price = formatPrice(item[item.config.price_field]);
                 const codeInfo = `Codice: ${item[item.config.code_field] || 'N/D'}`;
 
-                // --- ERRORE DI BATTITURA CORRETTO ---
                 resultElement.innerHTML = `
                     <div class="result-info">
                         <div class="result-header">
@@ -299,6 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // 4. EVENT LISTENERS
+    // NUOVO: Listener per il pulsante Noleggi
+    if (btnNoleggi) { btnNoleggi.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnNoleggi, submenuNoleggi); }); }
+
     if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
     if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
     if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
@@ -316,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultIndex = parseInt(resultItem.dataset.resultIndex, 10);
             const product = currentlyDisplayedResults[resultIndex];
             if (product) {
+                // MODIFICATO: Rimossa la logica specifica per le bombole gas dalla ricerca Home
                 populateAndShowModal(product);
                 searchResultsContainer.style.display = 'none'; 
                 searchInput.value = '';
@@ -362,7 +369,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.addEventListener('click', (e) => {
+        // Chiude i sottomenu aperti cliccando fuori
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(e.target) && !currentlyOpenSubmenu.btn.contains(e.target)) toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
+        // Nasconde i risultati di ricerca se si clicca fuori
         if (searchResultsContainer && !searchResultsContainer.contains(e.target) && e.target !== searchInput) searchResultsContainer.style.display = 'none';
     });
 
