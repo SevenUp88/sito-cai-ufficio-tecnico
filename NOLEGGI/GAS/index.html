@@ -51,7 +51,7 @@
                             <th>TIPOLOGIA GAS</th>
                             <th>MATRICOLA</th>
                             <th>LITRI</th>
-                            <th>QUANTITÀ</th>
+                            <!-- RIMOSSO: QUANTITÀ -->
                             <th>DATA RICEZIONE</th>
                             <th>NOLEGGIATO A</th>
                             <th>DATA APERTURA NOLEGGIO</th>
@@ -77,35 +77,32 @@
                 <input type="hidden" id="gas-form-matricola-original"> <!-- Per salvare la matricola originale in caso di modifica -->
                 <div class="form-group">
                     <label for="gas-tipologia-gas">Tipologia Gas:</label>
-                    <input type="text" id="gas-tipologia-gas" required>
+                    <input type="text" id="gas-tipologia-gas"> <!-- RIMOSSO: required -->
                 </div>
                 <div class="form-group">
                     <label for="gas-matricola">Matricola:</label>
-                    <input type="text" id="gas-matricola" required>
+                    <input type="text" id="gas-matricola" required> <!-- MANTENUTO: required (identificatore unico) -->
                 </div>
                 <div class="form-group">
                     <label for="gas-litri">Litri:</label>
-                    <input type="number" id="gas-litri" min="1" required>
+                    <input type="number" id="gas-litri" min="0"> <!-- RIMOSSO: required, min="1" cambiato in "0" per flessibilità -->
                 </div>
-                <div class="form-group">
-                    <label for="gas-quantita">Quantità:</label>
-                    <input type="number" id="gas-quantita" min="1" required>
-                </div>
+                <!-- RIMOSSO: DIV INTERO PER QUANTITÀ -->
                 <div class="form-group">
                     <label for="gas-data-ricezione">Data Ricezione:</label>
-                    <input type="date" id="gas-data-ricezione">
+                    <input type="date" id="gas-data-ricezione"> <!-- RIMOSSO: required, sarà auto-popolato -->
                 </div>
                 <div class="form-group">
                     <label for="gas-noleggiato-a">Noleggiato a (Cliente):</label>
-                    <input type="text" id="gas-noleggiato-a" required>
+                    <input type="text" id="gas-noleggiato-a"> <!-- RIMOSSO: required -->
                 </div>
                 <div class="form-group">
                     <label for="gas-data-apertura-noleggio">Data Apertura Noleggio:</label>
-                    <input type="date" id="gas-data-apertura-noleggio">
+                    <input type="date" id="gas-data-apertura-noleggio"> <!-- RIMOSSO: required -->
                 </div>
                 <div class="form-group">
                     <label for="gas-data-chiusura-noleggio">Data Chiusura Noleggio:</label>
-                    <input type="date" id="gas-data-chiusura-noleggio">
+                    <input type="date" id="gas-data-chiusura-noleggio"> <!-- RIMOSSO: required -->
                 </div>
                 <p id="gas-form-feedback" class="feedback-message hidden"></p>
                 <div class="gas-modal-buttons">
