@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAI - Gestione Bombole Gas a Noleggio</title>
+
+    <!-- Percorso al CSS principale, assumendo che gas.html sia in NOLEGGI/ -->
+    <link rel="stylesheet" href="../style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* Stili specifici per la pagina Gas, puoi spostarli in style.css se preferisci */
+        #gas-management-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #gas-management-content h2 {
+            color: #0056a8;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #gas-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        #gas-search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1em;
+            max-width: 400px;
+        }
+        #add-gas-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #add-gas-button:hover {
+            background-color: #218838;
+        }
+        .gas-table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        .gas-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+        .gas-table th, .gas-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        .gas-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
+            color: #343a40;
+            position: sticky;
+            top: 0;
+            z-index: 1; /* Assicura che le intestazioni rimangano sopra il contenuto scrollabile */
+        }
+        .gas-table tbody tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .gas-table tbody tr:hover {
+            background-color: #e9ecef;
+        }
+        .gas-table .actions-cell {
+            white-space: nowrap; /* Evita che i bottoni vadano a capo */
+            width: 1%; /* Tenta di adattarsi al contenuto */
+        }
+        .gas-table .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 0 5px;
+            color: #0056a8;
+        }
+        .gas-table .action-btn.edit:hover { color: #004182; }
+        .gas-table .action-btn.delete { color: #dc3545; }
+        .gas-table .action-btn.delete:hover { color: #c82333; }
+
+        /* Modal per Aggiunta/Modifica Bombola Gas */
+        #gas-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 1060;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #gas-modal-overlay.visible {
+            opacity: 1; visibility: visible;
+        }
+        .gas-modal-container {
+            background: #ffffff; padding: 25px 30px; border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px;
+            position: relative;
+        }
+        .gas-modal-container h3 {
+            color: #0056a8; margin-top: 0; margin-bottom: 20px;
+            text-align: center;
+        }
+        .gas-modal-container .form-group {
+            margin-bottom: 15px;
+        }
+        .gas-modal-container .form-group label {
+            display: block; margin-bottom: 5px; font-weight: 500;
+        }
+        .gas-modal-container .form-group input,
+        .gas-modal-container .form-group select {
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+            font-size: 1em;
+        }
+        .gas-modal-buttons {
+            display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+        }
+        .gas-modal-buttons .btn {
+            padding: 10px 20px; border-radius: 5px; cursor: pointer;
+            font-size: 1em;
+        }
+        .gas-modal-buttons .btn-primary {
+            background-color: #0056a8; color: white; border: none;
+        }
+        .gas-modal-buttons .btn-primary:hover { background-color: #004182; }
+        .gas-modal-buttons .btn-secondary {
+            background-color: #6c757d; color: white; border: none;
+        }
+        .gas-modal-buttons .btn-secondary:hover { background-color: #5a6268; }
+        .gas-modal-close-btn {
+            position: absolute; top: 10px; right: 15px; background: none; border: none;
+            font-size: 2em; line-height: 1; color: #aaa; cursor: pointer;
+        }
+        .feedback-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .feedback-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .feedback-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader iniziale -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Caricamento pagina...</p>
+    </div>
+
+    <!-- Header dell'Applicazione -->
+    <header class="app-header">
+        <!-- Percorso al logo, corretto per la posizione di gas.html -->
+        <img src="../LOGO CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        <div class="header-controls">
+            <!-- Questo pulsante può essere nascosto se non vuoi aggiungere categorie dalla pagina gas -->
+            <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
+                <i class="fas fa-plus-circle"></i>
+            </button>
+            <!-- Dashboard utente (visibile dopo il login) -->
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Area principale del contenuto -->
+    <main id="content-area">
+        <div id="gas-management-content">
+            <h2>Gestione Bombole Gas a Noleggio</h2>
+
+            <div id="gas-controls">
+                <input type="text" id="gas-search-input" placeholder="Cerca bombola per gas, matricola, cliente..." aria-label="Cerca bombola gas">
+                <button id="add-gas-button"><i class="fas fa-plus-circle"></i> Aggiungi Bombola</button>
+            </div>
+
+            <div class="gas-table-container">
+                <table class="gas-table">
+                    <thead>
+                        <tr>
+                            <th>TIPOLOGIA GAS</th>
+                            <th>MATRICOLA</th>
+                            <th>LITRI</th>
+                            <th>NOLEGGIATO A</th>
+                            <th>QUANTITÀ</th>
+                            <th>DATA RICEZIONE</th>
+                            <th>DATA APERTURA NOLEGGIO</th>
+                            <th>DATA CHIUSURA NOLEGGIO</th>
+                            <th>AZIONI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gas-table-body">
+                        <!-- I dati delle bombole gas verranno caricati qui dallo script JS -->
+                    </tbody>
+                </table>
+                <p id="no-gas-message" style="text-align: center; margin-top: 20px; display: none;">Nessuna bombola gas trovata.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal per Aggiunta/Modifica Bombola Gas -->
+    <div id="gas-modal-overlay">
+        <div class="gas-modal-container">
+            <button class="gas-modal-close-btn" id="close-gas-modal-btn">×</button>
+            <h3 id="gas-modal-title">Aggiungi Nuova Bombola Gas</h3>
+            <form id="gas-form">
+                <input type="hidden" id="gas-form-matricola-original"> <!-- Per salvare la matricola originale in caso di modifica -->
+                <div class="form-group">
+                    <label for="gas-tipologia-gas">Tipologia Gas:</label>
+                    <input type="text" id="gas-tipologia-gas" required>
+                </div>
+                <div class="form-group">
+                    <label for="gas-matricola">Matricola:</label>
+                    <input type="text" id="gas-matricola" required>
+                </div>
+                <div class="form-group">
+                    <label for="gas-litri">Litri:</label>
+                    <input type="number" id="gas-litri" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="gas-noleggiato-a">Noleggiato a (Cliente):</label>
+                    <input type="text" id="gas-noleggiato-a" required>
+                </div>
+                <div class="form-group">
+                    <label for="gas-quantita">Quantità:</label>
+                    <input type="number" id="gas-quantita" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="gas-data-ricezione">Data Ricezione:</label>
+                    <input type="date" id="gas-data-ricezione">
+                </div>
+                <div class="form-group">
+                    <label for="gas-data-apertura-noleggio">Data Apertura Noleggio:</label>
+                    <input type="date" id="gas-data-apertura-noleggio">
+                </div>
+                <div class="form-group">
+                    <label for="gas-data-chiusura-noleggio">Data Chiusura Noleggio:</label>
+                    <input type="date" id="gas-data-chiusura-noleggio">
+                </div>
+                <p id="gas-form-feedback" class="feedback-message hidden"></p>
+                <div class="gas-modal-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancel-gas-modal-btn">Annulla</button>
+                    <button type="submit" class="btn btn-primary" id="save-gas-button">Salva Bombola</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Riutilizza l'overlay generico per i popup se necessario, altrimenti il modal overlay basta -->
+    <div id="admin-overlay" class="overlay hidden"></div>
+
+    <!-- Script di Firebase e Script Applicativi -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Percorsi ai file di configurazione e auth, corretti per la posizione di gas.html -->
+    <script src="../firebase-config.js"></script>
+    <script src="../auth.js"></script>
+    <script src="gas.js"></script> <!-- Script specifico per la pagina gas -->
+</body>
+</html>
