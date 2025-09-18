@@ -258,15 +258,30 @@ body.modal-open { overflow: hidden; }
     background-color: rgba(0,0,0,0.6);
     z-index: 1060;
     display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* MODIFICHE PER FISSARE IL LAYOUT */
+    padding: 20px; /* Aggiunge un po' di respiro ai bordi */
+    box-sizing: border-box; /* Assicura che padding non espanda la width/height oltre il 100% */
+
+    opacity: 0; 
+    visibility: hidden; 
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 #gas-modal-overlay.visible {
-    opacity: 1; visibility: visible;
+    opacity: 1; 
+    visibility: visible;
 }
 .gas-modal-container {
-    background: #ffffff; padding: 25px 30px; border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px;
+    background: #ffffff; 
+    padding: 25px 30px; 
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+    width: 100%; /* Permette di occupare la larghezza disponibile */
+    max-width: 600px; /* Limita la larghezza massima del modal */
     position: relative;
+    /* NEW: Per prevenire overflow del contenuto interno */
+    overflow-y: auto; 
+    max-height: 90vh; /* Limita l'altezza del modal, aggiunge scroll se necessario */
+    box-sizing: border-box; /* Molto importante per padding e larghezza */
 }
 .gas-modal-container h3 {
     color: #0056a8; margin-top: 0; margin-bottom: 20px;
@@ -280,8 +295,12 @@ body.modal-open { overflow: hidden; }
 }
 .gas-modal-container .form-group input,
 .gas-modal-container .form-group select {
-    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px;
     font-size: 1em;
+    box-sizing: border-box; /* Essenziale qui per evitare overflow */
 }
 .gas-modal-buttons {
     display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
@@ -301,6 +320,7 @@ body.modal-open { overflow: hidden; }
 .gas-modal-close-btn {
     position: absolute; top: 10px; right: 15px; background: none; border: none;
     font-size: 2em; line-height: 1; color: #aaa; cursor: pointer;
+    z-index: 1; /* Assicura che il pulsante sia cliccabile */
 }
 .feedback-message {
     margin-top: 15px;
