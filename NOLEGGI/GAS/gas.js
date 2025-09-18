@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("gas.js: DOMContentLoaded fired.");
 
-    // Assicurati che Firebase sia inizializzato globalmente (da firebase-config.js)
     if (typeof firebase === 'undefined' || !window.db || !window.auth) {
         console.error("Firebase non caricato o non inizializzato correttamente. Assicurati che firebase-config.js sia incluso prima.");
         return;
@@ -19,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const gasTableBody = document.getElementById('gas-table-body');
     const gasSearchInput = document.getElementById('gas-search-input');
     const addGasButton = document.getElementById('add-gas-button');
+    const printTableButton = document.getElementById('print-table-button'); // NUOVO: Pulsante Stampa
     console.log("gas.js: addGasButton element:", addGasButton);
     const noGasMessage = document.getElementById('no-gas-message');
+    const headerLogo = document.querySelector('.app-header .logo'); // Seleziona il logo per il click
 
     // Elementi del Modal Bombole Gas
     const gasModalOverlay = document.getElementById('gas-modal-overlay');
@@ -65,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutButton.addEventListener('click', () => {
             console.log("gas.js: Logout button clicked.");
             auth.signOut();
+        });
+    }
+
+    // NUOVO: Listener per il click sul logo (torna alla Home)
+    if (headerLogo) {
+        headerLogo.addEventListener('click', () => {
+            window.location.href = '../../index.html'; // Percorso relativo alla Home
         });
     }
 
@@ -118,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gasModalTitle.textContent = 'Aggiungi Nuova Bombola Gas';
             gasMatricolaInput.disabled = false;
             gasMatricolaOriginalInput.value = '';
-            // NUOVO: Auto-popola la data di ricezione con la data odierna
+            // Auto-popola la data di ricezione con la data odierna
             const today = new Date();
             const year = today.getFullYear();
             const month = (today.getMonth() + 1).toString().padStart(2, '0');
@@ -139,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- EVENT LISTENERS ---
 
-    // Listener per il pulsante "Aggiungi Bombola"
     if (addGasButton) {
         console.log("gas.js: Attaching click listener to addGasButton.");
         addGasButton.addEventListener('click', () => {
@@ -148,7 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Listener per i pulsanti di chiusura/annullamento del modal
+    if (printTableButton) { // NUOVO: Listener per il pulsante Stampa
+        console.log("gas.js: Attaching click listener to printTableButton.");
+        printTableButton.addEventListener('click', () => {
+            console.log("gas.js: 'Stampa Tabella' button clicked!");
+            printGasTable();
+        });
+    }
+
     if (closeGasModalBtn) {
         console.log("gas.js: Attaching click listener to closeGasModalBtn.");
         closeGasModalBtn.addEventListener('click', closeGasModal);
@@ -158,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cancelGasModalBtn.addEventListener('click', closeGasModal);
     }
 
-    // Listener per chiudere il modal cliccando sull'overlay
     if (gasModalOverlay) {
         console.log("gas.js: Attaching click listener to gasModalOverlay.");
         gasModalOverlay.addEventListener('click', (e) => {
@@ -166,12 +179,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Funzione per la stampa della tabella ---
+    const printGasTable = () => {
+        const table = document.getElementById('gas-data-table');
+        if (!table) {
+            console.error("gas.js: Table to print not found!");
+            alert("Errore: la tabella da stampare non è stata trovata.");
+            return;
+        }
+
+        const originalDisplay = table.style.display;
+        table.style.display = 'table'; // Assicurati che sia visibile per la stampa
+
+        const printWindow = window.open('', '', 'height=600,width=800');
+        printWindow.document.write('<html><head><title>Stampa Bombole Gas</title>');
+        // Includi solo il CSS necessario per la tabella e il testo
+        printWindow.document.write('<link rel="stylesheet" href="../../style.css" type="text/css" />');
+        printWindow.document.write('<style>');
+        printWindow.document.write(`
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }
+            h2 { color: #0056a8; text-align: center; margin-bottom: 20px; }
+            .gas-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            .gas-table th, .gas-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+            .gas-table th { background-color: #f2f2f2; }
+            .gas-table .actions-cell { display: none; } /* Nasconde la colonna azioni in stampa */
+            @media print {
+                body { margin: 0; padding: 0; }
+                .gas-table th, .gas-table td { border-color: #000; } /* Bordo più scuro per la stampa */
+            }
+        `);
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head><body>');
+        printWindow.document.write('<h2>Gestione Bombole Gas a Noleggio</h2>');
+        printWindow.document.write(table.outerHTML); // Includi l'HTML della tabella
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+
+        table.style.display = originalDisplay; // Ripristina lo stile originale
+    };
+
     // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
-    // URL EFFETTIVO DELLA TUA WEB APP DEPLOYATA (come da tua indicazione)
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; 
 
     const sendDataToGoogleSheet = async (action, data) => {
-        if (!WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) { // Controlliamo solo se è un URL valido
+        if (!WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) {
             console.error("ERRORE: WEB_APP_URL non configurato o non valido.");
             showFeedback("Errore di configurazione: URL della Web App non impostato o non valido.", "error");
             return { status: 'error', message: "WEB_APP_URL non configurato." };
@@ -222,12 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.warn("gas.js: Validation failed: Matricola is required.");
                 return;
             }
-            // Verifica se il campo litri è vuoto o non un numero valido, e imposta a 0 se necessario
             if (gasLitriInput.value.trim() === '' || isNaN(cylinderData.litri) || cylinderData.litri < 0) {
-                 cylinderData.litri = 0; // Imposta a 0 se vuoto o non valido
-                 gasLitriInput.value = 0; // Aggiorna il campo input nel form per coerenza
+                 cylinderData.litri = 0;
+                 gasLitriInput.value = 0;
             }
-
 
             let result;
             if (isEditMode) {
@@ -249,8 +301,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 showFeedback('Operazione completata con successo! Aggiorno i dati...', 'success');
                 setTimeout(() => {
                     closeGasModal();
-                    fetchAndDisplayGasCylinders();
-                }, 1500);
+                    fetchAndDisplayGasCylinders(); // Aggiorna i dati da Firestore
+                }, 1500); // Ritardo per dare tempo ad Apps Script di sincronizzare con Firestore
             } else {
                 showFeedback(`Errore: ${result.message}`, 'error');
             }
@@ -258,10 +310,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Carica e Mostra Bombole Gas ---
+    // MODIFICATO: Aggiunto { source: 'server' } per forzare la lettura dei dati più recenti
     const fetchAndDisplayGasCylinders = async () => {
         console.log("gas.js: Fetching and displaying gas cylinders from Firestore.");
         try {
-            const snapshot = await db.collection('gasCylinders').get();
+            // Forziamo la lettura dei dati direttamente dal server Firestore, ignorando la cache locale
+            const snapshot = await db.collection('gasCylinders').get({ source: 'server' }); 
             allGasCylinders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderGasTable(allGasCylinders);
             console.log(`gas.js: Found ${allGasCylinders.length} gas cylinders.`);
