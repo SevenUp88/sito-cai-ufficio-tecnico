@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gasTableBody = document.getElementById('gas-table-body');
     const gasSearchInput = document.getElementById('gas-search-input');
     const addGasButton = document.getElementById('add-gas-button');
+    console.log("gas.js: addGasButton element:", addGasButton);
     const noGasMessage = document.getElementById('no-gas-message');
 
     // Elementi del Modal Bombole Gas
@@ -100,6 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Logica Modal ---
     const openGasModal = (cylinderData = null) => {
+        console.log("gas.js: openGasModal called with data:", cylinderData); // Questo dirà se la funzione viene chiamata
         gasForm.reset();
         hideFeedback();
         isEditMode = !!cylinderData; // Se ci sono dati, siamo in modalità modifica
@@ -126,14 +128,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeGasModal = () => {
         gasModalOverlay.classList.remove('visible');
+        console.log("gas.js: Added 'visible' class to modal overlay.");
         gasForm.reset();
         hideFeedback();
         gasMatricolaInput.disabled = false; // Riabilita per la prossima aggiunta
     };
 
     // Event Listeners per il Modal
-    if (addGasButton) addGasButton.addEventListener('click', () => openGasModal());
-    if (closeGasModalBtn) closeGasModalBtn.addEventListener('click', closeGasModal);
+    if (addGasButton) {
+        console.log("gas.js: Attaching click listener to addGasButton."); addGasButton.addEventListener('click', () => openGasModal());
+    console.log("gas.js: 'Aggiungi Bombola' button clicked!");
+        if (closeGasModalBtn) closeGasModalBtn.addEventListener('click', closeGasModal);
     if (cancelGasModalBtn) cancelGasModalBtn.addEventListener('click', closeGasModal);
     if (gasModalOverlay) {
         gasModalOverlay.addEventListener('click', (e) => {
