@@ -170,10 +170,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
     // !!! SOSTITUISCI QUESTO URL CON L'URL EFFETTIVO DELLA TUA WEB APP DEPLOYATA !!!
-    const WEB_APP_URL = 'YOUR_WEB_APP_URL_HERE'; // VERIFICA CHE SIA L'URL CORRETTO
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; // VERIFICA CHE SIA L'URL CORRETTO
 
     const sendDataToGoogleSheet = async (action, data) => {
-        if (WEB_APP_URL === 'YOUR_WEB_APP_URL_HERE' || !WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) {
+        if (WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec' || !WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) {
             console.error("ERRORE: WEB_APP_URL non configurato o non valido.");
             showFeedback("Errore di configurazione: URL della Web App non impostato o non valido.", "error");
             return { status: 'error', message: "WEB_APP_URL non configurato." };
