@@ -1,4 +1,3 @@
-```javascript
 document.addEventListener('DOMContentLoaded', () => {
     // Assicurati che Firebase sia inizializzato globalmente (da firebase-config.js)
     if (typeof firebase === 'undefined' || !window.db || !window.auth) {
