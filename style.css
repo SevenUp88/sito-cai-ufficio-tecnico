@@ -159,3 +159,162 @@ body.modal-open { overflow: hidden; }
     background: none; border: none; z-index: 1110;
     text-shadow: 0 1px 3px rgba(0,0,0,0.7);
 }
+
+/* ========================================================== */
+/*           Stili Specifici per la pagina Gas             */
+/* ========================================================== */
+#gas-management-content {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+#gas-management-content h2 {
+    color: #0056a8;
+    margin-bottom: 20px;
+    text-align: center;
+}
+#gas-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+#gas-search-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    max-width: 400px;
+}
+#add-gas-button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#add-gas-button:hover {
+    background-color: #218838;
+}
+.gas-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+.gas-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+.gas-table th, .gas-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+    vertical-align: top;
+}
+.gas-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    color: #343a40;
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Assicura che le intestazioni rimangano sopra il contenuto scrollabile */
+}
+.gas-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+.gas-table tbody tr:hover {
+    background-color: #e9ecef;
+}
+.gas-table .actions-cell {
+    white-space: nowrap; /* Evita che i bottoni vadano a capo */
+    width: 1%; /* Tenta di adattarsi al contenuto */
+}
+.gas-table .action-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1em;
+    margin: 0 5px;
+    color: #0056a8;
+}
+.gas-table .action-btn.edit:hover { color: #004182; }
+.gas-table .action-btn.delete { color: #dc3545; }
+.gas-table .action-btn.delete:hover { color: #c82333; }
+
+/* Modal per Aggiunta/Modifica Bombola Gas */
+#gas-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    z-index: 1060;
+    display: flex; justify-content: center; align-items: center;
+    opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#gas-modal-overlay.visible {
+    opacity: 1; visibility: visible;
+}
+.gas-modal-container {
+    background: #ffffff; padding: 25px 30px; border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 90%; max-width: 600px;
+    position: relative;
+}
+.gas-modal-container h3 {
+    color: #0056a8; margin-top: 0; margin-bottom: 20px;
+    text-align: center;
+}
+.gas-modal-container .form-group {
+    margin-bottom: 15px;
+}
+.gas-modal-container .form-group label {
+    display: block; margin-bottom: 5px; font-weight: 500;
+}
+.gas-modal-container .form-group input,
+.gas-modal-container .form-group select {
+    width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;
+    font-size: 1em;
+}
+.gas-modal-buttons {
+    display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;
+}
+.gas-modal-buttons .btn {
+    padding: 10px 20px; border-radius: 5px; cursor: pointer;
+    font-size: 1em;
+}
+.gas-modal-buttons .btn-primary {
+    background-color: #0056a8; color: white; border: none;
+}
+.gas-modal-buttons .btn-primary:hover { background-color: #004182; }
+.gas-modal-buttons .btn-secondary {
+    background-color: #6c757d; color: white; border: none;
+}
+.gas-modal-buttons .btn-secondary:hover { background-color: #5a6268; }
+.gas-modal-close-btn {
+    position: absolute; top: 10px; right: 15px; background: none; border: none;
+    font-size: 2em; line-height: 1; color: #aaa; cursor: pointer;
+}
+.feedback-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+.feedback-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.feedback-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
