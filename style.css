@@ -338,3 +338,12 @@ body.modal-open { overflow: hidden; }
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+.submenu-button.submenu-button-fornitori {
+    background-color: #495057; /* Un grigio scuro per lo sfondo */
+    color: white; /* Testo bianco */
+}
+
+.submenu-button.submenu-button-fornitori:hover {
+    background-color: #343a40; /* Un grigio ancora più scuro per l'hover */
+    color: white;
+}
