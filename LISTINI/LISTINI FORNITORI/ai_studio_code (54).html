@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listino Prezzi 2025 - General D'Aspirazione</title>
+    <style>
+        /* Questo CSS assicura che il lettore PDF occupi tutta la pagina */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* Evita le scrollbar sulla pagina principale */
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Rimuove il bordo predefinito dell'iframe */
+        }
+    </style>
+</head>
+<body>
+
+    <!--
+        L'attributo 'src' dell'iframe punta al viewer.html di PDF.js.
+        Il parametro 'file' specifica il percorso del tuo documento PDF.
+        Ho usato un percorso assoluto che parte dalla radice del tuo sito su Netlify.
+        Assicurati che gli spazi nel nome del file PDF siano codificati con '%20'.
+    -->
+    <iframe src="/pdfjs/web/viewer.html?file=/WEB%20APP%20CAI/LISTINI/LISTINI%20FORNITORI/2025_General%20Aspirazione.pdf"></iframe>
+
+</body>
+</html>
