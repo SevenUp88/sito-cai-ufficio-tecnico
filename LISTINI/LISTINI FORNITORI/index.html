@@ -181,7 +181,7 @@
         }
 
         /* Rimosso sidebar-footer per il pulsante "Torna alla Home" */
-        /* Rimosso .sidebar-footer completamente */
+        /* Il div .sidebar-footer è stato rimosso in HTML, non serve più il CSS */
 
 
         /* Area del visualizzatore PDF a destra */
@@ -194,18 +194,17 @@
             position: relative;
         }
 
-        /* Nasconde la scritta "Ricerca Listini Fornitori" quando un PDF è aperto */
-        .right-content-area.pdf-open h1 {
-            display: none;
-        }
+        /* Rimosso h1 dalla right-content-area, non serve più con il messaggio iniziale */
+
 
         #pdf-viewer-section {
             display: flex;
             flex-direction: column;
             height: 100%; /* Occupa tutta l'altezza disponibile */
-            padding: 30px; /* Padding qui, non sul RightContentArea */
+            padding: 30px; /* Padding qui */
             overflow-y: hidden; 
             transition: opacity 0.3s ease, visibility 0.3s ease;
+            /* Inizialmente nascosto */
             opacity: 0;
             visibility: hidden;
             z-index: 10;
@@ -229,32 +228,8 @@
             text-align: left;
             flex-grow: 1;
         }
-        /* Stile comune per i pulsanti di azione nel PDF Viewer */
-        .pdf-viewer-action-btn {
-            background-color: #6c757d;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.2s ease;
-            margin-left: 10px; /* Spazio tra i pulsanti */
-        }
-        .pdf-viewer-action-btn:hover {
-            background-color: #5a6268;
-        }
-        /* Stile specifico per il pulsante screenshot */
-        #screenshot-pdf-btn {
-            background-color: #28a745; /* Verde */
-        }
-        #screenshot-pdf-btn:hover {
-            background-color: #218838;
-        }
-
+        /* Rimosso .pdf-viewer-action-btn e #back-to-listini-btn e #screenshot-pdf-btn */
+        /* Non serve il CSS per pulsanti che non esistono più */
 
         #pdf-iframe-container {
             flex-grow: 1;
@@ -298,6 +273,27 @@
             height: 45px;
             width: auto;
             flex-shrink: 0;
+        }
+
+        /* Stili per il messaggio iniziale a destra */
+        .initial-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%; /* Occupare l'altezza per centrare il contenuto */
+            text-align: center;
+            padding: 30px;
+        }
+        .initial-message h1 {
+            font-size: 2.2em;
+            color: #0056a8;
+            margin-bottom: 20px;
+        }
+        .initial-message p {
+            font-size: 1.1em;
+            color: #6c757d;
+            max-width: 500px;
         }
 
         /* Responsive adjustments */
@@ -347,12 +343,16 @@
             }
             #pdf-viewer-section {
                 height: auto;
-                position: static;
+                position: static; /* Su mobile, non si sovrappone, ma scorre normalmente */
                 opacity: 1;
                 visibility: visible;
+                padding: 20px; /* Reimposta il padding per mobile */
             }
             #pdf-viewer-section.visible {
                 display: flex;
+            }
+            .initial-message {
+                padding: 20px;
             }
         }
     </style>
@@ -376,72 +376,4 @@
         <!-- Sidebar di sinistra -->
         <aside class="left-sidebar">
             <div class="sidebar-header">
-                <i class="fas fa-file-invoice"></i>
-                <h3>Listini Fornitori</h3>
-            </div>
-
-            <!-- Barra di ricerca nella sidebar -->
-            <div class="sidebar-search-input-group">
-                <i class="fas fa-search"></i>
-                <input type="text" id="listini-search-input" placeholder="Cerca per nome o anno..." autocomplete="off">
-            </div>
-
-            <!-- Contenitore dei risultati dei listini nella sidebar -->
-            <div id="listini-results-container-sidebar">
-                <!-- Loader specifico per i listini, posizionato all'interno dell'area dei risultati della sidebar -->
-                <div id="listini-loader" class="listini-sidebar-loader visible">
-                    <div class="loader-spinner"></div>
-                    <p>Caricamento listini...</p>
-                </div>
-                <!-- Qui verranno visualizzate le miniature dei listini -->
-            </div>
-            
-            <!-- Rimosso completamente il div .sidebar-footer che conteneva "Torna alla Home" -->
-            
-        </aside>
-
-        <!-- Area del visualizzatore PDF a destra -->
-        <main class="right-content-area" id="right-content-area">
-            <!-- Contenitore per il lettore PDF (visibile solo quando un PDF è selezionato) -->
-            <div id="pdf-viewer-section">
-                <div id="pdf-viewer-header">
-                    <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
-                    <div class="pdf-viewer-actions">
-                        <button id="screenshot-pdf-btn" class="pdf-viewer-action-btn" title="Cattura schermata del PDF">
-                            <i class="fas fa-camera"></i> Screenshot
-                        </button>
-                        <button id="back-to-listini-btn" class="pdf-viewer-action-btn" title="Chiudi il listino e torna alla ricerca">
-                            <i class="fas fa-times"></i> Chiudi PDF
-                        </button>
-                    </div>
-                </div>
-                <div id="pdf-iframe-container">
-                    <!-- L'iframe di PDF.js verrà iniettato qui -->
-                </div>
-            </div>
-
-            <!-- Messaggio di benvenuto o istruzioni iniziali -->
-            <div id="welcome-message-right" class="initial-message">
-                <h1>Seleziona un Listino</h1>
-                <p>Usa la barra di ricerca a sinistra per trovare i listini disponibili, poi clicca sulla miniatura per visualizzarli qui.</p>
-            </div>
-
-        </main>
-    </div>
-
-    <!-- Includi gli script Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
-    
-    <!-- I tuoi script di configurazione e autenticazione (percorsi relativi) -->
-    <script src="../../firebase-config.js"></script>
-    <script src="../../auth.js"></script> <!-- Per la gestione utente -->
-
-    <!-- Libreria html2canvas per lo screenshot (aggiunta per la funzionalità) -->
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-    <!-- Il tuo script per la logica di ricerca dei listini -->
-    <script src="script_listini.js"></script> 
-</body>
-</html>
+          
