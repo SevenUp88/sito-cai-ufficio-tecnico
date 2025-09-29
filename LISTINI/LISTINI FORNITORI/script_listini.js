@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsContainer = document.getElementById('listini-results-container');
     const listiniLoader = document.getElementById('listini-loader');
     
-    // Nuovi riferimenti DOM per il visualizzatore PDF integrato
-    const searchAndResultsSection = document.getElementById('search-and-results-section');
+    // Riferimenti DOM per il visualizzatore PDF integrato
+    const contentDisplayArea = document.getElementById('content-display-area'); // Nuovo contenitore padre
     const pdfViewerSection = document.getElementById('pdf-viewer-section');
     const pdfIframeContainer = document.getElementById('pdf-iframe-container');
     const backToListiniBtn = document.getElementById('back-to-listini-btn');
@@ -84,18 +84,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per aprire il PDF nel visualizzatore integrato
     function openPdfInViewer(pdfUrl, title) {
-        searchAndResultsSection.classList.add('hidden'); // Nasconde la sezione di ricerca
-        pdfViewerSection.classList.remove('hidden');    // Mostra la sezione del visualizzatore PDF
+        // Nasconde i risultati e mostra il visualizzatore
+        resultsContainer.classList.add('hidden'); 
+        pdfViewerSection.classList.add('visible');    // Usa 'visible' per la transizione di opacità/visibilità
         pdfViewerTitle.textContent = title;             // Imposta il titolo dinamico
         pdfIframeContainer.innerHTML = `<iframe src="${pdfUrl}" title="${title}"></iframe>`; // Inietta l'iframe
+        // Assicura che l'area contenitore padre sia scrollabile se il PDF è molto lungo
+        contentDisplayArea.scrollTop = 0; // Torna all'inizio dello scroll
     }
 
     // Funzione per tornare all'elenco dei listini
     function closePdfViewer() {
-        pdfViewerSection.classList.add('hidden');    // Nasconde la sezione del visualizzatore PDF
-        searchAndResultsSection.classList.remove('hidden'); // Mostra la sezione di ricerca
+        pdfViewerSection.classList.remove('visible');    // Nasconde la sezione del visualizzatore PDF
+        resultsContainer.classList.remove('hidden'); // Mostra la sezione di ricerca
         pdfIframeContainer.innerHTML = ''; // Pulisce l'iframe per liberare memoria
         pdfViewerTitle.textContent = ''; // Resetta il titolo
+        contentDisplayArea.scrollTop = 0; // Torna all'inizio dello scroll
     }
 
     // Listener per il pulsante "Torna ai Listini"
@@ -114,11 +118,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Avvia il caricamento dei listini quando la pagina è pronta
     loadListini();
 
-    // Eventuali logiche aggiuntive per la user-dashboard e logout
+    // Gestione dell'autenticazione per questa pagina (se necessario)
     // Se la dashboard utente o il logout sono gestiti altrove (es. auth.js)
     // assicurati che non ci siano conflitti. Potrebbe essere necessario inizializzare
     // la dashboard qui se auth.js non lo fa per questa specifica pagina.
-    // Esempio minimale per la user dashboard (potrebbe essere più complesso in auth.js)
     if (window.auth) {
         window.auth.onAuthStateChanged(user => {
             const userDashboard = document.getElementById('user-dashboard');
@@ -133,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (logoutButton) {
                 logoutButton.addEventListener('click', () => {
                     window.auth.signOut();
-                    // Potresti voler reindirizzare l'utente alla home o alla pagina di login
                     window.location.href = '../../index.html'; 
                 });
             }
