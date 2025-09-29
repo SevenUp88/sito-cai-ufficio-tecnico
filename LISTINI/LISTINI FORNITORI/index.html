@@ -92,28 +92,16 @@
             color: white;
         }
 
-        .sidebar-footer {
-            padding: 20px 15px 0;
-            border-top: 1px solid #e0e0e0;
-            margin-top: auto; /* Spinge il footer in basso */
-        }
-        .sidebar-footer .back-to-home {
-            background-color: #f0f2f5;
-            justify-content: center;
-            color: #0056a8;
-        }
-        .sidebar-footer .back-to-home:hover {
-            background-color: #e2e6ea;
-            color: #004182;
-        }
+        /* Rimosso sidebar-footer per il pulsante "Torna alla Home" */
 
 
         /* Area del contenuto a destra */
         .right-content-area {
             flex-grow: 1; /* Occupa tutto lo spazio rimanente */
             padding: 30px;
-            overflow-y: hidden; /* Contenitore principale non scrollabile, i suoi figli lo saranno */
             background-color: #f8f9fa;
+            display: flex; /* Utilizza flexbox per layout interno */
+            flex-direction: column; /* Gli elementi si impilano verticalmente */
             position: relative; /* Per posizionare il loader */
         }
 
@@ -126,6 +114,7 @@
         .search-input-group {
             margin-bottom: 30px;
             position: relative;
+            flex-shrink: 0; /* Non si restringe per lasciare spazio al contenuto sotto */
         }
         #listini-search-input {
             width: 100%;
@@ -148,14 +137,23 @@
             color: #0056a8;
             font-size: 1.2em;
         }
-        #listini-results-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Miniature più piccole */
-            gap: 20px;
+        
+        /* Contenitore per i risultati o il PDF viewer */
+        #content-display-area {
+            flex-grow: 1; /* Occupa lo spazio rimanente sotto la search bar */
+            overflow-y: auto; /* Permette lo scroll solo a questa sezione */
+            position: relative; /* Per posizionare il loader e i figli assoluti */
             padding-bottom: 20px; /* Spazio per lo scroll */
         }
+
+        #listini-results-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            /* Rimosso padding-bottom, ora gestito da #content-display-area */
+        }
         .listino-card {
-            background-color: #ffffff; /* Sfondo bianco per le card */
+            background-color: #ffffff;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
             padding: 15px;
@@ -166,7 +164,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            overflow: hidden; /* Per gestire immagini che potrebbero uscire */
+            overflow: hidden;
         }
         .listino-card:hover {
             border-color: #0056a8;
@@ -178,21 +176,21 @@
         /* Stili per la miniatura PDF */
         .listino-thumbnail {
             width: 100%;
-            height: 150px; /* Altezza fissa per le miniature */
-            background-color: #e9ecef; /* Sfondo grigio per placeholder */
+            height: 150px;
+            background-color: #e9ecef;
             border-radius: 6px;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden; /* Assicura che l'immagine non fuoriesca */
+            overflow: hidden;
             position: relative;
         }
         .listino-thumbnail img {
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain; /* Adatta l'immagine mantenendo le proporzioni */
-            position: absolute; /* Per centrare meglio */
+            object-fit: contain;
+            position: absolute;
         }
         .listino-thumbnail .fa-file-pdf {
             font-size: 4em;
@@ -200,18 +198,18 @@
         }
 
         .listino-card h2 {
-            font-size: 1.1em; /* Dimensione ridotta per titolo */
+            font-size: 1.1em;
             color: #0056a8;
             margin-bottom: 5px;
-            flex-grow: 1; /* Fa in modo che il titolo occupi spazio */
+            flex-grow: 1;
         }
         .listino-card p {
-            font-size: 0.8em; /* Dimensione ridotta per testo */
+            font-size: 0.8em;
             color: #6c757d;
             margin-bottom: 15px;
         }
         .listino-card .open-pdf-btn {
-            background-color: #dc3545; /* Rosso per il PDF */
+            background-color: #dc3545;
             color: white;
             padding: 8px 12px;
             border: none;
@@ -219,7 +217,7 @@
             cursor: pointer;
             font-size: 0.8em;
             text-decoration: none;
-            display: inline-flex; /* Permette icona e testo allineati */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             width: 100%;
@@ -239,13 +237,13 @@
             grid-column: 1 / -1;
         }
         
-        /* Stili per il loader (già definiti ma ripetuti per chiarezza) */
+        /* Stili per il loader */
         .loader-container {
-            /* Modificato per posizionarsi all'interno di .right-content-area */
+            /* Modificato per posizionarsi all'interno di #content-display-area */
             position: absolute; 
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #f8f9fa; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 99; /* Z-index inferiore */
+            justify-content: center; align-items: center; z-index: 99;
             transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
             opacity: 0; visibility: hidden;
         }
@@ -287,11 +285,19 @@
             display: flex;
             flex-direction: column;
             height: 100%; /* Occupa l'altezza disponibile */
-            padding-top: 10px;
-            overflow-y: auto; /* Rende la sezione PDF scrollabile se necessario */
+            padding-top: 0; /* Rimosso padding superiore */
+            overflow-y: hidden; /* Il contenuto dell'iframe è scrollabile, non questa sezione */
+            position: absolute; /* Si posiziona sopra i risultati quando attivo */
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #f8f9fa; /* Per coprire i risultati sottostanti */
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 10; /* Per essere sopra i risultati ma sotto il loader */
         }
-        #pdf-viewer-section.hidden {
-            display: none !important;
+        #pdf-viewer-section.visible {
+            opacity: 1;
+            visibility: visible;
         }
         #pdf-viewer-section .back-button {
             background-color: #6c757d;
@@ -305,7 +311,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            align-self: flex-start; /* Allinea a sinistra */
+            align-self: flex-start;
             transition: background-color 0.2s ease;
         }
         #pdf-viewer-section .back-button:hover {
@@ -316,13 +322,14 @@
             font-size: 1.8em;
             margin-bottom: 20px;
             text-align: center;
+            flex-shrink: 0; /* Non si restringe */
         }
         #pdf-iframe-container {
             flex-grow: 1; /* Occupa lo spazio rimanente per l'iframe */
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            overflow: hidden; /* Assicura che l'iframe non fuoriesca dai bordi */
-            min-height: 400px; /* Altezza minima */
+            overflow: hidden;
+            min-height: 400px;
         }
         #pdf-iframe-container iframe {
             width: 100%;
@@ -333,10 +340,10 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .main-layout-container {
-                flex-direction: column; /* La sidebar va sopra */
+                flex-direction: column;
             }
             .left-sidebar {
-                width: 100%; /* La sidebar occupa tutta la larghezza */
+                width: 100%;
                 padding: 15px;
                 border-right: none;
                 border-bottom: 1px solid #e0e0e0;
@@ -362,10 +369,7 @@
                 padding: 8px 12px;
                 font-size: 1em;
             }
-            .sidebar-footer {
-                padding-top: 10px;
-                margin-top: 15px;
-            }
+            /* Rimosso sidebar-footer per il pulsante "Torna alla Home" */
             .right-content-area {
                 padding: 20px;
             }
@@ -374,6 +378,15 @@
             }
             #pdf-viewer-section {
                 height: auto; /* Permette all'altezza di adattarsi su mobile */
+                position: static; /* Su mobile, non si sovrappone, ma scorre normalmente */
+                opacity: 1;
+                visibility: visible;
+            }
+            #pdf-viewer-section.visible {
+                display: flex; /* Forza flex su mobile */
+            }
+            #content-display-area {
+                overflow-y: visible; /* Ripristina scroll normale su mobile */
             }
         }
     </style>
@@ -406,6 +419,8 @@
                 </a>
                 <!-- Qui puoi aggiungere altre voci di menu in futuro (es. Per Marca, Per Anno) -->
             </nav>
+            <!-- Rimosso sidebar-footer per il pulsante "Torna alla Home" -->
+            <!-- Pulsante "Torna alla Home" spostato qui per coerenza con la sidebar e sempre visibile -->
             <div class="sidebar-footer">
                 <a href="../../index.html" class="sidebar-nav-item back-to-home">
                     <i class="fas fa-arrow-left"></i> Torna alla Home
@@ -415,32 +430,33 @@
 
         <!-- Area del contenuto a destra -->
         <main class="right-content-area">
-            <!-- Loader specifico per i listini, posizionato all'interno dell'area del contenuto -->
-            <div id="listini-loader" class="loader-container visible">
-                <div class="loader-spinner"></div>
-                <p>Caricamento listini...</p>
+            <h1>Ricerca Listini Fornitori</h1>
+
+            <div class="search-input-group">
+                <i class="fas fa-search"></i>
+                <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
             </div>
 
-            <!-- Contenitore per la ricerca e i risultati (visibile di default) -->
-            <div id="search-and-results-section">
-                <h1>Ricerca Listini Fornitori</h1>
-
-                <div class="search-input-group">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
+            <!-- Questo div ora conterrà o i risultati o il PDF Viewer, e sarà scrollabile -->
+            <div id="content-display-area">
+                <!-- Loader specifico per i listini, posizionato all'interno dell'area del contenuto -->
+                <div id="listini-loader" class="loader-container visible">
+                    <div class="loader-spinner"></div>
+                    <p>Caricamento listini...</p>
                 </div>
 
+                <!-- Contenitore per i risultati (visibile di default) -->
                 <div id="listini-results-container">
                     <!-- Qui verranno visualizzati i risultati della ricerca -->
                 </div>
-            </div>
 
-            <!-- Contenitore per il lettore PDF (nascosto di default) -->
-            <div id="pdf-viewer-section" class="hidden">
-                <button id="back-to-listini-btn" class="back-button"><i class="fas fa-arrow-left"></i> Torna ai Listini</button>
-                <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
-                <div id="pdf-iframe-container">
-                    <!-- L'iframe di PDF.js verrà iniettato qui -->
+                <!-- Contenitore per il lettore PDF (nascosto di default, si sovrappone ai risultati) -->
+                <div id="pdf-viewer-section">
+                    <button id="back-to-listini-btn" class="back-button"><i class="fas fa-arrow-left"></i> Torna ai Listini</button>
+                    <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
+                    <div id="pdf-iframe-container">
+                        <!-- L'iframe di PDF.js verrà iniettato qui -->
+                    </div>
                 </div>
             </div>
         </main>
