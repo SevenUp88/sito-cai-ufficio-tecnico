@@ -112,8 +112,9 @@
         .right-content-area {
             flex-grow: 1; /* Occupa tutto lo spazio rimanente */
             padding: 30px;
-            overflow-y: auto; /* Rende scrollabile solo questa sezione */
+            overflow-y: hidden; /* Contenitore principale non scrollabile, i suoi figli lo saranno */
             background-color: #f8f9fa;
+            position: relative; /* Per posizionare il loader */
         }
 
         .right-content-area h1 {
@@ -151,6 +152,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Miniature più piccole */
             gap: 20px;
+            padding-bottom: 20px; /* Spazio per lo scroll */
         }
         .listino-card {
             background-color: #ffffff; /* Sfondo bianco per le card */
@@ -239,7 +241,8 @@
         
         /* Stili per il loader (già definiti ma ripetuti per chiarezza) */
         .loader-container {
-            position: absolute; /* Rendi il loader assoluto rispetto all'area del contenuto */
+            /* Modificato per posizionarsi all'interno di .right-content-area */
+            position: absolute; 
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: #f8f9fa; display: flex; flex-direction: column; 
             justify-content: center; align-items: center; z-index: 99; /* Z-index inferiore */
@@ -277,6 +280,54 @@
             height: 45px;
             width: auto;
             flex-shrink: 0;
+        }
+
+        /* Nuovi stili per la sezione del visualizzatore PDF integrato */
+        #pdf-viewer-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Occupa l'altezza disponibile */
+            padding-top: 10px;
+            overflow-y: auto; /* Rende la sezione PDF scrollabile se necessario */
+        }
+        #pdf-viewer-section.hidden {
+            display: none !important;
+        }
+        #pdf-viewer-section .back-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            align-self: flex-start; /* Allinea a sinistra */
+            transition: background-color 0.2s ease;
+        }
+        #pdf-viewer-section .back-button:hover {
+            background-color: #5a6268;
+        }
+        #pdf-viewer-title {
+            color: #0056a8;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #pdf-iframe-container {
+            flex-grow: 1; /* Occupa lo spazio rimanente per l'iframe */
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden; /* Assicura che l'iframe non fuoriesca dai bordi */
+            min-height: 400px; /* Altezza minima */
+        }
+        #pdf-iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
 
         /* Responsive adjustments */
@@ -320,6 +371,9 @@
             }
             #listini-results-container {
                 grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            #pdf-viewer-section {
+                height: auto; /* Permette all'altezza di adattarsi su mobile */
             }
         }
     </style>
@@ -367,15 +421,27 @@
                 <p>Caricamento listini...</p>
             </div>
 
-            <h1>Ricerca Listini Fornitori</h1>
+            <!-- Contenitore per la ricerca e i risultati (visibile di default) -->
+            <div id="search-and-results-section">
+                <h1>Ricerca Listini Fornitori</h1>
 
-            <div class="search-input-group">
-                <i class="fas fa-search"></i>
-                <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
+                <div class="search-input-group">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
+                </div>
+
+                <div id="listini-results-container">
+                    <!-- Qui verranno visualizzati i risultati della ricerca -->
+                </div>
             </div>
 
-            <div id="listini-results-container">
-                <!-- Qui verranno visualizzati i risultati della ricerca -->
+            <!-- Contenitore per il lettore PDF (nascosto di default) -->
+            <div id="pdf-viewer-section" class="hidden">
+                <button id="back-to-listini-btn" class="back-button"><i class="fas fa-arrow-left"></i> Torna ai Listini</button>
+                <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
+                <div id="pdf-iframe-container">
+                    <!-- L'iframe di PDF.js verrà iniettato qui -->
+                </div>
             </div>
         </main>
     </div>
