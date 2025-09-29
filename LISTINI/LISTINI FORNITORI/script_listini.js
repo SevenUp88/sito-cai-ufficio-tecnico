@@ -8,10 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const rightContentArea = document.getElementById('right-content-area');
     const pdfViewerSection = document.getElementById('pdf-viewer-section');
     const pdfIframeContainer = document.getElementById('pdf-iframe-container');
-    const backToListiniBtn = document.getElementById('back-to-listini-btn');
+    // const backToListiniBtn = document.getElementById('back-to-listini-btn'); // Rimosso
     const pdfViewerTitle = document.getElementById('pdf-viewer-title');
     const welcomeMessageRight = document.getElementById('welcome-message-right');
-    const screenshotPdfBtn = document.getElementById('screenshot-pdf-btn'); // Nuovo pulsante screenshot
+    // const screenshotPdfBtn = document.getElementById('screenshot-pdf-btn'); // Rimosso
 
     let allListini = [];
     let currentOpenPdfId = null;
@@ -90,69 +90,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pdfViewerSection.classList.add('visible');    
         pdfViewerTitle.textContent = title;             
-        pdfIframeContainer.innerHTML = `<iframe id="pdf-viewer-iframe" src="${pdfUrl}" title="${title}"></iframe>`; // Aggiunto ID all'iframe
+        pdfIframeContainer.innerHTML = `<iframe id="pdf-viewer-iframe" src="${pdfUrl}" title="${title}"></iframe>`;
         
-        rightContentArea.classList.add('pdf-open');
+        // rightContentArea.classList.add('pdf-open'); // Non serve più se non nascondi h1 a destra
         currentOpenPdfId = listinoId; 
     }
 
     // Funzione per tornare all'elenco dei listini / chiudere il PDF
+    // Questa funzione non sarà chiamata da un pulsante, ma è mantenuta per completezza.
+    // L'utente cambierà PDF cliccando su una nuova miniatura.
     function closePdfViewer() {
         pdfViewerSection.classList.remove('visible');    
         welcomeMessageRight.classList.remove('hidden');
         pdfIframeContainer.innerHTML = ''; 
         pdfViewerTitle.textContent = ''; 
-        rightContentArea.classList.remove('pdf-open');
+        // rightContentArea.classList.remove('pdf-open'); // Non serve più
         document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active'));
         currentOpenPdfId = null;
     }
 
-    // Listener per il pulsante "Chiudi PDF"
-    backToListiniBtn.addEventListener('click', closePdfViewer);
+    // Rimosso Listener per il pulsante "Chiudi PDF"
+    // backToListiniBtn.addEventListener('click', closePdfViewer);
 
-    // *** NUOVA FUNZIONALITÀ: Screenshot del PDF ***
-    screenshotPdfBtn.addEventListener('click', async () => {
-        const pdfIframe = document.getElementById('pdf-viewer-iframe');
-        if (!pdfIframe || !pdfIframe.contentDocument || !html2canvas) {
-            alert('Impossibile catturare lo screenshot. Assicurati che un PDF sia aperto e le librerie siano caricate.');
-            console.error('Screenshot: Impossibile trovare iframe PDF o libreria html2canvas.');
-            return;
-        }
+    // Rimosso Listener per il pulsante "Screenshot del PDF"
+    // screenshotPdfBtn.addEventListener('click', ...);
 
-        // html2canvas funziona meglio con contenuti direttamente nel DOM.
-        // Catturare il contenuto di un iframe è complesso per via delle restrizioni di sicurezza (CORS)
-        // se il contenuto dell'iframe proviene da un dominio diverso (anche se è lo stesso sito).
-        // Se PDF.js carica il PDF sullo stesso dominio, potremmo provare a catturare il 'viewer.html' stesso.
-        // Per uno screenshot dell'area *visibile* dell'iframe, possiamo catturare l'iframe o il suo contenitore.
-        
-        // Tentiamo di catturare il contenitore dell'iframe.
-        // Questo non catturerà il contenuto interno del PDF renderizzato, ma l'area dell'iframe stesso.
-        // Per catturare il contenuto del PDF, servono regole CORS specifiche sul server PDF
-        // o un'implementazione più complessa (es. renderizzare il PDF su Canvas direttamente nella pagina principale).
-        alert("La funzione screenshot al momento cattura solo l'area dell'iframe. Per catturare il contenuto del PDF stesso sono richieste configurazioni avanzate (CORS).");
-        
-        try {
-            const canvas = await html2canvas(pdfIframeContainer, {
-                useCORS: true, // Tenta di usare CORS, ma spesso non basta per iframe cross-origin/same-origin con restrizioni
-                allowTaint: true,
-                ignoreElements: (element) => {
-                    // Ignora elementi che potrebbero causare problemi o non essere necessari
-                    return element.id === 'back-to-listini-btn' || element.id === 'screenshot-pdf-btn';
-                }
-            });
-
-            // Crea un link per scaricare l'immagine
-            const link = document.createElement('a');
-            link.download = `${pdfViewerTitle.textContent.replace(/\s/g, '_')}_screenshot.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-            alert('Screenshot catturato e scaricato!');
-
-        } catch (error) {
-            console.error('Errore durante la cattura dello screenshot:', error);
-            alert('Errore durante la cattura dello screenshot. Potrebbe esserci una restrizione di sicurezza (CORS).');
-        }
-    });
 
     // Funzione di ricerca/filtraggio
     searchInput.addEventListener('input', (e) => {
@@ -175,16 +137,4 @@ document.addEventListener('DOMContentLoaded', () => {
             const logoutButton = document.getElementById('logout-button');
             if (user) {
                 userDashboard.classList.remove('hidden');
-                userEmailDisplay.textContent = user.email;
-            } else {
-                userDashboard.classList.add('hidden');
-            }
-            if (logoutButton) {
-                logoutButton.addEventListener('click', () => {
-                    window.auth.signOut();
-                    window.location.href = '../../index.html'; 
-                });
-            }
-        });
-    }
-});
+                userEmailDisplay.te
