@@ -12,23 +12,111 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <style>
-        /* Stili specifici per questa pagina di ricerca */
+        /* ========================================================== */
+        /*           Stili specifici per la pagina Ricerca Listini            */
+        /* ========================================================== */
+
         body { 
             display: flex; 
             flex-direction: column; 
             min-height: 100vh;
             background-color: #f8f9fa;
         }
-        .search-page-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            flex-grow: 1; /* Assicura che il container occupi lo spazio disponibile */
+
+        /* Contenitore principale per il layout a due colonne */
+        .main-layout-container {
+            display: flex;
+            flex-grow: 1; /* Occupa lo spazio rimanente */
+            margin-top: 0; /* Rimuove il margine superiore dopo l'header */
+            overflow: hidden; /* Gestisce overflow delle colonne */
         }
-        .search-page-container h1 {
+
+        /* Sidebar di sinistra */
+        .left-sidebar {
+            width: 250px; /* Larghezza fissa della sidebar */
+            background-color: #ffffff;
+            box-shadow: 2px 0 5px rgba(0, 86, 168, 0.05);
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0; /* Non si restringe */
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 0 15px;
+        }
+        .sidebar-header i {
+            font-size: 2.5em;
+            color: #0056a8;
+            margin-bottom: 10px;
+        }
+        .sidebar-header h3 {
+            color: #0056a8;
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            flex-grow: 1; /* Occupa lo spazio centrale */
+            padding: 0 15px;
+        }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            color: #343a40;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+            font-size: 1.1em;
+        }
+        .sidebar-nav-item i {
+            margin-right: 10px;
+            color: #6c757d;
+        }
+        .sidebar-nav-item:hover {
+            background-color: #eaf3fb;
+            color: #0056a8;
+        }
+        .sidebar-nav-item.active {
+            background-color: #0056a8;
+            color: white;
+            font-weight: 600;
+        }
+        .sidebar-nav-item.active i {
+            color: white;
+        }
+
+        .sidebar-footer {
+            padding: 20px 15px 0;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto; /* Spinge il footer in basso */
+        }
+        .sidebar-footer .back-to-home {
+            background-color: #f0f2f5;
+            justify-content: center;
+            color: #0056a8;
+        }
+        .sidebar-footer .back-to-home:hover {
+            background-color: #e2e6ea;
+            color: #004182;
+        }
+
+
+        /* Area del contenuto a destra */
+        .right-content-area {
+            flex-grow: 1; /* Occupa tutto lo spazio rimanente */
+            padding: 30px;
+            overflow-y: auto; /* Rende scrollabile solo questa sezione */
+            background-color: #f8f9fa;
+        }
+
+        .right-content-area h1 {
             color: #0056a8;
             text-align: center;
             margin-bottom: 30px;
@@ -40,7 +128,7 @@
         }
         #listini-search-input {
             width: 100%;
-            padding: 15px 20px 15px 50px; /* Spazio a sinistra per l'icona */
+            padding: 15px 20px 15px 50px;
             border: 2px solid #0056a8;
             border-radius: 8px;
             font-size: 1.1em;
@@ -61,14 +149,14 @@
         }
         #listini-results-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Layout a griglia responsive */
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Miniature più piccole */
             gap: 20px;
         }
         .listino-card {
-            background-color: #f8f8f8;
+            background-color: #ffffff; /* Sfondo bianco per le card */
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
@@ -76,6 +164,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden; /* Per gestire immagini che potrebbero uscire */
         }
         .listino-card:hover {
             border-color: #0056a8;
@@ -83,26 +172,54 @@
             transform: translateY(-3px);
             background-color: #eaf3fb;
         }
+        
+        /* Stili per la miniatura PDF */
+        .listino-thumbnail {
+            width: 100%;
+            height: 150px; /* Altezza fissa per le miniature */
+            background-color: #e9ecef; /* Sfondo grigio per placeholder */
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Assicura che l'immagine non fuoriesca */
+            position: relative;
+        }
+        .listino-thumbnail img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Adatta l'immagine mantenendo le proporzioni */
+            position: absolute; /* Per centrare meglio */
+        }
+        .listino-thumbnail .fa-file-pdf {
+            font-size: 4em;
+            color: #6c757d;
+        }
+
         .listino-card h2 {
-            font-size: 1.4em;
+            font-size: 1.1em; /* Dimensione ridotta per titolo */
             color: #0056a8;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            flex-grow: 1; /* Fa in modo che il titolo occupi spazio */
         }
         .listino-card p {
-            font-size: 0.9em;
+            font-size: 0.8em; /* Dimensione ridotta per testo */
             color: #6c757d;
             margin-bottom: 15px;
         }
         .listino-card .open-pdf-btn {
             background-color: #dc3545; /* Rosso per il PDF */
             color: white;
-            padding: 10px 15px;
+            padding: 8px 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9em;
-            text-decoration: none; /* Rimuovi sottolineatura del link */
-            display: inline-block;
+            font-size: 0.8em;
+            text-decoration: none;
+            display: inline-flex; /* Permette icona e testo allineati */
+            align-items: center;
+            justify-content: center;
             width: 100%;
             transition: background-color 0.2s ease;
         }
@@ -110,22 +227,24 @@
             background-color: #c82333;
         }
         .listino-card .open-pdf-btn i {
-            margin-right: 8px;
+            margin-right: 6px;
         }
         .no-results {
             text-align: center;
             color: #6c757d;
             font-size: 1.1em;
             margin-top: 30px;
-            grid-column: 1 / -1; /* Occupa tutta la larghezza della griglia */
+            grid-column: 1 / -1;
         }
-        /* Stili per il loader */
+        
+        /* Stili per il loader (già definiti ma ripetuti per chiarezza) */
         .loader-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; /* Rendi il loader assoluto rispetto all'area del contenuto */
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: #f8f9fa; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; z-index: 9999;
+            justify-content: center; align-items: center; z-index: 99; /* Z-index inferiore */
             transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
-            opacity: 0; visibility: hidden; /* Nascondi di default */
+            opacity: 0; visibility: hidden;
         }
         .loader-container.visible {
             opacity: 1; visibility: visible;
@@ -137,7 +256,8 @@
         }
         .loader-container p { margin-top: 15px; color: #6c757d; font-size: 1.1em; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Header specifico per questa pagina, per renderlo simile a quello della home */
+
+        /* Header specifico per questa pagina (copiato dal tuo stile.css principale) */
         .app-header {
             display: flex;
             align-items: center;
@@ -150,7 +270,7 @@
             z-index: 1000;
         }
         .app-header .logo-link {
-            display: flex; /* Permette all'immagine di centrare */
+            display: flex;
             align-items: center;
         }
         .app-header .logo {
@@ -158,16 +278,59 @@
             width: auto;
             flex-shrink: 0;
         }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-layout-container {
+                flex-direction: column; /* La sidebar va sopra */
+            }
+            .left-sidebar {
+                width: 100%; /* La sidebar occupa tutta la larghezza */
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .sidebar-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+            }
+            .sidebar-header i {
+                margin-bottom: 0;
+                margin-right: 15px;
+            }
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                padding: 0;
+            }
+            .sidebar-nav-item {
+                flex-grow: 0;
+                padding: 8px 12px;
+                font-size: 1em;
+            }
+            .sidebar-footer {
+                padding-top: 10px;
+                margin-top: 15px;
+            }
+            .right-content-area {
+                padding: 20px;
+            }
+            #listini-results-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Header dell'Applicazione (semplificato per questa pagina) -->
+    <!-- Header dell'Applicazione -->
     <header class="app-header">
         <a href="../../index.html" class="logo-link"> <!-- Link alla home page principale -->
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
         </a>
         <div class="header-controls">
-            <!-- Qui puoi aggiungere elementi come il pulsante logout o info utente se necessario -->
             <div id="user-dashboard" class="hidden">
                 <p>Utente: <span id="user-email-display"></span></p>
                 <button id="logout-button" class="btn-login">Logout</button>
@@ -175,31 +338,54 @@
         </div>
     </header>
 
-    <!-- Loader specifico per i listini, visibile solo durante il caricamento -->
-    <div id="listini-loader" class="loader-container visible">
-        <div class="loader-spinner"></div>
-        <p>Caricamento listini...</p>
+    <!-- Contenitore principale per il layout a due colonne -->
+    <div class="main-layout-container">
+        <!-- Sidebar di sinistra -->
+        <aside class="left-sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-file-invoice"></i>
+                <h3>Listini Fornitori</h3>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-nav-item active" id="all-listini-btn">
+                    <i class="fas fa-book-open"></i> Tutti i Listini
+                </a>
+                <!-- Qui puoi aggiungere altre voci di menu in futuro (es. Per Marca, Per Anno) -->
+            </nav>
+            <div class="sidebar-footer">
+                <a href="../../index.html" class="sidebar-nav-item back-to-home">
+                    <i class="fas fa-arrow-left"></i> Torna alla Home
+                </a>
+            </div>
+        </aside>
+
+        <!-- Area del contenuto a destra -->
+        <main class="right-content-area">
+            <!-- Loader specifico per i listini, posizionato all'interno dell'area del contenuto -->
+            <div id="listini-loader" class="loader-container visible">
+                <div class="loader-spinner"></div>
+                <p>Caricamento listini...</p>
+            </div>
+
+            <h1>Ricerca Listini Fornitori</h1>
+
+            <div class="search-input-group">
+                <i class="fas fa-search"></i>
+                <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
+            </div>
+
+            <div id="listini-results-container">
+                <!-- Qui verranno visualizzati i risultati della ricerca -->
+            </div>
+        </main>
     </div>
-
-    <main class="search-page-container">
-        <h1>Ricerca Listini Fornitori</h1>
-
-        <div class="search-input-group">
-            <i class="fas fa-search"></i>
-            <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
-        </div>
-
-        <div id="listini-results-container">
-            <!-- Qui verranno visualizzati i risultati della ricerca -->
-        </div>
-    </main>
 
     <!-- Includi gli script Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
     
-    <!-- I tuoi script di configurazione e autenticazione -->
+    <!-- I tuoi script di configurazione e autenticazione (percorsi relativi) -->
     <script src="../../firebase-config.js"></script>
     <script src="../../auth.js"></script> <!-- Per la gestione utente -->
 
