@@ -55,15 +55,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const pdfPath = `/pdfjs/web/viewer.html?file=/${encodeURIComponent(listino.percorsoFile)}`;
 
             listinoCard.innerHTML = `
+                <div class="listino-thumbnail">
+                    <!-- Placeholder per l'immagine. Se avrai un thumbnailUrl in Firestore, lo useremo qui. -->
+                    ${listino.thumbnailUrl ? `<img src="${listino.thumbnailUrl}" alt="${listino.nome} anteprima">` : '<i class="fas fa-file-pdf"></i>'}
+                </div>
                 <h2>${listino.nome}</h2>
                 <p>Anno: ${listino.anno || 'N/D'}</p>
                 <a href="${pdfPath}" target="_blank" rel="noopener noreferrer" class="open-pdf-btn">
                     <i class="fas fa-file-pdf"></i> Apri Listino
                 </a>
             `;
-            resultsContainer.appendChild(listinoCard);
-        });
-    }
 
     // Funzione di ricerca/filtraggio
     searchInput.addEventListener('input', (e) => {
