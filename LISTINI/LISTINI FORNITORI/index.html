@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ricerca Listini Fornitori - CAI Ufficio Tecnico</title>
+    
     <!-- Includi il CSS principale del tuo sito per coerenza -->
     <link rel="stylesheet" href="../../style.css">
+    
+    <!-- Link a Font Awesome per le icone -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
     <style>
         /* Stili specifici per questa pagina di ricerca */
         body { 
@@ -22,7 +26,7 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            flex-grow: 1;
+            flex-grow: 1; /* Assicura che il container occupi lo spazio disponibile */
         }
         .search-page-container h1 {
             color: #0056a8;
@@ -36,7 +40,7 @@
         }
         #listini-search-input {
             width: 100%;
-            padding: 15px 20px 15px 50px;
+            padding: 15px 20px 15px 50px; /* Spazio a sinistra per l'icona */
             border: 2px solid #0056a8;
             border-radius: 8px;
             font-size: 1.1em;
@@ -57,7 +61,7 @@
         }
         #listini-results-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Layout a griglia responsive */
             gap: 20px;
         }
         .listino-card {
@@ -76,4 +80,130 @@
         .listino-card:hover {
             border-color: #0056a8;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
- 
+            transform: translateY(-3px);
+            background-color: #eaf3fb;
+        }
+        .listino-card h2 {
+            font-size: 1.4em;
+            color: #0056a8;
+            margin-bottom: 10px;
+        }
+        .listino-card p {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        .listino-card .open-pdf-btn {
+            background-color: #dc3545; /* Rosso per il PDF */
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            text-decoration: none; /* Rimuovi sottolineatura del link */
+            display: inline-block;
+            width: 100%;
+            transition: background-color 0.2s ease;
+        }
+        .listino-card .open-pdf-btn:hover {
+            background-color: #c82333;
+        }
+        .listino-card .open-pdf-btn i {
+            margin-right: 8px;
+        }
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.1em;
+            margin-top: 30px;
+            grid-column: 1 / -1; /* Occupa tutta la larghezza della griglia */
+        }
+        /* Stili per il loader */
+        .loader-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f8f9fa; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; z-index: 9999;
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+            opacity: 0; visibility: hidden; /* Nascondi di default */
+        }
+        .loader-container.visible {
+            opacity: 1; visibility: visible;
+        }
+        .loader-spinner {
+            border: 5px solid #e9ecef; border-top: 5px solid #0056a8;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        .loader-container p { margin-top: 15px; color: #6c757d; font-size: 1.1em; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Header specifico per questa pagina, per renderlo simile a quello della home */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 30px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 86, 168, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .app-header .logo-link {
+            display: flex; /* Permette all'immagine di centrare */
+            align-items: center;
+        }
+        .app-header .logo {
+            height: 45px;
+            width: auto;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header dell'Applicazione (semplificato per questa pagina) -->
+    <header class="app-header">
+        <a href="../../index.html" class="logo-link"> <!-- Link alla home page principale -->
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
+        </a>
+        <div class="header-controls">
+            <!-- Qui puoi aggiungere elementi come il pulsante logout o info utente se necessario -->
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loader specifico per i listini, visibile solo durante il caricamento -->
+    <div id="listini-loader" class="loader-container visible">
+        <div class="loader-spinner"></div>
+        <p>Caricamento listini...</p>
+    </div>
+
+    <main class="search-page-container">
+        <h1>Ricerca Listini Fornitori</h1>
+
+        <div class="search-input-group">
+            <i class="fas fa-search"></i>
+            <input type="text" id="listini-search-input" placeholder="Cerca per nome fornitore o anno..." autocomplete="off">
+        </div>
+
+        <div id="listini-results-container">
+            <!-- Qui verranno visualizzati i risultati della ricerca -->
+        </div>
+    </main>
+
+    <!-- Includi gli script Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    
+    <!-- I tuoi script di configurazione e autenticazione -->
+    <script src="../../firebase-config.js"></script>
+    <script src="../../auth.js"></script> <!-- Per la gestione utente -->
+
+    <!-- Il tuo script per la logica di ricerca dei listini -->
+    <script src="script_listini.js"></script> 
+</body>
+</html>
