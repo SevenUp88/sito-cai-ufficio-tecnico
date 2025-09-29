@@ -1,20 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Riferimenti agli elementi DOM
     const searchInput = document.getElementById('listini-search-input');
-    // Il contenitore dei risultati ora è nella sidebar
     const resultsContainer = document.getElementById('listini-results-container-sidebar'); 
-    const listiniLoader = document.getElementById('listini-loader'); // Loader della sidebar
+    const listiniLoader = document.getElementById('listini-loader'); 
     
     // Riferimenti DOM per il visualizzatore PDF integrato
-    const rightContentArea = document.getElementById('right-content-area'); // La colonna destra completa
+    const rightContentArea = document.getElementById('right-content-area');
     const pdfViewerSection = document.getElementById('pdf-viewer-section');
     const pdfIframeContainer = document.getElementById('pdf-iframe-container');
     const backToListiniBtn = document.getElementById('back-to-listini-btn');
     const pdfViewerTitle = document.getElementById('pdf-viewer-title');
-    const welcomeMessageRight = document.getElementById('welcome-message-right'); // Messaggio di benvenuto a destra
+    const welcomeMessageRight = document.getElementById('welcome-message-right');
+    const screenshotPdfBtn = document.getElementById('screenshot-pdf-btn'); // Nuovo pulsante screenshot
 
-    let allListini = []; // Array per conservare tutti i listini caricati da Firebase
-    let currentOpenPdfId = null; // Per tenere traccia del PDF attualmente aperto
+    let allListini = [];
+    let currentOpenPdfId = null;
 
     // Funzione per caricare i listini da Firestore
     async function loadListini() {
@@ -34,20 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 ...doc.data()
             }));
             
-            displayListini(allListini); // Visualizza tutti i listini all'inizio
+            displayListini(allListini);
         } catch (error) {
             console.error("Errore nel caricare i listini da Firestore:", error);
             resultsContainer.innerHTML = '<p class="no-results">Errore nel caricamento dei listini. Verifica la tua connessione.</p>';
         } finally {
             if (listiniLoader) {
-                listiniLoader.classList.remove('visible'); // Nasconde il loader una volta terminato
+                listiniLoader.classList.remove('visible');
             }
         }
     }
 
     // Funzione per visualizzare i listini nel container della sidebar
     function displayListini(listiniToDisplay) {
-        resultsContainer.innerHTML = ''; // Pulisce i risultati precedenti
+        resultsContainer.innerHTML = '';
 
         if (listiniToDisplay.length === 0) {
             resultsContainer.innerHTML = '<p class="no-results">Nessun listino trovato. Prova con una ricerca diversa.</p>';
@@ -57,9 +57,8 @@ document.addEventListener('DOMContentLoaded', () => {
         listiniToDisplay.forEach(listino => {
             const listinoCard = document.createElement('div');
             listinoCard.classList.add('listino-card');
-            listinoCard.dataset.listinoId = listino.id; // Per identificare la card attiva
+            listinoCard.dataset.listinoId = listino.id;
             
-            // Il pdfPath è l'URL completo che PDF.js userà
             const pdfUrlForViewer = `/pdfjs/web/viewer.html?file=/${encodeURIComponent(listino.percorsoFile)}`;
 
             listinoCard.innerHTML = `
@@ -70,11 +69,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h2>${listino.nome}</h2>
                     <p>Anno: ${listino.anno || 'N/D'}</p>
                 </div>
-                <!-- Il pulsante non è più qui, l'intera card è cliccabile -->
             `;
             resultsContainer.appendChild(listinoCard);
 
-            // Rendi l'intera card cliccabile per aprire il PDF
             listinoCard.addEventListener('click', () => {
                 const pdfTitle = `${listino.nome} ${listino.anno || ''}`;
                 openPdfInViewer(pdfUrlForViewer, pdfTitle, listino.id);
@@ -84,38 +81,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Funzione per aprire il PDF nel visualizzatore integrato
     function openPdfInViewer(pdfUrl, title, listinoId) {
-        // Nasconde il messaggio di benvenuto
         welcomeMessageRight.classList.add('hidden');
-        // Rimuovi la classe active da tutte le card
         document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active'));
-        // Aggiungi la classe active alla card attualmente selezionata
         const selectedPdfCard = document.querySelector(`[data-listino-id="${listinoId}"]`);
         if (selectedPdfCard) {
             selectedPdfCard.classList.add('active');
         }
 
-        // Mostra la sezione del visualizzatore PDF
         pdfViewerSection.classList.add('visible');    
         pdfViewerTitle.textContent = title;             
-        pdfIframeContainer.innerHTML = `<iframe src="${pdfUrl}" title="${title}"></iframe>`;
+        pdfIframeContainer.innerHTML = `<iframe id="pdf-viewer-iframe" src="${pdfUrl}" title="${title}"></iframe>`; // Aggiunto ID all'iframe
         
-        rightContentArea.classList.add('pdf-open'); // Aggiunge una classe al main
-        currentOpenPdfId = listinoId; // Salva l'ID del PDF aperto
+        rightContentArea.classList.add('pdf-open');
+        currentOpenPdfId = listinoId; 
     }
 
     // Funzione per tornare all'elenco dei listini / chiudere il PDF
     function closePdfViewer() {
         pdfViewerSection.classList.remove('visible');    
-        welcomeMessageRight.classList.remove('hidden'); // Mostra di nuovo il messaggio di benvenuto
+        welcomeMessageRight.classList.remove('hidden');
         pdfIframeContainer.innerHTML = ''; 
         pdfViewerTitle.textContent = ''; 
-        rightContentArea.classList.remove('pdf-open'); // Rimuove la classe dal main
-        document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active')); // Rimuovi active
-        currentOpenPdfId = null; // Resetta l'ID del PDF aperto
+        rightContentArea.classList.remove('pdf-open');
+        document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active'));
+        currentOpenPdfId = null;
     }
 
     // Listener per il pulsante "Chiudi PDF"
     backToListiniBtn.addEventListener('click', closePdfViewer);
+
+    // *** NUOVA FUNZIONALITÀ: Screenshot del PDF ***
+    screenshotPdfBtn.addEventListener('click', async () => {
+        const pdfIframe = document.getElementById('pdf-viewer-iframe');
+        if (!pdfIframe || !pdfIframe.contentDocument || !html2canvas) {
+            alert('Impossibile catturare lo screenshot. Assicurati che un PDF sia aperto e le librerie siano caricate.');
+            console.error('Screenshot: Impossibile trovare iframe PDF o libreria html2canvas.');
+            return;
+        }
+
+        // html2canvas funziona meglio con contenuti direttamente nel DOM.
+        // Catturare il contenuto di un iframe è complesso per via delle restrizioni di sicurezza (CORS)
+        // se il contenuto dell'iframe proviene da un dominio diverso (anche se è lo stesso sito).
+        // Se PDF.js carica il PDF sullo stesso dominio, potremmo provare a catturare il 'viewer.html' stesso.
+        // Per uno screenshot dell'area *visibile* dell'iframe, possiamo catturare l'iframe o il suo contenitore.
+        
+        // Tentiamo di catturare il contenitore dell'iframe.
+        // Questo non catturerà il contenuto interno del PDF renderizzato, ma l'area dell'iframe stesso.
+        // Per catturare il contenuto del PDF, servono regole CORS specifiche sul server PDF
+        // o un'implementazione più complessa (es. renderizzare il PDF su Canvas direttamente nella pagina principale).
+        alert("La funzione screenshot al momento cattura solo l'area dell'iframe. Per catturare il contenuto del PDF stesso sono richieste configurazioni avanzate (CORS).");
+        
+        try {
+            const canvas = await html2canvas(pdfIframeContainer, {
+                useCORS: true, // Tenta di usare CORS, ma spesso non basta per iframe cross-origin/same-origin con restrizioni
+                allowTaint: true,
+                ignoreElements: (element) => {
+                    // Ignora elementi che potrebbero causare problemi o non essere necessari
+                    return element.id === 'back-to-listini-btn' || element.id === 'screenshot-pdf-btn';
+                }
+            });
+
+            // Crea un link per scaricare l'immagine
+            const link = document.createElement('a');
+            link.download = `${pdfViewerTitle.textContent.replace(/\s/g, '_')}_screenshot.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            alert('Screenshot catturato e scaricato!');
+
+        } catch (error) {
+            console.error('Errore durante la cattura dello screenshot:', error);
+            alert('Errore durante la cattura dello screenshot. Potrebbe esserci una restrizione di sicurezza (CORS).');
+        }
+    });
 
     // Funzione di ricerca/filtraggio
     searchInput.addEventListener('input', (e) => {
