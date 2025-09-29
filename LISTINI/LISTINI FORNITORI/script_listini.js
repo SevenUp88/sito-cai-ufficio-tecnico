@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="fas fa-file-pdf"></i> Apri Listino
                 </a>
             `;
+            resultsContainer.appendChild(listinoCard); // *** QUESTA RIGA ERA MANCANTE ***
+        }); // *** QUESTA PARENTESI GRAFFA CHIUDE forEach ***
+    } // *** QUESTA PARENTESI GRAFFA CHIUDE displayListini ***
 
     // Funzione di ricerca/filtraggio
     searchInput.addEventListener('input', (e) => {
