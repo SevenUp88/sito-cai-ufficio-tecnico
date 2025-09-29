@@ -31,7 +31,7 @@
             overflow: hidden; /* Gestisce overflow delle colonne */
         }
 
-        /* Sidebar di sinistra - Ora contiene anche la ricerca e i risultati */
+        /* Sidebar di sinistra */
         .left-sidebar {
             width: 320px; /* Aumentata leggermente la larghezza per i listini nella sidebar */
             background-color: #ffffff;
@@ -180,27 +180,14 @@
             opacity: 1; visibility: visible;
         }
 
-        /* Footer della sidebar (con "Torna alla Home") */
-        .sidebar-footer {
-            padding: 20px 15px 0;
-            border-top: 1px solid #e0e0e0;
-            margin-top: auto;
-        }
-        .sidebar-footer .back-to-home {
-            background-color: #f0f2f5;
-            justify-content: center;
-            color: #0056a8;
-        }
-        .sidebar-footer .back-to-home:hover {
-            background-color: #e2e6ea;
-            color: #004182;
-        }
+        /* Rimosso sidebar-footer per il pulsante "Torna alla Home" */
+        /* Rimosso .sidebar-footer completamente */
 
 
         /* Area del visualizzatore PDF a destra */
         .right-content-area {
             flex-grow: 1;
-            padding: 0; /* Rimosso padding per l'iframe */
+            padding: 0;
             background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
@@ -242,10 +229,11 @@
             text-align: left;
             flex-grow: 1;
         }
-        #back-to-listini-btn {
+        /* Stile comune per i pulsanti di azione nel PDF Viewer */
+        .pdf-viewer-action-btn {
             background-color: #6c757d;
             color: white;
-            padding: 8px 15px; /* Padding leggermente ridotto */
+            padding: 8px 15px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -254,10 +242,19 @@
             align-items: center;
             gap: 8px;
             transition: background-color 0.2s ease;
+            margin-left: 10px; /* Spazio tra i pulsanti */
         }
-        #back-to-listini-btn:hover {
+        .pdf-viewer-action-btn:hover {
             background-color: #5a6268;
         }
+        /* Stile specifico per il pulsante screenshot */
+        #screenshot-pdf-btn {
+            background-color: #28a745; /* Verde */
+        }
+        #screenshot-pdf-btn:hover {
+            background-color: #218838;
+        }
+
 
         #pdf-iframe-container {
             flex-grow: 1;
@@ -399,24 +396,24 @@
                 <!-- Qui verranno visualizzate le miniature dei listini -->
             </div>
             
-            <!-- Pulsante "Torna alla Home" sempre visibile nel footer della sidebar -->
-            <div class="sidebar-footer">
-                <a href="../../index.html" class="sidebar-nav-item back-to-home">
-                    <i class="fas fa-arrow-left"></i> Torna alla Home
-                </a>
-            </div>
+            <!-- Rimosso completamente il div .sidebar-footer che conteneva "Torna alla Home" -->
+            
         </aside>
 
         <!-- Area del visualizzatore PDF a destra -->
         <main class="right-content-area" id="right-content-area">
-            <!-- Loader principale (solo se la pagina destra è vuota all'inizio o carica qualcosa di grande) -->
-            <!-- Rimosso il loader specifico per i listini qui, ora è nella sidebar -->
-
             <!-- Contenitore per il lettore PDF (visibile solo quando un PDF è selezionato) -->
             <div id="pdf-viewer-section">
                 <div id="pdf-viewer-header">
                     <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
-                    <button id="back-to-listini-btn" class="back-button"><i class="fas fa-arrow-left"></i> Chiudi PDF</button>
+                    <div class="pdf-viewer-actions">
+                        <button id="screenshot-pdf-btn" class="pdf-viewer-action-btn" title="Cattura schermata del PDF">
+                            <i class="fas fa-camera"></i> Screenshot
+                        </button>
+                        <button id="back-to-listini-btn" class="pdf-viewer-action-btn" title="Chiudi il listino e torna alla ricerca">
+                            <i class="fas fa-times"></i> Chiudi PDF
+                        </button>
+                    </div>
                 </div>
                 <div id="pdf-iframe-container">
                     <!-- L'iframe di PDF.js verrà iniettato qui -->
@@ -440,6 +437,9 @@
     <!-- I tuoi script di configurazione e autenticazione (percorsi relativi) -->
     <script src="../../firebase-config.js"></script>
     <script src="../../auth.js"></script> <!-- Per la gestione utente -->
+
+    <!-- Libreria html2canvas per lo screenshot (aggiunta per la funzionalità) -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
     <!-- Il tuo script per la logica di ricerca dei listini -->
     <script src="script_listini.js"></script> 
