@@ -1,17 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Riferimenti agli elementi DOM
     const searchInput = document.getElementById('listini-search-input');
-    const resultsContainer = document.getElementById('listini-results-container');
-    const listiniLoader = document.getElementById('listini-loader');
+    // Il contenitore dei risultati ora è nella sidebar
+    const resultsContainer = document.getElementById('listini-results-container-sidebar'); 
+    const listiniLoader = document.getElementById('listini-loader'); // Loader della sidebar
     
     // Riferimenti DOM per il visualizzatore PDF integrato
-    const contentDisplayArea = document.getElementById('content-display-area'); // Nuovo contenitore padre
+    const rightContentArea = document.getElementById('right-content-area'); // La colonna destra completa
     const pdfViewerSection = document.getElementById('pdf-viewer-section');
     const pdfIframeContainer = document.getElementById('pdf-iframe-container');
     const backToListiniBtn = document.getElementById('back-to-listini-btn');
     const pdfViewerTitle = document.getElementById('pdf-viewer-title');
-    
+    const welcomeMessageRight = document.getElementById('welcome-message-right'); // Messaggio di benvenuto a destra
+
     let allListini = []; // Array per conservare tutti i listini caricati da Firebase
+    let currentOpenPdfId = null; // Per tenere traccia del PDF attualmente aperto
 
     // Funzione per caricare i listini da Firestore
     async function loadListini() {
@@ -42,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Funzione per visualizzare i listini nel container
+    // Funzione per visualizzare i listini nel container della sidebar
     function displayListini(listiniToDisplay) {
         resultsContainer.innerHTML = ''; // Pulisce i risultati precedenti
 
@@ -54,55 +57,64 @@ document.addEventListener('DOMContentLoaded', () => {
         listiniToDisplay.forEach(listino => {
             const listinoCard = document.createElement('div');
             listinoCard.classList.add('listino-card');
+            listinoCard.dataset.listinoId = listino.id; // Per identificare la card attiva
             
             // Il pdfPath è l'URL completo che PDF.js userà
             const pdfUrlForViewer = `/pdfjs/web/viewer.html?file=/${encodeURIComponent(listino.percorsoFile)}`;
 
             listinoCard.innerHTML = `
                 <div class="listino-thumbnail">
-                    <!-- Placeholder per l'immagine. Se avrai un thumbnailUrl in Firestore, lo useremo qui. -->
                     ${listino.thumbnailUrl ? `<img src="${listino.thumbnailUrl}" alt="${listino.nome} anteprima">` : '<i class="fas fa-file-pdf"></i>'}
                 </div>
-                <h2>${listino.nome}</h2>
-                <p>Anno: ${listino.anno || 'N/D'}</p>
-                <button class="open-pdf-btn" data-pdf-url="${pdfUrlForViewer}" data-pdf-title="${listino.nome} ${listino.anno || ''}">
-                    <i class="fas fa-file-pdf"></i> Apri Listino
-                </button>
+                <div class="listino-info">
+                    <h2>${listino.nome}</h2>
+                    <p>Anno: ${listino.anno || 'N/D'}</p>
+                </div>
+                <!-- Il pulsante non è più qui, l'intera card è cliccabile -->
             `;
             resultsContainer.appendChild(listinoCard);
-        });
 
-        // Aggiungi listener ai nuovi pulsanti dopo che sono stati aggiunti al DOM
-        document.querySelectorAll('.open-pdf-btn').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const pdfUrl = event.currentTarget.dataset.pdfUrl;
-                const pdfTitle = event.currentTarget.dataset.pdfTitle;
-                openPdfInViewer(pdfUrl, pdfTitle);
+            // Rendi l'intera card cliccabile per aprire il PDF
+            listinoCard.addEventListener('click', () => {
+                const pdfTitle = `${listino.nome} ${listino.anno || ''}`;
+                openPdfInViewer(pdfUrlForViewer, pdfTitle, listino.id);
             });
         });
     }
 
     // Funzione per aprire il PDF nel visualizzatore integrato
-    function openPdfInViewer(pdfUrl, title) {
-        // Nasconde i risultati e mostra il visualizzatore
-        resultsContainer.classList.add('hidden'); 
-        pdfViewerSection.classList.add('visible');    // Usa 'visible' per la transizione di opacità/visibilità
-        pdfViewerTitle.textContent = title;             // Imposta il titolo dinamico
-        pdfIframeContainer.innerHTML = `<iframe src="${pdfUrl}" title="${title}"></iframe>`; // Inietta l'iframe
-        // Assicura che l'area contenitore padre sia scrollabile se il PDF è molto lungo
-        contentDisplayArea.scrollTop = 0; // Torna all'inizio dello scroll
+    function openPdfInViewer(pdfUrl, title, listinoId) {
+        // Nasconde il messaggio di benvenuto
+        welcomeMessageRight.classList.add('hidden');
+        // Rimuovi la classe active da tutte le card
+        document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active'));
+        // Aggiungi la classe active alla card attualmente selezionata
+        const selectedPdfCard = document.querySelector(`[data-listino-id="${listinoId}"]`);
+        if (selectedPdfCard) {
+            selectedPdfCard.classList.add('active');
+        }
+
+        // Mostra la sezione del visualizzatore PDF
+        pdfViewerSection.classList.add('visible');    
+        pdfViewerTitle.textContent = title;             
+        pdfIframeContainer.innerHTML = `<iframe src="${pdfUrl}" title="${title}"></iframe>`;
+        
+        rightContentArea.classList.add('pdf-open'); // Aggiunge una classe al main
+        currentOpenPdfId = listinoId; // Salva l'ID del PDF aperto
     }
 
-    // Funzione per tornare all'elenco dei listini
+    // Funzione per tornare all'elenco dei listini / chiudere il PDF
     function closePdfViewer() {
-        pdfViewerSection.classList.remove('visible');    // Nasconde la sezione del visualizzatore PDF
-        resultsContainer.classList.remove('hidden'); // Mostra la sezione di ricerca
-        pdfIframeContainer.innerHTML = ''; // Pulisce l'iframe per liberare memoria
-        pdfViewerTitle.textContent = ''; // Resetta il titolo
-        contentDisplayArea.scrollTop = 0; // Torna all'inizio dello scroll
+        pdfViewerSection.classList.remove('visible');    
+        welcomeMessageRight.classList.remove('hidden'); // Mostra di nuovo il messaggio di benvenuto
+        pdfIframeContainer.innerHTML = ''; 
+        pdfViewerTitle.textContent = ''; 
+        rightContentArea.classList.remove('pdf-open'); // Rimuove la classe dal main
+        document.querySelectorAll('.listino-card').forEach(card => card.classList.remove('active')); // Rimuovi active
+        currentOpenPdfId = null; // Resetta l'ID del PDF aperto
     }
 
-    // Listener per il pulsante "Torna ai Listini"
+    // Listener per il pulsante "Chiudi PDF"
     backToListiniBtn.addEventListener('click', closePdfViewer);
 
     // Funzione di ricerca/filtraggio
@@ -119,9 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadListini();
 
     // Gestione dell'autenticazione per questa pagina (se necessario)
-    // Se la dashboard utente o il logout sono gestiti altrove (es. auth.js)
-    // assicurati che non ci siano conflitti. Potrebbe essere necessario inizializzare
-    // la dashboard qui se auth.js non lo fa per questa specifica pagina.
     if (window.auth) {
         window.auth.onAuthStateChanged(user => {
             const userDashboard = document.getElementById('user-dashboard');
