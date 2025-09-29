@@ -31,7 +31,7 @@
             overflow: hidden; /* Gestisce overflow delle colonne */
         }
 
-        /* Sidebar di sinistra */
+        /* Sidebar di sinistra - Ora contiene anche la ricerca e i risultati */
         .left-sidebar {
             width: 320px; /* Aumentata leggermente la larghezza per i listini nella sidebar */
             background-color: #ffffff;
@@ -180,31 +180,45 @@
             opacity: 1; visibility: visible;
         }
 
-        /* Rimosso sidebar-footer per il pulsante "Torna alla Home" */
-        /* Il div .sidebar-footer è stato rimosso in HTML, non serve più il CSS */
+        /* Footer della sidebar (con "Torna alla Home") */
+        .sidebar-footer {
+            padding: 20px 15px 0;
+            border-top: 1px solid #e0e0e0;
+            margin-top: auto;
+        }
+        .sidebar-footer .back-to-home {
+            background-color: #f0f2f5;
+            justify-content: center;
+            color: #0056a8;
+        }
+        .sidebar-footer .back-to-home:hover {
+            background-color: #e2e6ea;
+            color: #004182;
+        }
 
 
         /* Area del visualizzatore PDF a destra */
         .right-content-area {
             flex-grow: 1;
-            padding: 0;
+            padding: 0; /* Rimosso padding per l'iframe */
             background-color: #f8f9fa;
             display: flex;
             flex-direction: column;
             position: relative;
         }
 
-        /* Rimosso h1 dalla right-content-area, non serve più con il messaggio iniziale */
-
+        /* Nasconde la scritta "Ricerca Listini Fornitori" quando un PDF è aperto */
+        .right-content-area.pdf-open h1 {
+            display: none;
+        }
 
         #pdf-viewer-section {
             display: flex;
             flex-direction: column;
             height: 100%; /* Occupa tutta l'altezza disponibile */
-            padding: 30px; /* Padding qui */
+            padding: 30px; /* Padding qui, non sul RightContentArea */
             overflow-y: hidden; 
             transition: opacity 0.3s ease, visibility 0.3s ease;
-            /* Inizialmente nascosto */
             opacity: 0;
             visibility: hidden;
             z-index: 10;
@@ -228,8 +242,22 @@
             text-align: left;
             flex-grow: 1;
         }
-        /* Rimosso .pdf-viewer-action-btn e #back-to-listini-btn e #screenshot-pdf-btn */
-        /* Non serve il CSS per pulsanti che non esistono più */
+        #back-to-listini-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 8px 15px; /* Padding leggermente ridotto */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.2s ease;
+        }
+        #back-to-listini-btn:hover {
+            background-color: #5a6268;
+        }
 
         #pdf-iframe-container {
             flex-grow: 1;
@@ -273,27 +301,6 @@
             height: 45px;
             width: auto;
             flex-shrink: 0;
-        }
-
-        /* Stili per il messaggio iniziale a destra */
-        .initial-message {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%; /* Occupare l'altezza per centrare il contenuto */
-            text-align: center;
-            padding: 30px;
-        }
-        .initial-message h1 {
-            font-size: 2.2em;
-            color: #0056a8;
-            margin-bottom: 20px;
-        }
-        .initial-message p {
-            font-size: 1.1em;
-            color: #6c757d;
-            max-width: 500px;
         }
 
         /* Responsive adjustments */
@@ -343,16 +350,12 @@
             }
             #pdf-viewer-section {
                 height: auto;
-                position: static; /* Su mobile, non si sovrappone, ma scorre normalmente */
+                position: static;
                 opacity: 1;
                 visibility: visible;
-                padding: 20px; /* Reimposta il padding per mobile */
             }
             #pdf-viewer-section.visible {
                 display: flex;
-            }
-            .initial-message {
-                padding: 20px;
             }
         }
     </style>
@@ -376,4 +379,69 @@
         <!-- Sidebar di sinistra -->
         <aside class="left-sidebar">
             <div class="sidebar-header">
-          
+                <i class="fas fa-file-invoice"></i>
+                <h3>Listini Fornitori</h3>
+            </div>
+
+            <!-- Barra di ricerca nella sidebar -->
+            <div class="sidebar-search-input-group">
+                <i class="fas fa-search"></i>
+                <input type="text" id="listini-search-input" placeholder="Cerca per nome o anno..." autocomplete="off">
+            </div>
+
+            <!-- Contenitore dei risultati dei listini nella sidebar -->
+            <div id="listini-results-container-sidebar">
+                <!-- Loader specifico per i listini, posizionato all'interno dell'area dei risultati della sidebar -->
+                <div id="listini-loader" class="listini-sidebar-loader visible">
+                    <div class="loader-spinner"></div>
+                    <p>Caricamento listini...</p>
+                </div>
+                <!-- Qui verranno visualizzate le miniature dei listini -->
+            </div>
+            
+            <!-- Pulsante "Torna alla Home" sempre visibile nel footer della sidebar -->
+            <div class="sidebar-footer">
+                <a href="../../index.html" class="sidebar-nav-item back-to-home">
+                    <i class="fas fa-arrow-left"></i> Torna alla Home
+                </a>
+            </div>
+        </aside>
+
+        <!-- Area del visualizzatore PDF a destra -->
+        <main class="right-content-area" id="right-content-area">
+            <!-- Loader principale (solo se la pagina destra è vuota all'inizio o carica qualcosa di grande) -->
+            <!-- Rimosso il loader specifico per i listini qui, ora è nella sidebar -->
+
+            <!-- Contenitore per il lettore PDF (visibile solo quando un PDF è selezionato) -->
+            <div id="pdf-viewer-section">
+                <div id="pdf-viewer-header">
+                    <h2 id="pdf-viewer-title"></h2> <!-- Titolo dinamico del PDF -->
+                    <button id="back-to-listini-btn" class="back-button"><i class="fas fa-arrow-left"></i> Chiudi PDF</button>
+                </div>
+                <div id="pdf-iframe-container">
+                    <!-- L'iframe di PDF.js verrà iniettato qui -->
+                </div>
+            </div>
+
+            <!-- Messaggio di benvenuto o istruzioni iniziali -->
+            <div id="welcome-message-right" class="initial-message">
+                <h1>Seleziona un Listino</h1>
+                <p>Usa la barra di ricerca a sinistra per trovare i listini disponibili, poi clicca sulla miniatura per visualizzarli qui.</p>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Includi gli script Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    
+    <!-- I tuoi script di configurazione e autenticazione (percorsi relativi) -->
+    <script src="../../firebase-config.js"></script>
+    <script src="../../auth.js"></script> <!-- Per la gestione utente -->
+
+    <!-- Il tuo script per la logica di ricerca dei listini -->
+    <script src="script_listini.js"></script> 
+</body>
+</html>
