@@ -12,8 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth(); // Potrebbe servire per controlli futuri, anche se non usato direttamente qui
 
     // --- CONFIGURAZIONE ESSENZIALE ---
-    // !!! IMPORTANTE: SOSTITUISCI QUESTO PLACEHOLDER CON L'URL DELLA TUA WEB APP GOOGLE APPS SCRIPT !!!
-    // Segui le istruzioni nel mio messaggio precedente per ottenere l'URL.
+    // Questo è l'URL del NUOVO DEPLOY che hai creato. Lascialo così com'è.
     const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-eumOLSv5sEIzh454avADIeAP6ztf_uODIIXhq5ZRnYfXgZSKbRB1MbkZ4f1r-6_q/exec'; 
     
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders'; // Nome della collezione Firestore per le bombole gas
@@ -139,7 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<boolean>} True se l'operazione ha avuto successo, false altrimenti.
      */
     const sendRequestToAppsScript = async (action, data) => {
-                try {
+        // IL BLOCCO 'if' ERRATO È STATO RIMOSSO DA QUI
+        try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                 method: 'POST',
                 headers: {
