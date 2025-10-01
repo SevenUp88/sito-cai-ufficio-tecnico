@@ -1,438 +1,271 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("gas.js: DOMContentLoaded fired.");
-
-    if (typeof firebase === 'undefined' || !window.db || !window.auth) {
-        console.error("Firebase non caricato o non inizializzato correttamente. Assicurati che firebase-config.js sia incluso prima.");
+    if (typeof firebase === 'undefined') {
+        console.error("Firebase non caricato in gas-script.js.");
         return;
     }
-    console.log("gas.js: Firebase is initialized and accessible.");
 
-    const db = window.db;
-    const auth = window.auth;
+    const db = firebase.firestore();
 
-    // Elementi DOM
-    const initialLoader = document.getElementById('initial-loader');
-    const userDashboard = document.getElementById('user-dashboard');
-    const userEmailDisplay = document.getElementById('user-email-display');
-    const logoutButton = document.getElementById('logout-button');
+    // --- CONFIGURAZIONE ---
+    // DEVI DEPLOYARE IL TUO SCRIPT GOOGLE APPS COME WEB APP E INSERIRE L'URL QUI.
+    // Istruzioni:
+    // 1. Apri il tuo script Google Apps (Google Sheet Synchro to Firestore.txt).
+    // 2. Clicca su "Deploy" -> "New deployment".
+    // 3. Seleziona "Web app" come tipo.
+    // 4. "Execute as": "Me" (il tuo account Google).
+    // 5. "Who has access": "Anyone".
+    // 6. Clicca "Deploy" e copia l'URL della Web app generato.
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE'; 
+    const FIRESTORE_COLLECTION_NAME = 'gasCylinders'; // Nome della collezione Firestore per le bombole gas
+    const GOOGLE_SHEET_NAME = 'gas'; // Nome del foglio Google Sheets
+
+    // --- ELEMENTI DOM ---
     const gasTableBody = document.getElementById('gas-table-body');
-    const gasSearchInput = document.getElementById('gas-search-input');
     const addGasButton = document.getElementById('add-gas-button');
-    const printTableButton = document.getElementById('print-table-button');
-    console.log("gas.js: addGasButton element:", addGasButton);
-    const noGasMessage = document.getElementById('no-gas-message');
-    const headerLogo = document.querySelector('.app-header .logo');
-
-    // Elementi del Modal Bombole Gas
     const gasModalOverlay = document.getElementById('gas-modal-overlay');
     const closeGasModalBtn = document.getElementById('close-gas-modal-btn');
     const cancelGasModalBtn = document.getElementById('cancel-gas-modal-btn');
-    const gasForm = document.getElementById('gas-form');
     const gasModalTitle = document.getElementById('gas-modal-title');
-    const gasFormFeedback = document.getElementById('gas-form-feedback');
+    const gasForm = document.getElementById('gas-form');
+    const gasIdField = document.getElementById('gas-id-field'); // Hidden field per la matricola in caso di modifica
+    const matricolaInput = document.getElementById('matricola');
+    const tipologiaGasInput = document.getElementById('tipologia_gas');
+    const litriInput = document.getElementById('litri');
+    const dataRicezioneInput = document.getElementById('data_ricezione');
+    const noleggiatoAInput = document.getElementById('noleggiato_a');
+    const dataAperturaNoleggioInput = document.getElementById('data_apertura_noleggio');
+    const dataChiusuraNoleggioInput = document.getElementById('data_chiusura_noleggio');
+    const gasFeedbackMessage = document.getElementById('gas-feedback-message');
 
-    const gasTipologiaGasInput = document.getElementById('gas-tipologia-gas');
-    const gasMatricolaInput = document.getElementById('gas-matricola');
-    const gasMatricolaOriginalInput = document.getElementById('gas-form-matricola-original');
-    const gasLitriInput = document.getElementById('gas-litri');
-    const gasDataRicezioneInput = document.getElementById('gas-data-ricezione');
-    const gasNoleggiatoAInput = document.getElementById('gas-noleggiato-a');
-    const gasDataAperturaNoleggioInput = document.getElementById('gas-data-apertura-noleggio');
-    const gasDataChiusuraNoleggioInput = document.getElementById('gas-data-chiusura-noleggio');
+    let allGasCylinders = []; // Array per tenere traccia dei dati localmente
 
-    let allGasCylinders = [];
-    let isEditMode = false;
-
-    // --- Controllo Autenticazione ---
-    auth.onAuthStateChanged(user => {
-        if (initialLoader) initialLoader.classList.add('hidden');
-        document.body.style.visibility = 'visible';
-
-        if (user) {
-            console.log("gas.js: Utente autenticato:", user.email);
-            if (userDashboard) {
-                userDashboard.classList.remove('hidden');
-                userEmailDisplay.textContent = user.email;
-            }
-            fetchAndDisplayGasCylinders();
-        } else {
-            console.log("gas.js: Utente non loggato, reindirizzo alla home.");
-            const rootPath = '../../'; 
-            window.location.href = `${rootPath}index.html`;
-        }
-    });
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            console.log("gas.js: Logout button clicked.");
-            auth.signOut();
-        });
-    }
-
-    if (headerLogo) {
-        headerLogo.addEventListener('click', () => {
-            window.location.href = '../../index.html';
-        });
-    }
-
-    // --- Funzioni di Utilità ---
+    // --- FUNZIONI UTILITY ---
     const showFeedback = (message, type) => {
-        gasFormFeedback.textContent = message;
-        gasFormFeedback.className = `feedback-message ${type}`;
-        gasFormFeedback.classList.remove('hidden');
+        gasFeedbackMessage.textContent = message;
+        gasFeedbackMessage.className = `feedback-message ${type}`;
+        gasFeedbackMessage.classList.remove('hidden');
+        setTimeout(() => {
+            gasFeedbackMessage.classList.add('hidden');
+        }, 5000);
     };
 
-    const hideFeedback = () => {
-        gasFormFeedback.classList.add('hidden');
-    };
-
-    // NUOVO: Funzione per formattare la data per la visualizzazione nella tabella
-    const formatDateForDisplay = (dateString) => {
-        if (!dateString) return 'N/D';
-        // Prova a creare un oggetto Date. Se fallisce, usiamo la stringa originale
-        let dateObj;
-        try {
-            dateObj = new Date(dateString);
-            // Se la stringa è già nel formato 'GG/MM/AA' o 'AAAA-MM-GG', non formattiamo ulteriormente
-            // Questo evita la conversione di "11/09/25" in "11/09/2025" o simili, mantenedo il tuo formato Excel.
-            if (dateString.match(/^\d{2}\/\d{2}\/\d{2}$/) || dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                return dateString;
-            }
-            // Se è un oggetto Date valido e non era già in un formato desiderato, lo formattiamo.
-            if (!isNaN(dateObj.getTime())) {
-                const day = dateObj.getDate().toString().padStart(2, '0');
-                const month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); // Mesi sono 0-based
-                const year = dateObj.getFullYear().toString().substring(2); // Prende le ultime due cifre
-                return `${day}/${month}/${year}`;
-            }
-        } catch (e) {
-            console.warn("gas.js: Error parsing date for display, using original string:", dateString, e);
-        }
-        return dateString; // Se non riusciamo a formattare, restituisci la stringa originale
-    };
-
-    // La funzione formatDate originale per gli input type="date" (YYYY-MM-DD)
-    const formatDateForInput = (dateString) => { // RINOMINATA per chiarezza
+    // Formatta una data stringa (es. da Firestore) nel formato YYYY-MM-DD per input type="date"
+    const formatDateForInput = (dateString) => {
         if (!dateString) return '';
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                return dateString;
-            }
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        } catch (e) {
-            console.warn("gas.js: Could not parse date string for input:", dateString, e);
-            return dateString;
-        }
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return ''; // Data non valida
+        return date.toISOString().split('T')[0]; 
     };
 
+    // Formatta una data stringa (es. da Firestore) nel formato DD/MM/YY per la visualizzazione
+    const formatDateForDisplay = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return ''; // Data non valida
+        return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }); 
+    };
 
-    // --- Logica Modal ---
+    // --- FUNZIONI MODAL ---
     const openGasModal = (cylinderData = null) => {
-        console.log("gas.js: openGasModal called with data:", cylinderData);
         gasForm.reset();
-        hideFeedback();
-        isEditMode = !!cylinderData;
+        gasFeedbackMessage.classList.add('hidden');
+        gasIdField.value = ''; // Pulisce il campo ID nascosto
 
-        if (isEditMode) {
+        if (cylinderData) {
             gasModalTitle.textContent = 'Modifica Bombola Gas';
-            gasTipologiaGasInput.value = cylinderData.tipologia_gas || '';
-            gasMatricolaInput.value = cylinderData.matricola || '';
-            gasMatricolaOriginalInput.value = cylinderData.matricola || '';
-            gasMatricolaInput.disabled = true;
-            gasLitriInput.value = cylinderData.litri || '';
-            gasDataRicezioneInput.value = formatDateForInput(cylinderData.data_ricezione); // Usa formatDateForInput
-            gasNoleggiatoAInput.value = cylinderData.noleggiato_a || '';
-            gasDataAperturaNoleggioInput.value = formatDateForInput(cylinderData.data_apertura_noleggio); // Usa formatDateForInput
-            gasDataChiusuraNoleggioInput.value = formatDateForInput(cylinderData.data_chiusura_noleggio); // Usa formatDateForInput
+            gasIdField.value = cylinderData.matricola; // Memorizza la matricola originale per l'aggiornamento
+            matricolaInput.value = cylinderData.matricola || '';
+            matricolaInput.disabled = true; // La matricola non è modificabile in fase di edit
+            tipologiaGasInput.value = cylinderData.tipologia_gas || '';
+            litriInput.value = cylinderData.litri || 0;
+            dataRicezioneInput.value = formatDateForInput(cylinderData.data_ricezione);
+            noleggiatoAInput.value = cylinderData.noleggiato_a || '';
+            dataAperturaNoleggioInput.value = formatDateForInput(cylinderData.data_apertura_noleggio);
+            dataChiusuraNoleggioInput.value = formatDateForInput(cylinderData.data_chiusura_noleggio);
         } else {
             gasModalTitle.textContent = 'Aggiungi Nuova Bombola Gas';
-            gasMatricolaInput.disabled = false;
-            gasMatricolaOriginalInput.value = '';
-            // Auto-popola la data di ricezione con la data odierna
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const day = today.getDate().toString().padStart(2, '0');
-            gasDataRicezioneInput.value = `${year}-${month}-${day}`; // Formato YYYY-MM-DD per input type="date"
+            matricolaInput.disabled = false; // La matricola è modificabile in fase di aggiunta
         }
         gasModalOverlay.classList.add('visible');
-        console.log("gas.js: Added 'visible' class to modal overlay. Modal should be visible.");
     };
 
     const closeGasModal = () => {
         gasModalOverlay.classList.remove('visible');
-        console.log("gas.js: Removed 'visible' class from modal overlay. Modal should be hidden.");
         gasForm.reset();
-        hideFeedback();
-        gasMatricolaInput.disabled = false;
+        matricolaInput.disabled = false; // Resetta lo stato di disabilitazione della matricola
     };
 
-    // --- EVENT LISTENERS ---
-
-    if (addGasButton) {
-        console.log("gas.js: Attaching click listener to addGasButton.");
-        addGasButton.addEventListener('click', () => {
-            console.log("gas.js: 'Aggiungi Bombola' button clicked!");
-            openGasModal();
-        });
-    }
-
-    if (printTableButton) {
-        console.log("gas.js: Attaching click listener to printTableButton.");
-        printTableButton.addEventListener('click', () => {
-            console.log("gas.js: 'Stampa Tabella' button clicked!");
-            printGasTable();
-        });
-    }
-
-    if (closeGasModalBtn) {
-        console.log("gas.js: Attaching click listener to closeGasModalBtn.");
-        closeGasModalBtn.addEventListener('click', closeGasModal);
-    }
-    if (cancelGasModalBtn) {
-        console.log("gas.js: Attaching click listener to cancelGasModalBtn.");
-        cancelGasModalBtn.addEventListener('click', closeGasModal);
-    }
-
-    if (gasModalOverlay) {
-        console.log("gas.js: Attaching click listener to gasModalOverlay.");
-        gasModalOverlay.addEventListener('click', (e) => {
-            if (e.target === gasModalOverlay) closeGasModal();
-        });
-    }
-
-    // --- Funzione per la stampa della tabella ---
-    const printGasTable = () => {
-        const table = document.getElementById('gas-data-table');
-        if (!table) {
-            console.error("gas.js: Table to print not found!");
-            alert("Errore: la tabella da stampare non è stata trovata.");
-            return;
+    // --- INTERAZIONE CON GOOGLE APPS SCRIPT (doPost) ---
+    const sendRequestToAppsScript = async (action, data) => {
+        if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+            showFeedback('ERRORE: URL dello script Google Apps non configurato!', 'error');
+            console.error('URL dello script Google Apps non configurato!');
+            return false;
         }
 
-        const originalDisplay = table.style.display;
-        table.style.display = 'table'; // Assicurati che sia visibile per la stampa
-
-        const printWindow = window.open('', '', 'height=600,width=800');
-        printWindow.document.write('<html><head><title>Stampa Bombole Gas</title>');
-        printWindow.document.write('<link rel="stylesheet" href="../../style.css" type="text/css" />');
-        printWindow.document.write('<style>');
-        printWindow.document.write(`
-            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 20px; }
-            h2 { color: #0056a8; text-align: center; margin-bottom: 20px; }
-            .gas-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            .gas-table th, .gas-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-            .gas-table th { background-color: #f2f2f2; }
-            .gas-table .actions-cell { display: none; } /* Nasconde la colonna azioni in stampa */
-            @media print {
-                body { margin: 0; padding: 0; }
-                .gas-table th, .gas-table td { border-color: #000; } /* Bordo più scuro per la stampa */
-            }
-        `);
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head><body>');
-        printWindow.document.write('<h2>Gestione Bombole Gas a Noleggio</h2>');
-        printWindow.document.write(table.outerHTML);
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
-        printWindow.focus();
-        printWindow.print();
-        printWindow.close();
-
-        table.style.display = originalDisplay;
-    };
-
-    // --- Operazioni CRUD (tramite Google Apps Script Web App) ---
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; 
-
-    const sendDataToGoogleSheet = async (action, data) => {
-        if (!WEB_APP_URL.startsWith('https://script.google.com/macros/s/')) {
-            console.error("ERRORE: WEB_APP_URL non configurato o non valido.");
-            showFeedback("Errore di configurazione: URL della Web App non impostato o non valido.", "error");
-            return { status: 'error', message: "WEB_APP_URL non configurato." };
-        }
         try {
-            console.log(`gas.js: Sending ${action} request to Google Sheet for sheet 'gas' with data:`, data);
-            const response = await fetch(WEB_APP_URL, {
+            const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                 method: 'POST',
-                mode: 'no-cors',
-                cache: 'no-cache',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     action: action,
-                    sheetName: 'gas',
-                    // Qui inviamo la data nel formato YYYY-MM-DD per il foglio
-                    tipologia_gas: data.tipologia_gas,
-                    matricola: data.matricola,
-                    litri: data.litri,
-                    data_ricezione: data.data_ricezione, // Il frontend invia YYYY-MM-DD
-                    noleggiato_a: data.noleggiato_a,
-                    data_apertura_noleggio: data.data_apertura_noleggio,
-                    data_chiusura_noleggio: data.data_chiusura_noleggio,
+                    sheetName: GOOGLE_SHEET_NAME,
+                    ...data
                 }),
             });
-            console.log(`gas.js: Action '${action}' sent. Assuming success (due to no-cors).`);
-            return { status: 'success' };
-        } catch (error) {
-            console.error(`gas.js: Errore di rete nell'invio dati per ${action}:`, error);
-            return { status: 'error', message: `Errore di rete: ${error.message}` };
-        }
-    };
 
-    // --- Gestione Invio Form ---
-    if (gasForm) {
-        gasForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            hideFeedback();
-            console.log("gas.js: Gas form submitted.");
-
-            const cylinderData = {
-                tipologia_gas: gasTipologiaGasInput.value.trim() || '',
-                matricola: gasMatricolaInput.value.trim(),
-                litri: parseInt(gasLitriInput.value, 10),
-                data_ricezione: gasDataRicezioneInput.value || '',
-                noleggiato_a: gasNoleggiatoAInput.value.trim() || '',
-                data_apertura_noleggio: gasDataAperturaNoleggioInput.value || '',
-                data_chiusura_noleggio: gasDataChiusuraNoleggioInput.value || '',
-            };
-
-            if (!cylinderData.matricola) {
-                showFeedback('La Matricola è un campo obbligatorio.', 'error');
-                console.warn("gas.js: Validation failed: Matricola is required.");
-                return;
-            }
-            if (gasLitriInput.value.trim() === '' || isNaN(cylinderData.litri) || cylinderData.litri < 0) {
-                 cylinderData.litri = 0;
-                 gasLitriInput.value = 0;
-            }
-
-            let result;
-            if (isEditMode) {
-                const originalMatricola = gasMatricolaOriginalInput.value;
-                console.log(`gas.js: Updating cylinder with original matricola: ${originalMatricola}`);
-                result = await sendDataToGoogleSheet('update', { ...cylinderData, matricola: originalMatricola });
-            } else {
-                const isDuplicate = allGasCylinders.some(c => c.matricola === cylinderData.matricola);
-                if (isDuplicate) {
-                    showFeedback('Esiste già una bombola con questa matricola. Usa una matricola unica.', 'error');
-                    console.warn("gas.js: Duplicate matricola detected on add.");
-                    return;
-                }
-                console.log("gas.js: Adding new cylinder.");
-                result = await sendDataToGoogleSheet('add', cylinderData);
-            }
+            const result = await response.json();
 
             if (result.status === 'success') {
-                showFeedback('Operazione completata con successo! Aggiorno i dati...', 'success');
-                setTimeout(() => {
-                    closeGasModal();
-                    fetchAndDisplayGasCylinders();
-                }, 1500);
+                showFeedback(`Operazione "${action}" completata con successo!`, 'success');
+                return true;
             } else {
-                showFeedback(`Errore: ${result.message}`, 'error');
+                showFeedback(`Errore durante l'operazione "${action}": ${result.message}`, 'error');
+                console.error(`Errore Apps Script (${action}):`, result.message);
+                return false;
             }
-        });
-    }
-
-    // --- Carica e Mostra Bombole Gas ---
-    const fetchAndDisplayGasCylinders = async () => {
-        console.log("gas.js: Fetching and displaying gas cylinders from Firestore.");
-        try {
-            const snapshot = await db.collection('gasCylinders').get({ source: 'server' }); 
-            allGasCylinders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderGasTable(allGasCylinders);
-            console.log(`gas.js: Found ${allGasCylinders.length} gas cylinders.`);
         } catch (error) {
-            console.error("gas.js: Errore nel caricamento delle bombole gas da Firestore:", error);
-            gasTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Errore nel caricamento delle bombole gas. ${error.message}</td></tr>`;
-            if (noGasMessage) noGasMessage.style.display = 'block';
+            showFeedback(`Errore di rete o server durante l'operazione "${action}".`, 'error');
+            console.error(`Errore fetch Apps Script (${action}):`, error);
+            return false;
         }
     };
 
-    const renderGasTable = (cylindersToDisplay) => {
-        gasTableBody.innerHTML = '';
-        if (cylindersToDisplay.length === 0) {
-            if (noGasMessage) noGasMessage.style.display = 'block';
-            console.log("gas.js: No gas cylinders to display. Showing 'no message'.");
+    // --- GESTIONE DATI FIRESTORE E TABELLA ---
+    const fetchGasCylinders = async () => {
+        try {
+            // Ordina per matricola per una visualizzazione consistente
+            const snapshot = await db.collection(FIRESTORE_COLLECTION_NAME).orderBy('matricola').get();
+            allGasCylinders = snapshot.docs.map(doc => doc.data());
+            renderGasTable(allGasCylinders);
+        } catch (error) {
+            console.error("Errore nel recupero delle bombole gas da Firestore:", error);
+            showFeedback("Errore nel caricamento delle bombole gas.", "error");
+        }
+    };
+
+    const renderGasTable = (cylinders) => {
+        gasTableBody.innerHTML = ''; // Pulisce la tabella esistente
+
+        if (cylinders.length === 0) {
+            const row = gasTableBody.insertRow();
+            const cell = row.insertCell();
+            cell.colSpan = 8; // Numero di colonne nella tabella
+            cell.textContent = 'Nessuna bombola gas trovata.';
+            cell.style.textAlign = 'center';
             return;
         }
-        if (noGasMessage) noGasMessage.style.display = 'none';
 
-        cylindersToDisplay.forEach(cylinder => {
+        cylinders.forEach(cylinder => {
             const row = gasTableBody.insertRow();
-            row.dataset.matricola = cylinder.matricola;
-            row.innerHTML = `
-                <td>${cylinder.tipologia_gas || 'N/D'}</td>
-                <td>${cylinder.matricola || 'N/D'}</td>
-                <td>${cylinder.litri !== undefined && cylinder.litri !== null ? cylinder.litri : 'N/D'}</td>
-                <td>${formatDateForDisplay(cylinder.data_ricezione)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
-                <td>${cylinder.noleggiato_a || 'N/D'}</td>
-                <td>${formatDateForDisplay(cylinder.data_apertura_noleggio)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
-                <td>${formatDateForDisplay(cylinder.data_chiusura_noleggio)}</td> <!-- MODIFICATO: Usa la nuova funzione di formattazione -->
-                <td class="actions-cell">
-                    <button class="action-btn edit" title="Modifica"><i class="fas fa-edit"></i></button>
-                    <button class="action-btn delete" title="Elimina"><i class="fas fa-trash-alt"></i></button>
-                </td>
-            `;
-        });
-        console.log(`gas.js: Rendered ${cylindersToDisplay.length} rows.`);
-    };
+            row.dataset.matricola = cylinder.matricola; // Per riferimento rapido
 
-    // --- Funzionalità di Ricerca ---
-    if (gasSearchInput) {
-        gasSearchInput.addEventListener('input', () => {
-            console.log("gas.js: Search input changed.");
-            const query = gasSearchInput.value.toLowerCase().trim();
-            const filteredCylinders = allGasCylinders.filter(cylinder =>
-                cylinder.tipologia_gas?.toLowerCase().includes(query) ||
-                cylinder.matricola?.toLowerCase().includes(query) ||
-                String(cylinder.litri)?.includes(query) ||
-                cylinder.noleggiato_a?.toLowerCase().includes(query) ||
-                // MODIFICATO: La ricerca per data dovrebbe funzionare sul formato visualizzato
-                formatDateForDisplay(cylinder.data_ricezione).toLowerCase().includes(query) ||
-                formatDateForDisplay(cylinder.data_apertura_noleggio).toLowerCase().includes(query) ||
-                formatDateForDisplay(cylinder.data_chiusura_noleggio).toLowerCase().includes(query)
-            );
-            renderGasTable(filteredCylinders);
-        });
-    }
+            row.insertCell().textContent = cylinder.matricola || 'N/D';
+            row.insertCell().textContent = cylinder.tipologia_gas || 'N/D';
+            row.insertCell().textContent = cylinder.litri !== undefined ? cylinder.litri : 'N/D';
+            row.insertCell().textContent = formatDateForDisplay(cylinder.data_ricezione);
+            row.insertCell().textContent = cylinder.noleggiato_a || '';
+            row.insertCell().textContent = formatDateForDisplay(cylinder.data_apertura_noleggio);
+            row.insertCell().textContent = formatDateForDisplay(cylinder.data_chiusura_noleggio);
 
-    // --- Azioni di Modifica/Eliminazione ---
-    if (gasTableBody) {
-        gasTableBody.addEventListener('click', async (e) => {
-            const row = e.target.closest('tr');
-            if (!row) return;
+            const actionsCell = row.insertCell();
+            actionsCell.className = 'actions-cell';
+            
+            const editButton = document.createElement('button');
+            editButton.className = 'action-btn edit';
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.title = 'Modifica';
+            editButton.addEventListener('click', () => openGasModal(cylinder));
+            actionsCell.appendChild(editButton);
 
-            const matricola = row.dataset.matricola;
-            const cylinder = allGasCylinders.find(c => c.matricola === matricola);
-
-            if (!cylinder) {
-                console.error("gas.js: Cilindro non trovato per matricola:", matricola);
-                return;
-            }
-            console.log(`gas.js: Action detected for matricola: ${matricola}`);
-
-            if (e.target.closest('.edit')) {
-                console.log("gas.js: Edit button clicked.");
-                openGasModal(cylinder);
-            } else if (e.target.closest('.delete')) {
-                console.log("gas.js: Delete button clicked.");
-                if (confirm(`Sei sicuro di voler eliminare la bombola matricola ${cylinder.matricola} (${cylinder.tipologia_gas})?`)) {
-                    const result = await sendDataToGoogleSheet('delete', { matricola: cylinder.matricola });
-                    if (result.status === 'success') {
-                        alert('Richiesta di eliminazione inviata. Aggiorno i dati...');
-                        setTimeout(() => fetchAndDisplayGasCylinders(), 1500);
-                    } else {
-                        alert(`Errore durante l'eliminazione: ${result.message}`);
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'action-btn delete';
+            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            deleteButton.title = 'Elimina';
+            deleteButton.addEventListener('click', async () => {
+                if (confirm(`Sei sicuro di voler eliminare la bombola con matricola ${cylinder.matricola}?`)) {
+                    const success = await sendRequestToAppsScript('delete', { matricola: cylinder.matricola });
+                    if (success) {
+                        fetchGasCylinders(); // Ricarica i dati dopo l'eliminazione
                     }
                 }
+            });
+            actionsCell.appendChild(deleteButton);
+        });
+    };
+
+    // --- EVENT LISTENERS ---
+    addGasButton.addEventListener('click', () => openGasModal());
+    closeGasModalBtn.addEventListener('click', closeGasModal);
+    cancelGasModalBtn.addEventListener('click', closeGasModal);
+
+    gasForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const isEditing = !!gasIdField.value; // Se gasIdField ha un valore, siamo in modalità modifica
+        const currentMatricola = matricolaInput.value.trim();
+
+        // Validazione per matricola duplicata solo in fase di aggiunta
+        if (!isEditing) {
+            const existingCylinder = allGasCylinders.find(c => c.matricola === currentMatricola);
+            if (existingCylinder) {
+                showFeedback('Errore: Esiste già una bombola con questa matricola.', 'error');
+                return;
+            }
+        }
+
+        const gasData = {
+            matricola: currentMatricola,
+            tipologia_gas: tipologiaGasInput.value.trim(),
+            litri: parseInt(litriInput.value, 10),
+            // Invia le date come stringhe ISO, il Google Apps Script le formatterà
+            data_ricezione: dataRicezioneInput.value ? new Date(dataRicezioneInput.value).toISOString() : '',
+            noleggiato_a: noleggiatoAInput.value.trim(),
+            data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
+            data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
+        };
+
+        // Rimuovi campi vuoti o nulli per non scriverli in Firestore se non necessari
+        Object.keys(gasData).forEach(key => {
+            if (gasData[key] === '' || gasData[key] === null || (typeof gasData[key] === 'number' && isNaN(gasData[key]))) {
+                delete gasData[key];
             }
         });
+
+        let success;
+        if (isEditing) {
+            // Per l'aggiornamento, assicurati che la matricola originale sia inclusa per trovare la riga nel foglio
+            success = await sendRequestToAppsScript('update', { ...gasData, matricola: gasIdField.value });
+        } else {
+            success = await sendRequestToAppsScript('add', gasData);
+        }
+
+        if (success) {
+            closeGasModal();
+            fetchGasCylinders(); // Ricarica i dati dopo l'operazione
+        }
+    });
+
+    // --- INIZIALIZZAZIONE ---
+    // L'auth.js gestisce la visibilità di app-content e il loader iniziale.
+    // Quando app-content diventa visibile, carichiamo i dati.
+    const appContent = document.getElementById('app-content');
+    if (appContent) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === 'class') {
+                    const isHidden = appContent.classList.contains('hidden');
+                    if (!isHidden) {
+                        fetchGasCylinders();
+                    }
+                }
+            });
+        });
+        observer.observe(appContent, { attributes: true });
+    } else {
+        // Fallback se app-content non è presente (es. per test diretti)
+        fetchGasCylinders();
     }
 });
