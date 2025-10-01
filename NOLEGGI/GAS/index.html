@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Gestione Bombole Gas a Noleggio</title>
-
-    <!-- Percorso al CSS principale (risale di due livelli dalla cartella NOLEGGI/GAS/) -->
-    <link rel="stylesheet" href="../../style.css">
-
+    <title>CAI - Gestione Bombole Gas</title>
+    
+    <!-- Percorso relativo corretto per il CSS principale -->
+    <link rel="stylesheet" href="../../style.css"> 
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <!-- Loader iniziale -->
+    <!-- Loader iniziale - Copiato dalla home -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
-        <p>Caricamento pagina...</p>
+        <p>Verifica in corso...</p>
     </div>
 
-    <!-- Header dell'Applicazione -->
+    <!-- Header dell'Applicazione - Copiato dalla home -->
     <header class="app-header">
-        <!-- MODIFICATO: Logo ora cliccabile per tornare alla Home -->
-        <a href="../../index.html"> <!-- Risale di due livelli per raggiungere la Home nella root -->
-            <img src="../../LOGO CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-        </a>
+        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
         <div class="header-controls">
+            <!-- Il pulsante add-category-trigger non è strettamente necessario qui, ma lo lascio per coerenza se l'admin dovesse usarlo -->
             <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
                 <i class="fas fa-plus-circle"></i>
             </button>
@@ -36,91 +34,95 @@
 
     <!-- Area principale del contenuto -->
     <main id="content-area">
-        <div id="gas-management-content">
-            <h2>Gestione Bombole Gas a Noleggio</h2>
+        <!-- La sezione di login non è necessaria qui, auth.js reindirizzerà se non loggato -->
+        <div id="app-content" class="hidden">
+            <div id="gas-management-content">
+                <h2>Gestione Bombole Gas</h2>
 
-            <div id="gas-controls">
-                <input type="text" id="gas-search-input" placeholder="Cerca bombola per gas, matricola, cliente..." aria-label="Cerca bombola gas">
-                <button id="add-gas-button"><i class="fas fa-plus-circle"></i> Aggiungi Bombola</button>
-                <button id="print-table-button" class="print-button"><i class="fas fa-print"></i> Stampa Tabella</button> <!-- NUOVO: Pulsante Stampa -->
-            </div>
+                <div id="gas-controls">
+                    <button id="add-gas-button" class="btn-login">
+                        <i class="fas fa-plus-circle"></i> Aggiungi Bombola
+                    </button>
+                </div>
 
-            <div class="gas-table-container">
-                <table class="gas-table" id="gas-data-table"> <!-- NUOVO ID per la stampa -->
-                    <thead>
-                        <tr>
-                            <th>TIPOLOGIA GAS</th>
-                            <th>MATRICOLA</th>
-                            <th>LITRI</th>
-                            <th>DATA RICEZIONE</th>
-                            <th>NOLEGGIATO A</th>
-                            <th>DATA APERTURA NOLEGGIO</th>
-                            <th>DATA CHIUSURA NOLEGGIO</th>
-                            <th>AZIONI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gas-table-body">
-                        <!-- I dati delle bombole gas verranno caricati qui dallo script JS -->
-                    </tbody>
-                </table>
-                <p id="no-gas-message" style="text-align: center; margin-top: 20px; display: none;">Nessuna bombola gas trovata.</p>
+                <div class="gas-table-container">
+                    <table id="gas-table" class="gas-table">
+                        <thead>
+                            <tr>
+                                <th>MATRICOLA</th>
+                                <th>TIPOLOGIA GAS</th>
+                                <th>LITRI</th>
+                                <th>DATA RICEZIONE</th>
+                                <th>NOLEGGIATO A</th>
+                                <th>DATA APERTURA NOLEGGIO</th>
+                                <th>DATA CHIUSURA NOLEGGIO</th>
+                                <th class="actions-cell">AZIONI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gas-table-body">
+                            <!-- Le righe delle bombole verranno inserite qui da JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Modal per Aggiunta/Modifica Bombola Gas -->
-    <div id="gas-modal-overlay">
+    <!-- Modale per Aggiunta/Modifica Bombola Gas -->
+    <div id="gas-modal-overlay" class="gas-modal-overlay">
         <div class="gas-modal-container">
             <button class="gas-modal-close-btn" id="close-gas-modal-btn">×</button>
             <h3 id="gas-modal-title">Aggiungi Nuova Bombola Gas</h3>
             <form id="gas-form">
-                <input type="hidden" id="gas-form-matricola-original"> <!-- Per salvare la matricola originale in caso di modifica -->
+                <input type="hidden" id="gas-id-field"> <!-- Campo nascosto per la matricola in caso di modifica -->
+                
                 <div class="form-group">
-                    <label for="gas-tipologia-gas">Tipologia Gas:</label>
-                    <input type="text" id="gas-tipologia-gas">
+                    <label for="matricola">Matricola:</label>
+                    <input type="text" id="matricola" name="matricola" required>
                 </div>
                 <div class="form-group">
-                    <label for="gas-matricola">Matricola:</label>
-                    <input type="text" id="gas-matricola" required>
+                    <label for="tipologia_gas">Tipologia Gas:</label>
+                    <input type="text" id="tipologia_gas" name="tipologia_gas" required>
                 </div>
                 <div class="form-group">
-                    <label for="gas-litri">Litri:</label>
-                    <input type="number" id="gas-litri" min="0">
+                    <label for="litri">Litri:</label>
+                    <input type="number" id="litri" name="litri" required min="0">
                 </div>
                 <div class="form-group">
-                    <label for="gas-data-ricezione">Data Ricezione:</label>
-                    <input type="date" id="gas-data-ricezione">
+                    <label for="data_ricezione">Data Ricezione:</label>
+                    <input type="date" id="data_ricezione" name="data_ricezione">
                 </div>
                 <div class="form-group">
-                    <label for="gas-noleggiato-a">Noleggiato a (Cliente):</label>
-                    <input type="text" id="gas-noleggiato-a">
+                    <label for="noleggiato_a">Noleggiato A:</label>
+                    <input type="text" id="noleggiato_a" name="noleggiato_a">
                 </div>
                 <div class="form-group">
-                    <label for="gas-data-apertura-noleggio">Data Apertura Noleggio:</label>
-                    <input type="date" id="gas-data-apertura-noleggio">
+                    <label for="data_apertura_noleggio">Data Apertura Noleggio:</label>
+                    <input type="date" id="data_apertura_noleggio" name="data_apertura_noleggio">
                 </div>
                 <div class="form-group">
-                    <label for="gas-data-chiusura-noleggio">Data Chiusura Noleggio:</label>
-                    <input type="date" id="gas-data-chiusura-noleggio">
+                    <label for="data_chiusura_noleggio">Data Chiusura Noleggio:</label>
+                    <input type="date" id="data_chiusura_noleggio" name="data_chiusura_noleggio">
                 </div>
-                <p id="gas-form-feedback" class="feedback-message hidden"></p>
+                
                 <div class="gas-modal-buttons">
                     <button type="button" class="btn btn-secondary" id="cancel-gas-modal-btn">Annulla</button>
-                    <button type="submit" class="btn btn-primary" id="save-gas-button">Salva Bombola</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
                 </div>
+                <p id="gas-feedback-message" class="feedback-message hidden"></p>
             </form>
         </div>
     </div>
-    <div id="admin-overlay" class="overlay hidden"></div>
 
     <!-- Script di Firebase e Script Applicativi -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <!-- Percorsi ai file di configurazione e auth (risalgono di due livelli dalla cartella NOLEGGI/GAS/) -->
-    <script src="../../firebase-config.js"></script>
-    <script src="../../auth.js"></script>
-    <script src="gas.js"></script> <!-- Percorso relativo alla stessa cartella per lo script specifico -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    
+    <!-- Percorsi relativi corretti per gli script condivisi -->
+    <script src="../../firebase-config.js"></script> 
+    <script src="../../auth.js"></script> 
+    <!-- Script specifico per questa pagina -->
+    <script src="gas-script.js"></script> 
 </body>
 </html>
