@@ -139,13 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<boolean>} True se l'operazione ha avuto successo, false altrimenti.
      */
     const sendRequestToAppsScript = async (action, data) => {
-        if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbx-eumOLSv5sEIzh454avADIeAP6ztf_uODIIXhq5ZRnYfXgZSKbRB1MbkZ4f1r-6_q/exec') {
-            showFeedback('ERRORE: URL dello script Google Apps non configurato! Contatta l\'amministratore.', 'error');
-            console.error('URL dello script Google Apps non configurato!');
-            return false;
-        }
-
-        try {
+                try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                 method: 'POST',
                 headers: {
