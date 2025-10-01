@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CONFIGURAZIONE ESSENZIALE ---
     // !!! IMPORTANTE: SOSTITUISCI QUESTO PLACEHOLDER CON L'URL DELLA TUA WEB APP GOOGLE APPS SCRIPT !!!
     // Segui le istruzioni nel mio messaggio precedente per ottenere l'URL.
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwgHIqzTr9oDZz1mTq9lnB2dSFFkipH60eh6-T31vIY1iZ4NQecRXwdT2EZ377pfXpU/exec'; 
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-eumOLSv5sEIzh454avADIeAP6ztf_uODIIXhq5ZRnYfXgZSKbRB1MbkZ4f1r-6_q/exec'; 
     
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders'; // Nome della collezione Firestore per le bombole gas
     const GOOGLE_SHEET_NAME = 'gas'; // Nome del foglio Google Sheets che lo script Apps Script deve manipolare
@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {Promise<boolean>} True se l'operazione ha avuto successo, false altrimenti.
      */
     const sendRequestToAppsScript = async (action, data) => {
-        if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        if (GOOGLE_APPS_SCRIPT_WEB_APP_URL === 'https://script.google.com/macros/s/AKfycbx-eumOLSv5sEIzh454avADIeAP6ztf_uODIIXhq5ZRnYfXgZSKbRB1MbkZ4f1r-6_q/exec') {
             showFeedback('ERRORE: URL dello script Google Apps non configurato! Contatta l\'amministratore.', 'error');
             console.error('URL dello script Google Apps non configurato!');
             return false;
