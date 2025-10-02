@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CONFIGURAZIONE ESSENZIALE ---
     // Questo è l'URL del NUOVO DEPLOY che hai creato. Lascialo così com'è.
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbx-eumOLSv5sEIzh454avADIeAP6ztf_uODIIXhq5ZRnYfXgZSKbRB1MbkZ4f1r-6_q/exec'; 
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyjxYqk5TxalBIc2iXdnWscmU9OhDPHMsCI1n99vk_ynaUl7OAGQe5tqokOsWniOn5s/exec'; 
     
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders'; // Nome della collezione Firestore per le bombole gas
     const GOOGLE_SHEET_NAME = 'gas'; // Nome del foglio Google Sheets che lo script Apps Script deve manipolare
