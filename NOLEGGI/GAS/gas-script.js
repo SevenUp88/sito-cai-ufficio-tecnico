@@ -1,4 +1,4 @@
-// gas-script.js - VERSIONE CON SOMMARIO DINAMICO, NUMERO PROGRESSIVO E STAMPA
+// gas-script.js - VERSIONE COMPLETA CON SOMMARIO A BLOCCHI
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase === 'undefined') {
@@ -7,14 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const db = firebase.firestore();
-    
-    // URL funzionante dalla pagina Preventivi
     const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec'; 
-    
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders';
     const GOOGLE_SHEET_NAME = 'gas';
 
-    // --- ELEMENTI DOM ---
     const summaryContainer = document.getElementById('summary-container');
     const gasTableBody = document.getElementById('gas-table-body');
     const addGasButton = document.getElementById('add-gas-button');
@@ -36,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allGasCylinders = [];
 
-    // --- FUNZIONI UTILITY ---
     const showFeedback = (message, type) => {
         gasFeedbackMessage.textContent = message;
         gasFeedbackMessage.className = `feedback-message ${type}`;
@@ -58,12 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }); 
     };
 
-    // --- FUNZIONI MODAL ---
     const openGasModal = (cylinderData = null) => {
         gasForm.reset();
         gasFeedbackMessage.classList.add('hidden');
         gasIdField.value = '';
-
         if (cylinderData) {
             gasModalTitle.textContent = 'Modifica Bombola Gas';
             gasIdField.value = cylinderData.matricola;
@@ -86,7 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
         gasModalOverlay.classList.remove('visible');
     };
 
-    // --- INTERAZIONE CON GOOGLE APPS SCRIPT (con approccio 'no-cors') ---
     const sendRequestToAppsScript = (action, data) => {
         fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
             method: 'POST',
@@ -94,42 +86,59 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action, sheetName: GOOGLE_SHEET_NAME, ...data }),
         }).catch(console.error);
-        
         showFeedback(`Richiesta "${action}" inviata.`, 'success');
         return true; 
     };
 
-    // --- FUNZIONE PER IL SOMMARIO ---
     const updateSummary = (cylinders) => {
         const availableCylinders = cylinders.filter(c => !c.noleggiato_a || c.noleggiato_a.trim() === '');
 
-        const summary = availableCylinders.reduce((acc, cylinder) => {
-            const key = `${cylinder.tipologia_gas || 'N/D'} - ${cylinder.litri || 0}L`;
-            if (!acc[key]) {
-                acc[key] = 0;
+        const summaryByGas = availableCylinders.reduce((acc, cylinder) => {
+            const gasType = (cylinder.tipologia_gas || 'N/D').toUpperCase();
+            const liters = cylinder.litri || 0;
+            if (!acc[gasType]) {
+                acc[gasType] = {};
             }
-            acc[key]++;
+            if (!acc[gasType][liters]) {
+                acc[gasType][liters] = 0;
+            }
+            acc[gasType][liters]++;
             return acc;
         }, {});
 
         summaryContainer.innerHTML = '';
-        const sortedKeys = Object.keys(summary).sort();
+        const sortedGasTypes = Object.keys(summaryByGas).sort();
 
-        if (sortedKeys.length === 0) {
+        if (sortedGasTypes.length === 0) {
             summaryContainer.innerHTML = '<p class="summary-empty">Nessuna bombola disponibile al momento.</p>';
             return;
         }
 
-        sortedKeys.forEach(key => {
-            const count = summary[key];
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'summary-item';
-            itemDiv.innerHTML = `<span class="summary-count">${count}</span><span class="summary-label">${key}</span>`;
-            summaryContainer.appendChild(itemDiv);
+        sortedGasTypes.forEach(gasType => {
+            const gasBlock = document.createElement('div');
+            gasBlock.className = 'summary-gas-block';
+            const title = document.createElement('h3');
+            title.textContent = gasType;
+            gasBlock.appendChild(title);
+            const litersContainer = document.createElement('div');
+            litersContainer.className = 'summary-liters-container';
+            const litersData = summaryByGas[gasType];
+            const sortedLiters = Object.keys(litersData).sort((a, b) => a - b);
+            sortedLiters.forEach(liters => {
+                const count = litersData[liters];
+                const literItem = document.createElement('div');
+                literItem.className = 'summary-liter-item';
+                literItem.innerHTML = `
+                    <span class="summary-liter-label">${liters} litri</span>
+                    <span class="summary-liter-count">${count}</span>
+                `;
+                litersContainer.appendChild(literItem);
+            });
+            gasBlock.appendChild(litersContainer);
+            summaryContainer.appendChild(gasBlock);
         });
     };
 
-    // --- GESTIONE DATI E TABELLA ---
     const fetchGasCylinders = async () => {
         try {
             const snapshot = await db.collection(FIRESTORE_COLLECTION_NAME).orderBy('matricola').get();
@@ -144,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderGasTable = (cylinders) => {
         gasTableBody.innerHTML = '';
-
         if (cylinders.length === 0) {
             const row = gasTableBody.insertRow();
             row.insertCell().colSpan = 9;
@@ -156,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cylinders.forEach((cylinder, index) => {
             const row = gasTableBody.insertRow();
             row.dataset.matricola = cylinder.matricola;
-
             row.insertCell().textContent = index + 1;
             row.insertCell().textContent = cylinder.matricola || 'N/D';
             row.insertCell().textContent = cylinder.tipologia_gas || 'N/D';
@@ -165,17 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
             row.insertCell().textContent = cylinder.noleggiato_a || '';
             row.insertCell().textContent = formatDateForDisplay(cylinder.data_apertura_noleggio);
             row.insertCell().textContent = formatDateForDisplay(cylinder.data_chiusura_noleggio);
-
             const actionsCell = row.insertCell();
             actionsCell.className = 'actions-cell';
-            
             const editButton = document.createElement('button');
             editButton.className = 'action-btn edit';
             editButton.innerHTML = '<i class="fas fa-edit"></i>';
             editButton.title = 'Modifica Bombola';
             editButton.addEventListener('click', () => openGasModal(cylinder));
             actionsCell.appendChild(editButton);
-
             const deleteButton = document.createElement('button');
             deleteButton.className = 'action-btn delete';
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
@@ -193,12 +197,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // --- FUNZIONE DI STAMPA ---
     const handlePrint = () => {
         window.print();
     };
 
-    // --- EVENT LISTENERS ---
     addGasButton.addEventListener('click', () => openGasModal());
     printTableBtn.addEventListener('click', handlePrint);
     closeGasModalBtn.addEventListener('click', closeGasModal);
@@ -208,12 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const isEditing = !!gasIdField.value;
         const currentMatricola = matricolaInput.value.trim();
-
         if (!isEditing && allGasCylinders.find(c => c.matricola === currentMatricola)) {
             showFeedback('Errore: Esiste già una bombola con questa matricola.', 'error');
             return;
         }
-
         const gasData = {
             matricola: currentMatricola,
             tipologia_gas: tipologiaGasInput.value.trim(),
@@ -223,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
             data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
             data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
         };
-
         const success = isEditing 
             ? sendRequestToAppsScript('update', { ...gasData, matricola: gasIdField.value })
             : sendRequestToAppsScript('add', gasData);
@@ -235,7 +234,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 allGasCylinders.push(gasData);
             }
-            
             allGasCylinders.sort((a, b) => (a.matricola || '').localeCompare(b.matricola || ''));
             renderGasTable(allGasCylinders);
             updateSummary(allGasCylinders);
@@ -243,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- INIZIALIZZAZIONE ---
     const appContent = document.getElementById('app-content');
     if (appContent) {
         const observer = new MutationObserver((mutations) => {
