@@ -9,6 +9,84 @@
     <link rel="stylesheet" href="../../style.css"> 
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Stili specifici per questa pagina (pulsanti e stampa) -->
+    <style>
+        /* Stili per i nuovi pulsanti */
+        #gas-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px; /* Aggiunge spazio sotto i pulsanti */
+        }
+
+        .header-button {
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+        .header-button i {
+            margin-right: 8px;
+        }
+
+        #add-gas-button {
+             background-color: #28a745; /* Verde */
+        }
+        #print-table-btn {
+            background-color: #007bff; /* Blu */
+        }
+        #add-gas-button:hover { background-color: #218838; }
+        #print-table-btn:hover { background-color: #0056b3; }
+
+        /* Stili per la stampa */
+        @media print {
+            body * {
+                visibility: hidden; /* Nasconde tutto di default */
+            }
+            .gas-table-container, .gas-table-container * {
+                visibility: visible; /* Rende visibile solo la tabella e il suo contenuto */
+            }
+            .gas-table-container {
+                position: absolute;
+                left: 0;
+                top: 40px; /* Lascia spazio per il titolo */
+                width: 100%;
+                box-shadow: none;
+                border: none;
+            }
+            table {
+                font-size: 10pt; /* Riduci un po' il testo per la stampa */
+            }
+            th, td {
+                padding: 8px;
+            }
+            .actions-cell {
+                display: none; /* Nasconde la colonna delle azioni in stampa */
+            }
+            .app-header, .gas-modal-overlay, #gas-controls {
+                display: none; /* Nasconde header, modali e controlli */
+            }
+            #page-title {
+                 visibility: visible;
+                 position: absolute;
+                 top: 0;
+                 left: 0;
+                 width: 100%;
+                 text-align: center;
+                 font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Loader iniziale - Copiato dalla home -->
@@ -21,10 +99,6 @@
     <header class="app-header">
         <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
         <div class="header-controls">
-            <!-- Il pulsante add-category-trigger non è strettamente necessario qui, ma lo lascio per coerenza se l'admin dovesse usarlo -->
-            <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
-                <i class="fas fa-plus-circle"></i>
-            </button>
             <div id="user-dashboard" class="hidden">
                 <p>Utente: <span id="user-email-display"></span></p>
                 <button id="logout-button" class="btn-login">Logout</button>
@@ -34,14 +108,20 @@
 
     <!-- Area principale del contenuto -->
     <main id="content-area">
-        <!-- La sezione di login non è necessaria qui, auth.js reindirizzerà se non loggato -->
         <div id="app-content" class="hidden">
             <div id="gas-management-content">
-                <h2>Gestione Bombole Gas</h2>
+                
+                <h2 id="page-title">Gestione Bombole Gas</h2>
 
+                <!-- CONTENITORE CONTROLLI AGGIORNATO -->
                 <div id="gas-controls">
-                    <button id="add-gas-button" class="btn-login">
-                        <i class="fas fa-plus-circle"></i> Aggiungi Bombola
+                    <!-- Pulsante ridotto con nuova classe -->
+                    <button id="add-gas-button" class="header-button">
+                        <i class="fas fa-plus-circle"></i> Nuovo Noleggio
+                    </button>
+                    <!-- NUOVO PULSANTE STAMPA -->
+                    <button id="print-table-btn" class="header-button">
+                        <i class="fas fa-print"></i> Stampa
                     </button>
                 </div>
 
@@ -49,6 +129,8 @@
                     <table id="gas-table" class="gas-table">
                         <thead>
                             <tr>
+                                <!-- NUOVA COLONNA PER IL NUMERO PROGRESSIVO -->
+                                <th style="width: 40px;">#</th>
                                 <th>MATRICOLA</th>
                                 <th>TIPOLOGIA GAS</th>
                                 <th>LITRI</th>
@@ -60,7 +142,7 @@
                             </tr>
                         </thead>
                         <tbody id="gas-table-body">
-                            <!-- Le righe delle bombole verranno inserite qui da JavaScript -->
+                            <!-- Le righe verranno inserite qui da JavaScript -->
                         </tbody>
                     </table>
                 </div>
