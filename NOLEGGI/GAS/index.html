@@ -10,14 +10,14 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Stili specifici per questa pagina (pulsanti e stampa) -->
+    <!-- Stili specifici per questa pagina -->
     <style>
-        /* Stili per i nuovi pulsanti */
+        /* Stili per i pulsanti */
         #gas-controls {
             display: flex;
             gap: 10px;
             align-items: center;
-            margin-bottom: 20px; /* Aggiunge spazio sotto i pulsanti */
+            margin-bottom: 20px;
         }
 
         .header-button {
@@ -48,33 +48,73 @@
         #add-gas-button:hover { background-color: #218838; }
         #print-table-btn:hover { background-color: #0056b3; }
 
+        /* Stili per il sommario */
+        #summary-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
+            margin-bottom: 25px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .summary-item {
+            background-color: #fff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-left: 4px solid #0056a8;
+        }
+        .summary-count {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #0056a8;
+            line-height: 1;
+        }
+        .summary-label {
+            font-size: 0.95em;
+            font-weight: 500;
+            color: #343a40;
+            line-height: 1.2;
+        }
+        .summary-empty {
+            width: 100%;
+            text-align: center;
+            color: #6c757d;
+            padding: 10px 0;
+        }
+
         /* Stili per la stampa */
         @media print {
             body * {
-                visibility: hidden; /* Nasconde tutto di default */
+                visibility: hidden;
             }
             .gas-table-container, .gas-table-container * {
-                visibility: visible; /* Rende visibile solo la tabella e il suo contenuto */
+                visibility: visible;
             }
             .gas-table-container {
                 position: absolute;
                 left: 0;
-                top: 40px; /* Lascia spazio per il titolo */
+                top: 40px;
                 width: 100%;
                 box-shadow: none;
                 border: none;
             }
             table {
-                font-size: 10pt; /* Riduci un po' il testo per la stampa */
+                font-size: 10pt;
             }
             th, td {
                 padding: 8px;
             }
             .actions-cell {
-                display: none; /* Nasconde la colonna delle azioni in stampa */
+                display: none;
             }
-            .app-header, .gas-modal-overlay, #gas-controls {
-                display: none; /* Nasconde header, modali e controlli */
+            .app-header, .gas-modal-overlay, #gas-controls, #summary-container {
+                display: none;
             }
             #page-title {
                  visibility: visible;
@@ -89,13 +129,11 @@
     </style>
 </head>
 <body>
-    <!-- Loader iniziale - Copiato dalla home -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
         <p>Verifica in corso...</p>
     </div>
 
-    <!-- Header dell'Applicazione - Copiato dalla home -->
     <header class="app-header">
         <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
         <div class="header-controls">
@@ -106,20 +144,20 @@
         </div>
     </header>
 
-    <!-- Area principale del contenuto -->
     <main id="content-area">
         <div id="app-content" class="hidden">
             <div id="gas-management-content">
                 
                 <h2 id="page-title">Gestione Bombole Gas</h2>
 
-                <!-- CONTENITORE CONTROLLI AGGIORNATO -->
+                <div id="summary-container">
+                    <!-- Il sommario verrà generato qui da JavaScript -->
+                </div>
+
                 <div id="gas-controls">
-                    <!-- Pulsante ridotto con nuova classe -->
                     <button id="add-gas-button" class="header-button">
                         <i class="fas fa-plus-circle"></i> Nuovo Noleggio
                     </button>
-                    <!-- NUOVO PULSANTE STAMPA -->
                     <button id="print-table-btn" class="header-button">
                         <i class="fas fa-print"></i> Stampa
                     </button>
@@ -129,7 +167,6 @@
                     <table id="gas-table" class="gas-table">
                         <thead>
                             <tr>
-                                <!-- NUOVA COLONNA PER IL NUMERO PROGRESSIVO -->
                                 <th style="width: 40px;">#</th>
                                 <th>MATRICOLA</th>
                                 <th>TIPOLOGIA GAS</th>
@@ -142,7 +179,6 @@
                             </tr>
                         </thead>
                         <tbody id="gas-table-body">
-                            <!-- Le righe verranno inserite qui da JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -150,14 +186,12 @@
         </div>
     </main>
 
-    <!-- Modale per Aggiunta/Modifica Bombola Gas -->
     <div id="gas-modal-overlay" class="gas-modal-overlay">
         <div class="gas-modal-container">
             <button class="gas-modal-close-btn" id="close-gas-modal-btn">×</button>
             <h3 id="gas-modal-title">Aggiungi Nuova Bombola Gas</h3>
             <form id="gas-form">
-                <input type="hidden" id="gas-id-field"> <!-- Campo nascosto per la matricola in caso di modifica -->
-                
+                <input type="hidden" id="gas-id-field">
                 <div class="form-group">
                     <label for="matricola">Matricola:</label>
                     <input type="text" id="matricola" name="matricola" required>
@@ -186,7 +220,6 @@
                     <label for="data_chiusura_noleggio">Data Chiusura Noleggio:</label>
                     <input type="date" id="data_chiusura_noleggio" name="data_chiusura_noleggio">
                 </div>
-                
                 <div class="gas-modal-buttons">
                     <button type="button" class="btn btn-secondary" id="cancel-gas-modal-btn">Annulla</button>
                     <button type="submit" class="btn btn-primary">Salva</button>
@@ -196,15 +229,11 @@
         </div>
     </div>
 
-    <!-- Script di Firebase e Script Applicativi -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
-    
-    <!-- Percorsi relativi corretti per gli script condivisi -->
     <script src="../../firebase-config.js"></script> 
     <script src="../../auth.js"></script> 
-    <!-- Script specifico per questa pagina -->
     <script src="gas-script.js"></script> 
 </body>
 </html>
