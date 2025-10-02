@@ -1,4 +1,4 @@
-// gas-script.js - VERSIONE CON NUMERO PROGRESSIVO E STAMPA
+// gas-script.js - VERSIONE CON SOMMARIO DINAMICO, NUMERO PROGRESSIVO E STAMPA
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase === 'undefined') {
@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const GOOGLE_SHEET_NAME = 'gas';
 
     // --- ELEMENTI DOM ---
+    const summaryContainer = document.getElementById('summary-container');
     const gasTableBody = document.getElementById('gas-table-body');
     const addGasButton = document.getElementById('add-gas-button');
     const printTableBtn = document.getElementById('print-table-btn');
@@ -98,12 +99,43 @@ document.addEventListener('DOMContentLoaded', () => {
         return true; 
     };
 
+    // --- FUNZIONE PER IL SOMMARIO ---
+    const updateSummary = (cylinders) => {
+        const availableCylinders = cylinders.filter(c => !c.noleggiato_a || c.noleggiato_a.trim() === '');
+
+        const summary = availableCylinders.reduce((acc, cylinder) => {
+            const key = `${cylinder.tipologia_gas || 'N/D'} - ${cylinder.litri || 0}L`;
+            if (!acc[key]) {
+                acc[key] = 0;
+            }
+            acc[key]++;
+            return acc;
+        }, {});
+
+        summaryContainer.innerHTML = '';
+        const sortedKeys = Object.keys(summary).sort();
+
+        if (sortedKeys.length === 0) {
+            summaryContainer.innerHTML = '<p class="summary-empty">Nessuna bombola disponibile al momento.</p>';
+            return;
+        }
+
+        sortedKeys.forEach(key => {
+            const count = summary[key];
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'summary-item';
+            itemDiv.innerHTML = `<span class="summary-count">${count}</span><span class="summary-label">${key}</span>`;
+            summaryContainer.appendChild(itemDiv);
+        });
+    };
+
     // --- GESTIONE DATI E TABELLA ---
     const fetchGasCylinders = async () => {
         try {
             const snapshot = await db.collection(FIRESTORE_COLLECTION_NAME).orderBy('matricola').get();
             allGasCylinders = snapshot.docs.map(doc => doc.data());
             renderGasTable(allGasCylinders);
+            updateSummary(allGasCylinders);
         } catch (error) {
             console.error("Errore nel recupero delle bombole gas:", error);
             gasTableBody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:red;">Errore nel caricamento dei dati.</td></tr>';
@@ -115,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (cylinders.length === 0) {
             const row = gasTableBody.insertRow();
-            row.insertCell().colSpan = 9; // Aggiornato a 9
+            row.insertCell().colSpan = 9;
             row.cells[0].textContent = 'Nessuna bombola gas trovata. Aggiungine una!';
             row.cells[0].style.textAlign = 'center';
             return;
@@ -125,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = gasTableBody.insertRow();
             row.dataset.matricola = cylinder.matricola;
 
-            row.insertCell().textContent = index + 1; // Numero progressivo
+            row.insertCell().textContent = index + 1;
             row.insertCell().textContent = cylinder.matricola || 'N/D';
             row.insertCell().textContent = cylinder.tipologia_gas || 'N/D';
             row.insertCell().textContent = cylinder.litri !== undefined ? cylinder.litri : 'N/D';
@@ -153,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (sendRequestToAppsScript('delete', { matricola: cylinder.matricola })) {
                         allGasCylinders = allGasCylinders.filter(c => c.matricola !== cylinder.matricola);
                         renderGasTable(allGasCylinders);
+                        updateSummary(allGasCylinders);
                     }
                 }
             });
@@ -162,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- FUNZIONE DI STAMPA ---
     const handlePrint = () => {
-        window.print(); // Apre la finestra di dialogo di stampa del browser
+        window.print();
     };
 
     // --- EVENT LISTENERS ---
@@ -183,12 +216,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const gasData = {
             matricola: currentMatricola,
-            tipologia_gas: document.getElementById('tipologia_gas').value.trim(),
-            litri: parseInt(document.getElementById('litri').value, 10),
-            data_ricezione: document.getElementById('data_ricezione').value ? new Date(document.getElementById('data_ricezione').value).toISOString() : '',
-            noleggiato_a: document.getElementById('noleggiato_a').value.trim(),
-            data_apertura_noleggio: document.getElementById('data_apertura_noleggio').value ? new Date(document.getElementById('data_apertura_noleggio').value).toISOString() : '',
-            data_chiusura_noleggio: document.getElementById('data_chiusura_noleggio').value ? new Date(document.getElementById('data_chiusura_noleggio').value).toISOString() : '',
+            tipologia_gas: tipologiaGasInput.value.trim(),
+            litri: parseInt(litriInput.value, 10),
+            data_ricezione: dataRicezioneInput.value ? new Date(dataRicezioneInput.value).toISOString() : '',
+            noleggiato_a: noleggiatoAInput.value.trim(),
+            data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
+            data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
         };
 
         const success = isEditing 
@@ -205,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             allGasCylinders.sort((a, b) => (a.matricola || '').localeCompare(b.matricola || ''));
             renderGasTable(allGasCylinders);
+            updateSummary(allGasCylinders);
             closeGasModal();
         }
     });
