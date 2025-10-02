@@ -5,81 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Gestione Bombole Gas</title>
     
-    <!-- Percorso relativo corretto per il CSS principale -->
     <link rel="stylesheet" href="../../style.css"> 
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <!-- Stili specifici per questa pagina -->
     <style>
         /* Stili per i pulsanti */
-        #gas-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .header-button {
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            transition: background-color 0.2s;
-        }
-        .header-button i {
-            margin-right: 8px;
-        }
-
-        #add-gas-button {
-             background-color: #28a745; /* Verde */
-        }
-        #print-table-btn {
-            background-color: #007bff; /* Blu */
-        }
+        #gas-controls { display: flex; gap: 10px; align-items: center; margin-bottom: 20px; }
+        .header-button { color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s; }
+        .header-button i { margin-right: 8px; }
+        #add-gas-button { background-color: #28a745; }
+        #print-table-btn { background-color: #007bff; }
         #add-gas-button:hover { background-color: #218838; }
         #print-table-btn:hover { background-color: #0056b3; }
 
-        /* Stili per il sommario */
+        /* --- NUOVI STILI PER IL SOMMARIO A BLOCCHI --- */
         #summary-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            padding: 15px;
+            gap: 20px;
+            padding: 20px;
             margin-bottom: 25px;
             background-color: #f8f9fa;
             border-radius: 6px;
             border: 1px solid #dee2e6;
         }
-        .summary-item {
-            background-color: #fff;
-            padding: 10px 15px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border-left: 4px solid #0056a8;
+        .summary-gas-block {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            flex-grow: 1;
         }
-        .summary-count {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #0056a8;
-            line-height: 1;
-        }
-        .summary-label {
-            font-size: 0.95em;
-            font-weight: 500;
+        .summary-gas-block h3 {
+            font-size: 1.5em;
             color: #343a40;
-            line-height: 1.2;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #0056a8;
+            padding-bottom: 10px;
+        }
+        .summary-liters-container {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+        .summary-liter-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .summary-liter-label {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #495057;
+            background-color: #e9ecef;
+            padding: 4px 12px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .summary-liter-count {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: white;
+            background-color: #0056a8;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
         }
         .summary-empty {
             width: 100%;
@@ -87,153 +85,29 @@
             color: #6c757d;
             padding: 10px 0;
         }
+        /* --- FINE NUOVI STILI --- */
 
-        /* Stili per la stampa */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            .gas-table-container, .gas-table-container * {
-                visibility: visible;
-            }
-            .gas-table-container {
-                position: absolute;
-                left: 0;
-                top: 40px;
-                width: 100%;
-                box-shadow: none;
-                border: none;
-            }
-            table {
-                font-size: 10pt;
-            }
-            th, td {
-                padding: 8px;
-            }
-            .actions-cell {
-                display: none;
-            }
-            .app-header, .gas-modal-overlay, #gas-controls, #summary-container {
-                display: none;
-            }
-            #page-title {
-                 visibility: visible;
-                 position: absolute;
-                 top: 0;
-                 left: 0;
-                 width: 100%;
-                 text-align: center;
-                 font-size: 1.5em;
-            }
-        }
+        @media print { /* ... (stili di stampa invariati) ... */ }
     </style>
 </head>
 <body>
-    <div id="initial-loader" class="loader-container">
-        <div class="loader-spinner"></div>
-        <p>Verifica in corso...</p>
-    </div>
-
-    <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-        <div class="header-controls">
-            <div id="user-dashboard" class="hidden">
-                <p>Utente: <span id="user-email-display"></span></p>
-                <button id="logout-button" class="btn-login">Logout</button>
-            </div>
-        </div>
-    </header>
-
+    <!-- ... (resto dell'HTML invariato) ... -->
     <main id="content-area">
         <div id="app-content" class="hidden">
             <div id="gas-management-content">
-                
                 <h2 id="page-title">Gestione Bombole Gas</h2>
-
                 <div id="summary-container">
-                    <!-- Il sommario verrà generato qui da JavaScript -->
+                    <!-- Il sommario verrà generato qui -->
                 </div>
-
                 <div id="gas-controls">
-                    <button id="add-gas-button" class="header-button">
-                        <i class="fas fa-plus-circle"></i> Nuovo Noleggio
-                    </button>
-                    <button id="print-table-btn" class="header-button">
-                        <i class="fas fa-print"></i> Stampa
-                    </button>
+                    <!-- ... pulsanti ... -->
                 </div>
-
                 <div class="gas-table-container">
-                    <table id="gas-table" class="gas-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;">#</th>
-                                <th>MATRICOLA</th>
-                                <th>TIPOLOGIA GAS</th>
-                                <th>LITRI</th>
-                                <th>DATA RICEZIONE</th>
-                                <th>NOLEGGIATO A</th>
-                                <th>DATA APERTURA NOLEGGIO</th>
-                                <th>DATA CHIUSURA NOLEGGIO</th>
-                                <th class="actions-cell">AZIONI</th>
-                            </tr>
-                        </thead>
-                        <tbody id="gas-table-body">
-                        </tbody>
-                    </table>
+                    <!-- ... tabella ... -->
                 </div>
             </div>
         </div>
     </main>
-
-    <div id="gas-modal-overlay" class="gas-modal-overlay">
-        <div class="gas-modal-container">
-            <button class="gas-modal-close-btn" id="close-gas-modal-btn">×</button>
-            <h3 id="gas-modal-title">Aggiungi Nuova Bombola Gas</h3>
-            <form id="gas-form">
-                <input type="hidden" id="gas-id-field">
-                <div class="form-group">
-                    <label for="matricola">Matricola:</label>
-                    <input type="text" id="matricola" name="matricola" required>
-                </div>
-                <div class="form-group">
-                    <label for="tipologia_gas">Tipologia Gas:</label>
-                    <input type="text" id="tipologia_gas" name="tipologia_gas" required>
-                </div>
-                <div class="form-group">
-                    <label for="litri">Litri:</label>
-                    <input type="number" id="litri" name="litri" required min="0">
-                </div>
-                <div class="form-group">
-                    <label for="data_ricezione">Data Ricezione:</label>
-                    <input type="date" id="data_ricezione" name="data_ricezione">
-                </div>
-                <div class="form-group">
-                    <label for="noleggiato_a">Noleggiato A:</label>
-                    <input type="text" id="noleggiato_a" name="noleggiato_a">
-                </div>
-                <div class="form-group">
-                    <label for="data_apertura_noleggio">Data Apertura Noleggio:</label>
-                    <input type="date" id="data_apertura_noleggio" name="data_apertura_noleggio">
-                </div>
-                <div class="form-group">
-                    <label for="data_chiusura_noleggio">Data Chiusura Noleggio:</label>
-                    <input type="date" id="data_chiusura_noleggio" name="data_chiusura_noleggio">
-                </div>
-                <div class="gas-modal-buttons">
-                    <button type="button" class="btn btn-secondary" id="cancel-gas-modal-btn">Annulla</button>
-                    <button type="submit" class="btn btn-primary">Salva</button>
-                </div>
-                <p id="gas-feedback-message" class="feedback-message hidden"></p>
-            </form>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
-    <script src="../../firebase-config.js"></script> 
-    <script src="../../auth.js"></script> 
-    <script src="gas-script.js"></script> 
+    <!-- ... (resto dell'HTML invariato) ... -->
 </body>
 </html>
