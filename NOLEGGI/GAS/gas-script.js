@@ -137,38 +137,33 @@ document.addEventListener('DOMContentLoaded', () => {
      * @param {object} data I dati da inviare per l'azione.
      * @returns {Promise<boolean>} True se l'operazione ha avuto successo, false altrimenti.
      */
-    const sendRequestToAppsScript = async (action, data) => {
-        // IL BLOCCO 'if' ERRATO È STATO RIMOSSO DA QUI
-        try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: action,
-                    sheetName: GOOGLE_SHEET_NAME,
-                    ...data // Invia tutti i dati della bombola
-                }),
-            });
+    const sendRequestToAppsScript = (action, data) => {
+    // Invia i dati usando la modalità "no-cors", che non attende una risposta.
+    // Questo aggira completamente i problemi di CORS.
+    fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors', // <-- La soluzione usata nella pagina Preventivi
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: action,
+            sheetName: GOOGLE_SHEET_NAME,
+            ...data
+        }),
+    }).catch(error => {
+        // Logga solo errori di rete gravi, ma non blocca l'UI.
+        console.error(`Errore di rete nell'inviare l'azione '${action}':`, error);
+        // Possiamo mostrare un errore generico se vogliamo
+        // showFeedback("Errore di rete. Controlla la connessione.", "error");
+    });
 
-            const result = await response.json(); // Parsifica la risposta JSON
-
-            if (result.status === 'success') {
-                showFeedback(`Operazione "${action}" completata con successo!`, 'success');
-                return true;
-            } else {
-                showFeedback(`Errore durante l'operazione "${action}": ${result.message}`, 'error');
-                console.error(`Errore Apps Script (${action}):`, result.message);
-                return false;
-            }
-        } catch (error) {
-            showFeedback(`Errore di rete o server durante l'operazione "${action}". Controlla la console per dettagli.`, 'error');
-            console.error(`Errore fetch Apps Script (${action}):`, error);
-            return false;
-        }
-    };
+    // Mostra un feedback immediato all'utente.
+    showFeedback(`Richiesta "${action}" inviata. L'aggiornamento sarà visibile a breve.`, 'success');
+    
+    // Ritorna subito 'true' per far procedere l'interfaccia utente (es. chiudere il modale).
+    return true; 
+};
 
     // --- GESTIONE DATI FIRESTORE E TABELLA ---
 
