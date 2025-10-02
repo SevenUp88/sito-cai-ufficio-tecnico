@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
                 method: 'POST',
+                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json',
                 },
