@@ -230,18 +230,17 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.className = 'action-btn delete';
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             deleteButton.title = 'Elimina Bombola';
-            deleteButton.addEventListener('click', async () => {
-                if (confirm(`Sei sicuro di voler eliminare la bombola con matricola ${cylinder.matricola}? Questa azione è irreversibile.`)) {
-                    const success = await sendRequestToAppsScript('delete', { matricola: cylinder.matricola });
-                    if (success) {
-                        fetchGasCylinders(); // Ricarica i dati dopo l'eliminazione
-                    }
-                }
-            });
-            actionsCell.appendChild(deleteButton);
-        });
-    };
-
+            deleteButton.addEventListener('click', () => { // Rimuoviamo 'async'
+    if (confirm(`...`)) {
+        const success = sendRequestToAppsScript('delete', { matricola: cylinder.matricola });
+        if (success) {
+            // --- MODIFICA CHIAVE ANCHE QUI ---
+            // Rimuovi l'elemento dalla lista locale e ridisegna
+            allGasCylinders = allGasCylinders.filter(c => c.matricola !== cylinder.matricola);
+            renderGasTable(allGasCylinders);
+        }
+    }
+});
     // --- EVENT LISTENERS ---
 
     // Apre il modale per aggiungere una nuova bombola
@@ -254,53 +253,58 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelGasModalBtn.addEventListener('click', closeGasModal);
 
     // Gestisce l'invio del form (aggiunta o modifica)
-    gasForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Previene il ricaricamento della pagina
+    gasForm.addEventListener('submit', (e) => { // Rimuoviamo 'async'
+    e.preventDefault();
 
-        const isEditing = !!gasIdField.value; // Se gasIdField ha un valore, siamo in modalità modifica
-        const currentMatricola = matricolaInput.value.trim();
+    const isEditing = !!gasIdField.value;
+    const currentMatricola = matricolaInput.value.trim();
 
-        // Validazione per matricola duplicata solo in fase di aggiunta
-        if (!isEditing) {
-            const existingCylinder = allGasCylinders.find(c => c.matricola === currentMatricola);
-            if (existingCylinder) {
-                showFeedback('Errore: Esiste già una bombola con questa matricola. Usa una matricola unica.', 'error');
-                return;
-            }
+    if (!isEditing) {
+        if (allGasCylinders.find(c => c.matricola === currentMatricola)) {
+            showFeedback('Errore: Esiste già una bombola con questa matricola.', 'error');
+            return;
         }
+    }
 
-        // Raccoglie i dati dal form
-        const gasData = {
-            matricola: currentMatricola,
-            tipologia_gas: tipologiaGasInput.value.trim(),
-            litri: parseInt(litriInput.value, 10), // Converte in numero intero
-            // Le date vengono inviate come stringhe ISO, il Google Apps Script le formatterà per il foglio
-            data_ricezione: dataRicezioneInput.value ? new Date(dataRicezioneInput.value).toISOString() : '',
-            noleggiato_a: noleggiatoAInput.value.trim(),
-            data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
-            data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
-        };
+    const gasData = {
+        matricola: currentMatricola,
+        tipologia_gas: tipologiaGasInput.value.trim(),
+        litri: parseInt(litriInput.value, 10),
+        data_ricezione: dataRicezioneInput.value ? new Date(dataRicezioneInput.value).toISOString() : '',
+        noleggiato_a: noleggiatoAInput.value.trim(),
+        data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
+        data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
+    };
+    
+    let success = false;
+    if (isEditing) {
+        success = sendRequestToAppsScript('update', { ...gasData, matricola: gasIdField.value });
+    } else {
+        success = sendRequestToAppsScript('add', gasData);
+    }
 
-        // Rimuovi campi vuoti, nulli o NaN per non scriverli in Firestore se non necessari
-        Object.keys(gasData).forEach(key => {
-            if (gasData[key] === '' || gasData[key] === null || (typeof gasData[key] === 'number' && isNaN(gasData[key]))) {
-                delete gasData[key];
-            }
-        });
-
-        let success;
+    if (success) {
+        // --- INIZIO MODIFICA CHIAVE ---
+        // NON ricarichiamo da Firestore. Aggiorniamo la lista locale e ridisegniamo la tabella.
         if (isEditing) {
-            // Per l'aggiornamento, la matricola nel `gasIdField` è quella originale da usare per trovare la riga nel foglio
-            success = await sendRequestToAppsScript('update', { ...gasData, matricola: gasIdField.value });
+            // Trova l'indice della bombola modificata e aggiornala
+            const index = allGasCylinders.findIndex(c => c.matricola === gasIdField.value);
+            if (index !== -1) {
+                allGasCylinders[index] = { ...allGasCylinders[index], ...gasData };
+            }
         } else {
-            success = await sendRequestToAppsScript('add', gasData);
+            // Aggiungi la nuova bombola in cima alla lista
+            allGasCylinders.unshift(gasData); 
         }
+        
+        // Ordina di nuovo la lista per matricola per coerenza
+        allGasCylinders.sort((a, b) => a.matricola.localeCompare(b.matricola));
 
-        if (success) {
-            closeGasModal(); // Chiude il modale se l'operazione ha avuto successo
-            fetchGasCylinders(); // Ricarica i dati per aggiornare la tabella
-        }
-    });
+        renderGasTable(allGasCylinders); // Ridisegna la tabella con i dati aggiornati "finti"
+        closeGasModal();
+        // --- FINE MODIFICA CHIAVE ---
+    }
+});
 
     // --- INIZIALIZZAZIONE ---
     // L'auth.js gestisce la visibilità di app-content e il loader iniziale.
