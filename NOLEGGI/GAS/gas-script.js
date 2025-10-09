@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = firebase.firestore();
     
     // SOSTITUISCI QUESTO URL CON L'ULTIMO CHE HAI GENERATO DAL NUOVO DEPLOY
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAkcbFNgQ35ds2kw05pBsFKpnQsfp4uYYQKaHwFeKTFez-mMg6rW61s_0Im3AHmLao/exec'; 
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec'; 
     
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders';
     const GOOGLE_SHEET_NAME = 'gas';
