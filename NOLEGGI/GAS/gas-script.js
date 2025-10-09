@@ -1,4 +1,4 @@
-// gas-script.js - VERSIONE FINALE ROBUSTA (CON GESTIONE CORS E RISPOSTA DAL SERVER)
+// gas-script.js - VERSIONE FINALE CON 'no-cors' ALLINEATA AI PREVENTIVI
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof firebase === 'undefined') {
@@ -8,13 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const db = firebase.firestore();
     
-    // SOSTITUISCI QUESTO URL CON L'ULTIMO CHE HAI GENERATO DAL NUOVO DEPLOY
     const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec'; 
     
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders';
     const GOOGLE_SHEET_NAME = 'gas';
 
-    // --- ELEMENTI DOM ---
     const summaryContainer = document.getElementById('summary-container');
     const gasTableBody = document.getElementById('gas-table-body');
     const addGasButton = document.getElementById('add-gas-button');
@@ -36,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let allGasCylinders = [];
 
-    // --- FUNZIONI UTILITY ---
     const showFeedback = (message, type) => {
         gasFeedbackMessage.textContent = message;
         gasFeedbackMessage.className = `feedback-message ${type}`;
@@ -58,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return date.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: '2-digit' }); 
     };
 
-    // --- FUNZIONI MODAL ---
     const openGasModal = (cylinderData = null) => {
         gasForm.reset();
         gasFeedbackMessage.classList.add('hidden');
@@ -85,45 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gasModalOverlay.classList.remove('visible');
     };
 
-    // --- INTERAZIONE CON GOOGLE APPS SCRIPT (CON GESTIONE CORS E RISPOSTA) ---
-    const sendRequestToAppsScript = async (action, data) => {
-        try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
-                method: 'POST',
-                // NESSUN 'mode: no-cors'
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: action,
-                    sheetName: GOOGLE_SHEET_NAME,
-                    ...data
-                }),
-            });
-
-            // Se la risposta non è OK (es. 404, 500), lancia un errore
-            if (!response.ok) {
-                throw new Error(`Errore HTTP: ${response.status}`);
-            }
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                showFeedback(`Operazione "${action}" completata con successo!`, 'success');
-                return true;
-            } else {
-                showFeedback(`Errore restituito dallo script: ${result.message}`, 'error');
-                console.error(`Errore logico da Apps Script (${action}):`, result.message);
-                return false;
-            }
-        } catch (error) {
-            showFeedback(`Errore critico di rete o comunicazione. Controlla la console per dettagli.`, 'error');
-            console.error(`Errore fetch o parsing JSON per l'azione (${action}):`, error);
-            return false;
-        }
+    const sendRequestToAppsScript = (action, data) => {
+        fetch(GOOGLE_APPS_SCRIPT_WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, sheetName: GOOGLE_SHEET_NAME, ...data }),
+        }).catch(console.error);
+        showFeedback(`Richiesta "${action}" inviata.`, 'success');
+        return true; 
     };
 
-    // --- FUNZIONE PER IL SOMMARIO ---
     const updateSummary = (cylinders) => {
         const availableCylinders = cylinders.filter(c => !c.noleggiato_a || c.noleggiato_a.trim() === '');
         const summaryByGas = availableCylinders.reduce((acc, cylinder) => {
@@ -134,15 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
             acc[gasType][liters]++;
             return acc;
         }, {});
-
         summaryContainer.innerHTML = '';
         const sortedGasTypes = Object.keys(summaryByGas).sort();
-
         if (sortedGasTypes.length === 0) {
             summaryContainer.innerHTML = '<p class="summary-empty">Nessuna bombola disponibile al momento.</p>';
             return;
         }
-
         sortedGasTypes.forEach(gasType => {
             const gasBlock = document.createElement('div');
             gasBlock.className = 'summary-gas-block';
@@ -165,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- GESTIONE DATI E TABELLA ---
     const fetchGasCylinders = async () => {
         try {
             const snapshot = await db.collection(FIRESTORE_COLLECTION_NAME).orderBy('matricola').get();
@@ -210,12 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteButton.className = 'action-btn delete';
             deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
             deleteButton.title = 'Elimina Bombola';
-            deleteButton.addEventListener('click', async () => {
+            deleteButton.addEventListener('click', () => {
                 if (confirm(`Sei sicuro di voler eliminare la bombola con matricola ${cylinder.matricola}?`)) {
-                    const success = await sendRequestToAppsScript('delete', { matricola: cylinder.matricola });
-                    if (success) {
-                        // Aspettiamo un paio di secondi per dare tempo a Firestore di sincronizzarsi
-                        setTimeout(fetchGasCylinders, 2000);
+                    if (sendRequestToAppsScript('delete', { matricola: cylinder.matricola })) {
+                        allGasCylinders = allGasCylinders.filter(c => c.matricola !== cylinder.matricola);
+                        renderGasTable(allGasCylinders);
+                        updateSummary(allGasCylinders);
                     }
                 }
             });
@@ -223,18 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
-    // --- FUNZIONE DI STAMPA ---
     const handlePrint = () => {
         window.print();
     };
 
-    // --- EVENT LISTENERS ---
     addGasButton.addEventListener('click', () => openGasModal());
     printTableBtn.addEventListener('click', handlePrint);
     closeGasModalBtn.addEventListener('click', closeGasModal);
     cancelGasModalBtn.addEventListener('click', closeGasModal);
 
-    gasForm.addEventListener('submit', async (e) => {
+    gasForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const isEditing = !!gasIdField.value;
         const currentMatricola = matricolaInput.value.trim();
@@ -251,19 +213,24 @@ document.addEventListener('DOMContentLoaded', () => {
             data_apertura_noleggio: dataAperturaNoleggioInput.value ? new Date(dataAperturaNoleggioInput.value).toISOString() : '',
             data_chiusura_noleggio: dataChiusuraNoleggioInput.value ? new Date(dataChiusuraNoleggioInput.value).toISOString() : '',
         };
-        const success = await (isEditing 
+        const success = isEditing 
             ? sendRequestToAppsScript('update', { ...gasData, matricola: gasIdField.value })
-            : sendRequestToAppsScript('add', gasData));
+            : sendRequestToAppsScript('add', gasData);
 
         if (success) {
+            if (isEditing) {
+                const index = allGasCylinders.findIndex(c => c.matricola === gasIdField.value);
+                if (index !== -1) allGasCylinders[index] = { ...allGasCylinders[index], ...gasData, matricola: currentMatricola };
+            } else {
+                allGasCylinders.push(gasData);
+            }
+            allGasCylinders.sort((a, b) => (a.matricola || '').localeCompare(b.matricola || ''));
+            renderGasTable(allGasCylinders);
+            updateSummary(allGasCylinders);
             closeGasModal();
-            // Aspettiamo un paio di secondi per dare tempo alla sincronizzazione di Firestore di completarsi
-            // prima di ricaricare i dati.
-            setTimeout(fetchGasCylinders, 2000);
         }
     });
 
-    // --- INIZIALIZZAZIONE ---
     const appContent = document.getElementById('app-content');
     if (appContent) {
         const observer = new MutationObserver((mutations) => {
