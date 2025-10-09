@@ -1,15 +1,11 @@
-// gas-script.js - VERSIONE FINALE CON 'no-cors' ALLINEATA AI PREVENTIVI
+// gas-script.js - VERSIONE FINALE CON 'no-cors' E AGGIORNAMENTO UI IMMEDIATO
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof firebase === 'undefined') {
-        console.error("Firebase non caricato in gas-script.js.");
-        return;
-    }
+    if (typeof firebase === 'undefined') { console.error("Firebase non caricato."); return; }
 
     const db = firebase.firestore();
-    
-    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAkcbFNgQ35ds2kw05pBsFKpnQsfp4uYYQKaHwFeKTFez-mMg6rW61s_0Im3AHmLao/exec'; 
-    
+    // USA L'URL DEL TUO ULTIMO DEPLOY "PULITO" (quello che finisce in ...mLao/exec)
+    const GOOGLE_APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAkcbFNgQ35ds2kw05pBsFKpnQsfp4uYYQKaHwFeKTFez-mMg6rW61s_0Im3AHmLao/exec';
     const FIRESTORE_COLLECTION_NAME = 'gasCylinders';
     const GOOGLE_SHEET_NAME = 'gas';
 
