@@ -204,7 +204,7 @@
                                 ${datasheetLink}
                             </div>
                             <div class="product-footer"> 
-                                <div class="product-price-value">${formatPrice(product.prezzo)}</div>
+                                <div class="product-price-value">${formatPrice(product.prezzo_kit)}</div>
                                 ${economicBadgeHTML_footer}
                                 <div class="action-buttons-container">${actionButtonsContainerContent}</div>
                             </div>
