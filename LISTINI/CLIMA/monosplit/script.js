@@ -117,7 +117,7 @@
         extraDetailsHTML += createDetailRowHTML('Prezzo solo UE', formatPrice(product.prezzo_ue));
         modalExtraDetailsList.innerHTML = extraDetailsHTML;
     
-        modalProductPrice.textContent = formatPrice(product.prezzo);
+        modalProductPrice.textContent = formatPrice(product.prezzo_kit);
         
         if (modalDatasheetLink) {
             if (product.scheda_tecnica_url && product.scheda_tecnica_url.trim() !== '') {
