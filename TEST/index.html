@@ -6,58 +6,51 @@
     <title>Test Estrazione Bolle - Google Cloud Vision</title>
     <link rel="stylesheet" href="../style.css">
     <style>
-        #vision-app { padding: 20px; max-width: 900px; margin: 20px auto; background: #fff; border-radius: 8px; }
+        #vision-app { padding: 20px; max-width: 1200px; margin: 20px auto; background: #fff; border-radius: 8px; }
+        #controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         #controls button { padding: 10px 15px; font-size: 1em; cursor: pointer; }
-        #results-container { margin-top: 20px; }
-        #raw-text-output {
-            white-space: pre-wrap; /* Mantiene la formattazione del testo */
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 10px;
-            max-height: 500px;
-            overflow-y: auto;
-            font-family: monospace;
-        }
+        #export-csv-btn { background-color: #6c757d; color: white; border: none; border-radius: 4px; }
+        #results-table { width: 100%; margin-top: 20px; border-collapse: collapse; }
+        #results-table th, #results-table td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: left; vertical-align: top; }
+        #results-table th { background-color: #0056a8; color: white; }
+        #raw-text-output { white-space: pre-wrap; background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; margin-top: 10px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.8em; }
         .status { font-weight: bold; margin-top: 15px; }
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            display: none; /* Nascosto di default */
-            margin: 20px auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <header class="app-header">
         <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-        <h1>Test Google Cloud Vision API</h1>
+        <h1>Test Estrazione Bolle Gas</h1>
     </header>
 
     <main id="vision-app">
         <div id="controls">
-            <input type="file" id="file-input" accept="image/*,application/pdf">
+            <input type="file" id="file-input" accept="image/*,application/pdf" multiple>
             <button id="process-btn">Processa File</button>
+            <button id="export-csv-btn" disabled>Esporta CSV</button>
         </div>
 
+        <p id="status-message" class="status"></p>
+        <div id="spinner" class="spinner"></div>
+
         <div id="results-container">
-            <p id="status-message" class="status"></p>
-            <div id="spinner" class="spinner"></div>
-            <h3>Testo Grezzo Riconosciuto:</h3>
-            <pre id="raw-text-output"></pre>
+            <table id="results-table">
+                <thead>
+                    <tr>
+                        <th>File</th>
+                        <th>Gas</th>
+                        <th>Capacità</th>
+                        <th>Matricole</th>
+                        <th>Testo Grezzo</th>
+                    </tr>
+                </thead>
+                <tbody id="results-tbody"></tbody>
+            </table>
         </div>
     </main>
 
-    <!-- Includiamo lo script specifico per questa pagina -->
     <script src="script.js"></script>
 </body>
 </html>
