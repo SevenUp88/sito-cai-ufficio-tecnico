@@ -1,4 +1,4 @@
-// File: TEST/script.js - VERSIONE FINALE CON ESTRAZIONE DATI E EXPORT CSV
+// File: TEST/script.js - VERSIONE CON GESTIONE MULTI-PAGINA UNIFICATA
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_KEY = 'AIzaSyDlL_Cz_rKxOby1-mKdUMzRPWSb5AalzCQ';
     const VISION_API_URL = `https://vision.googleapis.com/v1/files:annotate?key=${API_KEY}`;
     
-    let extractedData = []; // Array per contenere tutti i risultati
+    let extractedData = [];
 
     processBtn.addEventListener('click', handleAllFiles);
     exportCsvBtn.addEventListener('click', exportToCsv);
@@ -36,7 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         spinner.style.display = 'none';
         statusMessage.textContent = 'Processo completato.';
-        exportCsvBtn.disabled = false;
+        if (extractedData.length > 0) {
+            exportCsvBtn.disabled = false;
+        }
         processBtn.disabled = false;
     }
 
@@ -62,15 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileResponse = data.responses[0];
             let fullText = '';
 
+            // --- MODIFICA CHIAVE: UNIAMO IL TESTO DI TUTTE LE PAGINE ---
             if (fileResponse && fileResponse.responses) {
                 fileResponse.responses.forEach(pageResponse => {
                     if (pageResponse.fullTextAnnotation) {
-                        fullText += pageResponse.fullTextAnnotation.text + '\n';
+                        fullText += pageResponse.fullTextAnnotation.text + '\n'; // Aggiungiamo il testo di ogni pagina
                     }
                 });
             }
 
-            // Analizza il testo e popola la tabella
+            // Ora analizziamo il testo completo e unificato
             const parsedResults = parseRawText(fullText);
             displayResults(file.name, parsedResults, fullText);
             
@@ -83,25 +86,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function parseRawText(text) {
         const results = [];
         
-        // Espressioni regolari per trovare le righe di interesse
-        // Cerca righe che contengono AZOTO, OSSIGENO o ACETILENE e una capacità
-        const lineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?(?:5|14|40|50)\s*L.*)$/gm;
+        // Regex migliorata per cercare righe che contengono un tipo di gas e una capacità in litri
+        const lineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?(\d{1,2})\s*L.*)$/gm;
         let match;
         
         while ((match = lineRegex.exec(text)) !== null) {
             const line = match[1];
+            const capacity = match[2]; // La capacità è già catturata dal gruppo 2
             
-            // Estrai il tipo di gas
             const gasMatch = line.match(/AZOTO|OSSIGENO|ACETILENE/);
             const gas = gasMatch ? gasMatch[0] : 'N/A';
 
-            // Estrai la capacità
-            const capacityMatch = line.match(/(\d+)\s*L/);
-            const capacity = capacityMatch ? capacityMatch[1] : 'N/A';
-
-            // Cerca le matricole nella riga successiva o nelle vicinanze
-            const nextLines = text.substring(match.index + line.length, match.index + line.length + 300);
-            const serials = [...nextLines.matchAll(/S\d{6,}/g)].map(m => m[0]);
+            // Cerca le matricole in un'area di testo più ampia DOPO la riga trovata
+            const searchArea = text.substring(match.index + line.length, match.index + line.length + 400);
+            const serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
 
             results.push({
                 gas: gas,
@@ -110,10 +108,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
+        // Se non trova nessuna riga specifica, restituisce un risultato vuoto per evitare falsi positivi
         return results.length > 0 ? results : [{ gas: 'N/A', capacity: 'N/A', serials: 'Nessuna trovata' }];
     }
 
     function displayResults(fileName, parsedResults, rawText) {
+        // Se il risultato è quello di default "N/A", non lo mostriamo
+        if (parsedResults.length === 1 && parsedResults[0].gas === 'N/A') {
+             resultsTbody.innerHTML += `<tr>
+                <td>${fileName}</td>
+                <td colspan="3"><i>Nessun prodotto riconosciuto in questo file.</i></td>
+                <td><details><summary>Mostra testo</summary><pre style="white-space: pre-wrap; font-size: 0.8em;">${rawText}</pre></details></td>
+            </tr>`;
+            return;
+        }
+
         parsedResults.forEach(result => {
             const row = resultsTbody.insertRow();
             row.innerHTML = `
@@ -123,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${result.serials}</td>
                 <td><details><summary>Mostra testo</summary><pre style="white-space: pre-wrap; font-size: 0.8em;">${rawText}</pre></details></td>
             `;
-            // Aggiungi i dati all'array per l'export
             extractedData.push({
                 file: fileName,
                 gas: result.gas,
@@ -139,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const headers = "File,Gas,Capacita,Matricole\n";
-        const rows = extractedData.map(d => `"${d.file}","${d.gas}","${d.capacity}","${d.serials}"`).join("\n");
+        const rows = extractedData.map(d => `"${d.file}","${d.gas}","${d.capacity}","${d.serials.replace(/"/g, '""')}"`).join("\n");
         
         const csvContent = headers + rows;
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
