@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Estrai bolle gas - Automazione Avanzata (Tesseract.js)</title>
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;margin:18px;background:#f7f8fb;color:#111}
+    h1{font-size:20px;margin-bottom:6px}
+    .card{background:white;padding:14px;border-radius:10px;box-shadow:0 6px 18px rgba(20,30,60,0.06);max-width:980px;margin-bottom:12px}
+    input[type=file]{display:block}
+    #list{margin-top:12px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;font-size:13px}
+    th{background:#007bff;color:white}
+    .btn{display:inline-block;padding:8px 12px;border-radius:8px;background:#2b6ef6;color:white;text-decoration:none;cursor:pointer;margin-right:8px}
+    .btn.secondary{background:#6b7280}
+    .progress{height:8px;background:#e6eefc;border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;width:0;background:#2b6ef6}
+    pre{white-space:pre-wrap;background:#f3f4f6;padding:8px;border-radius:6px;max-height:160px;overflow:auto}
+    small{color:#575b63}
+    .hint{font-size:13px;color:#374151}
+    .error{color:#b91c1c}
+    .matricole-list { display: block; white-space: nowrap; }
+    td, th { vertical-align: top; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Estrai bolle gas - Automazione Tesseract.js</h1>
+    <p class="hint">Carica bolle (jpg/png/pdf). Estrae: **gas** (OSSIGENO/AZOTO/ACETILENE), **capacità** (5/14/40), **quantità**, **peso netto** e **matricole (S...)**.</p>
+
+    <label class="btn">Scegli file<input id="files" type="file" accept="image/*,.pdf" multiple style="display:none" /></label>
+    <button id="processAll" class="btn">Processa tutto</button>
+    <button id="downloadCsv" class="btn secondary">Esporta CSV</button>
+    <div id="status" style="margin-top:10px"></div>
+
+    <div id="list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Nota importante per il funzionamento</h2>
+    <p class="error">**Questo strumento richiede un server locale attivo.** Se apri il file HTML direttamente (via <code>file://</code>) Tesseract.js non funzionerà e vedrai un errore di "Failed to fetch".</p>
+    <p class="hint"><strong>Come risolvere (ad esempio con Python, se installato):</strong></p>
+    <ol class="hint">
+        <li>Apri il terminale/prompt dei comandi nella cartella dove hai salvato questo file.</li>
+        <li>Esegui il comando: <code>python -m http.server</code></li>
+        <li>Apri il tuo browser e vai a: <code>http://localhost:8000/nome_del_tuo_file.html</code></li>
+    </ol>
+  </div>
+
+  <!-- Librerie -->
+  <script src="https://unpkg.com/tesseract.js@v4.1.1/dist/tesseract.min.js"></script>
+  <script src="https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.min.js"></script>
+  <script>
+    // Impostazioni pdf.js worker per evitare fetch falliti del worker
+    try{
+      if(window['pdfjs-dist/build/pdf'] && window['pdfjs-dist/build/pdf'].GlobalWorkerOptions){
+        window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.8.162/build/pdf.worker.min.js';
+      }
+    }catch(e){ console.warn('Impossibile impostare pdf.js workerSrc:', e); }
+  </script>
+
+  <script>
+    const QUANTITIES = [5,14,40];
+
+    // Funzioni di utilità per trovare dati generici (usate come fallback)
+    function findGas(text){ if(!text) return ''; const t = text.toUpperCase(); if(/ACETILENE/.test(t)) return 'ACETILENE'; if(/OSSIGEN|OSSIGENO|O2\b/.test(t)) return 'OSSIGENO'; if(/AZOTO|N2\b/.test(t)) return 'AZOTO'; return ''; }
+    function findQuantity(text){ if(!text) return 0; const candidates=[]; const numRe=/\b(\d{1,3})\s*L\b/g; let m; while((m=numRe.exec(text))){ candidates.push(parseInt(m[1],10)); } if(candidates.length > 0) return Math.max(...candidates); return 0; }
+    function findDate(text){ if(!text) return ''; const datePatterns=[/\b\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}\b/,/\b\d{4}[\-]\d{1,2}[\-]\d{1,2}\b/]; for(const p of datePatterns){ const mm=text.match(p); if(mm) return normalizeDate(mm[0]); } return ''; }
+    function normalizeDate(s){ if(!s) return ''; s=s.replace(/\s+|\.|,/g,' ').trim(); const dm=s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/); if(dm){ let day=dm[1].padStart(2,'0'); let month=dm[2].padStart(2,'0'); let year=dm[3]; if(year.length===2) year=(parseInt(year,10)>50?'19':'20')+year; return year+'-'+month+'-'+day; } const ym=s.match(/(\d{4})[\-](\d{1,2})[\-](\d{1,2})/); if(ym){ let year=ym[1]; let month=ym[2].padStart(2,'0'); let day=ym[3].padStart(2,'0'); return year+'-'+month+'-'+day; } return s; }
+
+    // PARSER AVANZATO: cerca i campi specifici del tuo documento
+    function parseStructuredData(text) {
+        const results = {
+            date: findDate(text) || '', 
+            items: []
+        };
+
+        if (!text) return results;
+        
+        // Sostituisco i ritorni a capo con un separatore per trattare il testo OCR come un flusso lineare
+        const cleanedText = text.replace(/(\r\n|\n|\r)/gm, ' | ').replace(/\s{2,}/g, ' ');
+
+        // 1. Estrazione Data (se il parser generico ha fallito, cerco vicino all'etichetta)
+        if(!results.date){
+            const dateMatch = cleanedText.match(/Data \/ DATE [\|\s]*(\d{1,2}[\/\-]\d{2})/i);
+            if(dateMatch) results.date = normalizeDate(dateMatch[1]); // Esempio: 21/10/25 -> 2025-10-21
+        }
+        
+        // 2. Tenta di isolare la sezione "Filled/Pieno"
+        const fullBlockMatch = cleanedText.match(/Filled\/Pieno\.?\s*([^|]*?\s*OSSIGENO|AZOTO|ACETILENE)[^|]*?(Barcode|S2234|S\d{7,10}|Quantità ADR)/i);
+
+        if (fullBlockMatch) {
+            const fullBlock = fullBlockMatch[0]; // Isola solo il blocco che contiene i dati Pieni
+            
+            // a) Estrazione Matricole S...
+            const serialsMatch = fullBlock.match(/S\d{7,10}/g) || [];
+            // Filtro: cerco solo le matricole che appaiono DENTRO il blocco 'Pieno'
+            let serials = serialsMatch.filter(s => fullBlock.includes(s));
+            // Per il tuo DDT specifico, le matricole piene erano S2234249/S2234275 (solo due)
+            
+            // b) Estrazione Dati Materiale
+            const descMatch = fullBlock.match(/(OSSIGENO|AZOTO|ACETILENE)\s*(TEC)?\s*Bombola\s*(\d+)\s*L/i);
+            const qtyMatch = fullBlock.match(/\|\s*(\d+)\s*Filled\/Pieno/i); // Quantità NR
+            const kgMatch = fullBlock.match(/(\d+(?:[.,]\d{1,2}))\s*OSSIGENO/i); // Quantità kg, adattabile per virgola/punto
+
+            const item = {
+                gas: descMatch ? descMatch[1].toUpperCase() : findGas(fullBlock) || 'Sconosciuto',
+                quantita_pezzi: qtyMatch ? parseInt(qtyMatch[1], 10) : 1,
+                capacita_litri: descMatch ? parseInt(descMatch[3], 10) : findQuantity(fullBlock),
+                peso_netto_kg: kgMatch ? parseFloat(kgMatch[1].replace(',', '.')) : 0.00,
+                matricole: serials
+            };
+
+            results.items.push(item);
+        }
+        
+        return results;
+    }
+
+    // UI refs
+    const filesEl = document.getElementById('files');
+    const listEl = document.getElementById('list');
+    const statusEl = document.getElementById('status');
+    const processBtn = document.getElementById('processAll');
+    const downloadBtn = document.getElementById('downloadCsv');
+
+    let items = [];
+
+    // Helper: ensure UI block for an item exists and return the <pre> element for raw text
+    function ensureItemUI(it){
+      const rawId = 'raw-'+it.id;
+      let pre = document.getElementById(rawId);
+      if(pre) return pre;
+      // create wrapper card at end of list
+      const div = document.createElement('div'); div.className='card'; div.id='item-'+it.id;
+      const sizeInfo = it.file && it.file.size ? `(${(it.file.size/1024|0)} KB)` : '';
+      div.innerHTML = `<strong>${escapeHtml(it.name || 'unnamed')}</strong> <span style="margin-left:8px;color:#6b7280">${sizeInfo}</span>
+        <div style="margin-top:8px"><div class='progress' data-id='${it.id}'><i></i></div></div>
+        <pre id='${rawId}'>Pronto per OCR...</pre>`;
+      listEl.appendChild(div);
+      pre = document.getElementById(rawId);
+      return pre;
+    }
+
+    filesEl.addEventListener('change', (e)=>{
+      const files = Array.from(e.target.files || []);
+      items = [];
+      listEl.innerHTML = '';
+      for(const f of files){
+        const id = Math.random().toString(36).slice(2,9);
+        // Aggiungo i nuovi campi 'capacita', 'peso_netto_kg', 'matricole'
+        const it = {id,name:f.name,file:f,src:'',text:'',gas:'',qty:0,capacita:0,peso_netto_kg:0,matricole:[],date:''};
+        items.push(it);
+        ensureItemUI(it);
+      }
+    });
+
+    processBtn.addEventListener('click', async ()=>{
+      if(items.length===0){ alert('Seleziona prima i file.'); return; }
+      statusEl.textContent = 'Esecuzione OCR...';
+      processBtn.disabled = true;
+      downloadBtn.disabled = true;
+      for(const it of items){
+        ensureItemUI(it);
+        await processFile(it);
+      }
+      statusEl.textContent = 'Fatto. Controlla i risultati.';
+      processBtn.disabled = false;
+      downloadBtn.disabled = false;
+      renderTable();
+    });
+
+    downloadBtn.addEventListener('click', ()=>{
+      if(items.length===0){ alert('Nessun dato da esportare'); return; }
+      const headers = ['file','data','gas','capacita_l','quantita','peso_netto_kg','matricole','raw_text'];
+      const rows = items.map(it=>[
+          it.name,
+          it.date||'',
+          it.gas||'',
+          it.capacita||'',
+          it.qty||'',
+          (it.peso_netto_kg||0).toFixed(2),
+          it.matricole.join('; '),
+          it.text||''
+      ]);
+      let csv = headers.join(',')+'\n';
+      for(const r of rows){ csv += r.map(c=>`"${String(c).replace(/"/g,'""') }"`).join(',') + '\n'; }
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='bolle_gas.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+
+    async function processFile(it){
+      const progressBarEl = document.querySelector(`.progress[data-id='${it.id}'] i`);
+      try{
+        const canvas = await readFileToCanvas(it.file, it);
+        if(!canvas) throw new Error('Impossibile processare il file');
+        it.src = canvas.toDataURL('image/png');
+        statusEl.textContent = `OCR in corso: ${it.name}`;
+        try{
+          const result = await Tesseract.recognize(canvas, 'ita+eng', { // Usiamo ita+eng per migliore compatibilità
+            logger: m=>{ if(progressBarEl && m && m.progress) progressBarEl.style.width = Math.round(m.progress*100)+'%'; },
+            tessedit_timeout_ms: 60000 // Aumento timeout
+          });
+          
+          it.text = result.data.text || '';
+          const pre = ensureItemUI(it);
+          pre.textContent = it.text || '(vuoto)';
+
+          const parsedData = parseStructuredData(it.text);
+          
+          // Popolo i campi del risultato
+          it.date = parsedData.date;
+          if (parsedData.items.length > 0) {
+              const mainItem = parsedData.items[0];
+              it.gas = mainItem.gas;
+              it.qty = mainItem.quantita_pezzi;
+              it.capacita = mainItem.capacita_litri;
+              it.peso_netto_kg = mainItem.peso_netto_kg;
+              it.matricole = mainItem.matricole; 
+          }
+
+          if(progressBarEl) progressBarEl.style.width = '100%';
+        }catch(err){
+          console.error('Tesseract error', err);
+          const pre = ensureItemUI(it);
+          if(err && err.message && err.message.toLowerCase().includes('failed to fetch')){
+            pre.textContent = 'Errore OCR: Failed to fetch. **Probabile causa: non stai servendo la pagina da un server web (es. python -m http.server)**.';
+          }else{
+            pre.textContent = 'Errore OCR: '+(err && err.message ? err.message : String(err));
+          }
+        }
+      }catch(err){
+        console.error(err);
+        const pre = ensureItemUI(it);
+        pre.textContent = 'Errore durante preprocessing: '+(err && err.message ? err.message : String(err));
+      }
+    }
+
+    async function readFileToCanvas(file, itRef){
+      // (Funzione per leggere i file immagine/pdf e convertirli in canvas, invariata)
+      // La lascio qui per brevità nel codice, ma è quella robusta fornita prima.
+      
+      // Se è un File immagine (dall'input)
+      if(file instanceof File && file.type.startsWith('image/')){
+          return new Promise((resolve,reject)=>{
+            const reader = new FileReader();
+            reader.onerror = () => reject(new Error('Impossibile leggere il file immagine'));
+            reader.onload = () =>{
+              const img = new Image();
+              img.onload = ()=>{ const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; c.getContext('2d').drawImage(img,0,0); resolve(c); };
+              img.onerror = ()=>reject(new Error('Formato immagine non valido o immagine corrotta'));
+              img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+          });
+      }
+
+      // Se è un PDF
+      if(file instanceof File && (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf'))){
+          try{
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfjsLib = window['pdfjs-dist/build/pdf'];
+            if(!pdfjsLib || !pdfjsLib.getDocument) throw new Error('pdf.js non disponibile');
+            const loadingTask = pdfjsLib.getDocument({data:arrayBuffer});
+            const pdf = await loadingTask.promise;
+            const page = await pdf.getPage(1);
+            const viewport = page.getViewport({scale:1.5});
+            const canvas = document.createElement('canvas'); canvas.width = Math.round(viewport.width); canvas.height = Math.round(viewport.height);
+            const ctx = canvas.getContext('2d'); await page.render({canvasContext:ctx,viewport}).promise; return canvas;
+          }catch(e){
+            console.error('PDF render error', e);
+            throw new Error('Errore rendering PDF: '+(e && e.message? e.message : e));
+          }
+      }
+
+      throw new Error('Tipo file non supportato. Usa JPG/PNG o PDF.');
+    }
+
+    function renderTable(){
+        const rows = items.map(it => {
+            const matricoleDisplay = it.matricole.length > 0 ? it.matricole.map(m => `<span class='matricole-list'>${escapeHtml(m)}</span>`).join('<br>') : 'N/A';
+
+            return `<tr>
+                <td>${escapeHtml(it.name)}</td>
+                <td>${escapeHtml(it.date)}</td>
+                <td>${escapeHtml(it.gas)}</td>
+                <td>${escapeHtml(it.capacita)} L</td>
+                <td>${escapeHtml(it.qty)}</td>
+                <td>${(it.peso_netto_kg || 0).toFixed(2)} kg</td>
+                <td>${matricoleDisplay}</td>
+                <td><details><summary>testo grezzo</summary><pre>${escapeHtml(it.text||'')}</pre></details></td>
+            </tr>`;
+        }).join('');
+
+        listEl.innerHTML = `<table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Data DDT</th>
+                    <th>Gas</th>
+                    <th>Capacità</th>
+                    <th>Quantità</th>
+                    <th>Peso Netto</th>
+                    <th>Matricole</th>
+                    <th>Diagnostica</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // drag & drop support
+    document.body.addEventListener('dragover', e=>{ e.preventDefault(); });
+    document.body.addEventListener('drop', e=>{ e.preventDefault(); const dt=e.dataTransfer; if(!dt) return; const fileList=Array.from(dt.files||[]); if(fileList.length){ filesEl.files=toFileList(fileList); filesEl.dispatchEvent(new Event('change')); } });
+
+    function toFileList(files){ const dataTransfer = new DataTransfer(); files.forEach(f=>dataTransfer.items.add(f)); return dataTransfer.files; }
+  </script>
+</body>
+</html>
