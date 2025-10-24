@@ -1,4 +1,4 @@
-// File: TEST/script.js - VERSIONE FINALE CON ANALISI A BLOCCHI
+// File: TEST/script.js - VERSIONE FINALE CON PARSING MATRICOLE CORRETTO
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function parseRawText(text) {
         const results = [];
-        // Regex per trovare le righe dei prodotti, catturando la riga intera
         const productLineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?\d{1,2}\s*L.*)$/gm;
         const productLines = [...text.matchAll(productLineRegex)].map(match => ({
             line: match[1],
@@ -94,17 +93,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const capacityMatch = line.match(/(\d+)\s*L/);
             const capacity = capacityMatch ? capacityMatch[1] : 'N/A';
 
-            // Definisci l'area di ricerca per le matricole:
-            // Inizia dalla fine della riga del prodotto corrente
-            // e finisce all'inizio della riga del prodotto successivo (o alla fine del testo)
             const startIndex = index + line.length;
             const nextProduct = productLines[i + 1];
             const endIndex = nextProduct ? nextProduct.index : text.length;
             
             const searchArea = text.substring(startIndex, endIndex);
 
-            // Trova tutte le matricole in quest'area
-            const serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
+            // --- INIZIO MODIFICA CHIAVE ---
+            // 1. Trova l'intera riga di matricole, inclusi gli slash
+            const serialsLineMatch = searchArea.match(/S\d{6,}[\s/S\d]*/);
+            let serials = [];
+            if (serialsLineMatch) {
+                // 2. Prendi la riga trovata e splittala per trovare le singole matricole
+                serials = [...serialsLineMatch[0].matchAll(/S\d{6,}/g)].map(m => m[0]);
+            }
+            // --- FINE MODIFICA CHIAVE ---
 
             results.push({
                 gas: gas,
