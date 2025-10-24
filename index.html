@@ -49,42 +49,34 @@
             </div>
             
             <nav class="main-nav" id="mainNav">
-                <!-- MODIFICATO: Pulsante per Noleggi (ora un bottone separato) -->
                 <button id="btn-noleggi" class="nav-button" aria-expanded="false" aria-controls="submenu-noleggi">
                     <i class="fas fa-handshake"></i> Noleggi
                 </button>
-
                 <a href="PREVENTIVI/index.html" class="nav-button"> <i class="fas fa-calculator"></i> Preventivazione </a>
-                
                 <button id="btn-listini" class="nav-button" aria-expanded="false" aria-controls="submenu-listini"> <i class="fas fa-list"></i> Listini </button>
                 <a href="SCHEDE%20TECNICHE/index.html" class="nav-button"> <i class="fas fa-clipboard-list"></i> Schede Tecniche </a>
                 <button id="btn-configuratori" class="nav-button" aria-expanded="false" aria-controls="submenu-configuratori"> <i class="fas fa-cogs"></i> Configuratori </button>
                 <button id="btn-fgas" class="nav-button" aria-expanded="false" aria-controls="submenu-fgas"> 
                     <i class="fas fa-file-signature"></i> Modulo FGAS 
                 </button>
-                
                 <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
                 <a href="AGENDA%20CONSEGNE/index.html" class="nav-button"> <i class="fas fa-calendar-alt"></i> Agenda Consegne </a>
-
-                <!-- --- NUOVO PULSANTE PER L'AREA TEST (nascosto di default) --- -->
-                <a href="TEST/index.html" id="btn-test-area" class="nav-button hidden">
+                
+                <button id="btn-test-area" class="nav-button hidden" aria-expanded="false" aria-controls="submenu-test">
                     <i class="fas fa-flask"></i> Area Test
-                </a>
+                </button>
             </nav>
 
-            <!-- NUOVO: Submenu Noleggi (con percorsi aggiornati) -->
             <div id="submenu-noleggi" class="submenu">
                 <a href="NOLEGGI/code.html" class="submenu-button"> <i class="fas fa-wrench"></i> Attrezzature </a>
-                <a href="NOLEGGI/GAS/index.html" class="submenu-button"> <i class="fas fa-gas-pump"></i> Gas </a> <!-- PERCORSO AGGIORNATO -->
+                <a href="NOLEGGI/GAS/index.html" class="submenu-button"> <i class="fas fa-gas-pump"></i> Gas </a>
             </div>
             
-            <!-- Barra di Ricerca -->
             <div id="search-container">
                 <input type="text" id="search-input" placeholder="Cerca per codice o descrizione articolo...">
-                <div id="search-results"></div> <!-- Container per i risultati -->
+                <div id="search-results"></div>
             </div>
             
-            <!-- Submenu: Listini -->
             <div id="submenu-listini" class="submenu">
                  <a href="LISTINI/CLIMA/monosplit/index.html" class="submenu-button"> <i class="fas fa-snowflake"></i> Clima </a>
                  <a href="LISTINI/CALDAIE/index.html" class="submenu-button"> <i class="fas fa-fire-alt"></i> Caldaie </a>
@@ -93,22 +85,24 @@
                  <a href="LISTINI/LISTINI%20FORNITORI/index.html" class="submenu-button submenu-button-fornitori"> <i class="fas fa-truck-fast"></i> Fornitori </a>
             </div>
             
-            <!-- Submenu: Configuratori -->
             <div id="submenu-configuratori" class="submenu">
                  <a href="CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="submenu-button"> <i class="fas fa-border-all"></i> Impianto Radiante </a>
                  <a href="CONFIGURATORI/RADIATORI/index.html" class="submenu-button"> <i class="fas fa-thermometer-half"></i> Impianto Radiatori </a>
                 <a href="CONFIGURATORI/CANNE FUMARIE/index.html" class="submenu-button"> <i class="fas fa-smog"></i> Canne Fumarie </a>
             </div>
             
-            <!-- Submenu: Modulo FGAS -->
             <div id="submenu-fgas" class="submenu">
                  <a href="FGAS/apparecchiature.html" class="submenu-button"> <i class="fas fa-tools"></i> Apparecchiature </a>
                  <a href="FGAS/gas.html" class="submenu-button"> <i class="fas fa-wind"></i> Gas Fluorurati </a>
             </div>
+
+            <div id="submenu-test" class="submenu">
+                 <a href="CONFIGURATORI/index.html" class="submenu-button"> <i class="fas fa-cogs"></i> Tutti i Configuratori </a>
+                 <a href="NOLEGGI/GAS/index.html" class="submenu-button"> <i class="fas fa-fire-extinguisher"></i> Gestione Bombole </a>
+            </div>
         </div>
     </main>
 
-    <!-- Pannello Admin per aggiungere categorie -->
     <div id="add-category-panel" class="admin-popup hidden">
         <button class="close-panel-btn" id="add-category-close" aria-label="Chiudi pannello">×</button>
         <h3>Aggiungi Nuova Categoria</h3>
@@ -118,10 +112,8 @@
         <div class="admin-popup-buttons centered"> <button id="add-category-submit">Aggiungi Categoria</button> </div>
         <p id="add-category-feedback" class="feedback-message hidden"></p>
     </div>
-    <!-- Overlay per i pannelli admin -->
     <div id="admin-overlay" class="overlay hidden"></div>
 
-    <!-- --- LAYOUT MODALE DETTAGLI PRODOTTO --- -->
     <div id="product-details-modal-overlay">
         <div class="modal-container">
             <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
@@ -165,13 +157,11 @@
         </div>
     </div>
     
-    <!-- OVERLAY PER VISUALIZZATORE IMMAGINI -->
     <div id="image-viewer-overlay" class="image-viewer-overlay">
         <button id="close-viewer-btn" class="viewer-close-btn">×</button>
         <img id="viewer-image" src="" alt="Immagine ingrandita">
     </div>
 
-    <!-- Script di Firebase e Script Applicativi -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
