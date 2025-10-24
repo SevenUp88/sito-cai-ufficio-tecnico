@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE DEFINITIVA: Correzione bug di visualizzazione ricerca e diagnostica integrata.
+ * VERSIONE CON AREA TEST A SOTTOMENU
  */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -14,9 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const submenuConfiguratori = document.getElementById('submenu-configuratori');
     const btnFgas = document.getElementById('btn-fgas');
     const submenuFgas = document.getElementById('submenu-fgas');
-    // NUOVO: Elementi per il sottomenu Noleggi
     const btnNoleggi = document.getElementById('btn-noleggi');
     const submenuNoleggi = document.getElementById('submenu-noleggi');
+    
+    // --- NUOVI SELETTORI PER L'AREA TEST ---
+    const btnTestArea = document.getElementById('btn-test-area');
+    const submenuTest = document.getElementById('submenu-test');
 
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
@@ -38,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allSearchableData = [];
     let currentlyDisplayedResults = [];
     let isDataFetched = false;
-    let currentlyOpenSubmenu = { btn: null, menu: null }; // MODIFICATO: da const a let
+    let currentlyOpenSubmenu = { btn: null, menu: null };
 
     // 3. FUNZIONI
     const toggleSubmenu = (button, submenu) => {
@@ -228,8 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        console.log(`Sto cercando: "${query}"`); // DIAGNOSTICA
-
         const isNumericQuery = /^\d+$/.test(query);
         const lowerCaseQuery = query.toLowerCase();
         
@@ -251,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
 
-        console.log(`Trovati ${results.length} risultati.`); // DIAGNOSTICA
         currentlyDisplayedResults = results;
         displayResults(results);
     };
@@ -302,12 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // 4. EVENT LISTENERS
-    // NUOVO: Listener per il pulsante Noleggi
     if (btnNoleggi) { btnNoleggi.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnNoleggi, submenuNoleggi); }); }
-
     if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
     if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
     if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
+    if (btnTestArea) { btnTestArea.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnTestArea, submenuTest); }); }
+
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
     if (addCategoryCloseBtn) addCategoryCloseBtn.addEventListener('click', hideAddCategoryPanel);
@@ -322,7 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const resultIndex = parseInt(resultItem.dataset.resultIndex, 10);
             const product = currentlyDisplayedResults[resultIndex];
             if (product) {
-                // MODIFICATO: Rimossa la logica specifica per le bombole gas dalla ricerca Home
                 populateAndShowModal(product);
                 searchResultsContainer.style.display = 'none'; 
                 searchInput.value = '';
@@ -369,9 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     document.addEventListener('click', (e) => {
-        // Chiude i sottomenu aperti cliccando fuori
         if (currentlyOpenSubmenu.menu && !currentlyOpenSubmenu.menu.contains(e.target) && !currentlyOpenSubmenu.btn.contains(e.target)) toggleSubmenu(currentlyOpenSubmenu.btn, currentlyOpenSubmenu.menu);
-        // Nasconde i risultati di ricerca se si clicca fuori
         if (searchResultsContainer && !searchResultsContainer.contains(e.target) && e.target !== searchInput) searchResultsContainer.style.display = 'none';
     });
 
