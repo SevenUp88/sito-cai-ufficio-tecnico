@@ -1,4 +1,4 @@
-// File: TEST/script.js - VERSIONE CORRETTA PER PDF
+// File: TEST/script.js - VERSIONE FINALE CON GESTIONE MULTI-PAGINA
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
@@ -8,9 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const spinner = document.getElementById('spinner');
 
     const API_KEY = 'AIzaSyDlL_Cz_rKxOby1-mKdUMzRPWSb5AalzCQ';
-    
-    // --- MODIFICA 1: URL DELL'API ---
-    // Usiamo l'endpoint "files:annotate" invece di "images:annotate"
     const VISION_API_URL = `https://vision.googleapis.com/v1/files:annotate?key=${API_KEY}`;
 
     processBtn.addEventListener('click', handleFileProcessing);
@@ -31,22 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const base64Data = await fileToBase64(file);
             statusMessage.textContent = 'Invio a Google Cloud Vision API...';
 
-            // --- MODIFICA 2: CORPO DELLA RICHIESTA ---
             const requestBody = {
-                requests: [
-                    {
-                        inputConfig: {
-                            // Specifichiamo che il contenuto è un PDF
-                            mimeType: 'application/pdf',
-                            content: base64Data
-                        },
-                        features: [
-                            {
-                                type: 'DOCUMENT_TEXT_DETECTION'
-                            }
-                        ]
-                    }
-                ]
+                requests: [{
+                    inputConfig: { mimeType: 'application/pdf', content: base64Data },
+                    features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
+                }]
             };
 
             const response = await fetch(VISION_API_URL, {
@@ -62,14 +48,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            // La struttura della risposta per i file è leggermente diversa
-            const detection = data.responses[0];
-            if (detection && detection.fullTextAnnotation) {
-                const fullText = detection.fullTextAnnotation.text;
+            // --- INIZIO MODIFICA CHIAVE ---
+            // La risposta per i file ha una struttura annidata
+            const fileResponse = data.responses[0];
+            let fullText = '';
+
+            // Controlliamo se ci sono risposte per le singole pagine
+            if (fileResponse && fileResponse.responses && fileResponse.responses.length > 0) {
+                // Uniamo il testo di tutte le pagine
+                fileResponse.responses.forEach((pageResponse, index) => {
+                    if (pageResponse.fullTextAnnotation) {
+                        fullText += `==Start of OCR for page ${index + 1}==\n`;
+                        fullText += pageResponse.fullTextAnnotation.text;
+                        fullText += `\n==End of OCR for page ${index + 1}==\n\n`;
+                    }
+                });
+            }
+            // --- FINE MODIFICA CHIAVE ---
+
+            if (fullText) {
                 rawTextOutput.textContent = fullText;
                 statusMessage.textContent = 'Estrazione completata!';
             } else {
-                // Aggiungiamo un log più specifico per il debug
                 console.log("Risposta dall'API:", data);
                 rawTextOutput.textContent = 'Nessun testo trovato nel documento. Controlla la console per la risposta completa dall\'API.';
                 statusMessage.textContent = 'Completato, ma nessun testo rilevato.';
