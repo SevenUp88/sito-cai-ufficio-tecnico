@@ -1,4 +1,4 @@
-// auth.js - VERSIONE CORRETTA E UNIVERSALE
+// auth.js - VERSIONE CON CONTROLLO ADMIN E AREA TEST
 
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof firebase === 'undefined') {
@@ -18,10 +18,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutButton = document.getElementById('logout-button');
     const initialLoader = document.getElementById('initial-loader');
 
-    // Selettore per il pulsante Configuratori
+    // Selettori per i pulsanti con accesso limitato
     const btnConfiguratori = document.getElementById('btn-configuratori');
+    const btnTestArea = document.getElementById('btn-test-area'); // --- NUOVO SELETTORE ---
     
-    // Determina se siamo sulla home page controllando la presenza della sezione di login
     const isHomePage = !!loginSection;
 
     auth.onAuthStateChanged(user => {
@@ -30,9 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.style.visibility = 'visible';
 
         if (user) {
-            // --- LOGICA ADMIN ---
-            if (btnConfiguratori) { // Controlla se il pulsante esiste nella pagina
-                if (user.email === 'tecnicovillalta@gmail.com') {
+            const isAdmin = user.email === 'tecnicovillalta@gmail.com';
+
+            // --- LOGICA ADMIN PER CONFIGURATORI ---
+            if (btnConfiguratori) {
+                if (isAdmin) {
                     btnConfiguratori.disabled = false;
                     btnConfiguratori.classList.remove('disabled');
                     btnConfiguratori.title = "Accedi ai configuratori";
@@ -43,46 +45,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             
-            // --- LOGICA PER TUTTE LE PAGINE QUANDO L'UTENTE È LOGGATO ---
-            console.log("Utente autenticato:", user.email);
+            // --- NUOVA LOGICA ADMIN PER AREA TEST ---
+            if (btnTestArea) {
+                if (isAdmin) {
+                    btnTestArea.classList.remove('hidden'); // Mostra il pulsante se è l'admin
+                } else {
+                    btnTestArea.classList.add('hidden'); // Nascondi il pulsante per tutti gli altri
+                }
+            }
 
-            // Mostra sempre la dashboard e il contenuto dell'app su qualsiasi pagina
+            // Il resto della logica rimane invariato
+            console.log("Utente autenticato:", user.email);
             if (userDashboard) userDashboard.classList.remove('hidden');
             if (userEmailDisplay) userEmailDisplay.textContent = user.email;
-            if (appContent) appContent.classList.remove('hidden'); // <-- SPOSTATO QUI!
-
-            // Nascondi la sezione di login, ma solo se siamo sulla home page
-            if (isHomePage) {
-                if(loginSection) loginSection.classList.add('hidden');
+            
+            // Logica per mostrare/nascondere il contenuto (già corretta per funzionare su tutte le pagine)
+            if (appContent) appContent.classList.remove('hidden');
+            if (isHomePage && loginSection) {
+                loginSection.classList.add('hidden');
             }
 
         } else {
-            // --- LOGICA PER TUTTE LE PAGINE QUANDO L'UTENTE NON È LOGGATO ---
-
-            // Se l'utente non è loggato, disabilita comunque il pulsante per sicurezza
+            // Se l'utente non è loggato, nascondi/disabilita tutto per sicurezza
             if (btnConfiguratori) {
                 btnConfiguratori.disabled = true;
                 btnConfiguratori.classList.add('disabled');
             }
+            if (btnTestArea) {
+                btnTestArea.classList.add('hidden');
+            }
 
-            // Se non siamo sulla home page, reindirizza
             if (!isHomePage) {
                 console.log("Utente non loggato, reindirizzo alla home...");
-                // Calcola il percorso relativo per tornare alla root del sito
                 const pathSegments = window.location.pathname.split('/').filter(Boolean);
-                // Calcola la profondità, es. /NOLEGGI/GAS/ -> 2 segmenti -> 2 livelli di ../
                 const depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
                 const rootPath = '../'.repeat(depth) || './';
                 window.location.href = `${rootPath}index.html`;
             } else {
-                // Se siamo sulla home page, mostra la sezione di login
                 if(loginSection) loginSection.classList.remove('hidden');
                 if(appContent) appContent.classList.add('hidden');
             }
         }
     });
 
-    // --- GESTIONE LOGIN E LOGOUT (invariata) ---
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
