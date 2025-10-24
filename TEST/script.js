@@ -1,4 +1,4 @@
-// File: TEST/script.js - VERSIONE CON GESTIONE MULTI-PAGINA UNIFICATA
+// File: TEST/script.js - VERSIONE FINALE CON PARSING MULTI-PAGINA CORRETTO
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
@@ -64,16 +64,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileResponse = data.responses[0];
             let fullText = '';
 
-            // --- MODIFICA CHIAVE: UNIAMO IL TESTO DI TUTTE LE PAGINE ---
             if (fileResponse && fileResponse.responses) {
                 fileResponse.responses.forEach(pageResponse => {
                     if (pageResponse.fullTextAnnotation) {
-                        fullText += pageResponse.fullTextAnnotation.text + '\n'; // Aggiungiamo il testo di ogni pagina
+                        fullText += pageResponse.fullTextAnnotation.text + '\n';
                     }
                 });
             }
 
-            // Ora analizziamo il testo completo e unificato
             const parsedResults = parseRawText(fullText);
             displayResults(file.name, parsedResults, fullText);
             
@@ -86,20 +84,36 @@ document.addEventListener('DOMContentLoaded', () => {
     function parseRawText(text) {
         const results = [];
         
-        // Regex migliorata per cercare righe che contengono un tipo di gas e una capacità in litri
+        // Regex per trovare le righe dei prodotti
         const lineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?(\d{1,2})\s*L.*)$/gm;
         let match;
         
         while ((match = lineRegex.exec(text)) !== null) {
             const line = match[1];
-            const capacity = match[2]; // La capacità è già catturata dal gruppo 2
+            const capacity = match[2];
             
             const gasMatch = line.match(/AZOTO|OSSIGENO|ACETILENE/);
             const gas = gasMatch ? gasMatch[0] : 'N/A';
 
-            // Cerca le matricole in un'area di testo più ampia DOPO la riga trovata
-            const searchArea = text.substring(match.index + line.length, match.index + line.length + 400);
-            const serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
+            // --- INIZIO LOGICA DI RICERCA MIGLIORATA ---
+            // Definiamo un'area di ricerca più ampia dopo la riga del prodotto
+            const searchAreaEnd = text.indexOf('Situazione Giacenza', match.index);
+            const searchArea = text.substring(
+                match.index + line.length, 
+                searchAreaEnd !== -1 ? searchAreaEnd : match.index + 800 // Limita la ricerca per sicurezza
+            );
+
+            let serials = [];
+            // Cerca la parola "Barcode:" e prendi la riga successiva
+            const barcodeMatch = searchArea.match(/Barcode:\s*\n(.*?)\n/);
+            if (barcodeMatch && barcodeMatch[1]) {
+                // Trovato "Barcode:", estrai tutte le matricole da quella riga
+                serials = [...barcodeMatch[1].matchAll(/S\d{6,}/g)].map(m => m[0]);
+            } else {
+                // Fallback: se non trova "Barcode:", cerca le matricole liberamente nell'area
+                serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
+            }
+            // --- FINE LOGICA DI RICERCA MIGLIORATA ---
 
             results.push({
                 gas: gas,
@@ -108,12 +122,10 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         
-        // Se non trova nessuna riga specifica, restituisce un risultato vuoto per evitare falsi positivi
         return results.length > 0 ? results : [{ gas: 'N/A', capacity: 'N/A', serials: 'Nessuna trovata' }];
     }
 
     function displayResults(fileName, parsedResults, rawText) {
-        // Se il risultato è quello di default "N/A", non lo mostriamo
         if (parsedResults.length === 1 && parsedResults[0].gas === 'N/A') {
              resultsTbody.innerHTML += `<tr>
                 <td>${fileName}</td>
