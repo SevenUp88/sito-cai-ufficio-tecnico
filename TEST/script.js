@@ -1,4 +1,4 @@
-// File: TEST/script.js - VERSIONE FINALE CON PARSING MULTI-PAGINA CORRETTO
+// File: TEST/script.js - VERSIONE FINALE CON ANALISI A BLOCCHI
 
 document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
@@ -22,18 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
             statusMessage.textContent = 'Per favore, seleziona uno o più file.';
             return;
         }
-
         spinner.style.display = 'block';
         statusMessage.textContent = `Processo ${files.length} file...`;
         resultsTbody.innerHTML = '';
         extractedData = [];
         exportCsvBtn.disabled = true;
         processBtn.disabled = true;
-
         for (const file of files) {
             await handleFileProcessing(file);
         }
-
         spinner.style.display = 'none';
         statusMessage.textContent = 'Processo completato.';
         if (extractedData.length > 0) {
@@ -51,19 +48,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
                 }]
             };
-
             const response = await fetch(VISION_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
-
             if (!response.ok) throw new Error(`Errore API per ${file.name}`);
-            
             const data = await response.json();
             const fileResponse = data.responses[0];
             let fullText = '';
-
             if (fileResponse && fileResponse.responses) {
                 fileResponse.responses.forEach(pageResponse => {
                     if (pageResponse.fullTextAnnotation) {
@@ -71,10 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
             }
-
             const parsedResults = parseRawText(fullText);
             displayResults(file.name, parsedResults, fullText);
-            
         } catch (error) {
             console.error(`Errore processando ${file.name}:`, error);
             resultsTbody.innerHTML += `<tr><td colspan="5">Errore durante l'analisi del file ${file.name}</td></tr>`;
@@ -83,46 +74,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function parseRawText(text) {
         const results = [];
-        
-        // Regex per trovare le righe dei prodotti
-        const lineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?(\d{1,2})\s*L.*)$/gm;
-        let match;
-        
-        while ((match = lineRegex.exec(text)) !== null) {
-            const line = match[1];
-            const capacity = match[2];
-            
+        // Regex per trovare le righe dei prodotti, catturando la riga intera
+        const productLineRegex = /^(.*?(?:AZOTO|OSSIGENO|ACETILENE).*?\d{1,2}\s*L.*)$/gm;
+        const productLines = [...text.matchAll(productLineRegex)].map(match => ({
+            line: match[1],
+            index: match.index
+        }));
+
+        if (productLines.length === 0) {
+            return [{ gas: 'N/A', capacity: 'N/A', serials: 'Nessuna trovata' }];
+        }
+
+        productLines.forEach((product, i) => {
+            const { line, index } = product;
+
             const gasMatch = line.match(/AZOTO|OSSIGENO|ACETILENE/);
             const gas = gasMatch ? gasMatch[0] : 'N/A';
 
-            // --- INIZIO LOGICA DI RICERCA MIGLIORATA ---
-            // Definiamo un'area di ricerca più ampia dopo la riga del prodotto
-            const searchAreaEnd = text.indexOf('Situazione Giacenza', match.index);
-            const searchArea = text.substring(
-                match.index + line.length, 
-                searchAreaEnd !== -1 ? searchAreaEnd : match.index + 800 // Limita la ricerca per sicurezza
-            );
+            const capacityMatch = line.match(/(\d+)\s*L/);
+            const capacity = capacityMatch ? capacityMatch[1] : 'N/A';
 
-            let serials = [];
-            // Cerca la parola "Barcode:" e prendi la riga successiva
-            const barcodeMatch = searchArea.match(/Barcode:\s*\n(.*?)\n/);
-            if (barcodeMatch && barcodeMatch[1]) {
-                // Trovato "Barcode:", estrai tutte le matricole da quella riga
-                serials = [...barcodeMatch[1].matchAll(/S\d{6,}/g)].map(m => m[0]);
-            } else {
-                // Fallback: se non trova "Barcode:", cerca le matricole liberamente nell'area
-                serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
-            }
-            // --- FINE LOGICA DI RICERCA MIGLIORATA ---
+            // Definisci l'area di ricerca per le matricole:
+            // Inizia dalla fine della riga del prodotto corrente
+            // e finisce all'inizio della riga del prodotto successivo (o alla fine del testo)
+            const startIndex = index + line.length;
+            const nextProduct = productLines[i + 1];
+            const endIndex = nextProduct ? nextProduct.index : text.length;
+            
+            const searchArea = text.substring(startIndex, endIndex);
+
+            // Trova tutte le matricole in quest'area
+            const serials = [...searchArea.matchAll(/S\d{6,}/g)].map(m => m[0]);
 
             results.push({
                 gas: gas,
                 capacity: capacity,
                 serials: serials.length > 0 ? serials.join(', ') : 'Nessuna trovata'
             });
-        }
-        
-        return results.length > 0 ? results : [{ gas: 'N/A', capacity: 'N/A', serials: 'Nessuna trovata' }];
+        });
+
+        return results;
     }
 
     function displayResults(fileName, parsedResults, rawText) {
@@ -134,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>`;
             return;
         }
-
         parsedResults.forEach(result => {
             const row = resultsTbody.insertRow();
             row.innerHTML = `
@@ -160,11 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const headers = "File,Gas,Capacita,Matricole\n";
         const rows = extractedData.map(d => `"${d.file}","${d.gas}","${d.capacity}","${d.serials.replace(/"/g, '""')}"`).join("\n");
-        
         const csvContent = headers + rows;
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
-        
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
         link.setAttribute("download", "estrazione_bolle.csv");
