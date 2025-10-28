@@ -1,6 +1,6 @@
 /*
  * Script per la Home Page dell'applicazione CAI Ufficio Tecnico
- * VERSIONE CON AREA TEST A SOTTOMENU
+ * VERSIONE CON AREA TEST A LINK DIRETTO
  */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -17,10 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnNoleggi = document.getElementById('btn-noleggi');
     const submenuNoleggi = document.getElementById('submenu-noleggi');
     
-    // --- NUOVI SELETTORI PER L'AREA TEST ---
-    const btnTestArea = document.getElementById('btn-test-area');
-    const submenuTest = document.getElementById('submenu-test');
-
     const addCategoryTriggerBtn = document.getElementById('add-category-trigger');
     const addCategoryPanel = document.getElementById('add-category-panel');
     const addCategoryCloseBtn = document.getElementById('add-category-close');
@@ -306,7 +302,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnListini) { btnListini.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnListini, submenuListini); }); }
     if (btnConfiguratori) { btnConfiguratori.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnConfiguratori, submenuConfiguratori); }); }
     if (btnFgas) { btnFgas.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnFgas, submenuFgas); }); }
-    if (btnTestArea) { btnTestArea.addEventListener('click', (e) => { e.stopPropagation(); toggleSubmenu(btnTestArea, submenuTest); }); }
 
     if (addCategoryTriggerBtn) addCategoryTriggerBtn.addEventListener('click', showAddCategoryPanel);
     if (addCategorySubmitBtn) addCategorySubmitBtn.addEventListener('click', handleAddCategorySubmit);
