@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Gestione Ufficio Tecnico - Home</title>
+    
     <link rel="stylesheet" href="style.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <!-- Loader iniziale -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
         <p>Verifica in corso...</p>
     </div>
 
+    <!-- Header dell'Applicazione -->
     <header class="app-header">
         <a href="/index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo"></a>
         <div class="header-controls">
+            <button id="add-category-trigger" class="admin-button hidden" title="Aggiungi Nuova Categoria">
+                <i class="fas fa-plus-circle"></i>
+            </button>
             <div id="user-dashboard" class="hidden">
                 <p>Utente: <span id="user-email-display"></span></p>
                 <button id="logout-button" class="btn-login">Logout</button>
@@ -23,6 +30,7 @@
         </div>
     </header>
 
+    <!-- Area principale del contenuto -->
     <main id="content-area">
         <section id="login-section" class="hidden">
             <h2>Accesso Riservato</h2>
@@ -50,7 +58,6 @@
                 <a href="SCONTISTICHE/index.html" class="nav-button"> <i class="fas fa-tags"></i> Scontistiche </a>
                 <a href="AGENDA%20CONSEGNE/index.html" class="nav-button"> <i class="fas fa-calendar-alt"></i> Agenda Consegne </a>
                 
-                <!-- --- MODIFICA: Riportato a link diretto e rimosso sottomenu --- -->
                 <a href="TEST/index.html" id="btn-test-area" class="nav-button hidden">
                     <i class="fas fa-flask"></i> Area Test
                 </a>
@@ -84,37 +91,74 @@
                  <a href="FGAS/apparecchiature.html" class="submenu-button"> <i class="fas fa-tools"></i> Apparecchiature </a>
                  <a href="FGAS/gas.html" class="submenu-button"> <i class="fas fa-wind"></i> Gas Fluorurati </a>
             </div>
-
-            <!-- RIMOSSO il div #submenu-test -->
         </div>
     </main>
 
-    <!-- ... (tutto il resto del file HTML è invariato) ... -->
+    <div id="add-category-panel" class="admin-popup hidden">
+        <button class="close-panel-btn" id="add-category-close" aria-label="Chiudi pannello">×</button>
+        <h3>Aggiungi Nuova Categoria</h3>
+        <div class="form-group"> <label for="category-name">Nome Categoria:</label> <input type="text" id="category-name" placeholder="Es: Manutenzioni"> </div>
+        <div class="form-group"> <label for="category-path">Percorso File/Pagina:</label> <input type="text" id="category-path" placeholder="Es: MANUTENZIONI/index.html"> </div>
+        <div class="form-group"> <label for="category-icon">Classe Icona Font Awesome:</label> <input type="text" id="category-icon" placeholder="Es: fas fa-tools"> </div>
+        <div class="admin-popup-buttons centered"> <button id="add-category-submit">Aggiungi Categoria</button> </div>
+        <p id="add-category-feedback" class="feedback-message hidden"></p>
+    </div>
+    <div id="admin-overlay" class="overlay hidden"></div>
+
+    <div id="product-details-modal-overlay">
+        <div class="modal-container">
+            <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra" aria-label="Chiudi finestra">×</button>
+            <div class="modal-header">
+                <img id="modal-brand-logo" src="" alt="Logo marca" class="modal-brand-logo">
+                <div class="modal-header-main">
+                    <div class="modal-title-group">
+                        <span id="modal-product-brand"></span>
+                        <h2 id="modal-product-model"></h2>
+                    </div>
+                    <div id="modal-product-code" class="modal-product-code"></div>
+                </div>
+                <div class="modal-header-right">
+                    <div id="modal-product-type-badge" class="modal-type-badge"></div>
+                    <i id="modal-wifi-icon" class="fas fa-wifi"></i>
+                </div>
+            </div>
+            <div class="modal-body-split">
+                <div class="modal-left-panel">
+                    <div class="modal-image-wrapper">
+                        <img id="modal-image-ui" src="" alt="Immagine Prodotto">
+                        <img id="modal-image-ue" src="" alt="Unità Esterna">
+                        <img id="modal-image-attachments" src="" alt="Schema attacchi">
+                        <div class="zoom-icon"><i class="fas fa-search-plus"></i></div>
+                    </div>
+                    <div class="modal-energy-badges-container">
+                         <span id="modal-energy-cooling" class="energy-badge cooling"></span>
+                         <span id="modal-energy-heating" class="energy-badge heating"></span>
+                    </div>
+                    <div class="modal-bottom-info">
+                        <div id="modal-product-price" class="modal-product-price"></div>
+                        <a id="modal-datasheet-link" href="#" target="_blank" rel="noopener noreferrer" class="hidden">
+                            <i class="fas fa-file-pdf"></i> Scheda Tecnica
+                        </a>
+                    </div>
+                </div>
+                <div class="modal-right-panel">
+                    <div id="modal-tech-details"></div>
+                </div>
+            </div>
+        </div>
+    </div>
     
+    <div id="image-viewer-overlay" class="image-viewer-overlay">
+        <button id="close-viewer-btn" class="viewer-close-btn">×</button>
+        <img id="viewer-image" src="" alt="Immagine ingrandita">
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+    
     <script src="firebase-config.js"></script> 
     <script src="auth.js"></script> 
     <script src="script.js"></script> 
 </body>
-</html>```
-
----
-
-### 2. File Completo: `TEST/index.html` (Corretto)
-
-Ho corretto il link "Estrazione Bolle Gas" e ho aggiunto un link al logo per tornare alla home page.
-
-```html
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Area Test</title>
-    <link rel="stylesheet" href="../style.css"> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <div id="initia
+</html>
