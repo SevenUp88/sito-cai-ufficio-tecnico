@@ -2,30 +2,43 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Area Test</title>
     <link rel="stylesheet" href="../style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Verifica in corso...</p>
+    </div>
+
     <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="logo">
-        <div id="user-dashboard" class="hidden">
-            <p>Utente: <span id="user-email-display"></span></p>
-            <button id="logout-button" class="btn-login">Logout</button>
+        <a href="/index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo"></a>
+        <div class="header-controls">
+            <div id="user-dashboard" class="hidden">
+                <p>Utente: <span id="user-email-display"></span></p>
+                <button id="logout-button" class="btn-login">Logout</button>
+            </div>
         </div>
     </header>
+
     <main id="content-area">
         <div id="app-content" class="hidden">
             <div class="welcome-message">
-                <h2>Area Test</h2>
+                <h2>Area Test - Hub</h2>
                 <p>Seleziona una funzionalità da testare.</p>
             </div>
-            <nav class="main-nav">
-                <a href="bolle-gas.html" class="nav-button"><i class="fas fa-file-invoice"></i> Estrazione Bolle Gas</a>
-                <!-- Aggiungi qui altri link a futuri test -->
+            
+            <nav class="main-nav" id="configuratorsNav">
+                <a href="../CONFIGURATORI/IMPIANTO RADIANTE/index.html" class="nav-button"> <i class="fas fa-border-all"></i> Impianto Radiante </a>
+                <a href="../CONFIGURATORI/RADIATORI/index.html" class="nav-button"> <i class="fas fa-thermometer-half"></i> Impianto Radiatori </a>
+                <a href="../CONFIGURATORI/CANNE FUMARIE/index.html" class="nav-button"> <i class="fas fa-smog"></i> Canne Fumarie </a>
+                <a href="bolle-gas.html" class="nav-button"> <i class="fas fa-file-invoice"></i> Estrazione Bolle Gas </a>
             </nav>
         </div>
     </main>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="../firebase-config.js"></script> 
