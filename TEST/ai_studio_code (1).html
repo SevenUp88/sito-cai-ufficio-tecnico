@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>CAI - Area Test</title>
+    <link rel="stylesheet" href="../style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header class="app-header">
+        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="logo">
+        <div id="user-dashboard" class="hidden">
+            <p>Utente: <span id="user-email-display"></span></p>
+            <button id="logout-button" class="btn-login">Logout</button>
+        </div>
+    </header>
+    <main id="content-area">
+        <div id="app-content" class="hidden">
+            <div class="welcome-message">
+                <h2>Area Test</h2>
+                <p>Seleziona una funzionalità da testare.</p>
+            </div>
+            <nav class="main-nav">
+                <a href="bolle-gas.html" class="nav-button"><i class="fas fa-file-invoice"></i> Estrazione Bolle Gas</a>
+                <!-- Aggiungi qui altri link a futuri test -->
+            </nav>
+        </div>
+    </main>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="../firebase-config.js"></script> 
+    <script src="../auth.js"></script> 
+</body>
+</html>
