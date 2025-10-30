@@ -1,12 +1,22 @@
-// auth.js - VERSIONE CON CONTROLLO ADMIN E AREA TEST
+// auth.js - VERSIONE ROBUSTA CON ATTESA INIZIALIZZAZIONE
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof firebase === 'undefined') {
-        console.error("Firebase non caricato.");
+    // Attende un istante per dare tempo allo script di inizializzazione inline di essere eseguito
+    setTimeout(initializeApp, 100); 
+});
+
+function initializeApp() {
+    // Controlla se Firebase e i suoi servizi sono pronti
+    if (typeof firebase === 'undefined' || typeof window.auth === 'undefined' || typeof window.db === 'undefined') {
+        console.error("auth.js: Firebase non è ancora pronto. Riprovo...");
+        setTimeout(initializeApp, 200); // Riprova dopo 200ms
         return;
     }
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+
+    console.log("auth.js: Firebase è pronto. Avvio logica di autenticazione.");
+
+    const auth = window.auth;
+    const db = window.db;
 
     // Elementi DOM
     const loginSection = document.getElementById('login-section');
@@ -18,9 +28,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutButton = document.getElementById('logout-button');
     const initialLoader = document.getElementById('initial-loader');
 
-    // Selettori per i pulsanti con accesso limitato
     const btnConfiguratori = document.getElementById('btn-configuratori');
-    const btnTestArea = document.getElementById('btn-test-area'); // --- NUOVO SELETTORE ---
+    const btnTestArea = document.getElementById('btn-test-area');
     
     const isHomePage = !!loginSection;
 
@@ -32,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (user) {
             const isAdmin = user.email === 'tecnicovillalta@gmail.com';
 
-            // --- LOGICA ADMIN PER CONFIGURATORI ---
             if (btnConfiguratori) {
                 if (isAdmin) {
                     btnConfiguratori.disabled = false;
@@ -45,28 +53,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
             
-            // --- NUOVA LOGICA ADMIN PER AREA TEST ---
             if (btnTestArea) {
                 if (isAdmin) {
-                    btnTestArea.classList.remove('hidden'); // Mostra il pulsante se è l'admin
+                    btnTestArea.classList.remove('hidden');
                 } else {
-                    btnTestArea.classList.add('hidden'); // Nascondi il pulsante per tutti gli altri
+                    btnTestArea.classList.add('hidden');
                 }
             }
 
-            // Il resto della logica rimane invariato
-            console.log("Utente autenticato:", user.email);
             if (userDashboard) userDashboard.classList.remove('hidden');
             if (userEmailDisplay) userEmailDisplay.textContent = user.email;
             
-            // Logica per mostrare/nascondere il contenuto (già corretta per funzionare su tutte le pagine)
             if (appContent) appContent.classList.remove('hidden');
             if (isHomePage && loginSection) {
                 loginSection.classList.add('hidden');
             }
 
         } else {
-            // Se l'utente non è loggato, nascondi/disabilita tutto per sicurezza
             if (btnConfiguratori) {
                 btnConfiguratori.disabled = true;
                 btnConfiguratori.classList.add('disabled');
@@ -107,4 +110,16 @@ document.addEventListener('DOMContentLoaded', function () {
             auth.signOut();
         });
     }
-});
+}```
+
+### Azione Finale
+
+1.  **Sostituisci** il contenuto dei file `TEST/index.html` e `auth.js` con questi codici completi.
+2.  **Cancella** il file `firebase-config.js` dal tuo progetto.
+3.  **Applica la stessa logica a tutte le altre pagine:**
+    *   Apri `index (1).html` (la tua home).
+    *   Rimuovi `<script src="firebase-config.js"></script>`.
+    *   Aggiungi il blocco `<script>...</script>` con l'inizializzazione di Firebase prima di caricare `auth.js`.
+    *   Fai lo stesso per la pagina `NOLEGGI/GAS/index.html` e qualsiasi altra pagina che usa Firebase.
+
+Questo approccio centralizza l'inizializzazione in ogni pagina, eliminando i problemi di temporizzazione e risolvendo l'errore `No Firebase App has been created`.
