@@ -111,15 +111,3 @@ function initializeApp() {
         });
     }
 }```
-
-### Azione Finale
-
-1.  **Sostituisci** il contenuto dei file `TEST/index.html` e `auth.js` con questi codici completi.
-2.  **Cancella** il file `firebase-config.js` dal tuo progetto.
-3.  **Applica la stessa logica a tutte le altre pagine:**
-    *   Apri `index (1).html` (la tua home).
-    *   Rimuovi `<script src="firebase-config.js"></script>`.
-    *   Aggiungi il blocco `<script>...</script>` con l'inizializzazione di Firebase prima di caricare `auth.js`.
-    *   Fai lo stesso per la pagina `NOLEGGI/GAS/index.html` e qualsiasi altra pagina che usa Firebase.
-
-Questo approccio centralizza l'inizializzazione in ogni pagina, eliminando i problemi di temporizzazione e risolvendo l'errore `No Firebase App has been created`.
