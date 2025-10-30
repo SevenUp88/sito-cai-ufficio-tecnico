@@ -1,19 +1,10 @@
-// auth.js - VERSIONE ROBUSTA CON ATTESA INIZIALIZZAZIONE
+// auth.js - VERSIONE FINALE, CORRETTA E UNIVERSALE
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Attende un istante per dare tempo allo script di inizializzazione inline di essere eseguito
-    setTimeout(initializeApp, 100); 
-});
-
-function initializeApp() {
-    // Controlla se Firebase e i suoi servizi sono pronti
-    if (typeof firebase === 'undefined' || typeof window.auth === 'undefined' || typeof window.db === 'undefined') {
-        console.error("auth.js: Firebase non è ancora pronto. Riprovo...");
-        setTimeout(initializeApp, 200); // Riprova dopo 200ms
+    if (typeof firebase === 'undefined' || !window.auth || !window.db) {
+        console.error("auth.js: Firebase non è pronto. Assicurati che firebase-config.js sia caricato prima.");
         return;
     }
-
-    console.log("auth.js: Firebase è pronto. Avvio logica di autenticazione.");
 
     const auth = window.auth;
     const db = window.db;
@@ -42,23 +33,13 @@ function initializeApp() {
             const isAdmin = user.email === 'tecnicovillalta@gmail.com';
 
             if (btnConfiguratori) {
-                if (isAdmin) {
-                    btnConfiguratori.disabled = false;
-                    btnConfiguratori.classList.remove('disabled');
-                    btnConfiguratori.title = "Accedi ai configuratori";
-                } else {
-                    btnConfiguratori.disabled = true;
-                    btnConfiguratori.classList.add('disabled');
-                    btnConfiguratori.title = "Accesso riservato all'amministratore";
-                }
+                btnConfiguratori.disabled = !isAdmin;
+                btnConfiguratori.classList.toggle('disabled', !isAdmin);
+                btnConfiguratori.title = isAdmin ? "Accedi ai configuratori" : "Accesso riservato all'amministratore";
             }
             
             if (btnTestArea) {
-                if (isAdmin) {
-                    btnTestArea.classList.remove('hidden');
-                } else {
-                    btnTestArea.classList.add('hidden');
-                }
+                btnTestArea.classList.toggle('hidden', !isAdmin);
             }
 
             if (userDashboard) userDashboard.classList.remove('hidden');
@@ -66,48 +47,3 @@ function initializeApp() {
             
             if (appContent) appContent.classList.remove('hidden');
             if (isHomePage && loginSection) {
-                loginSection.classList.add('hidden');
-            }
-
-        } else {
-            if (btnConfiguratori) {
-                btnConfiguratori.disabled = true;
-                btnConfiguratori.classList.add('disabled');
-            }
-            if (btnTestArea) {
-                btnTestArea.classList.add('hidden');
-            }
-
-            if (!isHomePage) {
-                console.log("Utente non loggato, reindirizzo alla home...");
-                const pathSegments = window.location.pathname.split('/').filter(Boolean);
-                const depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
-                const rootPath = '../'.repeat(depth) || './';
-                window.location.href = `${rootPath}index.html`;
-            } else {
-                if(loginSection) loginSection.classList.remove('hidden');
-                if(appContent) appContent.classList.add('hidden');
-            }
-        }
-    });
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = loginForm.email.value;
-            const password = loginForm.password.value;
-            if (loginError) loginError.textContent = "";
-            auth.signInWithEmailAndPassword(email, password)
-                .catch(error => {
-                    if (loginError) loginError.textContent = "Credenziali non valide. Riprova.";
-                    console.error("Errore di login:", error);
-                });
-        });
-    }
-
-    if (logoutButton) {
-        logoutButton.addEventListener('click', () => {
-            auth.signOut();
-        });
-    }
-}```
