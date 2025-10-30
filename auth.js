@@ -1,8 +1,11 @@
-// auth.js - VERSIONE FINALE, CORRETTA E UNIVERSALE
+// auth.js - VERSIONE FINALE, CORRETTA E UNIVERSALE (CON PARENTESI FINALE)
 
 document.addEventListener('DOMContentLoaded', function () {
-    if (typeof firebase === 'undefined' || !window.auth || !window.db) {
-        console.error("auth.js: Firebase non è pronto. Assicurati che firebase-config.js sia caricato prima.");
+    // Aggiungiamo un controllo per assicurarci che firebase-config abbia già definito window.auth
+    if (typeof firebase === 'undefined' || typeof window.auth === 'undefined' || typeof window.db === 'undefined') {
+        console.error("auth.js: Firebase non è pronto. Assicurati che firebase-config.js sia caricato prima di auth.js.");
+        // Potremmo mostrare un messaggio di errore all'utente qui
+        document.body.innerHTML = '<p style="color: red; text-align: center; padding: 20px;">Errore di caricamento critico. Contattare l\'assistenza.</p>';
         return;
     }
 
@@ -47,3 +50,48 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (appContent) appContent.classList.remove('hidden');
             if (isHomePage && loginSection) {
+                loginSection.classList.add('hidden');
+            }
+
+        } else {
+            if (btnConfiguratori) {
+                btnConfiguratori.disabled = true;
+                btnConfiguratori.classList.add('disabled');
+            }
+            if (btnTestArea) {
+                btnTestArea.classList.add('hidden');
+            }
+
+            if (!isHomePage) {
+                console.log("Utente non loggato, reindirizzo alla home...");
+                const pathSegments = window.location.pathname.split('/').filter(Boolean);
+                const depth = pathSegments.length > 1 ? pathSegments.length - 1 : 0;
+                const rootPath = '../'.repeat(depth) || './';
+                window.location.href = `${rootPath}index.html`;
+            } else {
+                if(loginSection) loginSection.classList.remove('hidden');
+                if(appContent) appContent.classList.add('hidden');
+            }
+        }
+    });
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = loginForm.email.value;
+            const password = loginForm.password.value;
+            if (loginError) loginError.textContent = "";
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    if (loginError) loginError.textContent = "Credenziali non valide. Riprova.";
+                    console.error("Errore di login:", error);
+                });
+        });
+    }
+
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            auth.signOut();
+        });
+    }
+}); // <-- QUESTA ERA LA PARENTESI MANCANTE
