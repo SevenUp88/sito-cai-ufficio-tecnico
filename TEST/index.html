@@ -39,9 +39,31 @@
         </div>
     </main>
 
-   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <!-- Script di Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
+
+    <!-- Inizializzazione di Firebase -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+            authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+            projectId: "consorzio-artigiani-idraulici",
+            storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+            messagingSenderId: "136848104008",
+            appId: "1:136848104008:web:2724f60607dbe91d09d67d"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        // Rendiamo disponibili db e auth globalmente per gli altri script
+        window.db = firebase.firestore();
+        window.auth = firebase.auth();
+    </script>
+
+    <!-- Script Applicativi -->
     <script src="../auth.js"></script> 
 </body>
 </html>
