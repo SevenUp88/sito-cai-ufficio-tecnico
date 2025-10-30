@@ -3,105 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Impianto Radiante - CAI Ufficio Tecnico</title>
-    <link rel="stylesheet" href="../../style.css"> 
-    <link rel="stylesheet" href="style.css">   
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Configuratore Impianto Radiante</title>
+    <link rel="stylesheet" href="../../style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body { display: flex; flex-direction: column; min-height: 100vh; }
-        /* L'header principale deve avere uno z-index alto se è sticky
-           per stare sopra .sticky-summary se si sovrappongono */
-        /* .app-header { position: sticky; top: 0; z-index: 1000; } */ 
-        .configurator-main-content { flex-grow: 1; padding-top: 15px; padding-bottom: 30px; }
+        .config-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .config-panel { flex: 1; min-width: 300px; }
+        .config-panel h2 { color: #0056a8; border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 5px; }
+        .input-group input, .input-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        #calculate-btn { background-color: #28a745; color: white; padding: 12px 20px; font-size: 1.1em; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        #results-list { list-style: none; padding: 0; }
+        #results-list li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #ccc; }
+        #results-list li span:first-child { font-weight: 500; }
+        #summary-panel { background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        #total-price { font-size: 2.5em; font-weight: 700; color: #0056a8; margin: 10px 0; }
+        #print-btn { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        .loader-container { text-align: center; padding: 40px; }
     </style>
 </head>
 <body>
     <header class="app-header">
-        <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo Ufficio Tecnico CAI" class="logo">
-        <div class="header-controls">
-            <a href="https://caiufficiotecnico.netlify.app/" class="admin-button" title="Torna alla Home del Portale"><i class="fas fa-home"></i></a>
+        <a href="/index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="logo"></a>
+        <h1>Configuratore Impianto Radiante</h1>
+        <div id="user-dashboard" class="hidden">
+            <p>Utente: <span id="user-email-display"></span></p>
+            <button id="logout-button" class="btn-login">Logout</button>
         </div>
     </header>
 
-    <main class="configurator-main-content">
-        <div class="configurator-layout">
-            <div class="configurator-form-column">
-                <div class="container"> 
-                    <h1>Configuratore Impianto Radiante a Pavimento</h1>
-                    <form id="radiantForm">
-                        <fieldset>
-                            <legend>1. Informazioni Generali del Progetto</legend>
-                            <div><label for="projectName">Nome Progetto:</label><input type="text" id="projectName" name="projectName" value="Casa Prova"></div>
-                            <div><label for="buildingType">Tipo di Edificio:</label><select id="buildingType" name="buildingType"><option value="new">Nuova Costruzione</option><option value="renovation">Ristrutturazione</option></select></div>
-                            <div><label for="insulationLevel">Livello di Isolamento:</label><select id="insulationLevel" name="insulationLevel"><option value="excellent">Ottimo (A/B)</option><option value="good">Buono (C/D)</option><option value="poor">Scarso (E+)</option></select></div>
-                            <div><label for="heatSource">Fonte di Calore Prevista:</label><select id="heatSource" name="heatSource"><option value="condensing_boiler">Caldaia a Condensazione</option><option value="heat_pump">Pompa di Calore</option><option value="other">Altro</option></select></div>
-                            <div><label for="flowTemperature">Temperatura di Mandata Prevista (°C):</label><input type="number" id="flowTemperature" name="flowTemperature" value="35" min="25" max="55"></div>
-                            <div><label for="screedHeight">Altezza Disponibile per Massetto (cm, sopra solaio grezzo):</label><input type="number" id="screedHeight" name="screedHeight" value="8" min="4"></div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>2. Definizione Stanze e Superfici</legend>
-                            <div class="rooms-grid-container" id="roomsGridContainer">
-                                <div class="room-card" data-room-index="1"><div class="room-card-header"><h4>Stanza 1</h4><button type="button" class="remove-room-btn icon-btn" title="Rimuovi Stanza" style="display:none;"><i class="fas fa-trash-alt"></i></button></div><div class="room-card-body"><div><label for="roomName1">Nome Stanza:</label><input type="text" class="roomName" id="roomName1" name="roomName1" value="Soggiorno"></div><div><label for="roomSurface1">Superficie (mq):</label><input type="number" class="roomSurface" id="roomSurface1" name="roomSurface1" value="25" min="0" step="0.1"></div><div><label for="roomFlooring1">Tipo Pavimentazione:</label><select class="roomFlooring" id="roomFlooring1" name="roomFlooring1"><option value="tiles">Piastrelle/Gres/Pietra</option><option value="parquet">Parquet (<15mm)</option><option value="laminate">Laminato (adatto)</option><option value="resin">Resina</option><option value="carpet_low_res">Moquette (bassa res.)</option></select></div></div></div>
-                                <div class="room-card room-placeholder" data-room-index="2" id="roomCardTemplate2"><div class="room-card-header"><h4>Stanza <span class="room-number-display">2</span></h4><button type="button" class="remove-room-btn icon-btn" title="Rimuovi Stanza" style="display:inline-block;"><i class="fas fa-trash-alt"></i></button></div><div class="room-card-body"><div><label for="roomName2">Nome Stanza:</label><input type="text" class="roomName" id="roomName2" name="roomName2" placeholder="Nome Stanza"></div><div><label for="roomSurface2">Superficie (mq):</label><input type="number" class="roomSurface" id="roomSurface2" name="roomSurface2" placeholder="0" min="0" step="0.1"></div><div><label for="roomFlooring2">Tipo Pavimentazione:</label><select class="roomFlooring" id="roomFlooring2" name="roomFlooring2"><option value="tiles" selected>Piastrelle/Gres/Pietra</option><option value="parquet">Parquet (<15mm)</option><option value="laminate">Laminato (adatto)</option><option value="resin">Resina</option><option value="carpet_low_res">Moquette (bassa res.)</option></select></div></div></div>
-                                <div class="room-card room-placeholder" data-room-index="3" id="roomCardTemplate3"><div class="room-card-header"><h4>Stanza <span class="room-number-display">3</span></h4><button type="button" class="remove-room-btn icon-btn" title="Rimuovi Stanza" style="display:inline-block;"><i class="fas fa-trash-alt"></i></button></div><div class="room-card-body"><div><label for="roomName3">Nome Stanza:</label><input type="text" class="roomName" id="roomName3" name="roomName3" placeholder="Nome Stanza"></div><div><label for="roomSurface3">Superficie (mq):</label><input type="number" class="roomSurface" id="roomSurface3" name="roomSurface3" placeholder="0" min="0" step="0.1"></div><div><label for="roomFlooring3">Tipo Pavimentazione:</label><select class="roomFlooring" id="roomFlooring3" name="roomFlooring3"><option value="tiles" selected>Piastrelle/Gres/Pietra</option><option value="parquet">Parquet (<15mm)</option><option value="laminate">Laminato (adatto)</option><option value="resin">Resina</option><option value="carpet_low_res">Moquette (bassa res.)</option></select></div></div></div>
-                            </div> 
-                            <button type="button" id="addRoomBtn">Aggiungi Nuova Stanza</button><hr>
-                            <div><strong>Totale Superficie Radiante (mq):</strong> <span id="totalRadiantSurfaceOutput">0.00</span></div>
-                        </fieldset>
-                        <fieldset>
-                            <legend>3. Opzioni e Preferenze del Sistema</legend>
-                            <div><label for="brandSystem">Marca Sistema Preferita:</label><select id="brandSystem" name="brandSystem"><option value="eurotherm">Eurotherm</option><option value="thermolutz" selected>Thermolutz</option><option value="generic">Generico/Altro</option></select></div>
-                            <div><label for="panelType">Tipo di Pannello Isolante:</label><select id="panelType" name="panelType"><option value="bugnato">Bugnato</option><option value="liscio">Liscio (con guide/rete)</option><option value="secco">A secco / Basso spessore</option><option value="zero">ZERO (Liscio ribassato)</option></select></div>
-                            <div><label for="panelThickness">Spessore Pannello Desiderato (mm):</label><input type="number" id="panelThickness" name="panelThickness" value="30" min="10" max="100" step="1"><small>Verrà cercato il pannello Thermolutz più vicino.</small></div>
-                            <div id="panelModelContainer" style="display: none;"><label for="panelModelSelect">Modello Lastra Pannello (Thermolutz):</label><select id="panelModelSelect" name="panelModelSelect"><option value="">-- Seleziona --</option></select></div>
-                            <div><label for="pipeDiameter">Diametro Tubazione:</label><select id="pipeDiameter" name="pipeDiameter"><option value="16x2">16x2 mm</option><option value="17x2">17x2 mm</option></select></div>
-                            <div><label for="generalPipePitchSelect">Passo di Posa Desiderato (cm):</label><select id="generalPipePitchSelect" name="generalPipePitchSelect"><option value="10">10 cm (100mm)</option><option value="15" selected>15 cm (150mm)</option><option value="20">20 cm (200mm)</option><option value="25">25 cm (250mm)</option></select><small>Opzioni potrebbero variare per pannello Thermolutz.</small></div>
-                            <div><label for="cooling">Raffrescamento a Pavimento:</label><select id="cooling" name="cooling"><option value="no">No</option><option value="yes">Sì</option></select></div>
-                        </fieldset>
-                        <div style="text-align: center; margin-top: 20px;"><button type="button" id="calculateBtn">CALCOLA CONFIGURAZIONE</button></div>
-                    </form>
-                    <div id="resultsSection" style="display:none;">
-                        <fieldset>
-                            <legend>5. Risultati della Configurazione (Stima)</legend>
-                            <h3>A. Riepilogo Materiali Stimati:</h3><p><strong>Pannello Isolante:</strong> <span id="panelTypeOutput"></span> - <span id="insulationPanelAreaOutput"></span> mq (sfrido ~7%)<br><small id="thermolutzPanelInfo" class="product-info"></small></p>
-                            <p><strong>Tubazione (<span id="pipeDiameterOutput"></span>):</strong></p><ul id="pipeDetailsList"><li>Passo di Posa Effettivo: <span id="pipePitchOutput"></span> cm</li><li>Lunghezza Totale Tubo: <span id="totalPipeLengthOutput"></span> m</li><li>Numero Rotoli: <span id="pipeRollsOutput"></span></li><li id="thermolutzPipeInfo" class="product-info" style="list-style-type: none;"></li></ul>
-                            <p><strong>Collettore/i di Distribuzione:</strong></p><ul id="collectorDetailsList"><li>Numero Circuiti Stimato: <span id="numCircuitsOutput"></span></li><li>Numero Collettori: <span id="numCollectorsOutput"></span> (es. <span id="collectorsDetailOutput"></span>)</li><li id="thermolutzCollectorInfo" class="product-info" style="list-style-type: none;"></li></ul>
-                            <p><strong>Striscia Perimetrale:</strong> <span id="perimeterStripLengthOutput"></span> m<br><small id="thermolutzStripInfo" class="product-info"></small></p>
-                            <p><strong>Testine Elettrotermiche:</strong> <span id="actuatorsOutput"></span><br><small id="thermolutzActuatorInfo" class="product-info"></small></p>
-                            <p><strong>Termostati Ambiente:</strong> <span id="thermostatsOutput"></span></p>
-                            <p id="mixingGroupNote" style="display:none;"><strong>Gruppo di Miscelazione:</strong> Probabilmente necessario.</p><p id="coolingNote" style="display:none;"><strong>Raffrescamento:</strong> Considerare deumidificazione.</p>
-                            <div id="additionalMaterialsOutput"></div>
-                            <h3>B. Riepilogo per Stanza (Stima):</h3><table id="roomResultsTable"><thead><tr><th>Nome Stanza</th><th>Superficie (mq)</th><th>Passo Posa (cm)</th><th>Potenza (W/mq)*</th><th>Potenza Totale (W)*</th><th>Tubo (m)</th><th>N° Circuiti</th></tr></thead><tbody id="roomResultsTableBody"></tbody></table><p><small><em>*Potenza termica stimata...</em></small></p>
-                            <h3>C. Considerazioni Progettuali:</h3><ul><li>Spessore Pacchetto (escl. pavimento): <span id="totalScreedHeightOutput"></span> cm.</li><li>Lunghezza max circuito: <span id="maxCircuitLengthOutput"></span> m.</li><li>Importante equilibratura circuiti.</li><li>Utilizzare massetto per radiante.</li><li>Seguire procedura prima accensione.</li></ul>
-                            <p class="disclaimer"><strong>Disclaimer:</strong> Risultati indicativi...</p>
-                        </fieldset>
+    <main id="content-area">
+        <div id="app-content" class="hidden">
+            <div class="config-container">
+                <!-- Colonna Input -->
+                <div class="config-panel" id="config-inputs">
+                    <h2>1. Dati del Progetto</h2>
+                    <div class="input-group">
+                        <label for="area-mq">Superficie Totale (mq)</label>
+                        <input type="number" id="area-mq" value="50" min="10">
                     </div>
-                </div> 
-            </div>
-
-            <aside class="summary-column">
-                <div class="summary-card sticky-summary">
-                    <h3>Riepilogo Configurazione</h3>
-                    <div id="summaryLogoContainer" class="summary-logo-container"></div>
-                    <ul class="summary-list">
-                        <li><strong>Marca:</strong> <span id="summaryBrand">N/D</span></li>
-                        <li><strong>Tipo Pannello:</strong> <span id="summaryPanelType">N/D</span></li>
-                        <li><strong>Modello Lastra:</strong> <span id="summaryPanelModel">N/D</span></li>
-                        <li><strong>Spessore Pannello:</strong> <span id="summaryPanelThickness">N/D</span> mm</li>
-                        <hr>
-                        <li><strong>Superficie Totale:</strong> <span id="summaryTotalSurface">0.00</span> mq</li>
-                        <li><strong>Passo di Posa:</strong> <span id="summaryPipePitch">N/D</span></li>
-                        <li><strong>Diametro Tubo:</strong> <span id="summaryPipeDiameter">N/D</span></li>
-                        <li><strong>N° Circuiti Stimati:</strong> <span id="summaryNumCircuits">N/D</span></li>
-                        <hr>
-                        <li><strong>Striscia Perimetrale:</strong> <span id="summaryPerimeterStripEst">N/D</span> m</li>
-                        <li><strong>Additivo:</strong> <span id="summaryAdditiveEst">N/D</span> kg</li>
-                    </ul>
-                    <p class="summary-note"><em>Riepilogo preliminare. Clicca "CALCOLA" per dettagli.</em></p>
+                    <div class="input-group">
+                        <label for="panel-series">Serie Pannello</label>
+                        <select id="panel-series"></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="panel-thickness">Spessore Pannello</label>
+                        <select id="panel-thickness"></select>
+                    </div>
+                    <div class="input-group">
+                        <label for="circuits">Numero Circuiti / Zone</label>
+                        <input type="number" id="circuits" value="4" min="1">
+                    </div>
+                    <button id="calculate-btn">Calcola Preventivo</button>
                 </div>
-            </aside>
+
+                <!-- Colonna Risultati -->
+                <div class="config-panel" id="config-results">
+                    <h2>2. Lista Materiali</h2>
+                    <div id="results-container">
+                        <p>Inserisci i dati e clicca "Calcola" per vedere i risultati.</p>
+                        <ul id="results-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Colonna Riepilogo -->
+                <div class="config-panel" id="config-summary">
+                    <h2>3. Riepilogo</h2>
+                    <div id="summary-panel">
+                        <p>Costo Totale Stimato (IVA esclusa)</p>
+                        <div id="total-price">€ 0,00</div>
+                        <button id="print-btn" style="display: none;"><i class="fas fa-print"></i> Stampa Preventivo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="initial-loader" class="loader-container">
+            <div class="loader-spinner"></div>
+            <p>Verifica in corso...</p>
         </div>
     </main>
-    <script type="module" src="script.js"></script> 
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="../../firebase-config.js"></script>
+    <script src="../../auth.js"></script>
+    <script src="configurator.js"></script>
 </body>
 </html>
