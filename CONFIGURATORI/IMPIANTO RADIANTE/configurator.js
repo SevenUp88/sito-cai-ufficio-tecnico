@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             panelThicknessSelect.innerHTML = [...new Set(thicknesses)].map(t => `<option value="${t}">${t} mm</option>`).join('');
         }
 
-        // Funzione principale di calcolo
+       // Funzione principale di calcolo (CORRETTA)
         function calculateConfiguration() {
             const area = parseFloat(areaInput.value);
             const selectedSeries = panelSeriesSelect.value;
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let totalPrice = 0;
 
             // 1. Calcolo Pannelli
-            const panel = allProducts.find(p => p.serie === selectedSeries && p.nome_articolo.includes(`Base ${selectedThickness}`));
+            const panel = allProducts.find(p => p.serie === selectedSeries && p.nome_articolo && p.nome_articolo.includes(`Base ${selectedThickness}`));
             if (panel) {
                 const panelCost = area * panel.vendita;
                 components.push({ name: `Pannello ${panel.nome_articolo}`, qty: `${area.toFixed(2)} mq`, price: panel.vendita, total: panelCost });
@@ -111,13 +111,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 3. Calcolo Collettore e Cassetta
-            const collector = allProducts.find(p => p.attacchi_collettore >= numCircuits && p.serie.includes('Black')); // Priorità al Full Black
+            // --- CORREZIONE QUI ---
+            const collector = allProducts.find(p => 
+                p.attacchi_collettore >= numCircuits && 
+                p.serie && p.serie.includes('Black') // Aggiunto controllo "p.serie &&"
+            ); 
             if (collector) {
                 components.push({ name: `Collettore ${collector.nome_articolo}`, qty: 1, price: collector.vendita, total: collector.vendita });
                 totalPrice += collector.vendita;
 
-                const cassetteSize = Math.ceil(numCircuits / 2) * 100 + 400; // Stima grossolana della dimensione
-                const cassette = allProducts.find(p => p.serie && p.serie.includes('Cassetta') && parseInt(p.nome_articolo.match(/(\d+)/)[0]) >= cassetteSize);
+                // Stima grossolana della dimensione della cassetta
+                let cassetteSize = 500;
+                if (numCircuits > 3) cassetteSize = 600;
+                if (numCircuits > 5) cassetteSize = 700;
+                if (numCircuits > 7) cassetteSize = 800;
+                if (numCircuits > 9) cassetteSize = 900;
+                if (numCircuits > 11) cassetteSize = 1000;
+                if (numCircuits > 13) cassetteSize = 1200;
+
+                const cassette = allProducts.find(p => p.serie && p.serie.includes('Cassetta') && p.nome_articolo.includes(String(cassetteSize)));
                 if (cassette) {
                     components.push({ name: `Cassetta ${cassette.nome_articolo}`, qty: 1, price: cassette.vendita, total: cassette.vendita });
                     totalPrice += cassette.vendita;
@@ -125,26 +137,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // 4. Calcolo Accessori
-            const perimeter = 4 * Math.sqrt(area); // Stima perimetro
-            const banda = allProducts.find(p => p.nome_articolo.includes('BANDA PERIMETRALE'));
+            const perimeter = 4 * Math.sqrt(area);
+            const banda = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('BANDA PERIMETRALE'));
             if (banda) {
                 const qty = Math.ceil(perimeter / 50);
-                const cost = qty * banda.vendita * 50;
+                const cost = qty * banda.vendita * 50; // Prezzo al rotolo
                 components.push({ name: banda.nome_articolo, qty: `${qty} rotoli`, price: banda.vendita * 50, total: cost });
                 totalPrice += cost;
             }
 
-            const additivo = allProducts.find(p => p.nome_articolo.includes('ADDITIVO'));
+            const additivo = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('ADDITIVO'));
             if (additivo) {
-                const qty = Math.ceil(area / 100);
+                const qty = Math.ceil(area / 100); // 1 tanica ogni 100mq
                 const cost = qty * additivo.vendita;
                 components.push({ name: additivo.nome_articolo, qty: qty, price: additivo.vendita, total: cost });
                 totalPrice += cost;
             }
 
-            const adattatore = allProducts.find(p => p.nome_articolo.includes('ADATTATORE PER TUBO D.17X2'));
+            const adattatore = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('ADATTATORE PER TUBO D.17X2'));
             if (adattatore) {
-                const qty = numCircuits * 2;
+                const qty = numCircuits * 2; // 2 adattatori per circuito (mandata + ritorno)
                 const cost = qty * adattatore.vendita;
                 components.push({ name: adattatore.nome_articolo, qty: qty, price: adattatore.vendita, total: cost });
                 totalPrice += cost;
@@ -152,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             displayResults(components, totalPrice);
         }
-
         function displayResults(components, total) {
             resultsList.innerHTML = '';
             components.forEach(item => {
