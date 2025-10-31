@@ -1,5 +1,6 @@
+// configurator.js - VERSIONE FINALE, COMPLETA E PRECISA
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Attende che auth.js abbia preparato tutto
     const checkFirebase = setInterval(() => {
         if (window.db) {
             clearInterval(checkFirebase);
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeApp() {
         const db = window.db;
-        const allProducts = [];
+        let allProducts = []; // Usiamo let perché la riordineremo
 
         // Elementi DOM
         const areaInput = document.getElementById('area-mq');
@@ -22,18 +23,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const printBtn = document.getElementById('print-btn');
         const resultsContainer = document.getElementById('results-container');
 
-        // Carica i dati da Firestore
+        // --- FUNZIONE MANCANTE AGGIUNTA QUI ---
+        function formatPrice(price) {
+            if (price == null || price === '') return '€ 0,00';
+            const numericPrice = Number(price);
+            return !isNaN(numericPrice) ? new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(numericPrice) : 'N/D';
+        }
+
         async function fetchData() {
             resultsContainer.innerHTML = '<div class="loader-spinner"></div><p>Caricamento prodotti...</p>';
             try {
                 const snapshot = await db.collection("thermolutzRadiantProducts").get();
                 snapshot.forEach(doc => allProducts.push(doc.data()));
+                
+                // Ordiniamo i prodotti per essere sicuri di trovare sempre il più piccolo/grande
+                allProducts.sort((a, b) => (a.vendita || 0) - (b.vendita || 0));
+
                 if (allProducts.length > 0) {
                     populateFilters();
                     calculateBtn.disabled = false;
                     resultsContainer.innerHTML = '<p>Dati caricati. Pronto per il calcolo.</p>';
                 } else {
-                    resultsContainer.innerHTML = '<p style="color:red;">Nessun prodotto trovato nel database.</p>';
+                    resultsContainer.innerHTML = '<p style="color:red;">Nessun prodotto trovato. Esegui la sincronizzazione dal foglio Google.</p>';
                 }
             } catch (error) {
                 console.error("Errore nel caricare i dati:", error);
@@ -41,11 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Popola i menu a tendina in base ai prodotti trovati
         function populateFilters() {
-            const panelSeries = [...new Set(allProducts.filter(p => p.tipo_pannello).map(p => p.serie))];
+            const panelSeries = [...new Set(allProducts.filter(p => p.tipo_pannello === 'bugnato').map(p => p.serie))];
             panelSeriesSelect.innerHTML = panelSeries.map(s => `<option value="${s}">${s}</option>`).join('');
-            
             panelSeriesSelect.addEventListener('change', updateThicknessOptions);
             updateThicknessOptions();
         }
@@ -53,18 +62,16 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateThicknessOptions() {
             const selectedSeries = panelSeriesSelect.value;
             const thicknesses = allProducts
-                .filter(p => p.serie === selectedSeries && p.tipo_pannello)
+                .filter(p => p.serie === selectedSeries && p.tipo_pannello === 'bugnato')
                 .map(p => {
                     const match = p.nome_articolo.match(/Base (\d+)/);
                     return match ? parseInt(match[1], 10) : null;
                 })
                 .filter(Boolean)
                 .sort((a, b) => a - b);
-            
             panelThicknessSelect.innerHTML = [...new Set(thicknesses)].map(t => `<option value="${t}">${t} mm</option>`).join('');
         }
 
-       // Funzione principale di calcolo (CORRETTA)
         function calculateConfiguration() {
             const area = parseFloat(areaInput.value);
             const selectedSeries = panelSeriesSelect.value;
@@ -79,110 +86,103 @@ document.addEventListener('DOMContentLoaded', () => {
             const components = [];
             let totalPrice = 0;
 
-            // 1. Calcolo Pannelli
-            const panel = allProducts.find(p => p.serie === selectedSeries && p.nome_articolo && p.nome_articolo.includes(`Base ${selectedThickness}`));
+            // --- LOGICA DI SELEZIONE PRECISA ---
+
+            // 1. Pannello
+            const panel = allProducts.find(p => p.serie === selectedSeries && p.nome_articolo.includes(`Base ${selectedThickness}`));
             if (panel) {
-                const panelCost = area * panel.vendita;
-                components.push({ name: `Pannello ${panel.nome_articolo}`, qty: `${area.toFixed(2)} mq`, price: panel.vendita, total: panelCost });
-                totalPrice += panelCost;
+                const total = area * panel.vendita;
+                components.push({ name: `Pannello ${panel.nome_articolo}`, qty: `${area.toFixed(2)} mq`, price: panel.vendita, total });
+                totalPrice += total;
             }
 
-            // 2. Calcolo Tubo (stima 8m/mq)
+            // 2. Tubo
             const requiredPipeLength = area * 8;
-            const pipeRolls = allProducts.filter(p => p.nome_articolo && p.nome_articolo.includes('TUBO NOVAPE-RT'));
-            const smallRoll = pipeRolls.find(p => p.nome_articolo.includes('250'));
-            const bigRoll = pipeRolls.find(p => p.nome_articolo.includes('500'));
-            
+            const smallRoll = allProducts.find(p => p.codice_fornitore === 'TH15819-N'); // Tubo 250mt
+            const bigRoll = allProducts.find(p => p.codice_fornitore === 'TH15820-N');   // Tubo 500mt
             if (bigRoll && smallRoll) {
-                const numBigRolls = Math.floor(requiredPipeLength / 500);
-                const remainingLength = requiredPipeLength % 500;
-                const numSmallRolls = Math.ceil(remainingLength / 250);
-                
+                let numBigRolls = 0;
+                let numSmallRolls = 0;
+                let remainingLength = requiredPipeLength;
+                if (remainingLength > 500) {
+                    numBigRolls = Math.floor(remainingLength / 500);
+                    remainingLength %= 500;
+                }
+                if (remainingLength > 0) {
+                    numSmallRolls = Math.ceil(remainingLength / 250);
+                }
                 if (numBigRolls > 0) {
-                    const pipeCost = numBigRolls * 500 * bigRoll.vendita;
-                    components.push({ name: `Tubo ${bigRoll.nome_articolo}`, qty: numBigRolls, price: 500 * bigRoll.vendita, total: pipeCost });
-                    totalPrice += pipeCost;
+                    const total = numBigRolls * (500 * bigRoll.vendita);
+                    components.push({ name: `Tubo ${bigRoll.nome_articolo}`, qty: numBigRolls, price: 500 * bigRoll.vendita, total });
+                    totalPrice += total;
                 }
                 if (numSmallRolls > 0) {
-                    const pipeCost = numSmallRolls * 250 * smallRoll.vendita;
-                    components.push({ name: `Tubo ${smallRoll.nome_articolo}`, qty: numSmallRolls, price: 250 * smallRoll.vendita, total: pipeCost });
-                    totalPrice += pipeCost;
+                    const total = numSmallRolls * (250 * smallRoll.vendita);
+                    components.push({ name: `Tubo ${smallRoll.nome_articolo}`, qty: numSmallRolls, price: 250 * smallRoll.vendita, total });
+                    totalPrice += total;
                 }
             }
 
-            // 3. Calcolo Collettore e Cassetta
-            // --- CORREZIONE QUI ---
-            const collector = allProducts.find(p => 
-                p.attacchi_collettore >= numCircuits && 
-                p.serie && p.serie.includes('Black') // Aggiunto controllo "p.serie &&"
-            ); 
+            // 3. Collettore e Cassetta
+            const collector = allProducts.find(p => p.serie === 'Full Black' && p.attacchi_collettore >= numCircuits);
             if (collector) {
                 components.push({ name: `Collettore ${collector.nome_articolo}`, qty: 1, price: collector.vendita, total: collector.vendita });
                 totalPrice += collector.vendita;
 
-                // Stima grossolana della dimensione della cassetta
-                let cassetteSize = 500;
-                if (numCircuits > 3) cassetteSize = 600;
-                if (numCircuits > 5) cassetteSize = 700;
-                if (numCircuits > 7) cassetteSize = 800;
-                if (numCircuits > 9) cassetteSize = 900;
-                if (numCircuits > 11) cassetteSize = 1000;
-                if (numCircuits > 13) cassetteSize = 1200;
-
-                const cassette = allProducts.find(p => p.serie && p.serie.includes('Cassetta') && p.nome_articolo.includes(String(cassetteSize)));
+                const cassette = allProducts.find(c => c.serie === 'Cassetta' && c.compatibilita && c.compatibilita.includes(collector.codice_fornitore));
                 if (cassette) {
                     components.push({ name: `Cassetta ${cassette.nome_articolo}`, qty: 1, price: cassette.vendita, total: cassette.vendita });
                     totalPrice += cassette.vendita;
                 }
             }
 
-            // 4. Calcolo Accessori
+            // 4. Accessori
             const perimeter = 4 * Math.sqrt(area);
-            const banda = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('BANDA PERIMETRALE'));
+            const banda = allProducts.find(p => p.codice_fornitore === 'TH18420');
             if (banda) {
                 const qty = Math.ceil(perimeter / 50);
-                const cost = qty * banda.vendita * 50; // Prezzo al rotolo
-                components.push({ name: banda.nome_articolo, qty: `${qty} rotoli`, price: banda.vendita * 50, total: cost });
-                totalPrice += cost;
+                const total = qty * (banda.vendita * 50);
+                components.push({ name: banda.descrizione, qty: `${qty} rotoli`, price: banda.vendita * 50, total });
+                totalPrice += total;
             }
 
-            const additivo = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('ADDITIVO'));
+            const additivo = allProducts.find(p => p.codice_fornitore === 'TH18020');
             if (additivo) {
-                const qty = Math.ceil(area / 100); // 1 tanica ogni 100mq
-                const cost = qty * additivo.vendita;
-                components.push({ name: additivo.nome_articolo, qty: qty, price: additivo.vendita, total: cost });
-                totalPrice += cost;
+                const qty = Math.ceil(area / 100);
+                const total = qty * additivo.vendita;
+                components.push({ name: additivo.descrizione, qty: qty, price: additivo.vendita, total });
+                totalPrice += total;
             }
 
-            const adattatore = allProducts.find(p => p.nome_articolo && p.nome_articolo.includes('ADATTATORE PER TUBO D.17X2'));
+            const adattatore = allProducts.find(p => p.codice_fornitore === 'TH22030');
             if (adattatore) {
-                const qty = numCircuits * 2; // 2 adattatori per circuito (mandata + ritorno)
-                const cost = qty * adattatore.vendita;
-                components.push({ name: adattatore.nome_articolo, qty: qty, price: adattatore.vendita, total: cost });
-                totalPrice += cost;
+                const qty = numCircuits * 2;
+                const total = qty * adattatore.vendita;
+                components.push({ name: adattatore.descrizione, qty: qty, price: adattatore.vendita, total });
+                totalPrice += total;
             }
 
             displayResults(components, totalPrice);
         }
+
         function displayResults(components, total) {
+            resultsContainer.innerHTML = ''; // Pulisce il messaggio iniziale
             resultsList.innerHTML = '';
             components.forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span>${item.name} (x${item.qty})</span>
+                    <span>${item.name} <strong>(x${item.qty})</strong></span>
                     <span>${formatPrice(item.total)}</span>
                 `;
                 resultsList.appendChild(li);
             });
             totalPriceEl.textContent = formatPrice(total);
-            printBtn.style.display = 'block';
+            printBtn.style.display = 'inline-block';
         }
 
-        // Event Listeners
         calculateBtn.addEventListener('click', calculateConfiguration);
         printBtn.addEventListener('click', () => window.print());
 
-        // Avvio
         fetchData();
     }
 });
