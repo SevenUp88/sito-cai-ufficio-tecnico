@@ -7,20 +7,25 @@
     <link rel="stylesheet" href="../../style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        .config-container { display: flex; gap: 20px; flex-wrap: wrap; }
-        .config-panel { flex: 1; min-width: 300px; }
-        .config-panel h2 { color: #0056a8; border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; }
+        .config-container { display: flex; flex-direction: column; gap: 30px; }
+        .config-panel { padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        .config-panel h2 { color: #0056a8; border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; font-size: 1.4em; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 5px; }
         .input-group input, .input-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        #rooms-container .room-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        #rooms-container .room-item input { flex: 1; }
+        #add-room-btn { background-color: #6c757d; color: white; }
         #calculate-btn { background-color: #28a745; color: white; padding: 12px 20px; font-size: 1.1em; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
-        #results-list { list-style: none; padding: 0; }
-        #results-list li { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px dotted #ccc; }
-        #results-list li span:first-child { font-weight: 500; }
-        #summary-panel { background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        #results-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        #results-table th, #results-table td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        #results-table thead { background-color: #0056a8; color: white; }
+        #results-table .price-col { text-align: right; }
+        #summary-panel { background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin-top: 20px; }
         #total-price { font-size: 2.5em; font-weight: 700; color: #0056a8; margin: 10px 0; }
         #print-btn { background-color: #007bff; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
         .loader-container { text-align: center; padding: 40px; }
+        @media print { /* Stili di stampa per nascondere UI non necessaria */ }
     </style>
 </head>
 <body>
@@ -36,13 +41,9 @@
     <main id="content-area">
         <div id="app-content" class="hidden">
             <div class="config-container">
-                <!-- Colonna Input -->
+                <!-- Pannello Input -->
                 <div class="config-panel" id="config-inputs">
-                    <h2>1. Dati del Progetto</h2>
-                    <div class="input-group">
-                        <label for="area-mq">Superficie Totale (mq)</label>
-                        <input type="number" id="area-mq" value="50" min="10">
-                    </div>
+                    <h2>1. Dati Progetto</h2>
                     <div class="input-group">
                         <label for="panel-series">Serie Pannello</label>
                         <select id="panel-series"></select>
@@ -51,29 +52,41 @@
                         <label for="panel-thickness">Spessore Pannello</label>
                         <select id="panel-thickness"></select>
                     </div>
-                    <div class="input-group">
-                        <label for="circuits">Numero Circuiti / Zone</label>
-                        <input type="number" id="circuits" value="4" min="1">
+                    <hr style="margin: 20px 0;">
+                    <h3>Locali e Superfici</h3>
+                    <div id="rooms-container">
+                        <div class="room-item">
+                            <input type="text" class="room-name" placeholder="Nome Locale (es. Soggiorno)" value="Soggiorno">
+                            <input type="number" class="room-mq" placeholder="mq" value="30" min="1">
+                            <button class="remove-room-btn" style="display:none;">&times;</button>
+                        </div>
                     </div>
-                    <button id="calculate-btn">Calcola Preventivo</button>
+                    <button id="add-room-btn" class="btn-login" style="width: auto; padding: 8px 12px; margin-top: 10px;">+ Aggiungi Locale</button>
+                    <hr style="margin: 20px 0;">
+                    <button id="calculate-btn" disabled>Calcola Preventivo</button>
                 </div>
 
-                <!-- Colonna Risultati -->
-                <div class="config-panel" id="config-results">
+                <!-- Pannello Risultati -->
+                <div class="config-panel" id="config-results" style="display:none;">
                     <h2>2. Lista Materiali</h2>
-                    <div id="results-container">
-                        <p>Inserisci i dati e clicca "Calcola" per vedere i risultati.</p>
-                        <ul id="results-list"></ul>
-                    </div>
-                </div>
-
-                <!-- Colonna Riepilogo -->
-                <div class="config-panel" id="config-summary">
-                    <h2>3. Riepilogo</h2>
+                    <div id="circuits-summary"></div>
+                    <table id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Cod. CAI</th>
+                                <th>Cod. Fornitore</th>
+                                <th>Descrizione</th>
+                                <th>Qtà</th>
+                                <th class="price-col">Prezzo Unit.</th>
+                                <th class="price-col">Prezzo Totale</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody"></tbody>
+                    </table>
                     <div id="summary-panel">
                         <p>Costo Totale Stimato (IVA esclusa)</p>
                         <div id="total-price">€ 0,00</div>
-                        <button id="print-btn" style="display: none;"><i class="fas fa-print"></i> Stampa Preventivo</button>
+                        <button id="print-btn"><i class="fas fa-print"></i> Stampa Preventivo</button>
                     </div>
                 </div>
             </div>
