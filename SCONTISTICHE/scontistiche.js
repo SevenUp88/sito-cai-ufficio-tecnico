@@ -91,11 +91,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = baseSingle * perc / 100;
             if(singlePercResultValue) singlePercResultValue.textContent = result.toLocaleString('it-IT',{style:'currency', currency:'EUR'});
         }
+        // Calcolo Margine (Listino / Sconto in acquisto / Sconto in vendita)
+const listPrice = parseFloat(document.getElementById('margin-list-price-input').value);
+const buyDiscount = parseFloat(document.getElementById('margin-buy-discount-input').value);
+const sellDiscount = parseFloat(document.getElementById('margin-sell-discount-input').value);
+
+if (!isNaN(listPrice) && !isNaN(buyDiscount) && !isNaN(sellDiscount)) {
+    const cost = listPrice * (1 - buyDiscount / 100);
+    const sellPrice = listPrice * (1 - sellDiscount / 100);
+    const marginEuro = sellPrice - cost;
+    const marginPerc = (marginEuro / sellPrice) * 100;
+
+    document.getElementById('margin-result-euro').textContent =
+        marginEuro.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+    document.getElementById('margin-result-percent').textContent =
+        `${marginPerc.toFixed(2).replace('.', ',')} %`;
+}
+
     });
 
     if (resetCalculatorButton) resetCalculatorButton.addEventListener('click', () => {
         cascadePriceInput.value = ''; singlePriceInput.value = ''; singlePercentageInput.value = '';
         calcScontoInputs.forEach(input => input.value = '');
+        document.getElementById('margin-list-price-input').value = '';
+document.getElementById('margin-buy-discount-input').value = '';
+document.getElementById('margin-sell-discount-input').value = '';
+document.getElementById('margin-result-euro').textContent = '0,00 €';
+document.getElementById('margin-result-percent').textContent = '0 %';
+
         if(cascadeResultPrice) cascadeResultPrice.textContent = "0,00 €";
         if(cascadeResultPercentage) cascadeResultPercentage.textContent = "Sconto: 0,00 %";
         if(singlePercResultValue) singlePercResultValue.textContent = "0,00 €";
