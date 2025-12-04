@@ -58,7 +58,8 @@
         .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: span 2; }
         
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        textarea { resize: vertical; min-height: 80px; font-family: inherit; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -193,7 +194,6 @@
                                     <th>Riferimento</th>
                                     <th>Numero</th>
                                     <th>Stato</th>
-                                    <!-- RIMOSSO ESITO -->
                                     <th>Note</th>
                                     <th style="text-align:center;">Azioni</th>
                                 </tr>
@@ -241,13 +241,12 @@
                             <option value="In Corso">In Corso</option>
                         </select>
                     </div>
-                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="add-note"></textarea>
                     </div>
                 </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                     <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
                     <button type="submit" class="btn-login" style="width: auto;">Salva</button>
                 </div>
@@ -285,13 +284,12 @@
                         <label>Stato</label>
                         <select id="edit-stato" required></select>
                     </div>
-                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="edit-note"></textarea>
                     </div>
                 </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                     <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
                     <button type="submit" class="btn-login" style="width: auto;">Aggiorna</button>
                 </div>
@@ -324,37 +322,71 @@
             
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
             let allPreventivi = [];
-            let listenersAttached = false;
 
-            // --- UI REFERENCES ---
-            const ui = {
-                loader: document.getElementById('initial-loader'),
-                loginSection: document.getElementById('login-section'),
-                appContent: document.getElementById('app-content'),
-                loginForm: document.getElementById('login-form'),
-                logoutButton: document.getElementById('logout-button'),
-                userEmailDisplay: document.getElementById('user-email-display'),
-                addQuoteBtn: document.getElementById('add-quote-btn'),
-                tableBody: document.getElementById('preventivi-table-body'),
-                searchInput: document.getElementById('search-input'),
-                // Modali
-                addModal: document.getElementById('add-quote-modal'),
-                addForm: document.getElementById('add-quote-form'),
-                editModal: document.getElementById('edit-quote-modal'),
-                editForm: document.getElementById('edit-quote-form')
-            };
-
-            // --- FUNZIONI DI INIZIALIZZAZIONE ---
-            function initializeLogic() {
-                ui.loginForm.addEventListener('submit', handleLogin);
+            // --- INIZIALIZZAZIONE ---
+            function initializeApp() {
+                // 1. Gestione Login
+                const loginForm = document.getElementById('login-form');
+                if(loginForm) loginForm.addEventListener('submit', handleLogin);
+                
+                // 2. Osservatore Login (mostra/nasconde contenuti)
                 auth.onAuthStateChanged(handleAuthStateChange);
                 
-                // Gestione apertura sottomenu Sidebar (Logica Dashboard)
+                // 3. Attivazione Pulsanti (LI ATTIVIAMO SUBITO)
+                setupStaticEventListeners();
+            }
+            
+            function setupStaticEventListeners() {
+                // Tasto Nuovo Preventivo
+                const addQuoteBtn = document.getElementById('add-quote-btn');
+                if (addQuoteBtn) {
+                    addQuoteBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); 
+                        const addForm = document.getElementById('add-quote-form');
+                        if (addForm) addForm.reset();
+                        
+                        const addModal = document.getElementById('add-quote-modal');
+                        if (addModal) openModal(addModal);
+                    });
+                }
+
+                // Logout
+                const logoutBtn = document.getElementById('logout-button');
+                if(logoutBtn) logoutBtn.addEventListener('click', () => auth.signOut());
+
+                // Chiusura Modali (X e Annulla)
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const modal = e.target.closest('.modal-overlay');
+                        if(modal) closeModal(modal);
+                    });
+                });
+
+                // Gestione click tabella (delegazione eventi per pulsanti dinamici)
+                const tableBody = document.getElementById('preventivi-table-body');
+                if(tableBody) {
+                    tableBody.addEventListener('change', handleStatusChange);
+                    tableBody.addEventListener('click', handleTableButtonClick);
+                }
+
+                // Submit dei form
+                const addForm = document.getElementById('add-quote-form');
+                if(addForm) addForm.addEventListener('submit', handleAddSubmit);
+                
+                const editForm = document.getElementById('edit-quote-form');
+                if(editForm) editForm.addEventListener('submit', handleEditSubmit);
+                
+                // Ricerca
+                const searchInput = document.getElementById('search-input');
+                if(searchInput) searchInput.addEventListener('input', handleSearch);
+
+                // Sidebar Toggle
                 document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const submenu = link.nextElementSibling;
-                        link.classList.toggle('active'); // Ruota la freccia
+                        link.classList.toggle('active');
                         if (submenu.style.maxHeight) {
                             submenu.style.maxHeight = null;
                         } else {
@@ -363,67 +395,47 @@
                     });
                 });
             }
-            
+
             function handleLogin(e) {
                 e.preventDefault();
-                const { email, password } = e.target.elements;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
                 const errorP = document.getElementById('login-error');
+                
                 errorP.classList.add('hidden');
                 
-                auth.signInWithEmailAndPassword(email.value, password.value).catch((error) => {
+                auth.signInWithEmailAndPassword(email, password).catch((error) => {
                     errorP.textContent = "Email o password errati.";
                     errorP.classList.remove('hidden');
                 });
             }
 
             function handleAuthStateChange(user) {
-                ui.loader.style.display = 'none'; // Nascondi loader
+                const loader = document.getElementById('initial-loader');
+                if(loader) loader.style.display = 'none';
+
                 const isLoggedIn = !!user;
+                const loginSection = document.getElementById('login-section');
+                const appContent = document.getElementById('app-content');
                 
-                ui.loginSection.classList.toggle('hidden', isLoggedIn);
-                ui.appContent.classList.toggle('hidden', !isLoggedIn);
+                if(loginSection) loginSection.classList.toggle('hidden', isLoggedIn);
+                if(appContent) appContent.classList.toggle('hidden', !isLoggedIn);
 
                 if (isLoggedIn) {
-                    ui.userEmailDisplay.textContent = user.email;
+                    const userEmailDisplay = document.getElementById('user-email-display');
+                    if(userEmailDisplay) userEmailDisplay.textContent = user.email;
                     fetchPreventivi();
-                    setupAppEventListeners();
-                } else {
-                    listenersAttached = false;
                 }
-            }
-            
-            function setupAppEventListeners() {
-                if (listenersAttached) return;
-                
-                ui.logoutButton.addEventListener('click', () => auth.signOut());
-                ui.addQuoteBtn.addEventListener('click', () => { ui.addForm.reset(); openModal(ui.addModal); });
-                
-                ui.tableBody.addEventListener('change', handleStatusChange);
-                ui.tableBody.addEventListener('click', handleTableButtonClick);
-                
-                // Chiusura Modali
-                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const modal = e.target.closest('.modal-overlay');
-                        closeModal(modal);
-                    });
-                });
-
-                ui.addForm.addEventListener('submit', handleAddSubmit);
-                ui.editForm.addEventListener('submit', handleEditSubmit);
-                ui.searchInput.addEventListener('input', handleSearch);
-
-                listenersAttached = true;
             }
 
             // --- GESTIONE MODALI ---
             function openModal(modal) {
                 modal.classList.add('visible');
-                document.body.style.overflow = 'hidden';
+                document.body.style.overflow = 'hidden'; 
             }
             function closeModal(modal) {
                 modal.classList.remove('visible');
-                document.body.style.overflow = '';
+                document.body.style.overflow = ''; 
             }
 
             // --- GESTIONE DATI ---
@@ -436,8 +448,8 @@
                 
                 // Aggiorna colore visivamente
                 select.setAttribute('data-val', newStatus);
-                
                 select.disabled = true;
+
                 const originalQuote = allPreventivi.find(p => p.id === quoteId);
 
                 try {
@@ -450,7 +462,7 @@
                     if (originalQuote) originalQuote.stato = newStatus;
                 } catch (error) {
                     alert("Errore nell'aggiornare lo stato.");
-                    select.value = originalQuote.stato;
+                    if(originalQuote) select.value = originalQuote.stato;
                 } finally {
                     select.disabled = false;
                 }
@@ -459,6 +471,8 @@
             function handleTableButtonClick(e) {
                 const button = e.target.closest('.action-btn');
                 if (!button) return;
+                e.stopPropagation();
+
                 const quote = allPreventivi.find(p => p.id === button.dataset.id);
                 if (!quote) return;
                 
@@ -467,24 +481,38 @@
             }
 
             function openEditModal(quote) {
-                ui.editForm.reset();
+                const editForm = document.getElementById('edit-quote-form');
+                if(editForm) editForm.reset();
+
                 const { id, cliente, data, riferimento, numero, stato, note } = quote;
-                document.getElementById('edit-quote-id').value = id;
-                document.getElementById('edit-cliente').value = cliente || '';
-                document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
-                document.getElementById('edit-riferimento').value = riferimento || '';
-                document.getElementById('edit-numero').value = numero || '';
+                
+                setValue('edit-quote-id', id);
+                setValue('edit-cliente', cliente);
+                
+                const dateElem = document.getElementById('edit-data');
+                if(dateElem && data?.seconds) {
+                    dateElem.value = new Date(data.seconds * 1000).toISOString().split('T')[0];
+                }
+                
+                setValue('edit-riferimento', riferimento);
+                setValue('edit-numero', numero);
+                setValue('edit-note', note);
                 
                 const statoSelect = document.getElementById('edit-stato');
-                statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
-                if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
-
-                // RIMOSSO POPOLAZIONE ESITO
-                document.getElementById('edit-note').value = note || '';
+                if(statoSelect) {
+                    statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                    if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+                }
                 
-                openModal(ui.editModal);
+                const editModal = document.getElementById('edit-quote-modal');
+                if(editModal) openModal(editModal);
             }
             
+            function setValue(id, val) {
+                const el = document.getElementById(id);
+                if(el) el.value = val || '';
+            }
+
             async function deleteQuote(quote) {
                 if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
                     try {
@@ -500,21 +528,30 @@
             }
             
             function fetchPreventivi() {
-                ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Caricamento preventivi...</td></tr>`;
+                const tbody = document.getElementById('preventivi-table-body');
+                if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Caricamento preventivi...</td></tr>`;
+                
                 db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
+                  }).catch(err => {
+                      console.error(err);
+                      if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento.</td></tr>`;
                   });
             }
 
             function renderTable(data) {
-                ui.tableBody.innerHTML = '';
+                const tbody = document.getElementById('preventivi-table-body');
+                if(!tbody) return;
+                
+                tbody.innerHTML = '';
                 if(data.length === 0){
-                    ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nessun preventivo trovato.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Nessun preventivo trovato.</td></tr>`;
                     return;
                 }
+                
                 data.forEach(p => {
-                    const row = ui.tableBody.insertRow();
+                    const row = tbody.insertRow();
                     const formattedDate = p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
                     
                     row.innerHTML = `
@@ -528,7 +565,6 @@
                                 ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
                             </select>
                         </td>
-                        <!-- RIMOSSO COLONNA ESITO -->
                         <td><small>${escapeHtml(p.note)}</small></td>
                         <td style="text-align:center; white-space:nowrap;">
                             <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
@@ -543,27 +579,29 @@
                 const originalText = saveBtn.textContent;
                 saveBtn.disabled = true; saveBtn.textContent = "Salvataggio...";
 
-                const dateString = document.getElementById('add-data').value;
-                const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
+                const dateVal = document.getElementById('add-data').value;
+                const quoteDate = dateVal ? new Date(dateVal + 'T00:00:00') : new Date();
 
                 const quoteData = {
-                    cliente: document.getElementById('add-cliente').value.trim(),
+                    cliente: getValue('add-cliente'),
                     data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                    riferimento: document.getElementById('add-riferimento').value.trim(),
-                    numero: document.getElementById('add-numero').value.trim(),
-                    stato: document.getElementById('add-stato').value,
-                    // RIMOSSO SALVATAGGIO ESITO
-                    note: document.getElementById('add-note').value.trim(),
+                    riferimento: getValue('add-riferimento'),
+                    numero: getValue('add-numero'),
+                    stato: getValue('add-stato'),
+                    note: getValue('add-note'),
                 };
                 
                 try {
                     await db.collection("preventivi").add(quoteData);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
-                    closeModal(ui.addModal);
+                    
+                    const addModal = document.getElementById('add-quote-modal');
+                    if(addModal) closeModal(addModal);
+                    
                     fetchPreventivi();
                 } catch(err) {
                     console.error(err);
-                    alert("Errore salvataggio");
+                    alert("Errore salvataggio: " + err.message);
                 } finally {
                     saveBtn.disabled = false; saveBtn.textContent = originalText;
                 }
@@ -576,30 +614,37 @@
                 updateBtn.disabled = true; updateBtn.textContent = "Aggiornamento...";
 
                 const quoteId = document.getElementById('edit-quote-id').value;
-                const dateString = document.getElementById('edit-data').value;
-                const quoteDate = new Date(dateString + 'T00:00:00');
+                const dateVal = document.getElementById('edit-data').value;
+                const quoteDate = new Date(dateVal + 'T00:00:00');
 
                 const updatedData = {
-                    cliente: document.getElementById('edit-cliente').value.trim(),
+                    cliente: getValue('edit-cliente'),
                     data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                    riferimento: document.getElementById('edit-riferimento').value.trim(),
-                    numero: document.getElementById('edit-numero').value.trim(),
-                    stato: document.getElementById('edit-stato').value,
-                    // RIMOSSO SALVATAGGIO ESITO
-                    note: document.getElementById('edit-note').value.trim()
+                    riferimento: getValue('edit-riferimento'),
+                    numero: getValue('edit-numero'),
+                    stato: getValue('edit-stato'),
+                    note: getValue('edit-note')
                 };
 
                 try {
                     await db.collection("preventivi").doc(quoteId).update(updatedData);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
-                    closeModal(ui.editModal);
+                    
+                    const editModal = document.getElementById('edit-quote-modal');
+                    if(editModal) closeModal(editModal);
+                    
                     fetchPreventivi();
                 } catch(err) {
                     console.error(err);
-                    alert("Errore aggiornamento");
+                    alert("Errore aggiornamento: " + err.message);
                 } finally {
                     updateBtn.disabled = false; updateBtn.textContent = originalText;
                 }
+            }
+            
+            function getValue(id) {
+                const el = document.getElementById(id);
+                return el ? el.value.trim() : '';
             }
 
             function handleSearch(e) {
@@ -615,7 +660,8 @@
                 return String(text || '').replace(/[&<>"']/g, m => map[m]);
             }
             
-            initializeLogic();
+            // AVVIO
+            initializeApp();
         });
     </script>
 </body>
