@@ -58,7 +58,8 @@
         .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: span 2; }
         
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        textarea { resize: vertical; min-height: 80px; font-family: inherit; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px; }
+        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
     </style>
 </head>
 <body>
@@ -193,7 +194,6 @@
                                     <th>Riferimento</th>
                                     <th>Numero</th>
                                     <th>Stato</th>
-                                    <!-- RIMOSSO ESITO -->
                                     <th>Note</th>
                                     <th style="text-align:center;">Azioni</th>
                                 </tr>
@@ -241,13 +241,12 @@
                             <option value="In Corso">In Corso</option>
                         </select>
                     </div>
-                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="add-note"></textarea>
                     </div>
                 </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                     <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
                     <button type="submit" class="btn-login" style="width: auto;">Salva</button>
                 </div>
@@ -285,13 +284,12 @@
                         <label>Stato</label>
                         <select id="edit-stato" required></select>
                     </div>
-                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="edit-note"></textarea>
                     </div>
                 </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
                     <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
                     <button type="submit" class="btn-login" style="width: auto;">Aggiorna</button>
                 </div>
@@ -324,16 +322,66 @@
             
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
             let allPreventivi = [];
-            let listenersAttached = false;
 
-            // --- FUNZIONI DI INIZIALIZZAZIONE ---
-            function initializeLogic() {
+            // --- INIZIALIZZAZIONE ---
+            function initializeApp() {
+                // 1. Gestione Login
                 const loginForm = document.getElementById('login-form');
                 if(loginForm) loginForm.addEventListener('submit', handleLogin);
                 
+                // 2. Osservatore Login (mostra/nasconde contenuti)
                 auth.onAuthStateChanged(handleAuthStateChange);
                 
-                // Gestione apertura sottomenu Sidebar
+                // 3. Attivazione Pulsanti (LI ATTIVIAMO SUBITO)
+                setupStaticEventListeners();
+            }
+            
+            function setupStaticEventListeners() {
+                // Tasto Nuovo Preventivo
+                const addQuoteBtn = document.getElementById('add-quote-btn');
+                if (addQuoteBtn) {
+                    addQuoteBtn.addEventListener('click', (e) => {
+                        e.preventDefault(); 
+                        const addForm = document.getElementById('add-quote-form');
+                        if (addForm) addForm.reset();
+                        
+                        const addModal = document.getElementById('add-quote-modal');
+                        if (addModal) openModal(addModal);
+                    });
+                }
+
+                // Logout
+                const logoutBtn = document.getElementById('logout-button');
+                if(logoutBtn) logoutBtn.addEventListener('click', () => auth.signOut());
+
+                // Chiusura Modali (X e Annulla)
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const modal = e.target.closest('.modal-overlay');
+                        if(modal) closeModal(modal);
+                    });
+                });
+
+                // Gestione click tabella (delegazione eventi per pulsanti dinamici)
+                const tableBody = document.getElementById('preventivi-table-body');
+                if(tableBody) {
+                    tableBody.addEventListener('change', handleStatusChange);
+                    tableBody.addEventListener('click', handleTableButtonClick);
+                }
+
+                // Submit dei form
+                const addForm = document.getElementById('add-quote-form');
+                if(addForm) addForm.addEventListener('submit', handleAddSubmit);
+                
+                const editForm = document.getElementById('edit-quote-form');
+                if(editForm) editForm.addEventListener('submit', handleEditSubmit);
+                
+                // Ricerca
+                const searchInput = document.getElementById('search-input');
+                if(searchInput) searchInput.addEventListener('input', handleSearch);
+
+                // Sidebar Toggle
                 document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -347,7 +395,7 @@
                     });
                 });
             }
-            
+
             function handleLogin(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
@@ -367,7 +415,6 @@
                 if(loader) loader.style.display = 'none';
 
                 const isLoggedIn = !!user;
-                
                 const loginSection = document.getElementById('login-section');
                 const appContent = document.getElementById('app-content');
                 
@@ -378,59 +425,7 @@
                     const userEmailDisplay = document.getElementById('user-email-display');
                     if(userEmailDisplay) userEmailDisplay.textContent = user.email;
                     fetchPreventivi();
-                    setupAppEventListeners();
-                } else {
-                    listenersAttached = false;
                 }
-            }
-            
-            function setupAppEventListeners() {
-                if (listenersAttached) return;
-                
-                // Logout
-                const logoutBtn = document.getElementById('logout-button');
-                if(logoutBtn) logoutBtn.addEventListener('click', () => auth.signOut());
-
-                // *** FIX TASTO NUOVO PREVENTIVO ***
-                const addQuoteBtn = document.getElementById('add-quote-btn');
-                if (addQuoteBtn) {
-                    addQuoteBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const addForm = document.getElementById('add-quote-form');
-                        if (addForm) addForm.reset();
-                        
-                        const addModal = document.getElementById('add-quote-modal');
-                        if (addModal) openModal(addModal);
-                    });
-                }
-                
-                // Gestione click tabella (Edit / Delete)
-                const tableBody = document.getElementById('preventivi-table-body');
-                if(tableBody) {
-                    tableBody.addEventListener('change', handleStatusChange);
-                    tableBody.addEventListener('click', handleTableButtonClick);
-                }
-                
-                // Chiusura Modali
-                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const modal = e.target.closest('.modal-overlay');
-                        if(modal) closeModal(modal);
-                    });
-                });
-
-                // Submit Forms
-                const addForm = document.getElementById('add-quote-form');
-                if(addForm) addForm.addEventListener('submit', handleAddSubmit);
-                
-                const editForm = document.getElementById('edit-quote-form');
-                if(editForm) editForm.addEventListener('submit', handleEditSubmit);
-                
-                const searchInput = document.getElementById('search-input');
-                if(searchInput) searchInput.addEventListener('input', handleSearch);
-
-                listenersAttached = true;
             }
 
             // --- GESTIONE MODALI ---
@@ -451,6 +446,7 @@
                 const newStatus = select.value;
                 const quoteId = select.dataset.id;
                 
+                // Aggiorna colore visivamente
                 select.setAttribute('data-val', newStatus);
                 select.disabled = true;
 
@@ -533,14 +529,14 @@
             
             function fetchPreventivi() {
                 const tbody = document.getElementById('preventivi-table-body');
-                if(tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Caricamento preventivi...</td></tr>`;
+                if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Caricamento preventivi...</td></tr>`;
                 
                 db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
                   }).catch(err => {
                       console.error(err);
-                      if(tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Errore caricamento.</td></tr>`;
+                      if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento.</td></tr>`;
                   });
             }
 
@@ -550,7 +546,7 @@
                 
                 tbody.innerHTML = '';
                 if(data.length === 0){
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px;">Nessun preventivo trovato.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Nessun preventivo trovato.</td></tr>`;
                     return;
                 }
                 
@@ -664,7 +660,8 @@
                 return String(text || '').replace(/[&<>"']/g, m => map[m]);
             }
             
-            initializeLogic();
+            // AVVIO
+            initializeApp();
         });
     </script>
 </body>
