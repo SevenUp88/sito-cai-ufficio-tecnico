@@ -3,168 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elenco Preventivi - CAI</title>
+    <title>CAI - Preventivazione</title>
+    
+    <!-- Collega lo stile principale (Assumendo che style.css sia nella root, scendiamo di un livello) -->
+    <link rel="stylesheet" href="../../style.css">
+    
+    <!-- Font e Icone -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- CSS Specifico per la Tabella Preventivi -->
     <style>
-        :root {
-            --primary-color: #0056a8; --primary-hover: #004182;
-            --success-color: #28a745; --danger-color: #dc3545;
-            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6;
-            --text-primary: #343a40; --text-secondary: #6c757d;
+        /* Override o aggiunte specifiche per questa pagina */
+        .preventivi-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: var(--light-bg); color: var(--text-primary); }
-        .app-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 30px; background-color: var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .header-title-group { display: flex; align-items: center; gap: 20px; }
-        .logo { height: 45px; width: auto; }
-        .app-header h1 { color: var(--primary-color); font-size: 1.8em; }
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .header-button, #logout-button { color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s; }
-        #add-quote-btn { background-color: var(--success-color); }
-        #logout-button { background-color: var(--danger-color); }
-        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
-        .form-group { margin-bottom: 15px; width: 100%; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
-        #login-error { color: var(--danger-color); margin-top: 10px; min-height: 1.2em; text-align: center; }
-        #app-content { padding: 25px 30px; margin: 20px; background-color: var(--white); border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.07); }
-        .controls-container { margin-bottom: 20px; }
-        #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; }
-        .table-container { overflow-x: auto; width: 100%; }
-        table { width: 100%; border-collapse: collapse; }
-        thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
-        th, td { padding: 12px 15px; border: 1px solid var(--border-color); vertical-align: middle; }
-        tbody tr:nth-child(even) { background-color: var(--light-bg); }
-        .status-select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background-color: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: .65em auto; }
-        .status-select:focus { border-color: var(--primary-color); outline: none; }
-        .actions-cell { text-align: center; white-space: nowrap; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; color: var(--text-secondary); }
-        .btn-edit { color: var(--primary-color); }
-        .btn-delete { color: var(--danger-color); }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; }
-        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
-        .modal-content { background: var(--white); padding: 25px 30px; border-radius: 8px; width: 90%; max-width: 550px; transform: scale(0.95); transition: transform 0.3s ease; }
-        .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-header h2 { color: var(--primary-color); }
-        .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-secondary); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
-        .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-weight: 500; cursor: pointer; }
-        .hidden { display: none !important; }
+        
+        /* Stile Tabella */
+        .table-responsive { overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        .custom-table th { 
+            background-color: #f1f3f5; color: #333; font-weight: 600; 
+            padding: 12px 15px; text-align: left; border-bottom: 2px solid #ddd; 
+        }
+        .custom-table td { 
+            padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; 
+            color: #555;
+        }
+        .custom-table tr:hover { background-color: #f8f9fa; }
+
+        /* Badge Stato (Select personalizzata) */
+        .status-select {
+            padding: 5px 10px; border-radius: 20px; border: 1px solid transparent;
+            font-size: 0.85rem; font-weight: 500; cursor: pointer; outline: none;
+            background-color: #fff; width: 100%; max-width: 140px;
+        }
+        .status-select[data-val="Inviato"] { background-color: #e3f2fd; color: #0d47a1; border-color: #bbdefb; }
+        .status-select[data-val="Offerta Fornitore"] { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .status-select[data-val="In Corso"] { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+
+        /* Bottoni Azione */
+        .action-btn { 
+            width: 32px; height: 32px; border-radius: 4px; border: none; 
+            display: inline-flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all 0.2s; margin-right: 5px;
+        }
+        .btn-edit { background-color: #e9ecef; color: var(--primary-color); }
+        .btn-edit:hover { background-color: var(--primary-color); color: white; }
+        .btn-delete { background-color: #ffebee; color: #d32f2f; }
+        .btn-delete:hover { background-color: #d32f2f; color: white; }
+
+        /* Modali Specifici Preventivi */
+        .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+        
+        /* Stato Esito */
+        .esito-badge { font-weight: bold; font-size: 0.85rem; }
+        .esito-Vinta { color: #28a745; }
+        .esito-Persa { color: #dc3545; }
+        .esito-Da.definire { color: #6c757d; }
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <div class="header-title-group">
-            <a href="/" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
-            <h1>Elenco Preventivi</h1>
-        </div>
-        <div class="header-controls">
-            <button id="add-quote-btn" class="header-button hidden">Nuovo Preventivo</button>
-            <button id="logout-button" class="hidden">Logout</button>
-        </div>
-    </header>
 
-    <main>
-        <section id="login-section">
-            <h2>Accesso Riservato</h2>
+    <!-- Loader -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Caricamento Preventivi...</p>
+    </div>
+
+    <!-- SEZIONE LOGIN (Visibile solo se sloggati) -->
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Area Preventivi</h2>
             <form id="login-form">
-                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
-                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" id="email" required placeholder="nome@esempio.com">
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
                 <button type="submit" class="btn-login">Accedi</button>
-                <p id="login-error"></p>
+                <p id="login-error" class="error-message hidden"></p>
             </form>
-        </section>
-
-        <div id="app-content" class="hidden">
-            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca..."></div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
-                    <tbody id="preventivi-table-body"></tbody>
-                </table>
-            </div>
         </div>
-    </main>
-    
-    <!-- Modal per NUOVO preventivo -->
+    </section>
+
+    <!-- DASHBOARD CONTENT -->
+    <div id="app-content" class="dashboard-wrapper hidden">
+        
+        <!-- SIDEBAR (Menu Laterale) -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="../../index.html">
+                    <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI">
+                </a>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../../index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <!-- Noleggi -->
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> <span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../NOLEGGI/code.html"><i class="fas fa-wrench"></i> Attrezzature</a></li>
+                        <li><a href="../../NOLEGGI/GAS/index.html"><i class="fas fa-gas-pump"></i> Gas</a></li>
+                    </ul>
+                </li>
+                <!-- Preventivazione (ATTIVO) -->
+                <li>
+                    <a href="#" class="nav-link active">
+                        <i class="fas fa-calculator"></i> <span>Preventivazione</span>
+                    </a>
+                </li>
+                <!-- Altri link (usiamo ../.. per tornare alla root) -->
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../LISTINI/CLIMA/monosplit/index.html"><i class="fas fa-snowflake"></i> Clima</a></li>
+                        <li><a href="../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
+                        <li><a href="../../LISTINI/SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
+                        <li><a href="../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
+                        <li><a href="../../LISTINI/LISTINI%20FORNITORI/index.html"><i class="fas fa-truck-fast"></i> Fornitori</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Schede Tecniche</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> <span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../CONFIGURATORI/IMPIANTO RADIANTE/index.html"><i class="fas fa-border-all"></i> Radiante</a></li>
+                        <li><a href="../../CONFIGURATORI/RADIATORI/index.html"><i class="fas fa-thermometer-half"></i> Radiatori</a></li>
+                        <li><a href="../../CONFIGURATORI/CANNE FUMARIE/index.html"><i class="fas fa-smog"></i> Canne Fumarie</a></li>
+                        <li><a href="/configuratori/multisplit"><i class="fas fa-wind"></i> Multisplit</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-file-signature"></i> <span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../FGAS/apparecchiature.html"><i class="fas fa-tools"></i> Apparecchiature</a></li>
+                        <li><a href="../../FGAS/gas.html"><i class="fas fa-wind"></i> Gas Fluorurati</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../SCONTISTICHE/index.html" class="nav-link"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
+                <li><a href="../../AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Agenda Consegne</span></a></li>
+            </ul>
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h2>Gestione Preventivi</h2>
+                </div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details">
+                            <span class="welcome-text">Utente</span>
+                            <span id="user-email-display" class="user-email">...</span>
+                        </div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-container">
+                <!-- Card Principale -->
+                <div class="dashboard-card">
+                    
+                    <!-- Header Interno (Ricerca + Bottone) -->
+                    <div class="preventivi-header">
+                        <div class="search-wrapper" style="width: 350px;">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="search-input" placeholder="Cerca cliente, riferimento...">
+                        </div>
+                        <button id="add-quote-btn" class="btn-login" style="width: auto;">
+                            <i class="fas fa-plus"></i> Nuovo Preventivo
+                        </button>
+                    </div>
+
+                    <!-- Tabella -->
+                    <div class="table-responsive">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Riferimento</th>
+                                    <th>Numero</th>
+                                    <th>Stato</th>
+                                    <th>Esito</th>
+                                    <th>Note</th>
+                                    <th style="text-align:center;">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preventivi-table-body">
+                                <!-- Righe popolate da JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALE NUOVO PREVENTIVO -->
     <div id="add-quote-modal" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal-container" style="max-width: 600px; height: auto;">
             <div class="modal-header">
-                <h2>Nuovo Preventivo</h2>
+                <h2 style="font-size: 1.5rem; color: var(--primary-color);">Nuovo Preventivo</h2>
                 <button class="close-modal-btn">×</button>
             </div>
-            <form id="add-quote-form" novalidate>
-                <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
-                <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
-                <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
-                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
-                <div class="form-group"><label for="add-stato">Stato</label>
-                    <select id="add-stato" required>
-                        <option value="Inviato">Inviato</option>
-                        <option value="Offerta Fornitore">Offerta Fornitore</option>
-                        <option value="In Corso">In Corso</option>
-                    </select>
+            <form id="add-quote-form" style="padding: 10px 0;">
+                <div class="modal-form-grid">
+                    <div class="form-group">
+                        <label>Cliente *</label>
+                        <input type="text" id="add-cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="add-data">
+                    </div>
+                    <div class="form-group">
+                        <label>Riferimento</label>
+                        <input type="text" id="add-riferimento">
+                    </div>
+                    <div class="form-group">
+                        <label>Numero Prev.</label>
+                        <input type="text" id="add-numero">
+                    </div>
+                    <div class="form-group">
+                        <label>Stato *</label>
+                        <select id="add-stato" required>
+                            <option value="Inviato">Inviato</option>
+                            <option value="Offerta Fornitore">Offerta Fornitore</option>
+                            <option value="In Corso">In Corso</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Esito</label>
+                        <select id="add-esito">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Da definire">Da definire</option>
+                            <option value="Vinta">Vinta</option>
+                            <option value="Persa">Persa</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Note</label>
+                        <textarea id="add-note"></textarea>
+                    </div>
                 </div>
-                <div class="form-group"><label for="add-esito">Esito Offerta</label>
-                    <select id="add-esito">
-                        <option value="">-- Seleziona --</option>
-                        <option value="Da definire">Da definire</option>
-                        <option value="Vinta">Vinta</option>
-                        <option value="Persa">Persa</option>
-                    </select>
-                </div>
-                <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
-                <div class="modal-footer">
-                    <button type="button" class="modal-button cancel-btn">Annulla</button>
-                    <button type="submit" class="modal-button" id="save-quote-btn">Salva</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Modal per MODIFICA preventivo -->
-    <div id="edit-quote-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Modifica Preventivo</h2>
-                <button class="close-modal-btn">×</button>
-            </div>
-            <form id="edit-quote-form" novalidate>
-                <input type="hidden" id="edit-quote-id">
-                <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
-                <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
-                <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
-                <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
-                <div class="form-group"><label for="edit-stato">Stato</label>
-                    <select id="edit-stato" required>
-                         <!-- Opzioni popolate da JS -->
-                    </select>
-                </div>
-                <div class="form-group"><label for="edit-esito">Esito Offerta</label>
-                    <select id="edit-esito">
-                        <option value="">-- Seleziona --</option>
-                        <option value="Da definire">Da definire</option>
-                        <option value="Vinta">Vinta</option>
-                        <option value="Persa">Persa</option>
-                    </select>
-                </div>
-                <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
-                <div class="modal-footer">
-                    <button type="button" class="modal-button cancel-btn">Annulla</button>
-                    <button type="submit" class="modal-button" id="update-quote-btn">Salva Modifiche</button>
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
+                    <button type="submit" class="btn-login" style="width: auto;">Salva</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODALE MODIFICA PREVENTIVO -->
+    <div id="edit-quote-modal" class="modal-overlay">
+        <div class="modal-container" style="max-width: 600px; height: auto;">
+            <div class="modal-header">
+                <h2 style="font-size: 1.5rem; color: var(--primary-color);">Modifica Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="edit-quote-form" style="padding: 10px 0;">
+                <input type="hidden" id="edit-quote-id">
+                <div class="modal-form-grid">
+                    <div class="form-group">
+                        <label>Cliente *</label>
+                        <input type="text" id="edit-cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data *</label>
+                        <input type="date" id="edit-data" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Riferimento</label>
+                        <input type="text" id="edit-riferimento">
+                    </div>
+                    <div class="form-group">
+                        <label>Numero Prev.</label>
+                        <input type="text" id="edit-numero">
+                    </div>
+                    <div class="form-group">
+                        <label>Stato</label>
+                        <select id="edit-stato" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Esito</label>
+                        <select id="edit-esito">
+                            <option value="">-- Seleziona --</option>
+                            <option value="Da definire">Da definire</option>
+                            <option value="Vinta">Vinta</option>
+                            <option value="Persa">Persa</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Note</label>
+                        <textarea id="edit-note"></textarea>
+                    </div>
+                </div>
+                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
+                    <button type="submit" class="btn-login" style="width: auto;">Aggiorna</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURAZIONE FIREBASE ---
             const firebaseConfig = {
                 apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
                 authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
@@ -184,42 +348,65 @@
             let allPreventivi = [];
             let listenersAttached = false;
 
+            // --- UI REFERENCES ---
             const ui = {
+                loader: document.getElementById('initial-loader'),
                 loginSection: document.getElementById('login-section'),
                 appContent: document.getElementById('app-content'),
                 loginForm: document.getElementById('login-form'),
                 logoutButton: document.getElementById('logout-button'),
+                userEmailDisplay: document.getElementById('user-email-display'),
                 addQuoteBtn: document.getElementById('add-quote-btn'),
                 tableBody: document.getElementById('preventivi-table-body'),
+                searchInput: document.getElementById('search-input'),
+                // Modali
                 addModal: document.getElementById('add-quote-modal'),
                 addForm: document.getElementById('add-quote-form'),
                 editModal: document.getElementById('edit-quote-modal'),
-                editForm: document.getElementById('edit-quote-form'),
-                searchInput: document.getElementById('search-input'),
+                editForm: document.getElementById('edit-quote-form')
             };
 
+            // --- FUNZIONI DI INIZIALIZZAZIONE ---
             function initializeLogic() {
                 ui.loginForm.addEventListener('submit', handleLogin);
                 auth.onAuthStateChanged(handleAuthStateChange);
+                
+                // Gestione apertura sottomenu Sidebar (Logica Dashboard)
+                document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const submenu = link.nextElementSibling;
+                        link.classList.toggle('active'); // Ruota la freccia
+                        if (submenu.style.maxHeight) {
+                            submenu.style.maxHeight = null;
+                        } else {
+                            submenu.style.maxHeight = submenu.scrollHeight + "px";
+                        }
+                    });
+                });
             }
             
             function handleLogin(e) {
                 e.preventDefault();
                 const { email, password } = e.target.elements;
-                document.getElementById('login-error').textContent = '';
-                auth.signInWithEmailAndPassword(email.value, password.value).catch(() => {
-                    document.getElementById('login-error').textContent = "Email o password errati.";
+                const errorP = document.getElementById('login-error');
+                errorP.classList.add('hidden');
+                
+                auth.signInWithEmailAndPassword(email.value, password.value).catch((error) => {
+                    errorP.textContent = "Email o password errati.";
+                    errorP.classList.remove('hidden');
                 });
             }
 
             function handleAuthStateChange(user) {
+                ui.loader.style.display = 'none'; // Nascondi loader
                 const isLoggedIn = !!user;
+                
                 ui.loginSection.classList.toggle('hidden', isLoggedIn);
                 ui.appContent.classList.toggle('hidden', !isLoggedIn);
-                ui.logoutButton.classList.toggle('hidden', !isLoggedIn);
-                ui.addQuoteBtn.classList.toggle('hidden', !isLoggedIn);
 
                 if (isLoggedIn) {
+                    ui.userEmailDisplay.textContent = user.email;
                     fetchPreventivi();
                     setupAppEventListeners();
                 } else {
@@ -231,12 +418,19 @@
                 if (listenersAttached) return;
                 
                 ui.logoutButton.addEventListener('click', () => auth.signOut());
-                ui.addQuoteBtn.addEventListener('click', openAddModal);
+                ui.addQuoteBtn.addEventListener('click', () => { ui.addForm.reset(); openModal(ui.addModal); });
+                
                 ui.tableBody.addEventListener('change', handleStatusChange);
                 ui.tableBody.addEventListener('click', handleTableButtonClick);
+                
+                // Chiusura Modali
                 document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
+                    btn.addEventListener('click', (e) => {
+                        const modal = e.target.closest('.modal-overlay');
+                        closeModal(modal);
+                    });
                 });
+
                 ui.addForm.addEventListener('submit', handleAddSubmit);
                 ui.editForm.addEventListener('submit', handleEditSubmit);
                 ui.searchInput.addEventListener('input', handleSearch);
@@ -244,17 +438,26 @@
                 listenersAttached = true;
             }
 
-            function openAddModal() {
-                ui.addForm.reset();
-                ui.addModal.classList.add('visible');
+            // --- GESTIONE MODALI ---
+            function openModal(modal) {
+                modal.classList.add('visible');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeModal(modal) {
+                modal.classList.remove('visible');
+                document.body.style.overflow = '';
             }
 
+            // --- GESTIONE DATI ---
             async function handleStatusChange(e) {
                 if (!e.target.classList.contains('status-select')) return;
                 
                 const select = e.target;
                 const newStatus = select.value;
                 const quoteId = select.dataset.id;
+                
+                // Aggiorna colore visivamente
+                select.setAttribute('data-val', newStatus);
                 
                 select.disabled = true;
                 const originalQuote = allPreventivi.find(p => p.id === quoteId);
@@ -300,7 +503,8 @@
 
                 document.getElementById('edit-esito').value = esitoOfferta || '';
                 document.getElementById('edit-note').value = note || '';
-                ui.editModal.classList.add('visible');
+                
+                openModal(ui.editModal);
             }
             
             async function deleteQuote(quote) {
@@ -318,7 +522,7 @@
             }
             
             function fetchPreventivi() {
-                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Caricamento preventivi...</td></tr>`;
                 db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
@@ -328,26 +532,28 @@
             function renderTable(data) {
                 ui.tableBody.innerHTML = '';
                 if(data.length === 0){
-                    ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo trovato.</td></tr>`;
+                    ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Nessun preventivo trovato.</td></tr>`;
                     return;
                 }
                 data.forEach(p => {
                     const row = ui.tableBody.insertRow();
+                    const formattedDate = p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
+                    
                     row.innerHTML = `
-                        <td>${escapeHtml(p.cliente)}</td>
-                        <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
+                        <td><strong>${escapeHtml(p.cliente)}</strong></td>
+                        <td>${formattedDate}</td>
                         <td>${escapeHtml(p.riferimento)}</td>
                         <td>${escapeHtml(p.numero)}</td>
                         <td>
-                            <select class="status-select" data-id="${p.id}">
+                            <select class="status-select" data-id="${p.id}" data-val="${p.stato}">
                                 ${STATO_OPTIONS.map(opt => `<option value="${opt}" ${p.stato === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                                 ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
                             </select>
                         </td>
-                        <td>${escapeHtml(p.esitoOfferta)}</td>
-                        <td>${escapeHtml(p.note)}</td>
-                        <td class="actions-cell">
-                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica Completa"><i class="fas fa-edit"></i></button>
+                        <td><span class="esito-badge esito-${escapeHtml(p.esitoOfferta || '').replace(/\s/g, '.')}">${escapeHtml(p.esitoOfferta || '-')}</span></td>
+                        <td><small>${escapeHtml(p.note)}</small></td>
+                        <td style="text-align:center; white-space:nowrap;">
+                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
                             <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
                         </td>`;
                 });
@@ -356,7 +562,8 @@
             async function handleAddSubmit(e) {
                 e.preventDefault();
                 const saveBtn = e.target.querySelector('button[type="submit"]');
-                saveBtn.disabled = true;
+                const originalText = saveBtn.textContent;
+                saveBtn.disabled = true; saveBtn.textContent = "Salvataggio...";
 
                 const dateString = document.getElementById('add-data').value;
                 const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
@@ -374,17 +581,21 @@
                 try {
                     await db.collection("preventivi").add(quoteData);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
-                    ui.addModal.classList.remove('visible');
+                    closeModal(ui.addModal);
                     fetchPreventivi();
+                } catch(err) {
+                    console.error(err);
+                    alert("Errore salvataggio");
                 } finally {
-                    saveBtn.disabled = false;
+                    saveBtn.disabled = false; saveBtn.textContent = originalText;
                 }
             }
             
             async function handleEditSubmit(e) {
                 e.preventDefault();
                 const updateBtn = e.target.querySelector('button[type="submit"]');
-                updateBtn.disabled = true;
+                const originalText = updateBtn.textContent;
+                updateBtn.disabled = true; updateBtn.textContent = "Aggiornamento...";
 
                 const quoteId = document.getElementById('edit-quote-id').value;
                 const dateString = document.getElementById('edit-data').value;
@@ -403,10 +614,13 @@
                 try {
                     await db.collection("preventivi").doc(quoteId).update(updatedData);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
-                    ui.editModal.classList.remove('visible');
+                    closeModal(ui.editModal);
                     fetchPreventivi();
+                } catch(err) {
+                    console.error(err);
+                    alert("Errore aggiornamento");
                 } finally {
-                    updateBtn.disabled = false;
+                    updateBtn.disabled = false; updateBtn.textContent = originalText;
                 }
             }
 
