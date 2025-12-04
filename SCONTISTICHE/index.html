@@ -3,63 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Preventivazione</title>
+    <title>CAI - Scontistiche & Calcolatore</title>
     
-    <!-- Collega lo stile principale -->
+    <!-- Stile Principale -->
     <link rel="stylesheet" href="../../style.css">
     
     <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- CSS Specifico per la Tabella Preventivi -->
+    <!-- Stile Specifico Scontistiche -->
     <style>
-        /* Override o aggiunte specifiche per questa pagina */
-        .preventivi-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+        /* Griglia Calcolatore */
+        .calculator-wrapper {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calc-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex; flex-direction: column;
         }
         
-        /* Stile Tabella */
-        .table-responsive { overflow-x: auto; }
-        .custom-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        .custom-table th { 
-            background-color: #f1f3f5; color: #333; font-weight: 600; 
-            padding: 12px 15px; text-align: left; border-bottom: 2px solid #ddd; 
+        .calc-card h3 {
+            color: var(--primary-color);
+            font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;
         }
-        .custom-table td { 
-            padding: 12px 15px; border-bottom: 1px solid #eee; vertical-align: middle; 
-            color: #555;
-        }
-        .custom-table tr:hover { background-color: #f8f9fa; }
 
-        /* Badge Stato (Select personalizzata) */
-        .status-select {
-            padding: 5px 10px; border-radius: 20px; border: 1px solid transparent;
-            font-size: 0.85rem; font-weight: 500; cursor: pointer; outline: none;
-            background-color: #fff; width: 100%; max-width: 140px;
+        .form-row { margin-bottom: 12px; }
+        .form-row label { display: block; font-size: 0.9rem; font-weight: 500; color: #555; margin-bottom: 4px; }
+        .form-row input { 
+            width: 100%; padding: 8px 12px; border: 1px solid #ced4da; 
+            border-radius: 4px; font-size: 0.95rem; 
         }
-        .status-select[data-val="Inviato"] { background-color: #e3f2fd; color: #0d47a1; border-color: #bbdefb; }
-        .status-select[data-val="Offerta Fornitore"] { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
-        .status-select[data-val="In Corso"] { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
 
-        /* Bottoni Azione */
-        .action-btn { 
-            width: 32px; height: 32px; border-radius: 4px; border: none; 
-            display: inline-flex; align-items: center; justify-content: center; 
-            cursor: pointer; transition: all 0.2s; margin-right: 5px;
+        /* Input Sconti Cascata (griglia mini) */
+        .cascade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+        /* Box Risultato */
+        .result-display {
+            background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px;
+            padding: 15px; text-align: center; margin-top: auto; /* Spinge in basso */
         }
-        .btn-edit { background-color: #e9ecef; color: var(--primary-color); }
-        .btn-edit:hover { background-color: var(--primary-color); color: white; }
-        .btn-delete { background-color: #ffebee; color: #d32f2f; }
-        .btn-delete:hover { background-color: #d32f2f; color: white; }
+        .result-label { font-size: 0.85rem; color: #6c757d; display: block; }
+        .result-value { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); display: block; margin: 5px 0; }
+        .result-sub { font-size: 0.9rem; color: #28a745; font-weight: 500; }
 
-        /* Modali Specifici Preventivi */
-        .modal-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full-width { grid-column: span 2; }
-        
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; width: 100%; border: 1px solid #ccc; border-radius: 4px; padding: 10px; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        /* Bottoni Calcolatore */
+        .calc-actions {
+            grid-column: 1 / -1; 
+            display: flex; justify-content: center; gap: 15px; margin-top: 10px;
+        }
+        .btn-calc { padding: 10px 30px; font-size: 1rem; }
+
+        /* Filtri Tabella */
+        .filters-bar {
+            display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;
+            background-color: #f1f3f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-group label { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #495057; }
+        .filter-group select { padding: 8px; min-width: 180px; border-radius: 4px; border: 1px solid #ced4da; }
+
+        /* Tabella Sconti */
+        .discount-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .discount-table th { background-color: var(--primary-color); color: white; padding: 12px; text-align: left; }
+        .discount-table td { border-bottom: 1px solid #eee; padding: 12px; vertical-align: middle; }
+        .discount-table tr:hover { background-color: #f8f9fa; }
+        .badge-sconto { 
+            background-color: #e3f2fd; color: #0d47a1; 
+            padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.9rem;
+        }
+        .text-muted { color: #999; font-style: italic; }
     </style>
 </head>
 <body>
@@ -67,23 +87,17 @@
     <!-- Loader -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
-        <p>Caricamento Preventivi...</p>
+        <p>Caricamento Scontistiche...</p>
     </div>
 
-    <!-- SEZIONE LOGIN (Visibile solo se sloggati) -->
+    <!-- SEZIONE LOGIN -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
-            <h2>Area Preventivi</h2>
+            <h2>Area Riservata</h2>
             <form id="login-form">
-                <div class="form-group">
-                    <label>Email:</label>
-                    <input type="email" id="email" required placeholder="nome@esempio.com">
-                </div>
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" id="password" required placeholder="••••••••">
-                </div>
+                <div class="form-group"><label>Email:</label><input type="email" id="email" required placeholder="nome@esempio.com"></div>
+                <div class="form-group"><label>Password:</label><input type="password" id="password" required placeholder="••••••••"></div>
                 <button type="submit" class="btn-login">Accedi</button>
                 <p id="login-error" class="error-message hidden"></p>
             </form>
@@ -93,16 +107,13 @@
     <!-- DASHBOARD CONTENT -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR (Menu Laterale) -->
+        <!-- SIDEBAR -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="../../index.html">
-                    <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI">
-                </a>
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="../../index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
-                <!-- Noleggi -->
                 <li class="has-submenu">
                     <a href="#" class="nav-link"><i class="fas fa-handshake"></i> <span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a>
                     <ul class="submenu-list">
@@ -110,13 +121,7 @@
                         <li><a href="../../NOLEGGI/GAS/index.html"><i class="fas fa-gas-pump"></i> Gas</a></li>
                     </ul>
                 </li>
-                <!-- Preventivazione (ATTIVO) -->
-                <li>
-                    <a href="#" class="nav-link active">
-                        <i class="fas fa-calculator"></i> <span>Preventivazione</span>
-                    </a>
-                </li>
-                <!-- Altri link -->
+                <li><a href="../../PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> <span>Preventivazione</span></a></li>
                 <li class="has-submenu">
                     <a href="#" class="nav-link"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
                     <ul class="submenu-list">
@@ -144,7 +149,8 @@
                         <li><a href="../../FGAS/gas.html"><i class="fas fa-wind"></i> Gas Fluorurati</a></li>
                     </ul>
                 </li>
-                <li><a href="../../SCONTISTICHE/index.html" class="nav-link"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
+                <!-- ATTIVO -->
+                <li><a href="#" class="nav-link active"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
                 <li><a href="../../AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Agenda Consegne</span></a></li>
             </ul>
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -155,14 +161,11 @@
             <!-- Top Bar -->
             <header class="top-bar">
                 <div class="page-title">
-                    <h2>Gestione Preventivi</h2>
+                    <h2>Scontistiche & Calcolatore</h2>
                 </div>
                 <div class="user-menu">
                     <div class="user-profile-info">
-                        <div class="user-details">
-                            <span class="welcome-text">Utente</span>
-                            <span id="user-email-display" class="user-email">...</span>
-                        </div>
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
                         <div class="user-avatar"><i class="fas fa-user"></i></div>
                         <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
@@ -170,131 +173,118 @@
             </header>
 
             <div class="content-container">
-                <!-- Card Principale -->
+                
+                <!-- CARD CALCOLATORE UNIFICATO -->
                 <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Calcolatore Rapido Prezzi</h2>
                     
-                    <!-- Header Interno (Ricerca + Bottone) -->
-                    <div class="preventivi-header">
-                        <div class="search-wrapper" style="width: 350px;">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="search-input" placeholder="Cerca cliente, riferimento...">
+                    <div class="calculator-wrapper">
+                        <!-- 1. Sconto a Cascata -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-water"></i> Sconto Cascata</h3>
+                            <div class="form-row">
+                                <label>Prezzo di Listino (€)</label>
+                                <input type="number" id="cascade-price-input" placeholder="Es. 1000">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconti (%)</label>
+                                <div class="cascade-grid">
+                                    <input type="number" id="calc-sconto1" placeholder="S1"><input type="number" id="calc-sconto2" placeholder="S2"><input type="number" id="calc-sconto3" placeholder="S3">
+                                    <input type="number" id="calc-sconto4" placeholder="S4"><input type="number" id="calc-sconto5" placeholder="S5"><input type="number" id="calc-sconto6" placeholder="S6">
+                                </div>
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Prezzo Netto</span>
+                                <span id="cascade-result-price" class="result-value">0,00 €</span>
+                                <span id="cascade-result-percentage" class="result-sub">Sconto Tot: 0,00%</span>
+                            </div>
                         </div>
-                        <button id="add-quote-btn" class="btn-login" style="width: auto;">
-                            <i class="fas fa-plus"></i> Nuovo Preventivo
-                        </button>
+
+                        <!-- 2. Calcolo Margine -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-chart-line"></i> Calcolo Margine</h3>
+                            <div class="form-row">
+                                <label>Prezzo Listino (€)</label>
+                                <input type="number" id="margin-list-price-input" placeholder="Es. 692">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconto Acquisto (%)</label>
+                                <input type="number" id="margin-buy-discount-input" placeholder="Es. 40">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconto Vendita (%)</label>
+                                <input type="number" id="margin-sell-discount-input" placeholder="Es. 20">
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Margine Utile</span>
+                                <span id="margin-result-euro" class="result-value">0,00 €</span>
+                                <span id="margin-result-percent" class="result-sub">Margine: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Percentuale Semplice -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-percentage"></i> Percentuale</h3>
+                            <div class="form-row">
+                                <label>Importo Base (€)</label>
+                                <input type="number" id="single-price-input" placeholder="Es. 1000">
+                            </div>
+                            <div class="form-row">
+                                <label>Percentuale (%)</label>
+                                <input type="number" id="single-percentage-input" placeholder="Es. 22">
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Valore Percentuale</span>
+                                <span id="single-perc-result-value" class="result-value">0,00 €</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Tabella -->
-                    <div class="table-responsive">
-                        <table class="custom-table">
+                    <div class="calc-actions">
+                        <button id="calculate-all-button" class="btn-login btn-calc"><i class="fas fa-calculator"></i> Calcola Tutto</button>
+                        <button id="reset-calculator-button" class="btn-logout btn-calc" style="background:#6c757d; color:white;"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
+                </div>
+
+                <!-- CARD MATRICE SCONTI -->
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Matrice Sconti Fornitori</h2>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label>Categoria</label>
+                            <select id="category-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Marca</label>
+                            <select id="brand-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <button id="reset-filters-btn" class="btn-logout" style="height:38px; align-self:flex-end; border:1px solid #ccc;">Reset</button>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="discount-table">
                             <thead>
                                 <tr>
-                                    <th>Cliente</th>
-                                    <th>Data</th>
-                                    <th>Riferimento</th>
-                                    <th>Numero</th>
-                                    <th>Stato</th>
-                                    <th>Note</th>
-                                    <th style="text-align:center;">Azioni</th>
+                                    <th>Categoria</th>
+                                    <th>Marca</th>
+                                    <th>Sconti Acquisto</th>
+                                    <th>Trasporto</th>
+                                    <th>Sconti Vendita</th>
+                                    <th>Agenzia</th>
+                                    <th>Centri Assistenza</th>
                                 </tr>
                             </thead>
-                            <tbody id="preventivi-table-body">
-                                <!-- Righe popolate da JS -->
+                            <tbody id="discounts-table-body">
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Caricamento dati...</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <p id="no-data-message" class="text-muted" style="text-align:center; padding:20px; display:none;">Nessun risultato trovato.</p>
                 </div>
+
             </div>
         </main>
-    </div>
-
-    <!-- MODALE NUOVO PREVENTIVO -->
-    <div id="add-quote-modal" class="modal-overlay">
-        <div class="modal-container" style="max-width: 600px; height: auto;">
-            <div class="modal-header">
-                <h2 style="font-size: 1.5rem; color: var(--primary-color);">Nuovo Preventivo</h2>
-                <button class="close-modal-btn">×</button>
-            </div>
-            <form id="add-quote-form" style="padding: 10px 0;">
-                <div class="modal-form-grid">
-                    <div class="form-group">
-                        <label>Cliente *</label>
-                        <input type="text" id="add-cliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Data</label>
-                        <input type="date" id="add-data">
-                    </div>
-                    <div class="form-group">
-                        <label>Riferimento</label>
-                        <input type="text" id="add-riferimento">
-                    </div>
-                    <div class="form-group">
-                        <label>Numero Prev.</label>
-                        <input type="text" id="add-numero">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Stato *</label>
-                        <select id="add-stato" required>
-                            <option value="Inviato">Inviato</option>
-                            <option value="Offerta Fornitore">Offerta Fornitore</option>
-                            <option value="In Corso">In Corso</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Note</label>
-                        <textarea id="add-note"></textarea>
-                    </div>
-                </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-                    <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
-                    <button type="submit" class="btn-login" style="width: auto;">Salva</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODALE MODIFICA PREVENTIVO -->
-    <div id="edit-quote-modal" class="modal-overlay">
-        <div class="modal-container" style="max-width: 600px; height: auto;">
-            <div class="modal-header">
-                <h2 style="font-size: 1.5rem; color: var(--primary-color);">Modifica Preventivo</h2>
-                <button class="close-modal-btn">×</button>
-            </div>
-            <form id="edit-quote-form" style="padding: 10px 0;">
-                <input type="hidden" id="edit-quote-id">
-                <div class="modal-form-grid">
-                    <div class="form-group">
-                        <label>Cliente *</label>
-                        <input type="text" id="edit-cliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Data *</label>
-                        <input type="date" id="edit-data" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Riferimento</label>
-                        <input type="text" id="edit-riferimento">
-                    </div>
-                    <div class="form-group">
-                        <label>Numero Prev.</label>
-                        <input type="text" id="edit-numero">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Stato</label>
-                        <select id="edit-stato" required></select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Note</label>
-                        <textarea id="edit-note"></textarea>
-                    </div>
-                </div>
-                <div class="admin-popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-                    <button type="button" class="btn-logout cancel-btn" style="border:1px solid #ccc; border-radius:4px; padding:10px 20px;">Annulla</button>
-                    <button type="submit" class="btn-login" style="width: auto;">Aggiorna</button>
-                </div>
-            </form>
-        </div>
     </div>
 
     <!-- Firebase SDKs -->
@@ -313,355 +303,228 @@
                 messagingSenderId: "367198758830",
                 appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
-
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            
             const auth = firebase.auth();
             const db = firebase.firestore();
-            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
-            
-            const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
-            let allPreventivi = [];
+
+            // --- UI ELEMENTS ---
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                loginSection: document.getElementById('login-section'),
+                appContent: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form'),
+                userEmailDisplay: document.getElementById('user-email-display'),
+                logoutButton: document.getElementById('logout-button'),
+                
+                // Filtri
+                tableBody: document.getElementById('discounts-table-body'),
+                catFilter: document.getElementById('category-filter'),
+                brandFilter: document.getElementById('brand-filter'),
+                resetFiltersBtn: document.getElementById('reset-filters-btn'),
+                noDataMsg: document.getElementById('no-data-message'),
+
+                // Calcolatore
+                calcBtn: document.getElementById('calculate-all-button'),
+                resetCalcBtn: document.getElementById('reset-calculator-button'),
+                
+                // Inputs Cascata
+                cascadePrice: document.getElementById('cascade-price-input'),
+                resCascadePrice: document.getElementById('cascade-result-price'),
+                resCascadePerc: document.getElementById('cascade-result-percentage'),
+                scontiInputs: Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`)),
+
+                // Inputs Margine
+                marginList: document.getElementById('margin-list-price-input'),
+                marginBuy: document.getElementById('margin-buy-discount-input'),
+                marginSell: document.getElementById('margin-sell-discount-input'),
+                resMarginEuro: document.getElementById('margin-result-euro'),
+                resMarginPerc: document.getElementById('margin-result-percent'),
+
+                // Inputs Singola
+                singlePrice: document.getElementById('single-price-input'),
+                singlePerc: document.getElementById('single-percentage-input'),
+                resSingle: document.getElementById('single-perc-result-value')
+            };
+
+            let allDiscounts = [];
+            let currentFilters = { categoria: "", marca: "" };
 
             // --- INIZIALIZZAZIONE ---
-            function initializeApp() {
-                // 1. Gestione Login
-                const loginForm = document.getElementById('login-form');
-                if(loginForm) loginForm.addEventListener('submit', handleLogin);
-                
-                // 2. Osservatore Login (mostra/nasconde contenuti)
-                auth.onAuthStateChanged(handleAuthStateChange);
-                
-                // 3. Attivazione Pulsanti (LI ATTIVIAMO SUBITO)
-                setupStaticEventListeners();
-            }
-            
-            function setupStaticEventListeners() {
-                // Tasto Nuovo Preventivo
-                const addQuoteBtn = document.getElementById('add-quote-btn');
-                if (addQuoteBtn) {
-                    addQuoteBtn.addEventListener('click', (e) => {
-                        e.preventDefault(); 
-                        const addForm = document.getElementById('add-quote-form');
-                        if (addForm) addForm.reset();
-                        
-                        const addModal = document.getElementById('add-quote-modal');
-                        if (addModal) openModal(addModal);
-                    });
+            auth.onAuthStateChanged(user => {
+                ui.loader.style.display = 'none';
+                if (user) {
+                    ui.loginSection.classList.add('hidden');
+                    ui.appContent.classList.remove('hidden');
+                    ui.userEmailDisplay.textContent = user.email;
+                    loadData();
+                    setupListeners();
+                } else {
+                    ui.loginSection.classList.remove('hidden');
+                    ui.appContent.classList.add('hidden');
                 }
+            });
 
-                // Logout
-                const logoutBtn = document.getElementById('logout-button');
-                if(logoutBtn) logoutBtn.addEventListener('click', () => auth.signOut());
-
-                // Chiusura Modali (X e Annulla)
-                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        const modal = e.target.closest('.modal-overlay');
-                        if(modal) closeModal(modal);
-                    });
+            ui.loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                auth.signInWithEmailAndPassword(email, password).catch(err => {
+                    alert("Errore login: " + err.message);
                 });
+            });
 
-                // Gestione click tabella (delegazione eventi per pulsanti dinamici)
-                const tableBody = document.getElementById('preventivi-table-body');
-                if(tableBody) {
-                    tableBody.addEventListener('change', handleStatusChange);
-                    tableBody.addEventListener('click', handleTableButtonClick);
+            ui.logoutButton.addEventListener('click', () => auth.signOut());
+
+            // --- SCRIPT CALCOLATORE ---
+            function calculateAll() {
+                // 1. Cascata
+                const baseCasc = parseFloat(ui.cascadePrice.value);
+                if (!isNaN(baseCasc)) {
+                    const sconti = ui.scontiInputs.map(i => parseFloat(i.value)).filter(v => !isNaN(v) && v > 0);
+                    const finalPrice = sconti.reduce((acc, s) => acc * (1 - s / 100), baseCasc);
+                    const totalDisc = (sconti.length > 0) ? 100 - (finalPrice / baseCasc * 100) : 0;
+                    
+                    ui.resCascadePrice.textContent = finalPrice.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                    ui.resCascadePerc.textContent = `Sconto Tot: ${totalDisc.toFixed(2).replace('.', ',')}%`;
+                } else {
+                    ui.resCascadePrice.textContent = "0,00 €";
+                    ui.resCascadePerc.textContent = "Sconto Tot: 0,00%";
                 }
 
-                // Submit dei form
-                const addForm = document.getElementById('add-quote-form');
-                if(addForm) addForm.addEventListener('submit', handleAddSubmit);
-                
-                const editForm = document.getElementById('edit-quote-form');
-                if(editForm) editForm.addEventListener('submit', handleEditSubmit);
-                
-                // Ricerca
-                const searchInput = document.getElementById('search-input');
-                if(searchInput) searchInput.addEventListener('input', handleSearch);
+                // 2. Margine
+                const listP = parseFloat(ui.marginList.value);
+                const buyD = parseFloat(ui.marginBuy.value);
+                const sellD = parseFloat(ui.marginSell.value);
 
+                if (!isNaN(listP) && !isNaN(buyD) && !isNaN(sellD)) {
+                    const cost = listP * (1 - buyD / 100);
+                    const sellPrice = listP * (1 - sellD / 100);
+                    const marginEuro = sellPrice - cost;
+                    const marginPerc = (sellPrice > 0) ? (marginEuro / sellPrice) * 100 : 0;
+
+                    ui.resMarginEuro.textContent = marginEuro.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                    ui.resMarginPerc.textContent = `Margine: ${marginPerc.toFixed(2).replace('.', ',')}%`;
+                    ui.resMarginPerc.style.color = marginEuro >= 0 ? '#28a745' : '#dc3545';
+                } else {
+                    ui.resMarginEuro.textContent = "0,00 €";
+                    ui.resMarginPerc.textContent = "Margine: 0%";
+                }
+
+                // 3. Percentuale Singola
+                const singleP = parseFloat(ui.singlePrice.value);
+                const perc = parseFloat(ui.singlePerc.value);
+                if (!isNaN(singleP) && !isNaN(perc)) {
+                    const val = singleP * (perc / 100);
+                    ui.resSingle.textContent = val.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                } else {
+                    ui.resSingle.textContent = "0,00 €";
+                }
+            }
+
+            function resetCalculator() {
+                ui.cascadePrice.value = '';
+                ui.scontiInputs.forEach(i => i.value = '');
+                ui.marginList.value = ''; ui.marginBuy.value = ''; ui.marginSell.value = '';
+                ui.singlePrice.value = ''; ui.singlePerc.value = '';
+                
+                ui.resCascadePrice.textContent = "0,00 €"; ui.resCascadePerc.textContent = "Sconto Tot: 0,00%";
+                ui.resMarginEuro.textContent = "0,00 €"; ui.resMarginPerc.textContent = "Margine: 0%";
+                ui.resSingle.textContent = "0,00 €";
+            }
+
+            // --- DATI E FILTRI ---
+            async function loadData() {
+                try {
+                    const snapshot = await db.collection("scontisticheProdotti").get();
+                    allDiscounts = snapshot.docs.map(doc => doc.data());
+                    populateSelects();
+                    renderTable(allDiscounts);
+                } catch (error) {
+                    console.error("Errore caricamento dati:", error);
+                    ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Errore caricamento dati.</td></tr>`;
+                }
+            }
+
+            function populateSelects() {
+                const cats = [...new Set(allDiscounts.map(i => i.categoria).filter(Boolean))].sort();
+                const brands = [...new Set(allDiscounts.map(i => i.marca).filter(Boolean))].sort();
+                
+                ui.catFilter.innerHTML = '<option value="">Tutte</option>';
+                cats.forEach(c => ui.catFilter.add(new Option(c, c)));
+                
+                ui.brandFilter.innerHTML = '<option value="">Tutte</option>';
+                brands.forEach(b => ui.brandFilter.add(new Option(b, b)));
+            }
+
+            function applyFilters() {
+                const filtered = allDiscounts.filter(i => 
+                    (!currentFilters.categoria || i.categoria === currentFilters.categoria) && 
+                    (!currentFilters.marca || i.marca === currentFilters.marca)
+                );
+                renderTable(filtered);
+            }
+
+            function formatVal(val, percent = false) {
+                if (!val) return '<span class="text-muted">-</span>';
+                if (percent) {
+                    if (String(val).includes(';')) return String(val).split(';').map(v => `<span class="badge-sconto">${v.trim()}%</span>`).join(' + ');
+                    return `<span class="badge-sconto">${String(val).replace('.', ',')}%</span>`;
+                }
+                return val;
+            }
+
+            function formatAssist(item) {
+                const parts = [];
+                if(item.assistenza_cesena) parts.push(`<b>Cesena:</b> ${item.assistenza_cesena}`);
+                if(item.assistenza_savignano) parts.push(`<b>Savignano:</b> ${item.assistenza_savignano}`);
+                if(item.assistenza_rimini) parts.push(`<b>Rimini:</b> ${item.assistenza_rimini}`);
+                return parts.length ? parts.join('<br>') : '<span class="text-muted">-</span>';
+            }
+
+            function renderTable(data) {
+                ui.tableBody.innerHTML = '';
+                if (data.length === 0) {
+                    ui.noDataMsg.style.display = 'block';
+                } else {
+                    ui.noDataMsg.style.display = 'none';
+                    data.sort((a,b) => (a.categoria || '').localeCompare(b.categoria || '')).forEach(item => {
+                        const row = ui.tableBody.insertRow();
+                        row.innerHTML = `
+                            <td><b>${item.categoria || '-'}</b></td>
+                            <td>${item.marca || '-'}</td>
+                            <td>${formatVal(item.sconto_in_acquisto, true)}</td>
+                            <td>${formatVal(item.trasporto, true)}</td>
+                            <td>${formatVal(item.sconto_in_vendita, true)}</td>
+                            <td>${item.agenzia || '-'}</td>
+                            <td style="font-size:0.85rem;">${formatAssist(item)}</td>
+                        `;
+                    });
+                }
+            }
+
+            function setupListeners() {
+                ui.calcBtn.addEventListener('click', calculateAll);
+                ui.resetCalcBtn.addEventListener('click', resetCalculator);
+                
+                ui.catFilter.addEventListener('change', (e) => { currentFilters.categoria = e.target.value; applyFilters(); });
+                ui.brandFilter.addEventListener('change', (e) => { currentFilters.marca = e.target.value; applyFilters(); });
+                ui.resetFiltersBtn.addEventListener('click', () => {
+                    ui.catFilter.value = ''; ui.brandFilter.value = '';
+                    currentFilters = { categoria: "", marca: "" };
+                    applyFilters();
+                });
+                
                 // Sidebar Toggle
                 document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const submenu = link.nextElementSibling;
                         link.classList.toggle('active');
-                        if (submenu.style.maxHeight) {
-                            submenu.style.maxHeight = null;
-                        } else {
-                            submenu.style.maxHeight = submenu.scrollHeight + "px";
-                        }
+                        if (submenu.style.maxHeight) submenu.style.maxHeight = null;
+                        else submenu.style.maxHeight = submenu.scrollHeight + "px";
                     });
                 });
             }
-
-            function handleLogin(e) {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                const errorP = document.getElementById('login-error');
-                
-                errorP.classList.add('hidden');
-                
-                auth.signInWithEmailAndPassword(email, password).catch((error) => {
-                    errorP.textContent = "Email o password errati.";
-                    errorP.classList.remove('hidden');
-                });
-            }
-
-            function handleAuthStateChange(user) {
-                const loader = document.getElementById('initial-loader');
-                if(loader) loader.style.display = 'none';
-
-                const isLoggedIn = !!user;
-                const loginSection = document.getElementById('login-section');
-                const appContent = document.getElementById('app-content');
-                
-                if(loginSection) loginSection.classList.toggle('hidden', isLoggedIn);
-                if(appContent) appContent.classList.toggle('hidden', !isLoggedIn);
-
-                if (isLoggedIn) {
-                    const userEmailDisplay = document.getElementById('user-email-display');
-                    if(userEmailDisplay) userEmailDisplay.textContent = user.email;
-                    fetchPreventivi();
-                }
-            }
-
-            // --- GESTIONE MODALI ---
-            function openModal(modal) {
-                modal.classList.add('visible');
-                document.body.style.overflow = 'hidden'; 
-            }
-            function closeModal(modal) {
-                modal.classList.remove('visible');
-                document.body.style.overflow = ''; 
-            }
-
-            // --- GESTIONE DATI ---
-            async function handleStatusChange(e) {
-                if (!e.target.classList.contains('status-select')) return;
-                
-                const select = e.target;
-                const newStatus = select.value;
-                const quoteId = select.dataset.id;
-                
-                // Aggiorna colore visivamente
-                select.setAttribute('data-val', newStatus);
-                select.disabled = true;
-
-                const originalQuote = allPreventivi.find(p => p.id === quoteId);
-
-                try {
-                    await db.collection("preventivi").doc(quoteId).update({ stato: newStatus });
-                    
-                    if (originalQuote?.numero) {
-                       const sheetData = { ...originalQuote, stato: newStatus, action: 'update', data: new Date(originalQuote.data.seconds * 1000).toISOString() };
-                       fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
-                    }
-                    if (originalQuote) originalQuote.stato = newStatus;
-                } catch (error) {
-                    alert("Errore nell'aggiornare lo stato.");
-                    if(originalQuote) select.value = originalQuote.stato;
-                } finally {
-                    select.disabled = false;
-                }
-            }
-
-            function handleTableButtonClick(e) {
-                const button = e.target.closest('.action-btn');
-                if (!button) return;
-                e.stopPropagation();
-
-                const quote = allPreventivi.find(p => p.id === button.dataset.id);
-                if (!quote) return;
-                
-                if (button.classList.contains('btn-delete')) deleteQuote(quote);
-                else if (button.classList.contains('btn-edit')) openEditModal(quote);
-            }
-
-            function openEditModal(quote) {
-                const editForm = document.getElementById('edit-quote-form');
-                if(editForm) editForm.reset();
-
-                const { id, cliente, data, riferimento, numero, stato, note } = quote;
-                
-                setValue('edit-quote-id', id);
-                setValue('edit-cliente', cliente);
-                
-                const dateElem = document.getElementById('edit-data');
-                if(dateElem && data?.seconds) {
-                    dateElem.value = new Date(data.seconds * 1000).toISOString().split('T')[0];
-                }
-                
-                setValue('edit-riferimento', riferimento);
-                setValue('edit-numero', numero);
-                setValue('edit-note', note);
-                
-                const statoSelect = document.getElementById('edit-stato');
-                if(statoSelect) {
-                    statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
-                    if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
-                }
-                
-                const editModal = document.getElementById('edit-quote-modal');
-                if(editModal) openModal(editModal);
-            }
-            
-            function setValue(id, val) {
-                const el = document.getElementById(id);
-                if(el) el.value = val || '';
-            }
-
-            async function deleteQuote(quote) {
-                if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
-                    try {
-                        await db.collection("preventivi").doc(quote.id).delete();
-                        if (quote.numero) {
-                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
-                        }
-                        fetchPreventivi();
-                    } catch (error) {
-                        alert("Errore durante l'eliminazione.");
-                    }
-                }
-            }
-            
-            function fetchPreventivi() {
-                const tbody = document.getElementById('preventivi-table-body');
-                if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Caricamento preventivi...</td></tr>`;
-                
-                db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
-                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                      renderTable(allPreventivi);
-                  }).catch(err => {
-                      console.error(err);
-                      if(tbody) tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:red;">Errore caricamento.</td></tr>`;
-                  });
-            }
-
-            function renderTable(data) {
-                const tbody = document.getElementById('preventivi-table-body');
-                if(!tbody) return;
-                
-                tbody.innerHTML = '';
-                if(data.length === 0){
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px;">Nessun preventivo trovato.</td></tr>`;
-                    return;
-                }
-                
-                data.forEach(p => {
-                    const row = tbody.insertRow();
-                    const formattedDate = p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D';
-                    
-                    row.innerHTML = `
-                        <td><strong>${escapeHtml(p.cliente)}</strong></td>
-                        <td>${formattedDate}</td>
-                        <td>${escapeHtml(p.riferimento)}</td>
-                        <td>${escapeHtml(p.numero)}</td>
-                        <td>
-                            <select class="status-select" data-id="${p.id}" data-val="${p.stato}">
-                                ${STATO_OPTIONS.map(opt => `<option value="${opt}" ${p.stato === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-                                ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
-                            </select>
-                        </td>
-                        <td><small>${escapeHtml(p.note)}</small></td>
-                        <td style="text-align:center; white-space:nowrap;">
-                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
-                        </td>`;
-                });
-            }
-
-            async function handleAddSubmit(e) {
-                e.preventDefault();
-                const saveBtn = e.target.querySelector('button[type="submit"]');
-                const originalText = saveBtn.textContent;
-                saveBtn.disabled = true; saveBtn.textContent = "Salvataggio...";
-
-                const dateVal = document.getElementById('add-data').value;
-                const quoteDate = dateVal ? new Date(dateVal + 'T00:00:00') : new Date();
-
-                const quoteData = {
-                    cliente: getValue('add-cliente'),
-                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                    riferimento: getValue('add-riferimento'),
-                    numero: getValue('add-numero'),
-                    stato: getValue('add-stato'),
-                    note: getValue('add-note'),
-                };
-                
-                try {
-                    await db.collection("preventivi").add(quoteData);
-                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
-                    
-                    const addModal = document.getElementById('add-quote-modal');
-                    if(addModal) closeModal(addModal);
-                    
-                    fetchPreventivi();
-                } catch(err) {
-                    console.error(err);
-                    alert("Errore salvataggio: " + err.message);
-                } finally {
-                    saveBtn.disabled = false; saveBtn.textContent = originalText;
-                }
-            }
-            
-            async function handleEditSubmit(e) {
-                e.preventDefault();
-                const updateBtn = e.target.querySelector('button[type="submit"]');
-                const originalText = updateBtn.textContent;
-                updateBtn.disabled = true; updateBtn.textContent = "Aggiornamento...";
-
-                const quoteId = document.getElementById('edit-quote-id').value;
-                const dateVal = document.getElementById('edit-data').value;
-                const quoteDate = new Date(dateVal + 'T00:00:00');
-
-                const updatedData = {
-                    cliente: getValue('edit-cliente'),
-                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
-                    riferimento: getValue('edit-riferimento'),
-                    numero: getValue('edit-numero'),
-                    stato: getValue('edit-stato'),
-                    note: getValue('edit-note')
-                };
-
-                try {
-                    await db.collection("preventivi").doc(quoteId).update(updatedData);
-                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
-                    
-                    const editModal = document.getElementById('edit-quote-modal');
-                    if(editModal) closeModal(editModal);
-                    
-                    fetchPreventivi();
-                } catch(err) {
-                    console.error(err);
-                    alert("Errore aggiornamento: " + err.message);
-                } finally {
-                    updateBtn.disabled = false; updateBtn.textContent = originalText;
-                }
-            }
-            
-            function getValue(id) {
-                const el = document.getElementById(id);
-                return el ? el.value.trim() : '';
-            }
-
-            function handleSearch(e) {
-                const term = e.target.value.toLowerCase();
-                const filtered = allPreventivi.filter(p => 
-                    Object.values(p).some(val => String(val).toLowerCase().includes(term))
-                );
-                renderTable(filtered);
-            }
-
-            function escapeHtml(text) {
-                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '"' };
-                return String(text || '').replace(/[&<>"']/g, m => map[m]);
-            }
-            
-            // AVVIO
-            initializeApp();
         });
     </script>
 </body>
