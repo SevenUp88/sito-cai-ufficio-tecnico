@@ -3,112 +3,529 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scontistiche & Calcolatore - CAI Ufficio Tecnico</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="../style.css">
-    <link rel="stylesheet" href="style.css">
+    <title>CAI - Scontistiche & Calcolatore</title>
+    
+    <!-- Stile Principale -->
+    <link rel="stylesheet" href="../../style.css">
+    
+    <!-- Font e Icone -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Stile Specifico Scontistiche -->
+    <style>
+        /* Griglia Calcolatore */
+        .calculator-wrapper {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .calc-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex; flex-direction: column;
+        }
+        
+        .calc-card h3 {
+            color: var(--primary-color);
+            font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;
+        }
+
+        .form-row { margin-bottom: 12px; }
+        .form-row label { display: block; font-size: 0.9rem; font-weight: 500; color: #555; margin-bottom: 4px; }
+        .form-row input { 
+            width: 100%; padding: 8px 12px; border: 1px solid #ced4da; 
+            border-radius: 4px; font-size: 0.95rem; 
+        }
+
+        /* Input Sconti Cascata (griglia mini) */
+        .cascade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+        /* Box Risultato */
+        .result-display {
+            background-color: #fff; border: 1px solid #dee2e6; border-radius: 6px;
+            padding: 15px; text-align: center; margin-top: auto; /* Spinge in basso */
+        }
+        .result-label { font-size: 0.85rem; color: #6c757d; display: block; }
+        .result-value { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); display: block; margin: 5px 0; }
+        .result-sub { font-size: 0.9rem; color: #28a745; font-weight: 500; }
+
+        /* Bottoni Calcolatore */
+        .calc-actions {
+            grid-column: 1 / -1; 
+            display: flex; justify-content: center; gap: 15px; margin-top: 10px;
+        }
+        .btn-calc { padding: 10px 30px; font-size: 1rem; }
+
+        /* Filtri Tabella */
+        .filters-bar {
+            display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;
+            background-color: #f1f3f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;
+        }
+        .filter-group { display: flex; flex-direction: column; }
+        .filter-group label { font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; color: #495057; }
+        .filter-group select { padding: 8px; min-width: 180px; border-radius: 4px; border: 1px solid #ced4da; }
+
+        /* Tabella Sconti */
+        .discount-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .discount-table th { background-color: var(--primary-color); color: white; padding: 12px; text-align: left; }
+        .discount-table td { border-bottom: 1px solid #eee; padding: 12px; vertical-align: middle; }
+        .discount-table tr:hover { background-color: #f8f9fa; }
+        .badge-sconto { 
+            background-color: #e3f2fd; color: #0d47a1; 
+            padding: 4px 8px; border-radius: 4px; font-weight: 600; font-size: 0.9rem;
+        }
+        .text-muted { color: #999; font-style: italic; }
+    </style>
 </head>
-<body class="hidden">
-    <div id="initial-loader"></div>
+<body>
 
-    <header class="app-header">
-        <a href="../index.html" class="logo-link"><img src="../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
-        <div id="user-dashboard" class="header-controls hidden">
-            <p>Utente: <strong id="user-email-display"></strong></p>
-            <a href="../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-            <button id="logout-button" class="btn-login">Logout</button>
+    <!-- Loader -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Caricamento Scontistiche...</p>
+    </div>
+
+    <!-- SEZIONE LOGIN -->
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Area Riservata</h2>
+            <form id="login-form">
+                <div class="form-group"><label>Email:</label><input type="email" id="email" required placeholder="nome@esempio.com"></div>
+                <div class="form-group"><label>Password:</label><input type="password" id="password" required placeholder="••••••••"></div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error" class="error-message hidden"></p>
+            </form>
         </div>
-    </header>
+    </section>
 
-    <main id="content-area">
-        <div class="main-container">
-            <div id="app-loader" class="loader" style="display: none;"></div>
-            <div class="page-title-actions">
-                <h1>Scontistiche e Calcolatore</h1>
-                <p class="page-subtitle">Consulta le regole di sconto e calcola i prezzi netti.</p>
+    <!-- DASHBOARD CONTENT -->
+    <div id="app-content" class="dashboard-wrapper hidden">
+        
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
+            <ul class="sidebar-menu">
+                <li><a href="../../index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> <span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../NOLEGGI/code.html"><i class="fas fa-wrench"></i> Attrezzature</a></li>
+                        <li><a href="../../NOLEGGI/GAS/index.html"><i class="fas fa-gas-pump"></i> Gas</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> <span>Preventivazione</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../LISTINI/CLIMA/monosplit/index.html"><i class="fas fa-snowflake"></i> Clima</a></li>
+                        <li><a href="../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
+                        <li><a href="../../LISTINI/SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
+                        <li><a href="../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
+                        <li><a href="../../LISTINI/LISTINI%20FORNITORI/index.html"><i class="fas fa-truck-fast"></i> Fornitori</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Schede Tecniche</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> <span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../CONFIGURATORI/IMPIANTO RADIANTE/index.html"><i class="fas fa-border-all"></i> Radiante</a></li>
+                        <li><a href="../../CONFIGURATORI/RADIATORI/index.html"><i class="fas fa-thermometer-half"></i> Radiatori</a></li>
+                        <li><a href="../../CONFIGURATORI/CANNE FUMARIE/index.html"><i class="fas fa-smog"></i> Canne Fumarie</a></li>
+                        <li><a href="/configuratori/multisplit"><i class="fas fa-wind"></i> Multisplit</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-file-signature"></i> <span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../FGAS/apparecchiature.html"><i class="fas fa-tools"></i> Apparecchiature</a></li>
+                        <li><a href="../../FGAS/gas.html"><i class="fas fa-wind"></i> Gas Fluorurati</a></li>
+                    </ul>
+                </li>
+                <!-- ATTIVO -->
+                <li><a href="#" class="nav-link active"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
+                <li><a href="../../AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Agenda Consegne</span></a></li>
+            </ul>
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
 
-            <!-- Calcolatore con layout corretto -->
-            <div class="content-card calculator-panel">
-                                <div class="calculator-grid">
-                    <!-- Colonna Sconto Cascata -->
-                    <div class="calc-column">
-                        <div class="form-group"><label for="cascade-price-input">Importo di Riferimento (€)</label><input type="number" id="cascade-price-input" placeholder="Es. 1000"></div>
-                        <div class="form-group"><label>Sconti in Cascata (%)</label><div class="sconto-fields-calculator">
-                            <input type="number" id="calc-sconto1" placeholder="S1"><input type="number" id="calc-sconto2" placeholder="S2">
-                            <input type="number" id="calc-sconto3" placeholder="S3"><input type="number" id="calc-sconto4" placeholder="S4">
-                            <input type="number" id="calc-sconto5" placeholder="S5"><input type="number" id="calc-sconto6" placeholder="S6">
-                        </div></div>
-                        <div class="result-box">
-                            <p>Risultato Sconto Cascata</p>
-                            <div id="cascade-result-price">0,00 €</div>
-                            <div id="cascade-result-percentage">Sconto: 0,00 %</div>
-                        </div>
-                    </div>
-                    <!-- Colonna Percentuale Singola -->
-                    <div class="calc-column">
-                         <div class="form-group"><label for="single-price-input">Importo di Riferimento (€)</label><input type="number" id="single-price-input" placeholder="Es. 1000"></div>
-                         <div class="form-group"><label for="single-percentage-input">Calcola Percentuale Singola (%)</label><input type="number" id="single-percentage-input" placeholder="Es. 22"></div>
-                         <div class="result-box">
-                            <p>Risultato Percentuale</p>
-                            <div id="single-perc-result-value">0,00 €</div>
-                        </div>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h2>Scontistiche & Calcolatore</h2>
+                </div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
                 </div>
-                <div class="calculator-buttons-container">
-                    <button id="calculate-all-button" class="calc-button">Calcola</button>
-                    <button id="reset-calculator-button" class="calc-button reset">Reset Calcolatore</button>
+            </header>
+
+            <div class="content-container">
+                
+                <!-- CARD CALCOLATORE UNIFICATO -->
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Calcolatore Rapido Prezzi</h2>
+                    
+                    <div class="calculator-wrapper">
+                        <!-- 1. Sconto a Cascata -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-water"></i> Sconto Cascata</h3>
+                            <div class="form-row">
+                                <label>Prezzo di Listino (€)</label>
+                                <input type="number" id="cascade-price-input" placeholder="Es. 1000">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconti (%)</label>
+                                <div class="cascade-grid">
+                                    <input type="number" id="calc-sconto1" placeholder="S1"><input type="number" id="calc-sconto2" placeholder="S2"><input type="number" id="calc-sconto3" placeholder="S3">
+                                    <input type="number" id="calc-sconto4" placeholder="S4"><input type="number" id="calc-sconto5" placeholder="S5"><input type="number" id="calc-sconto6" placeholder="S6">
+                                </div>
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Prezzo Netto</span>
+                                <span id="cascade-result-price" class="result-value">0,00 €</span>
+                                <span id="cascade-result-percentage" class="result-sub">Sconto Tot: 0,00%</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. Calcolo Margine -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-chart-line"></i> Calcolo Margine</h3>
+                            <div class="form-row">
+                                <label>Prezzo Listino (€)</label>
+                                <input type="number" id="margin-list-price-input" placeholder="Es. 692">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconto Acquisto (%)</label>
+                                <input type="number" id="margin-buy-discount-input" placeholder="Es. 40">
+                            </div>
+                            <div class="form-row">
+                                <label>Sconto Vendita (%)</label>
+                                <input type="number" id="margin-sell-discount-input" placeholder="Es. 20">
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Margine Utile</span>
+                                <span id="margin-result-euro" class="result-value">0,00 €</span>
+                                <span id="margin-result-percent" class="result-sub">Margine: 0%</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Percentuale Semplice -->
+                        <div class="calc-card">
+                            <h3><i class="fas fa-percentage"></i> Percentuale</h3>
+                            <div class="form-row">
+                                <label>Importo Base (€)</label>
+                                <input type="number" id="single-price-input" placeholder="Es. 1000">
+                            </div>
+                            <div class="form-row">
+                                <label>Percentuale (%)</label>
+                                <input type="number" id="single-percentage-input" placeholder="Es. 22">
+                            </div>
+                            <div class="result-display">
+                                <span class="result-label">Valore Percentuale</span>
+                                <span id="single-perc-result-value" class="result-value">0,00 €</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calc-actions">
+                        <button id="calculate-all-button" class="btn-login btn-calc"><i class="fas fa-calculator"></i> Calcola Tutto</button>
+                        <button id="reset-calculator-button" class="btn-logout btn-calc" style="background:#6c757d; color:white;"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
                 </div>
+
+                <!-- CARD MATRICE SCONTI -->
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Matrice Sconti Fornitori</h2>
+                    
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label>Categoria</label>
+                            <select id="category-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Marca</label>
+                            <select id="brand-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <button id="reset-filters-btn" class="btn-logout" style="height:38px; align-self:flex-end; border:1px solid #ccc;">Reset</button>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="discount-table">
+                            <thead>
+                                <tr>
+                                    <th>Categoria</th>
+                                    <th>Marca</th>
+                                    <th>Sconti Acquisto</th>
+                                    <th>Trasporto</th>
+                                    <th>Sconti Vendita</th>
+                                    <th>Agenzia</th>
+                                    <th>Centri Assistenza</th>
+                                </tr>
+                            </thead>
+                            <tbody id="discounts-table-body">
+                                <tr><td colspan="7" style="text-align:center; padding:20px;">Caricamento dati...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="no-data-message" class="text-muted" style="text-align:center; padding:20px; display:none;">Nessun risultato trovato.</p>
+                </div>
+
             </div>
-
-            <!-- Colonna Calcolo Margine -->
-<div class="calc-column">
-    <div class="form-group">
-        <label for="margin-list-price-input">Prezzo di Listino (€)</label>
-        <input type="number" id="margin-list-price-input" placeholder="Es. 692">
-    </div>
-    <div class="form-group">
-        <label for="margin-buy-discount-input">Sconto in Acquisto (%)</label>
-        <input type="number" id="margin-buy-discount-input" placeholder="Es. 40">
-    </div>
-    <div class="form-group">
-        <label for="margin-sell-discount-input">Sconto al Cliente (%)</label>
-        <input type="number" id="margin-sell-discount-input" placeholder="Es. 20">
+        </main>
     </div>
 
-    <div class="result-box">
-        <p>Margine Risultante</p>
-        <div id="margin-result-euro">0,00 €</div>
-        <div id="margin-result-percent">0 %</div>
-    </div>
-</div>
-
-            <!-- Filtri e Tabella -->
-            <div class="content-card filters-container">
-                 <label for="category-filter">Categoria:</label> <select id="category-filter"></select>
-                 <label for="brand-filter">Marca:</label> <select id="brand-filter"></select>
-                 <button id="reset-filters-btn" class="button button-secondary"><i class="fas fa-undo"></i> Reset Filtri</button>
-            </div>
-            <div class="content-card">
-                 <h3>MATRICE SCONTI FORNITORI</h3>
-                 <div class="table-wrapper">
-                    <table class="discounts-matrix-table">
-                         <thead><tr><th>Categoria</th><th>Marca</th><th>Sconti Acquisto (%)</th><th>Trasporto (%)</th><th>Sconti Vendita (%)</th><th>Agenzia</th><th>Centri Assistenza</th></tr></thead>
-                         <tbody id="discounts-table-body"></tbody>
-                    </table>
-                 </div>
-                 <div id="no-data-message" class="no-data" style="display: none;"></div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Script -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="../firebase-config.js"></script>
-    <script src="../auth.js"></script>
-    <script src="scontistiche.js"></script> 
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURAZIONE FIREBASE ---
+            const firebaseConfig = {
+                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+                projectId: "consorzio-artigiani-idraulici",
+                storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+                messagingSenderId: "367198758830",
+                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
+            };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // --- UI ELEMENTS ---
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                loginSection: document.getElementById('login-section'),
+                appContent: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form'),
+                userEmailDisplay: document.getElementById('user-email-display'),
+                logoutButton: document.getElementById('logout-button'),
+                
+                // Filtri
+                tableBody: document.getElementById('discounts-table-body'),
+                catFilter: document.getElementById('category-filter'),
+                brandFilter: document.getElementById('brand-filter'),
+                resetFiltersBtn: document.getElementById('reset-filters-btn'),
+                noDataMsg: document.getElementById('no-data-message'),
+
+                // Calcolatore
+                calcBtn: document.getElementById('calculate-all-button'),
+                resetCalcBtn: document.getElementById('reset-calculator-button'),
+                
+                // Inputs Cascata
+                cascadePrice: document.getElementById('cascade-price-input'),
+                resCascadePrice: document.getElementById('cascade-result-price'),
+                resCascadePerc: document.getElementById('cascade-result-percentage'),
+                scontiInputs: Array.from({length: 6}, (_, i) => document.getElementById(`calc-sconto${i + 1}`)),
+
+                // Inputs Margine
+                marginList: document.getElementById('margin-list-price-input'),
+                marginBuy: document.getElementById('margin-buy-discount-input'),
+                marginSell: document.getElementById('margin-sell-discount-input'),
+                resMarginEuro: document.getElementById('margin-result-euro'),
+                resMarginPerc: document.getElementById('margin-result-percent'),
+
+                // Inputs Singola
+                singlePrice: document.getElementById('single-price-input'),
+                singlePerc: document.getElementById('single-percentage-input'),
+                resSingle: document.getElementById('single-perc-result-value')
+            };
+
+            let allDiscounts = [];
+            let currentFilters = { categoria: "", marca: "" };
+
+            // --- INIZIALIZZAZIONE ---
+            auth.onAuthStateChanged(user => {
+                ui.loader.style.display = 'none';
+                if (user) {
+                    ui.loginSection.classList.add('hidden');
+                    ui.appContent.classList.remove('hidden');
+                    ui.userEmailDisplay.textContent = user.email;
+                    loadData();
+                    setupListeners();
+                } else {
+                    ui.loginSection.classList.remove('hidden');
+                    ui.appContent.classList.add('hidden');
+                }
+            });
+
+            ui.loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                auth.signInWithEmailAndPassword(email, password).catch(err => {
+                    alert("Errore login: " + err.message);
+                });
+            });
+
+            ui.logoutButton.addEventListener('click', () => auth.signOut());
+
+            // --- SCRIPT CALCOLATORE ---
+            function calculateAll() {
+                // 1. Cascata
+                const baseCasc = parseFloat(ui.cascadePrice.value);
+                if (!isNaN(baseCasc)) {
+                    const sconti = ui.scontiInputs.map(i => parseFloat(i.value)).filter(v => !isNaN(v) && v > 0);
+                    const finalPrice = sconti.reduce((acc, s) => acc * (1 - s / 100), baseCasc);
+                    const totalDisc = (sconti.length > 0) ? 100 - (finalPrice / baseCasc * 100) : 0;
+                    
+                    ui.resCascadePrice.textContent = finalPrice.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                    ui.resCascadePerc.textContent = `Sconto Tot: ${totalDisc.toFixed(2).replace('.', ',')}%`;
+                } else {
+                    ui.resCascadePrice.textContent = "0,00 €";
+                    ui.resCascadePerc.textContent = "Sconto Tot: 0,00%";
+                }
+
+                // 2. Margine
+                const listP = parseFloat(ui.marginList.value);
+                const buyD = parseFloat(ui.marginBuy.value);
+                const sellD = parseFloat(ui.marginSell.value);
+
+                if (!isNaN(listP) && !isNaN(buyD) && !isNaN(sellD)) {
+                    const cost = listP * (1 - buyD / 100);
+                    const sellPrice = listP * (1 - sellD / 100);
+                    const marginEuro = sellPrice - cost;
+                    const marginPerc = (sellPrice > 0) ? (marginEuro / sellPrice) * 100 : 0;
+
+                    ui.resMarginEuro.textContent = marginEuro.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                    ui.resMarginPerc.textContent = `Margine: ${marginPerc.toFixed(2).replace('.', ',')}%`;
+                    ui.resMarginPerc.style.color = marginEuro >= 0 ? '#28a745' : '#dc3545';
+                } else {
+                    ui.resMarginEuro.textContent = "0,00 €";
+                    ui.resMarginPerc.textContent = "Margine: 0%";
+                }
+
+                // 3. Percentuale Singola
+                const singleP = parseFloat(ui.singlePrice.value);
+                const perc = parseFloat(ui.singlePerc.value);
+                if (!isNaN(singleP) && !isNaN(perc)) {
+                    const val = singleP * (perc / 100);
+                    ui.resSingle.textContent = val.toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                } else {
+                    ui.resSingle.textContent = "0,00 €";
+                }
+            }
+
+            function resetCalculator() {
+                ui.cascadePrice.value = '';
+                ui.scontiInputs.forEach(i => i.value = '');
+                ui.marginList.value = ''; ui.marginBuy.value = ''; ui.marginSell.value = '';
+                ui.singlePrice.value = ''; ui.singlePerc.value = '';
+                
+                ui.resCascadePrice.textContent = "0,00 €"; ui.resCascadePerc.textContent = "Sconto Tot: 0,00%";
+                ui.resMarginEuro.textContent = "0,00 €"; ui.resMarginPerc.textContent = "Margine: 0%";
+                ui.resSingle.textContent = "0,00 €";
+            }
+
+            // --- DATI E FILTRI ---
+            async function loadData() {
+                try {
+                    const snapshot = await db.collection("scontisticheProdotti").get();
+                    allDiscounts = snapshot.docs.map(doc => doc.data());
+                    populateSelects();
+                    renderTable(allDiscounts);
+                } catch (error) {
+                    console.error("Errore caricamento dati:", error);
+                    ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Errore caricamento dati.</td></tr>`;
+                }
+            }
+
+            function populateSelects() {
+                const cats = [...new Set(allDiscounts.map(i => i.categoria).filter(Boolean))].sort();
+                const brands = [...new Set(allDiscounts.map(i => i.marca).filter(Boolean))].sort();
+                
+                ui.catFilter.innerHTML = '<option value="">Tutte</option>';
+                cats.forEach(c => ui.catFilter.add(new Option(c, c)));
+                
+                ui.brandFilter.innerHTML = '<option value="">Tutte</option>';
+                brands.forEach(b => ui.brandFilter.add(new Option(b, b)));
+            }
+
+            function applyFilters() {
+                const filtered = allDiscounts.filter(i => 
+                    (!currentFilters.categoria || i.categoria === currentFilters.categoria) && 
+                    (!currentFilters.marca || i.marca === currentFilters.marca)
+                );
+                renderTable(filtered);
+            }
+
+            function formatVal(val, percent = false) {
+                if (!val) return '<span class="text-muted">-</span>';
+                if (percent) {
+                    if (String(val).includes(';')) return String(val).split(';').map(v => `<span class="badge-sconto">${v.trim()}%</span>`).join(' + ');
+                    return `<span class="badge-sconto">${String(val).replace('.', ',')}%</span>`;
+                }
+                return val;
+            }
+
+            function formatAssist(item) {
+                const parts = [];
+                if(item.assistenza_cesena) parts.push(`<b>Cesena:</b> ${item.assistenza_cesena}`);
+                if(item.assistenza_savignano) parts.push(`<b>Savignano:</b> ${item.assistenza_savignano}`);
+                if(item.assistenza_rimini) parts.push(`<b>Rimini:</b> ${item.assistenza_rimini}`);
+                return parts.length ? parts.join('<br>') : '<span class="text-muted">-</span>';
+            }
+
+            function renderTable(data) {
+                ui.tableBody.innerHTML = '';
+                if (data.length === 0) {
+                    ui.noDataMsg.style.display = 'block';
+                } else {
+                    ui.noDataMsg.style.display = 'none';
+                    data.sort((a,b) => (a.categoria || '').localeCompare(b.categoria || '')).forEach(item => {
+                        const row = ui.tableBody.insertRow();
+                        row.innerHTML = `
+                            <td><b>${item.categoria || '-'}</b></td>
+                            <td>${item.marca || '-'}</td>
+                            <td>${formatVal(item.sconto_in_acquisto, true)}</td>
+                            <td>${formatVal(item.trasporto, true)}</td>
+                            <td>${formatVal(item.sconto_in_vendita, true)}</td>
+                            <td>${item.agenzia || '-'}</td>
+                            <td style="font-size:0.85rem;">${formatAssist(item)}</td>
+                        `;
+                    });
+                }
+            }
+
+            function setupListeners() {
+                ui.calcBtn.addEventListener('click', calculateAll);
+                ui.resetCalcBtn.addEventListener('click', resetCalculator);
+                
+                ui.catFilter.addEventListener('change', (e) => { currentFilters.categoria = e.target.value; applyFilters(); });
+                ui.brandFilter.addEventListener('change', (e) => { currentFilters.marca = e.target.value; applyFilters(); });
+                ui.resetFiltersBtn.addEventListener('click', () => {
+                    ui.catFilter.value = ''; ui.brandFilter.value = '';
+                    currentFilters = { categoria: "", marca: "" };
+                    applyFilters();
+                });
+                
+                // Sidebar Toggle
+                document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const submenu = link.nextElementSibling;
+                        link.classList.toggle('active');
+                        if (submenu.style.maxHeight) submenu.style.maxHeight = null;
+                        else submenu.style.maxHeight = submenu.scrollHeight + "px";
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
