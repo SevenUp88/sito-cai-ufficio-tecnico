@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Preventivazione</title>
     
-    <!-- Collega lo stile principale (Assumendo che style.css sia nella root, scendiamo di un livello) -->
+    <!-- Collega lo stile principale -->
     <link rel="stylesheet" href="../../style.css">
     
     <!-- Font e Icone -->
@@ -59,12 +59,6 @@
         .full-width { grid-column: span 2; }
         
         textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-        
-        /* Stato Esito */
-        .esito-badge { font-weight: bold; font-size: 0.85rem; }
-        .esito-Vinta { color: #28a745; }
-        .esito-Persa { color: #dc3545; }
-        .esito-Da.definire { color: #6c757d; }
     </style>
 </head>
 <body>
@@ -121,7 +115,7 @@
                         <i class="fas fa-calculator"></i> <span>Preventivazione</span>
                     </a>
                 </li>
-                <!-- Altri link (usiamo ../.. per tornare alla root) -->
+                <!-- Altri link -->
                 <li class="has-submenu">
                     <a href="#" class="nav-link"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
                     <ul class="submenu-list">
@@ -199,7 +193,7 @@
                                     <th>Riferimento</th>
                                     <th>Numero</th>
                                     <th>Stato</th>
-                                    <th>Esito</th>
+                                    <!-- RIMOSSO ESITO -->
                                     <th>Note</th>
                                     <th style="text-align:center;">Azioni</th>
                                 </tr>
@@ -239,7 +233,7 @@
                         <label>Numero Prev.</label>
                         <input type="text" id="add-numero">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Stato *</label>
                         <select id="add-stato" required>
                             <option value="Inviato">Inviato</option>
@@ -247,15 +241,7 @@
                             <option value="In Corso">In Corso</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Esito</label>
-                        <select id="add-esito">
-                            <option value="">-- Seleziona --</option>
-                            <option value="Da definire">Da definire</option>
-                            <option value="Vinta">Vinta</option>
-                            <option value="Persa">Persa</option>
-                        </select>
-                    </div>
+                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="add-note"></textarea>
@@ -295,19 +281,11 @@
                         <label>Numero Prev.</label>
                         <input type="text" id="edit-numero">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group full-width">
                         <label>Stato</label>
                         <select id="edit-stato" required></select>
                     </div>
-                    <div class="form-group">
-                        <label>Esito</label>
-                        <select id="edit-esito">
-                            <option value="">-- Seleziona --</option>
-                            <option value="Da definire">Da definire</option>
-                            <option value="Vinta">Vinta</option>
-                            <option value="Persa">Persa</option>
-                        </select>
-                    </div>
+                    <!-- RIMOSSO SELECT ESITO -->
                     <div class="form-group full-width">
                         <label>Note</label>
                         <textarea id="edit-note"></textarea>
@@ -490,7 +468,7 @@
 
             function openEditModal(quote) {
                 ui.editForm.reset();
-                const { id, cliente, data, riferimento, numero, stato, esitoOfferta, note } = quote;
+                const { id, cliente, data, riferimento, numero, stato, note } = quote;
                 document.getElementById('edit-quote-id').value = id;
                 document.getElementById('edit-cliente').value = cliente || '';
                 document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
@@ -501,7 +479,7 @@
                 statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
                 if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
 
-                document.getElementById('edit-esito').value = esitoOfferta || '';
+                // RIMOSSO POPOLAZIONE ESITO
                 document.getElementById('edit-note').value = note || '';
                 
                 openModal(ui.editModal);
@@ -522,7 +500,7 @@
             }
             
             function fetchPreventivi() {
-                ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Caricamento preventivi...</td></tr>`;
+                ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Caricamento preventivi...</td></tr>`;
                 db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
                       allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                       renderTable(allPreventivi);
@@ -532,7 +510,7 @@
             function renderTable(data) {
                 ui.tableBody.innerHTML = '';
                 if(data.length === 0){
-                    ui.tableBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Nessun preventivo trovato.</td></tr>`;
+                    ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nessun preventivo trovato.</td></tr>`;
                     return;
                 }
                 data.forEach(p => {
@@ -550,7 +528,7 @@
                                 ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
                             </select>
                         </td>
-                        <td><span class="esito-badge esito-${escapeHtml(p.esitoOfferta || '').replace(/\s/g, '.')}">${escapeHtml(p.esitoOfferta || '-')}</span></td>
+                        <!-- RIMOSSO COLONNA ESITO -->
                         <td><small>${escapeHtml(p.note)}</small></td>
                         <td style="text-align:center; white-space:nowrap;">
                             <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
@@ -574,7 +552,7 @@
                     riferimento: document.getElementById('add-riferimento').value.trim(),
                     numero: document.getElementById('add-numero').value.trim(),
                     stato: document.getElementById('add-stato').value,
-                    esitoOfferta: document.getElementById('add-esito').value,
+                    // RIMOSSO SALVATAGGIO ESITO
                     note: document.getElementById('add-note').value.trim(),
                 };
                 
@@ -607,7 +585,7 @@
                     riferimento: document.getElementById('edit-riferimento').value.trim(),
                     numero: document.getElementById('edit-numero').value.trim(),
                     stato: document.getElementById('edit-stato').value,
-                    esitoOfferta: document.getElementById('edit-esito').value,
+                    // RIMOSSO SALVATAGGIO ESITO
                     note: document.getElementById('edit-note').value.trim()
                 };
 
