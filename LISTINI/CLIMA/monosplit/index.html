@@ -15,18 +15,30 @@
     <style>
         /* --- STILI SPECIFICI MONOSPLIT --- */
         
+        /* TABS DI NAVIGAZIONE INTERNA */
+        .nav-tabs-container {
+            display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;
+        }
+        .nav-tab {
+            padding: 10px 20px; border: none; background: none; font-size: 1rem; 
+            font-weight: 500; color: #666; cursor: pointer; border-radius: 6px;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+            transition: all 0.2s;
+        }
+        .nav-tab:hover { background-color: #f0f7ff; color: #0056a8; }
+        .nav-tab.active { background-color: #0056a8; color: white; font-weight: bold; }
+        
         /* Layout Filtri */
         .filters-bar {
-            background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;
-            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+            background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;
+            border: 1px solid #e9ecef; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
         .filter-label { font-weight: 600; color: #555; margin-right: 5px; }
         
         /* Bottoni Filtro Marca */
         .filter-btn {
             padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
-            cursor: pointer; background-color: #f8f9fa; border: 1px solid #dee2e6;
+            cursor: pointer; background-color: #fff; border: 1px solid #ccc;
             color: #495057; transition: all 0.2s;
         }
         .filter-btn:hover { background-color: #e2e6ea; }
@@ -36,7 +48,7 @@
 
         /* Griglia Prodotti */
         .product-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;
         }
 
         /* Card Prodotto */
@@ -156,7 +168,9 @@
                 <li class="has-submenu">
                     <a href="#" class="nav-link active"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
                     <ul class="submenu-list" style="max-height: 500px;">
-                        <li><a href="#" style="color:var(--primary-color); font-weight:bold;"><i class="fas fa-snowflake"></i> Clima</a></li>
+                        <li><a href="#" style="color:var(--primary-color); font-weight:bold;"><i class="fas fa-snowflake"></i> Clima Monosplit</a></li>
+                        <!-- Link al LISTINO Multisplit -->
+                        <li><a href="../multisplit/index.html"><i class="fas fa-wind"></i> Clima Multisplit</a></li>
                         <li><a href="../../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
                         <li><a href="../../../LISTINI/SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
                         <li><a href="../../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
@@ -171,7 +185,8 @@
                         <li><a href="../../../CONFIGURATORI/IMPIANTO RADIANTE/index.html"><i class="fas fa-border-all"></i> Radiante</a></li>
                         <li><a href="../../../CONFIGURATORI/RADIATORI/index.html"><i class="fas fa-thermometer-half"></i> Radiatori</a></li>
                         <li><a href="../../../CONFIGURATORI/CANNE FUMARIE/index.html"><i class="fas fa-smog"></i> Canne Fumarie</a></li>
-                        <li><a href="/configuratori/multisplit"><i class="fas fa-wind"></i> Multisplit</a></li>
+                        <!-- Link al CONFIGURATORE Multisplit -->
+                        <li><a href="../../../CONFIGURATORI/MULTISPLIT/index.html"><i class="fas fa-wind"></i> Multisplit</a></li>
                     </ul>
                 </li>
                 <li class="has-submenu">
@@ -190,10 +205,10 @@
         <!-- MAIN CONTENT -->
         <main class="main-content">
             <header class="top-bar">
-                <div class="page-title"><h2>Listino Climatizzatori Monosplit</h2></div>
+                <div class="page-title"><h2>Listino Clima Monosplit</h2></div>
                 <div class="user-menu">
                     <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
                         <div class="user-avatar"><i class="fas fa-user"></i></div>
                         <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
@@ -202,6 +217,16 @@
 
             <div class="content-container">
                 <div class="dashboard-card">
+                    
+                    <!-- NEW: TABS DI NAVIGAZIONE -->
+                    <div class="nav-tabs-container">
+                        <a href="#" class="nav-tab active"><i class="fas fa-snowflake"></i> Monosplit</a>
+                        <!-- Link al Listino UE -->
+                        <a href="../multisplit/index.html" class="nav-tab"><i class="fas fa-th-list"></i> Listino Multisplit</a>
+                        <!-- Link al Configuratore Completo -->
+                        <a href="../../../CONFIGURATORI/MULTISPLIT/index.html" class="nav-tab" style="color:#d63384;"><i class="fas fa-cogs"></i> Configuratore Multisplit</a>
+                    </div>
+
                     <h2 style="margin-bottom:20px; color:var(--primary-color);">Catalogo Prodotti</h2>
                     
                     <!-- FILTRI -->
