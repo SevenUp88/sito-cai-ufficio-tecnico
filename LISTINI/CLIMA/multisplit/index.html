@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (3 livelli sopra) -->
+    <!-- CSS Principale -->
     <link rel="stylesheet" href="../../../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -13,13 +13,12 @@
 
     <style>
         /* --- STILI SPECIFICI CONFIGURATORE --- */
-        
-        .config-card {
+        .config-container {
             background-color: #fff; padding: 30px; border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 500px;
         }
 
-        /* Indicatori Step */
+        /* Step Indicator */
         .step-indicator {
             display: flex; justify-content: space-between; margin-bottom: 40px; 
             position: relative; padding: 0 10px;
@@ -76,8 +75,8 @@
         .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
         .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
         
-        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
-        .card-text { font-size: 1rem; color: #333; }
+        .card-img { max-width: 100%; max-height: 80px; object-fit: contain; margin-bottom: 10px; }
+        .card-text { font-size: 1rem; color: #333; font-weight: 500; }
 
         /* Card Unità Esterna (Step 4) */
         .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -129,7 +128,7 @@
         
         @media print {
             .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
-            .config-card { box-shadow: none; border: none; padding: 0; }
+            .config-container { box-shadow: none; border: none; padding: 0; }
             .summary-box { border: 1px solid #000; background: white; }
             .summary-header { border-bottom: 2px solid #000; }
             body { background: white; font-size: 12pt; }
@@ -170,21 +169,18 @@
                     </ul>
                 </li>
                 <li><a href="../../../PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> <span>Preventivazione</span></a></li>
-                
-                <!-- LISTINI (ATTIVO) -->
                 <li class="has-submenu">
                     <a href="#" class="nav-link active"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
                     <ul class="submenu-list" style="max-height: 500px;">
-                        <li><a href="../monosplit/index.html"><i class="fas fa-snowflake"></i> Clima Monosplit</a></li>
-                        <!-- Voce Corrente -->
+                        <li><a href="../../LISTINI/CLIMA/monosplit/index.html"><i class="fas fa-snowflake"></i> Clima Monosplit</a></li>
+                        <!-- VOCE ATTIVA -->
                         <li><a href="#" style="color:var(--primary-color); font-weight:bold;"><i class="fas fa-wind"></i> Clima Multisplit</a></li>
-                        <li><a href="../../CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
-                        <li><a href="../../SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
-                        <li><a href="../../SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
+                        <li><a href="../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
+                        <li><a href="../../LISTINI/SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
+                        <li><a href="../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
                         <li><a href="../../LISTINI/LISTINI%20FORNITORI/index.html"><i class="fas fa-truck-fast"></i> Fornitori</a></li>
                     </ul>
                 </li>
-                
                 <li><a href="../../../SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Schede Tecniche</span></a></li>
                 <li class="has-submenu">
                     <a href="#" class="nav-link"><i class="fas fa-cogs"></i> <span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
@@ -210,7 +206,7 @@
         <!-- MAIN -->
         <main class="main-content">
             <header class="top-bar">
-                <div class="page-title"><h2>Listino Multisplit (Configuratore)</h2></div>
+                <div class="page-title"><h2>Configuratore Multisplit</h2></div>
                 <div class="user-menu">
                     <div class="user-profile-info">
                         <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
@@ -221,7 +217,7 @@
             </header>
 
             <div class="content-container">
-                <div class="config-card">
+                <div class="config-container">
                     
                     <!-- INDICATORI -->
                     <div class="step-indicator">
@@ -348,7 +344,9 @@
             });
             document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
 
-            // App Logic
+            // --- LOGIC ---
+            function sanitizeForId(str) { return String(str).trim().toLowerCase().replace(/\s+/g, '_').replace(/[^\w_]/gi, ''); }
+
             async function initApp() {
                 try {
                     const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
@@ -359,13 +357,16 @@
                     ]);
 
                     state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
+                    
                     state.data.ue = ueSnap.docs.map(d => {
                         const data = d.data();
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
                             con: Number(data.unita_collegabili || data.unit_collegabili || data.connections || 0),
-                            price: Number(data.prezzo||0)
+                            price: Number(data.prezzo||0),
+                            compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
+                                    (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : [])
                         };
                     });
                     
@@ -377,7 +378,7 @@
 
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
-                        const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
+                        const sId = sanitizeForId(data.modello) + '_ui';
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
@@ -391,7 +392,6 @@
                 } catch(e) { console.error(e); alert("Errore caricamento dati."); }
             }
 
-            // --- RENDERING ---
             function renderBrands() {
                 const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
                 const list = state.data.brands.filter(b => validBrands.includes(b.id));
@@ -405,7 +405,6 @@
 
             function renderConfigs() {
                 const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
-                // Filtra solo quelli possibili per la marca
                 const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
                 const list = opts.filter(o => allowed.includes(o.id));
                 
@@ -419,14 +418,19 @@
             }
 
             function renderSeries() {
+                // LOGICA CORRETTA: Filtra UE per Marca + NumeroConfig
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
+                
                 const compatSeriesIds = new Set();
                 compatUE.forEach(u => {
-                    if(u.compatibleIndoorSeriesIds) u.compatibleIndoorSeriesIds.forEach(id => compatSeriesIds.add(id));
+                    // Cerca nell'array compatibilità
+                    if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
                 });
 
                 const unique = [];
                 const seen = new Set();
+                
+                // Filtra UI che hanno serieId presente nella lista compatibile
                 state.data.ui.forEach(u => {
                     if(compatSeriesIds.has(u.seriesId) && !seen.has(u.seriesId)) {
                         unique.push({id: u.seriesId, name: u.modello, img: u.imgName});
@@ -435,7 +439,6 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso corretto: ../images/
                     const imgPath = s.img ? `../images/${s.img}.png` : '../../placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
@@ -443,17 +446,16 @@
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile.</p>';
+                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
                     u.con === state.sel.type.id &&
-                    u.compatibleIndoorSeriesIds?.includes(state.sel.series.id)
+                    u.compat?.includes(state.sel.series.id)
                 );
                 
-                // Rimuovi duplicati codici
                 const unique = [];
                 const seen = new Set();
                 list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
@@ -477,9 +479,7 @@
                 const count = state.sel.type.id;
                 state.sel.ui = new Array(count).fill(null);
                 
-                // Opzioni disponibili per la serie scelta
                 const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
-                // Unici per potenza
                 const unique = [];
                 const seen = new Set();
                 opts.forEach(i => {
