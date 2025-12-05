@@ -21,6 +21,28 @@
             margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
         }
         
+        /* --- FIX BARRA DI RICERCA --- */
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 350px; /* Larghezza fissa o 100% */
+        }
+        .search-wrapper .search-icon {
+            position: absolute;
+            left: 15px;
+            color: #888;
+            pointer-events: none;
+            z-index: 5;
+        }
+        #search-input {
+            width: 100%;
+            padding: 10px 15px 10px 45px !important; /* Spazio a sinistra per l'icona */
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
         /* Stile Tabella */
         .table-responsive { overflow-x: auto; }
         .custom-table { width: 100%; border-collapse: collapse; min-width: 900px; }
@@ -133,7 +155,7 @@
             <div class="content-container">
                 <div class="dashboard-card">
                     <div class="preventivi-header">
-                        <div class="search-wrapper" style="width: 350px;">
+                        <div class="search-wrapper">
                             <i class="fas fa-search search-icon"></i>
                             <input type="text" id="search-input" placeholder="Cerca cliente, riferimento...">
                         </div>
@@ -231,10 +253,13 @@
                 messagingSenderId: "367198758830",
                 appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
+
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            
             const auth = firebase.auth();
             const db = firebase.firestore();
             const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
+            
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
             let allPreventivi = [];
 
@@ -459,7 +484,7 @@
 
             function handleSearch(e) {
                 const term = e.target.value.toLowerCase();
-                const filtered = allPreventivi.filter(p => Object.values(p).some(v => String(v).toLowerCase().includes(term)));
+                const filtered = allPreventivi.filter(p => Object.values(p).some(val => String(val).toLowerCase().includes(term)));
                 renderTable(filtered);
             }
 
