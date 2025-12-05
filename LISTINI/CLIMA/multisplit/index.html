@@ -5,20 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (CORRETTO: risale di 3 livelli) -->
-    <link rel="stylesheet" href="../../../style.css">
+    <!-- CSS Principale (3 livelli sopra) -->
+    <link rel="stylesheet" href="../../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI UTILITÀ --- */
+        /* --- STILI SPECIFICI CONFIGURATORE --- */
         .hidden { display: none !important; }
         
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
         .config-card {
             background-color: #fff; padding: 30px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 500px;
         }
 
         /* Indicatori Step */
@@ -91,6 +90,8 @@
         .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
         
+        .ue-img { width: 100%; height: 130px; object-fit: contain; margin: 10px 0; }
+
         .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
         .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
         .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
@@ -167,7 +168,7 @@
         <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="../../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -260,8 +261,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Menu Laterale Centralizzato (CORRETTO PERCORSO) -->
-    <script src="../../../components.js"></script>
+    <!-- Menu Laterale Centralizzato -->
+    <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -274,6 +275,20 @@
                 step: 1,
                 data: { brands:[], ue:[], ui:[] },
                 sel: { brand:null, type:null, series:null, ue:null, ui:[] }
+            };
+
+            // MAPPA IMMAGINI UNITA' ESTERNE
+            const outdoorImages = {
+                'HAIER': 'est_haier.png',
+                'DAIKIN': 'est_daikin.jpg',
+                'HITACHI': 'est_hitachi.jpg',
+                'IMMERGAS': 'est_immergas.png',
+                'LG': 'est_lg.png',
+                'MITSUBISHI': 'est_mitsubishi.png',
+                'MITSUBISHI ELECTRIC': 'est_mitsubishi.png',
+                'SAMSUNG': 'est_samsung.png',
+                'TOSHIBA': 'est_toshiba.jpg',
+                'VIESSMANN': 'est_viessmann.avif'
             };
 
             const ui = {
@@ -409,7 +424,7 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso Img Corretto per il Configuratore
+                    // Percorso Img UI: ../../LISTINI/CLIMA/images/
                     const imgPath = s.img ? `../../LISTINI/CLIMA/images/${s.img}.png` : '../../placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
@@ -432,17 +447,26 @@
                 const seen = new Set();
                 list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
 
-                ui.grids.ue.innerHTML = unique.map(u => `
+                ui.grids.ue.innerHTML = unique.map(u => {
+                    // LOGICA IMMAGINE UNITÀ ESTERNA
+                    const brandKey = u.brandId.toUpperCase();
+                    const imgName = outdoorImages[brandKey] || 'placeholder.png';
+                    // Percorso relativo da CONFIGURATORI/MULTISPLIT a LISTINI/CLIMA/images
+                    const imgPath = `../../LISTINI/CLIMA/images/${imgName}`;
+
+                    return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
                         <div class="ue-header">
                             <span class="ue-title">${u.modello || u.codice_prodotto}</span>
                         </div>
+                        <img src="${imgPath}" class="ue-img" onerror="this.src='../../placeholder.png'">
                         <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
                         <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
                         <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
+                
                 if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
