@@ -1,38 +1,161 @@
 /* ========================================================== */
-/*   File CSS per Listini Caldaie (con layout card corretto)    */
+/*   File CSS: Listini Caldaie (COMPLETO con FIX SCROLL)    */
 /* ========================================================== */
 
-/* --- Layout, Filtri e Griglia --- */
-.page-header-local { text-align: center; margin-bottom: 25px; }
-.page-header-local h1 { color: #0056a8; font-size: 2.2em; margin: 0; }
-.page-header-local p { color: #6c757d; font-size: 1.1em; margin-top: 5px; }
-.filters-bar { background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-.filters-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 15px; }
-.filters-container > span { font-weight: 500; color: #343a40; }
-.filter-button-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.filter-btn { padding: 8px 18px; border-radius: 20px; font-size: 0.9em; font-weight: 500; cursor: pointer; background-color: #f1f1f1; border: 1px solid #ddd; color: #343a40; transition: all 0.2s ease; }
-.filter-btn:hover { background-color: #e0e0e0; }
-.filter-btn.active { background-color: #0056a8; color: white; border-color: #0056a8; }
-.search-group input { border-radius: 20px; min-width: 250px; font-size: 0.9em; padding: 8px 18px; border: 1px solid #ccc; }
-.product-grid { display: grid; gap: 25px; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
-
-/* ======================================================== */
-/*               MODIFICHE CARD PRODOTTO                    */
-/* ======================================================== */
-.boiler-card {
-    background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px;
-    padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    display: flex; flex-direction: column; cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative; overflow: visible; /* Permette allo sticker di uscire leggermente senza essere tagliato */
+/* --- 1. FIX CRITICO PER LO SCROLL VERTICALE --- */
+/* Sovrascrive eventuali blocchi impostati dal CSS globale */
+html, body {
+    height: auto !important;       /* Permette al documento di allungarsi */
+    min-height: 100%;              /* Occupa almeno tutto lo schermo */
+    overflow-y: auto !important;   /* Abilita la barra di scorrimento verticale */
+    overflow-x: hidden;            /* Previene scroll orizzontale indesiderato */
+    margin: 0;
+    padding: 0;
+    background-color: #f4f6f9;     /* Colore di sfondo pagina (grigio chiarissimo) */
 }
-.boiler-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
 
-/* --- [NUOVO] Stili per lo Sticker Novità (Posizionato in alto a destra, senza accavallare) --- */
+/* Gestione del caricamento iniziale (classe .hidden nel body) */
+body.hidden {
+    overflow: hidden !important; /* Blocca scroll solo durante il caricamento */
+    opacity: 0;
+}
+body {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+/* Contenitore Principale */
+#content-area {
+    width: 100%;
+    max-width: 1400px;      /* Limita la larghezza su schermi giganti */
+    margin: 0 auto;         /* Centra il contenuto */
+    padding: 20px;          /* Spaziatura dai bordi */
+    padding-bottom: 60px;   /* Spazio extra prima del footer */
+    box-sizing: border-box;
+}
+
+/* ========================================================== */
+/*              2. Layout Intestazione e Filtri               */
+/* ========================================================== */
+
+/* Header Locale della pagina (Titolo e Sottotitolo) */
+.page-header-local { 
+    text-align: center; 
+    margin-bottom: 25px; 
+    margin-top: 20px;
+}
+.page-header-local h1 { 
+    color: #0056a8; 
+    font-size: 2.2em; 
+    margin: 0; 
+    font-family: 'Roboto', sans-serif;
+}
+.page-header-local p { 
+    color: #6c757d; 
+    font-size: 1.1em; 
+    margin-top: 5px; 
+}
+
+/* Barra dei Filtri */
+.filters-bar { 
+    background-color: #ffffff; 
+    border: 1px solid #dee2e6; 
+    border-radius: 8px; 
+    padding: 20px; 
+    margin-bottom: 30px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+}
+
+.filters-container { 
+    display: flex; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 15px; 
+}
+
+.filters-container > span { 
+    font-weight: 500; 
+    color: #343a40; 
+}
+
+.filter-button-group { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+}
+
+.filter-btn { 
+    padding: 8px 18px; 
+    border-radius: 20px; 
+    font-size: 0.9em; 
+    font-weight: 500; 
+    cursor: pointer; 
+    background-color: #f1f1f1; 
+    border: 1px solid #ddd; 
+    color: #343a40; 
+    transition: all 0.2s ease; 
+}
+
+.filter-btn:hover { 
+    background-color: #e0e0e0; 
+}
+
+.filter-btn.active { 
+    background-color: #0056a8; 
+    color: white; 
+    border-color: #0056a8; 
+}
+
+.search-group input { 
+    border-radius: 20px; 
+    min-width: 250px; 
+    font-size: 0.9em; 
+    padding: 8px 18px; 
+    border: 1px solid #ccc; 
+    outline: none;
+}
+.search-group input:focus {
+    border-color: #0056a8;
+}
+
+/* ======================================================== */
+/*              3. Griglia e Card Prodotto                  */
+/* ======================================================== */
+
+.product-grid { 
+    display: grid; 
+    gap: 25px; 
+    /* Griglia reattiva: colonne minime di 350px */
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); 
+    margin-bottom: 40px;
+}
+
+/* Card Caldaia */
+.boiler-card {
+    background-color: #ffffff; 
+    border: 1px solid #e0e0e0; 
+    border-radius: 8px;
+    padding: 20px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    display: flex; 
+    flex-direction: column; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative; 
+    overflow: visible; /* Permette allo sticker di uscire leggermente */
+}
+
+.boiler-card:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); 
+}
+
+/* Sticker "NOVITÀ" */
 .card-stickers-container {
     position: absolute;
     top: 15px;
-    right: 15px; /* Spostato all'interno della card per evitare problemi */
+    right: 15px; 
     z-index: 3;
 }
 .card-sticker.novita {
@@ -40,68 +163,265 @@
     font-size: 0.75em;
     font-weight: 700;
     color: white;
-    background-color: #198754;
+    background-color: #198754; /* Verde */
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     text-transform: uppercase;
 }
 
+/* Header Card (Logo e Titolo) */
 .boiler-card-header { 
-    display: flex; align-items: center; margin-bottom: 15px; gap: 15px;
-    /* Aggiungiamo padding a destra per evitare sovrapposizione tra titolo e sticker */
-    padding-right: 80px;
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 15px; 
+    gap: 15px;
+    padding-right: 80px; /* Spazio per non sovrapporsi allo sticker */
 }
-.boiler-logo { max-height: 40px; max-width: 120px; object-fit: contain; }
-.boiler-title-brand h3 { margin: 0; font-size: 1.2em; line-height: 1.3; }
-.boiler-card-body-flex { display: flex; gap: 20px; flex-grow: 1; margin-bottom: 15px; }
-.boiler-card-info-column { flex: 1; display: flex; flex-direction: column; }
-.boiler-card-info-column p { margin: 0 0 10px 0; font-size: 0.9em; }
-.boiler-card-info-column p strong { font-weight: 500; color: #333; }
-.boiler-card-image-column { flex-basis: 150px; display: flex; align-items: center; justify-content: center; }
-.boiler-card-image-column img { max-width: 100%; max-height: 150px; object-fit: contain; }
 
+.boiler-logo { 
+    max-height: 40px; 
+    max-width: 120px; 
+    object-fit: contain; 
+}
+
+.boiler-title-brand h3 { 
+    margin: 0; 
+    font-size: 1.2em; 
+    line-height: 1.3; 
+    color: #333;
+}
+
+/* Corpo Card (Info e Immagine) */
+.boiler-card-body-flex { 
+    display: flex; 
+    gap: 20px; 
+    flex-grow: 1; 
+    margin-bottom: 15px; 
+}
+
+.boiler-card-info-column { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.boiler-card-info-column p { 
+    margin: 0 0 10px 0; 
+    font-size: 0.9em; 
+    color: #555;
+}
+
+.boiler-card-info-column p strong { 
+    font-weight: 500; 
+    color: #333; 
+}
+
+.boiler-card-image-column { 
+    flex-basis: 150px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.boiler-card-image-column img { 
+    max-width: 100%; 
+    max-height: 150px; 
+    object-fit: contain; 
+}
+
+/* Testo "In Esaurimento" */
 .availability.in-esaurimento {
-    color: #ff8c00; font-weight: 700; font-size: 0.85em !important; margin-top: auto;
+    color: #ff8c00; 
+    font-weight: 700; 
+    font-size: 0.85em !important; 
+    margin-top: auto;
 }
-.availability.in-esaurimento i { margin-right: 5px; }
+.availability.in-esaurimento i { 
+    margin-right: 5px; 
+}
 
-/* --- [MODIFICATO] Footer della Card per ospitare il badge SOPRA il prezzo --- */
+/* Footer Card (Prezzo, Badge Accumulo, Link) */
 .boiler-card-footer { 
-    display: flex; justify-content: space-between; align-items: flex-end; /* Allinea gli elementi sul fondo */
-    flex-wrap: wrap; gap: 10px;
-    border-top: 1px solid #eee; padding-top: 15px; margin-top: auto;
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-end; 
+    flex-wrap: wrap; 
+    gap: 10px;
+    border-top: 1px solid #eee; 
+    padding-top: 15px; 
+    margin-top: auto;
 }
-.footer-left {
-    display: flex; flex-direction: column; /* Colonna per mettere il badge SOPRA il prezzo */
-    align-items: flex-start; /* Allinea a sinistra */
-}
-.accumulo-badge-footer {
-    padding: 5px 10px; font-size: 0.8em; font-weight: 700;
-    color: white; background-color: #0056a8; border-radius: 5px;
-    margin-bottom: 8px; /* Spazio tra badge e prezzo */
-}
-.boiler-card .price { font-size: 1.6em; font-weight: 700; color: #0056a8; line-height: 1; }
-.card-links-container { display: flex; gap: 10px; }
-.card-link-button {
-    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-    font-size: 0.8em; font-weight: 500; text-decoration: none; border: 1px solid transparent;
-    border-radius: 5px; transition: all 0.2s ease;
-}
-.card-link-button i { font-size: 1em; }
-.card-link-button.scheda-tecnica { background-color: #e8f0f7; color: #0056a8; border-color: #d1e0ee; }
-.card-link-button.scheda-tecnica:hover { background-color: #d1e0ee; }
-.card-link-button.manuale { background-color: #f1f3f5; color: #495057; border-color: #dee2e6; }
-.card-link-button.manuale:hover { background-color: #e9ecef; }
 
-/* --- Resto degli Stili (loader, popup, etc.) --- */
-#loading-indicator, #no-results-message { grid-column: 1 / -1; text-align: center; padding: 40px; color: #6c757d; }
-.loading-spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0056a8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
-.popup-overlay.visible { display: flex; opacity: 1; }
-.popup-content { background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; transform: scale(0.95); transition: transform 0.3s ease; }
-.popup-overlay.visible .popup-content { transform: scale(1); }
-.close-popup-btn { position: absolute; top: 10px; right: 15px; font-size: 2em; background: none; border: none; cursor: pointer; color: #aaa; }
-#popup-boiler-title { margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; color: #0056a8; }
-#popup-boiler-content-area p { margin-bottom: 12px; }
-#popup-boiler-content-area p strong { font-weight: 500; }
+.footer-left {
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start; 
+}
+
+.accumulo-badge-footer {
+    padding: 5px 10px; 
+    font-size: 0.8em; 
+    font-weight: 700;
+    color: white; 
+    background-color: #0056a8; 
+    border-radius: 5px;
+    margin-bottom: 8px; 
+}
+
+.boiler-card .price { 
+    font-size: 1.6em; 
+    font-weight: 700; 
+    color: #0056a8; 
+    line-height: 1; 
+}
+
+.card-links-container { 
+    display: flex; 
+    gap: 10px; 
+}
+
+.card-link-button {
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px; 
+    padding: 7px 14px;
+    font-size: 0.8em; 
+    font-weight: 500; 
+    text-decoration: none; 
+    border: 1px solid transparent;
+    border-radius: 5px; 
+    transition: all 0.2s ease;
+}
+
+.card-link-button i { 
+    font-size: 1em; 
+}
+
+.card-link-button.scheda-tecnica { 
+    background-color: #e8f0f7; 
+    color: #0056a8; 
+    border-color: #d1e0ee; 
+}
+.card-link-button.scheda-tecnica:hover { 
+    background-color: #d1e0ee; 
+}
+
+.card-link-button.manuale { 
+    background-color: #f1f3f5; 
+    color: #495057; 
+    border-color: #dee2e6; 
+}
+.card-link-button.manuale:hover { 
+    background-color: #e9ecef; 
+}
+
+/* ======================================================== */
+/*              4. Loader e Stati Vari                      */
+/* ======================================================== */
+
+#loading-indicator, #no-results-message { 
+    grid-column: 1 / -1; 
+    text-align: center; 
+    padding: 40px; 
+    color: #6c757d; 
+}
+
+.loading-spinner { 
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #0056a8; 
+    border-radius: 50%; 
+    width: 40px; 
+    height: 40px; 
+    animation: spin 1s linear infinite; 
+    margin: 0 auto 15px auto; 
+}
+
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+/* ======================================================== */
+/*              5. Popup Dettagli                           */
+/* ======================================================== */
+
+.popup-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.6); 
+    display: none; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1050; 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+}
+
+.popup-overlay.visible { 
+    display: flex; 
+    opacity: 1; 
+}
+
+.popup-content { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 8px; 
+    max-width: 600px; 
+    width: 90%; 
+    position: relative; 
+    max-height: 90vh; 
+    overflow-y: auto; 
+    transform: scale(0.95); 
+    transition: transform 0.3s ease; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.popup-overlay.visible .popup-content { 
+    transform: scale(1); 
+}
+
+.close-popup-btn { 
+    position: absolute; 
+    top: 10px; 
+    right: 15px; 
+    font-size: 2em; 
+    background: none; 
+    border: none; 
+    cursor: pointer; 
+    color: #aaa; 
+}
+.close-popup-btn:hover {
+    color: #333;
+}
+
+#popup-boiler-title { 
+    margin-top: 0; 
+    margin-bottom: 20px; 
+    border-bottom: 1px solid #eee; 
+    padding-bottom: 15px; 
+    color: #0056a8; 
+}
+
+#popup-boiler-content-area p { 
+    margin-bottom: 12px; 
+    line-height: 1.5;
+}
+
+#popup-boiler-content-area p strong { 
+    font-weight: 500; 
+    color: #333;
+}
+
+/* Footer Pagina (Stile base) */
+.app-footer {
+    text-align: center;
+    padding: 20px;
+    color: #6c757d;
+    font-size: 0.9em;
+    border-top: 1px solid #eee;
+    margin-top: auto;
+    background-color: #fff;
+}
