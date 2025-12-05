@@ -3,60 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Scaldabagni - CAI Ufficio Tecnico</title>
+    <title>CAI - Listino Scaldabagni</title>
+    
+    <!-- CSS Principale -->
+    <link rel="stylesheet" href="../../style.css">
+    
+    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="../../style.css"> 
-    <link rel="stylesheet" href="style.css">
-    
-    <link rel="icon" href="../../images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- STILI SPECIFICI PAGINA SCALDABAGNI --- */
+        
+        /* Contenitore Filtri */
+        .filters-bar {
+            background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;
+            display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;
+        }
+        .filter-group { display: flex; flex-direction: column; flex: 1 1 150px; }
+        .filter-group label { font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; color: #555; }
+        .filter-group select { 
+            padding: 10px; border: 1px solid #ccc; border-radius: 6px; 
+            background-color: #fff; width: 100%; cursor: pointer;
+        }
+        .btn-reset {
+            height: 40px; padding: 0 20px; background-color: #f1f3f5; border: 1px solid #ced4da;
+            color: #495057; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s;
+        }
+        .btn-reset:hover { background-color: #e9ecef; border-color: #adb5bd; }
+
+        /* Griglia Prodotti */
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px;
+        }
+
+        /* Card Prodotto */
+        .product-card {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+            padding: 20px; position: relative; display: flex; flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .product-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        /* Header Card (Logo e Titolo) */
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; height: 40px; }
+        .product-logo { max-height: 40px; max-width: 100px; object-fit: contain; }
+        .product-brand-text { font-weight: 700; color: #0056a8; font-size: 1.1rem; }
+        
+        .card-tags { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; }
+        .tag.novita { background-color: #198754; }
+        .tag.installazione { background-color: #6c757d; }
+        .tag.esaurimento { background-color: #ffc107; color: #333; }
+
+        .product-model { font-size: 1.1rem; font-weight: 700; margin: 0 0 15px 0; color: #333; line-height: 1.3; }
+
+        /* Body Card */
+        .card-body { display: flex; gap: 15px; flex-grow: 1; }
+        .card-info { flex: 1; font-size: 0.9rem; color: #555; display: flex; flex-direction: column; gap: 5px; }
+        .card-info strong { color: #222; }
+        .card-image-wrapper { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+        .card-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Footer Card */
+        .card-footer { 
+            margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .price { font-size: 1.4rem; font-weight: 700; color: #0056a8; }
+        .btn-datasheet {
+            display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px;
+            border: 1px solid #dee2e6; border-radius: 4px; background: #fff;
+            color: #333; text-decoration: none; font-size: 0.85rem; transition: all 0.2s;
+        }
+        .btn-datasheet:hover { background: #f8f9fa; border-color: #ced4da; }
+        
+        .no-data { text-align: center; grid-column: 1/-1; padding: 40px; color: #6c757d; font-size: 1.1rem; }
+        
+        /* Utility */
+        .hidden { display: none !important; }
+    </style>
 </head>
-<body class="hidden">
+<body>
 
-    <div id="initial-loader"></div>
+    <!-- Loader -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Caricamento Listino...</p>
+    </div>
 
-    <!-- Header -->
-    <header class="app-header">
-        <a href="../../index.html" class="logo-link"><img src="../../LOGO CAI_.png" alt="Logo CAI" class="logo"></a>
-        <div id="user-dashboard" class="header-controls hidden">
-            <p>Utente: <strong id="user-email-display"></strong></p>
-            <a href="../../index.html" class="header-action-button" title="Home"><i class="fas fa-home"></i></a>
-            <button id="logout-button" class="btn-login">Logout</button> 
+    <!-- LOGIN SECTION -->
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Listino Scaldabagni</h2>
+            <form id="login-form">
+                <div class="form-group"><label>Email:</label><input type="email" id="email" required placeholder="email"></div>
+                <div class="form-group"><label>Password:</label><input type="password" id="password" required placeholder="password"></div>
+                <button type="submit" class="btn-login">Accedi</button>
+                <p id="login-error" class="error-message hidden"></p>
+            </form>
         </div>
-    </header>
+    </section>
 
-    <main id="content-area">
-        <div class="main-container">
-            <div id="app-loader" class="loader" style="display: none;"></div>
-            
-            <div class="page-title-actions">
-                <h1>Listino Scaldabagni</h1>
-                <p class="page-subtitle">Verificare sempre la disponibilità effettiva su gestionale.</p>
+    <!-- DASHBOARD CONTENT -->
+    <div id="app-content" class="dashboard-wrapper hidden">
+        
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
+            <ul class="sidebar-menu">
+                <li><a href="../../index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> <span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../NOLEGGI/code.html"><i class="fas fa-wrench"></i> Attrezzature</a></li>
+                        <li><a href="../../NOLEGGI/GAS/index.html"><i class="fas fa-gas-pump"></i> Gas</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> <span>Preventivazione</span></a></li>
+                
+                <!-- LISTINI (ATTIVO) -->
+                <li class="has-submenu">
+                    <a href="#" class="nav-link active"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list" style="max-height: 500px;"> <!-- Aperto di default -->
+                        <li><a href="../../LISTINI/CLIMA/monosplit/index.html"><i class="fas fa-snowflake"></i> Clima</a></li>
+                        <li><a href="../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
+                        <!-- Voce Corrente -->
+                        <li><a href="#" style="color:var(--primary-color); font-weight:bold;"><i class="fas fa-shower"></i> Scaldabagno</a></li>
+                        <li><a href="../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
+                        <li><a href="../../LISTINI/LISTINI%20FORNITORI/index.html"><i class="fas fa-truck-fast"></i> Fornitori</a></li>
+                    </ul>
+                </li>
+                
+                <li><a href="../../SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Schede Tecniche</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> <span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../CONFIGURATORI/IMPIANTO RADIANTE/index.html"><i class="fas fa-border-all"></i> Radiante</a></li>
+                        <li><a href="../../CONFIGURATORI/RADIATORI/index.html"><i class="fas fa-thermometer-half"></i> Radiatori</a></li>
+                        <li><a href="../../CONFIGURATORI/CANNE FUMARIE/index.html"><i class="fas fa-smog"></i> Canne Fumarie</a></li>
+                        <li><a href="/configuratori/multisplit"><i class="fas fa-wind"></i> Multisplit</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-file-signature"></i> <span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../FGAS/apparecchiature.html"><i class="fas fa-tools"></i> Apparecchiature</a></li>
+                        <li><a href="../../FGAS/gas.html"><i class="fas fa-wind"></i> Gas Fluorurati</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../SCONTISTICHE/index.html" class="nav-link"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
+                <li><a href="../../AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Agenda Consegne</span></a></li>
+            </ul>
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
 
-            <!-- FILTRI TECNICI -->
-            <div class="content-card filters-container">
-                <div class="filters">
-                    <label for="brand-filter">Marca:</label> <select id="brand-filter"></select>
-                    <label for="tecnologia-filter">Tecnologia:</label> <select id="tecnologia-filter"></select>
-                    <label for="litri-filter">Litri:</label> <select id="litri-filter"></select>
-                    <label for="configurazione-filter">Conf.:</label> <select id="configurazione-filter"></select>
-                    <label for="installazione-filter">Install.:</label> <select id="installazione-filter"></select>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title"><h2>Listino Scaldabagni</h2></div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
                 </div>
-                <button id="reset-filters-btn" class="button button-secondary"><i class="fas fa-undo"></i> Reset Filtri</button>
-            </div>
+            </header>
 
-            <div id="products-card-container" class="product-grid"></div>
-            <div id="no-data-message" class="no-data" style="display: none;"></div>
-        </div>
-    </main>
-    
+            <div class="content-container">
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Ricerca e Filtri</h2>
+                    
+                    <!-- BARRA FILTRI -->
+                    <div class="filters-bar">
+                        <div class="filter-group">
+                            <label>Marca</label>
+                            <select id="brand-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Tecnologia</label>
+                            <select id="tecnologia-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Litri</label>
+                            <select id="litri-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Configurazione</label>
+                            <select id="configurazione-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Installazione</label>
+                            <select id="installazione-filter"><option value="">Tutte</option></select>
+                        </div>
+                        <button id="reset-filters-btn" class="btn-reset"><i class="fas fa-undo"></i> Reset</button>
+                    </div>
+
+                    <!-- GRIGLIA PRODOTTI -->
+                    <div id="products-container" class="product-grid">
+                        <!-- Popolato via JS -->
+                    </div>
+                    
+                    <div id="no-data-message" class="no-data" style="display:none;">Nessun prodotto trovato.</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="../../firebase-config.js"></script>
-    <script src="../../auth.js"></script>
-    <script src="listini-scaldabagni.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configurazione Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+                projectId: "consorzio-artigiani-idraulici",
+                storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+                messagingSenderId: "367198758830",
+                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
+            };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+            
+            // Variabili Stato
+            let allProducts = [];
+            let currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+            
+            // UI References
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                loginSection: document.getElementById('login-section'),
+                appContent: document.getElementById('app-content'),
+                userEmail: document.getElementById('user-email-display'),
+                container: document.getElementById('products-container'),
+                noData: document.getElementById('no-data-message'),
+                // Filtri
+                brand: document.getElementById('brand-filter'),
+                tech: document.getElementById('tecnologia-filter'),
+                litri: document.getElementById('litri-filter'),
+                conf: document.getElementById('configurazione-filter'),
+                inst: document.getElementById('installazione-filter'),
+                reset: document.getElementById('reset-filters-btn')
+            };
+
+            // Inizializzazione Auth
+            auth.onAuthStateChanged(user => {
+                ui.loader.style.display = 'none';
+                if (user) {
+                    ui.loginSection.classList.add('hidden');
+                    ui.appContent.classList.remove('hidden');
+                    ui.userEmail.textContent = user.email;
+                    loadData();
+                    setupSidebar();
+                } else {
+                    ui.loginSection.classList.remove('hidden');
+                    ui.appContent.classList.add('hidden');
+                }
+            });
+
+            // Login & Logout
+            document.getElementById('login-form')?.addEventListener('submit', e => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const pass = document.getElementById('password').value;
+                auth.signInWithEmailAndPassword(email, pass).catch(err => alert("Errore: " + err.message));
+            });
+            document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
+
+            // Caricamento Dati
+            async function loadData() {
+                try {
+                    const snap = await db.collection("prodottiScaldabagno").orderBy("marca").get();
+                    allProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    populateFilters();
+                    applyFilters();
+                } catch (error) {
+                    console.error("Errore caricamento:", error);
+                    ui.container.innerHTML = `<p style="color:red; text-align:center;">Errore caricamento dati.</p>`;
+                }
+            }
+
+            function populateFilters() {
+                const getOptions = (key) => [...new Set(allProducts.map(p => p[key]).filter(Boolean))].sort();
+                
+                const fillSelect = (sel, opts) => {
+                    sel.innerHTML = '<option value="">Tutte</option>';
+                    opts.forEach(o => sel.add(new Option(o, o)));
+                };
+
+                fillSelect(ui.brand, getOptions('marca'));
+                fillSelect(ui.tech, getOptions('tecnologia'));
+                fillSelect(ui.litri, [...new Set(allProducts.map(p => p.litri).filter(Boolean))].sort((a,b)=>a-b)); // Sort numerico per litri
+                fillSelect(ui.conf, getOptions('configurazione'));
+                fillSelect(ui.inst, getOptions('installazione'));
+            }
+
+            function applyFilters() {
+                const filtered = allProducts.filter(p => {
+                    return (!currentFilters.marca || p.marca === currentFilters.marca) &&
+                           (!currentFilters.tecnologia || p.tecnologia === currentFilters.tecnologia) &&
+                           (!currentFilters.litri || String(p.litri) === currentFilters.litri) &&
+                           (!currentFilters.configurazione || p.configurazione === currentFilters.configurazione) &&
+                           (!currentFilters.installazione || p.installazione === currentFilters.installazione);
+                });
+                renderCards(filtered);
+            }
+
+            function renderCards(products) {
+                ui.container.innerHTML = '';
+                if(products.length === 0) {
+                    ui.noData.style.display = 'block';
+                    return;
+                }
+                ui.noData.style.display = 'none';
+
+                products.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'product-card';
+                    
+                    const price = p.prezzo ? `${parseFloat(p.prezzo).toFixed(2).replace('.', ',')} €` : '-';
+                    const imgUrl = p.nome_immagine ? `img/${p.nome_immagine}` : '../../placeholder.png'; // Percorso img relativo
+                    const logoUrl = p.marca ? `img/${p.marca.toLowerCase().replace(/\s+/g, '_')}.png` : null;
+
+                    // Tags
+                    let tagsHtml = '<div class="card-tags">';
+                    if(p.novita) tagsHtml += '<span class="tag novita">Novità</span>';
+                    if(p.installazione) tagsHtml += `<span class="tag installazione">${p.installazione}</span>`;
+                    if(p.articolo_in_esaurimento) tagsHtml += '<span class="tag esaurimento">Esaurimento</span>';
+                    tagsHtml += '</div>';
+
+                    // Brand
+                    const brandHtml = logoUrl 
+                        ? `<img src="${logoUrl}" class="product-logo" onerror="this.style.display='none'">` 
+                        : `<span class="product-brand-text">${p.marca}</span>`;
+
+                    // Datasheet
+                    const docBtn = p.scheda_tecnica_url 
+                        ? `<a href="${p.scheda_tecnica_url}" target="_blank" class="btn-datasheet"><i class="fas fa-file-pdf"></i> Scheda</a>` 
+                        : '<span></span>';
+
+                    card.innerHTML = `
+                        ${tagsHtml}
+                        <div class="card-header">
+                            ${brandHtml}
+                        </div>
+                        <h3 class="product-model">${p.modello || 'Modello N/D'}</h3>
+                        
+                        <div class="card-body">
+                            <div class="card-info">
+                                <span><strong>Cod:</strong> ${p.codice_prodotto || '-'}</span>
+                                <span><strong>Litri:</strong> ${p.litri || '-'}</span>
+                                <span><strong>Tecnologia:</strong> ${p.tecnologia || '-'}</span>
+                                <span><strong>Dim:</strong> ${p.dimensioni || '-'}</span>
+                            </div>
+                            <div class="card-image-wrapper">
+                                <img src="${imgUrl}" class="card-image" onerror="this.src='../../placeholder.png'">
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <span class="price">${price}</span>
+                            ${docBtn}
+                        </div>
+                    `;
+                    ui.container.appendChild(card);
+                });
+            }
+
+            // Listeners Filtri
+            const setFilter = (key, val) => { currentFilters[key] = val; applyFilters(); };
+            ui.brand.addEventListener('change', e => setFilter('marca', e.target.value));
+            ui.tech.addEventListener('change', e => setFilter('tecnologia', e.target.value));
+            ui.litri.addEventListener('change', e => setFilter('litri', e.target.value));
+            ui.conf.addEventListener('change', e => setFilter('configurazione', e.target.value));
+            ui.inst.addEventListener('change', e => setFilter('installazione', e.target.value));
+
+            ui.reset.addEventListener('click', () => {
+                [ui.brand, ui.tech, ui.litri, ui.conf, ui.inst].forEach(s => s.value = '');
+                currentFilters = { marca: "", tecnologia: "", litri: "", configurazione: "", installazione: "" };
+                applyFilters();
+            });
+
+            // Sidebar Logic
+            function setupSidebar() {
+                document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        link.classList.toggle('active');
+                        const submenu = link.nextElementSibling;
+                        submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
