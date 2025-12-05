@@ -18,20 +18,6 @@
         
         /* --- STILI SPECIFICI MONOSPLIT --- */
         
-        /* Tabs di Navigazione Superiore */
-        .nav-tabs-container {
-            display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #e0e0e0; padding-bottom: 10px;
-            flex-wrap: wrap;
-        }
-        .nav-tab {
-            padding: 10px 20px; border: none; background: none; font-size: 1rem; 
-            font-weight: 500; color: #666; cursor: pointer; border-radius: 6px;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-            transition: all 0.2s;
-        }
-        .nav-tab:hover { background-color: #f0f7ff; color: #0056a8; }
-        .nav-tab.active { background-color: #0056a8; color: white; font-weight: bold; }
-        
         /* Layout Filtri */
         .filters-bar {
             background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;
@@ -182,15 +168,6 @@
             <div class="content-container">
                 <div class="dashboard-card">
                     
-                    <!-- NEW: TABS DI NAVIGAZIONE -->
-                    <div class="nav-tabs-container">
-                        <a href="#" class="nav-tab active"><i class="fas fa-snowflake"></i> Monosplit</a>
-                        <!-- Link al Listino UE -->
-                        <a href="../multisplit/index.html" class="nav-tab"><i class="fas fa-th-list"></i> Listino Multisplit</a>
-                        <!-- Link al Configuratore Completo -->
-                        <a href="../../../CONFIGURATORI/MULTISPLIT/index.html" class="nav-tab" style="color:#d63384;"><i class="fas fa-cogs"></i> Configuratore Multisplit</a>
-                    </div>
-
                     <h2 style="margin-bottom:20px; color:var(--primary-color);">Catalogo Prodotti</h2>
                     
                     <!-- FILTRI -->
