@@ -151,15 +151,24 @@
         <p>Caricamento Agenda...</p>
     </div>
 
-    <!-- Login Section -->
+    <!-- SEZIONE LOGIN (Se l'utente non è loggato, appare questo invece del redirect) -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
-            <h2>Agenda Consegne</h2>
-            <p style="text-align:center; color:#666; margin-bottom:20px;">Accesso richiesto</p>
-            <div style="text-align:center;">
-                <a href="/" class="btn-login" style="text-decoration:none; display:inline-block;">Vai al Login Principale</a>
-            </div>
+            <h2>Area Agenda</h2>
+            <!-- FORM DI LOGIN AGGIUNTO DIRETTAMENTE QUI -->
+            <form id="agenda-login-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="agenda-email" required placeholder="email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="agenda-password" required placeholder="password">
+                </div>
+                <button type="submit" class="btn-login">Entra in Agenda</button>
+            </form>
+            <p id="login-error-msg" style="color:red; margin-top:10px; display:none;"></p>
         </div>
     </section>
 
@@ -278,7 +287,7 @@
     <!-- TOAST -->
     <div id="toast-notification" class="toast"></div>
 
-   <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, updateDoc, deleteField, onSnapshot } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
@@ -296,8 +305,7 @@
         const appContent = document.getElementById('app-content');
         const loginSection = document.getElementById('login-section');
         const loader = document.getElementById('initial-loader');
-        const userEmailDisplay = document.getElementById('user-email-display'); // Corretto ID per coerenza
-        const userInfo = document.getElementById('user-info'); // ID usato nell'header agenda
+        const userEmailDisplay = document.getElementById('user-email-display');
         const logoutBtn = document.getElementById('logout-btn');
         const weekTitle = document.getElementById('week-title');
         const weekTable = document.getElementById('week-overview-table');
@@ -481,35 +489,44 @@
         
         // --- AUTHENTICATION LOGIC ---
         
-        // 1. Ascolta Login dalla Home (o se già loggato)
         onAuthStateChanged(auth, user => {
-            loader.style.display = 'none'; // Nascondi loader
+            loader.style.display = 'none';
             if (user) {
                 // UTENTE LOGGATO
                 currentUser = user;
                 loginSection.classList.add('hidden');
                 appContent.classList.remove('hidden');
-                
-                if(userInfo) userInfo.textContent = user.email;
-                if(userEmailDisplay) userEmailDisplay.textContent = user.email;
-                
+                userEmailDisplay.textContent = user.email;
                 loadGoogleMapsScript();
                 loadAgendaData();
                 setupListeners();
             } else {
-                // UTENTE NON LOGGATO -> Mostra Login invece di redirect
+                // UTENTE NON LOGGATO -> Mostra form di login
                 loginSection.classList.remove('hidden');
                 appContent.classList.add('hidden');
             }
         });
 
-        // 2. Gestione Login Diretto (se l'utente è sloggato)
-        const loginBtn = document.querySelector('#login-section .btn-login');
-        if(loginBtn) {
-            // Nota: Se usi il pulsante "Vai al Login Principale" come link HTML, questo non serve.
-            // Ma se volessi fare il login inline, dovresti aggiungere i campi input email/password nel HTML.
-            // Per ora il tuo HTML ha un link alla Home. Se vuoi login interno, va cambiato l'HTML.
-            // Dato che il link porta alla home, va bene così. 
+        // Gestione Login Diretto nella pagina
+        const loginForm = document.getElementById('agenda-login-form');
+        const loginErrorMsg = document.getElementById('login-error-msg');
+
+        if(loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('agenda-email').value;
+                const password = document.getElementById('agenda-password').value;
+                
+                loginErrorMsg.style.display = 'none';
+                
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    // onAuthStateChanged gestirà la transizione UI automaticamente
+                } catch (error) {
+                    loginErrorMsg.textContent = "Credenziali errate.";
+                    loginErrorMsg.style.display = 'block';
+                }
+            });
         }
         
         function setupListeners() {
@@ -614,3 +631,5 @@
             }, 500);
         });
     </script>
+</body>
+</html>
