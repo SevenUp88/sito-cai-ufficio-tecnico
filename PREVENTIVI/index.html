@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Preventivazione</title>
     
-    <!-- Link al CSS Principale (Corretto a ../style.css) -->
+    <!-- Link al CSS Principale -->
     <link rel="stylesheet" href="../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI EMERGENZA (Se il CSS principale non carica) --- */
+        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
         
         /* Layout Header Pagina */
@@ -55,10 +55,10 @@
         .btn-delete { background-color: #ffebee; color: #d32f2f; }
         .btn-delete:hover { background-color: #d32f2f; color: white; }
 
-        /* Modali - Stili Locali per sicurezza */
+        /* Modali */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6); z-index: 9999; /* Z-Index Altissimo */
+            background-color: rgba(0,0,0,0.6); z-index: 9999;
             display: none; align-items: center; justify-content: center;
             opacity: 0; transition: opacity 0.3s ease;
         }
@@ -107,18 +107,15 @@
     <!-- APP CONTENT -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR -->
-<nav class="sidebar">
-    <div class="sidebar-brand">
-        <!-- Nota: il link immagine va bene assoluto o relativo, su Netlify meglio assoluto se possibile -->
-        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
-    </div>
-
-    <!-- NOTA: La lista è VUOTA. Viene riempita da components.js -->
-    <ul class="sidebar-menu"></ul>
-
-    <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
-</nav>
+        <!-- SIDEBAR (Menu Laterale Unificato) -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+            </div>
+            <!-- Questa lista viene riempita automaticamente da components.js -->
+            <ul class="sidebar-menu"></ul> 
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
@@ -221,6 +218,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+    <!-- Script per Menu Laterale Centralizzato -->
+    <script src="/components.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const firebaseConfig = {
@@ -252,7 +252,13 @@
             };
 
             // Inizializzazione
-            auth.onAuthStateChanged(user => {
+            function initializeApp() {
+                if(ui.loginForm) ui.loginForm.addEventListener('submit', handleLogin);
+                auth.onAuthStateChanged(handleAuthStateChange);
+                setupStaticEventListeners();
+            }
+
+            function handleAuthStateChange(user) {
                 ui.loader.style.display = 'none';
                 if (user) {
                     ui.loginSection.classList.add('hidden');
@@ -263,70 +269,93 @@
                     ui.loginSection.classList.remove('hidden');
                     ui.appContent.classList.add('hidden');
                 }
-            });
+            }
 
-            // Login
-            ui.loginForm.addEventListener('submit', e => {
+            function handleLogin(e) {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
                 const pass = document.getElementById('password').value;
                 auth.signInWithEmailAndPassword(email, pass).catch(err => {
-                    document.getElementById('login-error').textContent = "Errore: " + err.message;
-                    document.getElementById('login-error').classList.remove('hidden');
+                    const errEl = document.getElementById('login-error');
+                    errEl.textContent = "Errore: " + err.message;
+                    errEl.classList.remove('hidden');
                 });
-            });
+            }
 
-            document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+            // *** LISTENER STATICI (Sempre attivi) ***
+            function setupStaticEventListeners() {
+                document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
 
-            // *** GESTIONE MODALI ***
-            ui.addBtn.addEventListener('click', () => {
-                console.log("Click su Nuovo Preventivo"); // DEBUG
-                document.getElementById('add-quote-form').reset();
-                ui.addModal.classList.add('visible');
+                // Nuovo Preventivo
+                ui.addBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    document.getElementById('add-quote-form').reset();
+                    openModal(ui.addModal);
+                });
+
+                // Chiusura Modali Globale
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const modal = e.target.closest('.modal-overlay');
+                        closeModal(modal);
+                    });
+                });
+
+                // Gestione click tabella (Delegazione)
+                ui.tableBody.addEventListener('click', handleTableClick);
+                ui.tableBody.addEventListener('change', handleStatusChange);
+
+                // Submit Form
+                document.getElementById('add-quote-form').addEventListener('submit', handleAddSubmit);
+                document.getElementById('edit-quote-form').addEventListener('submit', handleEditSubmit);
+
+                // Ricerca
+                document.getElementById('search-input').addEventListener('input', handleSearch);
+            }
+
+            // Modali Helpers
+            function openModal(modal) {
+                modal.classList.add('visible');
                 document.body.style.overflow = 'hidden';
-            });
+            }
+            function closeModal(modal) {
+                if(modal) modal.classList.remove('visible');
+                document.body.style.overflow = '';
+            }
 
-            // Chiusura Modali Globale
-            document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const modal = e.target.closest('.modal-overlay');
-                    modal.classList.remove('visible');
-                    document.body.style.overflow = '';
-                });
-            });
-
-            // Submit Nuovo
-            document.getElementById('add-quote-form').addEventListener('submit', async (e) => {
+            // CRUD Logic
+            async function handleAddSubmit(e) {
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
+                const oldText = btn.textContent;
                 btn.textContent = "Salvataggio..."; btn.disabled = true;
 
                 const dVal = document.getElementById('add-data').value;
                 const dateObj = dVal ? new Date(dVal + 'T00:00:00') : new Date();
 
                 const data = {
-                    cliente: document.getElementById('add-cliente').value,
+                    cliente: getValue('add-cliente'),
                     data: firebase.firestore.Timestamp.fromDate(dateObj),
-                    riferimento: document.getElementById('add-riferimento').value,
-                    numero: document.getElementById('add-numero').value,
-                    stato: document.getElementById('add-stato').value,
-                    note: document.getElementById('add-note').value
+                    riferimento: getValue('add-riferimento'),
+                    numero: getValue('add-numero'),
+                    stato: getValue('add-stato'),
+                    note: getValue('add-note')
                 };
 
                 try {
                     await db.collection("preventivi").add(data);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({...data, action:'add', data: dateObj.toISOString()}) }).catch(console.error);
-                    ui.addModal.classList.remove('visible');
-                    document.body.style.overflow = '';
+                    closeModal(ui.addModal);
                     fetchPreventivi();
                 } catch(err) { alert("Errore: " + err.message); }
-                finally { btn.textContent = "Salva"; btn.disabled = false; }
-            });
+                finally { btn.textContent = oldText; btn.disabled = false; }
+            }
 
-            // Submit Edit
-            document.getElementById('edit-quote-form').addEventListener('submit', async (e) => {
+            async function handleEditSubmit(e) {
                 e.preventDefault();
                 const btn = e.target.querySelector('button[type="submit"]');
+                const oldText = btn.textContent;
                 btn.textContent = "Aggiornamento..."; btn.disabled = true;
                 
                 const id = document.getElementById('edit-quote-id').value;
@@ -334,23 +363,22 @@
                 const dateObj = new Date(dVal + 'T00:00:00');
 
                 const data = {
-                    cliente: document.getElementById('edit-cliente').value,
+                    cliente: getValue('edit-cliente'),
                     data: firebase.firestore.Timestamp.fromDate(dateObj),
-                    riferimento: document.getElementById('edit-riferimento').value,
-                    numero: document.getElementById('edit-numero').value,
-                    stato: document.getElementById('edit-stato').value,
-                    note: document.getElementById('edit-note').value
+                    riferimento: getValue('edit-riferimento'),
+                    numero: getValue('edit-numero'),
+                    stato: getValue('edit-stato'),
+                    note: getValue('edit-note')
                 };
 
                 try {
                     await db.collection("preventivi").doc(id).update(data);
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({...data, action:'update', data: dateObj.toISOString()}) }).catch(console.error);
-                    ui.editModal.classList.remove('visible');
-                    document.body.style.overflow = '';
+                    closeModal(ui.editModal);
                     fetchPreventivi();
                 } catch(err) { alert("Errore: " + err.message); }
-                finally { btn.textContent = "Aggiorna"; btn.disabled = false; }
-            });
+                finally { btn.textContent = oldText; btn.disabled = false; }
+            }
 
             // Tabella & Dati
             function fetchPreventivi() {
@@ -358,6 +386,8 @@
                 db.collection("preventivi").orderBy("data", "desc").get().then(snap => {
                     allPreventivi = snap.docs.map(d => ({id: d.id, ...d.data()}));
                     renderTable(allPreventivi);
+                }).catch(err => {
+                    ui.tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:red;">Errore: ${err.message}</td></tr>`;
                 });
             }
 
@@ -369,14 +399,14 @@
                     const row = ui.tableBody.insertRow();
                     const d = p.data?.seconds ? new Date(p.data.seconds*1000).toLocaleDateString('it-IT') : '-';
                     row.innerHTML = `
-                        <td><strong>${p.cliente||''}</strong></td>
+                        <td><strong>${escapeHtml(p.cliente)}</strong></td>
                         <td>${d}</td>
-                        <td>${p.riferimento||''}</td>
-                        <td>${p.numero||''}</td>
+                        <td>${escapeHtml(p.riferimento)}</td>
+                        <td>${escapeHtml(p.numero)}</td>
                         <td><select class="status-select" data-id="${p.id}" data-val="${p.stato}">
                             ${STATO_OPTIONS.map(o => `<option value="${o}" ${p.stato===o?'selected':''}>${o}</option>`).join('')}
                         </select></td>
-                        <td><small>${p.note||''}</small></td>
+                        <td><small>${escapeHtml(p.note)}</small></td>
                         <td style="text-align:center; white-space:nowrap;">
                             <button class="action-btn btn-edit" data-id="${p.id}"><i class="fas fa-edit"></i></button>
                             <button class="action-btn btn-delete" data-id="${p.id}"><i class="fas fa-trash"></i></button>
@@ -385,8 +415,7 @@
                 });
             }
 
-            // Click su Tabella (Delegazione)
-            ui.tableBody.addEventListener('click', (e) => {
+            function handleTableClick(e) {
                 const btn = e.target.closest('.action-btn');
                 if(!btn) return;
                 const id = btn.dataset.id;
@@ -395,7 +424,7 @@
                 if(btn.classList.contains('btn-delete')) {
                     if(confirm('Eliminare?')) {
                         db.collection("preventivi").doc(id).delete().then(fetchPreventivi);
-                        fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action:'delete', numero: item.numero}) }).catch(console.error);
+                        if(item.numero) fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({action:'delete', numero: item.numero}) }).catch(console.error);
                     }
                 } else if(btn.classList.contains('btn-edit')) {
                     document.getElementById('edit-quote-id').value = id;
@@ -408,13 +437,11 @@
                     const sel = document.getElementById('edit-stato');
                     sel.innerHTML = STATO_OPTIONS.map(o => `<option value="${o}" ${item.stato===o?'selected':''}>${o}</option>`).join('');
                     
-                    ui.editModal.classList.add('visible');
-                    document.body.style.overflow = 'hidden';
+                    openModal(ui.editModal);
                 }
-            });
+            }
 
-            // Cambio Stato Rapido
-            ui.tableBody.addEventListener('change', async (e) => {
+            async function handleStatusChange(e) {
                 if(!e.target.classList.contains('status-select')) return;
                 const el = e.target;
                 const id = el.dataset.id;
@@ -428,24 +455,19 @@
                 if(item && item.numero) {
                     fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({...item, stato: newVal, action:'update', data: new Date(item.data.seconds*1000).toISOString()}) }).catch(console.error);
                 }
-            });
+            }
 
-            // Ricerca
-            document.getElementById('search-input').addEventListener('input', (e) => {
+            function handleSearch(e) {
                 const term = e.target.value.toLowerCase();
                 const filtered = allPreventivi.filter(p => Object.values(p).some(v => String(v).toLowerCase().includes(term)));
                 renderTable(filtered);
-            });
+            }
 
-            // Sidebar Toggle
-            document.querySelectorAll('.has-submenu > .nav-link').forEach(l => {
-                l.addEventListener('click', e => {
-                    e.preventDefault();
-                    l.classList.toggle('active');
-                    const sub = l.nextElementSibling;
-                    sub.style.maxHeight = sub.style.maxHeight ? null : sub.scrollHeight + "px";
-                });
-            });
+            function getValue(id) { return document.getElementById(id) ? document.getElementById(id).value.trim() : ''; }
+            function escapeHtml(text) { return String(text || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+
+            // AVVIO
+            initializeApp();
         });
     </script>
 </body>
