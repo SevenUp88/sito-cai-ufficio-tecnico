@@ -3,145 +3,460 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Climatizzatori - C.A.I.</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Listino Climatizzatori Monosplit - CAI</title>
+    
+    <!-- CSS Principale -->
+    <link rel="stylesheet" href="../../../style.css">
+    
+    <!-- Font e Icone -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- SDK Firebase v8 (Globale) -->
+    <style>
+        /* --- STILI SPECIFICI MONOSPLIT --- */
+        
+        /* Layout Filtri */
+        .filters-bar {
+            background-color: #fff; padding: 20px; border-radius: 8px; margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;
+            display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+        }
+        .filter-label { font-weight: 600; color: #555; margin-right: 5px; }
+        
+        /* Bottoni Filtro Marca */
+        .filter-btn {
+            padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; background-color: #f8f9fa; border: 1px solid #dee2e6;
+            color: #495057; transition: all 0.2s;
+        }
+        .filter-btn:hover { background-color: #e2e6ea; }
+        .filter-btn.active { background-color: #0056a8; color: white; border-color: #0056a8; }
+        .filter-btn[data-type="economic"] { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
+        .filter-btn[data-type="economic"].active { background-color: #ffc107; color: #000; border-color: #ffc107; }
+
+        /* Griglia Prodotti */
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
+        }
+
+        /* Card Prodotto */
+        .clima-card {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+            padding: 15px; position: relative; display: flex; flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .clima-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        /* Header Card */
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; height: 35px; }
+        .brand-logo { max-height: 35px; max-width: 100px; object-fit: contain; }
+        .wifi-icon { color: #0056a8; font-size: 1.1rem; }
+
+        .model-title { font-size: 1.1rem; font-weight: 700; color: #333; margin: 0 0 10px 0; line-height: 1.2; }
+
+        /* Body Card */
+        .card-body { display: flex; gap: 10px; flex-grow: 1; }
+        .card-info { flex: 1; font-size: 0.85rem; color: #555; display: flex; flex-direction: column; gap: 4px; }
+        .card-info strong { color: #222; }
+        .energy-badge { padding: 1px 5px; border-radius: 3px; color: white; font-weight: bold; font-size: 0.75rem; margin-right: 3px; }
+        .energy-cooling { background-color: #0d6efd; }
+        .energy-heating { background-color: #dc3545; }
+        
+        .card-image-wrapper { width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .card-image { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* Footer Card */
+        .card-footer {
+            margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .price { font-size: 1.3rem; font-weight: 700; color: #0056a8; }
+        .btn-details {
+            padding: 6px 12px; border: 1px solid #0056a8; color: #0056a8; background: white;
+            border-radius: 20px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-details:hover { background: #0056a8; color: white; }
+
+        /* Modal Dettagli */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px;
+            max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+        .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        
+        .modal-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-logo { max-height: 40px; }
+        .modal-title h2 { margin: 0; font-size: 1.5rem; color: #333; }
+        .modal-title span { color: #666; font-size: 0.9rem; }
+
+        .modal-grid { display: flex; gap: 25px; flex-wrap: wrap; }
+        .modal-img-col { flex: 1 1 200px; text-align: center; }
+        .modal-img { max-width: 100%; border-radius: 4px; border: 1px solid #eee; }
+        .modal-info-col { flex: 2 1 300px; }
+        
+        .info-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; }
+        .info-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
+        .info-list strong { color: #333; }
+
+        .modal-footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .btn-pdf { background: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-pdf:hover { background: #c82333; }
+        .modal-price { font-size: 1.8rem; font-weight: 700; color: #0056a8; }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        .no-data { text-align: center; padding: 40px; color: #6c757d; grid-column: 1/-1; }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div id="initial-loader" class="loader-container">
+        <div class="loader-spinner"></div>
+        <p>Caricamento Listino...</p>
+    </div>
+
+    <!-- Login Section -->
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Listino Clima</h2>
+            <form id="login-form">
+                <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
+                <button type="submit" class="btn-login">Accedi</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- DASHBOARD CONTENT -->
+    <div id="app-content" class="dashboard-wrapper hidden">
+        
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="../../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="../../../index.html" class="nav-link"><i class="fas fa-th-large"></i> <span>Dashboard</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> <span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../../NOLEGGI/code.html"><i class="fas fa-wrench"></i> Attrezzature</a></li>
+                        <li><a href="../../../NOLEGGI/GAS/index.html"><i class="fas fa-gas-pump"></i> Gas</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../../PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> <span>Preventivazione</span></a></li>
+                
+                <!-- LISTINI (ATTIVO) -->
+                <li class="has-submenu">
+                    <a href="#" class="nav-link active"><i class="fas fa-list"></i> <span>Listini</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list" style="max-height: 500px;">
+                        <li><a href="#" style="color:var(--primary-color); font-weight:bold;"><i class="fas fa-snowflake"></i> Clima</a></li>
+                        <li><a href="../../../LISTINI/CALDAIE/index.html"><i class="fas fa-fire-alt"></i> Caldaie</a></li>
+                        <li><a href="../../../LISTINI/SCALDABAGNI/index.html"><i class="fas fa-shower"></i> Scaldabagno</a></li>
+                        <li><a href="../../../LISTINI/SANITARI/index.html"><i class="fas fa-toilet"></i> Sanitari</a></li>
+                        <li><a href="../../../LISTINI/LISTINI%20FORNITORI/index.html"><i class="fas fa-truck-fast"></i> Fornitori</a></li>
+                    </ul>
+                </li>
+                
+                <li><a href="../../../SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span>Schede Tecniche</span></a></li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> <span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../../CONFIGURATORI/IMPIANTO RADIANTE/index.html"><i class="fas fa-border-all"></i> Radiante</a></li>
+                        <li><a href="../../../CONFIGURATORI/RADIATORI/index.html"><i class="fas fa-thermometer-half"></i> Radiatori</a></li>
+                        <li><a href="../../../CONFIGURATORI/CANNE FUMARIE/index.html"><i class="fas fa-smog"></i> Canne Fumarie</a></li>
+                        <li><a href="/configuratori/multisplit"><i class="fas fa-wind"></i> Multisplit</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#" class="nav-link"><i class="fas fa-file-signature"></i> <span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a>
+                    <ul class="submenu-list">
+                        <li><a href="../../../FGAS/apparecchiature.html"><i class="fas fa-tools"></i> Apparecchiature</a></li>
+                        <li><a href="../../../FGAS/gas.html"><i class="fas fa-wind"></i> Gas Fluorurati</a></li>
+                    </ul>
+                </li>
+                <li><a href="../../../SCONTISTICHE/index.html" class="nav-link"><i class="fas fa-tags"></i> <span>Scontistiche</span></a></li>
+                <li><a href="../../../AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span>Agenda Consegne</span></a></li>
+            </ul>
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title"><h2>Listino Climatizzatori Monosplit</h2></div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-container">
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Catalogo Prodotti</h2>
+                    
+                    <!-- FILTRI -->
+                    <div class="filters-bar">
+                        <span class="filter-label">Marche:</span>
+                        <div id="brand-filters" style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <!-- Bottoni marche JS -->
+                        </div>
+                        <div style="flex-grow:1;"></div>
+                        <button id="economic-filter" class="filter-btn" data-type="economic">Economici</button>
+                    </div>
+
+                    <!-- GRIGLIA PRODOTTI -->
+                    <div id="product-grid" class="product-grid">
+                        <!-- Card JS -->
+                    </div>
+                    
+                    <div id="no-data-msg" class="no-data" style="display:none;">Nessun prodotto trovato.</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALE DETTAGLI -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal" class="close-modal">×</button>
+            <div class="modal-header">
+                <img id="modal-logo" src="" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
+                <div class="modal-title">
+                    <span id="modal-brand">MARCA</span>
+                    <h2 id="modal-model">MODELLO</h2>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-grid">
+                    <div class="modal-img-col">
+                        <img id="modal-img" src="" alt="Foto" class="modal-img" onerror="this.src='../../../placeholder.png'">
+                    </div>
+                    <div class="modal-info-col">
+                        <h3>Specifiche Tecniche</h3>
+                        <ul id="modal-details-list" class="info-list">
+                            <!-- Dettagli JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="modal-pdf-btn" href="#" target="_blank" class="btn-pdf" style="display:none;"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>
+                <div class="modal-price-container">
+                    <span>Prezzo Kit:</span>
+                    <span id="modal-price" class="modal-price">€ 0,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-     
-    <style>
-        .content-hidden { display: none !important; }
-        #password-panel:not(.visible) { transform: translateX(100%); }
-        #password-panel.visible { transform: translateX(0); display: flex; }
-        #login-email-input-clima {
-            width: 100%; padding: 10px; border: 1px solid #ccc;
-            border-radius: 4px; box-sizing: border-box;
-        }
-    </style>
-</head>
-<body class="operator-mode">
 
-    <header class="app-header content-hidden">
-        <a href="/" title="C.A.I. - Home">
-             <img src="https://i.postimg.cc/Z5b3Yvr0/LOGO-CAI.png" alt="Logo CAI" class="logo">
-        </a>
-        <div class="header-controls">
-            <button id="print-button" class="header-action-button" title="Stampa Listino"><i class="fas fa-print"></i></button>
-            <a href="/" class="header-action-button" title="Torna alla Home"><i class="fas fa-home"></i></a>
-            <button id="exit-admin-button" class="header-action-button" title="Logout" style="display: none;"><i class="fas fa-sign-out-alt"></i></button>
-        </div>
-    </header>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-    <div id="app-status-message" style="text-align: center; padding: 20px; font-size: 1.1em;">
-        Inizializzazione applicazione...
-    </div>
+            let allProducts = [];
+            let filters = { brand: 'all', economic: false };
+            const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
 
-    <div class="container content-hidden">
-        <div class="page-controls">
-             <h1>Listino Climatizzatori</h1>
-             <div class="filters">
-                 <span>Filtra per:</span>
-                 <button class="filter-btn active" data-filter-type="brand" data-brand="all">Tutte le Marche</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="DAIKIN">Daikin</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="HAIER">Haier</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="HITACHI">Hitachi</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="IMMERGAS">Immergas</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="INNOVA">Innova</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="LG">LG</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="MITSUBISHI">Mitsubishi</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="SAMSUNG">Samsung</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="TOSHIBA">Toshiba</button>
-                 <button class="filter-btn" data-filter-type="brand" data-brand="VIESSMANN">Viessmann</button>
-                 <button class="filter-btn" data-filter-type="economic">Economici</button>
-             </div>
-             <div class="section-tabs">
-                 <button class="tab-btn active" data-section="monosplit">Monosplit</button>
-                 <button class="tab-btn" data-section="multisplit">Multisplit</button>
-             </div>
-        </div>
-        <main>
-            <div class="sections-wrapper">
-                <section id="monosplit-section" class="content-section active-section">
-                    <div id="monosplit-grid" class="product-grid">
-                        <div class="loading-placeholder">Caricamento prodotti in corso...</div>
-                    </div>
-                </section>
-                <section id="multisplit-section" class="content-section">
-                     <div id="multisplit-grid" class="product-grid">
-                         <div class="loading-placeholder">Contenuto Multisplit (se implementato).</div>
-                    </div>
-                </section>
-            </div>
-        </main>
-        <footer class="app-footer"><p>© 2025 C.A.I - Consorzio Artigiani Idraulici</p></footer>
-    </div>
+            // UI
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                login: document.getElementById('login-section'),
+                app: document.getElementById('app-content'),
+                user: document.getElementById('user-email-display'),
+                grid: document.getElementById('product-grid'),
+                brands: document.getElementById('brand-filters'),
+                noData: document.getElementById('no-data-msg'),
+                modal: document.getElementById('modal-overlay'),
+                // Modal elements
+                mLogo: document.getElementById('modal-logo'),
+                mBrand: document.getElementById('modal-brand'),
+                mModel: document.getElementById('modal-model'),
+                mImg: document.getElementById('modal-img'),
+                mList: document.getElementById('modal-details-list'),
+                mPdf: document.getElementById('modal-pdf-btn'),
+                mPrice: document.getElementById('modal-price'),
+                closeM: document.getElementById('close-modal')
+            };
 
-   <div id="password-panel">
-       <button id="close-panel-btn" title="Chiudi pannello" style="display: none;">×</button>
-       <h3>Accesso Area Riservata</h3>
-       <p>Inserisci le tue credenziali per continuare.</p>
-       <div class="form-group">
-           <label for="login-email-input-clima">Email:</label>
-           <input type="email" id="login-email-input-clima" name="login-email-input-clima" required>
-       </div>
-       <div class="form-group">
-           <label for="admin-password">Password:</label>
-           <input type="password" id="admin-password" name="admin-password" placeholder="Password" required>
-       </div>
-       <button id="submit-password-btn">Accedi</button>
-       <p id="password-error" class="error-message"></p>
-   </div>
+            // Auth
+            auth.onAuthStateChanged(user => {
+                ui.loader.style.display = 'none';
+                if(user) {
+                    ui.login.classList.add('hidden');
+                    ui.app.classList.remove('hidden');
+                    ui.user.textContent = user.email;
+                    loadData();
+                    setupSidebar();
+                } else {
+                    ui.login.classList.remove('hidden');
+                    ui.app.classList.add('hidden');
+                }
+            });
 
-    <!-- ===== BLOCCO HTML DEL MODAL AGGIUNTO QUI ===== -->
-    <div id="product-details-modal-overlay">
-        <div class="modal-container">
-            <!-- Bottone di chiusura -->
-            <button id="close-modal-btn" class="modal-close-btn" title="Chiudi finestra">×</button>
-            
-            <!-- Header del Modal -->
-            <div class="modal-header">
-                <img id="modal-product-logo" src="../images/logos/placeholder_logo.png" alt="Logo marca">
-                <div class="modal-title-group">
-                    <span id="modal-product-brand" class="modal-brand-text">Marca</span>
-                    <h2 id="modal-product-model" class="modal-model-text">Modello</h2>
-                </div>
-            </div>
-    
-            <!-- Corpo del Modal -->
-            <div class="modal-body">
-                <div class="modal-image-container">
-                    <img id="modal-product-image" src="../images/placeholder.png" alt="Immagine prodotto">
-                </div>
-                <div class="modal-details-container">
-                    <h3>Caratteristiche Principali</h3>
-                    <ul id="modal-main-details-list">
-                        <!-- Contenuto inserito da JS -->
-                    </ul>
-                    <h3>Altri Dettagli</h3>
-                    <ul id="modal-extra-details-list">
-                        <!-- Contenuto inserito da JS -->
-                    </ul>
-                </div>
-            </div>
-            
-            <!-- Footer del Modal -->
-            <div class="modal-footer">
-                <a id="modal-datasheet-link" href="#" class="modal-action-btn hidden" target="_blank" rel="noopener noreferrer">
-                    <i class="fas fa-file-pdf"></i> Scheda Tecnica
-                </a>
-                <div class="modal-price-container">
-                    <span>Prezzo vendita:</span>
-                    <span id="modal-product-price" class="modal-price-value">€ 0,00</span>
-                </div>
-            </div>
-        </div>
-    </div>
-      <script src="script.js"></script>
+            document.getElementById('login-form')?.addEventListener('submit', e => {
+                e.preventDefault();
+                const email = document.getElementById('email').value;
+                const pass = document.getElementById('password').value;
+                auth.signInWithEmailAndPassword(email, pass).catch(err => alert("Errore: "+err.message));
+            });
+            document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
+
+            // Data
+            async function loadData() {
+                try {
+                    const snap = await db.collection("prodottiClimaMonosplit").get();
+                    allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    renderFilters();
+                    applyFilters();
+                } catch(e) { console.error(e); }
+            }
+
+            function renderFilters() {
+                const brands = [...new Set(allProducts.map(p => p.marca?.toUpperCase()).filter(Boolean))].sort();
+                ui.brands.innerHTML = `<button class="filter-btn active" data-brand="all">Tutte</button>`;
+                brands.forEach(b => ui.brands.innerHTML += `<button class="filter-btn" data-brand="${b}">${b}</button>`);
+                
+                ui.brands.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        ui.brands.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        filters.brand = btn.dataset.brand;
+                        applyFilters();
+                    });
+                });
+
+                document.getElementById('economic-filter').addEventListener('click', function() {
+                    filters.economic = !filters.economic;
+                    this.classList.toggle('active');
+                    applyFilters();
+                });
+            }
+
+            function applyFilters() {
+                const filtered = allProducts.filter(p => {
+                    const matchBrand = filters.brand === 'all' || p.marca?.toUpperCase() === filters.brand;
+                    const matchEco = !filters.economic || (p.modello && economicModels.includes(p.modello.toUpperCase()));
+                    return matchBrand && matchEco;
+                });
+                renderGrid(filtered);
+            }
+
+            function renderGrid(products) {
+                ui.grid.innerHTML = '';
+                if(!products.length) { ui.noData.style.display = 'block'; return; }
+                ui.noData.style.display = 'none';
+
+                products.forEach(p => {
+                    const card = document.createElement('div');
+                    card.className = 'clima-card';
+                    card.onclick = () => openModal(p);
+
+                    const price = p.prezzo_kit ? parseFloat(p.prezzo_kit).toLocaleString('it-IT', {style:'currency', currency:'EUR'}) : '-';
+                    const imgUrl = p.image_url || '../images/placeholder.png'; // Percorso da cartella monosplit
+                    // Se le immagini sono in `LISTINI/CLIMA/images`, il percorso relativo da `LISTINI/CLIMA/monosplit/index.html` è `../images/`
+                    const safeBrand = (p.marca||'').toLowerCase().replace(/\s+/g,'');
+                    const logoUrl = `../images/logos/${safeBrand}.png`;
+
+                    const wifi = String(p.wifi).toLowerCase().includes('s') || p.wifi === true 
+                        ? `<i class="fas fa-wifi wifi-icon" title="WiFi"></i>` : '';
+
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <img src="${logoUrl}" class="brand-logo" onerror="this.style.display='none'">
+                            ${wifi}
+                        </div>
+                        <h3 class="model-title">${p.modello || 'N/D'}</h3>
+                        
+                        <div class="card-body">
+                            <div class="card-info">
+                                <span><strong>Potenza:</strong> ${p.potenza || '-'}</span>
+                                <div style="margin:2px 0;">
+                                    <strong>Classe:</strong> 
+                                    <span class="energy-badge energy-cooling">${p.classe_energetica_raffrescamento||'-'}</span>
+                                    <span class="energy-badge energy-heating">${p.classe_energetica_riscaldamento||'-'}</span>
+                                </div>
+                                <span><strong>Cod:</strong> ${p.codice_prodotto || '-'}</span>
+                            </div>
+                            <div class="card-image-wrapper">
+                                <img src="${imgUrl}" class="card-image" onerror="this.src='../../../placeholder.png'">
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <span class="price">${price}</span>
+                            <button class="btn-details">Dettagli</button>
+                        </div>
+                    `;
+                    ui.grid.appendChild(card);
+                });
+            }
+
+            function openModal(p) {
+                const safeBrand = (p.marca||'').toLowerCase().replace(/\s+/g,'');
+                ui.mLogo.src = `../images/logos/${safeBrand}.png`;
+                ui.mBrand.textContent = p.marca || '';
+                ui.mModel.textContent = p.modello || '';
+                ui.mImg.src = p.image_url || '../images/placeholder.png';
+                ui.mPrice.textContent = p.prezzo_kit ? parseFloat(p.prezzo_kit).toLocaleString('it-IT', {style:'currency', currency:'EUR'}) : 'N/D';
+
+                if(p.scheda_tecnica_url) {
+                    ui.mPdf.href = p.scheda_tecnica_url;
+                    ui.mPdf.style.display = 'inline-flex';
+                } else { ui.mPdf.style.display = 'none'; }
+
+                const details = [
+                    { label: 'Potenza', val: p.potenza },
+                    { label: 'Dimensioni UI', val: p.dimensioni_ui, u: 'mm' },
+                    { label: 'Dimensioni UE', val: p.dimensioni_ue, u: 'mm' },
+                    { label: 'Gas', val: p.gas },
+                    { label: 'Peso UI', val: p.peso_ui, u: 'kg' },
+                    { label: 'Peso UE', val: p.peso_ue, u: 'kg' },
+                    { label: 'Prezzo Solo UI', val: p.prezzo_ui, fmt: true },
+                    { label: 'Prezzo Solo UE', val: p.prezzo_ue, fmt: true }
+                ];
+
+                ui.mList.innerHTML = details.map(d => {
+                    if(!d.val) return '';
+                    let val = d.val;
+                    if(d.fmt) val = parseFloat(val).toLocaleString('it-IT', {style:'currency', currency:'EUR'});
+                    return `<li><strong>${d.label}:</strong> <span>${val} ${d.u||''}</span></li>`;
+                }).join('');
+
+                ui.modal.style.display = 'flex';
+            }
+
+            ui.closeM.addEventListener('click', () => ui.modal.style.display = 'none');
+            ui.modal.addEventListener('click', e => { if(e.target===ui.modal) ui.modal.style.display='none'; });
+
+            function setupSidebar() {
+                document.querySelectorAll('.has-submenu > .nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        link.classList.toggle('active');
+                        const submenu = link.nextElementSibling;
+                        submenu.style.maxHeight = submenu.style.maxHeight ? null : submenu.scrollHeight + "px";
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>
