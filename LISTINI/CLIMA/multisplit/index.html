@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (3 livelli sopra) -->
-    <link rel="stylesheet" href="../../style.css">
+    <!-- CSS Principale (CORRETTO: risale di 3 livelli) -->
+    <link rel="stylesheet" href="../../../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
+        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
         
+        /* --- STILI SPECIFICI CONFIGURATORE --- */
         .config-card {
             background-color: #fff; padding: 30px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
         }
 
         /* Indicatori Step */
@@ -166,7 +167,7 @@
         <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="../../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -259,8 +260,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Menu Laterale Centralizzato -->
-    <script src="/components.js"></script>
+    <!-- Menu Laterale Centralizzato (CORRETTO PERCORSO) -->
+    <script src="../../../components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -408,6 +409,7 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
+                    // Percorso Img Corretto per il Configuratore
                     const imgPath = s.img ? `../../LISTINI/CLIMA/images/${s.img}.png` : '../../placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
