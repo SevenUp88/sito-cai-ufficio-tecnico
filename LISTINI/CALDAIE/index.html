@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Listino Caldaie</title>
     
-    <!-- CSS Principale (per Sidebar e colori base) -->
+    <!-- CSS Principale -->
     <link rel="stylesheet" href="../../style.css">
     
     <!-- Font e Icone -->
@@ -208,7 +208,7 @@
                 <div class="dashboard-card">
                     <h2 style="margin-bottom:20px; color:var(--primary-color);">Catalogo e Prezzi</h2>
                     
-                    <!-- FILTRI -->
+                    <!-- FILTRI (RIMOSSO TASTO ECONOMICO) -->
                     <div class="filters-bar">
                         <span class="filters-label">Filtra per Marca:</span>
                         <div id="brand-filters" style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -216,8 +216,6 @@
                         </div>
                         
                         <div style="flex-grow:1;"></div> <!-- Spacer -->
-                        
-                        <button id="economico-filter-btn" class="filter-btn">€ Economici</button>
                         
                         <div class="search-group">
                             <i class="fas fa-search"></i>
@@ -274,7 +272,7 @@
             
             // Stato
             let allBoilers = [];
-            let filters = { brand: "", economico: false, search: "" };
+            let filters = { brand: "", search: "" };
             
             // UI
             const ui = {
@@ -286,7 +284,6 @@
                 noData: document.getElementById('no-results-message'),
                 brandContainer: document.getElementById('brand-filters'),
                 search: document.getElementById('search-input'),
-                econBtn: document.getElementById('economico-filter-btn'),
                 resetBtn: document.getElementById('reset-filters-btn'),
                 popup: document.getElementById('popup-overlay'),
                 popupTitle: document.getElementById('popup-title'),
@@ -348,14 +345,13 @@
             function applyFilters() {
                 const filtered = allBoilers.filter(b => {
                     const matchBrand = !filters.brand || b.marca === filters.brand;
-                    const matchEcon = !filters.economico || (b.prezzo && b.prezzo < 1200);
                     const matchSearch = !filters.search || 
                         (b.modello||'').toLowerCase().includes(filters.search) || 
                         (b.codice_prodotto||'').toLowerCase().includes(filters.search);
-                    return matchBrand && matchEcon && matchSearch;
+                    return matchBrand && matchSearch;
                 });
                 
-                ui.resetBtn.style.display = (filters.brand || filters.economico || filters.search) ? 'block' : 'none';
+                ui.resetBtn.style.display = (filters.brand || filters.search) ? 'block' : 'none';
                 renderGrid(filtered);
             }
 
@@ -437,15 +433,9 @@
 
             // Listeners Filtri
             ui.search.addEventListener('input', e => { filters.search = e.target.value.toLowerCase(); applyFilters(); });
-            ui.econBtn.addEventListener('click', () => { 
-                filters.economico = !filters.economico; 
-                ui.econBtn.classList.toggle('active');
-                applyFilters();
-            });
             ui.resetBtn.addEventListener('click', () => {
-                filters = { brand: "", economico: false, search: "" };
+                filters = { brand: "", search: "" };
                 ui.search.value = "";
-                ui.econBtn.classList.remove('active');
                 ui.brandContainer.querySelector('[data-brand=""]').click();
             });
 
