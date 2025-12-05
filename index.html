@@ -4,15 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Cruscotto Ufficio Tecnico</title>
+    
+    <!-- CSS Principale -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* Stili di sicurezza inline per evitare pagina bianca se il CSS esterno tarda */
+        .hidden { display: none !important; }
+        .loader-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f4f6f9; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader-spinner {
+            border: 4px solid #e9ecef; border-top: 4px solid #0056a8;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
 
+    <!-- Loader -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
-        <p>Caricamento Dashboard...</p>
+        <p style="margin-top:15px; color:#666;">Avvio Dashboard...</p>
     </div>
 
     <!-- SEZIONE LOGIN -->
@@ -21,8 +42,8 @@
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
             <h2>Accesso Riservato</h2>
             <form id="login-form">
-                <div class="form-group"><label>Email:</label><input type="email" id="email" name="email" required placeholder="nome@esempio.com"></div>
-                <div class="form-group"><label>Password:</label><input type="password" id="password" name="password" required placeholder="••••••••"></div>
+                <div class="form-group"><label>Email:</label><input type="email" id="email" required placeholder="email"></div>
+                <div class="form-group"><label>Password:</label><input type="password" id="password" required placeholder="password"></div>
                 <button type="submit" class="btn-login">Accedi al Portale</button>
                 <p id="login-error" class="error-message hidden"></p>
             </form>
@@ -32,12 +53,13 @@
     <!-- DASHBOARD -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR UNICA (VUOTA - RIEMPITA DA JS) -->
+        <!-- SIDEBAR -->
         <nav class="sidebar">
             <div class="sidebar-brand">
                 <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
-            <ul class="sidebar-menu"></ul> <!-- Viene riempito da components.js -->
+            <!-- Lista vuota: viene riempita da components.js -->
+            <ul class="sidebar-menu"></ul> 
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
@@ -46,11 +68,10 @@
             <header class="top-bar">
                 <div class="page-title"><h2>Cruscotto Ufficio Tecnico</h2></div>
                 <div class="user-menu">
-                    <button id="add-category-trigger" class="icon-btn hidden"><i class="fas fa-plus-circle"></i></button>
                     <div class="user-profile-info" id="user-dashboard">
                         <div class="user-details"><span class="welcome-text">Benvenuto,</span><span id="user-email-display" class="user-email">...</span></div>
                         <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
                     </div>
                 </div>
             </header>
@@ -59,45 +80,134 @@
                 <div class="dashboard-card welcome-card">
                     <div class="card-content">
                         <h1>Benvenuto nel Portale CAI</h1>
-                        <p>Utilizza il menu a sinistra per navigare tra le sezioni o la ricerca qui sotto.</p>
+                        <p>Utilizza il menu a sinistra per navigare tra le sezioni o usa i collegamenti rapidi qui sotto.</p>
                     </div>
                 </div>
 
-                <div id="search-container" class="search-section">
-                    <div class="search-wrapper">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" id="search-input" placeholder="Cerca per codice, descrizione o marca...">
-                    </div>
-                    <div id="search-results" class="search-results-dropdown"></div>
+                <!-- Collegamenti Rapidi (Card) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <a href="PREVENTIVI/index.html" class="dashboard-card" style="text-decoration: none; color: inherit; text-align: center; transition: transform 0.2s;">
+                        <i class="fas fa-calculator" style="font-size: 2.5em; color: #0056a8; margin-bottom: 10px;"></i>
+                        <h3 style="margin: 0; font-size: 1.1em;">Preventivi</h3>
+                    </a>
+                    <a href="AGENDA CONSEGNE/index.html" class="dashboard-card" style="text-decoration: none; color: inherit; text-align: center; transition: transform 0.2s;">
+                        <i class="fas fa-calendar-alt" style="font-size: 2.5em; color: #0056a8; margin-bottom: 10px;"></i>
+                        <h3 style="margin: 0; font-size: 1.1em;">Agenda</h3>
+                    </a>
+                    <a href="LISTINI/CALDAIE/index.html" class="dashboard-card" style="text-decoration: none; color: inherit; text-align: center; transition: transform 0.2s;">
+                        <i class="fas fa-fire-alt" style="font-size: 2.5em; color: #0056a8; margin-bottom: 10px;"></i>
+                        <h3 style="margin: 0; font-size: 1.1em;">Caldaie</h3>
+                    </a>
+                    <a href="LISTINI/CLIMA/monosplit/index.html" class="dashboard-card" style="text-decoration: none; color: inherit; text-align: center; transition: transform 0.2s;">
+                        <i class="fas fa-snowflake" style="font-size: 2.5em; color: #0056a8; margin-bottom: 10px;"></i>
+                        <h3 style="margin: 0; font-size: 1.1em;">Clima</h3>
+                    </a>
                 </div>
 
                 <div class="dashboard-section">
                     <div class="section-header">
                         <h3>Bacheca Eventi & Promo</h3>
-                        <button class="btn-small-primary"><i class="fas fa-plus"></i> Nuovo Evento</button>
                     </div>
-                    <div class="bacheca-empty-state"><p>Nessun evento o promozione in bacheca.</p></div>
+                    <div class="bacheca-empty-state" style="background: white; padding: 30px; border-radius: 8px; text-align: center; border: 1px dashed #ccc;">
+                        <p style="color: #666;">Nessun evento o promozione in bacheca al momento.</p>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modali vari (Admin, Dettagli, Viewer) rimangono uguali, li ometto per brevità ma nel tuo file lasciali -->
-    <!-- ... Copia i modali dal file precedente se non ci sono ... -->
-    <!-- Per brevità qui metto solo i div principali vuoti per non rompere il layout, tu mantieni i tuoi -->
-    <div id="product-details-modal-overlay"></div> 
-    <div id="image-viewer-overlay" class="image-viewer-overlay"></div>
-    <div id="add-category-panel" class="admin-popup hidden"></div>
-    <div id="admin-overlay" class="overlay hidden"></div>
-
-    <!-- SCRIPTS -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script> 
-    
-    <script src="firebase-config.js"></script> 
-    <!-- CARICA IL MENU LATERALE UNICO -->
-    <script src="/components.js"></script>
-    <script src="script.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <!-- Menu Laterale -->
+    <script src="components.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Configurazione Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
+                projectId: "consorzio-artigiani-idraulici",
+                storageBucket: "consorzio-artigiani-idraulici.appspot.com",
+                messagingSenderId: "136848104008",
+                appId: "1:136848104008:web:71e2195f1712a832e01b3a"
+            };
+
+            // Inizializza Firebase solo se non esiste già
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+
+            // Elementi UI
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                login: document.getElementById('login-section'),
+                app: document.getElementById('app-content'),
+                emailDisplay: document.getElementById('user-email-display'),
+                loginForm: document.getElementById('login-form'),
+                logoutBtn: document.getElementById('logout-button'),
+                errorMsg: document.getElementById('login-error')
+            };
+
+            // --- GESTIONE LOGIN / LOGOUT ---
+            auth.onAuthStateChanged(user => {
+                ui.loader.style.display = 'none'; // Nascondi loader
+                
+                if (user) {
+                    // Utente Loggato
+                    console.log("Home: Utente loggato:", user.email);
+                    ui.login.classList.add('hidden');
+                    ui.app.classList.remove('hidden'); // Mostra Dashboard
+                    ui.emailDisplay.textContent = user.email;
+                } else {
+                    // Utente NON Loggato
+                    console.log("Home: Utente non loggato");
+                    ui.login.classList.remove('hidden'); // Mostra Login
+                    ui.app.classList.add('hidden');
+                }
+            });
+
+            // Submit Login
+            if(ui.loginForm) {
+                ui.loginForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const email = document.getElementById('email').value;
+                    const pass = document.getElementById('password').value;
+                    
+                    ui.errorMsg.classList.add('hidden');
+                    
+                    auth.signInWithEmailAndPassword(email, pass).catch(error => {
+                        console.error("Errore login:", error);
+                        ui.errorMsg.textContent = "Email o password errati.";
+                        ui.errorMsg.classList.remove('hidden');
+                    });
+                });
+            }
+
+            // Logout
+            if(ui.logoutBtn) {
+                ui.logoutBtn.addEventListener('click', () => {
+                    auth.signOut().then(() => {
+                        window.location.reload();
+                    });
+                });
+            }
+
+            // Failsafe: Se dopo 4 secondi il loader è ancora lì, rimuovilo
+            setTimeout(() => {
+                if(ui.loader && ui.loader.style.display !== 'none') {
+                    console.warn("Loader rimosso per timeout.");
+                    ui.loader.style.display = 'none';
+                    // Se l'app è nascosta e il login pure, mostra il login per sicurezza
+                    if(ui.app.classList.contains('hidden') && ui.login.classList.contains('hidden')) {
+                         ui.login.classList.remove('hidden');
+                    }
+                }
+            }, 4000);
+        });
+    </script>
 </body>
 </html>
