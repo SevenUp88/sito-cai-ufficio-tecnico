@@ -131,7 +131,7 @@
         /* Pulsante Scheda Tecnica */
         .btn-tech-sheet {
             display: inline-flex; align-items: center; gap: 5px;
-            padding: 6px 12px; margin-top: 8px; font-size: 0.85rem;
+            padding: 4px 10px; margin-top: 5px; font-size: 0.8rem;
             color: #d32f2f; border: 1px solid #d32f2f; border-radius: 4px; 
             text-decoration: none; transition: all 0.2s; background: #fff; font-weight: 500;
         }
@@ -152,7 +152,7 @@
         .summary-header h3 { margin: 0; color: #0056a8; }
         .summary-date { font-size: 0.9rem; color: #666; }
         
-        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; align-items: center; }
         .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
         
         .loader { text-align: center; padding: 40px; color: #6c757d; }
@@ -457,20 +457,15 @@
                 });
 
                 // Mappa delle eccezioni per i nomi dei file immagini
-                // Chiave: nome modello normalizzato (minuscolo, spazi -> _ )
-                // Valore: nome del file reale su GitHub (senza estensione)
                 const imageOverrides = {
                     'windfree_avant_s2': 'windfree_avant',
                     'windfree_elite_s2': 'windfree_elite', 
                     'cebu_wi-fi': 'cebu',
-                    // Aggiungi qui altre eccezioni se necessario
                 };
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Generazione URL GitHub
                     let normalizedName = s.name.toLowerCase().trim().replace(/\s+/g, '_');
                     
-                    // Controlla se esiste un override per questo modello
                     if(imageOverrides[normalizedName]) {
                         normalizedName = imageOverrides[normalizedName];
                     }
@@ -558,18 +553,28 @@
                 ui.btnFinish.disabled = true;
             }
 
-            // Step 6: Riepilogo
+            // Step 6: Riepilogo (CORRETTO UNDEFINED E AGGIUNTO SCHEDE)
             function renderSummary() {
                 const s = state.sel;
                 let tot = s.ue.price;
                 s.ui.forEach(u => tot += u.price);
                 
-                let rows = s.ui.map((u,i) => `
+                // Fix: Se modello è null, usa codice_prodotto, altrimenti stringa generica
+                const ueName = s.ue.modello || s.ue.codice_prodotto || "Unità Esterna";
+                const uePdf = getPdfButton(s.ue);
+
+                let rows = s.ui.map((u,i) => {
+                    const uiPdf = getPdfButton(u);
+                    const uiName = u.modello || u.codice_prodotto || `Unità ${i+1}`;
+                    return `
                     <div class="summary-row">
-                        <span>UI ${i+1}: ${u.modello} (${u.potenza})</span>
+                        <div>
+                            <span style="display:block; font-weight:500;">UI ${i+1}: ${uiName} (${u.potenza})</span>
+                            ${uiPdf}
+                        </div>
                         <strong>€ ${u.price.toFixed(2)}</strong>
-                    </div>
-                `).join('');
+                    </div>`;
+                }).join('');
 
                 ui.summary.innerHTML = `
                     <div class="summary-header">
@@ -577,7 +582,10 @@
                         <span class="summary-date">${new Date().toLocaleDateString()}</span>
                     </div>
                     <div class="summary-row">
-                        <span>Unità Esterna: ${s.ue.modello}</span>
+                        <div>
+                            <span style="display:block; font-weight:500;">Unità Esterna: ${ueName}</span>
+                            ${uePdf}
+                        </div>
                         <strong>€ ${s.ue.price.toFixed(2)}</strong>
                     </div>
                     ${rows}
@@ -630,7 +638,7 @@
                 },
                 selUE: (id) => {
                     state.sel.ue = state.data.ue.find(u => u.id === id);
-                    ui.infos[3].textContent = state.sel.ue.modello;
+                    ui.infos[3].textContent = state.sel.ue.modello || state.sel.ue.codice_prodotto;
                     renderUISelect();
                     window.app.goTo(5);
                 },
