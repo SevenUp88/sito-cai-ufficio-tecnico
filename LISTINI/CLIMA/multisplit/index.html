@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale -->
-    <link rel="stylesheet" href="../../style.css">
+    <!-- CSS Principale (Percorso Assoluto per evitare errore 404) -->
+    <link rel="stylesheet" href="/style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -28,10 +28,9 @@
         }
         .step-item {
             text-align: center; flex: 1; position: relative; z-index: 2; 
-            opacity: 0.5; transition: opacity 0.3s; cursor: default; /* Default non cliccabile */
+            opacity: 0.5; transition: opacity 0.3s; cursor: default;
         }
-        /* I step completati o attivi diventano cliccabili */
-        .step-item.completed, .step-item.active { opacity: 1; cursor: pointer; }
+        .step-item.active, .step-item.completed { opacity: 1; cursor: pointer; }
         
         .step-dot {
             width: 35px; height: 35px; background-color: #f8f9fa; color: #6c757d;
@@ -174,7 +173,7 @@
         <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -291,7 +290,7 @@
                 'TOSHIBA': 'est_toshiba.jpg', 'VIESSMANN': 'est_viessmann.avif'
             };
 
-            // MAPPA MANUALE IMMAGINI UNITA' INTERNE (Corregge quelle mancanti)
+            // MAPPA MANUALE IMMAGINI UNITA' INTERNE
             const indoorImages = {
                 'SENSIRA': 'sensira.png', 'PERFERA': 'perfera.png', 'STYLISH': 'stylish.png',
                 'EMURA': 'emura.png', 'COMFORA': 'comfora.png', 'PERFERA ALL SEASONS': 'perfera.png',
@@ -375,10 +374,9 @@
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
-                        // Cerca immagine nella mappa manuale (priorità) o in quella DB
+                        // Cerca immagine
                         let imgName = null;
                         const upperModel = (data.modello || '').toUpperCase();
-                        // Cerca corrispondenza parziale nel dizionario manuale
                         for (const key in indoorImages) {
                             if (upperModel.includes(key)) { imgName = indoorImages[key]; break; }
                         }
@@ -444,7 +442,7 @@
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile.</p>';
+                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
             function renderUE() {
@@ -518,10 +516,9 @@
 
             window.app = {
                 goTo: (step) => {
-                    // Permette di tornare indietro solo se lo step è < dello step massimo raggiunto o è uno step precedente
-                    // Qui semplifichiamo: permettiamo il click se lo step è già stato visitato (completed) o è quello attuale
+                    // Check se lo step è accessibile (già visitato o sequenziale)
                     const target = document.getElementById(`ind-${step}`);
-                    if (step > state.step && !target.classList.contains('completed')) return; // Blocco avanzamento illegale
+                    if (step > state.step && !target.classList.contains('completed')) return;
                     
                     state.step = step;
                     ui.steps.forEach(s => s.classList.remove('active'));
@@ -535,7 +532,7 @@
                     });
                     
                     if(step === 6) renderSummary();
-                    window.scrollTo(0,0);https://github.com/SevenUp88/sito-cai-ufficio-tecnico/blob/main/LISTINI/CLIMA/multisplit/index.html
+                    window.scrollTo(0,0);
                 },
                 prev: () => window.app.goTo(state.step - 1),
                 finish: () => window.app.goTo(6),
