@@ -553,14 +553,16 @@
                 ui.btnFinish.disabled = true;
             }
 
-            // Step 6: Riepilogo (CORRETTO UNDEFINED E AGGIUNTO SCHEDE)
+            // Step 6: Riepilogo (CON POTENZA UE)
             function renderSummary() {
                 const s = state.sel;
                 let tot = s.ue.price;
                 s.ui.forEach(u => tot += u.price);
                 
-                // Fix: Se modello è null, usa codice_prodotto, altrimenti stringa generica
                 const ueName = s.ue.modello || s.ue.codice_prodotto || "Unità Esterna";
+                // Aggiunta la potenza accanto al nome se disponibile
+                const uePower = s.ue.potenza ? ` (${s.ue.potenza} kW)` : '';
+                
                 const uePdf = getPdfButton(s.ue);
 
                 let rows = s.ui.map((u,i) => {
@@ -583,7 +585,7 @@
                     </div>
                     <div class="summary-row">
                         <div>
-                            <span style="display:block; font-weight:500;">Unità Esterna: ${ueName}</span>
+                            <span style="display:block; font-weight:500;">Unità Esterna: ${ueName}${uePower}</span>
                             ${uePdf}
                         </div>
                         <strong>€ ${s.ue.price.toFixed(2)}</strong>
