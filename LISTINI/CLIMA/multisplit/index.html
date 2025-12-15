@@ -5,15 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale -->
+    <!-- CSS Principale (Percorso relativo corretto per profondità 2) -->
     <link rel="stylesheet" href="../../style.css">
     
+    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI UTILITÀ --- */
+        /* --- STILI DI SICUREZZA (Garantiscono la grafica anche se style.css fallisce) --- */
+        body { font-family: 'Roboto', sans-serif; margin: 0; background-color: #f4f6f9; color: #333; display: flex; min-height: 100vh; }
         .hidden { display: none !important; }
+        
+        /* Layout Sidebar/Main */
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; position: fixed; height: 100%; z-index: 100; }
+        .sidebar-brand { padding: 15px; border-bottom: 1px solid #eee; text-align: center; }
+        .sidebar-brand img { max-width: 180px; }
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-footer { padding: 15px; border-top: 1px solid #eee; font-size: 0.8rem; text-align: center; color: #888; }
+        
+        .main-content { flex: 1; margin-left: 260px; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        .top-bar { height: 60px; background: #fff; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
+        .page-title h2 { margin: 0; color: #0056a8; font-size: 1.2rem; }
+        .user-profile-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; }
+        
+        .content-container { padding: 30px; }
         
         /* --- STILI SPECIFICI CONFIGURATORE --- */
         .config-card {
@@ -30,6 +46,7 @@
             text-align: center; flex: 1; position: relative; z-index: 2; 
             opacity: 0.5; transition: opacity 0.3s; cursor: default;
         }
+        /* Step attivi o completati sono cliccabili */
         .step-item.active, .step-item.completed { opacity: 1; cursor: pointer; }
         
         .step-dot {
@@ -134,7 +151,10 @@
         
         .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
         .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
-        .pdf-icon { color: #dc3545; font-size: 1.1rem; margin-left: 10px; cursor: pointer; }
+        
+        /* Icona PDF */
+        .pdf-icon { color: #dc3545; font-size: 1.2rem; margin-left: 10px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+        .pdf-icon:hover { color: #a71d2a; transform: scale(1.1); }
         
         .loader { text-align: center; padding: 40px; color: #6c757d; }
         
@@ -148,6 +168,12 @@
             body { background: white; font-size: 12pt; color: black; }
             .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
         }
     </style>
 </head>
@@ -170,12 +196,13 @@
     <!-- APP -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR (Menu Laterale Unificato) -->
+        <!-- SIDEBAR -->
         <nav class="sidebar">
             <div class="sidebar-brand">
                 <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
-            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <!-- Caricata da components.js -->
+            <ul class="sidebar-menu"></ul> 
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
@@ -195,7 +222,7 @@
             <div class="content-container">
                 <div class="config-card">
                     
-                    <!-- INDICATORI STEP -->
+                    <!-- INDICATORI STEP (Ora cliccabili per tornare indietro) -->
                     <div class="step-indicator">
                         <div class="step-line-bg"></div>
                         <div class="step-item active" id="ind-1" onclick="window.app.goTo(1)"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
@@ -267,7 +294,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <!-- Menu Laterale Centralizzato -->
-    <script src="/components.js"></script>
+    <script src="../../components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -323,7 +350,6 @@
                 btnFinish: document.getElementById('btn-finish')
             };
 
-            // Auth
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display='none';
                 if(user) {
@@ -366,7 +392,6 @@
                             price: Number(data.prezzo||0),
                             compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
                                     (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : []),
-                            // FIX: Salva URL scheda tecnica UE
                             datasheet: data.scheda_tecnica_url
                         };
                     });
@@ -424,7 +449,6 @@
                         <span>${c.n}</span>
                     </div>
                 `).join('');
-                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile.</p>';
             }
 
             // Step 3: Serie
@@ -450,7 +474,6 @@
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
             // Step 4: UE
@@ -469,9 +492,7 @@
                     const brandKey = u.brandId.toUpperCase();
                     const imgName = outdoorImages[brandKey] || 'placeholder.png';
                     const imgPath = `../../LISTINI/CLIMA/images/${imgName}`;
-                    
-                    // FIX: Aggiunta tasto PDF Scheda Tecnica
-                    const dsLink = u.datasheet ? `<a href="${u.datasheet}" target="_blank" onclick="event.stopPropagation()" style="color:#dc3545; font-size:1.2rem; margin-left:10px;"><i class="fas fa-file-pdf"></i></a>` : '';
+                    const dsLink = u.datasheet ? `<a href="${u.datasheet}" target="_blank" onclick="event.stopPropagation()" class="pdf-icon"><i class="fas fa-file-pdf"></i></a>` : '';
 
                     return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
@@ -480,11 +501,10 @@
                             ${dsLink}
                         </div>
                         <img src="${imgPath}" class="ue-img" onerror="this.src='../../placeholder.png'">
-                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}<br>Potenza: ${u.potenza} kW<br>Gas: ${u.tipo_refrigerante}</div>
+                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}<br>Potenza: ${u.potenza} kW</div>
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
                 }).join('');
-                if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
             // Step 5: UI
@@ -518,7 +538,7 @@
                 let tot = s.ue.price;
                 s.ui.forEach(u => tot += u.price);
                 
-                // FIX: Gestione nome undefined nel riepilogo
+                // Fix: Nome UE undefined
                 const ueName = s.ue.modello || 'Unità Esterna';
                 const uePdf = s.ue.datasheet ? `<a href="${s.ue.datasheet}" target="_blank" class="pdf-icon"><i class="fas fa-file-pdf"></i></a>` : '';
 
@@ -533,10 +553,7 @@
 
                 ui.summary.innerHTML = `
                     <div class="summary-header"><h3>Preventivo ${s.brand.name}</h3><span class="summary-date">${new Date().toLocaleDateString()}</span></div>
-                    <div class="summary-row">
-                        <span>UE: ${ueName} (${s.ue.codice_prodotto}) ${uePdf}</span>
-                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
-                    </div>
+                    <div class="summary-row"><span>UE: ${ueName} (${s.ue.codice_prodotto}) ${uePdf}</span><strong>€ ${s.ue.price.toFixed(2)}</strong></div>
                     ${rows}
                     <div class="summary-row total"><span>TOTALE (IVA Escl.)</span><span>€ ${tot.toFixed(2)}</span></div>
                 `;
@@ -544,8 +561,8 @@
 
             window.app = {
                 goTo: (step) => {
+                    // Logica di protezione: permetti di tornare indietro O andare avanti di 1 solo step
                     const target = document.getElementById(`ind-${step}`);
-                    // FIX: Permetti sempre se torni indietro o se lo step successivo è immediato (es. da 1 a 2)
                     if (step > state.step + 1 && !target.classList.contains('completed')) return;
                     
                     state.step = step;
@@ -568,7 +585,7 @@
                 selBrand: (id, name) => { state.sel.brand = {id, name}; ui.infos[0].textContent = name; renderConfigs(); window.app.goTo(2); },
                 selConfig: (id, name) => { state.sel.type = {id, name}; ui.infos[1].textContent = name; renderSeries(); window.app.goTo(3); },
                 selSeries: (id, name) => { state.sel.series = {id, name}; ui.infos[2].textContent = name; renderUE(); window.app.goTo(4); },
-                selUE: (id) => { state.sel.ue = state.data.ue.find(u => u.id === id); ui.infos[3].textContent = state.sel.ue.modello || state.sel.ue.codice_prodotto; renderUISelect(); window.app.goTo(5); },
+                selUE: (id) => { state.sel.ue = state.data.ue.find(u => u.id === id); ui.infos[3].textContent = state.sel.ue.modello || 'UE'; renderUISelect(); window.app.goTo(5); },
                 pickUI: (idx, uid, btn) => {
                     document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
                     btn.classList.add('selected');
@@ -579,7 +596,7 @@
                     const dsLink = unit.datasheet ? `<a href="${unit.datasheet}" target="_blank" style="margin-left:auto;color:#dc3545;"><i class="fas fa-file-pdf"></i></a>` : '';
                     
                     const p = document.getElementById(`prev-ui-${idx}`);
-                    p.innerHTML = `<img src="${imgPath}"> <div class="ui-preview-info"><strong>${unit.codice_prodotto}</strong><br>${unit.dimensioni_ui}</div> ${dsLink}`;
+                    p.innerHTML = `<img src="${imgPath}" style="max-height:40px; margin-right:10px;"> <div class="ui-preview-info"><strong>${unit.codice_prodotto}</strong><br>${unit.brandId.toUpperCase()}</div> ${dsLink}`;
                     p.classList.add('visible');
                     
                     const count = state.sel.ui.filter(Boolean).length;
