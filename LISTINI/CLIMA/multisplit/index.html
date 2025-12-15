@@ -3,134 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listino Clima Multisplit - CAI</title>
+    <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale -->
+    <!-- CSS Principale (Percorso Assoluto) -->
     <link rel="stylesheet" href="/style.css">
     
+    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* STILI DI SICUREZZA */
+        /* --- STILI INTEGRATI DI SICUREZZA --- */
         body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         .hidden { display: none !important; }
 
         /* SIDEBAR */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; z-index: 100; }
         .sidebar-brand { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
         .sidebar-brand img { max-width: 180px; }
         .sidebar-menu { list-style: none; padding: 10px 0; margin: 0; }
-        .nav-link { display: flex; align-items: center; padding: 12px 20px; color: #333; text-decoration: none; font-weight: 500; border-left: 4px solid transparent; justify-content: space-between; cursor: pointer; }
+        .nav-link { display: flex; align-items: center; padding: 12px 20px; color: #333; text-decoration: none; font-weight: 500; border-left: 4px solid transparent; justify-content: space-between; cursor: pointer; transition: 0.2s; }
         .nav-link:hover, .nav-link.active { background-color: #f0f7ff; color: #0056a8; border-left-color: #0056a8; }
         .nav-link i:first-child { width: 25px; text-align: center; margin-right: 10px; font-size: 1.1rem; }
+        
         .submenu-list { list-style: none; padding: 0; background-color: #fafafa; overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
-        .submenu-list.open { max-height: 1000px; } /* Force open */
+        .submenu-list.open { max-height: 1000px; }
         .submenu-list li a { padding: 10px 20px 10px 55px; display: block; color: #666; text-decoration: none; font-size: 0.9rem; }
-        .submenu-list li a:hover, .submenu-list li a.active { color: #0056a8; background-color: #eee; }
+        .submenu-list li a:hover { color: #0056a8; background-color: #eee; }
 
-        /* MAIN */
+        /* MAIN CONTENT */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .top-bar { height: 70px; background: #fff; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
-        .content-container { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title h2 { margin: 0; color: #0056a8; font-size: 1.4rem; }
+        .user-profile-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; }
         
-        /* CARD CONFIGURATORE */
-        .config-card { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px; }
+        .content-container { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .config-card { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px; position: relative; }
 
         /* STEPPER */
         .step-indicator { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; padding: 0 10px; }
         .step-line-bg { position: absolute; top: 19px; left: 5%; width: 90%; height: 2px; background-color: #e9ecef; z-index: 1; }
-        .step-item { text-align: center; flex: 1; position: relative; z-index: 2; opacity: 0.5; cursor: default; }
+        .step-item { text-align: center; flex: 1; position: relative; z-index: 2; opacity: 0.5; cursor: default; transition: 0.3s; }
         .step-item.active, .step-item.completed { opacity: 1; cursor: pointer; }
         .step-dot { width: 38px; height: 38px; background: #fff; border: 2px solid #dee2e6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin: 0 auto 8px; }
         .step-item.active .step-dot { background: #0056a8; color: #fff; border-color: #0056a8; transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3); }
-        .step-item.completed .step-dot { background: #28a745; color: white; border-color: #28a745; }
+        .step-item.completed .step-dot { background: #28a745; color: #fff; border-color: #28a745; }
         .step-label { font-size: 0.85rem; font-weight: 600; display: block; }
-        .step-sub { font-size: 0.75rem; color: #0056a8; display: block; height: 1em; }
+        .step-sub { font-size: 0.75rem; color: #0056a8; display: block; height: 1em; margin-top: 2px; }
 
-        /* GRIGLIE SELEZIONE */
+        /* CONTENT */
+        .step-content { display: none; animation: fadeIn 0.3s ease; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+        
+        .step-title { font-size: 1.5rem; color: #0056a8; margin-bottom: 25px; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; }
+
+        /* GRIDS */
         .selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .select-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; background: #fff; }
-        .select-card:hover { border-color: #0056a8; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; box-shadow: 0 0 0 2px #0056a8 inset; }
-        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 15px; }
-        .card-text { font-size: 1.1rem; color: #333; font-weight: 500; }
+        .select-card { border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; background: #fff; }
+        .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
+        .card-img { max-width: 100%; max-height: 70px; object-fit: contain; margin-bottom: 15px; }
 
-        /* LISTA UE */
+        /* UE LIST */
         .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .ue-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; cursor: pointer; background: #fff; transition: 0.2s; }
+        .ue-card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; cursor: pointer; background: #fff; transition: 0.2s; display: flex; flex-direction: column; }
         .ue-card:hover { border-color: #0056a8; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
-        .ue-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
-        .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
-        .ue-img { width: 100%; height: 140px; object-fit: contain; margin: 10px 0 20px 0; }
-        .ue-price { font-size: 1.3rem; font-weight: bold; color: #333; text-align: right; border-top: 1px solid #eee; padding-top: 10px; }
+        .ue-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 1.1rem; color: #0056a8; }
+        .ue-img { width: 100%; height: 140px; object-fit: contain; margin-bottom: 15px; }
+        .ue-price { margin-top: auto; padding-top: 15px; border-top: 1px solid #eee; text-align: right; font-weight: bold; font-size: 1.3rem; }
 
-        /* UI SLOT */
+        /* UI SELECTION */
         .ui-slot { background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
         .ui-options { display: flex; flex-wrap: wrap; gap: 10px; }
-        .ui-btn { padding: 10px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; text-align: center; flex: 1 1 80px; }
+        .ui-btn { padding: 10px; border: 1px solid #ccc; background: #fff; border-radius: 6px; cursor: pointer; text-align: center; flex: 1 1 80px; transition: 0.2s; }
         .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
-        .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; }
-        .ui-preview { margin-top: 15px; padding: 10px; background: #fff; border: 1px dashed #ccc; display: none; align-items: center; gap: 15px; }
+        .ui-btn.selected { background: #0056a8; color: #fff; border-color: #0056a8; font-weight: bold; }
+        .ui-preview { margin-top: 15px; padding: 10px; background: #fff; border: 1px dashed #ccc; border-radius: 6px; display: none; align-items: center; gap: 15px; }
         .ui-preview.visible { display: flex; }
+        .ui-preview img { max-height: 50px; }
 
-        /* NAVIGAZIONE */
+        /* NAV */
         .step-nav { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; }
         .btn-nav { padding: 12px 30px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; }
         .btn-prev { background: #e9ecef; color: #555; }
-        .btn-next { background: #0056a8; color: white; }
+        .btn-next { background: #0056a8; color: #fff; }
         .btn-next:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* RIEPILOGO */
+        /* SUMMARY */
         .summary-box { background: #f8f9fa; padding: 30px; border-radius: 8px; border: 1px solid #e9ecef; }
         .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ccc; }
-        .summary-total { margin-top: 20px; font-size: 1.4rem; font-weight: bold; color: #0056a8; text-align: right; }
-        
-        .loader { text-align: center; padding: 50px; color: #666; }
-        
-        @media print {
-            .sidebar, .top-bar, .step-indicator, .step-nav { display: none !important; }
-            .config-card { box-shadow: none; border: none; }
-            #step-6 { display: block !important; }
-        }
+        .summary-total { margin-top: 20px; padding-top: 20px; border-top: 2px solid #ccc; font-size: 1.5rem; font-weight: bold; color: #0056a8; text-align: right; }
+        .pdf-icon { color: #dc3545; margin-left: 10px; cursor: pointer; font-size: 1.2rem; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } }
+        @media print { .sidebar, .top-bar, .step-indicator, .step-nav { display: none !important; } .config-card { box-shadow: none; border: none; padding: 0; } #step-6 { display: block !important; } }
     </style>
 </head>
 <body>
 
-    <!-- Loader Iniziale -->
     <div id="initial-loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;">
-        <div style="font-size:2rem;color:#0056a8;margin-bottom:15px;"><i class="fas fa-spinner fa-spin"></i></div>
+        <i class="fas fa-spinner fa-spin" style="font-size:3rem;color:#0056a8;margin-bottom:20px;"></i>
         <p>Caricamento Configuratore...</p>
     </div>
 
-    <!-- Login -->
     <section id="login-section" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f4f6f9;z-index:2000;display:flex;justify-content:center;align-items:center;">
         <div style="background:#fff;padding:40px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;width:350px;">
-            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" style="max-width:180px;margin-bottom:20px;">
-            <h2>Area Riservata</h2>
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" style="max-width:180px;margin-bottom:20px;">
+            <h2>Accesso Riservato</h2>
             <form id="login-form">
-                <input type="email" id="email" required placeholder="Email" style="width:100%;padding:12px;margin-bottom:15px;border:1px solid #ccc;border-radius:5px;">
-                <input type="password" id="password" required placeholder="Password" style="width:100%;padding:12px;margin-bottom:15px;border:1px solid #ccc;border-radius:5px;">
-                <button type="submit" style="width:100%;padding:12px;background:#0056a8;color:#fff;border:none;border-radius:5px;cursor:pointer;">Accedi</button>
+                <input type="email" id="email" required placeholder="Email" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ccc;border-radius:4px;">
+                <input type="password" id="password" required placeholder="Password" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ccc;border-radius:4px;">
+                <button type="submit" style="width:100%;padding:10px;background:#0056a8;color:white;border:none;border-radius:4px;cursor:pointer;">Accedi</button>
             </form>
         </div>
     </section>
 
-    <!-- App Content -->
-    <div id="app-content" class="hidden" style="display:flex;width:100%;">
+    <div id="app-content" class="hidden" style="display:flex; width:100%;">
         
-        <!-- Sidebar Manuale (Per sicurezza) -->
+        <!-- SIDEBAR INTEGRATA -->
         <nav class="sidebar">
-            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a></div>
+            <div class="sidebar-brand">
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a>
+            </div>
             <ul class="sidebar-menu">
                 <li><a href="/" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
                 <li class="has-submenu">
-                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> Noleggi <i class="fas fa-chevron-down arrow"></i></a>
+                    <a href="#" class="nav-link"><i class="fas fa-handshake"></i> Noleggi <i class="fas fa-chevron-down arrow" style="float:right;font-size:0.8em;margin-top:4px;"></i></a>
                     <ul class="submenu-list"><li><a href="/NOLEGGI/code.html">Attrezzature</a></li><li><a href="/NOLEGGI/GAS/index.html">Gas</a></li></ul>
                 </li>
                 <li><a href="/PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> Preventivazione</a></li>
                 <li class="has-submenu">
-                    <a href="#" class="nav-link active"><i class="fas fa-list"></i> Listini <i class="fas fa-chevron-down arrow"></i></a>
+                    <a href="#" class="nav-link active"><i class="fas fa-list"></i> Listini <i class="fas fa-chevron-down arrow" style="float:right;font-size:0.8em;margin-top:4px;"></i></a>
                     <ul class="submenu-list open">
                         <li><a href="/LISTINI/CLIMA/monosplit/index.html">Clima Monosplit</a></li>
                         <li><a href="#" style="color:#0056a8;font-weight:bold;">Clima Multisplit</a></li>
@@ -141,7 +145,7 @@
                 </li>
                 <li><a href="/SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Schede Tecniche</a></li>
                 <li class="has-submenu">
-                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> Configuratori <i class="fas fa-chevron-down arrow"></i></a>
+                    <a href="#" class="nav-link"><i class="fas fa-cogs"></i> Configuratori <i class="fas fa-chevron-down arrow" style="float:right;font-size:0.8em;margin-top:4px;"></i></a>
                     <ul class="submenu-list">
                         <li><a href="/CONFIGURATORI/IMPIANTO RADIANTE/index.html">Radiante</a></li>
                         <li><a href="/CONFIGURATORI/RADIATORI/index.html">Radiatori</a></li>
@@ -154,10 +158,10 @@
 
         <main class="main-content">
             <header class="top-bar">
-                <div class="page-title"><h2>Listino Clima Multisplit</h2></div>
+                <div class="page-title"><h2>Configuratore Multisplit</h2></div>
                 <div class="user-profile-info">
                     <span id="user-email-display" style="font-weight:600;">...</span>
-                    <button id="logout-button" style="border:none;background:none;cursor:pointer;"><i class="fas fa-sign-out-alt"></i></button>
+                    <button id="logout-button" style="border:none;background:none;cursor:pointer;font-size:1.2rem;"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </header>
 
@@ -167,52 +171,52 @@
                     <!-- STEPPER -->
                     <div class="step-indicator">
                         <div class="step-line-bg"></div>
-                        <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
-                        <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
-                        <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
-                        <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
-                        <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
-                        <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
+                        <div class="step-item active" id="ind-1" onclick="window.app.goTo(1)"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
+                        <div class="step-item" id="ind-2" onclick="window.app.goTo(2)"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
+                        <div class="step-item" id="ind-3" onclick="window.app.goTo(3)"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
+                        <div class="step-item" id="ind-4" onclick="window.app.goTo(4)"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
+                        <div class="step-item" id="ind-5" onclick="window.app.goTo(5)"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
+                        <div class="step-item" id="ind-6" onclick="window.app.goTo(6)"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
                     </div>
 
-                    <!-- STEP 1 -->
+                    <!-- STEP 1: MARCA -->
                     <div id="step-1" class="step-content active">
                         <h3 class="step-title">Seleziona Marca</h3>
-                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento...</div></div>
+                        <div id="grid-brand" class="selection-grid"><p style="text-align:center;">Caricamento...</p></div>
                     </div>
 
-                    <!-- STEP 2 -->
+                    <!-- STEP 2: CONFIGURAZIONE -->
                     <div id="step-2" class="step-content">
                         <h3 class="step-title">Seleziona Configurazione</h3>
                         <div id="grid-config" class="selection-grid"></div>
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 3 -->
+                    <!-- STEP 3: SERIE -->
                     <div id="step-3" class="step-content">
                         <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
                         <div id="grid-series" class="selection-grid"></div>
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 4 -->
+                    <!-- STEP 4: ESTERNA -->
                     <div id="step-4" class="step-content">
                         <h3 class="step-title">Scegli Unità Esterna</h3>
                         <div id="list-ue" class="ue-list"></div>
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 5 -->
+                    <!-- STEP 5: INTERNE -->
                     <div id="step-5" class="step-content">
                         <h3 class="step-title">Configura Unità Interne</h3>
                         <div id="container-ui"></div>
                         <div class="step-nav">
                             <button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button>
-                            <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Vai al Riepilogo</button>
+                            <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Riepilogo</button>
                         </div>
                     </div>
 
-                    <!-- STEP 6 -->
+                    <!-- STEP 6: RIEPILOGO -->
                     <div id="step-6" class="step-content">
                         <h3 class="step-title">Riepilogo Preventivo</h3>
                         <div id="summary-box" class="summary-box"></div>
@@ -230,7 +234,7 @@
         </main>
     </div>
 
-    <!-- Firebase -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -245,7 +249,7 @@
             const state = { step: 1, data: { brands:[], ue:[], ui:[] }, sel: { brand:null, type:null, series:null, ue:null, ui:[] } };
             
             // Immagini
-            const imgPathBase = '/LISTINI/CLIMA/images/'; // PERCORSO ASSOLUTO
+            const imgPathBase = '/LISTINI/CLIMA/images/'; // PERCORSO ASSOLUTO IMMAGINI
             const outdoorImages = { 'HAIER':'est_haier.png', 'DAIKIN':'est_daikin.jpg', 'HITACHI':'est_hitachi.jpg', 'IMMERGAS':'est_immergas.png', 'LG':'est_lg.png', 'MITSUBISHI':'est_mitsubishi.png', 'SAMSUNG':'est_samsung.png', 'TOSHIBA':'est_toshiba.jpg', 'VIESSMANN':'est_viessmann.avif' };
             const indoorImages = { 'SENSIRA':'sensira.png', 'PERFERA':'perfera.png', 'EMURA':'emura.png', 'PEARL':'pearl.png', 'FLEXIS':'flexis.png', 'REVIVE':'revive.png', 'LIBERO SMART':'libero_smart.png', 'KIRIGAMINE ZEN':'kirigamine_zen.png', 'WIND FREE':'windfree.png', 'SHORAI EDGE':'shorai_edge.png', 'SEIYA':'seiya.png', 'VITOCLIMA':'vitoclima_300.png' };
 
@@ -258,7 +262,9 @@
                 infos: [1,2,3,4,5].map(i=>document.getElementById(`info-${i}`))
             };
 
-            // Auth
+            // Sidebar Toggle
+            document.querySelectorAll('.has-submenu > .nav-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); l.nextElementSibling.style.maxHeight = l.nextElementSibling.style.maxHeight ? null : '500px'; }));
+
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display='none';
                 if(user) { ui.login.classList.add('hidden'); ui.app.classList.remove('hidden'); ui.user.textContent=user.email; initApp(); }
@@ -268,10 +274,6 @@
             document.getElementById('login-form').addEventListener('submit', e => { e.preventDefault(); auth.signInWithEmailAndPassword(e.target[0].value, e.target[1].value); });
             document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
 
-            // Menu Toggle
-            document.querySelectorAll('.has-submenu > .nav-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); l.nextElementSibling.style.maxHeight = l.nextElementSibling.style.maxHeight ? null : '500px'; }));
-
-            // Logic
             async function initApp() {
                 try {
                     const [bSnap, ueSnap, uiSnap] = await Promise.all([db.collection('brands').get(), db.collection('outdoorUnits').get(), db.collection('indoorUnits').get()]);
@@ -291,13 +293,13 @@
 
             function renderBrands() {
                 const list = state.data.brands.filter(b => [...new Set(state.data.ue.map(u=>u.brandId))].includes(b.id));
-                // Event Delegation per il Click
+                // FIX: DELEGAZIONE CLICK PER EVITARE BLOCCHI
                 ui.grids.brand.innerHTML = list.map(b => `<div class="select-card" data-id="${b.id}" data-name="${b.name}"><img src="${b.logo}" class="card-img"><span class="card-text">${b.name}</span></div>`).join('');
                 
-                ui.grids.brand.querySelectorAll('.select-card').forEach(card => {
-                    card.addEventListener('click', () => {
-                        state.sel.brand = { id: card.dataset.id, name: card.dataset.name };
-                        ui.infos[0].textContent = card.dataset.name;
+                document.querySelectorAll('#grid-brand .select-card').forEach(c => {
+                    c.addEventListener('click', () => {
+                        state.sel.brand = { id: c.dataset.id, name: c.dataset.name };
+                        ui.infos[0].textContent = c.dataset.name;
                         renderConfigs();
                         window.app.goTo(2);
                     });
@@ -309,28 +311,22 @@
                 const opts = [{id:2,n:'Dual'},{id:3,n:'Trial'},{id:4,n:'Quadri'},{id:5,n:'Penta'}].filter(o=>allowed.includes(o.id));
                 ui.grids.config.innerHTML = opts.map(c => `<div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')"><span style="font-size:2rem;color:#0056a8;">${c.id}</span><span>${c.n}</span></div>`).join('');
             }
-
             function renderSeries() {
                 const compats = new Set();
                 state.data.ue.filter(u=>u.brandId===state.sel.brand.id && u.con===state.sel.type.id).forEach(u=>{ if(u.compat) u.compat.forEach(c=>compats.add(c)); });
                 const unq = []; const seen=new Set();
                 state.data.ui.forEach(u=>{ if(compats.has(u.seriesId) && !seen.has(u.seriesId)) { unq.push(u); seen.add(u.seriesId); }});
-                ui.grids.series.innerHTML = unq.map(s => {
-                    const imgPath = s.percorso_immagine_ui ? `${imgPathBase}${s.percorso_immagine_ui}` : '/images/placeholder.png';
-                    return `<div class="select-card" onclick="window.app.selSeries('${s.seriesId}','${s.modello}')"><img src="${imgPath}" class="card-img" onerror="this.style.display='none'"><span class="card-text">${s.modello}</span></div>`
-                }).join('');
+                ui.grids.series.innerHTML = unq.map(s => `<div class="select-card" onclick="window.app.selSeries('${s.seriesId}','${s.modello}')"><span class="card-text">${s.modello}</span></div>`).join('');
             }
-
             function renderUE() {
                 const list = state.data.ue.filter(u=>u.brandId===state.sel.brand.id && u.con===state.sel.type.id && u.compat?.includes(state.sel.series.id));
                 const unique=[]; const seen=new Set(); list.forEach(u=>{if(!seen.has(u.codice_prodotto)){unique.push(u); seen.add(u.codice_prodotto);}});
                 ui.grids.ue.innerHTML = unique.map(u => {
                     const img = `${imgPathBase}${outdoorImages[u.brandId.toUpperCase()]||'placeholder.png'}`;
                     const pdf = u.datasheet ? `<a href="${u.datasheet}" target="_blank" onclick="event.stopPropagation()" style="color:#dc3545;font-size:1.2rem;"><i class="fas fa-file-pdf"></i></a>` : '';
-                    return `<div class="ue-card" onclick="window.app.selUE('${u.id}')"><div class="ue-header"><span class="ue-title">${u.modello||u.codice_prodotto}</span>${pdf}</div><img src="${img}" class="ue-img"><div class="ue-detail-text">Codice: ${u.codice_prodotto}</div><div class="ue-price">€ ${u.price.toFixed(2)}</div></div>`;
+                    return `<div class="ue-card" onclick="window.app.selUE('${u.id}')"><div class="ue-header"><span class="ue-title">${u.modello||u.codice_prodotto}</span>${pdf}</div><img src="${img}" class="ue-img"><div class="ue-price">€ ${u.price.toFixed(2)}</div></div>`;
                 }).join('');
             }
-
             function renderUISelect() {
                 state.sel.ui = new Array(state.sel.type.id).fill(null);
                 const opts = state.data.ui.filter(i=>i.seriesId===state.sel.series.id);
@@ -343,21 +339,19 @@
                 }
                 ui.btnFinish.disabled=true;
             }
-
             function renderSummary() {
                 const s = state.sel;
                 let tot = s.ue.price; s.ui.forEach(u=>tot+=u.price);
-                const ueName = s.ue.modello || 'Unità Esterna';
                 const rows = s.ui.map((u,i)=> `<div class="summary-row"><span>UI ${i+1}: ${u.modello} (${u.potenza}) ${u.datasheet?`<a href="${u.datasheet}" target="_blank" style="color:#dc3545"><i class="fas fa-file-pdf"></i></a>`:''}</span><strong>€ ${u.price.toFixed(2)}</strong></div>`).join('');
                 ui.summary.innerHTML = `<div class="summary-header"><h3>Preventivo ${s.brand.name}</h3><span>${new Date().toLocaleDateString()}</span></div>
-                <div class="summary-row"><span>UE: ${ueName} (${s.ue.codice_prodotto}) ${s.ue.datasheet?`<a href="${s.ue.datasheet}" target="_blank" style="color:#dc3545"><i class="fas fa-file-pdf"></i></a>`:''}</span><strong>€ ${s.ue.price.toFixed(2)}</strong></div>${rows}<div class="summary-row total"><span>TOTALE</span><span>€ ${tot.toFixed(2)}</span></div>`;
+                <div class="summary-row"><span>UE: ${s.ue.modello} (${s.ue.codice_prodotto}) ${s.ue.datasheet?`<a href="${s.ue.datasheet}" target="_blank" style="color:#dc3545"><i class="fas fa-file-pdf"></i></a>`:''}</span><strong>€ ${s.ue.price.toFixed(2)}</strong></div>${rows}<div class="summary-row total"><span>TOTALE</span><span>€ ${tot.toFixed(2)}</span></div>`;
             }
 
             window.app = {
                 goTo: (s) => {
                     const t = document.getElementById(`ind-${s}`);
-                    // Permetti click se: lo step è minore di current, oppure è lo step immediatamente successivo E quello prima è completato, oppure lo step è già completato
-                    const canGo = (s <= state.step + 1) || t.classList.contains('completed');
+                    // FIX: Logica di avanzamento permissiva
+                    const canGo = (s <= state.step + 1) || (t && t.classList.contains('completed'));
                     if(!canGo) return;
 
                     state.step = s;
@@ -370,7 +364,7 @@
                 finish: () => window.app.goTo(6),
                 selConfig: (id,n) => { state.sel.type={id,name:n}; ui.infos[1].textContent=n; renderSeries(); window.app.goTo(3); },
                 selSeries: (id,n) => { state.sel.series={id,name:n}; ui.infos[2].textContent=n; renderUE(); window.app.goTo(4); },
-                selUE: (id) => { state.sel.ue=state.data.ue.find(u=>u.id===id); ui.infos[3].textContent=state.sel.ue.modello||'UE'; renderUISelect(); window.app.goTo(5); },
+                selUE: (id) => { state.sel.ue=state.data.ue.find(u=>u.id===id); ui.infos[3].textContent=state.sel.ue.modello; renderUISelect(); window.app.goTo(5); },
                 pickUI: (i,id,btn) => {
                     document.querySelector(`#grp-ui-${i} .selected`)?.classList.remove('selected'); btn.classList.add('selected');
                     const u = state.data.ui.find(x=>x.id===id); state.sel.ui[i]=u;
