@@ -439,7 +439,7 @@
                 if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
             }
 
-            // Step 3: Serie (Immagini da GitHub basate sul nome)
+            // Step 3: Serie (Immagini da GitHub basate sul nome con ECCEZIONI)
             function renderSeries() {
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
                 const compatSeriesIds = new Set();
@@ -456,11 +456,25 @@
                     }
                 });
 
+                // Mappa delle eccezioni per i nomi dei file immagini
+                // Chiave: nome modello normalizzato (minuscolo, spazi -> _ )
+                // Valore: nome del file reale su GitHub (senza estensione)
+                const imageOverrides = {
+                    'windfree_avant_s2': 'windfree_avant',
+                    'windfree_elite_s2': 'windfree_elite', 
+                    'cebu_wi-fi': 'cebu',
+                    // Aggiungi qui altre eccezioni se necessario
+                };
+
                 ui.grids.series.innerHTML = unique.map(s => {
                     // Generazione URL GitHub
-                    // Esempio: "Kirigamine Zen" -> "kirigamine_zen.png"
-                    // Esempio: "Perfera" -> "perfera.png"
-                    const normalizedName = s.name.toLowerCase().trim().replace(/\s+/g, '_');
+                    let normalizedName = s.name.toLowerCase().trim().replace(/\s+/g, '_');
+                    
+                    // Controlla se esiste un override per questo modello
+                    if(imageOverrides[normalizedName]) {
+                        normalizedName = imageOverrides[normalizedName];
+                    }
+
                     const imgPath = `${GITHUB_IMG_PATH}${normalizedName}.png`;
 
                     return `
