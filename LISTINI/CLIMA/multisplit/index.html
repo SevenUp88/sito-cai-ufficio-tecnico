@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (Percorso Assoluto per evitare errore 404) -->
-    <link rel="stylesheet" href="/style.css">
+    <!-- CSS Principale -->
+    <link rel="stylesheet" href="../../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -30,6 +30,7 @@
             text-align: center; flex: 1; position: relative; z-index: 2; 
             opacity: 0.5; transition: opacity 0.3s; cursor: default;
         }
+        /* Step completati o attivi sono cliccabili */
         .step-item.active, .step-item.completed { opacity: 1; cursor: pointer; }
         
         .step-dot {
@@ -173,7 +174,7 @@
         <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -198,6 +199,7 @@
                     <!-- INDICATORI STEP -->
                     <div class="step-indicator">
                         <div class="step-line-bg"></div>
+                        <!-- Onclick aggiunto per navigare indietro -->
                         <div class="step-item active" id="ind-1" onclick="window.app.goTo(1)"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
                         <div class="step-item" id="ind-2" onclick="window.app.goTo(2)"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
                         <div class="step-item" id="ind-3" onclick="window.app.goTo(3)"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
@@ -353,6 +355,7 @@
                     ]);
 
                     state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
+                    
                     state.data.ue = ueSnap.docs.map(d => {
                         const data = d.data();
                         return {
@@ -374,7 +377,6 @@
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
-                        // Cerca immagine
                         let imgName = null;
                         const upperModel = (data.modello || '').toUpperCase();
                         for (const key in indoorImages) {
@@ -516,9 +518,9 @@
 
             window.app = {
                 goTo: (step) => {
-                    // Check se lo step è accessibile (già visitato o sequenziale)
+                    // FIX: Allow going to next step only if immediate next, OR allow going back anytime
                     const target = document.getElementById(`ind-${step}`);
-                    if (step > state.step && !target.classList.contains('completed')) return;
+                    if (step > state.step + 1 && !target.classList.contains('completed')) return;
                     
                     state.step = step;
                     ui.steps.forEach(s => s.classList.remove('active'));
