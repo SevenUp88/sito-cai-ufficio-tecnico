@@ -15,6 +15,7 @@
     <style>
         /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
+        .text-center { text-align: center; }
         
         /* --- STILI SPECIFICI CONFIGURATORE --- */
         .config-card {
@@ -65,7 +66,7 @@
             border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
         }
 
-        /* Griglie di Selezione (Brand, Config, Series) */
+        /* Griglie di Selezione */
         .selection-grid { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; 
         }
@@ -79,7 +80,11 @@
         .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
         .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
         
-        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
+        /* Modifica per Step 1: Immagini Brand più grandi e centrate */
+        #grid-brand .select-card { min-height: 120px; justify-content: center; }
+        #grid-brand .card-img { max-height: 70px; margin-bottom: 0; width: auto; max-width: 90%; }
+
+        .card-img { max-width: 100%; max-height: 80px; object-fit: contain; margin-bottom: 10px; }
         .card-text { font-size: 1rem; color: #333; font-weight: 500; }
 
         /* Card Unità Esterna (Step 4) */
@@ -88,16 +93,17 @@
             border: 1px solid #ddd; border-radius: 8px; padding: 20px;
             cursor: pointer; transition: all 0.2s; background: white;
             display: flex; flex-direction: column; justify-content: space-between;
+            position: relative;
         }
         .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
         
-        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
         .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
         .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
         .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
         
-        .ue-img { width: 100%; height: 120px; object-fit: contain; margin: 10px 0; }
+        .ue-img { width: 100%; height: 140px; object-fit: contain; margin: 10px 0; }
 
         /* Selezione Unità Interne (Step 5) */
         .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
@@ -107,14 +113,29 @@
         .ui-btn {
             padding: 10px; border: 1px solid #ced4da; background: white; border-radius: 6px;
             cursor: pointer; font-size: 0.9rem; transition: all 0.2s; text-align: center; flex: 1 1 auto;
-            min-width: 80px;
+            min-width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
         .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
         .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
         
-        .ui-preview { margin-top: 10px; font-size: 0.85rem; color: #555; padding: 8px; background: white; border: 1px dashed #ccc; border-radius: 4px; display: none; }
-        .ui-preview.visible { display: block; }
+        .ui-preview { 
+            margin-top: 15px; padding: 15px; background: white; 
+            border: 1px dashed #ccc; border-radius: 4px; display: none; 
+            flex-direction: row; align-items: center; gap: 15px;
+        }
+        .ui-preview.visible { display: flex; }
+        .ui-preview-img { width: 80px; height: 60px; object-fit: contain; }
+        .ui-preview-content { flex: 1; font-size: 0.9rem; color: #555; }
         .ui-preview strong { color: #0056a8; }
+
+        /* Pulsante Scheda Tecnica */
+        .btn-tech-sheet {
+            display: inline-block; padding: 4px 8px; margin-top: 5px; font-size: 0.8rem;
+            color: #d32f2f; border: 1px solid #d32f2f; border-radius: 4px; 
+            text-decoration: none; transition: all 0.2s; background: #fff;
+        }
+        .btn-tech-sheet:hover { background: #d32f2f; color: white; }
+        .btn-tech-sheet i { margin-right: 4px; }
 
         /* Navigazione */
         .step-nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
@@ -279,7 +300,7 @@
                 sel: { brand:null, type:null, series:null, ue:null, ui:[] }
             };
 
-            // MAPPA IMMAGINI UNITA' ESTERNE
+            // Mappa Immagini Unità Esterne (Hardcoded come fallback)
             const outdoorImages = {
                 'HAIER': 'est_haier.png',
                 'DAIKIN': 'est_daikin.jpg',
@@ -333,6 +354,20 @@
             });
             document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
 
+            // --- FUNZIONI DI UTILITA' ---
+            
+            // Funzione per generare il bottone PDF
+            function getPdfButton(data) {
+                // Controlla vari campi possibili per il link al PDF
+                const link = data.scheda_tecnica || data.link_scheda || data.pdf || data.datasheet;
+                if (link && link.startsWith('http')) {
+                    return `<a href="${link}" target="_blank" class="btn-tech-sheet" onclick="event.stopPropagation()">
+                                <i class="fas fa-file-pdf"></i> Scheda Tecnica
+                            </a>`;
+                }
+                return '';
+            }
+
             // --- LOGICA APPLICAZIONE ---
             
             async function initApp() {
@@ -367,12 +402,20 @@
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
+                        // Logica fallback immagine se manca nella mappa
+                        let img = imgMap[sId];
+                        if (!img) {
+                            // Tenta di indovinare il nome dell'immagine basandosi sul modello o codice
+                            if (data.immagine) img = data.immagine; // Se c'è un campo diretto
+                            // Altrimenti fallback generico gestito nel render
+                        }
+
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
                             seriesId: sId,
                             price: Number(data.prezzo_ui||0),
-                            imgName: imgMap[sId] || null
+                            imgName: img 
                         };
                     });
 
@@ -380,15 +423,14 @@
                 } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
             }
 
-            // Step 1: Marche
+            // Step 1: Marche (SOLO LOGO)
             function renderBrands() {
                 const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
                 const list = state.data.brands.filter(b => validBrands.includes(b.id));
                 
                 ui.grids.brand.innerHTML = list.map(b => `
-                    <div class="select-card" onclick="window.app.selBrand('${b.id}','${b.name}')">
+                    <div class="select-card" onclick="window.app.selBrand('${b.id}','${b.name}')" title="${b.name}">
                         <img src="${b.logo}" class="card-img" onerror="this.style.display='none'">
-                        <span class="card-text">${b.name}</span>
                     </div>
                 `).join('');
             }
@@ -408,7 +450,7 @@
                 if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
             }
 
-            // Step 3: Serie
+            // Step 3: Serie (Immagini ripristinate)
             function renderSeries() {
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
                 const compatSeriesIds = new Set();
@@ -426,10 +468,16 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso Img UI: /LISTINI/CLIMA/images/
-                    const imgPath = s.img ? `/LISTINI/CLIMA/images/${s.img}.png` : '/placeholder.png';
+                    // Percorso Img UI: se s.img esiste usalo, altrimenti placeholder
+                    // Aggiungo un controllo per l'estensione se non presente
+                    let imgPath = '/placeholder.png';
+                    if(s.img) {
+                        imgPath = `/LISTINI/CLIMA/images/${s.img}`;
+                        if(!s.img.includes('.')) imgPath += '.png'; // default png se manca estensione
+                    }
+
                     return `
-                    <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
+                    <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}', '${imgPath}')">
                         <img src="${imgPath}" class="card-img" onerror="this.src='/placeholder.png'">
                         <span class="card-text">${s.name}</span>
                     </div>`;
@@ -437,7 +485,7 @@
                 if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
-            // Step 4: UE
+            // Step 4: UE (Con Scheda Tecnica)
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
@@ -450,11 +498,10 @@
                 list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
 
                 ui.grids.ue.innerHTML = unique.map(u => {
-                    // LOGICA IMMAGINE UNITÀ ESTERNA
                     const brandKey = u.brandId.toUpperCase();
                     const imgName = outdoorImages[brandKey] || 'placeholder.png';
-                    // Percorso assoluto
                     const imgPath = `/LISTINI/CLIMA/images/${imgName}`;
+                    const pdfBtn = getPdfButton(u);
 
                     return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
@@ -465,6 +512,7 @@
                         <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
                         <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
                         <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
+                        ${pdfBtn}
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
                 }).join('');
@@ -472,7 +520,7 @@
                 if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
-            // Step 5: UI
+            // Step 5: UI (Con Immagine Anteprima e Scheda Tecnica)
             function renderUISelect() {
                 const count = state.sel.type.id;
                 state.sel.ui = new Array(count).fill(null);
@@ -493,11 +541,16 @@
                         <div class="ui-options" id="grp-ui-${i}">
                             ${unique.map(u => `
                                 <div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">
-                                    ${u.potenza}<br><small>€ ${u.price.toFixed(0)}</small>
+                                    <span style="font-weight:bold; font-size:1.1em;">${u.potenza}</span>
+                                    <small>BTU/h</small>
+                                    <small style="margin-top:5px;">€ ${u.price.toFixed(0)}</small>
                                 </div>
                             `).join('')}
                         </div>
-                        <div class="ui-preview" id="prev-ui-${i}"></div>
+                        <div class="ui-preview" id="prev-ui-${i}">
+                            <img src="" class="ui-preview-img" id="prev-img-${i}" onerror="this.style.display='none'">
+                            <div class="ui-preview-content" id="prev-txt-${i}"></div>
+                        </div>
                     </div>`;
                     ui.grids.ui.innerHTML += html;
                 }
@@ -568,8 +621,8 @@
                     renderSeries();
                     window.app.goTo(3);
                 },
-                selSeries: (id, name) => {
-                    state.sel.series = {id, name};
+                selSeries: (id, name, imgPath) => {
+                    state.sel.series = {id, name, imgPath}; // Salvo anche il path immagine
                     ui.infos[2].textContent = name;
                     renderUE();
                     window.app.goTo(4);
@@ -587,9 +640,25 @@
                     const unit = state.data.ui.find(u => u.id === uid);
                     state.sel.ui[idx] = unit;
                     
-                    const p = document.getElementById(`prev-ui-${idx}`);
-                    p.innerHTML = `Selezionato: <strong>${unit.codice_prodotto}</strong> (${unit.dimensioni_ui})`;
-                    p.classList.add('visible');
+                    // Update Preview
+                    const wrapper = document.getElementById(`prev-ui-${idx}`);
+                    const txt = document.getElementById(`prev-txt-${idx}`);
+                    const img = document.getElementById(`prev-img-${idx}`);
+                    
+                    // Recupera l'immagine salvata nello step serie
+                    const seriesImg = state.sel.series.imgPath || '/placeholder.png';
+                    
+                    img.src = seriesImg;
+                    img.style.display = 'block';
+                    
+                    const pdfBtn = getPdfButton(unit);
+                    
+                    txt.innerHTML = `
+                        <div><strong>${unit.codice_prodotto}</strong></div>
+                        <div>Dimensioni: ${unit.dimensioni_ui || 'N/D'}</div>
+                        ${pdfBtn}
+                    `;
+                    wrapper.classList.add('visible');
                     
                     const count = state.sel.ui.filter(Boolean).length;
                     ui.infos[4].textContent = `${count}/${state.sel.type.id}`;
