@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (Percorso Assoluto per evitare errori grafici) -->
-    <link rel="stylesheet" href="/style.css">
+    <!-- CSS Principale -->
+    <link rel="stylesheet" href="../../style.css">
     
-    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -29,9 +28,10 @@
         }
         .step-item {
             text-align: center; flex: 1; position: relative; z-index: 2; 
-            opacity: 0.5; transition: opacity 0.3s;
+            opacity: 0.5; transition: opacity 0.3s; cursor: default; /* Default non cliccabile */
         }
-        .step-item.active, .step-item.completed { opacity: 1; }
+        /* I step completati o attivi diventano cliccabili */
+        .step-item.completed, .step-item.active { opacity: 1; cursor: pointer; }
         
         .step-dot {
             width: 35px; height: 35px; background-color: #f8f9fa; color: #6c757d;
@@ -65,7 +65,7 @@
             border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
         }
 
-        /* Griglie di Selezione (Brand, Config, Series) */
+        /* Griglie di Selezione */
         .selection-grid { 
             display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; 
         }
@@ -97,7 +97,7 @@
         .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
         .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
         
-        .ue-img { width: 100%; height: 120px; object-fit: contain; margin: 10px 0; }
+        .ue-img { width: 100%; height: 130px; object-fit: contain; margin: 10px 0; }
 
         /* Selezione Unità Interne (Step 5) */
         .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
@@ -112,8 +112,10 @@
         .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
         .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
         
-        .ui-preview { margin-top: 10px; font-size: 0.85rem; color: #555; padding: 8px; background: white; border: 1px dashed #ccc; border-radius: 4px; display: none; }
-        .ui-preview.visible { display: block; }
+        .ui-preview { margin-top: 10px; font-size: 0.85rem; color: #555; padding: 10px; background: white; border: 1px dashed #ccc; border-radius: 4px; display: none; align-items:center; gap:10px; }
+        .ui-preview.visible { display: flex; }
+        .ui-preview img { max-height: 50px; width: auto; }
+        .ui-preview-info { flex-grow:1; }
         .ui-preview strong { color: #0056a8; }
 
         /* Navigazione */
@@ -131,8 +133,9 @@
         .summary-header h3 { margin: 0; color: #0056a8; }
         .summary-date { font-size: 0.9rem; color: #666; }
         
-        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
         .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
+        .pdf-icon { color: #dc3545; font-size: 1.1rem; margin-left: 10px; cursor: pointer; }
         
         .loader { text-align: center; padding: 40px; color: #6c757d; }
         
@@ -142,6 +145,7 @@
             .summary-box { border: 2px solid #000; background: white; padding: 0; }
             .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
             .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
+            .pdf-icon { display: none !important; }
             body { background: white; font-size: 12pt; color: black; }
             .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
@@ -167,10 +171,10 @@
     <!-- APP -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR -->
+        <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
             <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
@@ -195,12 +199,12 @@
                     <!-- INDICATORI STEP -->
                     <div class="step-indicator">
                         <div class="step-line-bg"></div>
-                        <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
-                        <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
-                        <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
-                        <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
-                        <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
-                        <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
+                        <div class="step-item active" id="ind-1" onclick="window.app.goTo(1)"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
+                        <div class="step-item" id="ind-2" onclick="window.app.goTo(2)"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
+                        <div class="step-item" id="ind-3" onclick="window.app.goTo(3)"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
+                        <div class="step-item" id="ind-4" onclick="window.app.goTo(4)"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
+                        <div class="step-item" id="ind-5" onclick="window.app.goTo(5)"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
+                        <div class="step-item" id="ind-6" onclick="window.app.goTo(6)"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
                     </div>
 
                     <!-- STEP 1: MARCA -->
@@ -216,21 +220,21 @@
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 3: SERIE -->
+                    <!-- STEP 3: SERIE UNITÀ INTERNE -->
                     <div id="step-3" class="step-content">
                         <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
                         <div id="grid-series" class="selection-grid"></div>
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 4: UNITA ESTERNA -->
+                    <!-- STEP 4: UNITÀ ESTERNA -->
                     <div id="step-4" class="step-content">
                         <h3 class="step-title">Scegli Unità Esterna</h3>
                         <div id="list-ue" class="ue-list"></div>
                         <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <!-- STEP 5: UNITA INTERNE -->
+                    <!-- STEP 5: CONFIGURA UNITÀ INTERNE -->
                     <div id="step-5" class="step-content">
                         <h3 class="step-title">Configura Unità Interne</h3>
                         <div id="container-ui"></div>
@@ -258,12 +262,12 @@
         </main>
     </div>
 
-    <!-- Firebase -->
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- MENU LATERALE CENTRALIZZATO -->
+    <!-- Menu Laterale Centralizzato -->
     <script src="/components.js"></script>
 
     <script>
@@ -281,16 +285,24 @@
 
             // MAPPA IMMAGINI UNITA' ESTERNE
             const outdoorImages = {
-                'HAIER': 'est_haier.png',
-                'DAIKIN': 'est_daikin.jpg',
-                'HITACHI': 'est_hitachi.jpg',
-                'IMMERGAS': 'est_immergas.png',
-                'LG': 'est_lg.png',
-                'MITSUBISHI': 'est_mitsubishi.png',
-                'MITSUBISHI ELECTRIC': 'est_mitsubishi.png',
-                'SAMSUNG': 'est_samsung.png',
-                'TOSHIBA': 'est_toshiba.jpg',
-                'VIESSMANN': 'est_viessmann.avif'
+                'HAIER': 'est_haier.png', 'DAIKIN': 'est_daikin.jpg', 'HITACHI': 'est_hitachi.jpg',
+                'IMMERGAS': 'est_immergas.png', 'LG': 'est_lg.png', 'MITSUBISHI': 'est_mitsubishi.png',
+                'MITSUBISHI ELECTRIC': 'est_mitsubishi.png', 'SAMSUNG': 'est_samsung.png',
+                'TOSHIBA': 'est_toshiba.jpg', 'VIESSMANN': 'est_viessmann.avif'
+            };
+
+            // MAPPA MANUALE IMMAGINI UNITA' INTERNE (Corregge quelle mancanti)
+            const indoorImages = {
+                'SENSIRA': 'sensira.png', 'PERFERA': 'perfera.png', 'STYLISH': 'stylish.png',
+                'EMURA': 'emura.png', 'COMFORA': 'comfora.png', 'PERFERA ALL SEASONS': 'perfera.png',
+                'AIR HOME 400': 'air_home_400.png', 'AIR HOME 600': 'air_home_600.png',
+                'THOR': 'thor.png', 'KENDO': 'kendo.png', 'PEARL': 'pearl.png', 'FLEXIS': 'flexis.png', 'REVIVE': 'revive.png',
+                'LIBERO SMART': 'libero_smart.png', 'ARTCOOL': 'artcool.png', 'ATMOSPHERE': 'atmosphere.png',
+                'KIRIGAMINE ZEN': 'kirigamine_zen.png', 'KIRIGAMINE STYLE': 'kirigamine_style.png', 'SMART': 'smart.png',
+                'AY': 'ay.png', 'ETHEREA': 'etherea.png', 'TZ': 'tz.png',
+                'WIND FREE': 'windfree.png', 'WIND FREE AVANT': 'windfree.png', 'WIND FREE ELITE': 'windfree_elite.png', 'CEBU': 'cebu.png',
+                'SHORAI EDGE': 'shorai_edge.png', 'SEIYA CLASSIC': 'seiya_classic.png', 'SEIYA': 'seiya.png', 'HAORI': 'haori.png',
+                'VITOCLIMA 300': 'vitoclima_300.png', 'VITOCLIMA 200': 'vitoclima_200.png'
             };
 
             const ui = {
@@ -312,7 +324,6 @@
                 btnFinish: document.getElementById('btn-finish')
             };
 
-            // Auth
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display='none';
                 if(user) {
@@ -333,8 +344,6 @@
             });
             document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
 
-            // --- LOGICA APPLICAZIONE ---
-            
             async function initApp() {
                 try {
                     const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
@@ -345,7 +354,6 @@
                     ]);
 
                     state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
-                    
                     state.data.ue = ueSnap.docs.map(d => {
                         const data = d.data();
                         return {
@@ -367,12 +375,22 @@
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
+                        // Cerca immagine nella mappa manuale (priorità) o in quella DB
+                        let imgName = null;
+                        const upperModel = (data.modello || '').toUpperCase();
+                        // Cerca corrispondenza parziale nel dizionario manuale
+                        for (const key in indoorImages) {
+                            if (upperModel.includes(key)) { imgName = indoorImages[key]; break; }
+                        }
+                        if (!imgName) imgName = imgMap[sId];
+
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
                             seriesId: sId,
                             price: Number(data.prezzo_ui||0),
-                            imgName: imgMap[sId] || null
+                            imgName: imgName,
+                            datasheet: data.scheda_tecnica_url
                         };
                     });
 
@@ -380,11 +398,9 @@
                 } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
             }
 
-            // Step 1: Marche
             function renderBrands() {
                 const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
                 const list = state.data.brands.filter(b => validBrands.includes(b.id));
-                
                 ui.grids.brand.innerHTML = list.map(b => `
                     <div class="select-card" onclick="window.app.selBrand('${b.id}','${b.name}')">
                         <img src="${b.logo}" class="card-img" onerror="this.style.display='none'">
@@ -393,28 +409,23 @@
                 `).join('');
             }
 
-            // Step 2: Configurazione
             function renderConfigs() {
                 const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
                 const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
                 const list = opts.filter(o => allowed.includes(o.id));
-                
                 ui.grids.config.innerHTML = list.map(c => `
                     <div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')">
                         <span class="card-text" style="font-size:2rem;color:#0056a8;">${c.id}</span>
                         <span>${c.n}</span>
                     </div>
                 `).join('');
-                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
+                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile.</p>';
             }
 
-            // Step 3: Serie
             function renderSeries() {
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
                 const compatSeriesIds = new Set();
-                compatUE.forEach(u => {
-                    if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
-                });
+                compatUE.forEach(u => { if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id)); });
 
                 const unique = [];
                 const seen = new Set();
@@ -426,121 +437,94 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso Img UI: /LISTINI/CLIMA/images/
-                    const imgPath = s.img ? `/LISTINI/CLIMA/images/${s.img}.png` : '/placeholder.png';
+                    const imgPath = s.img ? `../../LISTINI/CLIMA/images/${s.img}` : '../../placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
-                        <img src="${imgPath}" class="card-img" onerror="this.src='/placeholder.png'">
+                        <img src="${imgPath}" class="card-img" onerror="this.src='../../placeholder.png'">
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
+                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile.</p>';
             }
 
-            // Step 4: UE
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
                     u.con === state.sel.type.id &&
                     u.compat?.includes(state.sel.series.id)
                 );
-                
                 const unique = [];
                 const seen = new Set();
                 list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
 
                 ui.grids.ue.innerHTML = unique.map(u => {
-                    // LOGICA IMMAGINE UNITÀ ESTERNA
                     const brandKey = u.brandId.toUpperCase();
                     const imgName = outdoorImages[brandKey] || 'placeholder.png';
-                    // Percorso assoluto
-                    const imgPath = `/LISTINI/CLIMA/images/${imgName}`;
-
+                    const imgPath = `../../LISTINI/CLIMA/images/${imgName}`;
                     return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
-                        <div class="ue-header">
-                            <span class="ue-title">${u.modello || u.codice_prodotto}</span>
-                        </div>
-                        <img src="${imgPath}" class="ue-img" onerror="this.src='/placeholder.png'">
-                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
-                        <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
-                        <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
+                        <div class="ue-header"><span class="ue-title">${u.modello || u.codice_prodotto}</span></div>
+                        <img src="${imgPath}" class="ue-img" onerror="this.src='../../placeholder.png'">
+                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}<br>Potenza: ${u.potenza} kW<br>Gas: ${u.tipo_refrigerante}</div>
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
                 }).join('');
-                
                 if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
-            // Step 5: UI
             function renderUISelect() {
                 const count = state.sel.type.id;
                 state.sel.ui = new Array(count).fill(null);
-                
                 const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
                 const unique = [];
                 const seen = new Set();
-                opts.forEach(i => {
-                    if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); }
-                });
+                opts.forEach(i => { if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); } });
                 unique.sort((a,b) => parseFloat(a.potenza) - parseFloat(b.potenza));
 
                 ui.grids.ui.innerHTML = '';
                 for(let i=0; i<count; i++) {
-                    const html = `
+                    ui.grids.ui.innerHTML += `
                     <div class="ui-slot">
                         <h4>Unità Interna ${i+1}</h4>
                         <div class="ui-options" id="grp-ui-${i}">
-                            ${unique.map(u => `
-                                <div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">
-                                    ${u.potenza}<br><small>€ ${u.price.toFixed(0)}</small>
-                                </div>
-                            `).join('')}
+                            ${unique.map(u => `<div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">${u.potenza}<br><small>€ ${u.price.toFixed(0)}</small></div>`).join('')}
                         </div>
                         <div class="ui-preview" id="prev-ui-${i}"></div>
                     </div>`;
-                    ui.grids.ui.innerHTML += html;
                 }
                 ui.btnFinish.disabled = true;
             }
 
-            // Step 6: Riepilogo
             function renderSummary() {
                 const s = state.sel;
                 let tot = s.ue.price;
                 s.ui.forEach(u => tot += u.price);
-                
                 let rows = s.ui.map((u,i) => `
                     <div class="summary-row">
-                        <span>UI ${i+1}: ${u.modello} (${u.potenza})</span>
+                        <span>UI ${i+1}: ${u.modello} (${u.potenza})
+                        ${u.datasheet ? `<a href="${u.datasheet}" target="_blank" class="pdf-icon"><i class="fas fa-file-pdf"></i></a>` : ''}
+                        </span>
                         <strong>€ ${u.price.toFixed(2)}</strong>
                     </div>
                 `).join('');
 
                 ui.summary.innerHTML = `
-                    <div class="summary-header">
-                        <h3>Preventivo ${s.brand.name}</h3>
-                        <span class="summary-date">${new Date().toLocaleDateString()}</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Unità Esterna: ${s.ue.modello}</span>
-                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
-                    </div>
+                    <div class="summary-header"><h3>Preventivo ${s.brand.name}</h3><span class="summary-date">${new Date().toLocaleDateString()}</span></div>
+                    <div class="summary-row"><span>UE: ${s.ue.modello} (${s.ue.codice_prodotto})</span><strong>€ ${s.ue.price.toFixed(2)}</strong></div>
                     ${rows}
-                    <div class="summary-row total">
-                        <span>TOTALE (IVA Escl.)</span>
-                        <span>€ ${tot.toFixed(2)}</span>
-                    </div>
+                    <div class="summary-row total"><span>TOTALE (IVA Escl.)</span><span>€ ${tot.toFixed(2)}</span></div>
                 `;
             }
 
-            // --- NAVIGATION ---
             window.app = {
                 goTo: (step) => {
+                    // Permette di tornare indietro solo se lo step è < dello step massimo raggiunto o è uno step precedente
+                    // Qui semplifichiamo: permettiamo il click se lo step è già stato visitato (completed) o è quello attuale
+                    const target = document.getElementById(`ind-${step}`);
+                    if (step > state.step && !target.classList.contains('completed')) return; // Blocco avanzamento illegale
+                    
                     state.step = step;
                     ui.steps.forEach(s => s.classList.remove('active'));
-                    document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
-                    
                     document.getElementById(`step-${step}`).classList.add('active');
                     
                     ui.inds.forEach((el, idx) => {
@@ -551,44 +535,26 @@
                     });
                     
                     if(step === 6) renderSummary();
-                    window.scrollTo(0,0);
+                    window.scrollTo(0,0);https://github.com/SevenUp88/sito-cai-ufficio-tecnico/blob/main/LISTINI/CLIMA/multisplit/index.html
                 },
                 prev: () => window.app.goTo(state.step - 1),
                 finish: () => window.app.goTo(6),
                 
-                selBrand: (id, name) => {
-                    state.sel.brand = {id, name};
-                    ui.infos[0].textContent = name;
-                    renderConfigs();
-                    window.app.goTo(2);
-                },
-                selConfig: (id, name) => {
-                    state.sel.type = {id, name};
-                    ui.infos[1].textContent = name;
-                    renderSeries();
-                    window.app.goTo(3);
-                },
-                selSeries: (id, name) => {
-                    state.sel.series = {id, name};
-                    ui.infos[2].textContent = name;
-                    renderUE();
-                    window.app.goTo(4);
-                },
-                selUE: (id) => {
-                    state.sel.ue = state.data.ue.find(u => u.id === id);
-                    ui.infos[3].textContent = state.sel.ue.modello;
-                    renderUISelect();
-                    window.app.goTo(5);
-                },
+                selBrand: (id, name) => { state.sel.brand = {id, name}; ui.infos[0].textContent = name; renderConfigs(); window.app.goTo(2); },
+                selConfig: (id, name) => { state.sel.type = {id, name}; ui.infos[1].textContent = name; renderSeries(); window.app.goTo(3); },
+                selSeries: (id, name) => { state.sel.series = {id, name}; ui.infos[2].textContent = name; renderUE(); window.app.goTo(4); },
+                selUE: (id) => { state.sel.ue = state.data.ue.find(u => u.id === id); ui.infos[3].textContent = state.sel.ue.modello; renderUISelect(); window.app.goTo(5); },
                 pickUI: (idx, uid, btn) => {
                     document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
                     btn.classList.add('selected');
-                    
                     const unit = state.data.ui.find(u => u.id === uid);
                     state.sel.ui[idx] = unit;
                     
+                    const imgPath = unit.imgName ? `../../LISTINI/CLIMA/images/${unit.imgName}` : '../../placeholder.png';
+                    const dsLink = unit.datasheet ? `<a href="${unit.datasheet}" target="_blank" style="margin-left:auto;color:#dc3545;"><i class="fas fa-file-pdf"></i></a>` : '';
+                    
                     const p = document.getElementById(`prev-ui-${idx}`);
-                    p.innerHTML = `Selezionato: <strong>${unit.codice_prodotto}</strong> (${unit.dimensioni_ui})`;
+                    p.innerHTML = `<img src="${imgPath}"> <div class="ui-preview-info"><strong>${unit.codice_prodotto}</strong><br>${unit.dimensioni_ui}</div> ${dsLink}`;
                     p.classList.add('visible');
                     
                     const count = state.sel.ui.filter(Boolean).length;
@@ -596,7 +562,6 @@
                     ui.btnFinish.disabled = count !== state.sel.type.id;
                 }
             };
-
         });
     </script>
 </body>
