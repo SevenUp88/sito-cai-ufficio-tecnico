@@ -5,210 +5,251 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale -->
+    <!-- CSS Principale (Percorso Assoluto per evitare errori grafici) -->
     <link rel="stylesheet" href="/style.css">
     
+    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- STILI DI SICUREZZA --- */
-        body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
-
-        /* SIDEBAR */
-        .sidebar { width: 260px; background: #fff; border-right: 1px solid #e0e0e0; display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; z-index: 100; }
-        .sidebar-brand { padding: 15px; text-align: center; border-bottom: 1px solid #eee; }
-        .sidebar-brand img { max-width: 180px; }
-        .sidebar-menu { list-style: none; padding: 10px 0; margin: 0; }
-        .nav-link { display: flex; align-items: center; padding: 12px 20px; color: #333; text-decoration: none; font-weight: 500; justify-content: space-between; cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; }
-        .nav-link:hover, .nav-link.active { background-color: #f0f7ff; color: #0056a8; border-left-color: #0056a8; }
-        .nav-link i:first-child { width: 25px; text-align: center; margin-right: 10px; font-size: 1.1rem; }
-        .submenu-list { list-style: none; padding: 0; background-color: #fafafa; overflow: hidden; max-height: 0; transition: max-height 0.3s ease; }
-        .submenu-list.open { max-height: 1000px; }
-        .submenu-list li a { padding: 10px 20px 10px 55px; display: block; color: #666; text-decoration: none; font-size: 0.9rem; }
-        .submenu-list li a:hover { color: #0056a8; background-color: #eee; }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .top-bar { height: 70px; background: #fff; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
-        .page-title h2 { margin: 0; color: #0056a8; font-size: 1.4rem; }
-        .user-profile-info { display: flex; align-items: center; gap: 15px; font-size: 0.9rem; }
-        .content-container { padding: 30px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-
-        /* --- STILI ORIGINALI CONFIGURATORE (Mantenuti dal tuo style.css) --- */
-        .configurator-container { background-color: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px; }
         
-        .config-step { display: none; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fff; margin-bottom: 25px; }
-        .config-step.active-step { display: block; }
-        .config-step h2 { color: #0056a8; margin-top: 0; margin-bottom: 25px; padding-bottom: 10px; border-bottom: 2px solid #0056a8; font-size: 1.6em; }
-        .step-number-title { color: #0056a8; margin-right: 8px; font-weight: bold; }
+        /* --- STILI SPECIFICI CONFIGURATORE --- */
+        .config-card {
+            background-color: #fff; padding: 30px; border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
+        }
 
-        /* Step Indicator */
-        .step-indicator { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 35px; padding: 0 10px; }
-        .step-item { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; flex: 1; position: relative; }
-        .step-item.disabled { cursor: not-allowed; opacity: 0.5; }
-        .step-dot { width: 35px; height: 35px; border-radius: 50%; background-color: #eee; color: #666; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-bottom: 5px; border: 2px solid #ddd; }
-        .step-item.active .step-dot { background-color: #0056a8; color: white; border-color: #0056a8; transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3); }
-        .step-item.completed .step-dot { background-color: #28a745; color: white; border-color: #28a745; }
-        .step-name { font-size: 0.8em; font-weight: 600; color: #333; }
-        .step-selection-info { font-size: 0.7em; color: #0056a8; margin-top: 3px; min-height: 1.2em; font-weight: 500; }
-        .step-line { flex-grow: 1; height: 2px; background-color: #ccc; margin: 18px 5px 0 5px; }
-
-        /* Griglie */
-        .selection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .selection-item { padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; text-align: center; cursor: pointer; background-color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; transition: all 0.2s; }
-        .selection-item:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .selection-item.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
-        .selection-item img { max-height: 70px; margin-bottom: 10px; object-fit: contain; }
-
-        /* Liste UE */
-        .selection-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .unit-selection-card { padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; background-color: #fff; cursor: pointer; transition: all 0.2s; position: relative; }
-        .unit-selection-card:hover { border-color: #0056a8; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .unit-selection-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
-        .unit-info h4 { margin: 0 0 5px 0; color: #0056a8; font-size: 1.1em; }
-        .unit-price { font-weight: bold; color: #0056a8; font-size: 1.2em; margin-top: 10px; text-align: right; }
+        /* Indicatori Step */
+        .step-indicator {
+            display: flex; justify-content: space-between; margin-bottom: 40px; 
+            position: relative; padding: 0 10px;
+        }
+        .step-item {
+            text-align: center; flex: 1; position: relative; z-index: 2; 
+            opacity: 0.5; transition: opacity 0.3s;
+        }
+        .step-item.active, .step-item.completed { opacity: 1; }
         
-        /* Tasto PDF */
-        .technical-sheet-button { display: inline-block; padding: 6px 12px; font-size: 0.85em; border-radius: 4px; background-color: #dc3545; color: white !important; text-decoration: none; margin-top: 10px; cursor: pointer; float: right; }
-        .technical-sheet-button:hover { background-color: #c82333; }
+        .step-dot {
+            width: 35px; height: 35px; background-color: #f8f9fa; color: #6c757d;
+            border: 2px solid #dee2e6; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin: 0 auto 8px auto; transition: all 0.3s;
+        }
+        .step-item.active .step-dot { 
+            background-color: #0056a8; color: white; border-color: #0056a8; 
+            transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3);
+        }
+        .step-item.completed .step-dot { 
+            background-color: #28a745; color: white; border-color: #28a745; 
+        }
+        
+        .step-label { font-size: 0.8rem; font-weight: 600; color: #333; display: block; }
+        .step-sub { font-size: 0.75rem; color: #0056a8; font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
 
-        /* UI Selection */
-        .indoor-unit-slot { background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .indoor-unit-choices-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-        .indoor-unit-choice-card { background-color: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px 15px; cursor: pointer; text-align: center; min-width: 90px; flex: 1; }
-        .indoor-unit-choice-card:hover { border-color: #0056a8; color: #0056a8; }
-        .indoor-unit-choice-card.selected { background-color: #0056a8; color: white; border-color: #0056a8; }
-        .unit-details { font-size: 0.9em; color: #555; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc; }
+        .step-line-bg {
+            position: absolute; top: 19px; left: 5%; width: 90%; height: 2px;
+            background-color: #e9ecef; z-index: 1;
+        }
+
+        /* Contenuto Step */
+        .step-content { display: none; animation: fadeIn 0.4s ease; }
+        .step-content.active { display: block; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+
+        .step-title { 
+            font-size: 1.4rem; color: #0056a8; margin-bottom: 25px; 
+            border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
+        }
+
+        /* Griglie di Selezione (Brand, Config, Series) */
+        .selection-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; 
+        }
+        
+        .select-card {
+            border: 2px solid #e9ecef; border-radius: 8px; padding: 20px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 140px; background: white;
+        }
+        .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
+        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
+        
+        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
+        .card-text { font-size: 1rem; color: #333; font-weight: 500; }
+
+        /* Card Unità Esterna (Step 4) */
+        .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .ue-card {
+            border: 1px solid #ddd; border-radius: 8px; padding: 20px;
+            cursor: pointer; transition: all 0.2s; background: white;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
+        
+        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
+        .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
+        .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
+        
+        .ue-img { width: 100%; height: 120px; object-fit: contain; margin: 10px 0; }
+
+        /* Selezione Unità Interne (Step 5) */
+        .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .ui-slot h4 { margin: 0 0 10px 0; color: #495057; font-size: 1rem; }
+        
+        .ui-options { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ui-btn {
+            padding: 10px; border: 1px solid #ced4da; background: white; border-radius: 6px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.2s; text-align: center; flex: 1 1 auto;
+            min-width: 80px;
+        }
+        .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
+        .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
+        
+        .ui-preview { margin-top: 10px; font-size: 0.85rem; color: #555; padding: 8px; background: white; border: 1px dashed #ccc; border-radius: 4px; display: none; }
+        .ui-preview.visible { display: block; }
+        .ui-preview strong { color: #0056a8; }
 
         /* Navigazione */
-        .step-navigation { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .step-navigation button { padding: 10px 25px; font-size: 1em; border-radius: 4px; cursor: pointer; border: none; }
-        .prev-btn { background-color: #6c757d; color: white; }
-        .next-btn { background-color: #0056a8; color: white; }
-        .next-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .step-nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
+        .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+        .btn-prev { background: #e9ecef; color: #495057; }
+        .btn-prev:hover { background: #ced4da; }
+        .btn-next { background: #0056a8; color: white; }
+        .btn-next:hover { background: #004485; }
+        .btn-next:disabled { background: #a0c4e8; cursor: not-allowed; }
 
         /* Riepilogo */
-        .summary-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; }
-        .summary-detail-block { background: white; padding: 15px; margin-bottom: 15px; border-radius: 4px; border: 1px solid #ddd; }
-        .total-price-iva { font-size: 1.4em; font-weight: bold; color: #0056a8; margin-top: 20px; text-align: right; }
-
-        /* Stampa */
+        .summary-box { background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .summary-header { border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-header h3 { margin: 0; color: #0056a8; }
+        .summary-date { font-size: 0.9rem; color: #666; }
+        
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
+        .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
+        
+        .loader { text-align: center; padding: 40px; color: #6c757d; }
+        
         @media print {
-            .sidebar, .top-bar, .step-indicator, .step-navigation { display: none !important; }
-            .configurator-container { box-shadow: none; padding: 0; }
+            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
+            .config-card { box-shadow: none; border: none; padding: 0; min-height: auto; }
+            .summary-box { border: 2px solid #000; background: white; padding: 0; }
+            .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
+            .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
+            body { background: white; font-size: 12pt; color: black; }
+            .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
-            .config-step:not(#step-6) { display: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="initial-loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;">
-        <i class="fas fa-spinner fa-spin" style="font-size:3rem;color:#0056a8;margin-bottom:20px;"></i>
-        <p>Caricamento Configuratore...</p>
-    </div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p>Avvio Configuratore...</p></div>
 
-    <!-- Login -->
-    <section id="login-section" class="hidden" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#f4f6f9;z-index:2000;display:flex;justify-content:center;align-items:center;">
-        <div style="background:#fff;padding:40px;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.1);text-align:center;width:350px;">
-            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" style="max-width:180px;margin-bottom:20px;">
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="login-logo">
+            <h2>Area Riservata</h2>
             <form id="login-form">
-                <input type="email" id="email" required placeholder="Email" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ccc;border-radius:4px;">
-                <input type="password" id="password" required placeholder="Password" style="width:100%;padding:10px;margin-bottom:15px;border:1px solid #ccc;border-radius:4px;">
-                <button type="submit" style="width:100%;padding:10px;background:#0056a8;color:white;border:none;border-radius:4px;cursor:pointer;">Accedi</button>
+                <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
+                <button type="submit" class="btn-login">Accedi</button>
             </form>
         </div>
     </section>
 
-    <div id="app-content" class="hidden" style="display:flex; width:100%;">
+    <!-- APP -->
+    <div id="app-content" class="dashboard-wrapper hidden">
         
+        <!-- SIDEBAR -->
         <nav class="sidebar">
-            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a></div>
-            <ul class="sidebar-menu">
-                <li><a href="/" class="nav-link"><i class="fas fa-th-large"></i> Dashboard</a></li>
-                <li class="has-submenu"><a href="#" class="nav-link"><i class="fas fa-handshake"></i> Noleggi</a><ul class="submenu-list"><li><a href="/NOLEGGI/code.html">Attrezzature</a></li><li><a href="/NOLEGGI/GAS/index.html">Gas</a></li></ul></li>
-                <li><a href="/PREVENTIVI/index.html" class="nav-link"><i class="fas fa-calculator"></i> Preventivazione</a></li>
-                <li class="has-submenu"><a href="#" class="nav-link active"><i class="fas fa-list"></i> Listini</a>
-                    <ul class="submenu-list open">
-                        <li><a href="/LISTINI/CLIMA/monosplit/index.html">Clima Monosplit</a></li>
-                        <li><a href="#" style="color:#0056a8;font-weight:bold;">Clima Multisplit</a></li>
-                        <li><a href="/LISTINI/CALDAIE/index.html">Caldaie</a></li>
-                        <li><a href="/LISTINI/SCALDABAGNI/index.html">Scaldabagno</a></li>
-                        <li><a href="/LISTINI/SANITARI/index.html">Sanitari</a></li>
-                    </ul>
-                </li>
-                <li><a href="/SCHEDE%20TECNICHE/index.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Schede Tecniche</a></li>
-                <li class="has-submenu"><a href="#" class="nav-link"><i class="fas fa-cogs"></i> Configuratori</a><ul class="submenu-list"><li><a href="/CONFIGURATORI/IMPIANTO RADIANTE/index.html">Radiante</a></li><li><a href="/CONFIGURATORI/RADIATORI/index.html">Radiatori</a></li></ul></li>
-                <li><a href="/SCONTISTICHE/index.html" class="nav-link"><i class="fas fa-tags"></i> Scontistiche</a></li>
-                <li><a href="/AGENDA%20CONSEGNE/index.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
-            </ul>
+            <div class="sidebar-brand">
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+            </div>
+            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
+        <!-- MAIN -->
         <main class="main-content">
             <header class="top-bar">
                 <div class="page-title"><h2>Configuratore Multisplit</h2></div>
-                <div class="user-profile-info"><span id="user-email-display">...</span><button id="logout-button" style="border:none;background:none;"><i class="fas fa-sign-out-alt"></i></button></div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                </div>
             </header>
 
             <div class="content-container">
-                <div class="configurator-container">
+                <div class="config-card">
                     
+                    <!-- INDICATORI STEP -->
                     <div class="step-indicator">
-                        <div class="step-item active" data-step="1"><div class="step-dot">1</div><span class="step-name">Marca</span><div class="step-selection-info" id="step-info-1"></div></div>
-                        <div class="step-line"></div>
-                        <div class="step-item" data-step="2"><div class="step-dot">2</div><span class="step-name">Config.</span><div class="step-selection-info" id="step-info-2"></div></div>
-                        <div class="step-line"></div>
-                        <div class="step-item" data-step="3"><div class="step-dot">3</div><span class="step-name">Modello</span><div class="step-selection-info" id="step-info-3"></div></div>
-                        <div class="step-line"></div>
-                        <div class="step-item" data-step="4"><div class="step-dot">4</div><span class="step-name">Unità Est.</span><div class="step-selection-info" id="step-info-4"></div></div>
-                        <div class="step-line"></div>
-                        <div class="step-item" data-step="5"><div class="step-dot">5</div><span class="step-name">Unità Int.</span><div class="step-selection-info" id="step-info-5"></div></div>
-                        <div class="step-line"></div>
-                        <div class="step-item" data-step="6"><div class="step-dot">6</div><span class="step-name">Riepilogo</span></div>
+                        <div class="step-line-bg"></div>
+                        <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
+                        <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
+                        <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
+                        <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
+                        <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
+                        <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
                     </div>
 
-                    <div id="step-1" class="config-step active-step">
-                        <h2><span class="step-number-title">1.</span> Seleziona Marca</h2>
-                        <div id="brand-selection" class="selection-grid"></div>
-                        <div class="step-navigation"></div>
+                    <!-- STEP 1: MARCA -->
+                    <div id="step-1" class="step-content active">
+                        <h3 class="step-title">Seleziona Marca</h3>
+                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento Marche...</div></div>
                     </div>
 
-                    <div id="step-2" class="config-step">
-                        <h2><span class="step-number-title">2.</span> Scegli Configurazione</h2>
-                        <div id="config-type-selection" class="selection-grid"></div>
-                        <div class="step-navigation"><button class="btn-nav prev-btn" onclick="showStep(1)">Indietro</button></div>
-                    </div>
-                    
-                    <div id="step-3" class="config-step">
-                        <h2><span class="step-number-title">3.</span> Seleziona Modello</h2>
-                        <div id="model-selection" class="selection-grid"></div>
-                        <div class="step-navigation"><button class="btn-nav prev-btn" onclick="showStep(2)">Indietro</button></div>
+                    <!-- STEP 2: CONFIGURAZIONE -->
+                    <div id="step-2" class="step-content">
+                        <h3 class="step-title">Seleziona Configurazione</h3>
+                        <div id="grid-config" class="selection-grid"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <div id="step-4" class="config-step">
-                        <h2><span class="step-number-title">4.</span> Seleziona Unità Esterna</h2>
-                        <div id="outdoor-unit-selection" class="selection-list"></div>
-                        <div class="step-navigation"><button class="btn-nav prev-btn" onclick="showStep(3)">Indietro</button></div>
+                    <!-- STEP 3: SERIE -->
+                    <div id="step-3" class="step-content">
+                        <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
+                        <div id="grid-series" class="selection-grid"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
                     </div>
 
-                    <div id="step-5" class="config-step">
-                        <h2><span class="step-number-title">5.</span> Seleziona Unità Interne</h2>
-                        <div id="indoor-units-selection-area"></div>
-                        <div class="step-navigation">
-                            <button class="btn-nav prev-btn" onclick="showStep(4)">Indietro</button>
-                            <button class="btn-nav next-btn" id="finalize-btn" disabled onclick="showStep(6)">Vai al Riepilogo</button>
+                    <!-- STEP 4: UNITA ESTERNA -->
+                    <div id="step-4" class="step-content">
+                        <h3 class="step-title">Scegli Unità Esterna</h3>
+                        <div id="list-ue" class="ue-list"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
+                    </div>
+
+                    <!-- STEP 5: UNITA INTERNE -->
+                    <div id="step-5" class="step-content">
+                        <h3 class="step-title">Configura Unità Interne</h3>
+                        <div id="container-ui"></div>
+                        <div class="step-nav">
+                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button>
+                            <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Vai al Riepilogo</button>
                         </div>
                     </div>
 
-                    <div id="step-6" class="config-step">
-                        <h2 id="summary-main-title">Riepilogo Configurazione</h2>
-                        <div id="config-summary" class="summary-section"></div>
-                        <div class="step-navigation summary-actions">
-                            <button class="btn-nav prev-btn" onclick="showStep(5)">Modifica</button>
-                            <button class="btn-nav next-btn" onclick="window.print()">Stampa</button>
-                            <button class="btn-nav prev-btn" style="background:#dc3545;" onclick="location.reload()">Nuova</button>
+                    <!-- STEP 6: RIEPILOGO -->
+                    <div id="step-6" class="step-content">
+                        <h3 class="step-title">Riepilogo Preventivo</h3>
+                        <div id="summary-box" class="summary-box"></div>
+                        <div class="step-nav">
+                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Modifica</button>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-nav btn-prev" style="background:#dc3545; color:white;" onclick="location.reload()">Nuovo</button>
+                                <button class="btn-nav btn-next" onclick="window.print()">Stampa</button>
+                            </div>
                         </div>
                     </div>
 
@@ -222,6 +263,9 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+    <!-- MENU LATERALE CENTRALIZZATO -->
+    <script src="/components.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:71e2195f1712a832e01b3a" };
@@ -229,253 +273,330 @@
             const auth = firebase.auth();
             const db = firebase.firestore();
 
-            // QUESTO È L'OGGETTO APP_DATA ORIGINALE CHE CONOSCEVI
-            const APP_DATA = { brands: [], configTypes: {}, outdoorUnits: [], indoorUnits: [], uiSeriesImageMapping: {} };
-            const selections = { brand: null, configType: null, indoorSeries: null, outdoorUnit: null, indoorUnits: [] };
-            
-            // Immagini manuali per sicurezza
-            const indoorImages = {
-                'SENSIRA': 'sensira.png', 'PERFERA': 'perfera.png', 'EMURA': 'emura.png', 'PEARL': 'pearl.png', 'FLEXIS': 'flexis.png', 'REVIVE': 'revive.png', 'LIBERO SMART': 'libero_smart.png', 'KIRIGAMINE ZEN': 'kirigamine_zen.png', 'WIND FREE': 'windfree.png', 'SHORAI EDGE': 'shorai_edge.png', 'SEIYA':'seiya.png', 'VITOCLIMA':'vitoclima_300.png'
+            const state = {
+                step: 1,
+                data: { brands:[], ue:[], ui:[] },
+                sel: { brand:null, type:null, series:null, ue:null, ui:[] }
+            };
+
+            // MAPPA IMMAGINI UNITA' ESTERNE
+            const outdoorImages = {
+                'HAIER': 'est_haier.png',
+                'DAIKIN': 'est_daikin.jpg',
+                'HITACHI': 'est_hitachi.jpg',
+                'IMMERGAS': 'est_immergas.png',
+                'LG': 'est_lg.png',
+                'MITSUBISHI': 'est_mitsubishi.png',
+                'MITSUBISHI ELECTRIC': 'est_mitsubishi.png',
+                'SAMSUNG': 'est_samsung.png',
+                'TOSHIBA': 'est_toshiba.jpg',
+                'VIESSMANN': 'est_viessmann.avif'
+            };
+
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                login: document.getElementById('login-section'),
+                app: document.getElementById('app-content'),
+                user: document.getElementById('user-email-display'),
+                steps: [1,2,3,4,5,6].map(i => document.getElementById(`step-${i}`)),
+                inds: [1,2,3,4,5,6].map(i => document.getElementById(`ind-${i}`)),
+                infos: [1,2,3,4,5].map(i => document.getElementById(`info-${i}`)),
+                grids: {
+                    brand: document.getElementById('grid-brand'),
+                    config: document.getElementById('grid-config'),
+                    series: document.getElementById('grid-series'),
+                    ue: document.getElementById('list-ue'),
+                    ui: document.getElementById('container-ui')
+                },
+                summary: document.getElementById('summary-box'),
+                btnFinish: document.getElementById('btn-finish')
             };
 
             // Auth
             auth.onAuthStateChanged(user => {
-                document.getElementById('initial-loader').style.display='none';
+                ui.loader.style.display='none';
                 if(user) {
-                    document.getElementById('login-section').classList.add('hidden');
-                    document.getElementById('app-content').classList.remove('hidden');
-                    document.getElementById('user-email-display').textContent = user.email;
-                    loadData();
+                    ui.login.classList.add('hidden');
+                    ui.app.classList.remove('hidden');
+                    ui.user.textContent = user.email;
+                    initApp();
                 } else {
-                    document.getElementById('login-section').classList.remove('hidden');
-                    document.getElementById('app-content').classList.add('hidden');
+                    ui.login.classList.remove('hidden');
+                    ui.app.classList.add('hidden');
                 }
             });
 
-            document.getElementById('login-form').addEventListener('submit', e => { e.preventDefault(); auth.signInWithEmailAndPassword(e.target[0].value, e.target[1].value); });
-            document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+            document.getElementById('login-form')?.addEventListener('submit', e => {
+                e.preventDefault();
+                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
+                    .catch(err => alert(err.message));
+            });
+            document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
+
+            // --- LOGICA APPLICAZIONE ---
             
-            // Menu Toggle
-            document.querySelectorAll('.has-submenu > .nav-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); l.nextElementSibling.style.maxHeight = l.nextElementSibling.style.maxHeight ? null : '500px'; }));
-
-            // --- FUNZIONI ORIGINALI (Senza la parte Admin) ---
-
-            async function loadData() {
+            async function initApp() {
                 try {
-                    const [b, c, o, i, m] = await Promise.all([
+                    const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
                         db.collection('brands').get(),
-                        db.collection('configTypes').get(),
                         db.collection('outdoorUnits').get(),
                         db.collection('indoorUnits').get(),
                         db.collection('uiSeriesImageMapping').get()
                     ]);
+
+                    state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
                     
-                    APP_DATA.brands = b.docs.map(d => ({id:d.id, ...d.data()}));
-                    APP_DATA.configTypes = c.docs.reduce((a,d) => { a[d.id] = {id:d.id, ...d.data()}; return a; }, {});
-                    
-                    APP_DATA.outdoorUnits = o.docs.map(d => {
-                        const dt = d.data();
+                    state.data.ue = ueSnap.docs.map(d => {
+                        const data = d.data();
                         return {
-                            id: d.id, ...dt,
-                            brandId: (dt.marca||'').toLowerCase().trim(),
-                            connections: Number(dt.unita_collegabili || dt.unit_collegabili || dt.connections || 0),
-                            price: Number(dt.prezzo||0),
-                            compatibleIndoorSeriesIds: Array.isArray(dt.compatibleIndoorSeriesIds) ? dt.compatibleIndoorSeriesIds : (Array.isArray(dt.compatible_indoor_series_ids) ? dt.compatible_indoor_series_ids : []),
-                            scheda_tecnica_url: dt.scheda_tecnica_url
+                            id: d.id, ...data,
+                            brandId: (data.marca||'').toLowerCase().trim(),
+                            con: Number(data.unita_collegabili || data.unit_collegabili || data.connections || 0),
+                            price: Number(data.prezzo||0),
+                            compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
+                                    (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : [])
                         };
                     });
+                    
+                    const imgMap = mapSnap.docs.reduce((acc, d) => {
+                        const data = d.data();
+                        if(data.seriesKey) acc[data.seriesKey] = data.imageName;
+                        return acc;
+                    }, {});
 
-                    APP_DATA.indoorUnits = i.docs.map(d => {
-                        const dt = d.data();
-                        const sId = (dt.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
+                    state.data.ui = uiSnap.docs.map(d => {
+                        const data = d.data();
+                        const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
                         return {
-                            id: d.id, ...dt,
-                            brandId: (dt.marca||'').toLowerCase().trim(),
+                            id: d.id, ...data,
+                            brandId: (data.marca||'').toLowerCase().trim(),
                             seriesId: sId,
-                            price: Number(dt.prezzo_ui||0),
-                            capacityBTU: parseInt((dt.potenza||'').match(/\d+/)?.[0] || 0),
-                            kw: (dt.potenza||'').match(/[\d.,]+kW/)?.[0] || 'N/D',
-                            scheda_tecnica_url: dt.scheda_tecnica_url
+                            price: Number(data.prezzo_ui||0),
+                            imgName: imgMap[sId] || null
                         };
                     });
 
-                    m.docs.forEach(d => { const dt=d.data(); if(dt.seriesKey) APP_DATA.uiSeriesImageMapping[dt.seriesKey] = dt.imageName; });
-
-                    populateBrands();
-                } catch(e) { console.error(e); }
+                    renderBrands();
+                } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
             }
 
-            // *** GESTIONE STEP E NAVIGAZIONE (Logica ripristinata) ***
-            let currentStep = 1;
-            window.showStep = function(step) {
-                // Controllo base: non saltare avanti se non hai finito
-                if(step > currentStep + 1) return;
-
-                document.querySelectorAll('.config-step').forEach(s => s.classList.remove('active-step'));
-                document.getElementById(`step-${step}`).classList.add('active-step');
+            // Step 1: Marche
+            function renderBrands() {
+                const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
+                const list = state.data.brands.filter(b => validBrands.includes(b.id));
                 
-                document.querySelectorAll('.step-item').forEach((el, i) => {
-                    const s = i + 1;
-                    el.classList.remove('active', 'completed');
-                    if(s === step) el.classList.add('active');
-                    else if(s < step) el.classList.add('completed');
-                    
-                    // Abilita il click per tornare indietro
-                    el.onclick = (s < currentStep) ? () => showStep(s) : null;
+                ui.grids.brand.innerHTML = list.map(b => `
+                    <div class="select-card" onclick="window.app.selBrand('${b.id}','${b.name}')">
+                        <img src="${b.logo}" class="card-img" onerror="this.style.display='none'">
+                        <span class="card-text">${b.name}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Step 2: Configurazione
+            function renderConfigs() {
+                const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
+                const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
+                const list = opts.filter(o => allowed.includes(o.id));
+                
+                ui.grids.config.innerHTML = list.map(c => `
+                    <div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')">
+                        <span class="card-text" style="font-size:2rem;color:#0056a8;">${c.id}</span>
+                        <span>${c.n}</span>
+                    </div>
+                `).join('');
+                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
+            }
+
+            // Step 3: Serie
+            function renderSeries() {
+                const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
+                const compatSeriesIds = new Set();
+                compatUE.forEach(u => {
+                    if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
                 });
-                
-                currentStep = step;
-                if(step===6) renderSummary();
-                window.scrollTo(0,0);
-            };
 
-            function populateBrands() {
-                const div = document.getElementById('brand-selection');
-                const validBrands = [...new Set(APP_DATA.outdoorUnits.map(u => u.brandId))];
-                div.innerHTML = APP_DATA.brands.filter(b => validBrands.includes(b.id)).map(b => `
-                    <div class="selection-item" onclick="selectBrand('${b.id}')">
-                        <img src="${b.logo}" style="max-height:80px; margin-bottom:10px;">
-                        <span>${b.name}</span>
-                    </div>
-                `).join('');
-            }
-            window.selectBrand = (id) => { selections.brand = APP_DATA.brands.find(b => b.id === id); populateConfigs(); showStep(2); updateInfo(1, selections.brand.name); };
-
-            function populateConfigs() {
-                const div = document.getElementById('config-type-selection');
-                const allowed = APP_DATA.outdoorUnits.filter(u => u.brandId === selections.brand.id).map(u => u.connections);
-                const configs = Object.values(APP_DATA.configTypes).filter(c => allowed.includes(c.numUnits)).sort((a,b)=>a.numUnits-b.numUnits);
-                div.innerHTML = configs.map(c => `
-                    <div class="selection-item" onclick="selectConfig('${c.id}')">
-                        <span style="font-size:2em; color:#0056a8;">${c.numUnits}</span>
-                        <span>${c.name}</span>
-                    </div>
-                `).join('');
-            }
-            window.selectConfig = (id) => { selections.configType = APP_DATA.configTypes[id]; populateSeries(); showStep(3); updateInfo(2, selections.configType.name); };
-
-            function populateSeries() {
-                const div = document.getElementById('model-selection');
-                const compatUE = APP_DATA.outdoorUnits.filter(u => u.brandId === selections.brand.id && u.connections === selections.configType.numUnits);
-                const seriesIds = new Set();
-                compatUE.forEach(u => u.compatibleIndoorSeriesIds?.forEach(id => seriesIds.add(id)));
-                
-                const unique = []; const seen = new Set();
-                APP_DATA.indoorUnits.forEach(u => {
-                    if(seriesIds.has(u.seriesId) && !seen.has(u.seriesId)) {
-                        let img = APP_DATA.uiSeriesImageMapping[u.seriesId];
-                        // Fallback su mappa manuale se manca
-                        if(!img) { for(let k in indoorImages) if(u.modello.toUpperCase().includes(k)) img = indoorImages[k]; }
-                        
-                        unique.push({id: u.seriesId, name: u.modello, img: img});
+                const unique = [];
+                const seen = new Set();
+                state.data.ui.forEach(u => {
+                    if(compatSeriesIds.has(u.seriesId) && !seen.has(u.seriesId)) {
+                        unique.push({id: u.seriesId, name: u.modello, img: u.imgName});
                         seen.add(u.seriesId);
                     }
                 });
-                
-                div.innerHTML = unique.map(s => {
-                    const img = s.img ? `/LISTINI/CLIMA/images/${s.img}` : '/placeholder.png';
-                    return `<div class="selection-item" onclick="selectSeries('${s.id}', '${s.name}')">
-                        <img src="${img}" style="max-height:100px;">
-                        <span>${s.name}</span>
+
+                ui.grids.series.innerHTML = unique.map(s => {
+                    // Percorso Img UI: /LISTINI/CLIMA/images/
+                    const imgPath = s.img ? `/LISTINI/CLIMA/images/${s.img}.png` : '/placeholder.png';
+                    return `
+                    <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
+                        <img src="${imgPath}" class="card-img" onerror="this.src='/placeholder.png'">
+                        <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
+                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
-            window.selectSeries = (id, name) => { selections.indoorSeries = {id, name}; populateUE(); showStep(4); updateInfo(3, name); };
 
-            function populateUE() {
-                const div = document.getElementById('outdoor-unit-selection');
-                const list = APP_DATA.outdoorUnits.filter(u => 
-                    u.brandId === selections.brand.id && 
-                    u.connections === selections.configType.numUnits &&
-                    u.compatibleIndoorSeriesIds?.includes(selections.indoorSeries.id)
+            // Step 4: UE
+            function renderUE() {
+                const list = state.data.ue.filter(u => 
+                    u.brandId === state.sel.brand.id && 
+                    u.con === state.sel.type.id &&
+                    u.compat?.includes(state.sel.series.id)
                 );
                 
-                div.innerHTML = list.map(u => {
-                    const pdfBtn = u.scheda_tecnica_url ? `<a href="${u.scheda_tecnica_url}" target="_blank" class="technical-sheet-button" onclick="event.stopPropagation()">Scheda Tecnica</a>` : '';
-                    return `<div class="unit-selection-card" onclick="selectUE('${u.id}')">
-                        <div style="flex:1">
-                            <h4>${u.modello || u.codice_prodotto}</h4>
-                            <p>Codice: ${u.codice_prodotto}</p>
-                            <p>Potenza: ${u.potenza} kW</p>
-                            <div class="unit-price">€ ${u.price.toFixed(2)}</div>
+                const unique = [];
+                const seen = new Set();
+                list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
+
+                ui.grids.ue.innerHTML = unique.map(u => {
+                    // LOGICA IMMAGINE UNITÀ ESTERNA
+                    const brandKey = u.brandId.toUpperCase();
+                    const imgName = outdoorImages[brandKey] || 'placeholder.png';
+                    // Percorso assoluto
+                    const imgPath = `/LISTINI/CLIMA/images/${imgName}`;
+
+                    return `
+                    <div class="ue-card" onclick="window.app.selUE('${u.id}')">
+                        <div class="ue-header">
+                            <span class="ue-title">${u.modello || u.codice_prodotto}</span>
                         </div>
-                        ${pdfBtn}
+                        <img src="${imgPath}" class="ue-img" onerror="this.src='/placeholder.png'">
+                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
+                        <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
+                        <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
+                        <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
                 }).join('');
-            }
-            window.selectUE = (id) => { selections.outdoorUnit = APP_DATA.outdoorUnits.find(u => u.id === id); populateUI(); showStep(5); updateInfo(4, selections.outdoorUnit.modello); };
-
-            function populateUI() {
-                const div = document.getElementById('indoor-units-selection-area');
-                const count = selections.configType.numUnits;
-                selections.indoorUnits = new Array(count).fill(null);
                 
-                const opts = APP_DATA.indoorUnits.filter(i => i.seriesId === selections.indoorSeries.id);
-                const unique = []; const seen = new Set();
-                opts.forEach(i => { if(!seen.has(i.capacityBTU)) { unique.push(i); seen.add(i.capacityBTU); } });
-                unique.sort((a,b) => a.capacityBTU - b.capacityBTU);
+                if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
+            }
 
-                div.innerHTML = '';
+            // Step 5: UI
+            function renderUISelect() {
+                const count = state.sel.type.id;
+                state.sel.ui = new Array(count).fill(null);
+                
+                const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
+                const unique = [];
+                const seen = new Set();
+                opts.forEach(i => {
+                    if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); }
+                });
+                unique.sort((a,b) => parseFloat(a.potenza) - parseFloat(b.potenza));
+
+                ui.grids.ui.innerHTML = '';
                 for(let i=0; i<count; i++) {
-                    div.innerHTML += `
-                    <div style="background:#f9f9f9; padding:15px; margin-bottom:15px; border:1px solid #ddd; border-radius:8px;">
+                    const html = `
+                    <div class="ui-slot">
                         <h4>Unità Interna ${i+1}</h4>
-                        <div class="indoor-unit-choices-container" id="grp-ui-${i}">
+                        <div class="ui-options" id="grp-ui-${i}">
                             ${unique.map(u => `
-                                <div class="indoor-unit-choice-card" onclick="pickUI(${i}, '${u.id}', this)">
-                                    <span style="font-weight:bold; display:block;">${u.capacityBTU} BTU</span>
-                                    <span style="font-size:0.8em;">€ ${u.price.toFixed(0)}</span>
+                                <div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">
+                                    ${u.potenza}<br><small>€ ${u.price.toFixed(0)}</small>
                                 </div>
                             `).join('')}
                         </div>
-                        <div id="preview-ui-${i}" class="unit-details" style="display:none;"></div>
+                        <div class="ui-preview" id="prev-ui-${i}"></div>
                     </div>`;
+                    ui.grids.ui.innerHTML += html;
                 }
-                document.getElementById('finalize-btn').disabled = true;
+                ui.btnFinish.disabled = true;
             }
 
-            window.pickUI = (idx, id, btn) => {
-                btn.parentElement.querySelectorAll('.indoor-unit-choice-card').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                
-                const unit = APP_DATA.indoorUnits.find(u => u.id === id);
-                selections.indoorUnits[idx] = unit;
-                
-                const pdf = unit.scheda_tecnica_url ? `<a href="${unit.scheda_tecnica_url}" target="_blank" class="technical-sheet-button">Scheda Tecnica</a>` : '';
-                const p = document.getElementById(`preview-ui-${idx}`);
-                p.innerHTML = `<p><strong>${unit.codice_prodotto}</strong> - ${unit.kw} (${unit.capacityBTU} BTU)</p> <p class="unit-price">€ ${unit.price.toFixed(2)}</p> ${pdf}`;
-                p.style.display = 'block';
-                
-                const c = selections.indoorUnits.filter(Boolean).length;
-                updateInfo(5, `${c}/${selections.configType.numUnits} Selezionate`);
-                document.getElementById('finalize-btn').disabled = !selections.indoorUnits.every(u => u);
-            };
-
+            // Step 6: Riepilogo
             function renderSummary() {
-                const div = document.getElementById('config-summary');
-                const s = selections;
-                let tot = s.outdoorUnit.price; s.indoorUnits.forEach(u => tot += u.price);
+                const s = state.sel;
+                let tot = s.ue.price;
+                s.ui.forEach(u => tot += u.price);
                 
-                div.innerHTML = `
-                    <div class="summary-detail-block">
+                let rows = s.ui.map((u,i) => `
+                    <div class="summary-row">
+                        <span>UI ${i+1}: ${u.modello} (${u.potenza})</span>
+                        <strong>€ ${u.price.toFixed(2)}</strong>
+                    </div>
+                `).join('');
+
+                ui.summary.innerHTML = `
+                    <div class="summary-header">
                         <h3>Preventivo ${s.brand.name}</h3>
-                        <p><strong>Unità Esterna:</strong> ${s.outdoorUnit.modello} (${s.outdoorUnit.codice_prodotto}) - € ${s.outdoorUnit.price.toFixed(2)}
-                           ${s.outdoorUnit.scheda_tecnica_url ? `<a href="${s.outdoorUnit.scheda_tecnica_url}" target="_blank" style="color:#dc3545; margin-left:10px;"><i class="fas fa-file-pdf"></i></a>` : ''}
-                        </p>
-                        ${s.indoorUnits.map((u,i) => `
-                            <p><strong>UI ${i+1}:</strong> ${u.modello} (${u.capacityBTU} BTU) - € ${u.price.toFixed(2)}
-                            ${u.scheda_tecnica_url ? `<a href="${u.scheda_tecnica_url}" target="_blank" style="color:#dc3545; margin-left:10px;"><i class="fas fa-file-pdf"></i></a>` : ''}
-                            </p>
-                        `).join('')}
-                        <div class="total-price-iva">TOTALE: € ${tot.toFixed(2)}</div>
+                        <span class="summary-date">${new Date().toLocaleDateString()}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Unità Esterna: ${s.ue.modello}</span>
+                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
+                    </div>
+                    ${rows}
+                    <div class="summary-row total">
+                        <span>TOTALE (IVA Escl.)</span>
+                        <span>€ ${tot.toFixed(2)}</span>
                     </div>
                 `;
             }
-            
-            function updateInfo(step, text) {
-                const el = document.getElementById(`step-info-${step}`);
-                if(el) el.textContent = text;
-            }
+
+            // --- NAVIGATION ---
+            window.app = {
+                goTo: (step) => {
+                    state.step = step;
+                    ui.steps.forEach(s => s.classList.remove('active'));
+                    document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+                    
+                    document.getElementById(`step-${step}`).classList.add('active');
+                    
+                    ui.inds.forEach((el, idx) => {
+                        const s = idx + 1;
+                        if(s === step) { el.classList.add('active'); el.classList.remove('completed'); }
+                        else if(s < step) { el.classList.add('completed'); el.classList.remove('active'); }
+                        else { el.classList.remove('active', 'completed'); }
+                    });
+                    
+                    if(step === 6) renderSummary();
+                    window.scrollTo(0,0);
+                },
+                prev: () => window.app.goTo(state.step - 1),
+                finish: () => window.app.goTo(6),
+                
+                selBrand: (id, name) => {
+                    state.sel.brand = {id, name};
+                    ui.infos[0].textContent = name;
+                    renderConfigs();
+                    window.app.goTo(2);
+                },
+                selConfig: (id, name) => {
+                    state.sel.type = {id, name};
+                    ui.infos[1].textContent = name;
+                    renderSeries();
+                    window.app.goTo(3);
+                },
+                selSeries: (id, name) => {
+                    state.sel.series = {id, name};
+                    ui.infos[2].textContent = name;
+                    renderUE();
+                    window.app.goTo(4);
+                },
+                selUE: (id) => {
+                    state.sel.ue = state.data.ue.find(u => u.id === id);
+                    ui.infos[3].textContent = state.sel.ue.modello;
+                    renderUISelect();
+                    window.app.goTo(5);
+                },
+                pickUI: (idx, uid, btn) => {
+                    document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
+                    btn.classList.add('selected');
+                    
+                    const unit = state.data.ui.find(u => u.id === uid);
+                    state.sel.ui[idx] = unit;
+                    
+                    const p = document.getElementById(`prev-ui-${idx}`);
+                    p.innerHTML = `Selezionato: <strong>${unit.codice_prodotto}</strong> (${unit.dimensioni_ui})`;
+                    p.classList.add('visible');
+                    
+                    const count = state.sel.ui.filter(Boolean).length;
+                    ui.infos[4].textContent = `${count}/${state.sel.type.id}`;
+                    ui.btnFinish.disabled = count !== state.sel.type.id;
+                }
+            };
+
         });
     </script>
 </body>
