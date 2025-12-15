@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (Percorso Assoluto per evitare errori grafici) -->
+    <!-- CSS Principale -->
     <link rel="stylesheet" href="/style.css">
     
     <!-- Font e Icone -->
@@ -75,17 +75,17 @@
             border: 2px solid #e9ecef; border-radius: 8px; padding: 20px;
             text-align: center; cursor: pointer; transition: all 0.2s;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 140px; background: white;
+            min-height: 160px; background: white;
         }
         .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
         .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
         
-        /* Modifica per Step 1: Immagini Brand più grandi e centrate */
+        /* STEP 1: LOGO CENTRATO */
         #grid-brand .select-card { min-height: 120px; justify-content: center; }
         #grid-brand .card-img { max-height: 70px; margin-bottom: 0; width: auto; max-width: 90%; }
 
-        .card-img { max-width: 100%; max-height: 80px; object-fit: contain; margin-bottom: 10px; }
-        .card-text { font-size: 1rem; color: #333; font-weight: 500; }
+        .card-img { max-width: 100%; max-height: 100px; object-fit: contain; margin-bottom: 15px; }
+        .card-text { font-size: 1rem; color: #333; font-weight: 500; text-transform: uppercase; }
 
         /* Card Unità Esterna (Step 4) */
         .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
@@ -124,19 +124,19 @@
             flex-direction: row; align-items: center; gap: 15px;
         }
         .ui-preview.visible { display: flex; }
-        .ui-preview-img { width: 80px; height: 60px; object-fit: contain; }
+        .ui-preview-img { width: 100px; height: 70px; object-fit: contain; }
         .ui-preview-content { flex: 1; font-size: 0.9rem; color: #555; }
         .ui-preview strong { color: #0056a8; }
 
         /* Pulsante Scheda Tecnica */
         .btn-tech-sheet {
-            display: inline-block; padding: 4px 8px; margin-top: 5px; font-size: 0.8rem;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 6px 12px; margin-top: 8px; font-size: 0.85rem;
             color: #d32f2f; border: 1px solid #d32f2f; border-radius: 4px; 
-            text-decoration: none; transition: all 0.2s; background: #fff;
+            text-decoration: none; transition: all 0.2s; background: #fff; font-weight: 500;
         }
         .btn-tech-sheet:hover { background: #d32f2f; color: white; }
-        .btn-tech-sheet i { margin-right: 4px; }
-
+        
         /* Navigazione */
         .step-nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
         .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
@@ -300,7 +300,10 @@
                 sel: { brand:null, type:null, series:null, ue:null, ui:[] }
             };
 
-            // Mappa Immagini Unità Esterne (Hardcoded come fallback)
+            // PATH BASE GITHUB PER LE IMMAGINI (RAW)
+            const GITHUB_IMG_PATH = 'https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LISTINI/CLIMA/multisplit/img/';
+
+            // Mappa Immagini Unità Esterne (Fallback/Standard)
             const outdoorImages = {
                 'HAIER': 'est_haier.png',
                 'DAIKIN': 'est_daikin.jpg',
@@ -356,11 +359,13 @@
 
             // --- FUNZIONI DI UTILITA' ---
             
-            // Funzione per generare il bottone PDF
+            // Genera bottone PDF se presente URL
             function getPdfButton(data) {
-                // Controlla vari campi possibili per il link al PDF
-                const link = data.scheda_tecnica || data.link_scheda || data.pdf || data.datasheet;
-                if (link && link.startsWith('http')) {
+                // Utilizza specificamente il campo richiesto 'scheda_tecnica_url'
+                // Fallback su altri nomi comuni per sicurezza
+                const link = data.scheda_tecnica_url || data.scheda_tecnica || data.link_scheda;
+                
+                if (link && (link.startsWith('http') || link.startsWith('www'))) {
                     return `<a href="${link}" target="_blank" class="btn-tech-sheet" onclick="event.stopPropagation()">
                                 <i class="fas fa-file-pdf"></i> Scheda Tecnica
                             </a>`;
@@ -372,11 +377,10 @@
             
             async function initApp() {
                 try {
-                    const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
+                    const [bSnap, ueSnap, uiSnap] = await Promise.all([
                         db.collection('brands').get(),
                         db.collection('outdoorUnits').get(),
-                        db.collection('indoorUnits').get(),
-                        db.collection('uiSeriesImageMapping').get()
+                        db.collection('indoorUnits').get()
                     ]);
 
                     state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
@@ -393,29 +397,14 @@
                         };
                     });
                     
-                    const imgMap = mapSnap.docs.reduce((acc, d) => {
-                        const data = d.data();
-                        if(data.seriesKey) acc[data.seriesKey] = data.imageName;
-                        return acc;
-                    }, {});
-
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
-                        // Logica fallback immagine se manca nella mappa
-                        let img = imgMap[sId];
-                        if (!img) {
-                            // Tenta di indovinare il nome dell'immagine basandosi sul modello o codice
-                            if (data.immagine) img = data.immagine; // Se c'è un campo diretto
-                            // Altrimenti fallback generico gestito nel render
-                        }
-
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
                             seriesId: sId,
-                            price: Number(data.prezzo_ui||0),
-                            imgName: img 
+                            price: Number(data.prezzo_ui||0)
                         };
                     });
 
@@ -450,7 +439,7 @@
                 if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
             }
 
-            // Step 3: Serie (Immagini ripristinate)
+            // Step 3: Serie (Immagini da GitHub basate sul nome)
             function renderSeries() {
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
                 const compatSeriesIds = new Set();
@@ -462,19 +451,17 @@
                 const seen = new Set();
                 state.data.ui.forEach(u => {
                     if(compatSeriesIds.has(u.seriesId) && !seen.has(u.seriesId)) {
-                        unique.push({id: u.seriesId, name: u.modello, img: u.imgName});
+                        unique.push({id: u.seriesId, name: u.modello});
                         seen.add(u.seriesId);
                     }
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso Img UI: se s.img esiste usalo, altrimenti placeholder
-                    // Aggiungo un controllo per l'estensione se non presente
-                    let imgPath = '/placeholder.png';
-                    if(s.img) {
-                        imgPath = `/LISTINI/CLIMA/images/${s.img}`;
-                        if(!s.img.includes('.')) imgPath += '.png'; // default png se manca estensione
-                    }
+                    // Generazione URL GitHub
+                    // Esempio: "Kirigamine Zen" -> "kirigamine_zen.png"
+                    // Esempio: "Perfera" -> "perfera.png"
+                    const normalizedName = s.name.toLowerCase().trim().replace(/\s+/g, '_');
+                    const imgPath = `${GITHUB_IMG_PATH}${normalizedName}.png`;
 
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}', '${imgPath}')">
@@ -485,7 +472,7 @@
                 if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
-            // Step 4: UE (Con Scheda Tecnica)
+            // Step 4: UE (Con Scheda Tecnica URL)
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
@@ -520,7 +507,7 @@
                 if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
-            // Step 5: UI (Con Immagine Anteprima e Scheda Tecnica)
+            // Step 5: UI (Con Anteprima e Scheda Tecnica)
             function renderUISelect() {
                 const count = state.sel.type.id;
                 state.sel.ui = new Array(count).fill(null);
@@ -622,7 +609,7 @@
                     window.app.goTo(3);
                 },
                 selSeries: (id, name, imgPath) => {
-                    state.sel.series = {id, name, imgPath}; // Salvo anche il path immagine
+                    state.sel.series = {id, name, imgPath}; 
                     ui.infos[2].textContent = name;
                     renderUE();
                     window.app.goTo(4);
@@ -645,7 +632,7 @@
                     const txt = document.getElementById(`prev-txt-${idx}`);
                     const img = document.getElementById(`prev-img-${idx}`);
                     
-                    // Recupera l'immagine salvata nello step serie
+                    // Usa l'immagine salvata nello step serie
                     const seriesImg = state.sel.series.imgPath || '/placeholder.png';
                     
                     img.src = seriesImg;
@@ -654,7 +641,7 @@
                     const pdfBtn = getPdfButton(unit);
                     
                     txt.innerHTML = `
-                        <div><strong>${unit.codice_prodotto}</strong></div>
+                        <div><strong>${unit.codice_prodotto || unit.modello}</strong></div>
                         <div>Dimensioni: ${unit.dimensioni_ui || 'N/D'}</div>
                         ${pdfBtn}
                     `;
