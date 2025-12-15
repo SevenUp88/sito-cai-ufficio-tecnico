@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale: 3 livelli indietro (CORRETTO per questa cartella) -->
-    <link rel="stylesheet" href="../../../style.css">
+    <!-- CSS Principale -->
+    <link rel="stylesheet" href="../../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -30,7 +30,6 @@
             text-align: center; flex: 1; position: relative; z-index: 2; 
             opacity: 0.5; transition: opacity 0.3s; cursor: default;
         }
-        /* Step attivi o completati */
         .step-item.active, .step-item.completed { opacity: 1; cursor: pointer; }
         
         .step-dot {
@@ -92,7 +91,7 @@
         .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
         
-        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
         .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
         .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
         .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
@@ -174,10 +173,9 @@
         <!-- SIDEBAR (Menu Laterale Unificato) -->
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
-            <!-- Caricata da components.js -->
-            <ul class="sidebar-menu"></ul> 
+            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
@@ -268,8 +266,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Menu Laterale Centralizzato (3 livelli indietro) -->
-    <script src="../../../components.js"></script>
+    <!-- Menu Laterale Centralizzato -->
+    <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -325,6 +323,7 @@
                 btnFinish: document.getElementById('btn-finish')
             };
 
+            // Auth
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display='none';
                 if(user) {
@@ -345,6 +344,8 @@
             });
             document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
 
+            // --- LOGICA APPLICAZIONE ---
+            
             async function initApp() {
                 try {
                     const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
@@ -364,7 +365,9 @@
                             con: Number(data.unita_collegabili || data.unit_collegabili || data.connections || 0),
                             price: Number(data.prezzo||0),
                             compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
-                                    (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : [])
+                                    (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : []),
+                            // FIX: Salva URL scheda tecnica UE
+                            datasheet: data.scheda_tecnica_url
                         };
                     });
                     
@@ -398,6 +401,7 @@
                 } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
             }
 
+            // Step 1: Marche
             function renderBrands() {
                 const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
                 const list = state.data.brands.filter(b => validBrands.includes(b.id));
@@ -409,11 +413,11 @@
                 `).join('');
             }
 
+            // Step 2: Configurazione
             function renderConfigs() {
                 const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
                 const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
                 const list = opts.filter(o => allowed.includes(o.id));
-                
                 ui.grids.config.innerHTML = list.map(c => `
                     <div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')">
                         <span class="card-text" style="font-size:2rem;color:#0056a8;">${c.id}</span>
@@ -423,12 +427,11 @@
                 if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile.</p>';
             }
 
+            // Step 3: Serie
             function renderSeries() {
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
                 const compatSeriesIds = new Set();
-                compatUE.forEach(u => {
-                    if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
-                });
+                compatUE.forEach(u => { if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id)); });
 
                 const unique = [];
                 const seen = new Set();
@@ -440,17 +443,17 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    // Percorso Img: risale di 3 livelli e poi scende in LISTINI/CLIMA/images
-                    const imgPath = s.img ? `../../../LISTINI/CLIMA/images/${s.img}` : '../../../placeholder.png';
+                    const imgPath = s.img ? `../../LISTINI/CLIMA/images/${s.img}` : '../../placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
-                        <img src="${imgPath}" class="card-img" onerror="this.src='../../../placeholder.png'">
+                        <img src="${imgPath}" class="card-img" onerror="this.src='../../placeholder.png'">
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
                 if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
+            // Step 4: UE
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
@@ -465,12 +468,18 @@
                 ui.grids.ue.innerHTML = unique.map(u => {
                     const brandKey = u.brandId.toUpperCase();
                     const imgName = outdoorImages[brandKey] || 'placeholder.png';
-                    // Percorso Img: risale di 3 livelli e poi scende in LISTINI/CLIMA/images
-                    const imgPath = `../../../LISTINI/CLIMA/images/${imgName}`;
+                    const imgPath = `../../LISTINI/CLIMA/images/${imgName}`;
+                    
+                    // FIX: Aggiunta tasto PDF Scheda Tecnica
+                    const dsLink = u.datasheet ? `<a href="${u.datasheet}" target="_blank" onclick="event.stopPropagation()" style="color:#dc3545; font-size:1.2rem; margin-left:10px;"><i class="fas fa-file-pdf"></i></a>` : '';
+
                     return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
-                        <div class="ue-header"><span class="ue-title">${u.modello || u.codice_prodotto}</span></div>
-                        <img src="${imgPath}" class="ue-img" onerror="this.src='../../../placeholder.png'">
+                        <div class="ue-header">
+                            <span class="ue-title">${u.modello || u.codice_prodotto}</span>
+                            ${dsLink}
+                        </div>
+                        <img src="${imgPath}" class="ue-img" onerror="this.src='../../placeholder.png'">
                         <div class="ue-detail-text">Codice: ${u.codice_prodotto}<br>Potenza: ${u.potenza} kW<br>Gas: ${u.tipo_refrigerante}</div>
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
@@ -478,15 +487,15 @@
                 if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
+            // Step 5: UI
             function renderUISelect() {
                 const count = state.sel.type.id;
                 state.sel.ui = new Array(count).fill(null);
+                
                 const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
                 const unique = [];
                 const seen = new Set();
-                opts.forEach(i => {
-                    if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); }
-                });
+                opts.forEach(i => { if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); } });
                 unique.sort((a,b) => parseFloat(a.potenza) - parseFloat(b.potenza));
 
                 ui.grids.ui.innerHTML = '';
@@ -503,10 +512,16 @@
                 ui.btnFinish.disabled = true;
             }
 
+            // Step 6: Riepilogo
             function renderSummary() {
                 const s = state.sel;
                 let tot = s.ue.price;
                 s.ui.forEach(u => tot += u.price);
+                
+                // FIX: Gestione nome undefined nel riepilogo
+                const ueName = s.ue.modello || 'Unità Esterna';
+                const uePdf = s.ue.datasheet ? `<a href="${s.ue.datasheet}" target="_blank" class="pdf-icon"><i class="fas fa-file-pdf"></i></a>` : '';
+
                 let rows = s.ui.map((u,i) => `
                     <div class="summary-row">
                         <span>UI ${i+1}: ${u.modello} (${u.potenza})
@@ -518,7 +533,10 @@
 
                 ui.summary.innerHTML = `
                     <div class="summary-header"><h3>Preventivo ${s.brand.name}</h3><span class="summary-date">${new Date().toLocaleDateString()}</span></div>
-                    <div class="summary-row"><span>UE: ${s.ue.modello} (${s.ue.codice_prodotto})</span><strong>€ ${s.ue.price.toFixed(2)}</strong></div>
+                    <div class="summary-row">
+                        <span>UE: ${ueName} (${s.ue.codice_prodotto}) ${uePdf}</span>
+                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
+                    </div>
                     ${rows}
                     <div class="summary-row total"><span>TOTALE (IVA Escl.)</span><span>€ ${tot.toFixed(2)}</span></div>
                 `;
@@ -526,11 +544,8 @@
 
             window.app = {
                 goTo: (step) => {
-                    // Logica corretta:
-                    // 1. Se torno indietro, OK.
-                    // 2. Se vado avanti di 1 solo step, OK (perché il flusso lo gestisce).
-                    // 3. Se cerco di saltare step, blocco (a meno che non sia già completato).
                     const target = document.getElementById(`ind-${step}`);
+                    // FIX: Permetti sempre se torni indietro o se lo step successivo è immediato (es. da 1 a 2)
                     if (step > state.step + 1 && !target.classList.contains('completed')) return;
                     
                     state.step = step;
@@ -553,14 +568,14 @@
                 selBrand: (id, name) => { state.sel.brand = {id, name}; ui.infos[0].textContent = name; renderConfigs(); window.app.goTo(2); },
                 selConfig: (id, name) => { state.sel.type = {id, name}; ui.infos[1].textContent = name; renderSeries(); window.app.goTo(3); },
                 selSeries: (id, name) => { state.sel.series = {id, name}; ui.infos[2].textContent = name; renderUE(); window.app.goTo(4); },
-                selUE: (id) => { state.sel.ue = state.data.ue.find(u => u.id === id); ui.infos[3].textContent = state.sel.ue.modello; renderUISelect(); window.app.goTo(5); },
+                selUE: (id) => { state.sel.ue = state.data.ue.find(u => u.id === id); ui.infos[3].textContent = state.sel.ue.modello || state.sel.ue.codice_prodotto; renderUISelect(); window.app.goTo(5); },
                 pickUI: (idx, uid, btn) => {
                     document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
                     btn.classList.add('selected');
                     const unit = state.data.ui.find(u => u.id === uid);
                     state.sel.ui[idx] = unit;
                     
-                    const imgPath = unit.imgName ? `../../../LISTINI/CLIMA/images/${unit.imgName}` : '../../../placeholder.png';
+                    const imgPath = unit.imgName ? `../../LISTINI/CLIMA/images/${unit.imgName}` : '../../placeholder.png';
                     const dsLink = unit.datasheet ? `<a href="${unit.datasheet}" target="_blank" style="margin-left:auto;color:#dc3545;"><i class="fas fa-file-pdf"></i></a>` : '';
                     
                     const p = document.getElementById(`prev-ui-${idx}`);
