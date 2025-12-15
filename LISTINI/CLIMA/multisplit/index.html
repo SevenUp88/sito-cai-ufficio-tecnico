@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Esterno -->
+    <!-- CSS Principale (Percorso Assoluto per evitare errori grafici) -->
     <link rel="stylesheet" href="/style.css">
     
     <!-- Font e Icone -->
@@ -13,273 +13,273 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- STILI GENERALI --- */
-        :root { --primary: #0056a8; --success: #28a745; --warning: #ffc107; --danger: #dc3545; --light: #f8f9fa; --dark: #343a40; }
-        body { font-family: 'Roboto', sans-serif; background-color: #f4f6f9; margin: 0; padding: 0; color: #333; }
+        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
-
-        /* --- LAYOUT CONFIGURATORE --- */
+        
+        /* --- STILI SPECIFICI CONFIGURATORE --- */
         .config-card {
             background-color: #fff; padding: 30px; border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
-            max-width: 1200px; margin: 20px auto;
         }
 
-        /* --- STEP INDICATOR --- */
-        .step-indicator { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; padding: 0 10px; }
-        .step-line-bg { position: absolute; top: 19px; left: 5%; width: 90%; height: 2px; background-color: #e9ecef; z-index: 1; }
-        
-        .step-item { text-align: center; flex: 1; position: relative; z-index: 2; opacity: 0.5; transition: opacity 0.3s; }
+        /* Indicatori Step */
+        .step-indicator {
+            display: flex; justify-content: space-between; margin-bottom: 40px; 
+            position: relative; padding: 0 10px;
+        }
+        .step-item {
+            text-align: center; flex: 1; position: relative; z-index: 2; 
+            opacity: 0.5; transition: opacity 0.3s;
+        }
         .step-item.active, .step-item.completed { opacity: 1; }
+        
         .step-dot {
             width: 35px; height: 35px; background-color: #f8f9fa; color: #6c757d;
-            border: 2px solid #dee2e6; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: bold; margin: 0 auto 8px auto; transition: all 0.3s; background: white;
+            border: 2px solid #dee2e6; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; margin: 0 auto 8px auto; transition: all 0.3s;
         }
-        .step-item.active .step-dot { background-color: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3); }
-        .step-item.completed .step-dot { background-color: var(--success); color: white; border-color: var(--success); }
+        .step-item.active .step-dot { 
+            background-color: #0056a8; color: white; border-color: #0056a8; 
+            transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3);
+        }
+        .step-item.completed .step-dot { 
+            background-color: #28a745; color: white; border-color: #28a745; 
+        }
+        
         .step-label { font-size: 0.8rem; font-weight: 600; color: #333; display: block; }
-        .step-sub { font-size: 0.75rem; color: var(--primary); font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
+        .step-sub { font-size: 0.75rem; color: #0056a8; font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
 
-        /* --- ANIMAZIONI --- */
+        .step-line-bg {
+            position: absolute; top: 19px; left: 5%; width: 90%; height: 2px;
+            background-color: #e9ecef; z-index: 1;
+        }
+
+        /* Contenuto Step */
         .step-content { display: none; animation: fadeIn 0.4s ease; }
         .step-content.active { display: block; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 
-        .step-title { font-size: 1.4rem; color: var(--primary); margin-bottom: 25px; border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; }
-
-        /* --- CARDS SELEZIONE --- */
-        .selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
-        .select-card {
-            border: 2px solid #e9ecef; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 140px; background: white;
+        .step-title { 
+            font-size: 1.4rem; color: #0056a8; margin-bottom: 25px; 
+            border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
         }
-        .select-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
-        .select-card.selected { border-color: var(--primary); background-color: #f0f7ff; }
-        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
 
-        /* --- CARD UNITA ESTERNA --- */
+        /* Griglie di Selezione (Brand, Config, Series) */
+        .selection-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; 
+        }
+        
+        .select-card {
+            border: 2px solid #e9ecef; border-radius: 8px; padding: 20px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 140px; background: white;
+        }
+        .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
+        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
+        
+        .card-img { max-width: 100%; max-height: 60px; object-fit: contain; margin-bottom: 10px; }
+        .card-text { font-size: 1rem; color: #333; font-weight: 500; }
+
+        /* Card Unità Esterna (Step 4) */
         .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .ue-card {
-            border: 1px solid #ddd; border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s; background: white;
-            display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden;
+            border: 1px solid #ddd; border-radius: 8px; padding: 20px;
+            cursor: pointer; transition: all 0.2s; background: white;
+            display: flex; flex-direction: column; justify-content: space-between;
         }
-        .ue-card:hover { border-color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .ue-card.selected { border: 2px solid var(--primary); background-color: #f0f7ff; }
-        .ue-img { width: 100%; height: 140px; object-fit: contain; margin: 10px 0; }
-        .ue-price { font-size: 1.3rem; color: var(--dark); font-weight: bold; text-align: right; margin-top: 10px; }
+        .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
+        
+        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
+        .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
+        .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
+        
+        .ue-img { width: 100%; height: 120px; object-fit: contain; margin: 10px 0; }
 
-        /* --- STEP 5: INTERNE E CAPACITY BAR --- */
-        .capacity-container {
-            background: #e9ecef; border-radius: 10px; height: 25px; width: 100%; margin-bottom: 20px;
-            position: relative; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .capacity-bar {
-            height: 100%; background: var(--success); width: 0%; transition: width 0.5s ease, background-color 0.5s;
-            display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; font-weight: bold;
-        }
-        .capacity-bar.warning { background: var(--warning); color: #333; }
-        .capacity-bar.danger { background: var(--danger); }
-        .capacity-text { text-align: center; margin-bottom: 5px; font-size: 0.9rem; color: #666; }
-
+        /* Selezione Unità Interne (Step 5) */
         .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .ui-slot h4 { margin: 0 0 10px 0; color: #495057; font-size: 1rem; }
+        
         .ui-options { display: flex; flex-wrap: wrap; gap: 8px; }
         .ui-btn {
-            padding: 10px; border: 1px solid #ced4da; background: white; border-radius: 6px; cursor: pointer;
-            font-size: 0.9rem; flex: 1 1 auto; min-width: 80px; text-align: center; transition: all 0.2s;
+            padding: 10px; border: 1px solid #ced4da; background: white; border-radius: 6px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.2s; text-align: center; flex: 1 1 auto;
+            min-width: 80px;
         }
-        .ui-btn:hover { border-color: var(--primary); color: var(--primary); }
-        .ui-btn.selected { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
-        .ui-preview { margin-top: 10px; font-size: 0.85rem; padding: 8px; background: white; border: 1px dashed #ccc; display: none; }
+        .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
+        .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
+        
+        .ui-preview { margin-top: 10px; font-size: 0.85rem; color: #555; padding: 8px; background: white; border: 1px dashed #ccc; border-radius: 4px; display: none; }
         .ui-preview.visible { display: block; }
+        .ui-preview strong { color: #0056a8; }
 
-        /* --- NAVIGAZIONE --- */
+        /* Navigazione */
         .step-nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; }
+        .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
         .btn-prev { background: #e9ecef; color: #495057; }
         .btn-prev:hover { background: #ced4da; }
-        .btn-next { background: var(--primary); color: white; }
+        .btn-next { background: #0056a8; color: white; }
         .btn-next:hover { background: #004485; }
         .btn-next:disabled { background: #a0c4e8; cursor: not-allowed; }
 
-        /* --- RIEPILOGO --- */
-        .summary-box { background: white; padding: 0; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-        .summary-header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .summary-content { padding: 20px; }
-        .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px dotted #ccc; }
-        .summary-total { margin-top: 20px; padding-top: 15px; border-top: 2px solid #ccc; font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; justify-content: space-between; }
-
-        /* --- LOGIN & LOADER --- */
-        .loader-container { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-        .loader-spinner { border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Riepilogo */
+        .summary-box { background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; }
+        .summary-header { border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-header h3 { margin: 0; color: #0056a8; }
+        .summary-date { font-size: 0.9rem; color: #666; }
         
-        .login-centered { position: fixed; top:0; left:0; width:100%; height:100%; display: flex; align-items: center; justify-content: center; background: #f4f6f9; z-index: 1000; }
-        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        .login-card img { max-width: 150px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
-        .btn-login { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-        /* --- STAMPA --- */
+        .summary-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; }
+        .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
+        
+        .loader { text-align: center; padding: 40px; color: #6c757d; }
+        
         @media print {
-            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title, #logout-button, .user-menu { display: none !important; }
-            body { background: white; -webkit-print-color-adjust: exact; }
-            .config-card { box-shadow: none; border: none; padding: 0; margin: 0; min-height: auto; }
+            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
+            .config-card { box-shadow: none; border: none; padding: 0; min-height: auto; }
+            .summary-box { border: 2px solid #000; background: white; padding: 0; }
+            .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
+            .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
+            body { background: white; font-size: 12pt; color: black; }
             .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
-            .summary-box { border: 2px solid #000; }
-            .summary-header { background: #eee !important; color: #000 !important; border-bottom: 2px solid #000; }
         }
     </style>
 </head>
 <body>
 
-    <!-- LOADER INIZIALE -->
-    <div id="initial-loader" class="loader-container">
-        <div class="loader-spinner"></div>
-        <p>Caricamento Listini...</p>
-    </div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p>Avvio Configuratore...</p></div>
 
-    <!-- LOGIN -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
-            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="login-logo">
             <h2>Area Riservata</h2>
             <form id="login-form">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email" required placeholder="name@example.com">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required placeholder="******">
-                </div>
+                <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
                 <button type="submit" class="btn-login">Accedi</button>
             </form>
         </div>
     </section>
 
-    <!-- APP PRINCIPALE -->
+    <!-- APP -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- HEADER SEMPLIFICATO -->
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+            </div>
+            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
+
+        <!-- MAIN -->
         <main class="main-content">
-            <header class="top-bar" style="padding: 20px; background: white; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-                <div class="page-title"><h2 style="margin:0; color: #0056a8;">Configuratore Multisplit</h2></div>
-                <div class="user-menu" style="display:flex; align-items:center; gap:15px;">
-                    <span id="user-email-display" style="font-weight:500;">...</span>
-                    <button id="logout-button" class="btn-prev" style="border:1px solid #ccc;"><i class="fas fa-sign-out-alt"></i> Esci</button>
+            <header class="top-bar">
+                <div class="page-title"><h2>Configuratore Multisplit</h2></div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
                 </div>
             </header>
 
-            <div class="config-card">
-                
-                <!-- INDICATORI STEP -->
-                <div class="step-indicator">
-                    <div class="step-line-bg"></div>
-                    <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
-                    <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
-                    <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
-                    <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
-                    <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
-                    <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
-                </div>
-
-                <!-- STEP 1: MARCA -->
-                <div id="step-1" class="step-content active">
-                    <h3 class="step-title">Seleziona Marca</h3>
-                    <div id="grid-brand" class="selection-grid">
-                        <p style="text-align:center; width:100%;">Caricamento Marche...</p>
-                    </div>
-                </div>
-
-                <!-- STEP 2: CONFIGURAZIONE -->
-                <div id="step-2" class="step-content">
-                    <h3 class="step-title">Seleziona Configurazione</h3>
-                    <div id="grid-config" class="selection-grid"></div>
-                    <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                </div>
-
-                <!-- STEP 3: SERIE -->
-                <div id="step-3" class="step-content">
-                    <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
-                    <div id="grid-series" class="selection-grid"></div>
-                    <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                </div>
-
-                <!-- STEP 4: UNITA ESTERNA -->
-                <div id="step-4" class="step-content">
-                    <h3 class="step-title">Scegli Unità Esterna</h3>
-                    <div id="list-ue" class="ue-list"></div>
-                    <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                </div>
-
-                <!-- STEP 5: UNITA INTERNE -->
-                <div id="step-5" class="step-content">
-                    <h3 class="step-title">Configura Unità Interne</h3>
+            <div class="content-container">
+                <div class="config-card">
                     
-                    <!-- Barra di Carico -->
-                    <div class="capacity-text">Carico Sistema: <span id="capacity-val">0</span> / <span id="capacity-max">0</span> kW</div>
-                    <div class="capacity-container">
-                        <div id="capacity-bar" class="capacity-bar">0%</div>
+                    <!-- INDICATORI STEP -->
+                    <div class="step-indicator">
+                        <div class="step-line-bg"></div>
+                        <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
+                        <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
+                        <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
+                        <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
+                        <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
+                        <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
                     </div>
 
-                    <div id="container-ui"></div>
-                    
-                    <div class="step-nav">
-                        <button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button>
-                        <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Vai al Riepilogo</button>
+                    <!-- STEP 1: MARCA -->
+                    <div id="step-1" class="step-content active">
+                        <h3 class="step-title">Seleziona Marca</h3>
+                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento Marche...</div></div>
                     </div>
-                </div>
 
-                <!-- STEP 6: RIEPILOGO -->
-                <div id="step-6" class="step-content">
-                    <h3 class="step-title">Riepilogo Preventivo</h3>
-                    <div id="summary-box" class="summary-box"></div>
-                    <div class="step-nav">
-                        <button class="btn-nav btn-prev" onclick="window.app.goTo(5)">Modifica</button>
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn-nav btn-prev" style="background:#dc3545; color:white;" onclick="location.reload()">Nuovo</button>
-                            <button class="btn-nav btn-next" onclick="window.print()"><i class="fas fa-print"></i> Stampa</button>
+                    <!-- STEP 2: CONFIGURAZIONE -->
+                    <div id="step-2" class="step-content">
+                        <h3 class="step-title">Seleziona Configurazione</h3>
+                        <div id="grid-config" class="selection-grid"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
+                    </div>
+
+                    <!-- STEP 3: SERIE -->
+                    <div id="step-3" class="step-content">
+                        <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
+                        <div id="grid-series" class="selection-grid"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
+                    </div>
+
+                    <!-- STEP 4: UNITA ESTERNA -->
+                    <div id="step-4" class="step-content">
+                        <h3 class="step-title">Scegli Unità Esterna</h3>
+                        <div id="list-ue" class="ue-list"></div>
+                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
+                    </div>
+
+                    <!-- STEP 5: UNITA INTERNE -->
+                    <div id="step-5" class="step-content">
+                        <h3 class="step-title">Configura Unità Interne</h3>
+                        <div id="container-ui"></div>
+                        <div class="step-nav">
+                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button>
+                            <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Vai al Riepilogo</button>
                         </div>
                     </div>
-                </div>
 
+                    <!-- STEP 6: RIEPILOGO -->
+                    <div id="step-6" class="step-content">
+                        <h3 class="step-title">Riepilogo Preventivo</h3>
+                        <div id="summary-box" class="summary-box"></div>
+                        <div class="step-nav">
+                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Modifica</button>
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-nav btn-prev" style="background:#dc3545; color:white;" onclick="location.reload()">Nuovo</button>
+                                <button class="btn-nav btn-next" onclick="window.print()">Stampa</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </main>
     </div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
+    <!-- MENU LATERALE CENTRALIZZATO -->
+    <script src="/components.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // CONFIGURAZIONE FIREBASE
-            const firebaseConfig = { 
-                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", 
-                authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", 
-                projectId: "consorzio-artigiani-idraulici", 
-                storageBucket: "consorzio-artigiani-idraulici.appspot.com", 
-                messagingSenderId: "136848104008", 
-                appId: "1:136848104008:web:71e2195f1712a832e01b3a" 
-            };
-            
+            const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:71e2195f1712a832e01b3a" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             const db = firebase.firestore();
 
-            // STATO APPLICAZIONE
             const state = {
                 step: 1,
-                data: { brands: [], ue: [], ui: [] },
-                sel: { brand: null, type: null, series: null, ue: null, ui: [] }
+                data: { brands:[], ue:[], ui:[] },
+                sel: { brand:null, type:null, series:null, ue:null, ui:[] }
             };
 
-            // MAPPING IMMAGINI ESTERNE (Fallback)
+            // MAPPA IMMAGINI UNITA' ESTERNE
             const outdoorImages = {
                 'HAIER': 'est_haier.png',
                 'DAIKIN': 'est_daikin.jpg',
@@ -293,7 +293,6 @@
                 'VIESSMANN': 'est_viessmann.avif'
             };
 
-            // RIFERIMENTI DOM
             const ui = {
                 loader: document.getElementById('initial-loader'),
                 login: document.getElementById('login-section'),
@@ -310,21 +309,18 @@
                     ui: document.getElementById('container-ui')
                 },
                 summary: document.getElementById('summary-box'),
-                btnFinish: document.getElementById('btn-finish'),
-                capBar: document.getElementById('capacity-bar'),
-                capVal: document.getElementById('capacity-val'),
-                capMax: document.getElementById('capacity-max')
+                btnFinish: document.getElementById('btn-finish')
             };
 
-            // GESTIONE AUTH
+            // Auth
             auth.onAuthStateChanged(user => {
+                ui.loader.style.display='none';
                 if(user) {
                     ui.login.classList.add('hidden');
                     ui.app.classList.remove('hidden');
                     ui.user.textContent = user.email;
                     initApp();
                 } else {
-                    ui.loader.style.display='none';
                     ui.login.classList.remove('hidden');
                     ui.app.classList.add('hidden');
                 }
@@ -332,13 +328,13 @@
 
             document.getElementById('login-form')?.addEventListener('submit', e => {
                 e.preventDefault();
-                const em = document.getElementById('email').value;
-                const pw = document.getElementById('password').value;
-                auth.signInWithEmailAndPassword(em, pw).catch(err => alert("Errore Login: " + err.message));
+                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
+                    .catch(err => alert(err.message));
             });
             document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
 
-            // --- LOGICA DI CARICAMENTO DATI ---
+            // --- LOGICA APPLICAZIONE ---
+            
             async function initApp() {
                 try {
                     const [bSnap, ueSnap, uiSnap, mapSnap] = await Promise.all([
@@ -357,7 +353,6 @@
                             brandId: (data.marca||'').toLowerCase().trim(),
                             con: Number(data.unita_collegabili || data.unit_collegabili || data.connections || 0),
                             price: Number(data.prezzo||0),
-                            power: parseFloat(data.potenza || 0), // Assicurati che nel DB ci sia "potenza" (kW)
                             compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
                                     (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : [])
                         };
@@ -372,34 +367,21 @@
                     state.data.ui = uiSnap.docs.map(d => {
                         const data = d.data();
                         const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
-                        let kw = 0;
-                        // Tentativo estrazione potenza numerica da stringa (es "2.5 kW")
-                        if(data.potenza) {
-                            const match = data.potenza.toString().match(/(\d+[.,]?\d*)/);
-                            if(match) kw = parseFloat(match[0].replace(',','.'));
-                        }
-
                         return {
                             id: d.id, ...data,
                             brandId: (data.marca||'').toLowerCase().trim(),
                             seriesId: sId,
                             price: Number(data.prezzo_ui||0),
-                            kw: kw, 
                             imgName: imgMap[sId] || null
                         };
                     });
 
-                    ui.loader.style.display='none';
                     renderBrands();
-                } catch(e) { 
-                    console.error(e); 
-                    alert("Errore caricamento dati: " + e.message); 
-                }
+                } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
             }
 
-            // --- STEP 1: MARCHE ---
+            // Step 1: Marche
             function renderBrands() {
-                // Filtra solo brand che hanno unità esterne nel DB
                 const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
                 const list = state.data.brands.filter(b => validBrands.includes(b.id));
                 
@@ -411,43 +393,29 @@
                 `).join('');
             }
 
-            // --- STEP 2: CONFIGURAZIONE (Dual, Trial...) ---
+            // Step 2: Configurazione
             function renderConfigs() {
-                const opts = [
-                    {id:2,n:'Dual (2)'},
-                    {id:3,n:'Trial (3)'},
-                    {id:4,n:'Quadri (4)'},
-                    {id:5,n:'Penta (5)'}
-                ];
-                // Trova quali configurazioni esistono per il brand selezionato
-                const allowed = state.data.ue
-                    .filter(u => u.brandId === state.sel.brand.id)
-                    .map(u => u.con);
-                
+                const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
+                const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
                 const list = opts.filter(o => allowed.includes(o.id));
                 
                 ui.grids.config.innerHTML = list.map(c => `
                     <div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')">
-                        <span class="card-text" style="font-size:2rem;color:#0056a8; font-weight:bold;">${c.id}</span>
-                        <span class="card-text">${c.n}</span>
+                        <span class="card-text" style="font-size:2rem;color:#0056a8;">${c.id}</span>
+                        <span>${c.n}</span>
                     </div>
                 `).join('');
-                
-                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione trovata per questo marchio.</p>';
+                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
             }
 
-            // --- STEP 3: SERIE (Famiglie UI) ---
+            // Step 3: Serie
             function renderSeries() {
-                // Trova UE compatibili con Brand e Configurazione scelta
                 const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
-                
-                // Raccogli tutti gli ID serie compatibili
                 const compatSeriesIds = new Set();
                 compatUE.forEach(u => {
                     if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
                 });
 
-                // Filtra le UI uniche per visualizzare le serie
                 const unique = [];
                 const seen = new Set();
                 state.data.ui.forEach(u => {
@@ -458,18 +426,18 @@
                 });
 
                 ui.grids.series.innerHTML = unique.map(s => {
-                    const imgPath = s.img ? `/LISTINI/CLIMA/images/${s.img}.png` : 'https://via.placeholder.com/150?text=No+Image';
+                    // Percorso Img UI: /LISTINI/CLIMA/images/
+                    const imgPath = s.img ? `/LISTINI/CLIMA/images/${s.img}.png` : '/placeholder.png';
                     return `
                     <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}')">
-                        <img src="${imgPath}" class="card-img" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
+                        <img src="${imgPath}" class="card-img" onerror="this.src='/placeholder.png'">
                         <span class="card-text">${s.name}</span>
                     </div>`;
                 }).join('');
-                
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile disponibile.</p>';
+                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
             }
 
-            // --- STEP 4: UNITA ESTERNA ---
+            // Step 4: UE
             function renderUE() {
                 const list = state.data.ue.filter(u => 
                     u.brandId === state.sel.brand.id && 
@@ -477,59 +445,55 @@
                     u.compat?.includes(state.sel.series.id)
                 );
                 
-                // Rimuovi duplicati basati su codice prodotto
                 const unique = [];
                 const seen = new Set();
-                list.forEach(u => { 
-                    if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } 
-                });
+                list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
 
                 ui.grids.ue.innerHTML = unique.map(u => {
+                    // LOGICA IMMAGINE UNITÀ ESTERNA
                     const brandKey = u.brandId.toUpperCase();
                     const imgName = outdoorImages[brandKey] || 'placeholder.png';
+                    // Percorso assoluto
                     const imgPath = `/LISTINI/CLIMA/images/${imgName}`;
 
                     return `
                     <div class="ue-card" onclick="window.app.selUE('${u.id}')">
-                        <div style="font-weight:bold; color:#0056a8;">${u.modello || u.codice_prodotto}</div>
-                        <img src="${imgPath}" class="ue-img" onerror="this.src='https://via.placeholder.com/300x200?text=Esterna'">
-                        <div style="font-size:0.9rem; color:#666;">
-                            <div>Cod: ${u.codice_prodotto}</div>
-                            <div>Gas: ${u.tipo_refrigerante}</div>
-                            <div>Potenza Nominale: ${u.power} kW</div>
+                        <div class="ue-header">
+                            <span class="ue-title">${u.modello || u.codice_prodotto}</span>
                         </div>
+                        <img src="${imgPath}" class="ue-img" onerror="this.src='/placeholder.png'">
+                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
+                        <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
+                        <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
                         <div class="ue-price">€ ${u.price.toFixed(2)}</div>
                     </div>`;
                 }).join('');
                 
-                if(!unique.length) ui.grids.ue.innerHTML = '<p>Errore: Nessuna unità esterna compatibile trovata.</p>';
+                if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
             }
 
-            // --- STEP 5: SELEZIONE UNITA INTERNE ---
+            // Step 5: UI
             function renderUISelect() {
                 const count = state.sel.type.id;
-                state.sel.ui = new Array(count).fill(null); // Resetta array scelte
+                state.sel.ui = new Array(count).fill(null);
                 
-                // Filtra UI della serie scelta
                 const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
-                // Raggruppa per taglia di potenza per pulizia visiva
-                const uniqueOpts = [];
+                const unique = [];
                 const seen = new Set();
                 opts.forEach(i => {
-                    if(!seen.has(i.potenza)) { uniqueOpts.push(i); seen.add(i.potenza); }
+                    if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); }
                 });
-                uniqueOpts.sort((a,b) => a.kw - b.kw); // Ordina per potenza crescente
+                unique.sort((a,b) => parseFloat(a.potenza) - parseFloat(b.potenza));
 
                 ui.grids.ui.innerHTML = '';
                 for(let i=0; i<count; i++) {
                     const html = `
                     <div class="ui-slot">
-                        <h4 style="margin:0 0 10px 0; color:#555;">Unità Interna ${i+1}</h4>
+                        <h4>Unità Interna ${i+1}</h4>
                         <div class="ui-options" id="grp-ui-${i}">
-                            ${uniqueOpts.map(u => `
+                            ${unique.map(u => `
                                 <div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">
-                                    <div style="font-weight:bold;">${u.potenza}</div>
-                                    <small>€ ${u.price.toFixed(0)}</small>
+                                    ${u.potenza}<br><small>€ ${u.price.toFixed(0)}</small>
                                 </div>
                             `).join('')}
                         </div>
@@ -537,107 +501,59 @@
                     </div>`;
                     ui.grids.ui.innerHTML += html;
                 }
-                
-                updateCapacityBar();
                 ui.btnFinish.disabled = true;
             }
 
-            function updateCapacityBar() {
-                const selectedUnits = state.sel.ui.filter(Boolean);
-                let currentLoad = 0;
-                selectedUnits.forEach(u => currentLoad += u.kw);
-                
-                const maxLoad = state.sel.ue.power;
-                // Calcola percentuale. Di solito si accetta fino al 120-130% in multisplit inverter
-                const percent = maxLoad > 0 ? (currentLoad / maxLoad) * 100 : 0;
-                
-                ui.capVal.textContent = currentLoad.toFixed(1);
-                ui.capMax.textContent = maxLoad.toFixed(1);
-                ui.capBar.style.width = Math.min(percent, 100) + '%';
-                ui.capBar.textContent = Math.round(percent) + '%';
-
-                // Colori barra
-                ui.capBar.className = 'capacity-bar';
-                if(percent > 100 && percent <= 130) ui.capBar.classList.add('warning');
-                else if(percent > 130) ui.capBar.classList.add('danger');
-            }
-
-            // --- STEP 6: RIEPILOGO ---
+            // Step 6: Riepilogo
             function renderSummary() {
                 const s = state.sel;
-                let uiTot = 0;
-                s.ui.forEach(u => uiTot += u.price);
-                const total = s.ue.price + uiTot;
+                let tot = s.ue.price;
+                s.ui.forEach(u => tot += u.price);
                 
                 let rows = s.ui.map((u,i) => `
                     <div class="summary-row">
-                        <div>
-                            <strong>UI ${i+1}:</strong> ${u.modello} <br>
-                            <small class="text-muted">${u.codice_prodotto} - ${u.potenza}</small>
-                        </div>
-                        <div>€ ${u.price.toFixed(2)}</div>
+                        <span>UI ${i+1}: ${u.modello} (${u.potenza})</span>
+                        <strong>€ ${u.price.toFixed(2)}</strong>
                     </div>
                 `).join('');
 
                 ui.summary.innerHTML = `
                     <div class="summary-header">
-                        <h3 style="margin:0;">Preventivo ${s.brand.name}</h3>
-                        <span>${new Date().toLocaleDateString()}</span>
+                        <h3>Preventivo ${s.brand.name}</h3>
+                        <span class="summary-date">${new Date().toLocaleDateString()}</span>
                     </div>
-                    <div class="summary-content">
-                        <div class="summary-row" style="background:#f9f9f9;">
-                            <div>
-                                <strong>Unità Esterna:</strong> ${s.ue.modello}<br>
-                                <small>${s.ue.codice_prodotto}</small>
-                            </div>
-                            <strong>€ ${s.ue.price.toFixed(2)}</strong>
-                        </div>
-                        
-                        <h4 style="margin:20px 0 10px 0; border-bottom:1px solid #eee;">Unità Interne</h4>
-                        ${rows}
-                        
-                        <div class="summary-total">
-                            <span>TOTALE LISTINO (IVA Escl.)</span>
-                            <span>€ ${total.toFixed(2)}</span>
-                        </div>
+                    <div class="summary-row">
+                        <span>Unità Esterna: ${s.ue.modello}</span>
+                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
+                    </div>
+                    ${rows}
+                    <div class="summary-row total">
+                        <span>TOTALE (IVA Escl.)</span>
+                        <span>€ ${tot.toFixed(2)}</span>
                     </div>
                 `;
             }
 
-            // --- NAVIGATION CONTROLLER ---
+            // --- NAVIGATION ---
             window.app = {
                 goTo: (step) => {
                     state.step = step;
+                    ui.steps.forEach(s => s.classList.remove('active'));
+                    document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
                     
-                    // Gestione visiva steps
-                    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
                     document.getElementById(`step-${step}`).classList.add('active');
                     
-                    // Gestione Indicatori
                     ui.inds.forEach((el, idx) => {
                         const s = idx + 1;
-                        el.classList.remove('active', 'completed');
-                        if(s === step) el.classList.add('active');
-                        else if(s < step) el.classList.add('completed');
+                        if(s === step) { el.classList.add('active'); el.classList.remove('completed'); }
+                        else if(s < step) { el.classList.add('completed'); el.classList.remove('active'); }
+                        else { el.classList.remove('active', 'completed'); }
                     });
-
-                    // Se arriviamo alla fine, renderizza riepilogo
-                    if(step === 6) renderSummary();
                     
+                    if(step === 6) renderSummary();
                     window.scrollTo(0,0);
                 },
-
-                prev: () => {
-                    const curr = state.step;
-                    // Reset dati se si torna indietro per evitare incoerenze
-                    if(curr === 2) { state.sel.brand = null; ui.infos[0].textContent=''; }
-                    if(curr === 3) { state.sel.type = null; ui.infos[1].textContent=''; }
-                    if(curr === 4) { state.sel.series = null; ui.infos[2].textContent=''; }
-                    if(curr === 5) { state.sel.ue = null; ui.infos[3].textContent=''; state.sel.ui = []; }
-                    
-                    window.app.goTo(curr - 1);
-                },
-
+                prev: () => window.app.goTo(state.step - 1),
                 finish: () => window.app.goTo(6),
                 
                 selBrand: (id, name) => {
@@ -665,26 +581,18 @@
                     window.app.goTo(5);
                 },
                 pickUI: (idx, uid, btn) => {
-                    // Gestione selezione visuale pulsante
-                    const group = document.getElementById(`grp-ui-${idx}`);
-                    group.querySelectorAll('.ui-btn').forEach(b => b.classList.remove('selected'));
+                    document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
                     btn.classList.add('selected');
                     
-                    // Salvataggio dato
                     const unit = state.data.ui.find(u => u.id === uid);
                     state.sel.ui[idx] = unit;
                     
-                    // Aggiornamento preview slot
                     const p = document.getElementById(`prev-ui-${idx}`);
-                    p.innerHTML = `Selezionato: <strong style="color:var(--primary)">${unit.codice_prodotto}</strong> (${unit.potenza})`;
+                    p.innerHTML = `Selezionato: <strong>${unit.codice_prodotto}</strong> (${unit.dimensioni_ui})`;
                     p.classList.add('visible');
                     
-                    // Aggiorna info step e barra carico
-                    updateCapacityBar();
-                    
-                    // Abilita bottone 'Fine' solo se tutte le UI sono selezionate
                     const count = state.sel.ui.filter(Boolean).length;
-                    ui.infos[4].textContent = `${count} / ${state.sel.type.id}`;
+                    ui.infos[4].textContent = `${count}/${state.sel.type.id}`;
                     ui.btnFinish.disabled = count !== state.sel.type.id;
                 }
             };
