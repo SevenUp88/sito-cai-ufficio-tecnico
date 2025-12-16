@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAI - Preventivazione</title>
     
-    <!-- Link al CSS Principale -->
+    <!-- Link al CSS Principale (risaliamo di un livello) -->
     <link rel="stylesheet" href="../style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
         /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
         
-        /* Layout Header Pagina */
+        /* Layout Header Interno (Ricerca e Bottone) */
         .preventivi-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
@@ -26,7 +26,7 @@
             position: relative;
             display: flex;
             align-items: center;
-            width: 350px; /* Larghezza fissa o 100% */
+            width: 350px;
         }
         .search-wrapper .search-icon {
             position: absolute;
@@ -37,7 +37,7 @@
         }
         #search-input {
             width: 100%;
-            padding: 10px 15px 10px 45px !important; /* Spazio a sinistra per l'icona */
+            padding: 10px 15px 10px 45px !important;
             border: 1px solid #ccc;
             border-radius: 6px;
             font-size: 1rem;
@@ -66,7 +66,7 @@
         .status-select[data-val="Offerta Fornitore"] { background-color: #fff3cd; color: #856404; border-color: #ffeeba; }
         .status-select[data-val="In Corso"] { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
 
-        /* Bottoni */
+        /* Bottoni Azione */
         .action-btn { 
             width: 32px; height: 32px; border-radius: 4px; border: none; 
             display: inline-flex; align-items: center; justify-content: center; 
@@ -102,6 +102,19 @@
         
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .close-modal-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #aaa; }
+
+        /* Loader */
+        .loader-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f4f6f9; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader-spinner {
+            border: 4px solid #e9ecef; border-top: 4px solid #0056a8;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -109,7 +122,7 @@
     <!-- Loader -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
-        <p>Caricamento...</p>
+        <p style="margin-top:10px;">Caricamento...</p>
     </div>
 
     <!-- LOGIN -->
@@ -141,19 +154,11 @@
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Gestione Preventivi</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- HEADER RIMOSSO: Viene generato da initLayout() in components.js -->
 
             <div class="content-container">
                 <div class="dashboard-card">
+                    <!-- Header interno della Card (Ricerca e Bottone) -->
                     <div class="preventivi-header">
                         <div class="search-wrapper">
                             <i class="fas fa-search search-icon"></i>
@@ -240,7 +245,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Script per Menu Laterale Centralizzato -->
+    <!-- Script per Layout Centralizzato -->
     <script src="/components.js"></script>
 
     <script>
@@ -250,8 +255,8 @@
                 authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
                 projectId: "consorzio-artigiani-idraulici",
                 storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-                messagingSenderId: "367198758830",
-                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
+                messagingSenderId: "136848104008",
+                appId: "1:136848104008:web:71e2195f1712a832e01b3a"
             };
 
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -263,20 +268,22 @@
             const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
             let allPreventivi = [];
 
-            // UI Elements
+            // --- INIZIALIZZA LAYOUT (Sidebar + Header dinamico) ---
+            initLayout("Gestione Preventivi");
+
+            // UI Elements Locali
             const ui = {
                 loader: document.getElementById('initial-loader'),
                 loginSection: document.getElementById('login-section'),
                 appContent: document.getElementById('app-content'),
                 loginForm: document.getElementById('login-form'),
-                userEmail: document.getElementById('user-email-display'),
                 addBtn: document.getElementById('add-quote-btn'),
                 addModal: document.getElementById('add-quote-modal'),
                 editModal: document.getElementById('edit-quote-modal'),
                 tableBody: document.getElementById('preventivi-table-body')
             };
 
-            // Inizializzazione
+            // Inizializzazione Logica
             function initializeApp() {
                 if(ui.loginForm) ui.loginForm.addEventListener('submit', handleLogin);
                 auth.onAuthStateChanged(handleAuthStateChange);
@@ -288,7 +295,7 @@
                 if (user) {
                     ui.loginSection.classList.add('hidden');
                     ui.appContent.classList.remove('hidden');
-                    ui.userEmail.textContent = user.email;
+                    // Header nome utente gestito da components.js
                     fetchPreventivi();
                 } else {
                     ui.loginSection.classList.remove('hidden');
@@ -307,9 +314,9 @@
                 });
             }
 
-            // *** LISTENER STATICI (Sempre attivi) ***
+            // *** LISTENER STATICI ***
             function setupStaticEventListeners() {
-                document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+                // Logout gestito da components.js
 
                 // Nuovo Preventivo
                 ui.addBtn.addEventListener('click', (e) => {
