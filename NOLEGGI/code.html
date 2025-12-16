@@ -17,14 +17,36 @@
     .hidden { display: none !important; }
     #loading-indicator { text-align: center; padding: 40px; font-size: 1.1em; color: #555; }
     
-    /* Stile per l'header cliccabile dell'inventario */
+    /* Stile Header Accordion Inventario */
     #inventory-header {
         cursor: pointer;
         user-select: none;
         transition: background-color 0.2s;
     }
     #inventory-header:hover {
-        background-color: #f8f9fa;
+        background-color: #f1f3f5;
+    }
+
+    /* Stile Lista Storico Recente */
+    #recent-history-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 15px;
+        max-height: 150px;
+        overflow-y: auto;
+        border-top: 1px solid #eee;
+    }
+    #recent-history-list li {
+        padding: 8px 0;
+        border-bottom: 1px dashed #eee;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #recent-history-list li span.date {
+        color: #6c757d;
+        font-size: 0.8rem;
     }
   </style>
 </head>
@@ -68,10 +90,9 @@
 
           <div class="content-container">
               
-              <!-- Dashboard Cards Grid -->
               <div class="dashboard-noleggi-grid">
                   
-                  <!-- 1. NOLEGGI ATTIVI (Pulsante Nuovo Noleggio) -->
+                  <!-- 1. NOLEGGI ATTIVI -->
                   <div class="card full-width-card">
                      <div class="card-header"> 
                          <h2>Noleggi Attivi</h2> 
@@ -85,64 +106,72 @@
                      </div>
                      <div class="inventory-container"> 
                          <table id="active-rentals-table"> 
-                             <thead> <tr> <th># Noleggio</th> <th>Articolo</th> <th>Cliente</th> <th>Magazzino</th> <th>Data Inizio</th> <th>Stato</th> <th>Azioni</th> </tr> </thead> 
+                             <thead> <tr> <th>#</th> <th>Articolo</th> <th>Cliente</th> <th>Magazzino</th> <th>Inizio</th> <th>Stato</th> <th>Azioni</th> </tr> </thead> 
                              <tbody></tbody> 
                          </table> 
                      </div>
                   </div>
 
-                  <!-- 2. INVENTARIO RAPIDO (Pulsante Carica Excel) -->
+                  <!-- 2. INVENTARIO RAPIDO -->
                   <div class="card">
                       <div class="card-header"> 
                           <h2>Inventario Rapido</h2> 
                           <div class="actions"> 
-                              <button class="btn btn-warning" id="reset-inventory"> <i class="fas fa-sync-alt btn-icon"></i> Reset </button> 
-                              <label for="excel-upload" class="btn btn-success"> <i class="fas fa-file-excel btn-icon"></i> Carica Excel <input type="file" id="excel-upload" accept=".xlsx, .xls" hidden> </label> 
+                              <button class="btn btn-warning" id="reset-inventory"> <i class="fas fa-sync-alt"></i></button> 
+                              <label for="excel-upload" class="btn btn-success" title="Carica Excel"> <i class="fas fa-file-excel"></i> <input type="file" id="excel-upload" accept=".xlsx, .xls" hidden> </label> 
                           </div> 
                       </div>
                       <div class="stats"> 
-                          <div class="stat-card"> <div class="stat-value" id="total-items">0</div> <div class="stat-label">Articoli Totali</div> </div> 
+                          <div class="stat-card"> <div class="stat-value" id="total-items">0</div> <div class="stat-label">Totali</div> </div> 
                           <div class="stat-card"> <div class="stat-value" id="available-items">0</div> <div class="stat-label">Disponibili</div> </div> 
                       </div>
                       <div class="attention-rentals"> 
-                          <h3><i class="fas fa-exclamation-triangle attention-icon"></i> Noleggi da Verificare (da 5+ giorni)</h3> 
-                          <ul id="oldest-rentals-list"> <li>Nessun noleggio attivo da verificare.</li> </ul> 
+                          <h3><i class="fas fa-exclamation-triangle attention-icon"></i> Da Verificare (+5gg)</h3> 
+                          <ul id="oldest-rentals-list"> <li>Nessun noleggio da verificare.</li> </ul> 
                       </div>
                   </div>
 
                   <!-- 3. STORICO E STAMPE -->
                   <div class="card">
-                     <div class="card-header"> <h2>Storico e Stampe</h2> </div>
+                     <div class="card-header"> <h2>Storico Chiusi</h2> </div>
+                     
                      <div class="actions print-filters" style="flex-direction: column; align-items: stretch; gap: 10px;"> 
                          <div style="display:flex; gap:5px;">
-                             <select id="print-month" class="form-control"> <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option> </select> 
-                             <input type="number" id="print-year" class="form-control" placeholder="Anno"> 
+                             <select id="print-month" class="form-control"> 
+                                <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option>
+                                <option value="4">Aprile</option><option value="5">Maggio</option><option value="6">Giugno</option>
+                                <option value="7">Luglio</option><option value="8">Agosto</option><option value="9">Settembre</option>
+                                <option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option> 
+                             </select> 
+                             <input type="number" id="print-year" class="form-control" placeholder="Anno" style="width: 80px;"> 
                          </div>
-                         <button class="btn btn-primary" id="print-rentals-btn"> <i class="fas fa-print btn-icon"></i> Stampa </button> 
-                         <button class="btn btn-secondary" id="manage-history-btn"> <i class="fas fa-tasks btn-icon"></i> Gestisci </button> 
-                         <button class="btn btn-warning btn-sm" id="reset-completed-btn"> <i class="fas fa-trash-alt btn-icon"></i> Azzera </button> 
+                         <div style="display:flex; gap:5px;">
+                             <button class="btn btn-primary" id="print-rentals-btn" style="flex:1;"> <i class="fas fa-print"></i> Stampa </button> 
+                             <button class="btn btn-secondary" id="manage-history-btn" style="flex:1;"> <i class="fas fa-search"></i> Cerca </button> 
+                         </div>
+                         <button class="btn btn-warning btn-sm" id="reset-completed-btn"> <i class="fas fa-trash-alt"></i> Azzera Tutto </button> 
                      </div>
-                     <div class="stats" style="margin-top:15px;"> 
-                         <div class="stat-card"> <div class="stat-value" id="total-completed">0</div> <div class="stat-label">Completati</div> </div> 
-                     </div>
+
+                     <!-- NUOVA SEZIONE: LISTA ULTIMI CHIUSI -->
+                     <h4 style="margin-top:20px; font-size:0.9rem; color:#666;">Ultimi Chiusi:</h4>
+                     <ul id="recent-history-list">
+                         <li style="color:#999; font-style:italic;">Caricamento...</li>
+                     </ul>
                  </div>
 
-                  <!-- 4. INVENTARIO COMPLETO (ACCORDION - Pulsante Nuovo Articolo) -->
+                  <!-- 4. INVENTARIO COMPLETO (ACCORDION) -->
                   <div class="card full-width-card">
-                    <!-- Header Cliccabile -->
                     <div class="card-header" id="inventory-header"> 
                         <div style="display:flex; align-items:center; gap:10px;">
                             <i class="fas fa-chevron-right" id="inventory-arrow" style="transition: transform 0.3s; color:#666;"></i>
                             <h2>Inventario Completo</h2> 
                         </div>
                         <div class="actions"> 
-                            <!-- I bottoni rimangono visibili anche a tendina chiusa -->
-                            <button class="btn btn-success" id="new-item-btn"> <i class="fas fa-plus btn-icon"></i> Nuovo </button> 
-                            <button class="btn btn-primary" id="export-inventory-btn"> <i class="fas fa-file-export btn-icon"></i> Export </button> 
+                            <button class="btn btn-success" id="new-item-btn"> <i class="fas fa-plus"></i> Nuovo </button> 
+                            <button class="btn btn-primary" id="export-inventory-btn"> <i class="fas fa-file-export"></i> </button> 
                         </div> 
                     </div>
 
-                    <!-- Corpo della tendina (Nascosto di default) -->
                     <div id="inventory-body" class="hidden">
                         <div class="search-filter" style="margin-top: 15px;"> 
                             <input type="text" id="inventory-search" placeholder="Cerca articolo..."> 
@@ -153,13 +182,7 @@
                             <table id="inventory-table"> 
                                 <thead> 
                                     <tr> 
-                                        <th>Marca</th> 
-                                        <th>Articolo</th> 
-                                        <th class="text-center">Totale</th> 
-                                        <th class="text-center">Disp.</th> 
-                                        <th class="text-right">€/Giorno</th> 
-                                        <th>Stato</th> 
-                                        <th>Azioni</th> 
+                                        <th>Marca</th> <th>Articolo</th> <th class="text-center">Totale</th> <th class="text-center">Disp.</th> <th class="text-right">€/Giorno</th> <th>Stato</th> <th>Azioni</th> 
                                     </tr> 
                                 </thead> 
                                 <tbody></tbody> 
@@ -272,7 +295,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <!-- 2. INIZIALIZZAZIONE FIREBASE PRIMA DI TUTTO -->
+  <!-- 2. INIZIALIZZAZIONE FIREBASE -->
   <script>
     const firebaseConfig = {
         apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", 
@@ -282,7 +305,6 @@
         messagingSenderId: "136848104008",
         appId: "1:136848104008:web:2724f60607dbe91d09d67d"
     };
-    // Inizializza subito
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     // Espone db e auth globalmente per code.js e components.js
     window.db = firebase.firestore();
@@ -293,13 +315,12 @@
   <script src="/components.js"></script>
   <script src="code.js"></script> 
 
-  <!-- 4. Logica Auth, Avvio e Accordion -->
+  <!-- 4. Logica Auth e Avvio -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
         // Layout
         initLayout("Gestione Noleggi Attrezzature");
 
-        // Elementi UI
         const ui = {
             loader: document.getElementById('initial-loader'),
             login: document.getElementById('login-section'),
@@ -308,7 +329,6 @@
             errorMsg: document.getElementById('login-error')
         };
 
-        // Auth Listener
         window.auth.onAuthStateChanged(user => {
             if (user) {
                 // Utente Loggato
@@ -354,29 +374,6 @@
                     ui.errorMsg.textContent = "Errore: " + err.message;
                     ui.errorMsg.classList.remove('hidden');
                 });
-            });
-        }
-
-        // --- AGGIUNTA: Logica Accordion Inventario ---
-        // (Si attiva anche se code.js non è ancora partito, basta che il DOM sia pronto)
-        const invHeader = document.getElementById('inventory-header');
-        const invBody = document.getElementById('inventory-body');
-        const invArrow = document.getElementById('inventory-arrow');
-
-        if (invHeader && invBody && invArrow) {
-            invHeader.addEventListener('click', (e) => {
-                // Se clicchi sui pulsanti dentro l'header, non aprire la tendina
-                if (e.target.closest('button') || e.target.closest('input')) return;
-
-                if (invBody.classList.contains('hidden')) {
-                    invBody.classList.remove('hidden'); // Mostra
-                    invArrow.classList.remove('fa-chevron-right');
-                    invArrow.classList.add('fa-chevron-down');
-                } else {
-                    invBody.classList.add('hidden'); // Nascondi
-                    invArrow.classList.remove('fa-chevron-down');
-                    invArrow.classList.add('fa-chevron-right');
-                }
             });
         }
     });
