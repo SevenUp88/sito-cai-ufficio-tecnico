@@ -336,13 +336,28 @@
                 btnFinish: document.getElementById('btn-finish')
             };
 
-            // Auth
+            // Auth - MODIFICATO PER LEGGERE NOME DA FIRESTORE
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display='none';
                 if(user) {
                     ui.login.classList.add('hidden');
                     ui.app.classList.remove('hidden');
+                    
+                    // Fallback iniziale (mostra email mentre carica)
                     ui.user.textContent = user.email;
+
+                    // Recupera il nome dalla collezione 'users' tramite email
+                    db.collection('users').where('email', '==', user.email).limit(1).get()
+                        .then(snapshot => {
+                            if (!snapshot.empty) {
+                                const userData = snapshot.docs[0].data();
+                                if (userData.name) {
+                                    ui.user.textContent = userData.name;
+                                }
+                            }
+                        })
+                        .catch(err => console.error("Errore recupero nome utente:", err));
+
                     initApp();
                 } else {
                     ui.login.classList.remove('hidden');
