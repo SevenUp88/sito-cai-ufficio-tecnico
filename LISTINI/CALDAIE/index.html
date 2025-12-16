@@ -26,10 +26,14 @@
         .popup-content { background: white; padding: 25px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
         .popup-close { position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 1.5em; cursor: pointer; }
         .no-data { text-align: center; grid-column: 1/-1; padding: 40px; color: #666; }
+        /* Loader */
+        .loader-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f6f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader-spinner { border: 4px solid #e9ecef; border-top: 4px solid #0056a8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p>Caricamento...</p></div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Caricamento...</p></div>
 
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
@@ -45,22 +49,13 @@
 
     <div id="app-content" class="dashboard-wrapper hidden">
         <nav class="sidebar">
-            <div class="sidebar-brand"><a href="../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a></div>
-            <ul class="sidebar-menu"></ul> <!-- Caricato da components.js -->
+            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a></div>
+            <ul class="sidebar-menu"></ul> 
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Listino Caldaie</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- Header generato da components.js -->
 
             <div class="content-container">
                 <div class="dashboard-card">
@@ -98,25 +93,29 @@
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth(); const db = firebase.firestore();
 
+            // Layout
+            initLayout("Listino Caldaie");
+
             let allData = [], filters = { brand: '', search: '' };
             const ui = {
                 loader: document.getElementById('initial-loader'), login: document.getElementById('login-section'), app: document.getElementById('app-content'),
-                user: document.getElementById('user-email-display'), grid: document.getElementById('boiler-list-container'), brands: document.getElementById('brand-filters'),
+                loginForm: document.getElementById('login-form'), grid: document.getElementById('boiler-list-container'), brands: document.getElementById('brand-filters'),
                 search: document.getElementById('search-input'), reset: document.getElementById('reset-filters-btn'),
                 popup: document.getElementById('popup-overlay'), popupTitle: document.getElementById('popup-title'), popupBody: document.getElementById('popup-body')
             };
 
             auth.onAuthStateChanged(u => {
                 ui.loader.style.display='none';
-                if(u) { ui.login.classList.add('hidden'); ui.app.classList.remove('hidden'); ui.user.textContent=u.email; loadData(); }
+                if(u) { ui.login.classList.add('hidden'); ui.app.classList.remove('hidden'); loadData(); }
                 else { ui.login.classList.remove('hidden'); ui.app.classList.add('hidden'); }
             });
 
-            document.getElementById('login-form').addEventListener('submit', e => {
-                e.preventDefault();
-                auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value).catch(err => alert(err.message));
-            });
-            document.getElementById('logout-button').addEventListener('click', () => auth.signOut());
+            if(ui.loginForm) {
+                ui.loginForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value).catch(err => alert(err.message));
+                });
+            }
 
             async function loadData() {
                 const snap = await db.collection('prodottiCaldaie').get();
