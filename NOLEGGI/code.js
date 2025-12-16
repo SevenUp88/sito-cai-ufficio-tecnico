@@ -5,7 +5,7 @@
     // --- Configuration & Global State ---
     const RENTAL_COUNTER_LS_KEY = "rentalCounter";
     const WAREHOUSES = ["VILLALTA", "SAVIGNANO", "VILLAMARINA"];
-    const OPERATORS = ["DANIELE", "GIOVANNI", "LEANDRO", "LEONE", "LUCA", "MASSIMO", "MATTIA", "RAFFAELE", "SERGIO", "SEVERINO", "THOMAS"];
+    const OPERATORS = [ "GIOVANNI", "LEANDRO", "LUCA", "MASSIMO", "MATTIA", "RAFFAELE", "SEVERINO", "THOMAS"];
     const LOGO_URL = "https://i.postimg.cc/1XQtFBSX/logo-cai-removebg-preview.png";
     const MIN_DAYS_FOR_ATTENTION = 5;
 
@@ -266,7 +266,28 @@
                 closeModal(getEl('new-item-modal')); loadInventoryData();
             } catch(err) { showError("Errore creazione articolo."); }
         });
+ // Logica Accordion Inventario Completo
+    const invHeader = document.getElementById('inventory-header');
+    const invBody = document.getElementById('inventory-body');
+    const invArrow = document.getElementById('inventory-arrow');
 
+    if (invHeader && invBody && invArrow) {
+        invHeader.addEventListener('click', (e) => {
+            // Evita che il click sui bottoni "Nuovo" o "Export" attivi la tendina
+            if (e.target.closest('button')) return;
+
+            // Toggle visibilità
+            if (invBody.classList.contains('hidden')) {
+                invBody.classList.remove('hidden'); // Mostra
+                invArrow.classList.remove('fa-chevron-right');
+                invArrow.classList.add('fa-chevron-down');
+            } else {
+                invBody.classList.add('hidden'); // Nascondi
+                invArrow.classList.remove('fa-chevron-down');
+                invArrow.classList.add('fa-chevron-right');
+            }
+        });
+    }
         // New Rental
         getEl('new-rental-btn')?.addEventListener('click', async () => {
             resetOngoingRentalState();
