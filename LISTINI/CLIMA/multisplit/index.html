@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuratore Multisplit - CAI</title>
     
-    <!-- CSS Principale (risale di 2 livelli) -->
+    <!-- 1. Collegamento al TUO style.css principale (nella root) -->
     <link rel="stylesheet" href="../../style.css">
     
     <!-- Font e Icone -->
@@ -13,17 +13,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI UTILITÀ --- */
-        .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
+        /* --- STILI SPECIFICI SOLO PER IL CONFIGURATORE --- */
+        /* Questi non sono nel style.css principale perché servono solo qui */
+
         .config-card {
             background-color: #fff; padding: 30px; border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
         }
 
-        /* Indicatori Step */
+        /* Indicatori Step (Pallini 1-2-3-4-5-6) */
         .step-indicator {
             display: flex; justify-content: space-between; margin-bottom: 40px; 
             position: relative; padding: 0 10px;
@@ -41,7 +39,7 @@
             font-weight: bold; margin: 0 auto 8px auto; transition: all 0.3s;
         }
         .step-item.active .step-dot { 
-            background-color: #0056a8; color: white; border-color: #0056a8; 
+            background-color: var(--primary-color); color: white; border-color: var(--primary-color); 
             transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3);
         }
         .step-item.completed .step-dot { 
@@ -49,7 +47,7 @@
         }
         
         .step-label { font-size: 0.8rem; font-weight: 600; color: #333; display: block; }
-        .step-sub { font-size: 0.75rem; color: #0056a8; font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
+        .step-sub { font-size: 0.75rem; color: var(--primary-color); font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
 
         .step-line-bg {
             position: absolute; top: 19px; left: 5%; width: 90%; height: 2px;
@@ -62,7 +60,7 @@
         @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
 
         .step-title { 
-            font-size: 1.4rem; color: #0056a8; margin-bottom: 25px; 
+            font-size: 1.4rem; color: var(--primary-color); margin-bottom: 25px; 
             border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
         }
 
@@ -77,17 +75,17 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 160px; background: white;
         }
-        .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
-        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
+        .select-card:hover { border-color: var(--primary-color); transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
+        .select-card.selected { border-color: var(--primary-color); background-color: #f0f7ff; font-weight: bold; }
         
-        /* STEP 1: LOGO CENTRATO */
+        /* Immagini Brand */
         #grid-brand .select-card { min-height: 120px; justify-content: center; }
         #grid-brand .card-img { max-height: 70px; margin-bottom: 0; width: auto; max-width: 90%; }
 
         .card-img { max-width: 100%; max-height: 100px; object-fit: contain; margin-bottom: 15px; }
         .card-text { font-size: 1rem; color: #333; font-weight: 500; text-transform: uppercase; }
 
-        /* Card Unità Esterna (Step 4) */
+        /* Card Unità Esterna */
         .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .ue-card {
             border: 1px solid #ddd; border-radius: 8px; padding: 20px;
@@ -95,17 +93,16 @@
             display: flex; flex-direction: column; justify-content: space-between;
             position: relative;
         }
-        .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
+        .ue-card:hover { border-color: var(--primary-color); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .ue-card.selected { border-color: var(--primary-color); background-color: #f0f7ff; }
         
         .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
-        .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
+        .ue-title { font-weight: bold; color: var(--primary-color); font-size: 1.1rem; }
         .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
         .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
-        
         .ue-img { width: 100%; height: 140px; object-fit: contain; margin: 10px 0; }
 
-        /* Selezione Unità Interne (Step 5) */
+        /* Selezione Unità Interne */
         .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
         .ui-slot h4 { margin: 0 0 10px 0; color: #495057; font-size: 1rem; }
         
@@ -115,8 +112,8 @@
             cursor: pointer; font-size: 0.9rem; transition: all 0.2s; text-align: center; flex: 1 1 auto;
             min-width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
-        .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
+        .ui-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .ui-btn.selected { background: var(--primary-color); color: white; border-color: var(--primary-color); font-weight: bold; }
         
         .ui-preview { 
             margin-top: 15px; padding: 15px; background: white; 
@@ -126,7 +123,7 @@
         .ui-preview.visible { display: flex; }
         .ui-preview-img { width: 100px; height: 70px; object-fit: contain; }
         .ui-preview-content { flex: 1; font-size: 0.9rem; color: #555; }
-        .ui-preview strong { color: #0056a8; }
+        .ui-preview strong { color: var(--primary-color); }
 
         /* Pulsante Scheda Tecnica */
         .btn-tech-sheet {
@@ -142,28 +139,24 @@
         .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
         .btn-prev { background: #e9ecef; color: #495057; }
         .btn-prev:hover { background: #ced4da; }
-        .btn-next { background: #0056a8; color: white; }
-        .btn-next:hover { background: #004485; }
+        .btn-next { background: var(--primary-color); color: white; }
+        .btn-next:hover { background: var(--primary-dark); }
         .btn-next:disabled { background: #a0c4e8; cursor: not-allowed; }
 
         /* Riepilogo */
         .summary-box { background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; }
-        .summary-header { border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .summary-header h3 { margin: 0; color: #0056a8; }
+        .summary-header { border-bottom: 2px solid var(--primary-color); padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .summary-header h3 { margin: 0; color: var(--primary-color); }
         .summary-date { font-size: 0.9rem; color: #666; }
         
         .summary-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; align-items: center; }
-        .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
-        
-        .loader { text-align: center; padding: 40px; color: #6c757d; }
+        .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: var(--primary-color); }
         
         @media print {
-            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
+            .sidebar, .top-bar, .step-indicator, .step-nav { display: none !important; }
             .config-card { box-shadow: none; border: none; padding: 0; min-height: auto; }
             .summary-box { border: 2px solid #000; background: white; padding: 0; }
-            .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
-            .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
-            body { background: white; font-size: 12pt; color: black; }
+            body { background: white; color: black; }
             .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
         }
@@ -218,7 +211,7 @@
                     <!-- STEP 1: MARCA -->
                     <div id="step-1" class="step-content active">
                         <h3 class="step-title">Seleziona Marca</h3>
-                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento Marche...</div></div>
+                        <div id="grid-brand" class="selection-grid"><div style="text-align:center; width:100%;">Caricamento Marche...</div></div>
                     </div>
 
                     <!-- STEP 2: CONFIGURAZIONE -->
