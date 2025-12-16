@@ -15,6 +15,8 @@
     <style>
         /* --- STILI SPECIFICI AGENDA --- */
         
+        .hidden { display: none !important; }
+
         /* Layout Header Interno */
         .agenda-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -28,13 +30,13 @@
             width: 100%; margin-bottom: 15px;
         }
         .week-navigation h2 { 
-            margin: 0; font-size: 1.2rem; font-weight: 600; color: var(--primary-color); text-align: center; 
+            margin: 0; font-size: 1.2rem; font-weight: 600; color: #0056a8; text-align: center; 
         }
         .nav-week-btn {
             background: white; border: 1px solid #ced4da; padding: 5px 15px;
             border-radius: 4px; cursor: pointer; color: #495057; transition: all 0.2s;
         }
-        .nav-week-btn:hover { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .nav-week-btn:hover { background: #0056a8; color: white; border-color: #0056a8; }
 
         /* Tabella Calendario */
         .calendar-container { overflow-x: auto; }
@@ -48,7 +50,7 @@
         }
         #week-overview-table td { 
             border-bottom: 1px solid #eee; border-right: 1px solid #eee; 
-            vertical-align: top; padding: 0; height: 100px; width: 18%; /* 5 giorni */
+            vertical-align: top; padding: 0; height: 100px; width: 18%; 
             transition: background 0.2s;
         }
         #week-overview-table .time-col { 
@@ -141,9 +143,19 @@
         }
         .btn-nav { background-color: #0d6efd; color: white; text-decoration: none; padding: 8px 12px; border-radius: 4px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px; }
         .btn-nav:hover { background-color: #0b5ed7; }
-        
-        /* Utility */
-        .hidden { display: none !important; }
+
+        /* Loader */
+        .loader-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f4f6f9; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader-spinner {
+            border: 4px solid #e9ecef; border-top: 4px solid #0056a8;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -154,7 +166,7 @@
         <p>Caricamento Agenda...</p>
     </div>
 
-    <!-- SEZIONE LOGIN (Se l'utente non è loggato, appare questo invece del redirect) -->
+    <!-- SEZIONE LOGIN -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
@@ -183,16 +195,7 @@
 
         <!-- MAIN CONTENT -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Agenda Consegne</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display" class="user-email">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-btn" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- HEADER RIMOSSO: Viene generato da components.js -->
 
             <div class="content-container">
                 <div class="dashboard-card">
@@ -225,7 +228,7 @@
     <div id="slot-modal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title" style="color:var(--primary-color); margin:0;">Appuntamento</h3>
+                <h3 id="modal-title" style="color:#0056a8; margin:0;">Appuntamento</h3>
                 <button id="modal-close-btn" class="close-modal-btn">×</button>
             </div>
             <div class="modal-body" id="modal-body">
@@ -244,24 +247,27 @@
     <!-- TOAST -->
     <div id="toast-notification" class="toast"></div>
 
-    <!-- FIREBASE SDK v8 COMPAT (Compatibile con il resto del sito) -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- CARICAMENTO SIDEBAR CENTRALIZZATA -->
+    <!-- Componenti Centralizzati -->
     <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
-            // 1. Configurazione Firebase
+            // Configurazione Firebase
             const firebaseConfig = { apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:2724f60607dbe91d09d67d" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             
             const auth = firebase.auth();
             const db = firebase.firestore();
             
+            // --- INIZIALIZZA LAYOUT ---
+            initLayout("Agenda Consegne");
+
             let agendaData = {};
             let unsubscribe = null;
             let currentSlotInfo = {};
@@ -274,15 +280,11 @@
                 document.getElementById('initial-loader').style.display = 'none';
                 
                 if (user) {
-                    // Loggato -> Mostra App
                     document.getElementById('login-section').classList.add('hidden');
                     document.getElementById('app-content').classList.remove('hidden');
-                    document.getElementById('user-email-display').textContent = user.email;
-                    
                     loadGoogleMapsScript();
                     loadAgendaData();
                 } else {
-                    // Non loggato -> Mostra Login
                     document.getElementById('login-section').classList.remove('hidden');
                     document.getElementById('app-content').classList.add('hidden');
                 }
@@ -305,16 +307,11 @@
                 });
             }
 
-            // Logout Listener (Globale per questa pagina)
-            document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
-
-
             // 3. Funzioni Agenda
             function getYYYYMMDD(date) { return date.toISOString().split('T')[0]; }
 
             function loadAgendaData() {
                 if (unsubscribe) unsubscribe();
-                // Sintassi compat v8
                 unsubscribe = db.collection("agenda").doc("schedule")
                     .onSnapshot((docSnap) => {
                         agendaData = docSnap.exists ? docSnap.data() : {};
@@ -391,7 +388,6 @@
                     <div class="form-group"><label>Indirizzo</label><input type="text" id="modal-address-input" value="${entry.address || ''}" placeholder="Via Roma 1..."></div>
                     <div class="form-group"><label>Note</label><textarea id="modal-notes-input">${entry.notes || ''}</textarea></div>`;
                 
-                // Maps Autocomplete
                 if (isMapsScriptLoaded && google.maps.places) {
                     new google.maps.places.Autocomplete(document.getElementById('modal-address-input'), 
                     { componentRestrictions: { country: "it" } });
@@ -406,7 +402,6 @@
                 document.body.style.overflow = 'hidden';
             }
 
-            // Save Slot
             document.getElementById('modal-done-btn').addEventListener('click', async () => {
                 const title = document.getElementById('modal-title-input').value.trim().toUpperCase();
                 if (!title) return showToast("Titolo obbligatorio", 'danger');
@@ -416,8 +411,6 @@
                 const address = document.getElementById('modal-address-input').value.trim();
                 
                 const { date, time, isEditing } = currentSlotInfo;
-                
-                // Logica Slot (se orario cambia)
                 const hour = parseInt(customTime.split(':')[0]);
                 const slotHour = String(hour < 10 ? '0'+hour : hour);
                 const stdSlot = timeSlots.find(s => s.startsWith(slotHour)) || time;
@@ -435,14 +428,12 @@
                     closeModal();
                     showToast("Salvato!", 'success');
                 } catch (err) {
-                    // Se documento non esiste, crealo
                     await db.collection("agenda").doc("schedule").set({ [date]: { [stdSlot]: appData } }, { merge: true });
                     closeModal();
                     showToast("Salvato!", 'success');
                 }
             });
 
-            // Delete Slot
             document.getElementById('modal-delete-btn').addEventListener('click', () => deleteSlot(currentSlotInfo.date, currentSlotInfo.time));
 
             async function deleteSlot(date, time) {
@@ -456,7 +447,6 @@
                 } catch(e) { console.error(e); }
             }
 
-            // Utilities
             function closeModal() {
                 document.getElementById('slot-modal').classList.remove('visible');
                 document.body.style.overflow = '';
@@ -467,7 +457,6 @@
                 setTimeout(() => t.classList.remove('show'), 3000);
             }
             
-            // Google Maps Loader
             function loadGoogleMapsScript() {
                 if (isMapsScriptLoaded) return;
                 const script = document.createElement('script');
@@ -477,7 +466,6 @@
                 document.head.appendChild(script);
             }
 
-            // Event Listeners UI
             document.getElementById('prev-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() - 7); renderWeekView(); });
             document.getElementById('next-week-btn').addEventListener('click', () => { currentDisplayedDate.setDate(currentDisplayedDate.getDate() + 7); renderWeekView(); });
             
@@ -495,25 +483,19 @@
 
             document.getElementById('modal-close-btn').addEventListener('click', closeModal);
             
-            // Pulisci Settimana
             document.getElementById('clear-week-btn').addEventListener('click', async () => {
                 if(!confirm("Cancellare tutto?")) return;
-                // Qui dovresti implementare la logica di pulizia massiva se serve
                 showToast("Funzione pulizia attivata.", 'info'); 
             });
             
-            // Stampa
             document.getElementById('print-weekly-btn').addEventListener('click', () => {
                 const logoUrl = "https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png";
-                
                 const printFrame = document.createElement('iframe');
                 printFrame.style.cssText = 'position:absolute;width:0;height:0;border:0;';
                 document.body.appendChild(printFrame);
-                
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = `<table>${document.getElementById('week-overview-table').innerHTML}</table>`;
                 tempDiv.querySelectorAll('.inline-delete-btn').forEach(btn => btn.remove());
-                
                 const printDoc = printFrame.contentWindow.document;
                 printDoc.open();
                 printDoc.write(`
@@ -547,7 +529,6 @@
                     </html>
                 `);
                 printDoc.close();
-                
                 setTimeout(() => {
                     printFrame.contentWindow.focus();
                     printFrame.contentWindow.print();
