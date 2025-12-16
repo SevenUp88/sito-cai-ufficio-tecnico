@@ -5,7 +5,7 @@
     // --- Configuration & Global State ---
     const RENTAL_COUNTER_LS_KEY = "rentalCounter";
     const WAREHOUSES = ["VILLALTA", "SAVIGNANO", "VILLAMARINA"];
-    const OPERATORS = [ "GIOVANNI", "LEANDRO", "LUCA", "MASSIMO", "MATTIA", "RAFFAELE", "SEVERINO", "THOMAS"];
+    const OPERATORS = ["DANIELE", "GIOVANNI", "LEANDRO", "LEONE", "LUCA", "MASSIMO", "MATTIA", "RAFFAELE", "SERGIO", "SEVERINO", "THOMAS"];
     const LOGO_URL = "https://i.postimg.cc/1XQtFBSX/logo-cai-removebg-preview.png";
     const MIN_DAYS_FOR_ATTENTION = 5;
 
@@ -54,17 +54,37 @@
         if (getEl('quantity-available-info')) getEl('quantity-available-info').style.display = 'none';
     };
 
-    // --- Data Logic (Uses window.db explicitly) ---
+    // --- Data Logic ---
+    
+    // NUOVA FUNZIONE: Aggiorna la lista visibile dello storico
+    const updateHistoryList = async () => {
+        const listEl = document.getElementById('recent-history-list');
+        if(!listEl || !window.db) return;
+        try {
+            const snap = await window.db.collection("completedRentals").orderBy("endDate", "desc").limit(5).get();
+            if(snap.empty) {
+                listEl.innerHTML = '<li style="color:#999; font-style:italic;">Nessun noleggio chiuso.</li>';
+                return;
+            }
+            listEl.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                const li = document.createElement('li');
+                li.innerHTML = `<div><strong>#${d.rentalNumber}</strong> ${escapeHtml(d.client)}<br><small>${escapeHtml(d.itemName)}</small></div><span class="date">${formatDate(d.endDate)}</span>`;
+                listEl.appendChild(li);
+            });
+        } catch(e) { console.error("History fetch error:", e); }
+    };
+
     const updateBillingStats = async () => {
+        // Chiama anche la funzione per la lista visibile
+        updateHistoryList();
+        
         const statsC = document.getElementById('total-completed');
-        const statsCl = document.getElementById('total-clients');
         if (!window.db) return;
         try {
             const snapshot = await window.db.collection("completedRentals").get();
-            const completedRentals = []; snapshot.forEach(doc => completedRentals.push(doc.data()));
-            const clients = [...new Set(completedRentals.map(r => r.client))];
-            if (statsC) statsC.textContent = completedRentals.length;
-            if (statsCl) statsCl.textContent = clients.length;
+            if (statsC) statsC.textContent = snapshot.size;
         } catch (err) { console.error("Error stats:", err); }
     };
 
@@ -87,7 +107,6 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        // Filters
         const search = document.getElementById('inventory-search')?.value.toLowerCase() || '';
         const fBrand = document.getElementById('filter-brand')?.value || '';
         const fStatus = document.getElementById('filter-status')?.value || '';
@@ -213,7 +232,7 @@
             snap.forEach(d => list.push({ id: d.id, ...d.data() }));
             renderActiveRentalsTable(list);
             updateRentalStats(list);
-            // Render Oldest
+            
             const oldList = document.getElementById('oldest-rentals-list');
             if (oldList) {
                 const needingAtt = list.filter(r => getDaysElapsed(r.startDate) >= MIN_DAYS_FOR_ATTENTION);
@@ -222,7 +241,7 @@
                     oldList.innerHTML = needingAtt.map(r => `<li><span><b>#${r.rentalNumber}</b> ${escapeHtml(r.client)} (${r.itemName})</span><span style="color:#d32f2f;">${getDaysElapsed(r.startDate)} gg</span></li>`).join('');
                 }
             }
-            updateBillingStats();
+            updateBillingStats(); // Carica anche lo storico
         } catch (e) { console.error(e); showError("Errore caricamento noleggi."); }
     };
 
@@ -231,13 +250,16 @@
         if (window.appInitialized) return;
         window.appInitialized = true;
         
-        // UI Role Logic
         const isAdminUser = role === 'admin';
         ['reset-inventory', 'reset-completed-btn'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display = isAdminUser ? 'inline-block' : 'none'; });
-        const labelExcel = document.querySelector('label[for="excel-upload"]');
-        if(labelExcel) labelExcel.style.display = isAdminUser ? 'inline-block' : 'none';
+        
+        // Imposta mese/anno correnti per la stampa
+        const today = new Date();
+        const m = document.getElementById('print-month');
+        const y = document.getElementById('print-year');
+        if(m) m.value = today.getMonth() + 1;
+        if(y) y.value = today.getFullYear();
 
-        // Load
         const ops = document.querySelectorAll('#rental-operator, #edit-rental-operator');
         ops.forEach(s => { s.innerHTML='<option value="">-- Seleziona --</option>'; OPERATORS.sort().forEach(o=>s.add(new Option(o,o))); });
         
@@ -252,6 +274,23 @@
         // Modals Close
         document.querySelectorAll('.modal .close-btn').forEach(b => b.addEventListener('click', e => closeModal(e.target.closest('.modal'))));
         
+        // Accordion Inventario (Spostato qui per sicurezza)
+        const invHeader = getEl('inventory-header');
+        const invBody = getEl('inventory-body');
+        const invArrow = getEl('inventory-arrow');
+        if(invHeader) {
+            invHeader.addEventListener('click', (e) => {
+                if(e.target.closest('button') || e.target.closest('input')) return;
+                if(invBody.classList.contains('hidden')) {
+                    invBody.classList.remove('hidden');
+                    invArrow.classList.remove('fa-chevron-right'); invArrow.classList.add('fa-chevron-down');
+                } else {
+                    invBody.classList.add('hidden');
+                    invArrow.classList.remove('fa-chevron-down'); invArrow.classList.add('fa-chevron-right');
+                }
+            });
+        }
+
         // New Item
         getEl('new-item-btn')?.addEventListener('click', () => { getEl('new-item-form').reset(); openModal('new-item-modal'); });
         getEl('new-item-form')?.addEventListener('submit', async e => {
@@ -266,33 +305,10 @@
                 closeModal(getEl('new-item-modal')); loadInventoryData();
             } catch(err) { showError("Errore creazione articolo."); }
         });
- // Logica Accordion Inventario Completo
-    const invHeader = document.getElementById('inventory-header');
-    const invBody = document.getElementById('inventory-body');
-    const invArrow = document.getElementById('inventory-arrow');
 
-    if (invHeader && invBody && invArrow) {
-        invHeader.addEventListener('click', (e) => {
-            // Evita che il click sui bottoni "Nuovo" o "Export" attivi la tendina
-            if (e.target.closest('button')) return;
-
-            // Toggle visibilità
-            if (invBody.classList.contains('hidden')) {
-                invBody.classList.remove('hidden'); // Mostra
-                invArrow.classList.remove('fa-chevron-right');
-                invArrow.classList.add('fa-chevron-down');
-            } else {
-                invBody.classList.add('hidden'); // Nascondi
-                invArrow.classList.remove('fa-chevron-down');
-                invArrow.classList.add('fa-chevron-right');
-            }
-        });
-    }
         // New Rental
         getEl('new-rental-btn')?.addEventListener('click', async () => {
             resetOngoingRentalState();
-            
-            // Populate Brand Select for Rental
             const brandSel = getEl('rental-brand-selection');
             if(brandSel && window.db) {
                 const snap = await window.db.collection("inventory").get();
@@ -348,7 +364,7 @@
             } catch(err) { showError("Errore salvataggio noleggio."); }
         });
 
-        // Table Actions (Complete, Edit, Delete)
+        // Table Actions
         document.querySelector('#active-rentals-table tbody')?.addEventListener('click', async e => {
             const btn = e.target.closest('button');
             if(!btn) return;
@@ -373,7 +389,48 @@
             }
         });
         
-        // Filters Change
+        // Print Rentals (Fixed Logic)
+        getEl('print-rentals-btn')?.addEventListener('click', async () => {
+            try {
+                const m = parseInt(getEl('print-month').value);
+                const y = parseInt(getEl('print-year').value);
+                if(isNaN(m) || isNaN(y)) return alert("Data non valida");
+
+                // Calcolo date inizio/fine mese
+                // Nota: Firestore "endDate" è salvato come stringa 'YYYY-MM-DD'
+                // Costruiamo le stringhe per il confronto lessicografico
+                const startStr = `${y}-${String(m).padStart(2,'0')}-01`;
+                const nextM = m === 12 ? 1 : m + 1;
+                const nextY = m === 12 ? y + 1 : y;
+                const endStr = `${nextY}-${String(nextM).padStart(2,'0')}-01`;
+
+                const snap = await window.db.collection("completedRentals")
+                    .where("endDate", ">=", startStr)
+                    .where("endDate", "<", endStr)
+                    .orderBy("endDate")
+                    .get();
+
+                if(snap.empty) return alert("Nessun noleggio completato nel periodo.");
+
+                // Generazione HTML Stampa (Semplificata per brevità ma funzionale)
+                let html = `<html><head><title>Stampa</title><style>table{width:100%;border-collapse:collapse} th,td{border:1px solid #ccc;padding:5px}</style></head><body>`;
+                html += `<h2>Riepilogo Noleggi ${m}/${y}</h2><table><tr><th>#</th><th>Cliente</th><th>Articolo</th><th>Giorni</th><th>Totale</th></tr>`;
+                
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    const days = getDaysDifference(d.startDate, d.endDate);
+                    const cost = (d.dailyRate||0) * (d.quantity||1) * days;
+                    html += `<tr><td>${d.rentalNumber}</td><td>${d.client}</td><td>${d.itemName}</td><td>${days}</td><td>${formatPrice(cost)}</td></tr>`;
+                });
+                html += `</table><script>window.print();window.close();<\/script></body></html>`;
+
+                const win = window.open('', '_blank');
+                win.document.write(html);
+                win.document.close();
+
+            } catch(e) { console.error(e); showError("Errore stampa: " + e.message); }
+        });
+
         getEl('filter-brand')?.addEventListener('change', loadInventoryData);
         getEl('filter-status')?.addEventListener('change', loadInventoryData);
         getEl('inventory-search')?.addEventListener('input', loadInventoryData);
