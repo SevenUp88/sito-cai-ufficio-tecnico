@@ -8,120 +8,233 @@
     <link rel="stylesheet" href="../style.css">
 
     <style>
+        /* --- STILI DI BASE --- */
         body { background-color: #f0f2f5; font-family: Arial, sans-serif; }
-        /* La classe wrapper per la centratura */
-        .modulo-wrapper { max-width: 800px; margin: 20px auto; }
-        .paper-form { background: #fff; padding: 30px; border: 1px solid #ccc; color: #000; }
+        .hidden { display: none !important; }
+        
+        /* Layout Modulo A4 */
+        .modulo-wrapper { 
+            max-width: 800px; margin: 20px auto; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* Ombra leggera per staccarlo dallo sfondo */
+        }
+        .paper-form { background: #fff; padding: 40px; border: 1px solid #ccc; color: #000; min-height: 1000px; }
         .form-actions { text-align: center; padding: 20px 0; }
         
         h1, h2, h3, p, label { margin: 0; padding: 0; font-weight: normal; }
         input[type="text"], input[type="date"] {
-            border: none; border-bottom: 1px solid #000; background: transparent; width: 100%; padding: 1px 0; font-size: 0.85rem; font-family: Arial, sans-serif; border-radius: 0;
+            border: none; border-bottom: 1px solid #000; background: transparent; width: 100%; padding: 2px 0; font-size: 0.9rem; font-family: Arial, sans-serif; border-radius: 0;
         }
-        input:focus { outline: none; }
+        input:focus { outline: none; border-bottom: 1px solid #0056a8; }
         
-        .riga { display: flex; align-items: baseline; gap: 20px; margin-top: 15px; }
+        .riga { display: flex; align-items: baseline; gap: 20px; margin-top: 20px; }
         .campo { display: flex; align-items: baseline; gap: 8px; flex-grow: 1; }
-        .campo label { white-space: nowrap; font-size: 0.85rem; }
+        .campo label { white-space: nowrap; font-size: 0.85rem; font-weight: bold; }
         
-        .separatore { border: 0; border-top: 1.5px dashed #ccc; margin: 20px 0; }
+        .separatore { border: 0; border-top: 1.5px dashed #ccc; margin: 25px 0; }
         
-        .modulo-header { text-align: center; }
-        .modulo-header h1 { font-size: 1.1rem; font-weight: bold; }
-        .modulo-header .highlight { background-color: #31c6e8; padding: 0 4px; color: #fff; }
-        .modulo-header p { font-size: 0.85rem; margin-top: 5px; }
+        .modulo-header { text-align: center; margin-bottom: 30px; }
+        .modulo-header h1 { font-size: 1.2rem; font-weight: bold; text-transform: uppercase; }
+        .modulo-header .highlight { background-color: #31c6e8; padding: 0 5px; color: #fff; }
+        .modulo-header p { font-size: 0.9rem; margin-top: 5px; font-style: italic; }
         
-        .section-title { text-align: center; font-weight: bold; font-size: 1rem; margin-top: 15px; }
+        .section-title { text-align: center; font-weight: bold; font-size: 1rem; margin-top: 20px; background: #eee; padding: 5px; }
         
-        .declaration-box { margin-top: 15px; }
-        .declaration-box .title { font-weight: bold; font-size: 0.9rem; text-align: center; }
-        .declaration-box p { font-size: 0.85rem; line-height: 1.5; text-align: justify; margin-top: 8px; }
+        .declaration-box { margin-top: 20px; }
+        .declaration-box .title { font-weight: bold; font-size: 0.95rem; text-align: center; margin-bottom: 10px; }
+        .declaration-box p { font-size: 0.85rem; line-height: 1.4; text-align: justify; margin-bottom: 10px; }
 
-        .dati-table { border-collapse: collapse; width: 100%; margin-top: 10px; }
-        .dati-table td { border: 1px solid #000; padding: 5px 8px; font-size: 0.85rem; }
-        .dati-table .header-cell { background-color: #000; color: #fff; font-weight: bold; }
-        .dati-table .label-cell { width: 35%; font-weight: bold; }
+        .dati-table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+        .dati-table td { border: 1px solid #000; padding: 8px; font-size: 0.9rem; }
+        .dati-table .header-cell { background-color: #000; color: #fff; font-weight: bold; text-align: center; }
+        .dati-table .label-cell { width: 30%; font-weight: bold; background: #f9f9f9; }
         .dati-table .input-cell input { border: none !important; width: 100%; }
-        .dati-table .oppure-cell { text-align: center; font-style: italic; background-color: #f2f2f2; }
+        .dati-table .oppure-cell { text-align: center; font-style: italic; background-color: #e0e0e0; font-weight: bold; padding: 5px; }
 
-        .final-declaration { margin-top: 20px; }
-        .final-declaration .title { text-align: center; font-weight: bold; font-size: 1rem; }
-        .final-declaration p { margin-top: 8px; font-size: 0.85rem; text-align: justify; line-height: 1.4; }
-        .final-declaration strong { font-size: 0.9rem; }
+        .final-declaration { margin-top: 25px; border: 2px solid #000; padding: 15px; }
+        .final-declaration .title { text-align: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; }
+        .final-declaration p { font-size: 0.9rem; text-align: justify; line-height: 1.4; }
         
-        .signature-area { display: flex; justify-content: space-between; margin-top: 25px; }
-        .informativa-footer { margin-top: 25px; font-size: 0.75rem; text-align: justify; line-height: 1.3; }
+        .signature-area { display: flex; justify-content: space-between; margin-top: 40px; }
+        .informativa-footer { margin-top: 40px; font-size: 0.75rem; text-align: justify; line-height: 1.3; border-top: 1px solid #ccc; padding-top: 10px; color: #555; }
+
+        /* Loader */
+        .loader-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #f4f6f9; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .loader-spinner {
+            border: 4px solid #e9ecef; border-top: 4px solid #0056a8;
+            border-radius: 50%; width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         @media print {
-            body, .modulo-wrapper { margin: 0; padding: 0; background: #fff; border: none; }
+            body, .modulo-wrapper { margin: 0; padding: 0; background: #fff; border: none; box-shadow: none; width: 100%; max-width: none; }
+            .sidebar, .top-bar, .form-actions, #initial-loader, #login-section { display: none !important; }
+            #app-content { display: block !important; margin: 0 !important; padding: 0 !important; }
+            .main-content { margin-left: 0 !important; padding: 0 !important; }
+            .paper-form { border: none; padding: 0; margin: 0; }
+            /* Nascondi tutto tranne il foglio */
             body * { visibility: hidden; }
             #form-to-print, #form-to-print * { visibility: visible; }
-            #form-to-print { position: absolute; left: 0; top: 0; width: 100%; border: none !important; padding: 0 !important; margin: 0 !important; }
-            .app-header, .form-actions { display: none !important; }
+            #form-to-print { position: absolute; left: 0; top: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
-        <div id="user-dashboard" class="hidden"><p style="margin:0 10px 0 0;">Utente: <span id="user-email-display"></span></p><button id="logout-button" class="btn-login">Logout</button></div>
-    </header>
-    <div id="auth-loader" style="text-align:center;padding:50px;">Verifica autorizzazione...</div>
 
-    <!-- Struttura corretta: il contenitore esterno è #content-area... -->
-    <main id="content-area" class="hidden">
-        <!-- ...e all'interno c'è il div per la centratura -->
-        <div class="modulo-wrapper">
-            <div id="form-to-print" class="paper-form">
-                <header class="modulo-header"><h1>MODULO DICHIARAZIONE <span class="highlight">ACQUISTO FGAS</span></h1><p>da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p></header>
-                <form id="gas-form" onsubmit="return false;">
-                    <section class="riga"><div class="campo"><label>Codice cliente</label><input type="text"></div><div class="campo"><label>N. bolla</label><input type="text"></div><div class="campo"><label>data bolla</label><input type="date" id="data-bolla"></div></section>
-                    <hr class="separatore">
-                    <h2 class="section-title">ALTRE FINALITA' (IMPRESA NON CERTIFICATA PERSONA CERTIFICATA)</h2>
-                    <section class="declaration-box"><h3 class="title">DICHIARAZIONE</h3><p><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146</strong><br>Il Regolamento (UE) n. 517/2014, stabilisce, all'articolo 11, paragrafo 4, che, ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del predetto regolamento, i gas fluorurati a effetto serra sono esclusivamente venduti a e acquistati da imprese in possesso dei certificati o degli attestati pertinenti a norma dell'articolo 10 o da imprese che impiegano persone in possesso di un certificato o di un attestato di formazione ai sensi dell'articolo 10, paragrafi 2 e 5.</p><p style="margin-top: 15px;"><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146, l'acquirente</strong></p></section>
-                    <table class="dati-table"><tr><td colspan="2" class="header-cell">Persona Fisica</td></tr><tr><td class="label-cell">Nome / Cognome</td><td class="input-cell"><input type="text"></td></tr><tr><td class="label-cell">Codice Fiscale /<br>identificativo univoco</td><td class="input-cell"><input type="text"></td></tr><tr><td colspan="2" class="oppure-cell">oppure</td></tr><tr><td colspan="2" class="header-cell">Impresa</td></tr><tr><td class="label-cell">Ragione Sociale</td><td class="input-cell"><input type="text"></td></tr><tr><td class="label-cell">Codice Fiscale / VAT</td><td class="input-cell"><input type="text"></td></tr></table>
-                    <section class="final-declaration"><h3 class="title">DICHIARA</h3><p>Che i gas fluorurati non vengono acquistati ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas, <strong>per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</strong></p></section>
-                    <section class="signature-area"><div class="campo"><label>Luogo e data</label><input type="text"></div><div class="campo" style="flex-grow:0.8;"><label>Firma</label><input type="text" readonly style="cursor: default;"></div></section>
-                    <footer class="informativa-footer"><p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p></footer>
-                </form>
-            </div>
-            <div class="form-actions">
-                <button id="save-pdf-button" class="nav-button print-button"><i class="fas fa-print"></i> Stampa o Salva PDF</button>
-            </div>
+    <!-- Loader -->
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Caricamento...</p></div>
+
+    <!-- LOGIN -->
+    <section id="login-section" class="hidden login-centered">
+        <div class="login-card">
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Area Riservata</h2>
+            <form id="login-form">
+                <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
+                <button type="submit" class="btn-login">Accedi</button>
+            </form>
         </div>
-    </main>
+    </section>
+
+    <!-- APP CONTENT -->
+    <div id="app-content" class="dashboard-wrapper hidden">
+        
+        <!-- SIDEBAR -->
+        <nav class="sidebar">
+            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a></div>
+            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Header generato da components.js -->
+
+            <div class="content-container">
+                <div class="modulo-wrapper">
+                    
+                    <!-- FOGLIO A4 DA STAMPARE -->
+                    <div id="form-to-print" class="paper-form">
+                        <header class="modulo-header">
+                            <h1>MODULO DICHIARAZIONE <span class="highlight">ACQUISTO FGAS</span></h1>
+                            <p>da sottoscrivere in DUPLICE COPIA (per il venditore e per l'acquirente)</p>
+                        </header>
+                        
+                        <form id="gas-form" onsubmit="return false;">
+                            <section class="riga">
+                                <div class="campo"><label>Codice cliente</label><input type="text"></div>
+                                <div class="campo"><label>N. bolla</label><input type="text"></div>
+                                <div class="campo"><label>Data bolla</label><input type="date" id="data-bolla"></div>
+                            </section>
+                            
+                            <hr class="separatore">
+                            
+                            <h2 class="section-title">ALTRE FINALITA' (IMPRESA NON CERTIFICATA / PERSONA CERTIFICATA)</h2>
+                            
+                            <section class="declaration-box">
+                                <h3 class="title">DICHIARAZIONE</h3>
+                                <p><strong>Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146</strong><br>Il Regolamento (UE) n. 517/2014, stabilisce, all'articolo 11, paragrafo 4, che, ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del predetto regolamento, i gas fluorurati a effetto serra sono esclusivamente venduti a e acquistati da imprese in possesso dei certificati o degli attestati pertinenti a norma dell'articolo 10 o da imprese che impiegano persone in possesso di un certificato o di un attestato di formazione ai sensi dell'articolo 10, paragrafi 2 e 5.</p>
+                                <p style="margin-top: 15px; font-weight:bold; text-align:center;">Ai sensi dell'art. 16, comma 2, del d.P.R. 16 novembre 2018, n. 146, l'acquirente:</p>
+                            </section>
+                            
+                            <table class="dati-table">
+                                <tr><td colspan="2" class="header-cell">PERSONA FISICA</td></tr>
+                                <tr><td class="label-cell">Nome / Cognome</td><td class="input-cell"><input type="text"></td></tr>
+                                <tr><td class="label-cell">Codice Fiscale /<br>identificativo univoco</td><td class="input-cell"><input type="text"></td></tr>
+                                <tr><td colspan="2" class="oppure-cell">OPPURE</td></tr>
+                                <tr><td colspan="2" class="header-cell">IMPRESA</td></tr>
+                                <tr><td class="label-cell">Ragione Sociale</td><td class="input-cell"><input type="text"></td></tr>
+                                <tr><td class="label-cell">Codice Fiscale / VAT</td><td class="input-cell"><input type="text"></td></tr>
+                            </table>
+                            
+                            <section class="final-declaration">
+                                <h3 class="title">DICHIARA</h3>
+                                <p>Che i gas fluorurati non vengono acquistati ai fini dell'esercizio dell'installazione, assistenza, manutenzione o riparazione delle apparecchiature che contengono gas fluorurati a effetto serra o il cui funzionamento dipende da tali gas, <strong>per cui è richiesto un certificato o un attestato a norma dell'articolo 10 del regolamento (UE) n. 517/2014.</strong></p>
+                            </section>
+                            
+                            <section class="signature-area">
+                                <div class="campo"><label>Luogo e data</label><input type="text"></div>
+                                <div class="campo" style="flex-grow:0.8;"><label>Firma</label><input type="text" readonly style="cursor: default; border-bottom: 1px solid #000;"></div>
+                            </section>
+                            
+                            <footer class="informativa-footer">
+                                <p><strong>INFORMATIVA AI SENSI DEL D.LGS. 196/2003:</strong> In qualità di titolari del trattamento dei dati forniti con la compilazione del presente modulo Vi informiamo che i dati raccolti verranno trattati e conservati secondo correttezza e utilizzati esclusivamente per adempiere a specifici obblighi previsti dal Regolamento europeo 517/2014. Non saranno oggetto di comunicazione né di diffusione. In ogni momento sarà possibile esercitare i diritti previsti dall'articolo 13 del decreto legislativo 196/2003 ed in particolare chiedere la correzione, integrazione degli stessi. Il titolare del trattamento è C.A.I. SOC. COOP. CONS. P.A. con sede in Cesenatico, via Dei Girasoli n. 13</p>
+                            </footer>
+                        </form>
+                    </div>
+                    
+                    <!-- AZIONI (Non stampate) -->
+                    <div class="form-actions">
+                        <button id="save-pdf-button" class="btn-login" style="font-size: 1.1rem; padding: 12px 30px;"><i class="fas fa-print"></i> Stampa Modulo</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <!-- Componenti -->
+    <script src="/components.js"></script>
+
     <script>
-        const firebaseConfig={apiKey:"AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",authDomain:"caiufficiotecnico.firebaseapp.com",projectId:"caiufficiotecnico",storageBucket:"caiufficiotecnico.appspot.com",messagingSenderId:"1071449383838",appId:"1:1071449383838:web:715c0a3733a4c14e1a0525"};
-        if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
-        const auth=firebase.auth();
-
         document.addEventListener("DOMContentLoaded",() => {
+            const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:71e2195f1712a832e01b3a" };
+            if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            const auth=firebase.auth();
+
+            // Layout
+            initLayout("Modulo Acquisto FGAS");
+
+            const ui = {
+                loader: document.getElementById('initial-loader'),
+                login: document.getElementById('login-section'),
+                app: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form')
+            };
+
             auth.onAuthStateChanged(user => {
-                const authLoader=document.getElementById("auth-loader"),contentArea=document.getElementById("content-area");
+                ui.loader.style.display='none';
                 if(user){
-                    authLoader.style.display="none";contentArea.classList.remove("hidden");document.getElementById("user-dashboard").classList.remove("hidden");document.getElementById("user-email-display").textContent=user.email;document.getElementById("logout-button").onclick=()=>auth.signOut().then(()=>window.location.href="/");
+                    ui.login.classList.add('hidden');
+                    ui.app.classList.remove('hidden');
                     initializeForm();
-                }else{window.location.href="/";}
+                } else {
+                    ui.login.classList.remove('hidden');
+                    ui.app.classList.add('hidden');
+                }
             });
-        });
 
-        function initializeForm(){
-            const saveButton = document.getElementById("save-pdf-button");
-            const dataBollaInput = document.getElementById("data-bolla");
-            if(dataBollaInput) dataBollaInput.valueAsDate = new Date();
-
-            const allTextInputs = document.querySelectorAll('input[type="text"]');
-            allTextInputs.forEach(input => {
-                input.addEventListener('input', (e) => {
-                    e.target.value = e.target.value.toUpperCase();
+            if(ui.loginForm) {
+                ui.loginForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value).catch(err=>alert(err.message));
                 });
-            });
+            }
 
-            saveButton.addEventListener("click", () => window.print());
-        }
+            function initializeForm(){
+                const saveButton = document.getElementById("save-pdf-button");
+                const dataBollaInput = document.getElementById("data-bolla");
+                if(dataBollaInput) dataBollaInput.valueAsDate = new Date();
+
+                const allTextInputs = document.querySelectorAll('input[type="text"]');
+                allTextInputs.forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        e.target.value = e.target.value.toUpperCase();
+                    });
+                });
+
+                saveButton.addEventListener("click", () => window.print());
+            }
+        });
     </script>
 </body>
 </html>
