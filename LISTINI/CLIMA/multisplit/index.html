@@ -3,180 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Multisplit - CAI</title>
+    <title>Listino Climatizzatori Multisplit - CAI</title>
     
     <!-- CSS Principale -->
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="../../../style.css">
     
-    <!-- Font e Icone -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
-        .text-center { text-align: center; }
         
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
-        .config-card {
-            background-color: #fff; padding: 30px; border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
+        .filters-bar {
+            background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;
+            border: 1px solid #e9ecef; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
+        .filter-label { font-weight: 600; color: #555; margin-right: 5px; }
+        
+        .filter-btn {
+            padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; background-color: #fff; border: 1px solid #ccc;
+            color: #495057; transition: all 0.2s;
+        }
+        .filter-btn:hover { background-color: #e2e6ea; }
+        .filter-btn.active { background-color: #0056a8; color: white; border-color: #0056a8; }
 
-        /* Indicatori Step */
-        .step-indicator {
-            display: flex; justify-content: space-between; margin-bottom: 40px; 
-            position: relative; padding: 0 10px;
+        .search-wrapper { position: relative; margin-left: auto; width: 100%; max-width: 300px; }
+        .search-wrapper input { 
+            width: 100%; padding: 8px 35px 8px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none;
         }
-        .step-item {
-            text-align: center; flex: 1; position: relative; z-index: 2; 
-            opacity: 0.5; transition: opacity 0.3s;
-        }
-        .step-item.active, .step-item.completed { opacity: 1; }
-        
-        .step-dot {
-            width: 35px; height: 35px; background-color: #f8f9fa; color: #6c757d;
-            border: 2px solid #dee2e6; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center;
-            font-weight: bold; margin: 0 auto 8px auto; transition: all 0.3s;
-        }
-        .step-item.active .step-dot { 
-            background-color: #0056a8; color: white; border-color: #0056a8; 
-            transform: scale(1.1); box-shadow: 0 0 10px rgba(0,86,168,0.3);
-        }
-        .step-item.completed .step-dot { 
-            background-color: #28a745; color: white; border-color: #28a745; 
-        }
-        
-        .step-label { font-size: 0.8rem; font-weight: 600; color: #333; display: block; }
-        .step-sub { font-size: 0.75rem; color: #0056a8; font-weight: 500; height: 1.2em; display: block; margin-top: 2px;}
+        .search-wrapper i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        .step-line-bg {
-            position: absolute; top: 19px; left: 5%; width: 90%; height: 2px;
-            background-color: #e9ecef; z-index: 1;
-        }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
-        /* Contenuto Step */
-        .step-content { display: none; animation: fadeIn 0.4s ease; }
-        .step-content.active { display: block; }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
+        .clima-card {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+            padding: 15px; position: relative; display: flex; flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+        }
+        .clima-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        .step-title { 
-            font-size: 1.4rem; color: #0056a8; margin-bottom: 25px; 
-            border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; 
-        }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; height: 35px; }
+        .brand-logo { max-height: 35px; max-width: 100px; object-fit: contain; }
+        
+        .model-title { font-size: 1.1rem; font-weight: 700; color: #333; margin: 0 0 10px 0; line-height: 1.2; }
 
-        /* Griglie di Selezione */
-        .selection-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; 
-        }
-        
-        .select-card {
-            border: 2px solid #e9ecef; border-radius: 8px; padding: 20px;
-            text-align: center; cursor: pointer; transition: all 0.2s;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 160px; background: white;
-        }
-        .select-card:hover { border-color: #0056a8; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,86,168,0.1); }
-        .select-card.selected { border-color: #0056a8; background-color: #f0f7ff; font-weight: bold; }
-        
-        /* STEP 1: LOGO CENTRATO */
-        #grid-brand .select-card { min-height: 120px; justify-content: center; }
-        #grid-brand .card-img { max-height: 70px; margin-bottom: 0; width: auto; max-width: 90%; }
+        .card-body { display: flex; gap: 10px; flex-grow: 1; }
+        .card-info { flex: 1; font-size: 0.85rem; color: #555; display: flex; flex-direction: column; gap: 4px; }
+        .card-image-wrapper { width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; }
+        .card-image { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        .card-img { max-width: 100%; max-height: 100px; object-fit: contain; margin-bottom: 15px; }
-        .card-text { font-size: 1rem; color: #333; font-weight: 500; text-transform: uppercase; }
+        .card-footer {
+            margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .price { font-size: 1.3rem; font-weight: 700; color: #0056a8; }
+        .btn-details {
+            padding: 6px 12px; border: 1px solid #0056a8; color: #0056a8; background: white;
+            border-radius: 20px; font-size: 0.8rem; font-weight: 600; transition: all 0.2s;
+        }
+        .btn-details:hover { background: #0056a8; color: white; }
 
-        /* Card Unità Esterna (Step 4) */
-        .ue-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .ue-card {
-            border: 1px solid #ddd; border-radius: 8px; padding: 20px;
-            cursor: pointer; transition: all 0.2s; background: white;
-            display: flex; flex-direction: column; justify-content: space-between;
-            position: relative;
-        }
-        .ue-card:hover { border-color: #0056a8; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .ue-card.selected { border-color: #0056a8; background-color: #f0f7ff; }
-        
-        .ue-header { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: flex-start; }
-        .ue-title { font-weight: bold; color: #0056a8; font-size: 1.1rem; }
-        .ue-price { font-weight: bold; font-size: 1.2rem; color: #333; margin-top: 10px; text-align: right; }
-        .ue-detail-text { font-size: 0.9rem; color: #666; margin-bottom: 4px; }
-        
-        .ue-img { width: 100%; height: 140px; object-fit: contain; margin: 10px 0; }
+        .no-data { text-align: center; padding: 40px; color: #6c757d; grid-column: 1/-1; }
 
-        /* Selezione Unità Interne (Step 5) */
-        .ui-slot { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .ui-slot h4 { margin: 0 0 10px 0; color: #495057; font-size: 1rem; }
-        
-        .ui-options { display: flex; flex-wrap: wrap; gap: 8px; }
-        .ui-btn {
-            padding: 10px; border: 1px solid #ced4da; background: white; border-radius: 6px;
-            cursor: pointer; font-size: 0.9rem; transition: all 0.2s; text-align: center; flex: 1 1 auto;
-            min-width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .ui-btn:hover { border-color: #0056a8; color: #0056a8; }
-        .ui-btn.selected { background: #0056a8; color: white; border-color: #0056a8; font-weight: bold; }
-        
-        .ui-preview { 
-            margin-top: 15px; padding: 15px; background: white; 
-            border: 1px dashed #ccc; border-radius: 4px; display: none; 
-            flex-direction: row; align-items: center; gap: 15px;
-        }
-        .ui-preview.visible { display: flex; }
-        .ui-preview-img { width: 100px; height: 70px; object-fit: contain; }
-        .ui-preview-content { flex: 1; font-size: 0.9rem; color: #555; }
-        .ui-preview strong { color: #0056a8; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #aaa; }
+        .modal-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-logo { max-height: 40px; }
+        .modal-grid { display: flex; gap: 25px; flex-wrap: wrap; }
+        .modal-img-col { flex: 1 1 200px; text-align: center; }
+        .modal-img { max-width: 100%; border-radius: 4px; border: 1px solid #eee; }
+        .modal-info-col { flex: 2 1 300px; }
+        .info-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
+        .modal-footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .btn-pdf { background: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; }
+        .modal-price { font-size: 1.8rem; font-weight: 700; color: #0056a8; }
 
-        /* Pulsante Scheda Tecnica */
-        .btn-tech-sheet {
-            display: inline-flex; align-items: center; gap: 5px;
-            padding: 4px 10px; margin-top: 5px; font-size: 0.8rem;
-            color: #d32f2f; border: 1px solid #d32f2f; border-radius: 4px; 
-            text-decoration: none; transition: all 0.2s; background: #fff; font-weight: 500;
-        }
-        .btn-tech-sheet:hover { background: #d32f2f; color: white; }
-        
-        /* Navigazione */
-        .step-nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; }
-        .btn-nav { padding: 10px 25px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
-        .btn-prev { background: #e9ecef; color: #495057; }
-        .btn-prev:hover { background: #ced4da; }
-        .btn-next { background: #0056a8; color: white; }
-        .btn-next:hover { background: #004485; }
-        .btn-next:disabled { background: #a0c4e8; cursor: not-allowed; }
-
-        /* Riepilogo */
-        .summary-box { background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef; }
-        .summary-header { border-bottom: 2px solid #0056a8; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .summary-header h3 { margin: 0; color: #0056a8; }
-        .summary-date { font-size: 0.9rem; color: #666; }
-        
-        .summary-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; align-items: center; }
-        .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: #0056a8; }
-        
-        .loader { text-align: center; padding: 40px; color: #6c757d; }
-        
-        @media print {
-            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
-            .config-card { box-shadow: none; border: none; padding: 0; min-height: auto; }
-            .summary-box { border: 2px solid #000; background: white; padding: 0; }
-            .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
-            .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
-            body { background: white; font-size: 12pt; color: black; }
-            .step-content:not(#step-6) { display: none !important; }
-            #step-6 { display: block !important; }
-        }
+        .loader-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f6f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader-spinner { border: 4px solid #e9ecef; border-top: 4px solid #0056a8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p>Avvio Configuratore...</p></div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Caricamento...</p></div>
 
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
-            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo" class="login-logo">
-            <h2>Area Riservata</h2>
+            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
+            <h2>Listino Multisplit</h2>
             <form id="login-form">
                 <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
                 <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
@@ -185,513 +101,205 @@
         </div>
     </section>
 
-    <!-- APP -->
     <div id="app-content" class="dashboard-wrapper hidden">
-        
-        <!-- SIDEBAR -->
         <nav class="sidebar">
-            <div class="sidebar-brand">
-                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
-            </div>
-            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a></div>
+            <ul class="sidebar-menu"></ul> 
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
-        <!-- MAIN -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Configuratore Multisplit</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- Header generato -->
 
             <div class="content-container">
-                <div class="config-card">
+                <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:#0056a8;">Catalogo Multisplit</h2>
                     
-                    <!-- INDICATORI STEP -->
-                    <div class="step-indicator">
-                        <div class="step-line-bg"></div>
-                        <div class="step-item active" id="ind-1"><div class="step-dot">1</div><span class="step-label">Marca</span><span class="step-sub" id="info-1"></span></div>
-                        <div class="step-item" id="ind-2"><div class="step-dot">2</div><span class="step-label">Config.</span><span class="step-sub" id="info-2"></span></div>
-                        <div class="step-item" id="ind-3"><div class="step-dot">3</div><span class="step-label">Serie</span><span class="step-sub" id="info-3"></span></div>
-                        <div class="step-item" id="ind-4"><div class="step-dot">4</div><span class="step-label">Esterna</span><span class="step-sub" id="info-4"></span></div>
-                        <div class="step-item" id="ind-5"><div class="step-dot">5</div><span class="step-label">Interne</span><span class="step-sub" id="info-5"></span></div>
-                        <div class="step-item" id="ind-6"><div class="step-dot">6</div><span class="step-label">Fine</span></div>
-                    </div>
-
-                    <!-- STEP 1: MARCA -->
-                    <div id="step-1" class="step-content active">
-                        <h3 class="step-title">Seleziona Marca</h3>
-                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento Marche...</div></div>
-                    </div>
-
-                    <!-- STEP 2: CONFIGURAZIONE -->
-                    <div id="step-2" class="step-content">
-                        <h3 class="step-title">Seleziona Configurazione</h3>
-                        <div id="grid-config" class="selection-grid"></div>
-                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                    </div>
-
-                    <!-- STEP 3: SERIE -->
-                    <div id="step-3" class="step-content">
-                        <h3 class="step-title">Seleziona Serie (Modello UI)</h3>
-                        <div id="grid-series" class="selection-grid"></div>
-                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                    </div>
-
-                    <!-- STEP 4: UNITA ESTERNA -->
-                    <div id="step-4" class="step-content">
-                        <h3 class="step-title">Scegli Unità Esterna</h3>
-                        <div id="list-ue" class="ue-list"></div>
-                        <div class="step-nav"><button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button></div>
-                    </div>
-
-                    <!-- STEP 5: UNITA INTERNE -->
-                    <div id="step-5" class="step-content">
-                        <h3 class="step-title">Configura Unità Interne</h3>
-                        <div id="container-ui"></div>
-                        <div class="step-nav">
-                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Indietro</button>
-                            <button id="btn-finish" class="btn-nav btn-next" disabled onclick="window.app.finish()">Vai al Riepilogo</button>
+                    <div class="filters-bar">
+                        <span class="filter-label">Marche:</span>
+                        <div id="brand-filters" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+                        
+                        <span class="filter-label" style="margin-left:15px;">Tipo:</span>
+                        <div id="type-filters" style="display:flex; gap:8px;">
+                            <button class="filter-btn active" data-type="all">Tutti</button>
+                            <button class="filter-btn" data-type="ue">Esterna</button>
+                            <button class="filter-btn" data-type="ui">Interna</button>
                         </div>
+
+                        <div class="search-wrapper"><input type="text" id="search-input" placeholder="Cerca..."><i class="fas fa-search"></i></div>
                     </div>
 
-                    <!-- STEP 6: RIEPILOGO -->
-                    <div id="step-6" class="step-content">
-                        <h3 class="step-title">Riepilogo Preventivo</h3>
-                        <div id="summary-box" class="summary-box"></div>
-                        <div class="step-nav">
-                            <button class="btn-nav btn-prev" onclick="window.app.prev()">Modifica</button>
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn-nav btn-prev" style="background:#dc3545; color:white;" onclick="location.reload()">Nuovo</button>
-                                <button class="btn-nav btn-next" onclick="window.print()">Stampa</button>
-                            </div>
-                        </div>
-                    </div>
-
+                    <div id="product-grid" class="product-grid"></div>
+                    <div id="no-data-msg" class="no-data" style="display:none;">Nessun prodotto trovato.</div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Firebase -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-modal" class="close-modal">×</button>
+            <div class="modal-header">
+                <img id="modal-logo" src="" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
+                <div class="modal-title"><span id="modal-brand">MARCA</span><h2 id="modal-model">MODELLO</h2></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-grid">
+                    <div class="modal-img-col"><img id="modal-img" src="" alt="Foto" class="modal-img" onerror="this.src='../../../placeholder.png'"></div>
+                    <div class="modal-info-col">
+                        <h3>Specifiche Tecniche</h3>
+                        <ul id="modal-details-list" class="info-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="modal-pdf-btn" href="#" target="_blank" class="btn-pdf" style="display:none;"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>
+                <div class="modal-price-container"><span>Prezzo:</span><span id="modal-price" class="modal-price">€ 0,00</span></div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <!-- MENU LATERALE CENTRALIZZATO -->
     <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:71e2195f1712a832e01b3a" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+            const auth = firebase.auth(); const db = firebase.firestore();
 
-            const state = {
-                step: 1,
-                data: { brands:[], ue:[], ui:[] },
-                sel: { brand:null, type:null, series:null, ue:null, ui:[] }
-            };
+            initLayout("Listino Clima Multisplit");
 
-            // PATH BASE GITHUB PER LE IMMAGINI (RAW)
-            const GITHUB_IMG_PATH = 'https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LISTINI/CLIMA/multisplit/img/';
-
-            // Mappa Immagini Unità Esterne (Fallback/Standard)
-            const outdoorImages = {
-                'HAIER': 'est_haier.png',
-                'DAIKIN': 'est_daikin.jpg',
-                'HITACHI': 'est_hitachi.jpg',
-                'IMMERGAS': 'est_immergas.png',
-                'LG': 'est_lg.png',
-                'MITSUBISHI': 'est_mitsubishi.png',
-                'MITSUBISHI ELECTRIC': 'est_mitsubishi.png',
-                'SAMSUNG': 'est_samsung.png',
-                'TOSHIBA': 'est_toshiba.jpg',
-                'VIESSMANN': 'est_viessmann.avif'
-            };
+            let allProducts = [];
+            let filters = { brand: 'all', type: 'all', search: '' };
 
             const ui = {
-                loader: document.getElementById('initial-loader'),
-                login: document.getElementById('login-section'),
-                app: document.getElementById('app-content'),
-                user: document.getElementById('user-email-display'),
-                steps: [1,2,3,4,5,6].map(i => document.getElementById(`step-${i}`)),
-                inds: [1,2,3,4,5,6].map(i => document.getElementById(`ind-${i}`)),
-                infos: [1,2,3,4,5].map(i => document.getElementById(`info-${i}`)),
-                grids: {
-                    brand: document.getElementById('grid-brand'),
-                    config: document.getElementById('grid-config'),
-                    series: document.getElementById('grid-series'),
-                    ue: document.getElementById('list-ue'),
-                    ui: document.getElementById('container-ui')
-                },
-                summary: document.getElementById('summary-box'),
-                btnFinish: document.getElementById('btn-finish')
+                loader: document.getElementById('initial-loader'), login: document.getElementById('login-section'), app: document.getElementById('app-content'),
+                loginForm: document.getElementById('login-form'), grid: document.getElementById('product-grid'), brands: document.getElementById('brand-filters'),
+                types: document.getElementById('type-filters'), noData: document.getElementById('no-data-msg'), modal: document.getElementById('modal-overlay'),
+                mLogo: document.getElementById('modal-logo'), mBrand: document.getElementById('modal-brand'), mModel: document.getElementById('modal-model'),
+                mImg: document.getElementById('modal-img'), mList: document.getElementById('modal-details-list'), mPdf: document.getElementById('modal-pdf-btn'),
+                mPrice: document.getElementById('modal-price'), closeM: document.getElementById('close-modal')
             };
 
-            // Auth - MODIFICATO PER LEGGERE NOME DA FIRESTORE
-            auth.onAuthStateChanged(user => {
+            auth.onAuthStateChanged(u => {
                 ui.loader.style.display='none';
-                if(user) {
-                    ui.login.classList.add('hidden');
-                    ui.app.classList.remove('hidden');
-                    
-                    // Fallback iniziale (mostra email mentre carica)
-                    ui.user.textContent = user.email;
-
-                    // Recupera il nome dalla collezione 'users' tramite email
-                    db.collection('users').where('email', '==', user.email).limit(1).get()
-                        .then(snapshot => {
-                            if (!snapshot.empty) {
-                                const userData = snapshot.docs[0].data();
-                                if (userData.name) {
-                                    ui.user.textContent = userData.name;
-                                }
-                            }
-                        })
-                        .catch(err => console.error("Errore recupero nome utente:", err));
-
-                    initApp();
-                } else {
-                    ui.login.classList.remove('hidden');
-                    ui.app.classList.add('hidden');
-                }
+                if(u) { ui.login.classList.add('hidden'); ui.app.classList.remove('hidden'); loadData(); }
+                else { ui.login.classList.remove('hidden'); ui.app.classList.add('hidden'); }
             });
 
-            document.getElementById('login-form')?.addEventListener('submit', e => {
-                e.preventDefault();
-                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
-                    .catch(err => alert(err.message));
-            });
-            document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
-
-            // --- FUNZIONI DI UTILITA' ---
-            
-            // Genera bottone PDF se presente URL
-            function getPdfButton(data) {
-                // Utilizza specificamente il campo richiesto 'scheda_tecnica_url'
-                // Fallback su altri nomi comuni per sicurezza
-                const link = data.scheda_tecnica_url || data.scheda_tecnica || data.link_scheda;
-                
-                if (link && (link.startsWith('http') || link.startsWith('www'))) {
-                    return `<a href="${link}" target="_blank" class="btn-tech-sheet" onclick="event.stopPropagation()">
-                                <i class="fas fa-file-pdf"></i> Scheda Tecnica
-                            </a>`;
-                }
-                return '';
+            if(ui.loginForm) {
+                ui.loginForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value).catch(err=>alert(err.message));
+                });
             }
 
-            // --- LOGICA APPLICAZIONE ---
-            
-            async function initApp() {
+            async function loadData() {
                 try {
-                    const [bSnap, ueSnap, uiSnap] = await Promise.all([
-                        db.collection('brands').get(),
-                        db.collection('outdoorUnits').get(),
-                        db.collection('indoorUnits').get()
-                    ]);
-
-                    state.data.brands = bSnap.docs.map(d => ({id:d.id, ...d.data()}));
-                    
-                    state.data.ue = ueSnap.docs.map(d => {
-                        const data = d.data();
-                        return {
-                            id: d.id, ...data,
-                            brandId: (data.marca||'').toLowerCase().trim(),
-                            con: Number(data.unita_collegabili || data.unit_collegabili || data.connections || 0),
-                            price: Number(data.prezzo||0),
-                            compat: Array.isArray(data.compatibleIndoorSeriesIds) ? data.compatibleIndoorSeriesIds : 
-                                    (Array.isArray(data.compatible_indoor_series_ids) ? data.compatible_indoor_series_ids : [])
-                        };
-                    });
-                    
-                    state.data.ui = uiSnap.docs.map(d => {
-                        const data = d.data();
-                        const sId = (data.modello||'').toLowerCase().replace(/\s+/g,'_') + '_ui';
-                        return {
-                            id: d.id, ...data,
-                            brandId: (data.marca||'').toLowerCase().trim(),
-                            seriesId: sId,
-                            price: Number(data.prezzo_ui||0)
-                        };
-                    });
-
-                    renderBrands();
-                } catch(e) { console.error(e); alert("Errore caricamento dati Firebase."); }
+                    const [ueSnap, uiSnap] = await Promise.all([ db.collection("outdoorUnits").get(), db.collection("indoorUnits").get() ]);
+                    const ue = ueSnap.docs.map(d => ({id:d.id, type:'ue', ...d.data()}));
+                    const ui = uiSnap.docs.map(d => ({id:d.id, type:'ui', ...d.data()}));
+                    allProducts = [...ue, ...ui];
+                    renderFilters(); applyFilters();
+                } catch(e) { console.error(e); }
             }
 
-            // Step 1: Marche (SOLO LOGO)
-            function renderBrands() {
-                const validBrands = [...new Set(state.data.ue.map(u => u.brandId))];
-                const list = state.data.brands.filter(b => validBrands.includes(b.id));
+            function renderFilters() {
+                const b = [...new Set(allProducts.map(p=>p.marca?.toUpperCase()).filter(Boolean))].sort();
+                ui.brands.innerHTML = `<button class="filter-btn active" data-brand="all">Tutte</button>` + b.map(x=>`<button class="filter-btn" data-brand="${x}">${x}</button>`).join('');
                 
-                ui.grids.brand.innerHTML = list.map(b => `
-                    <div class="select-card" onclick="window.app.selBrand('${b.id}','${b.name}')" title="${b.name}">
-                        <img src="${b.logo}" class="card-img" onerror="this.style.display='none'">
-                    </div>
-                `).join('');
+                ui.brands.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => {
+                    ui.brands.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+                    btn.classList.add('active'); filters.brand=btn.dataset.brand; applyFilters();
+                }));
+
+                ui.types.querySelectorAll('.filter-btn').forEach(btn => btn.addEventListener('click', () => {
+                    ui.types.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+                    btn.classList.add('active'); filters.type=btn.dataset.type; applyFilters();
+                }));
+
+                document.getElementById('search-input').addEventListener('input', e => { filters.search=e.target.value.toLowerCase(); applyFilters(); });
             }
 
-            // Step 2: Configurazione
-            function renderConfigs() {
-                const opts = [{id:2,n:'Dual (2)'},{id:3,n:'Trial (3)'},{id:4,n:'Quadri (4)'},{id:5,n:'Penta (5)'}];
-                const allowed = state.data.ue.filter(u => u.brandId === state.sel.brand.id).map(u => u.con);
-                const list = opts.filter(o => allowed.includes(o.id));
-                
-                ui.grids.config.innerHTML = list.map(c => `
-                    <div class="select-card" onclick="window.app.selConfig(${c.id},'${c.n}')">
-                        <span class="card-text" style="font-size:2rem;color:#0056a8;">${c.id}</span>
-                        <span>${c.n}</span>
-                    </div>
-                `).join('');
-                if(!list.length) ui.grids.config.innerHTML = '<p>Nessuna configurazione disponibile per questa marca.</p>';
-            }
-
-            // Step 3: Serie (Immagini da GitHub basate sul nome con ECCEZIONI)
-            function renderSeries() {
-                const compatUE = state.data.ue.filter(u => u.brandId === state.sel.brand.id && u.con === state.sel.type.id);
-                const compatSeriesIds = new Set();
-                compatUE.forEach(u => {
-                    if(u.compat) u.compat.forEach(id => compatSeriesIds.add(id));
+            function applyFilters() {
+                const res = allProducts.filter(p => {
+                    const matchB = filters.brand==='all' || p.marca?.toUpperCase()===filters.brand;
+                    const matchT = filters.type==='all' || p.type===filters.type;
+                    const matchS = !filters.search || (p.modello||'').toLowerCase().includes(filters.search) || (p.codice_prodotto||'').toLowerCase().includes(filters.search);
+                    return matchB && matchT && matchS;
                 });
+                renderGrid(res);
+            }
 
-                const unique = [];
-                const seen = new Set();
-                state.data.ui.forEach(u => {
-                    if(compatSeriesIds.has(u.seriesId) && !seen.has(u.seriesId)) {
-                        unique.push({id: u.seriesId, name: u.modello});
-                        seen.add(u.seriesId);
-                    }
-                });
+            function renderGrid(products) {
+                ui.grid.innerHTML = '';
+                if(!products.length) { ui.noData.style.display='block'; return; }
+                ui.noData.style.display='none';
 
-                // Mappa delle eccezioni per i nomi dei file immagini
-                const imageOverrides = {
-                    'windfree_avant_s2': 'windfree_avant',
-                    'windfree_elite_s2': 'windfree_elite', 
-                    'cebu_wi-fi': 'cebu',
-                };
-
-                ui.grids.series.innerHTML = unique.map(s => {
-                    let normalizedName = s.name.toLowerCase().trim().replace(/\s+/g, '_');
+                products.forEach(p => {
+                    const card = document.createElement('div'); card.className = 'clima-card';
+                    card.onclick = () => openModal(p);
                     
-                    if(imageOverrides[normalizedName]) {
-                        normalizedName = imageOverrides[normalizedName];
-                    }
+                    const priceKey = p.type==='ue' ? 'prezzo' : 'prezzo_ui';
+                    const price = p[priceKey] ? parseFloat(p[priceKey]).toLocaleString('it-IT',{style:'currency',currency:'EUR'}) : '-';
+                    const img = `../images/${p.marca?.toLowerCase()}_${p.type}.png`; // Placeholder dinamico o usa p.image_url se esiste
+                    const logo = `../images/logos/${(p.marca||'').toLowerCase().replace(/\s+/g,'')}.png`;
 
-                    const imgPath = `${GITHUB_IMG_PATH}${normalizedName}.png`;
-
-                    return `
-                    <div class="select-card" onclick="window.app.selSeries('${s.id}','${s.name}', '${imgPath}')">
-                        <img src="${imgPath}" class="card-img" onerror="this.src='/placeholder.png'">
-                        <span class="card-text">${s.name}</span>
-                    </div>`;
-                }).join('');
-                if(!unique.length) ui.grids.series.innerHTML = '<p>Nessuna serie compatibile trovata.</p>';
-            }
-
-            // Step 4: UE (Con Scheda Tecnica URL)
-            function renderUE() {
-                const list = state.data.ue.filter(u => 
-                    u.brandId === state.sel.brand.id && 
-                    u.con === state.sel.type.id &&
-                    u.compat?.includes(state.sel.series.id)
-                );
-                
-                const unique = [];
-                const seen = new Set();
-                list.forEach(u => { if(!seen.has(u.codice_prodotto)) { unique.push(u); seen.add(u.codice_prodotto); } });
-
-                ui.grids.ue.innerHTML = unique.map(u => {
-                    const brandKey = u.brandId.toUpperCase();
-                    const imgName = outdoorImages[brandKey] || 'placeholder.png';
-                    const imgPath = `/LISTINI/CLIMA/images/${imgName}`;
-                    const pdfBtn = getPdfButton(u);
-
-                    return `
-                    <div class="ue-card" onclick="window.app.selUE('${u.id}')">
-                        <div class="ue-header">
-                            <span class="ue-title">${u.modello || u.codice_prodotto}</span>
+                    card.innerHTML = `
+                        <div class="card-header"><img src="${logo}" class="brand-logo" onerror="this.style.display='none'"></div>
+                        <h3 class="model-title">${p.modello||'N/D'}</h3>
+                        <div class="card-body">
+                            <div class="card-info">
+                                <span><strong>Cod:</strong> ${p.codice_prodotto||'-'}</span>
+                                <span><strong>${p.type==='ue'?'Esterna':'Interna'}</strong></span>
+                                <span><strong>Potenza:</strong> ${p.potenza||p.btu||'-'}</span>
+                            </div>
+                            <div class="card-image-wrapper"><img src="${p.image_url || img}" class="card-image" onerror="this.src='../../../placeholder.png'"></div>
                         </div>
-                        <img src="${imgPath}" class="ue-img" onerror="this.src='/placeholder.png'">
-                        <div class="ue-detail-text">Codice: ${u.codice_prodotto}</div>
-                        <div class="ue-detail-text">Potenza: ${u.potenza} kW</div>
-                        <div class="ue-detail-text">Gas: ${u.tipo_refrigerante}</div>
-                        ${pdfBtn}
-                        <div class="ue-price">€ ${u.price.toFixed(2)}</div>
-                    </div>`;
-                }).join('');
-                
-                if(!unique.length) ui.grids.ue.innerHTML = '<p>Nessuna unità esterna compatibile.</p>';
-            }
-
-            // Step 5: UI (Con Anteprima e Scheda Tecnica)
-            function renderUISelect() {
-                const count = state.sel.type.id;
-                state.sel.ui = new Array(count).fill(null);
-                
-                const opts = state.data.ui.filter(i => i.seriesId === state.sel.series.id);
-                const unique = [];
-                const seen = new Set();
-                opts.forEach(i => {
-                    if(!seen.has(i.potenza)) { unique.push(i); seen.add(i.potenza); }
+                        <div class="card-footer"><span class="price">${price}</span><button class="btn-details">Dettagli</button></div>`;
+                    ui.grid.appendChild(card);
                 });
-                unique.sort((a,b) => parseFloat(a.potenza) - parseFloat(b.potenza));
+            }
 
-                ui.grids.ui.innerHTML = '';
-                for(let i=0; i<count; i++) {
-                    const html = `
-                    <div class="ui-slot">
-                        <h4>Unità Interna ${i+1}</h4>
-                        <div class="ui-options" id="grp-ui-${i}">
-                            ${unique.map(u => `
-                                <div class="ui-btn" onclick="window.app.pickUI(${i}, '${u.id}', this)">
-                                    <span style="font-weight:bold; font-size:1.1em;">${u.potenza}</span>
-                                    <small>BTU/h</small>
-                                    <small style="margin-top:5px;">€ ${u.price.toFixed(0)}</small>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="ui-preview" id="prev-ui-${i}">
-                            <img src="" class="ui-preview-img" id="prev-img-${i}" onerror="this.style.display='none'">
-                            <div class="ui-preview-content" id="prev-txt-${i}"></div>
-                        </div>
-                    </div>`;
-                    ui.grids.ui.innerHTML += html;
+            function openModal(p) {
+                const safeBrand = (p.marca||'').toLowerCase().replace(/\s+/g,'');
+                ui.mLogo.src = `../images/logos/${safeBrand}.png`;
+                ui.mBrand.textContent = p.marca || ''; ui.mModel.textContent = p.modello || '';
+                ui.mImg.src = p.image_url || `../images/${p.marca?.toLowerCase()}_${p.type}.png`;
+                
+                const priceKey = p.type==='ue' ? 'prezzo' : 'prezzo_ui';
+                ui.mPrice.textContent = p[priceKey] ? parseFloat(p[priceKey]).toLocaleString('it-IT', {style:'currency', currency:'EUR'}) : 'N/D';
+
+                const link = p.scheda_tecnica || p.scheda_tecnica_url;
+                if(link) { ui.mPdf.href = link; ui.mPdf.style.display = 'inline-flex'; } 
+                else { ui.mPdf.style.display = 'none'; }
+
+                let details = [
+                    { label: 'Codice', val: p.codice_prodotto },
+                    { label: 'Tipo', val: p.type === 'ue' ? 'Unità Esterna' : 'Unità Interna' },
+                    { label: 'Potenza', val: p.potenza || p.btu },
+                    { label: 'Gas', val: p.tipo_refrigerante || p.gas }
+                ];
+                
+                if(p.type === 'ue') {
+                    details.push({ label: 'Attacchi', val: p.unita_collegabili || p.connections });
+                } else {
+                    details.push({ label: 'Dimensioni', val: p.dimensioni_ui });
                 }
-                ui.btnFinish.disabled = true;
-            }
 
-            // Step 6: Riepilogo (CON POTENZA UE)
-            function renderSummary() {
-                const s = state.sel;
-                let tot = s.ue.price;
-                s.ui.forEach(u => tot += u.price);
-                
-                const ueName = s.ue.modello || s.ue.codice_prodotto || "Unità Esterna";
-                // Aggiunta la potenza accanto al nome se disponibile
-                const uePower = s.ue.potenza ? ` (${s.ue.potenza} kW)` : '';
-                
-                const uePdf = getPdfButton(s.ue);
-
-                let rows = s.ui.map((u,i) => {
-                    const uiPdf = getPdfButton(u);
-                    const uiName = u.modello || u.codice_prodotto || `Unità ${i+1}`;
-                    return `
-                    <div class="summary-row">
-                        <div>
-                            <span style="display:block; font-weight:500;">UI ${i+1}: ${uiName} (${u.potenza})</span>
-                            ${uiPdf}
-                        </div>
-                        <strong>€ ${u.price.toFixed(2)}</strong>
-                    </div>`;
+                ui.mList.innerHTML = details.map(d => {
+                    if(!d.val) return '';
+                    return `<li><strong>${d.label}:</strong> <span>${d.val}</span></li>`;
                 }).join('');
 
-                ui.summary.innerHTML = `
-                    <div class="summary-header">
-                        <h3>Preventivo ${s.brand.name}</h3>
-                        <span class="summary-date">${new Date().toLocaleDateString()}</span>
-                    </div>
-                    <div class="summary-row">
-                        <div>
-                            <span style="display:block; font-weight:500;">Unità Esterna: ${ueName}${uePower}</span>
-                            ${uePdf}
-                        </div>
-                        <strong>€ ${s.ue.price.toFixed(2)}</strong>
-                    </div>
-                    ${rows}
-                    <div class="summary-row total">
-                        <span>TOTALE (IVA Escl.)</span>
-                        <span>€ ${tot.toFixed(2)}</span>
-                    </div>
-                `;
+                ui.modal.style.display = 'flex';
             }
 
-            // --- NAVIGATION ---
-            window.app = {
-                goTo: (step) => {
-                    state.step = step;
-                    ui.steps.forEach(s => s.classList.remove('active'));
-                    document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
-                    
-                    document.getElementById(`step-${step}`).classList.add('active');
-                    
-                    ui.inds.forEach((el, idx) => {
-                        const s = idx + 1;
-                        if(s === step) { el.classList.add('active'); el.classList.remove('completed'); }
-                        else if(s < step) { el.classList.add('completed'); el.classList.remove('active'); }
-                        else { el.classList.remove('active', 'completed'); }
-                    });
-                    
-                    if(step === 6) renderSummary();
-                    window.scrollTo(0,0);
-                },
-                prev: () => window.app.goTo(state.step - 1),
-                finish: () => window.app.goTo(6),
-                
-                selBrand: (id, name) => {
-                    state.sel.brand = {id, name};
-                    ui.infos[0].textContent = name;
-                    renderConfigs();
-                    window.app.goTo(2);
-                },
-                selConfig: (id, name) => {
-                    state.sel.type = {id, name};
-                    ui.infos[1].textContent = name;
-                    renderSeries();
-                    window.app.goTo(3);
-                },
-                selSeries: (id, name, imgPath) => {
-                    state.sel.series = {id, name, imgPath}; 
-                    ui.infos[2].textContent = name;
-                    renderUE();
-                    window.app.goTo(4);
-                },
-                selUE: (id) => {
-                    state.sel.ue = state.data.ue.find(u => u.id === id);
-                    ui.infos[3].textContent = state.sel.ue.modello || state.sel.ue.codice_prodotto;
-                    renderUISelect();
-                    window.app.goTo(5);
-                },
-                pickUI: (idx, uid, btn) => {
-                    document.querySelector(`#grp-ui-${idx} .selected`)?.classList.remove('selected');
-                    btn.classList.add('selected');
-                    
-                    const unit = state.data.ui.find(u => u.id === uid);
-                    state.sel.ui[idx] = unit;
-                    
-                    // Update Preview
-                    const wrapper = document.getElementById(`prev-ui-${idx}`);
-                    const txt = document.getElementById(`prev-txt-${idx}`);
-                    const img = document.getElementById(`prev-img-${idx}`);
-                    
-                    // Usa l'immagine salvata nello step serie
-                    const seriesImg = state.sel.series.imgPath || '/placeholder.png';
-                    
-                    img.src = seriesImg;
-                    img.style.display = 'block';
-                    
-                    const pdfBtn = getPdfButton(unit);
-                    
-                    txt.innerHTML = `
-                        <div><strong>${unit.codice_prodotto || unit.modello}</strong></div>
-                        <div>Dimensioni: ${unit.dimensioni_ui || 'N/D'}</div>
-                        ${pdfBtn}
-                    `;
-                    wrapper.classList.add('visible');
-                    
-                    const count = state.sel.ui.filter(Boolean).length;
-                    ui.infos[4].textContent = `${count}/${state.sel.type.id}`;
-                    ui.btnFinish.disabled = count !== state.sel.type.id;
-                }
-            };
-
+            ui.closeM.addEventListener('click', () => ui.modal.style.display = 'none');
+            ui.modal.addEventListener('click', e => { if(e.target===ui.modal) ui.modal.style.display='none'; });
         });
     </script>
 </body>
