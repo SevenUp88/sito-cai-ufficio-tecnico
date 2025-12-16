@@ -5,27 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listino Climatizzatori Monosplit - CAI</title>
     
-    <!-- CSS Principale (Risale di 3 livelli) -->
+    <!-- CSS Principale -->
     <link rel="stylesheet" href="../../../style.css">
     
-    <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- CLASSI DI UTILITÀ --- */
         .hidden { display: none !important; }
         
-        /* --- STILI SPECIFICI MONOSPLIT --- */
-        
-        /* Layout Filtri */
+        /* Filtri */
         .filters-bar {
             background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 25px;
             border: 1px solid #e9ecef; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
         }
         .filter-label { font-weight: 600; color: #555; margin-right: 5px; }
         
-        /* Bottoni Filtro Marca */
         .filter-btn {
             padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
             cursor: pointer; background-color: #fff; border: 1px solid #ccc;
@@ -43,12 +38,10 @@
         }
         .search-wrapper i { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #aaa; }
 
-        /* Griglia Prodotti */
-        .product-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px;
-        }
+        /* Griglia */
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
 
-        /* Card Prodotto */
+        /* Card */
         .clima-card {
             background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
             padding: 15px; position: relative; display: flex; flex-direction: column;
@@ -56,17 +49,14 @@
         }
         .clima-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        /* Header Card */
         .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; height: 35px; }
         .brand-logo { max-height: 35px; max-width: 100px; object-fit: contain; }
         .wifi-icon { color: #0056a8; font-size: 1.1rem; }
 
         .model-title { font-size: 1.1rem; font-weight: 700; color: #333; margin: 0 0 10px 0; line-height: 1.2; }
 
-        /* Body Card */
         .card-body { display: flex; gap: 10px; flex-grow: 1; }
         .card-info { flex: 1; font-size: 0.85rem; color: #555; display: flex; flex-direction: column; gap: 4px; }
-        .card-info strong { color: #222; }
         .energy-badge { padding: 1px 5px; border-radius: 3px; color: white; font-weight: bold; font-size: 0.75rem; margin-right: 3px; }
         .energy-cooling { background-color: #0d6efd; }
         .energy-heating { background-color: #dc3545; }
@@ -74,7 +64,6 @@
         .card-image-wrapper { width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; }
         .card-image { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        /* Footer Card */
         .card-footer {
             margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;
             display: flex; justify-content: space-between; align-items: center;
@@ -86,48 +75,35 @@
         }
         .btn-details:hover { background: #0056a8; color: white; }
 
-        /* Modal Dettagli */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px;
-            max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-        }
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; position: relative; }
         .close-modal { position: absolute; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #aaa; }
         
         .modal-header { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
         .modal-logo { max-height: 40px; }
-        .modal-title h2 { margin: 0; font-size: 1.5rem; color: #333; }
-        .modal-title span { color: #666; font-size: 0.9rem; }
-
         .modal-grid { display: flex; gap: 25px; flex-wrap: wrap; }
         .modal-img-col { flex: 1 1 200px; text-align: center; }
         .modal-img { max-width: 100%; border-radius: 4px; border: 1px solid #eee; }
         .modal-info-col { flex: 2 1 300px; }
-        
-        .info-list { list-style: none; padding: 0; margin: 0; font-size: 0.9rem; }
         .info-list li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dotted #ccc; }
-        .info-list strong { color: #333; }
-
         .modal-footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .btn-pdf { background: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px; }
-        .btn-pdf:hover { background: #c82333; }
+        .btn-pdf { background: #dc3545; color: white; text-decoration: none; padding: 8px 15px; border-radius: 4px; display: inline-flex; align-items: center; gap: 5px; }
         .modal-price { font-size: 1.8rem; font-weight: 700; color: #0056a8; }
-
         .no-data { text-align: center; padding: 40px; color: #6c757d; grid-column: 1/-1; }
+
+        /* Loader */
+        .loader-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #f4f6f9; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .loader-spinner { border: 4px solid #e9ecef; border-top: 4px solid #0056a8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
     <!-- Loader -->
-    <div id="initial-loader" class="loader-container">
-        <div class="loader-spinner"></div>
-        <p>Caricamento Listino...</p>
-    </div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Caricamento...</p></div>
 
-    <!-- Login Section -->
+    <!-- Login -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
@@ -140,126 +116,92 @@
         </div>
     </section>
 
-    <!-- DASHBOARD CONTENT -->
+    <!-- App -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR (Caricata da components.js) -->
+        <!-- Sidebar -->
         <nav class="sidebar">
-            <div class="sidebar-brand">
-                <a href="../../../index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
-            </div>
-            <ul class="sidebar-menu"></ul> <!-- Gestita da components.js -->
+            <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a></div>
+            <ul class="sidebar-menu"></ul> <!-- components.js -->
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
-        <!-- MAIN CONTENT -->
+        <!-- Main -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Listino Clima Monosplit</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info">
-                        <div class="user-details"><span class="welcome-text">Utente</span><span id="user-email-display">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- Header generato da components.js -->
 
             <div class="content-container">
                 <div class="dashboard-card">
+                    <h2 style="margin-bottom:20px; color:#0056a8;">Catalogo Prodotti</h2>
                     
-                    <h2 style="margin-bottom:20px; color:var(--primary-color);">Catalogo Prodotti</h2>
-                    
-                    <!-- FILTRI -->
                     <div class="filters-bar">
                         <span class="filter-label">Marche:</span>
-                        <div id="brand-filters" style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <!-- Bottoni marche JS -->
-                        </div>
-                        
+                        <div id="brand-filters" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
                         <button id="economic-filter" class="filter-btn" data-type="economic" style="margin-left: 15px;">Economici</button>
-
-                        <div class="search-wrapper">
-                            <input type="text" id="search-input" placeholder="Cerca...">
-                            <i class="fas fa-search"></i>
-                        </div>
+                        <div class="search-wrapper"><input type="text" id="search-input" placeholder="Cerca..."><i class="fas fa-search"></i></div>
                     </div>
 
-                    <!-- GRIGLIA PRODOTTI -->
-                    <div id="product-grid" class="product-grid">
-                        <!-- Card JS -->
-                    </div>
-                    
+                    <div id="product-grid" class="product-grid"></div>
                     <div id="no-data-msg" class="no-data" style="display:none;">Nessun prodotto trovato.</div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- MODALE DETTAGLI -->
+    <!-- Modale -->
     <div id="modal-overlay" class="modal-overlay">
         <div class="modal-content">
             <button id="close-modal" class="close-modal">×</button>
             <div class="modal-header">
                 <img id="modal-logo" src="" alt="Logo" class="modal-logo" onerror="this.style.display='none'">
-                <div class="modal-title">
-                    <span id="modal-brand">MARCA</span>
-                    <h2 id="modal-model">MODELLO</h2>
-                </div>
+                <div class="modal-title"><span id="modal-brand">MARCA</span><h2 id="modal-model">MODELLO</h2></div>
             </div>
             <div class="modal-body">
                 <div class="modal-grid">
-                    <div class="modal-img-col">
-                        <img id="modal-img" src="" alt="Foto" class="modal-img" onerror="this.src='../../../placeholder.png'">
-                    </div>
+                    <div class="modal-img-col"><img id="modal-img" src="" alt="Foto" class="modal-img" onerror="this.src='../../../placeholder.png'"></div>
                     <div class="modal-info-col">
                         <h3>Specifiche Tecniche</h3>
-                        <ul id="modal-details-list" class="info-list">
-                            <!-- Dettagli JS -->
-                        </ul>
+                        <ul id="modal-details-list" class="info-list"></ul>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <a id="modal-pdf-btn" href="#" target="_blank" class="btn-pdf" style="display:none;"><i class="fas fa-file-pdf"></i> Scheda Tecnica</a>
-                <div class="modal-price-container">
-                    <span>Prezzo Kit:</span>
-                    <span id="modal-price" class="modal-price">€ 0,00</span>
-                </div>
+                <div class="modal-price-container"><span>Prezzo Kit:</span><span id="modal-price" class="modal-price">€ 0,00</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase Scripts -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-
-    <!-- Menu Laterale -->
+    
+    <!-- Componenti -->
     <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici", storageBucket: "consorzio-artigiani-idraulici.appspot.com", messagingSenderId: "136848104008", appId: "1:136848104008:web:71e2195f1712a832e01b3a" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
+            const auth = firebase.auth(); const db = firebase.firestore();
+
+            // Layout
+            initLayout("Listino Clima Monosplit");
 
             let allProducts = [];
             let filters = { brand: 'all', economic: false, search: '' };
             const economicModels = ['THOR', 'SEIYA CLASSIC', 'HR', 'SENSIRA', 'REVIVE', 'LIBERO SMART'];
 
-            // UI
             const ui = {
                 loader: document.getElementById('initial-loader'),
                 login: document.getElementById('login-section'),
                 app: document.getElementById('app-content'),
-                user: document.getElementById('user-email-display'),
+                loginForm: document.getElementById('login-form'),
                 grid: document.getElementById('product-grid'),
                 brands: document.getElementById('brand-filters'),
                 noData: document.getElementById('no-data-msg'),
                 modal: document.getElementById('modal-overlay'),
-                // Modal elements
                 mLogo: document.getElementById('modal-logo'),
                 mBrand: document.getElementById('modal-brand'),
                 mModel: document.getElementById('modal-model'),
@@ -270,13 +212,11 @@
                 closeM: document.getElementById('close-modal')
             };
 
-            // Auth
             auth.onAuthStateChanged(user => {
                 ui.loader.style.display = 'none';
                 if(user) {
                     ui.login.classList.add('hidden');
                     ui.app.classList.remove('hidden');
-                    ui.user.textContent = user.email;
                     loadData();
                 } else {
                     ui.login.classList.remove('hidden');
@@ -284,21 +224,18 @@
                 }
             });
 
-            document.getElementById('login-form')?.addEventListener('submit', e => {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const pass = document.getElementById('password').value;
-                auth.signInWithEmailAndPassword(email, pass).catch(err => alert("Errore: "+err.message));
-            });
-            document.getElementById('logout-button')?.addEventListener('click', () => auth.signOut());
+            if(ui.loginForm) {
+                ui.loginForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    auth.signInWithEmailAndPassword(e.target.email.value, e.target.password.value).catch(err => alert("Errore: "+err.message));
+                });
+            }
 
-            // Data
             async function loadData() {
                 try {
                     const snap = await db.collection("prodottiClimaMonosplit").get();
                     allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
-                    renderFilters();
-                    applyFilters();
+                    renderFilters(); applyFilters();
                 } catch(e) { console.error(e); }
             }
 
@@ -310,21 +247,16 @@
                 ui.brands.querySelectorAll('.filter-btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         ui.brands.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        filters.brand = btn.dataset.brand;
-                        applyFilters();
+                        btn.classList.add('active'); filters.brand = btn.dataset.brand; applyFilters();
                     });
                 });
 
                 document.getElementById('economic-filter').addEventListener('click', function() {
-                    filters.economic = !filters.economic;
-                    this.classList.toggle('active');
-                    applyFilters();
+                    filters.economic = !filters.economic; this.classList.toggle('active'); applyFilters();
                 });
 
                 document.getElementById('search-input').addEventListener('input', function(e) {
-                    filters.search = e.target.value.toLowerCase();
-                    applyFilters();
+                    filters.search = e.target.value.toLowerCase(); applyFilters();
                 });
             }
 
@@ -332,9 +264,7 @@
                 const filtered = allProducts.filter(p => {
                     const matchBrand = filters.brand === 'all' || p.marca?.toUpperCase() === filters.brand;
                     const matchEco = !filters.economic || (p.modello && economicModels.includes(p.modello.toUpperCase()));
-                    const matchSearch = !filters.search || 
-                        (p.modello||'').toLowerCase().includes(filters.search) ||
-                        (p.codice_prodotto||'').toLowerCase().includes(filters.search);
+                    const matchSearch = !filters.search || (p.modello||'').toLowerCase().includes(filters.search) || (p.codice_prodotto||'').toLowerCase().includes(filters.search);
                     return matchBrand && matchEco && matchSearch;
                 });
                 renderGrid(filtered);
@@ -351,41 +281,23 @@
                     card.onclick = () => openModal(p);
 
                     const price = p.prezzo_kit ? parseFloat(p.prezzo_kit).toLocaleString('it-IT', {style:'currency', currency:'EUR'}) : '-';
-                    const imgUrl = p.image_url || '../images/placeholder.png'; // Percorso da cartella monosplit
-                    // Se le immagini sono in `LISTINI/CLIMA/images`, il percorso relativo da `LISTINI/CLIMA/monosplit/index.html` è `../images/`
+                    const imgUrl = p.image_url || '../images/placeholder.png';
                     const safeBrand = (p.marca||'').toLowerCase().replace(/\s+/g,'');
                     const logoUrl = `../images/logos/${safeBrand}.png`;
-
-                    const wifi = String(p.wifi).toLowerCase().includes('s') || p.wifi === true 
-                        ? `<i class="fas fa-wifi wifi-icon" title="WiFi"></i>` : '';
+                    const wifi = String(p.wifi).toLowerCase().includes('s') || p.wifi === true ? `<i class="fas fa-wifi wifi-icon"></i>` : '';
 
                     card.innerHTML = `
-                        <div class="card-header">
-                            <img src="${logoUrl}" class="brand-logo" onerror="this.style.display='none'">
-                            ${wifi}
-                        </div>
+                        <div class="card-header"><img src="${logoUrl}" class="brand-logo" onerror="this.style.display='none'">${wifi}</div>
                         <h3 class="model-title">${p.modello || 'N/D'}</h3>
-                        
                         <div class="card-body">
                             <div class="card-info">
                                 <span><strong>Potenza:</strong> ${p.potenza || '-'}</span>
-                                <div style="margin:2px 0;">
-                                    <strong>Classe:</strong> 
-                                    <span class="energy-badge energy-cooling">${p.classe_energetica_raffrescamento||'-'}</span>
-                                    <span class="energy-badge energy-heating">${p.classe_energetica_riscaldamento||'-'}</span>
-                                </div>
+                                <div style="margin:2px 0;"><strong>Classe:</strong> <span class="energy-badge energy-cooling">${p.classe_energetica_raffrescamento||'-'}</span><span class="energy-badge energy-heating">${p.classe_energetica_riscaldamento||'-'}</span></div>
                                 <span><strong>Cod:</strong> ${p.codice_prodotto || '-'}</span>
                             </div>
-                            <div class="card-image-wrapper">
-                                <img src="${imgUrl}" class="card-image" onerror="this.src='../../../placeholder.png'">
-                            </div>
+                            <div class="card-image-wrapper"><img src="${imgUrl}" class="card-image" onerror="this.src='../../../placeholder.png'"></div>
                         </div>
-
-                        <div class="card-footer">
-                            <span class="price">${price}</span>
-                            <button class="btn-details">Dettagli</button>
-                        </div>
-                    `;
+                        <div class="card-footer"><span class="price">${price}</span><button class="btn-details">Dettagli</button></div>`;
                     ui.grid.appendChild(card);
                 });
             }
@@ -393,15 +305,12 @@
             function openModal(p) {
                 const safeBrand = (p.marca||'').toLowerCase().replace(/\s+/g,'');
                 ui.mLogo.src = `../images/logos/${safeBrand}.png`;
-                ui.mBrand.textContent = p.marca || '';
-                ui.mModel.textContent = p.modello || '';
+                ui.mBrand.textContent = p.marca || ''; ui.mModel.textContent = p.modello || '';
                 ui.mImg.src = p.image_url || '../images/placeholder.png';
                 ui.mPrice.textContent = p.prezzo_kit ? parseFloat(p.prezzo_kit).toLocaleString('it-IT', {style:'currency', currency:'EUR'}) : 'N/D';
 
-                if(p.scheda_tecnica_url) {
-                    ui.mPdf.href = p.scheda_tecnica_url;
-                    ui.mPdf.style.display = 'inline-flex';
-                } else { ui.mPdf.style.display = 'none'; }
+                if(p.scheda_tecnica_url) { ui.mPdf.href = p.scheda_tecnica_url; ui.mPdf.style.display = 'inline-flex'; } 
+                else { ui.mPdf.style.display = 'none'; }
 
                 const details = [
                     { label: 'Potenza', val: p.potenza },
@@ -426,7 +335,6 @@
 
             ui.closeM.addEventListener('click', () => ui.modal.style.display = 'none');
             ui.modal.addEventListener('click', e => { if(e.target===ui.modal) ui.modal.style.display='none'; });
-
         });
     </script>
 </body>
