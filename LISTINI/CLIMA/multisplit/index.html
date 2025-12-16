@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Multisplit - CAI</title>
+    <title>Listino Multisplit - CAI</title>
     
-    <!-- 1. Collegamento al TUO style.css principale (nella root) -->
-    <link rel="stylesheet" href="../../style.css">
+    <!-- CSS Principale (Risale di 3 livelli fino alla root) -->
+    <link rel="stylesheet" href="../../../style.css">
     
     <!-- Font e Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
-        /* --- STILI SPECIFICI SOLO PER IL CONFIGURATORE --- */
-        /* Questi non sono nel style.css principale perché servono solo qui */
-
+        /* --- STILI SPECIFICI PER IL CALCOLO PREZZO (Non presenti nel CSS globale) --- */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        
         .config-card {
             background-color: #fff; padding: 30px; border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-height: 600px;
         }
 
-        /* Indicatori Step (Pallini 1-2-3-4-5-6) */
+        /* Indicatori Step */
         .step-indicator {
             display: flex; justify-content: space-between; margin-bottom: 40px; 
             position: relative; padding: 0 10px;
@@ -152,11 +153,15 @@
         .summary-row { display: flex; justify-content: space-between; padding: 15px 0; border-bottom: 1px dotted #ccc; font-size: 0.95rem; align-items: center; }
         .summary-row.total { border-top: 2px solid #ccc; border-bottom: none; margin-top: 15px; padding-top: 15px; font-size: 1.4rem; font-weight: bold; color: var(--primary-color); }
         
+        .loader { text-align: center; padding: 40px; color: #6c757d; }
+        
         @media print {
-            .sidebar, .top-bar, .step-indicator, .step-nav { display: none !important; }
+            .sidebar, .top-bar, .step-indicator, .step-nav, .config-title { display: none !important; }
             .config-card { box-shadow: none; border: none; padding: 0; min-height: auto; }
             .summary-box { border: 2px solid #000; background: white; padding: 0; }
-            body { background: white; color: black; }
+            .summary-header { border-bottom: 2px solid #000; padding: 10px; margin: 0; }
+            .summary-row { padding: 5px 10px; border-bottom: 1px solid #eee; }
+            body { background: white; font-size: 12pt; color: black; }
             .step-content:not(#step-6) { display: none !important; }
             #step-6 { display: block !important; }
         }
@@ -165,7 +170,7 @@
 <body>
 
     <!-- Loader -->
-    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Caricamento...</p></div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div><p style="margin-top:10px;">Avvio Listino...</p></div>
 
     <!-- Login -->
     <section id="login-section" class="hidden login-centered">
@@ -211,7 +216,7 @@
                     <!-- STEP 1: MARCA -->
                     <div id="step-1" class="step-content active">
                         <h3 class="step-title">Seleziona Marca</h3>
-                        <div id="grid-brand" class="selection-grid"><div style="text-align:center; width:100%;">Caricamento Marche...</div></div>
+                        <div id="grid-brand" class="selection-grid"><div class="loader">Caricamento Marche...</div></div>
                     </div>
 
                     <!-- STEP 2: CONFIGURAZIONE -->
@@ -279,7 +284,8 @@
             const db = firebase.firestore();
 
             // --- LAYOUT ---
-            initLayout("Configuratore Multisplit");
+            // Qui lo chiamo "Listino Multisplit" per coerenza con la tua richiesta
+            initLayout("Listino Multisplit");
 
             const state = {
                 step: 1,
@@ -287,7 +293,8 @@
                 sel: { brand:null, type:null, series:null, ue:null, ui:[] }
             };
 
-            // PATH BASE GITHUB PER LE IMMAGINI (RAW)
+            // PATH IMMAGINI
+            // Usiamo i path raw di GitHub perché sono affidabili
             const GITHUB_IMG_PATH = 'https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LISTINI/CLIMA/multisplit/img/';
 
             // Mappa Immagini Unità Esterne (Fallback/Standard)
