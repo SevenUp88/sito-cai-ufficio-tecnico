@@ -1,8 +1,16 @@
-// File: components.js
-
-document.addEventListener("DOMContentLoaded", function() {
+/**
+ * components.js
+ * Gestisce la generazione centralizzata della Sidebar e della Top Bar (Header)
+ * con gestione automatica dell'utente Firebase.
+ * 
+ * @param {string} pageTitle - Il titolo da visualizzare in alto (es. "Configuratore Multisplit")
+ */
+function initLayout(pageTitle) {
     
-    // 1. Definiamo il codice HTML del menu laterale (SIDEBAR)
+    // =========================================================================
+    // 1. GENERAZIONE SIDEBAR (Menu Laterale)
+    // =========================================================================
+    
     const sidebarContent = `
         <!-- Voce Dashboard -->
         <li>
@@ -94,12 +102,12 @@ document.addEventListener("DOMContentLoaded", function() {
         </li>
     `;
 
-    // 2. Inseriamo il menu nella pagina
+    // Inserimento HTML nel DOM
     const sidebarList = document.querySelector('.sidebar-menu');
     if (sidebarList) {
         sidebarList.innerHTML = sidebarContent;
         
-        // 3. Logica per attivare i sottomenu (Accordion)
+        // Logica Accordion (Sottomenu)
         const linksWithSubmenu = sidebarList.querySelectorAll('.has-submenu > .nav-link');
         linksWithSubmenu.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -114,19 +122,15 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         });
 
-        // 4. Logica per evidenziare la pagina corrente (Active State)
+        // Logica Active State (Evidenzia pagina corrente)
         const currentPath = window.location.pathname;
         const allLinks = sidebarList.querySelectorAll('a');
         
         allLinks.forEach(link => {
-            // Ottieni il path del link (es. /PREVENTIVI/index.html)
             const linkPath = link.getAttribute('href');
-            
-            // Se il link corrisponde alla pagina attuale
+            // Gestione normalizzata dei path
             if (currentPath.includes(linkPath) && linkPath !== '/' && linkPath !== '#') {
-                link.classList.add('active'); // Colora di blu
-                
-                // Se è dentro un sottomenu, apri il sottomenu padre
+                link.classList.add('active'); 
                 const parentItem = link.closest('.has-submenu');
                 if (parentItem) {
                     const parentLink = parentItem.querySelector('.nav-link');
@@ -134,11 +138,85 @@ document.addEventListener("DOMContentLoaded", function() {
                     if(parentLink) parentLink.classList.add('active');
                     if(parentSub) parentSub.style.maxHeight = parentSub.scrollHeight + "px";
                 }
-            } 
-            // Caso speciale per la Home
-            else if (currentPath === '/' && linkPath === '/') {
+            } else if (currentPath === '/' && linkPath === '/') {
                 link.classList.add('active');
             }
         });
     }
-});
+
+    // =========================================================================
+    // 2. GENERAZIONE TOP BAR (Header con Titolo e Utente)
+    // =========================================================================
+
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        // Rimuove eventuali header esistenti per evitare duplicati
+        const existingHeader = mainContent.querySelector('header');
+        if(existingHeader) existingHeader.remove();
+
+        const headerHTML = `
+            <header class="top-bar">
+                <div class="page-title"><h2>${pageTitle}</h2></div>
+                <div class="user-menu">
+                    <div class="user-profile-info">
+                        <div class="user-details">
+                            <span class="welcome-text">Utente</span>
+                            <span id="global-user-name">Caricamento...</span>
+                        </div>
+                        <div class="user-avatar"><i class="fas fa-user"></i></div>
+                        <button id="global-logout-btn" class="btn-logout" title="Esci">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+        `;
+        // Inserisce l'header all'inizio del main-content
+        mainContent.insertAdjacentHTML('afterbegin', headerHTML);
+    }
+
+    // =========================================================================
+    // 3. LOGICA UTENTE (Firebase Auth & Firestore)
+    // =========================================================================
+
+    if (typeof firebase !== 'undefined') {
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        auth.onAuthStateChanged(user => {
+            const nameEl = document.getElementById('global-user-name');
+            const logoutBtn = document.getElementById('global-logout-btn');
+            
+            if (user) {
+                // 1. Mostra email come fallback immediato
+                if(nameEl) nameEl.textContent = user.email;
+
+                // 2. Recupera il nome dalla collezione 'users'
+                db.collection('users').where('email', '==', user.email).limit(1).get()
+                    .then(snapshot => {
+                        if (!snapshot.empty) {
+                            const userData = snapshot.docs[0].data();
+                            if (userData.name && nameEl) {
+                                nameEl.textContent = userData.name;
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Errore Header User:", err));
+
+                // 3. Gestione Logout
+                if(logoutBtn) {
+                    logoutBtn.onclick = () => {
+                        auth.signOut().then(() => {
+                            // Ricarica la pagina o vai al login
+                            window.location.reload();
+                        });
+                    };
+                }
+
+            } else {
+                // Utente non loggato
+                if(nameEl) nameEl.textContent = "Non connesso";
+            }
+        });
+    }
+}
