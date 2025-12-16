@@ -208,3 +208,9 @@ td.text-right, th.text-right { text-align: right; }
 .badge-success { background: #d4edda; color: #155724; }
 .badge-warning { background: #fff3cd; color: #856404; }
 .badge-danger { background: #f8d7da; color: #721c24; }
+
+/* Effetto hover sull'header dell'inventario per far capire che è cliccabile */
+#inventory-header:hover {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
