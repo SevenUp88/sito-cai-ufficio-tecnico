@@ -65,16 +65,7 @@
 
         <!-- CONTENUTO -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="page-title"><h2>Cruscotto Ufficio Tecnico</h2></div>
-                <div class="user-menu">
-                    <div class="user-profile-info" id="user-dashboard">
-                        <div class="user-details"><span class="welcome-text">Benvenuto,</span><span id="user-email-display" class="user-email">...</span></div>
-                        <div class="user-avatar"><i class="fas fa-user"></i></div>
-                        <button id="logout-button" class="btn-logout" title="Esci"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </header>
+            <!-- HEADER RIMOSSO: Viene generato da initLayout() in components.js -->
 
             <div class="content-container">
                 <div class="dashboard-card welcome-card">
@@ -121,8 +112,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-    <!-- Menu Laterale -->
-    <script src="components.js"></script>
+    <!-- Menu Laterale e Header Centralizzati -->
+    <script src="/components.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -137,35 +128,37 @@
                 appId: "1:136848104008:web:71e2195f1712a832e01b3a"
             };
 
-            // Inizializza Firebase solo se non esiste già
+            // Inizializza Firebase
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
+            // Necessario per components.js se usa db
+            const db = firebase.firestore(); 
 
-            // Elementi UI
+            // --- INIZIALIZZA LAYOUT (Sidebar + Header dinamico) ---
+            // Passa il titolo specifico di questa pagina
+            initLayout("Cruscotto Ufficio Tecnico");
+
+
+            // Elementi UI locali
             const ui = {
                 loader: document.getElementById('initial-loader'),
                 login: document.getElementById('login-section'),
                 app: document.getElementById('app-content'),
-                emailDisplay: document.getElementById('user-email-display'),
                 loginForm: document.getElementById('login-form'),
-                logoutBtn: document.getElementById('logout-button'),
                 errorMsg: document.getElementById('login-error')
             };
 
-            // --- GESTIONE LOGIN / LOGOUT ---
+            // --- GESTIONE VISIBILITÀ DASHBOARD ---
+            // Nota: La gestione del nome utente e logout è ora gestita da components.js
+            // Qui gestiamo solo se mostrare il login o l'app
             auth.onAuthStateChanged(user => {
-                ui.loader.style.display = 'none'; // Nascondi loader
+                ui.loader.style.display = 'none'; 
                 
                 if (user) {
-                    // Utente Loggato
-                    console.log("Home: Utente loggato:", user.email);
                     ui.login.classList.add('hidden');
-                    ui.app.classList.remove('hidden'); // Mostra Dashboard
-                    ui.emailDisplay.textContent = user.email;
+                    ui.app.classList.remove('hidden');
                 } else {
-                    // Utente NON Loggato
-                    console.log("Home: Utente non loggato");
-                    ui.login.classList.remove('hidden'); // Mostra Login
+                    ui.login.classList.remove('hidden');
                     ui.app.classList.add('hidden');
                 }
             });
@@ -187,21 +180,10 @@
                 });
             }
 
-            // Logout
-            if(ui.logoutBtn) {
-                ui.logoutBtn.addEventListener('click', () => {
-                    auth.signOut().then(() => {
-                        window.location.reload();
-                    });
-                });
-            }
-
-            // Failsafe: Se dopo 4 secondi il loader è ancora lì, rimuovilo
+            // Failsafe loader
             setTimeout(() => {
                 if(ui.loader && ui.loader.style.display !== 'none') {
-                    console.warn("Loader rimosso per timeout.");
                     ui.loader.style.display = 'none';
-                    // Se l'app è nascosta e il login pure, mostra il login per sicurezza
                     if(ui.app.classList.contains('hidden') && ui.login.classList.contains('hidden')) {
                          ui.login.classList.remove('hidden');
                     }
