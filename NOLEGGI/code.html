@@ -61,24 +61,46 @@
               <!-- Dashboard Cards -->
               <div class="dashboard-noleggi-grid">
                   
-                  <!-- Sezione Noleggi Attivi -->
-                  <div class="card full-width-card">
-                     <div class="card-header"> 
-                         <h2>Noleggi Attivi</h2> 
-                         <button class="btn btn-primary" id="new-rental-btn"> <i class="fas fa-plus btn-icon"></i> Nuovo Noleggio </button> 
-                     </div>
-                     <div class="stats"> 
-                         <div class="stat-card"> <div class="stat-value" id="total-rentals">0</div> <div class="stat-label">Noleggi Attivi</div> </div> 
-                         <div class="stat-card"> <div class="stat-value" id="items-rented">0</div> <div class="stat-label">Articoli Noleggiati</div> </div> 
-                     </div>
-                     <div class="inventory-container"> 
-                         <table id="active-rentals-table"> 
-                             <thead> <tr> <th># Noleggio</th> <th>Articolo</th> <th>Cliente</th> <th>Magazzino</th> <th>Data Inizio</th> <th>Stato</th> <th>Azioni</th> </tr> </thead> 
-                             <tbody></tbody> 
-                         </table> 
-                     </div>
-                  </div>
+                  <!-- Sezione Inventario Completo (Modificata a tendina) -->
+<div class="card full-width-card">
+    <!-- Header Cliccabile -->
+    <div class="card-header" id="inventory-header" style="cursor: pointer; user-select: none;"> 
+        <div style="display:flex; align-items:center; gap:10px;">
+            <i class="fas fa-chevron-right" id="inventory-arrow" style="transition: transform 0.3s;"></i>
+            <h2>Inventario Completo</h2> 
+        </div>
+        <div class="actions"> 
+            <!-- I bottoni rimangono visibili anche a tendina chiusa per comodità -->
+            <button class="btn btn-success" id="new-item-btn"> <i class="fas fa-plus btn-icon"></i> Nuovo </button> 
+            <button class="btn btn-primary" id="export-inventory-btn"> <i class="fas fa-file-export btn-icon"></i> Export </button> 
+        </div> 
+    </div>
 
+    <!-- Corpo della tendina (Nascosto di default) -->
+    <div id="inventory-body" class="hidden">
+        <div class="search-filter" style="margin-top: 15px;"> 
+            <input type="text" id="inventory-search" placeholder="Cerca articolo..."> 
+            <select id="filter-brand"> <option value="">Tutte le marche</option> </select> 
+            <select id="filter-status"> <option value="">Tutti gli stati</option> <option value="available">Disponibili</option> <option value="rented">Esauriti</option> </select> 
+        </div>
+        <div class="inventory-container"> 
+            <table id="inventory-table"> 
+                <thead> 
+                    <tr> 
+                        <th>Marca</th> 
+                        <th>Articolo</th> 
+                        <th class="text-center">Totale</th> 
+                        <th class="text-center">Disp.</th> 
+                        <th class="text-right">€/Giorno</th> 
+                        <th>Stato</th> 
+                        <th>Azioni</th> 
+                    </tr> 
+                </thead> 
+                <tbody></tbody> 
+            </table> 
+        </div>
+    </div>
+</div>
                   <!-- Sezione Inventario Rapido -->
                   <div class="card">
                       <div class="card-header"> 
