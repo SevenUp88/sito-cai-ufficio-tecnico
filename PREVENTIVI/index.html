@@ -3,497 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Configuratore Radiatori</title>
-    <!-- Font e Icone -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Elenco Preventivi - CAI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <style>
-        /* --- VARIABILI GLOBALI E RESET --- */
         :root {
-            --primary-color: #005A9C;
-            --primary-light: #E6F0F8;
-            --primary-dark: #003d6b;
-            --sidebar-bg: #001f3f;
-            --sidebar-link-hover: #003366;
-            --background-color: #f4f7f9;
-            --card-background: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --danger-color: #ef4444;
-            --font-family: 'Inter', sans-serif;
-            --radius: 8px;
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.07);
+            --primary-color: #0056a8; --primary-hover: #004182;
+            --success-color: #28a745; --danger-color: #dc3545;
+            --light-bg: #f8f9fa; --white: #ffffff; --border-color: #dee2e6;
+            --text-primary: #343a40; --text-secondary: #6c757d;
         }
-        * { box-sizing: border-box; }
-        body {
-            font-family: var(--font-family);
-            background-color: var(--background-color);
-            margin: 0;
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; background-color: var(--light-bg); color: var(--text-primary); }
+        .app-header { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 10px 30px; background-color: var(--white); box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .header-title-group { display: flex; align-items: center; gap: 20px; }
+        .logo { height: 45px; width: auto; }
+        .app-header h1 { color: var(--primary-color); font-size: 1.8em; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        .header-button, #logout-button { color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9em; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; transition: background-color 0.2s; }
+        #add-quote-btn { background-color: var(--success-color); }
+        #logout-button { background-color: var(--danger-color); }
+        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; margin: 40px auto; background-color: var(--white); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; width: 90%; }
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-login { background-color: var(--primary-color); color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1em; }
+        #login-error { color: var(--danger-color); margin-top: 10px; min-height: 1.2em; text-align: center; }
+        #app-content { padding: 25px 30px; margin: 20px; background-color: var(--white); border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.07); }
+        .controls-container { margin-bottom: 20px; }
+        #search-input { padding: 10px 15px; font-size: 1em; border: 1px solid #ced4da; border-radius: 5px; width: 100%; max-width: 400px; }
+        .table-container { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background-color: var(--primary-color); color: var(--white); text-align: left; }
+        th, td { padding: 12px 15px; border: 1px solid var(--border-color); vertical-align: middle; }
+        tbody tr:nth-child(even) { background-color: var(--light-bg); }
+        .status-select { width: 100%; padding: 6px 8px; border: 1px solid transparent; border-radius: 4px; background-color: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236c757d%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 8px top 50%; background-size: .65em auto; }
+        .status-select:focus { border-color: var(--primary-color); outline: none; }
+        .actions-cell { text-align: center; white-space: nowrap; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1em; padding: 5px 8px; color: var(--text-secondary); }
+        .btn-edit { color: var(--primary-color); }
+        .btn-delete { color: var(--danger-color); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0s 0.3s; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+        .modal-content { background: var(--white); padding: 25px 30px; border-radius: 8px; width: 90%; max-width: 550px; transform: scale(0.95); transition: transform 0.3s ease; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        .modal-header h2 { color: var(--primary-color); }
+        .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: var(--text-secondary); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-weight: 500; cursor: pointer; }
         .hidden { display: none !important; }
-
-        /* --- LOADER --- */
-        .loader-container {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--background-color); z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .loader-spinner {
-            border: 4px solid #e9ecef; border-top: 4px solid var(--primary-color);
-            border-radius: 50%; width: 50px; height: 50px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- PAGINA DI LOGIN --- */
-        .login-centered { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-        .login-card {
-            background: var(--card-background); padding: 2.5rem; border-radius: var(--radius);
-            box-shadow: var(--shadow-md); text-align: center; width: 100%; max-width: 400px;
-        }
-        .login-logo { max-width: 150px; margin-bottom: 1.5rem; }
-        .login-card h2 { margin-top: 0; color: var(--primary-dark); }
-        .login-card .form-group { text-align: left; margin-bottom: 1rem; }
-        .login-card label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .login-card input {
-            width: 100%; padding: 12px; border: 1px solid var(--border-color);
-            border-radius: 6px; font-size: 1rem;
-        }
-        .btn-login {
-            width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
-            border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .btn-login:hover { background-color: var(--primary-dark); }
-        .error-message { color: var(--danger-color); margin-top: 1rem; font-size: 0.9rem; }
-
-        /* --- LAYOUT DASHBOARD --- */
-        .dashboard-wrapper { display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
-        .sidebar {
-            width: 250px; background-color: var(--sidebar-bg); color: #f2f2f2;
-            display: flex; flex-direction: column; flex-shrink: 0;
-        }
-        .sidebar-brand { padding: 1.5rem; text-align: center; border-bottom: 1px solid var(--sidebar-link-hover); }
-        .sidebar-brand img { max-width: 120px; }
-        .sidebar-menu { list-style: none; margin: 0; padding: 1rem 0; }
-        .sidebar-menu li a {
-            display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem;
-            color: #d1d5db; text-decoration: none; transition: background-color 0.2s, color 0.2s;
-            border-left: 3px solid transparent;
-        }
-        .sidebar-menu li a:hover { background-color: var(--sidebar-link-hover); color: #fff; }
-        .sidebar-menu li.active a { background-color: var(--primary-color); color: #fff; font-weight: 600; border-left-color: #60a5fa; }
-        .sidebar-footer { margin-top: auto; padding: 1.5rem; font-size: 0.8rem; text-align: center; color: #6b7280; }
-        
-        /* Main Content & Header */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
-        .app-header {
-            background-color: var(--card-background); padding: 1rem 1.5rem;
-            display: flex; justify-content: flex-end; align-items: center;
-            box-shadow: var(--shadow-md); flex-shrink: 0;
-        }
-        .header-user-info { display: flex; align-items: center; gap: 1rem; }
-        .btn-logout {
-            background-color: #f8f9fa; color: var(--text-secondary); border: 1px solid var(--border-color);
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500;
-        }
-        .btn-logout:hover { background-color: #e2e8f0; }
-
-        .content-container { padding: 1.5rem; }
-        .page-header { margin-bottom: 1.5rem; }
-        .page-title { font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin: 0; }
-
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
-        .configurator-container {
-            display: grid;
-            grid-template-columns: 420px 1fr;
-            gap: 1.5rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        .configurator-col {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-color);
-        }
-        .left-col { display: flex; flex-direction: column; max-height: calc(100vh - 200px); }
-        .section-title {
-            font-size: 1.25rem; font-weight: 600; color: var(--primary-color);
-            margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
-            border-bottom: 2px solid var(--primary-color);
-        }
-
-        /* Form */
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 10px 12px; border: 1px solid #ccc;
-            border-radius: 6px; font-size: 1em; font-family: var(--font-family);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px var(--primary-light); }
-        .form-group select[disabled] { background-color: #f1f1f1; cursor: not-allowed; }
-        .form-row { display: flex; gap: 1rem; }
-        .form-row .form-group { flex: 1; }
-        .form-subtitle { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-dark); }
-
-        /* Bottoni */
-        .btn {
-            width: 100%; color: white; padding: 12px 15px; border: none;
-            border-radius: 6px; cursor: pointer; font-size: 1em; font-weight: 500;
-            display: inline-flex; align-items: center; justify-content: center;
-            gap: 8px; transition: background-color 0.2s;
-        }
-        .btn-add { background-color: #2563eb; }
-        .btn-add:hover { background-color: #1d4ed8; }
-        .btn-primary { background-color: var(--primary-color); font-size: 1.1em; padding: 14px; }
-        .btn-primary:hover { background-color: var(--primary-dark); }
-        .configurator-action { margin-top: 2rem; }
-
-        /* Lista Stanze */
-        #add-local-form { flex-shrink: 0; }
-        #added-locals-container { margin-top: 2rem; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
-        #added-locals-list { overflow-y: auto; padding-right: 10px; }
-        .empty-list-msg { text-align: center; color: var(--text-secondary); font-style: italic; padding: 2rem 0; }
-        .local-item {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            padding: 12px; border-radius: 6px; margin-bottom: 10px;
-            background-color: var(--primary-light); border: 1px solid #bde0fe;
-        }
-        .local-item-info strong { display: block; font-size: 1.1em; color: var(--primary-dark); }
-        .local-item-info .radiator-details { font-size: 0.9em; color: var(--text-secondary); }
-        .remove-local-btn {
-            background: none; border: none; color: var(--danger-color); font-size: 1.2rem;
-            cursor: pointer; line-height: 1; padding: 2px 5px; flex-shrink: 0; margin-left: 10px;
-        }
-        .remove-local-btn:hover { color: #b91c1c; }
-
-        /* Risultati */
-        #results-container { margin-top: 2rem; }
-        .results-main-title { text-align: center; color: var(--primary-dark); font-size: 1.8rem; }
-        .error-box { background-color: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; padding: 1rem; border-radius: 6px; margin: 1.5rem 0; }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #f1f5f9; font-weight: 600; font-size: 0.9em; }
-        .totals-summary { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color); text-align: right; }
-        .totals-summary h3 { margin: 0 0 1rem 0; }
-        .total-line { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1.1rem; }
-        .total-line.price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
-        .totals-summary small { color: var(--text-secondary); display: block; margin-top: 1rem; }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .configurator-container { grid-template-columns: 1fr; }
-            .left-col { max-height: none; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { display: none; /* Nasconde la sidebar su schermi piccoli */ }
-            .app-header { justify-content: space-between; } /* Aggiungere un menu hamburger qui in futuro */
-        }
     </style>
 </head>
 <body>
+    <header class="app-header">
+        <div class="header-title-group">
+            <a href="/" class="logo-link"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="logo"></a>
+            <h1>Elenco Preventivi</h1>
+        </div>
+        <div class="header-controls">
+            <button id="add-quote-btn" class="header-button hidden">Nuovo Preventivo</button>
+            <button id="logout-button" class="hidden">Logout</button>
+        </div>
+    </header>
 
-    <div id="initial-loader" class="loader-container">
-        <div class="loader-spinner"></div>
-        <p style="margin-top:10px;">Caricamento...</p>
-    </div>
-
-    <section id="login-section" class="hidden login-centered">
-        <div class="login-card">
-            <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
-            <h2>Area Riservata CAI</h2>
+    <main>
+        <section id="login-section">
+            <h2>Accesso Riservato</h2>
             <form id="login-form">
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" required placeholder="La tua email">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" required placeholder="La tua password">
-                </div>
+                <div class="form-group"><label for="email">Email:</label><input type="email" id="email" name="email" required></div>
+                <div class="form-group"><label for="password">Password:</label><input type="password" id="password" name="password" required></div>
                 <button type="submit" class="btn-login">Accedi</button>
-                <p id="login-error" class="error-message hidden"></p>
+                <p id="login-error"></p>
+            </form>
+        </section>
+
+        <div id="app-content" class="hidden">
+            <div class="controls-container"><input type="text" id="search-input" placeholder="Cerca..."></div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>CLIENTE</th><th>DATA</th><th>RIFERIMENTO</th><th>NUMERO</th><th>STATO</th><th>ESITO OFFERTA</th><th>NOTE</th><th>AZIONI</th></tr></thead>
+                    <tbody id="preventivi-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal per NUOVO preventivo -->
+    <div id="add-quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuovo Preventivo</h2>
+                <button class="close-modal-btn">×</button>
+            </div>
+            <form id="add-quote-form" novalidate>
+                <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
+                <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
+                <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
+                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
+                <div class="form-group"><label for="add-stato">Stato</label>
+                    <select id="add-stato" required>
+                        <option value="Inviato">Inviato</option>
+                        <option value="Offerta Fornitore">Offerta Fornitore</option>
+                        <option value="In Corso">In Corso</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="add-esito">Esito Offerta</label>
+                    <select id="add-esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
+                </div>
+                <div class="form-group"><label for="add-note">Note</label><textarea id="add-note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
+                    <button type="submit" class="modal-button" id="save-quote-btn">Salva</button>
+                </div>
             </form>
         </div>
-    </section>
-
-    <div id="app-content" class="dashboard-wrapper hidden">
-        
-        <nav class="sidebar">
-            <div class="sidebar-brand">
-                <a href="#"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+    </div>
+    
+    <!-- Modal per MODIFICA preventivo -->
+    <div id="edit-quote-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modifica Preventivo</h2>
+                <button class="close-modal-btn">×</button>
             </div>
-            <ul class="sidebar-menu" id="sidebar-menu"></ul> 
-            <div class="sidebar-footer">&copy; 2024 CAI Solutions</div>
-        </nav>
-
-        <main class="main-content">
-            <header class="app-header" id="app-header"></header>
-
-            <div class="content-container">
-                <div class="page-header">
-                    <h1 class="page-title">Configuratore Impianto Radiatori</h1>
+            <form id="edit-quote-form" novalidate>
+                <input type="hidden" id="edit-quote-id">
+                <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
+                <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
+                <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
+                <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
+                <div class="form-group"><label for="edit-stato">Stato</label>
+                    <select id="edit-stato" required>
+                         <!-- Opzioni popolate da JS -->
+                    </select>
                 </div>
-
-                <div class="configurator-container">
-                    <!-- Colonna Sinistra -->
-                    <div class="configurator-col left-col">
-                        <div class="form-section">
-                            <h3 class="section-title">1. Aggiungi e Configura Stanze</h3>
-                            <div id="add-local-form">
-                                <div class="form-group"><label for="local-type-select">Tipo di Stanza</label><select id="local-type-select"><option value="" disabled selected>Seleziona un tipo...</option><option value="Soggiorno">Soggiorno</option><option value="Cucina">Cucina</option><option value="Camera Matrimoniale">Camera Matrimoniale</option><option value="Camera Singola">Camera Singola</option><option value="Bagno">Bagno</option><option value="Studio">Studio</option><option value="Corridoio">Corridoio</option><option value="Ripostiglio">Ripostiglio</option><option value="ALTRO">Altro (Specifica nome)</option></select></div>
-                                <div class="form-group hidden" id="custom-local-name-container"><label for="custom-local-name-input">Nome Personalizzato</label><input type="text" id="custom-local-name-input" placeholder="Es. Taverna"></div>
-                                <div class="form-row">
-                                    <div class="form-group"><label for="local-sqm-input">Metri Quadri (mq)</label><input type="number" id="local-sqm-input" placeholder="25" min="1"></div>
-                                    <div class="form-group"><label for="local-height-input">Altezza (m)</label><input type="number" id="local-height-input" value="2.70" step="0.1" min="1.5"></div>
-                                </div>
-                                <h4 class="form-subtitle">Radiatore per questa stanza</h4>
-                                <div class="form-row">
-                                    <div class="form-group"><label for="radiator-brand">Marca</label><select id="radiator-brand"><option value="IRSAP">IRSAP</option></select></div>
-                                    <div class="form-group"><label for="radiator-model">Modello</label><select id="radiator-model" disabled><option>...</option></select></div>
-                                </div>
-                                <div class="form-group"><label for="radiator-height">Altezza Radiatore</label><select id="radiator-height" disabled><option>Seleziona modello...</option></select></div>
-                                <button id="add-local-btn" class="btn btn-add"><i class="fas fa-plus"></i> Aggiungi Stanza alla Lista</button>
-                            </div>
-                        </div>
-                        <div id="added-locals-container">
-                            <h3 class="section-title">Elenco Stanze Progetto</h3>
-                            <div id="added-locals-list"><p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p></div>
-                        </div>
-                    </div>
-
-                    <!-- Colonna Destra -->
-                    <div class="configurator-col right-col">
-                        <div class="form-section">
-                            <h3 class="section-title">2. Info Abitazione</h3>
-                            <div class="form-group"><label for="habitation-type">Tipologia Edificio</label><select id="habitation-type"><option value="RESIDENZIALE_MODERNO">Residenziale Moderno (Buon Isolamento)</option><option value="RESIDENZIALE_TRADIZIONALE" selected>Residenziale Tradizionale (Isolamento Medio)</option><option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento Scarso)</option><option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option></select></div>
-                        </div>
-                        <div class="configurator-action"><button id="calculate-btn" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcola Preventivo Finale</button></div>
-                        <div id="results-container" class="hidden">
-                            <h2 class="results-main-title">Risultato Configurazione</h2>
-                            <div id="error-message" class="error-box hidden"></div>
-                            <h4>Dettaglio Radiatori per Stanza</h4>
-                            <div class="table-container">
-                                <table>
-                                    <thead><tr><th>Stanza</th><th>Radiatore Scelto</th><th>Fabbisogno (W)</th><th>N. Elementi</th><th>Prezzo Stanza</th></tr></thead>
-                                    <tbody id="results-tbody"></tbody>
-                                </table>
-                            </div>
-                            <div class="totals-summary">
-                                <h3>Preventivo Totale Impianto</h3>
-                                <div class="total-line"><span>Fabbisogno Termico Complessivo:</span><strong id="total-demand">0 W</strong></div>
-                                <div class="total-line price"><span>Prezzo Totale Stimato:</span><strong id="total-price">€ 0,00</strong></div>
-                                <small>I prezzi sono calcolati applicando uno sconto del 40% sul listino.</small>
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group"><label for="edit-esito">Esito Offerta</label>
+                    <select id="edit-esito">
+                        <option value="">-- Seleziona --</option>
+                        <option value="Da definire">Da definire</option>
+                        <option value="Vinta">Vinta</option>
+                        <option value="Persa">Persa</option>
+                    </select>
                 </div>
-            </div>
-        </main>
+                <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note"></textarea></div>
+                <div class="modal-footer">
+                    <button type="button" class="modal-button cancel-btn">Annulla</button>
+                    <button type="submit" class="modal-button" id="update-quote-btn">Salva Modifiche</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- SCRIPTS -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- CONFIGURAZIONE FIREBASE ---
             const firebaseConfig = {
                 apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
                 authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
                 projectId: "consorzio-artigiani-idraulici",
                 storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-                messagingSenderId: "136848104008",
-                appId: "1:136848104008:web:71e2195f1712a832e01b3a"
+                messagingSenderId: "367198758830",
+                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
 
-            if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+            if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+            
             const auth = firebase.auth();
+            const db = firebase.firestore();
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyyBeWhl1rH4flw59NVvNyIFYoVE0cDFlqRfcd0SVWKKAAh4mo0nfJ-O009FpIfUljT/exec';
+            
+            const STATO_OPTIONS = ["Inviato", "Offerta Fornitore", "In Corso"];
+            let allPreventivi = [];
+            let listenersAttached = false;
 
             const ui = {
-                loader: document.getElementById('initial-loader'),
                 loginSection: document.getElementById('login-section'),
                 appContent: document.getElementById('app-content'),
                 loginForm: document.getElementById('login-form'),
-                loginError: document.getElementById('login-error')
+                logoutButton: document.getElementById('logout-button'),
+                addQuoteBtn: document.getElementById('add-quote-btn'),
+                tableBody: document.getElementById('preventivi-table-body'),
+                addModal: document.getElementById('add-quote-modal'),
+                addForm: document.getElementById('add-quote-form'),
+                editModal: document.getElementById('edit-quote-modal'),
+                editForm: document.getElementById('edit-quote-form'),
+                searchInput: document.getElementById('search-input'),
             };
 
-            // --- LAYOUT E AUTENTICAZIONE ---
-
-            function initLayout(user) {
-                // Header
-                const appHeader = document.getElementById('app-header');
-                appHeader.innerHTML = `
-                    <div class="header-user-info">
-                        <span>Benvenuto, <strong>${user.email}</strong></span>
-                        <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                    </div>
-                `;
-                
-                // Sidebar
-                const sidebarMenu = document.getElementById('sidebar-menu');
-                sidebarMenu.innerHTML = `
-                    <li class="active"><a href="#"><i class="fas fa-calculator"></i> Configuratore</a></li>
-                    <li><a href="#"><i class="fas fa-file-invoice"></i> Preventivi</a></li>
-                `;
-
-                document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+            function initializeLogic() {
+                ui.loginForm.addEventListener('submit', handleLogin);
+                auth.onAuthStateChanged(handleAuthStateChange);
+            }
+            
+            function handleLogin(e) {
+                e.preventDefault();
+                const { email, password } = e.target.elements;
+                document.getElementById('login-error').textContent = '';
+                auth.signInWithEmailAndPassword(email.value, password.value).catch(() => {
+                    document.getElementById('login-error').textContent = "Email o password errati.";
+                });
             }
 
             function handleAuthStateChange(user) {
-                ui.loader.classList.add('hidden');
-                if (user) {
-                    ui.loginSection.classList.add('hidden');
-                    ui.appContent.classList.remove('hidden');
-                    initLayout(user);
-                    initConfigurator(); 
-                } else {
-                    ui.loginSection.classList.remove('hidden');
-                    ui.appContent.classList.add('hidden');
-                }
-            }
+                const isLoggedIn = !!user;
+                ui.loginSection.classList.toggle('hidden', isLoggedIn);
+                ui.appContent.classList.toggle('hidden', !isLoggedIn);
+                ui.logoutButton.classList.toggle('hidden', !isLoggedIn);
+                ui.addQuoteBtn.classList.toggle('hidden', !isLoggedIn);
 
-            function handleLogin(e) {
-                e.preventDefault();
-                const email = document.getElementById('email').value;
-                const pass = document.getElementById('password').value;
-                ui.loginError.classList.add('hidden');
-                auth.signInWithEmailAndPassword(email, pass).catch(err => {
-                    ui.loginError.textContent = "Errore: Credenziali non valide.";
-                    ui.loginError.classList.remove('hidden');
-                });
+                if (isLoggedIn) {
+                    fetchPreventivi();
+                    setupAppEventListeners();
+                } else {
+                    listenersAttached = false;
+                }
             }
             
-            // --- LOGICA DEL CONFIGURATORE ---
-            function initConfigurator() {
-                const radiatorCatalog = {
-                    "IRSAP": {
-                        "TESI 2": [{ id: 5, altezza: 565, watt: 40.9, prezzo: 15.9 }, { id: 18, altezza: 1000, watt: 69.2, prezzo: 22.1 },{ id: 19, altezza: 1200, watt: 82.5, prezzo: 26.1 }, { id: 20, altezza: 1500, watt: 103.0, prezzo: 34.8 },{ id: 22, altezza: 1800, watt: 124.3, prezzo: 40.4 }, { id: 24, altezza: 2000, watt: 139.0, prezzo: 43.2 },{ id: 26, altezza: 2200, watt: 154.2, prezzo: 52.6 }, { id: 27, altezza: 2500, watt: 177.8, prezzo: 58.6 }],
-                        "TESI 3": [{ id: 32, altezza: 565, watt: 57.4, prezzo: 17.0 }, { id: 45, altezza: 1000, watt: 96.8, prezzo: 26.7 },{ id: 46, altezza: 1200, watt: 114.8, prezzo: 32.9 }, { id: 47, altezza: 1500, watt: 141.7, prezzo: 44.2 },{ id: 49, altezza: 1800, watt: 168.9, prezzo: 52.6 }, { id: 51, altezza: 2000, watt: 187.2, prezzo: 58.5 },{ id: 53, altezza: 2200, watt: 205.7, prezzo: 68.7 }, { id: 54, altezza: 2500, watt: 233.7, prezzo: 74.9 }],
-                        "TESI 4": [{ id: 59, altezza: 565, watt: 74.8, prezzo: 19.6 }, { id: 72, altezza: 1000, watt: 125.9, prezzo: 31.9 },{ id: 73, altezza: 1200, watt: 148.8, prezzo: 40.3 }, { id: 74, altezza: 1500, watt: 182.6, prezzo: 54.4 },{ id: 76, altezza: 1800, watt: 216.0, prezzo: 65.3 }, { id: 78, altezza: 2000, watt: 238.1, prezzo: 71.6 },{ id: 80, altezza: 2200, watt: 260.0, prezzo: 83.7 }, { id: 81, altezza: 2500, watt: 292.8, prezzo: 91.0 }],
-                        "TESI 5": [{ id: 86, altezza: 565, watt: 90.8, prezzo: 31.0 }, { id: 95, altezza: 1000, watt: 152.4, prezzo: 42.9 },{ id: 96, altezza: 1200, watt: 180.0, prezzo: 51.5 }, { id: 97, altezza: 1500, watt: 220.9, prezzo: 69.2 },{ id: 98, altezza: 1800, watt: 261.3, prezzo: 83.4 }, { id: 99, altezza: 2000, watt: 288.0, prezzo: 92.4 },{ id: 100, altezza: 2200, watt: 317.7, prezzo: 102.8 }, { id: 101, altezza: 2500, watt: 354.5, prezzo: 112.5 }],
-                        "TESI 6": [{ id: 106, altezza: 565, watt: 106.9, prezzo: 36.3 }, { id: 115, altezza: 1000, watt: 178.9, prezzo: 53.2 },{ id: 116, altezza: 1200, watt: 211.2, prezzo: 64.9 }, { id: 117, altezza: 1500, watt: 259.1, prezzo: 84.9 },{ id: 118, altezza: 1800, watt: 306.5, prezzo: 101.9 }, { id: 119, altezza: 2000, watt: 337.9, prezzo: 113.0 },{ id: 120, altezza: 2200, watt: 369.3, prezzo: 122.9 }, { id: 121, altezza: 2500, watt: 416.2, prezzo: 137.0 }]
-                    }
-                };
-                let addedLocals = [];
-                const heatLossCoefficients = { RESIDENZIALE_MODERNO: 30, RESIDENZIALE_TRADIZIONALE: 40, VECCHIO_EDIFICIO: 55, ALTA_EFFICIENZA: 25, };
-                const SCONTO_VENDITA = -0.40;
-
-                const localTypeSelect = document.getElementById('local-type-select');
-                const customNameContainer = document.getElementById('custom-local-name-container');
-                const customNameInput = document.getElementById('custom-local-name-input');
-                const localSqmInput = document.getElementById('local-sqm-input');
-                const localHeightInput = document.getElementById('local-height-input');
-                const addLocalBtn = document.getElementById('add-local-btn');
-                const addedLocalsList = document.getElementById('added-locals-list');
-                const modelSelect = document.getElementById('radiator-model');
-                const heightSelect = document.getElementById('radiator-height');
-                const calculateBtn = document.getElementById('calculate-btn');
-                const resultsContainer = document.getElementById('results-container');
-                const errorDiv = document.getElementById('error-message');
-
-                function populateModels() {
-                    const models = Object.keys(radiatorCatalog.IRSAP);
-                    modelSelect.innerHTML = '<option value="">Seleziona...</option>';
-                    heightSelect.innerHTML = '<option value="">...</option>';
-                    heightSelect.disabled = true;
-                    models.forEach(model => modelSelect.innerHTML += `<option value="${model}">${model}</option>`);
-                    modelSelect.disabled = false;
-                }
-
-                function populateHeights() {
-                    const model = modelSelect.value;
-                    const heights = radiatorCatalog.IRSAP[model] || [];
-                    heightSelect.innerHTML = '<option value="">Seleziona...</option>';
-                    if (model && heights.length > 0) {
-                        heights.forEach(v => heightSelect.innerHTML += `<option value="${v.id}">${v.altezza} mm</option>`);
-                        heightSelect.disabled = false;
-                    } else { heightSelect.disabled = true; }
-                }
-
-                function renderAddedLocals() {
-                    addedLocalsList.innerHTML = addedLocals.length === 0 ? '<p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>' : '';
-                    addedLocals.forEach(local => {
-                        const div = document.createElement('div');
-                        div.className = 'local-item';
-                        div.innerHTML = `<div class="local-item-info"><strong>${local.name} (${local.sqm} mq)</strong><span class="radiator-details">${local.radiatorInfo}</span></div><button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">&times;</button>`;
-                        addedLocalsList.appendChild(div);
-                    });
-                }
-
-                function handleAddLocal() {
-                    let name = localTypeSelect.value;
-                    if (name === 'ALTRO') { name = customNameInput.value.trim(); }
-                    const sqm = parseFloat(localSqmInput.value);
-                    const roomHeight = parseFloat(localHeightInput.value);
-                    const radiatorId = parseInt(heightSelect.value, 10);
-                    const model = modelSelect.value;
-
-                    if (!name || !sqm || !roomHeight) { return alert('Compila tutti i dati della stanza.'); }
-                    if (!model || !radiatorId) { return alert('Seleziona un modello e un\'altezza per il radiatore.'); }
-
-                    const radiator = radiatorCatalog.IRSAP[model].find(r => r.id === radiatorId);
-                    addedLocals.push({ id: Date.now(), name, sqm, roomHeight, radiatorId, model, radiatorInfo: `Radiatore: IRSAP ${model} (H: ${radiator.altezza}mm)` });
-                    renderAddedLocals();
-                    localTypeSelect.value = ''; customNameInput.value = ''; customNameContainer.classList.add('hidden'); localSqmInput.value = ''; modelSelect.value = ''; heightSelect.innerHTML = '<option value="">...</option>'; heightSelect.disabled = true;
-                }
-
-                function handleCalculate() {
-                    errorDiv.classList.add('hidden');
-                    if (addedLocals.length === 0) {
-                        errorDiv.textContent = "Aggiungi almeno una stanza prima di calcolare il preventivo.";
-                        errorDiv.classList.remove('hidden');
-                        resultsContainer.classList.add('hidden');
-                        return;
-                    }
-                    const coefficient = heatLossCoefficients[document.getElementById('habitation-type').value];
-                    let totalDemand = 0, totalPrice = 0;
-                    const resultsTbody = document.getElementById('results-tbody');
-                    resultsTbody.innerHTML = '';
-                    addedLocals.forEach(local => {
-                        const radiator = radiatorCatalog.IRSAP[local.model].find(r => r.id === local.radiatorId);
-                        const demand = local.sqm * local.roomHeight * coefficient;
-                        const neededElements = Math.ceil(demand / radiator.watt);
-                        const roomPrice = neededElements * radiator.prezzo * (1 + SCONTO_VENDITA);
-                        totalDemand += demand; totalPrice += roomPrice;
-                        resultsTbody.innerHTML += `<tr><td>${local.name}</td><td>${local.radiatorInfo.replace('Radiatore: ', '')}</td><td>${demand.toFixed(0)} W</td><td>${neededElements}</td><td>€ ${roomPrice.toFixed(2)}</td></tr>`;
-                    });
-                    document.getElementById('total-demand').textContent = `${totalDemand.toFixed(0)} W`;
-                    document.getElementById('total-price').textContent = `€ ${totalPrice.toFixed(2)}`;
-                    resultsContainer.classList.remove('hidden');
-                }
-
-                localTypeSelect.addEventListener('change', () => { customNameContainer.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO'); if (localTypeSelect.value === 'ALTRO') customNameInput.focus(); });
-                modelSelect.addEventListener('change', populateHeights);
-                addLocalBtn.addEventListener('click', handleAddLocal);
-                calculateBtn.addEventListener('click', handleCalculate);
-                addedLocalsList.addEventListener('click', (e) => {
-                    if (e.target.closest('.remove-local-btn')) {
-                        const idToRemove = parseInt(e.target.closest('.remove-local-btn').dataset.id, 10);
-                        addedLocals = addedLocals.filter(local => local.id !== idToRemove);
-                        renderAddedLocals();
-                    }
+            function setupAppEventListeners() {
+                if (listenersAttached) return;
+                
+                ui.logoutButton.addEventListener('click', () => auth.signOut());
+                ui.addQuoteBtn.addEventListener('click', openAddModal);
+                ui.tableBody.addEventListener('change', handleStatusChange);
+                ui.tableBody.addEventListener('click', handleTableButtonClick);
+                document.querySelectorAll('.close-modal-btn, .cancel-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => e.target.closest('.modal-overlay').classList.remove('visible'));
                 });
+                ui.addForm.addEventListener('submit', handleAddSubmit);
+                ui.editForm.addEventListener('submit', handleEditSubmit);
+                ui.searchInput.addEventListener('input', handleSearch);
 
-                populateModels();
-                renderAddedLocals();
+                listenersAttached = true;
             }
 
-            // --- AVVIO APPLICAZIONE ---
-            ui.loginForm.addEventListener('submit', handleLogin);
-            auth.onAuthStateChanged(handleAuthStateChange);
+            function openAddModal() {
+                ui.addForm.reset();
+                ui.addModal.classList.add('visible');
+            }
+
+            async function handleStatusChange(e) {
+                if (!e.target.classList.contains('status-select')) return;
+                
+                const select = e.target;
+                const newStatus = select.value;
+                const quoteId = select.dataset.id;
+                
+                select.disabled = true;
+                const originalQuote = allPreventivi.find(p => p.id === quoteId);
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update({ stato: newStatus });
+                    
+                    if (originalQuote?.numero) {
+                       const sheetData = { ...originalQuote, stato: newStatus, action: 'update', data: new Date(originalQuote.data.seconds * 1000).toISOString() };
+                       fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(sheetData) }).catch(console.error);
+                    }
+                    if (originalQuote) originalQuote.stato = newStatus;
+                } catch (error) {
+                    alert("Errore nell'aggiornare lo stato.");
+                    select.value = originalQuote.stato;
+                } finally {
+                    select.disabled = false;
+                }
+            }
+
+            function handleTableButtonClick(e) {
+                const button = e.target.closest('.action-btn');
+                if (!button) return;
+                const quote = allPreventivi.find(p => p.id === button.dataset.id);
+                if (!quote) return;
+                
+                if (button.classList.contains('btn-delete')) deleteQuote(quote);
+                else if (button.classList.contains('btn-edit')) openEditModal(quote);
+            }
+
+            function openEditModal(quote) {
+                ui.editForm.reset();
+                const { id, cliente, data, riferimento, numero, stato, esitoOfferta, note } = quote;
+                document.getElementById('edit-quote-id').value = id;
+                document.getElementById('edit-cliente').value = cliente || '';
+                document.getElementById('edit-data').value = data?.seconds ? new Date(data.seconds * 1000).toISOString().split('T')[0] : '';
+                document.getElementById('edit-riferimento').value = riferimento || '';
+                document.getElementById('edit-numero').value = numero || '';
+                
+                const statoSelect = document.getElementById('edit-stato');
+                statoSelect.innerHTML = STATO_OPTIONS.map(opt => `<option value="${opt}" ${stato === opt ? 'selected' : ''}>${opt}</option>`).join('');
+                if(!STATO_OPTIONS.includes(stato)) statoSelect.innerHTML += `<option value="${stato}" selected>${stato}</option>`;
+
+                document.getElementById('edit-esito').value = esitoOfferta || '';
+                document.getElementById('edit-note').value = note || '';
+                ui.editModal.classList.add('visible');
+            }
+            
+            async function deleteQuote(quote) {
+                if (confirm(`Sei sicuro di voler eliminare il preventivo per "${quote.cliente}"?`)) {
+                    try {
+                        await db.collection("preventivi").doc(quote.id).delete();
+                        if (quote.numero) {
+                             fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
+                        }
+                        fetchPreventivi();
+                    } catch (error) {
+                        alert("Errore durante l'eliminazione.");
+                    }
+                }
+            }
+            
+            function fetchPreventivi() {
+                ui.tableBody.innerHTML = `<tr><td colspan="8">Caricamento...</td></tr>`;
+                db.collection("preventivi").orderBy("data", "desc").get().then(snapshot => {
+                      allPreventivi = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                      renderTable(allPreventivi);
+                  });
+            }
+
+            function renderTable(data) {
+                ui.tableBody.innerHTML = '';
+                if(data.length === 0){
+                    ui.tableBody.innerHTML = `<tr><td colspan="8">Nessun preventivo trovato.</td></tr>`;
+                    return;
+                }
+                data.forEach(p => {
+                    const row = ui.tableBody.insertRow();
+                    row.innerHTML = `
+                        <td>${escapeHtml(p.cliente)}</td>
+                        <td>${p.data?.seconds ? new Date(p.data.seconds * 1000).toLocaleDateString('it-IT') : 'N/D'}</td>
+                        <td>${escapeHtml(p.riferimento)}</td>
+                        <td>${escapeHtml(p.numero)}</td>
+                        <td>
+                            <select class="status-select" data-id="${p.id}">
+                                ${STATO_OPTIONS.map(opt => `<option value="${opt}" ${p.stato === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!STATO_OPTIONS.includes(p.stato) ? `<option value="${escapeHtml(p.stato)}" selected>${escapeHtml(p.stato)}</option>` : ''}
+                            </select>
+                        </td>
+                        <td>${escapeHtml(p.esitoOfferta)}</td>
+                        <td>${escapeHtml(p.note)}</td>
+                        <td class="actions-cell">
+                            <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica Completa"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn btn-delete" data-id="${p.id}" title="Elimina"><i class="fas fa-trash"></i></button>
+                        </td>`;
+                });
+            }
+
+            async function handleAddSubmit(e) {
+                e.preventDefault();
+                const saveBtn = e.target.querySelector('button[type="submit"]');
+                saveBtn.disabled = true;
+
+                const dateString = document.getElementById('add-data').value;
+                const quoteDate = dateString ? new Date(dateString + 'T00:00:00') : new Date();
+
+                const quoteData = {
+                    cliente: document.getElementById('add-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('add-riferimento').value.trim(),
+                    numero: document.getElementById('add-numero').value.trim(),
+                    stato: document.getElementById('add-stato').value,
+                    esitoOfferta: document.getElementById('add-esito').value,
+                    note: document.getElementById('add-note').value.trim(),
+                };
+                
+                try {
+                    await db.collection("preventivi").add(quoteData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.addModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    saveBtn.disabled = false;
+                }
+            }
+            
+            async function handleEditSubmit(e) {
+                e.preventDefault();
+                const updateBtn = e.target.querySelector('button[type="submit"]');
+                updateBtn.disabled = true;
+
+                const quoteId = document.getElementById('edit-quote-id').value;
+                const dateString = document.getElementById('edit-data').value;
+                const quoteDate = new Date(dateString + 'T00:00:00');
+
+                const updatedData = {
+                    cliente: document.getElementById('edit-cliente').value.trim(),
+                    data: firebase.firestore.Timestamp.fromDate(quoteDate),
+                    riferimento: document.getElementById('edit-riferimento').value.trim(),
+                    numero: document.getElementById('edit-numero').value.trim(),
+                    stato: document.getElementById('edit-stato').value,
+                    esitoOfferta: document.getElementById('edit-esito').value,
+                    note: document.getElementById('edit-note').value.trim()
+                };
+
+                try {
+                    await db.collection("preventivi").doc(quoteId).update(updatedData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
+                    ui.editModal.classList.remove('visible');
+                    fetchPreventivi();
+                } finally {
+                    updateBtn.disabled = false;
+                }
+            }
+
+            function handleSearch(e) {
+                const term = e.target.value.toLowerCase();
+                const filtered = allPreventivi.filter(p => 
+                    Object.values(p).some(val => String(val).toLowerCase().includes(term))
+                );
+                renderTable(filtered);
+            }
+
+            function escapeHtml(text) {
+                const map = { '&': '&', '<': '<', '>': '>', '"': '"', "'": '"' };
+                return String(text || '').replace(/[&<>"']/g, m => map[m]);
+            }
+            
+            initializeLogic();
         });
     </script>
 </body>
