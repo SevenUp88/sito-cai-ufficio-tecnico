@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configuratore Radiatori - CAI</title>
+    <title>Calcolo Fabbisogno Termico - CAI</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -112,7 +112,7 @@
         }
         .btn-add {
             width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
-            border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 500;
+            border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 500; margin-top: 1rem;
         }
         #empty-state-view {
             text-align: center; padding: 4rem; color: var(--text-muted);
@@ -127,7 +127,12 @@
         }
         .room-result-card h4 { margin: 0 0 0.5rem 0; }
         .room-result-card .meta { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
-        .room-result-card .result-line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 0.4rem 0; border-bottom: 1px solid #f0f0f0; }
+        .watt-result {
+            margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .watt-result span { display: block; font-size: 0.9rem; margin-bottom: 5px; color: var(--text-muted); }
+        .watt-result strong { font-size: 1.8rem; color: var(--primary-color); }
         .remove-btn { position: absolute; top: 10px; right: 10px; cursor: pointer; color: var(--accent-red); }
     </style>
 </head>
@@ -164,7 +169,7 @@
                     <div class="config-grid">
                         <!-- Colonna Sinistra -->
                         <div>
-                            <h3 class="config-title"><i class="fa-solid fa-plus-circle"></i> Nuova Stanza</h3>
+                            <h3 class="config-title"><i class="fa-solid fa-plus-circle"></i> Aggiungi Locale</h3>
                             <div class="form-group"><label>Nome Ambiente</label><select id="room-type" class="form-group"></select></div>
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
                                 <div class="form-group"><label>Superficie (mq)</label><input type="number" id="sqm" class="form-group" placeholder="20"></div>
@@ -172,14 +177,11 @@
                             </div>
                             <div class="form-group"><label>Efficienza Edificio</label><select id="insulation" class="form-group"></select></div>
                             
-                            <h3 class="config-title" style="margin-top:2rem;"><i class="fa-solid fa-ruler-combined"></i> Modello Radiatore</h3>
-                            <div class="form-group"><label>Modello Tesi</label><select id="tesi-model" class="form-group"></select></div>
-                            <div class="form-group"><label>Altezza</label><select id="radiator-h" class="form-group"></select></div>
-                            <button id="add-room-btn" class="btn-add">Aggiungi Stanza <i class="fa-solid fa-arrow-right"></i></button>
+                            <button id="add-room-btn" class="btn-add">Aggiungi e Calcola Watt <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
                         <!-- Colonna Destra -->
                         <div>
-                            <h3 class="config-title"><i class="fa-solid fa-layer-group"></i> Riepilogo Progetto</h3>
+                            <h3 class="config-title"><i class="fa-solid fa-layer-group"></i> Riepilogo Fabbisogno</h3>
                             <div id="empty-state-view"><p>Nessuna stanza aggiunta.</p></div>
                             <div id="results-view"><div id="room-cards-list"></div></div>
                         </div>
@@ -197,47 +199,33 @@
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
             
-            // Funzione centralizzata per creare il layout (sidebar e header)
             function initLayout(pageTitle, user) {
                 const topBar = document.getElementById('top-bar');
-                topBar.innerHTML = `
-                    <h2>${pageTitle}</h2>
-                    <div class="user-profile-info">
-                        <div class="user-details">
-                            <span class="welcome-text">Utente</span>
-                            <span class="user-email">${user.email}</span>
-                        </div>
-                        <div class="user-avatar">${user.email.charAt(0).toUpperCase()}</div>
-                    </div>
-                `;
-
+                topBar.innerHTML = `<h2>${pageTitle}</h2><div class="user-profile-info"><div class="user-details"><span class="welcome-text">Utente</span><span class="user-email">${user.email}</span></div><div class="user-avatar">${user.email.charAt(0).toUpperCase()}</div></div>`;
                 const sidebarMenu = document.getElementById('sidebar-menu');
                 sidebarMenu.innerHTML = `
                     <li><a href="/" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-handshake"></i><span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a></li>
-                    <li><a href="#" class="nav-link"><i class="fa-solid fa-file-invoice"></i><span>Preventivazione</span></a></li>
+                    <li><a href="preventivi.html" class="nav-link"><i class="fa-solid fa-file-invoice"></i><span>Preventivazione</span></a></li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-list"></i><span>Listini</span><i class="fas fa-chevron-right arrow"></i></a></li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-file-alt"></i><span>Schede Tecniche</span></a></li>
                     <li>
-                        <a href="#" class="nav-link active" aria-expanded="true">
-                            <i class="fa-solid fa-gears"></i><span>Configuratori</span><i class="fas fa-chevron-right arrow"></i>
-                        </a>
-                        <ul class="submenu-list visible">
-                            <li><a href="#" class="sub-active">Calcolo Radiatori</a></li>
-                        </ul>
+                        <a href="#" class="nav-link active" aria-expanded="true"><i class="fa-solid fa-gears"></i><span>Configuratori</span><i class="fas fa-chevron-right arrow"></i></a>
+                        <ul class="submenu-list visible"><li><a href="#" class="sub-active">Calcolo Fabbisogno</a></li></ul>
                     </li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-pen-to-square"></i><span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a></li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-tags"></i><span>Scontistiche</span></a></li>
                     <li><a href="#" class="nav-link"><i class="fa-solid fa-calendar-alt"></i><span>Agenda Consegne</span></a></li>
                 `;
-
                 sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
                     if (link.querySelector('.arrow')) {
                         link.addEventListener('click', e => {
                             e.preventDefault();
                             const submenu = link.nextElementSibling;
-                            submenu.classList.toggle('visible');
-                            link.setAttribute('aria-expanded', submenu.classList.contains('visible'));
+                            if (submenu) {
+                                submenu.classList.toggle('visible');
+                                link.setAttribute('aria-expanded', submenu.classList.contains('visible'));
+                            }
                         });
                     }
                 });
@@ -248,8 +236,8 @@
                 if (user) {
                     document.getElementById('app-content').classList.remove('hidden');
                     document.getElementById('login-section').classList.add('hidden');
-                    initLayout("Configuratore Radiatori", user); // Crea il layout
-                    runConfiguratorApp(); // Avvia la logica specifica della pagina
+                    initLayout("Calcolo Fabbisogno Termico", user);
+                    runConfiguratorApp();
                 } else {
                     document.getElementById('app-content').classList.add('hidden');
                     document.getElementById('login-section').classList.remove('hidden');
@@ -258,24 +246,15 @@
 
             document.getElementById('login-form').addEventListener('submit', e => {
                 e.preventDefault();
-                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
-                    .catch(err => alert("Credenziali errate: " + err.message));
+                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(err => alert(err.message));
             });
         });
 
         function runConfiguratorApp() {
-            const radiatorCatalog = {
-                "TESI 2": [{ id: 5, h: 565, w: 40.9 }, { id: 18, h: 1000, w: 69.2 }, { id: 22, h: 1800, w: 124.3 }],
-                "TESI 3": [{ id: 32, h: 565, w: 57.4 }, { id: 45, h: 1000, w: 96.8 }, { id: 49, h: 1800, w: 168.9 }],
-                "TESI 4": [{ id: 59, h: 565, w: 74.8 }, { id: 72, h: 1000, w: 125.9 }, { id: 76, h: 1800, w: 216.0 }],
-            };
             let projectRooms = [];
-
             const ui = {
                 roomType: document.getElementById('room-type'),
                 insulation: document.getElementById('insulation'),
-                tesiModel: document.getElementById('tesi-model'),
-                radiatorH: document.getElementById('radiator-h'),
                 addBtn: document.getElementById('add-room-btn'),
                 sqmInput: document.getElementById('sqm'),
                 heightInput: document.getElementById('height'),
@@ -284,31 +263,24 @@
                 cardsList: document.getElementById('room-cards-list'),
             };
 
-            // Popola i menu a tendina
-            ui.roomType.innerHTML = ['Soggiorno', 'Cucina', 'Camera', 'Bagno', 'Studio'].map(o => `<option>${o}</option>`).join('');
+            ui.roomType.innerHTML = ['Soggiorno', 'Cucina', 'Camera', 'Bagno', 'Studio', 'Corridoio'].map(o => `<option>${o}</option>`).join('');
             ui.insulation.innerHTML = `<option value="30">Buono (30W/mc)</option><option value="40" selected>Medio (40W/mc)</option><option value="55">Scarso (55W/mc)</option>`;
-            ui.tesiModel.innerHTML = Object.keys(radiatorCatalog).map(m => `<option value="${m}">${m} (${m.split(' ')[1]} Colonne)</option>`).join('');
 
-            const updateHeights = () => {
-                ui.radiatorH.innerHTML = radiatorCatalog[ui.tesiModel.value].map(item => `<option value="${item.id}">${item.h} mm</option>`).join('');
-            };
-            
             const addRoom = () => {
                 const roomData = {
                     type: ui.roomType.value, sqm: parseFloat(ui.sqmInput.value), h: parseFloat(ui.heightInput.value),
-                    coeff: parseInt(ui.insulation.value), radiatorModel: ui.tesiModel.value, radiatorId: parseInt(ui.radiatorH.value)
+                    coeff: parseInt(ui.insulation.value)
                 };
                 if (!roomData.sqm || !roomData.h) { alert("Inserire superficie e altezza."); return; }
                 
-                const spec = radiatorCatalog[roomData.radiatorModel].find(r => r.id === roomData.radiatorId);
                 const demand = Math.ceil(roomData.sqm * roomData.h * roomData.coeff);
-                projectRooms.push({ id: Date.now(), ...roomData, radiatorH: spec.h, demand, elements: Math.ceil(demand / spec.w) });
+                projectRooms.push({ id: Date.now(), ...roomData, demand });
                 renderResults();
                 ui.sqmInput.value = '';
             };
 
             const removeRoom = (id) => { projectRooms = projectRooms.filter(r => r.id !== id); renderResults(); };
-            window.removeRoom = removeRoom; // Rende la funzione accessibile dall'HTML
+            window.removeRoom = removeRoom;
 
             const renderResults = () => {
                 if (projectRooms.length === 0) {
@@ -319,18 +291,16 @@
                         <div class="room-result-card">
                             <i class="fa-solid fa-times remove-btn" onclick="removeRoom(${room.id})"></i>
                             <h4>${room.type}</h4>
-                            <div class="meta">${room.sqm} mq / ${room.radiatorModel} H${room.radiatorH}</div>
-                            <div class="result-line"><span>Fabbisogno Termico</span><strong>${room.demand} W</strong></div>
-                            <div class="result-line"><span>Elementi necessari</span><strong>${room.elements}</strong></div>
+                            <div class="meta">${room.sqm} mq | Altezza ${room.h}m</div>
+                            <div class="watt-result">
+                                <span>Fabbisogno Richiesto</span>
+                                <strong>${room.demand} W</strong>
+                            </div>
                         </div>`).join('');
                 }
             };
             
-            ui.tesiModel.addEventListener('change', updateHeights);
             ui.addBtn.addEventListener('click', addRoom);
-            
-            // Setup iniziale
-            updateHeights();
             renderResults();
         }
     </script>
