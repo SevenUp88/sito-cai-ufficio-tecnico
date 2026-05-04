@@ -26,7 +26,7 @@
         .login-card h2 { margin-bottom: 25px; color: #333; }
         .form-group { margin-bottom: 15px; text-align: left; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #555; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; box-sizing: border-box; }
         .btn-login { background-color: #0056a8; color: white; border: none; padding: 12px 20px; font-size: 1rem; border-radius: 5px; cursor: pointer; width: 100%; transition: background-color 0.3s; }
         .btn-login:hover { background-color: #004182; }
         .btn-logout { background-color: #dc3545; color: white; border: none; padding: 8px 15px; font-size: 0.9rem; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; }
@@ -47,19 +47,45 @@
         .btn-edit { color: #0056a8; }
         .btn-delete { color: #dc3545; }
 
-        /* Modali */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; }
+        /* --- MODIFICHE AL MODALE --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 25px 30px; border-radius: 8px; width: 90%; max-width: 550px; transform: scale(0.95); transition: transform 0.3s ease; }
+        
+        .modal-content { 
+            background: white; padding: 0; border-radius: 8px; 
+            width: 100%; max-width: 700px; /* Aumentata la larghezza per il layout a 2 colonne */
+            transform: scale(0.95); transition: transform 0.3s ease;
+            display: flex; flex-direction: column;
+            max-height: 90vh; /* Altezza massima per evitare che esca dallo schermo */
+        }
         .modal-overlay.visible .modal-content { transform: scale(1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 20px; }
-        .modal-header h2 { color: #0056a8; }
-        .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: #6c757d; }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+        
+        .modal-header { padding: 20px 30px; border-bottom: 1px solid #dee2e6; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { color: #0056a8; margin: 0; }
+        .close-modal-btn { background: none; border: none; font-size: 1.8em; cursor: pointer; color: #6c757d; padding: 0; line-height: 1; }
+
+        .modal-body { 
+            padding: 20px 30px; 
+            overflow-y: auto; /* Aggiunge lo scroll verticale se il contenuto è troppo */
+        }
+
+        .modal-footer { padding: 15px 30px; border-top: 1px solid #dee2e6; flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; background-color: #f9f9f9; }
         .modal-button { padding: 10px 20px; border-radius: 4px; border: none; font-weight: 500; cursor: pointer; }
         .btn-save { background-color: #0056a8; color: white; }
         .btn-cancel { background-color: #f1f1f1; border: 1px solid #ccc;}
 
+        /* Layout a griglia per i campi del form */
+        .form-grid {
+            display: grid;
+            gap: 15px 20px; /* Spazio verticale e orizzontale */
+        }
+
+        /* Su schermi più larghi di 576px, usa due colonne */
+        @media (min-width: 576px) {
+            .form-grid {
+                grid-template-columns: 1fr 1fr; /* Due colonne di uguale larghezza */
+            }
+        }
     </style>
 </head>
 <body>
@@ -86,17 +112,13 @@
     <!-- APP CONTENT -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
-        <!-- SIDEBAR -->
         <nav class="sidebar">
             <div class="sidebar-brand"><a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo"></a></div>
-            <ul class="sidebar-menu"></ul> <!-- Gestito da components.js -->
+            <ul class="sidebar-menu"></ul>
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
-        <!-- MAIN CONTENT -->
         <main class="main-content">
-            <!-- HEADER (generato da components.js) -->
-
             <div class="content-container">
                 <div class="dashboard-card">
                     <h2 style="margin-bottom:20px; color:#0056a8;">Gestione Preventivi</h2>
@@ -121,9 +143,7 @@
                                     <th>AZIONI</th>
                                 </tr>
                             </thead>
-                            <tbody id="preventivi-table-body">
-                                <!-- Popolato via JS -->
-                            </tbody>
+                            <tbody id="preventivi-table-body"></tbody>
                         </table>
                     </div>
                 </div>
@@ -139,19 +159,23 @@
                 <button class="close-modal-btn">×</button>
             </div>
             <form id="add-quote-form" novalidate>
-                <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
-                <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
-                <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
-                <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
-                <div class="form-group"><label for="add-importo">Importo (€)</label><input type="number" step="0.01" id="add-importo" placeholder="0.00"></div>
-                <div class="form-group"><label for="add-stato">Stato</label>
-                    <select id="add-stato" required>
-                        <option value="Inviato">Inviato</option>
-                        <option value="Offerta Fornitore">Offerta Fornitore</option>
-                        <option value="In Corso">In Corso</option>
-                    </select>
+                <div class="modal-body">
+                    <div class="form-grid">
+                        <div class="form-group"><label for="add-cliente">Cliente</label><input type="text" id="add-cliente" required></div>
+                        <div class="form-group"><label for="add-data">Data Preventivo (lasciare vuoto per oggi)</label><input type="date" id="add-data"></div>
+                        <div class="form-group"><label for="add-riferimento">Riferimento</label><input type="text" id="add-riferimento"></div>
+                        <div class="form-group"><label for="add-numero">Numero Preventivo</label><input type="text" id="add-numero"></div>
+                        <div class="form-group"><label for="add-importo">Importo (€)</label><input type="number" step="0.01" id="add-importo" placeholder="0.00"></div>
+                        <div class="form-group"><label for="add-stato">Stato</label>
+                            <select id="add-stato" required>
+                                <option value="Inviato">Inviato</option>
+                                <option value="Offerta Fornitore">Offerta Fornitore</option>
+                                <option value="In Corso">In Corso</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label for="add-note">Note</label><textarea id="add-note" rows="4"></textarea></div>
                 </div>
-                <div class="form-group"><label for="add-note">Note</label><textarea id="add-note" rows="3"></textarea></div>
                 <div class="modal-footer">
                     <button type="button" class="modal-button btn-cancel">Annulla</button>
                     <button type="submit" class="modal-button btn-save">Salva</button>
@@ -168,16 +192,20 @@
                 <button class="close-modal-btn">×</button>
             </div>
             <form id="edit-quote-form" novalidate>
-                <input type="hidden" id="edit-quote-id">
-                <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
-                <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
-                <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
-                <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
-                <div class="form-group"><label for="edit-importo">Importo (€)</label><input type="number" step="0.01" id="edit-importo" placeholder="0.00"></div>
-                <div class="form-group"><label for="edit-stato">Stato</label>
-                    <select id="edit-stato" required></select>
+                 <div class="modal-body">
+                    <input type="hidden" id="edit-quote-id">
+                    <div class="form-grid">
+                        <div class="form-group"><label for="edit-cliente">Cliente</label><input type="text" id="edit-cliente" required></div>
+                        <div class="form-group"><label for="edit-data">Data Preventivo</label><input type="date" id="edit-data" required></div>
+                        <div class="form-group"><label for="edit-riferimento">Riferimento</label><input type="text" id="edit-riferimento"></div>
+                        <div class="form-group"><label for="edit-numero">Numero Preventivo</label><input type="text" id="edit-numero"></div>
+                        <div class="form-group"><label for="edit-importo">Importo (€)</label><input type="number" step="0.01" id="edit-importo" placeholder="0.00"></div>
+                        <div class="form-group"><label for="edit-stato">Stato</label>
+                            <select id="edit-stato" required></select>
+                        </div>
+                    </div>
+                    <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note" rows="4"></textarea></div>
                 </div>
-                <div class="form-group"><label for="edit-note">Note</label><textarea id="edit-note" rows="3"></textarea></div>
                 <div class="modal-footer">
                     <button type="button" class="modal-button btn-cancel">Annulla</button>
                     <button type="submit" class="modal-button btn-save">Salva Modifiche</button>
@@ -201,8 +229,8 @@
                 authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
                 projectId: "consorzio-artigiani-idraulici",
                 storageBucket: "consorzio-artigiani-idraulici.appspot.com",
-                messagingSenderId: "367198758830", // Assicurati che sia corretto se diverso dall'altro file
-                appId: "1:367198758830:web:71e2195f1712a832e01b3a" // Assicurati che sia corretto
+                messagingSenderId: "367198758830",
+                appId: "1:367198758830:web:71e2195f1712a832e01b3a"
             };
 
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
@@ -228,7 +256,6 @@
                 searchInput: document.getElementById('search-input'),
             };
 
-            // --- INIZIALIZZA LAYOUT ---
             initLayout("Elenco Preventivi");
 
             auth.onAuthStateChanged(handleAuthStateChange);
@@ -304,7 +331,6 @@
                         if (quote.numero) {
                              fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'delete', numero: quote.numero }) }).catch(console.error);
                         }
-                        fetchPreventivi();
                     } catch (error) {
                         alert("Errore durante l'eliminazione.");
                     }
@@ -334,7 +360,7 @@
                         <td>${escapeHtml(p.riferimento)}</td>
                         <td>${escapeHtml(p.numero)}</td>
                         <td>${escapeHtml(p.stato)}</td>
-                        <td style="max-width: 200px; white-space: pre-wrap;">${escapeHtml(p.note)}</td>
+                        <td style="max-width: 200px; white-space: pre-wrap; word-break: break-word;">${escapeHtml(p.note)}</td>
                         <td style="font-weight:bold; color:#0056a8;">${(p.importo || 0).toLocaleString('it-IT', {style:'currency', currency:'EUR'})}</td>
                         <td class="actions-cell">
                             <button class="action-btn btn-edit" data-id="${p.id}" title="Modifica"><i class="fas fa-edit"></i></button>
@@ -363,9 +389,8 @@
                 };
                 
                 try {
-                    await db.collection("preventivi").add(quoteData);
-                    // Sincronizzazione con Google Sheets
-                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
+                    const docRef = await db.collection("preventivi").add(quoteData);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...quoteData, id: docRef.id, action: 'add', data: quoteDate.toISOString() }) }).catch(console.error);
                     ui.addModal.classList.remove('visible');
                 } catch(err) {
                     console.error("Errore salvataggio:", err);
@@ -396,8 +421,7 @@
 
                 try {
                     await db.collection("preventivi").doc(quoteId).update(updatedData);
-                    // Sincronizzazione con Google Sheets
-                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
+                    fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ ...updatedData, id: quoteId, action: 'update', data: quoteDate.toISOString() }) }).catch(console.error);
                     ui.editModal.classList.remove('visible');
                 } catch(err) {
                     console.error("Errore aggiornamento:", err);
@@ -409,15 +433,8 @@
 
             function handleSearch(e) {
                 const term = e.target.value.toLowerCase();
-                if (!term) {
-                    renderTable(allPreventivi);
-                    return;
-                }
                 const filtered = allPreventivi.filter(p => 
-                    (p.cliente || '').toLowerCase().includes(term) ||
-                    (p.riferimento || '').toLowerCase().includes(term) ||
-                    (p.numero || '').toLowerCase().includes(term) ||
-                    (p.note || '').toLowerCase().includes(term)
+                    Object.values(p).some(val => String(val).toLowerCase().includes(term))
                 );
                 renderTable(filtered);
             }
@@ -427,7 +444,6 @@
                 return String(text || '').replace(/[&<>"']/g, m => map[m]);
             }
             
-            // Inizializzazione Logica dopo il DOMContentLoaded
             if(ui.loginForm) ui.loginForm.addEventListener('submit', handleLogin);
         });
     </script>
