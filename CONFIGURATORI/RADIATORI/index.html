@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Configuratore Radiatori</title>
+    <title>Configuratore Radiatori - CAI</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+    
     <style>
-        /* Contenuto ESATTO del tuo file style (1).css */
+        /* CSS Unificato basato sul tuo file Preventivi e style.css */
         :root {
             --primary-color: #0056a8; --primary-dark: #004485; --accent-red: #d71920;
             --sidebar-width: 260px; --header-height: 70px; --bg-body: #f4f6f9;
@@ -40,7 +40,6 @@
             width: 100%; max-width: 400px; text-align: center;
         }
         .login-logo { max-width: 180px; margin-bottom: 20px; }
-        .login-card h2 { color: var(--primary-color); margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9em; }
         .form-group input, .form-group select {
@@ -50,7 +49,6 @@
             width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
             border: none; border-radius: 6px; font-size: 1rem; cursor: pointer; font-weight: 500;
         }
-        .error-message { color: var(--accent-red); font-size: 0.9em; margin-top: 10px; }
         
         .dashboard-wrapper { display: flex; height: 100vh; width: 100%; }
         .sidebar {
@@ -84,7 +82,6 @@
             color: var(--text-muted); text-decoration: none; font-size: 0.9rem;
         }
         .submenu-list li a:hover, .submenu-list li a.sub-active { color: var(--primary-color); background-color: #e6f1ff; }
-        
         .sidebar-footer { padding: 15px; text-align: center; font-size: 0.8rem; color: #aaa; border-top: 1px solid #eee; }
 
         .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -107,7 +104,7 @@
         .dashboard-card { background: var(--white); border-radius: 8px; padding: 30px; box-shadow: var(--shadow-soft); }
 
         /* STILI SPECIFICI PAGINA */
-        .config-grid { display: grid; grid-template-columns: 450px 1fr; gap: 2rem; }
+        .config-grid { display: grid; grid-template-columns: 450px 1fr; gap: 30px; }
         .config-title {
             font-size: 1.1rem; font-weight: 600; color: var(--primary-color); margin: 0 0 1.5rem 0;
             padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-color);
@@ -136,7 +133,7 @@
 </head>
 <body>
 
-    <div id="loader" class="loader-container"><div class="loader-spinner"></div></div>
+    <div id="initial-loader" class="loader-container"><div class="loader-spinner"></div></div>
 
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
@@ -153,35 +150,14 @@
     <div id="app-content" class="dashboard-wrapper hidden">
         <nav class="sidebar">
             <div class="sidebar-brand">
-                <a href="index.html"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
+                <a href="/"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
-            <ul class="sidebar-menu">
-                <li><a href="index.html" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
-                <li>
-                    <a href="#" class="nav-link active" aria-expanded="true">
-                        <i class="fa-solid fa-calculator"></i><span>Configuratori</span><i class="fas fa-chevron-right arrow"></i>
-                    </a>
-                    <ul class="submenu-list visible">
-                        <li><a href="#" class="sub-active">Calcolo Radiatori</a></li>
-                    </ul>
-                </li>
-                <li><a href="#" class="nav-link"><i class="fa-solid fa-file-invoice"></i><span>Preventivazione</span></a></li>
-                <li><a href="#" class="nav-link"><i class="fa-solid fa-calendar-alt"></i><span>Agenda Consegne</span></a></li>
-            </ul>
+            <ul id="sidebar-menu" class="sidebar-menu"></ul>
             <div class="sidebar-footer">&copy; 2025 CAI Solutions</div>
         </nav>
 
         <main class="main-content">
-            <header class="top-bar">
-                <h2>Configuratore Fabbisogno Termico</h2>
-                <div class="user-profile-info">
-                    <div class="user-details">
-                        <span class="welcome-text">Utente</span>
-                        <span class="user-email" id="user-email-display"></span>
-                    </div>
-                    <div class="user-avatar" id="user-avatar"></div>
-                </div>
-            </header>
+            <header id="top-bar" class="top-bar"></header>
 
             <div class="content-container">
                 <div class="dashboard-card">
@@ -220,81 +196,126 @@
             const firebaseConfig = { apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y", authDomain: "consorzio-artigiani-idraulici.firebaseapp.com", projectId: "consorzio-artigiani-idraulici" };
             if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             const auth = firebase.auth();
+            
+            // Funzione centralizzata per creare il layout (sidebar e header)
+            function initLayout(pageTitle, user) {
+                const topBar = document.getElementById('top-bar');
+                topBar.innerHTML = `
+                    <h2>${pageTitle}</h2>
+                    <div class="user-profile-info">
+                        <div class="user-details">
+                            <span class="welcome-text">Utente</span>
+                            <span class="user-email">${user.email}</span>
+                        </div>
+                        <div class="user-avatar">${user.email.charAt(0).toUpperCase()}</div>
+                    </div>
+                `;
+
+                const sidebarMenu = document.getElementById('sidebar-menu');
+                sidebarMenu.innerHTML = `
+                    <li><a href="/" class="nav-link"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-handshake"></i><span>Noleggi</span><i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-file-invoice"></i><span>Preventivazione</span></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-list"></i><span>Listini</span><i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-file-alt"></i><span>Schede Tecniche</span></a></li>
+                    <li>
+                        <a href="#" class="nav-link active" aria-expanded="true">
+                            <i class="fa-solid fa-gears"></i><span>Configuratori</span><i class="fas fa-chevron-right arrow"></i>
+                        </a>
+                        <ul class="submenu-list visible">
+                            <li><a href="#" class="sub-active">Calcolo Radiatori</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-pen-to-square"></i><span>Modulo FGAS</span><i class="fas fa-chevron-right arrow"></i></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-tags"></i><span>Scontistiche</span></a></li>
+                    <li><a href="#" class="nav-link"><i class="fa-solid fa-calendar-alt"></i><span>Agenda Consegne</span></a></li>
+                `;
+
+                sidebarMenu.querySelectorAll('.nav-link').forEach(link => {
+                    if (link.querySelector('.arrow')) {
+                        link.addEventListener('click', e => {
+                            e.preventDefault();
+                            const submenu = link.nextElementSibling;
+                            submenu.classList.toggle('visible');
+                            link.setAttribute('aria-expanded', submenu.classList.contains('visible'));
+                        });
+                    }
+                });
+            }
 
             auth.onAuthStateChanged(user => {
-                document.getElementById('loader').classList.add('hidden');
-                const app = document.getElementById('app-content');
-                const login = document.getElementById('login-section');
+                document.getElementById('initial-loader').classList.add('hidden');
                 if (user) {
-                    app.classList.remove('hidden');
-                    login.classList.add('hidden');
-                    document.getElementById('user-email-display').textContent = user.email;
-                    document.getElementById('user-avatar').textContent = user.email.charAt(0).toUpperCase();
-                    runApp();
+                    document.getElementById('app-content').classList.remove('hidden');
+                    document.getElementById('login-section').classList.add('hidden');
+                    initLayout("Configuratore Radiatori", user); // Crea il layout
+                    runConfiguratorApp(); // Avvia la logica specifica della pagina
                 } else {
-                    app.classList.add('hidden');
-                    login.classList.remove('hidden');
+                    document.getElementById('app-content').classList.add('hidden');
+                    document.getElementById('login-section').classList.remove('hidden');
                 }
             });
 
             document.getElementById('login-form').addEventListener('submit', e => {
                 e.preventDefault();
-                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value).catch(err => alert(err.message));
+                auth.signInWithEmailAndPassword(document.getElementById('email').value, document.getElementById('password').value)
+                    .catch(err => alert("Credenziali errate: " + err.message));
             });
         });
 
-        function runApp() {
-            // Logica per far funzionare il menu a tendina laterale
-            document.querySelectorAll('.sidebar-menu .nav-link').forEach(link => {
-                const submenu = link.nextElementSibling;
-                if (submenu && submenu.classList.contains('submenu-list')) {
-                    link.addEventListener('click', e => {
-                        e.preventDefault();
-                        submenu.classList.toggle('visible');
-                        link.setAttribute('aria-expanded', submenu.classList.contains('visible'));
-                    });
-                }
-            });
-
-            // Logica del calcolatore
+        function runConfiguratorApp() {
             const radiatorCatalog = {
-                "TESI 2": [{ id: 5, h: 565, w: 40.9 }, { id: 18, h: 1000, w: 69.2 }],
-                "TESI 3": [{ id: 32, h: 565, w: 57.4 }, { id: 45, h: 1000, w: 96.8 }],
-                "TESI 4": [{ id: 59, h: 565, w: 74.8 }, { id: 72, h: 1000, w: 125.9 }],
+                "TESI 2": [{ id: 5, h: 565, w: 40.9 }, { id: 18, h: 1000, w: 69.2 }, { id: 22, h: 1800, w: 124.3 }],
+                "TESI 3": [{ id: 32, h: 565, w: 57.4 }, { id: 45, h: 1000, w: 96.8 }, { id: 49, h: 1800, w: 168.9 }],
+                "TESI 4": [{ id: 59, h: 565, w: 74.8 }, { id: 72, h: 1000, w: 125.9 }, { id: 76, h: 1800, w: 216.0 }],
             };
             let projectRooms = [];
 
-            const roomTypeSelect = document.getElementById('room-type');
-            roomTypeSelect.innerHTML = ['Soggiorno', 'Cucina', 'Camera', 'Bagno', 'Studio'].map(o => `<option>${o}</option>`).join('');
-            const insulationSelect = document.getElementById('insulation');
-            insulationSelect.innerHTML = `<option value="30">Buono (30W/mc)</option><option value="40" selected>Medio (40W/mc)</option><option value="55">Scarso (55W/mc)</option>`;
-            const modelSelect = document.getElementById('tesi-model');
-            modelSelect.innerHTML = Object.keys(radiatorCatalog).map(m => `<option value="${m}">${m} (${m.split(' ')[1]} Colonne)</option>`).join('');
-            const hSelect = document.getElementById('radiator-h');
+            const ui = {
+                roomType: document.getElementById('room-type'),
+                insulation: document.getElementById('insulation'),
+                tesiModel: document.getElementById('tesi-model'),
+                radiatorH: document.getElementById('radiator-h'),
+                addBtn: document.getElementById('add-room-btn'),
+                sqmInput: document.getElementById('sqm'),
+                heightInput: document.getElementById('height'),
+                emptyState: document.getElementById('empty-state-view'),
+                resultsView: document.getElementById('results-view'),
+                cardsList: document.getElementById('room-cards-list'),
+            };
+
+            // Popola i menu a tendina
+            ui.roomType.innerHTML = ['Soggiorno', 'Cucina', 'Camera', 'Bagno', 'Studio'].map(o => `<option>${o}</option>`).join('');
+            ui.insulation.innerHTML = `<option value="30">Buono (30W/mc)</option><option value="40" selected>Medio (40W/mc)</option><option value="55">Scarso (55W/mc)</option>`;
+            ui.tesiModel.innerHTML = Object.keys(radiatorCatalog).map(m => `<option value="${m}">${m} (${m.split(' ')[1]} Colonne)</option>`).join('');
 
             const updateHeights = () => {
-                hSelect.innerHTML = radiatorCatalog[modelSelect.value].map(item => `<option value="${item.id}">${item.h} mm</option>`).join('');
+                ui.radiatorH.innerHTML = radiatorCatalog[ui.tesiModel.value].map(item => `<option value="${item.id}">${item.h} mm</option>`).join('');
             };
             
             const addRoom = () => {
-                const roomData = { type: roomTypeSelect.value, sqm: parseFloat(document.getElementById('sqm').value), h: parseFloat(document.getElementById('height').value), coeff: parseInt(insulationSelect.value), radiatorModel: modelSelect.value, radiatorId: parseInt(hSelect.value) };
+                const roomData = {
+                    type: ui.roomType.value, sqm: parseFloat(ui.sqmInput.value), h: parseFloat(ui.heightInput.value),
+                    coeff: parseInt(ui.insulation.value), radiatorModel: ui.tesiModel.value, radiatorId: parseInt(ui.radiatorH.value)
+                };
                 if (!roomData.sqm || !roomData.h) { alert("Inserire superficie e altezza."); return; }
+                
                 const spec = radiatorCatalog[roomData.radiatorModel].find(r => r.id === roomData.radiatorId);
                 const demand = Math.ceil(roomData.sqm * roomData.h * roomData.coeff);
                 projectRooms.push({ id: Date.now(), ...roomData, radiatorH: spec.h, demand, elements: Math.ceil(demand / spec.w) });
                 renderResults();
-                document.getElementById('sqm').value = '';
+                ui.sqmInput.value = '';
             };
 
             const removeRoom = (id) => { projectRooms = projectRooms.filter(r => r.id !== id); renderResults(); };
-            window.removeRoom = removeRoom;
+            window.removeRoom = removeRoom; // Rende la funzione accessibile dall'HTML
 
             const renderResults = () => {
-                const empty = document.getElementById('empty-state-view'), results = document.getElementById('results-view'), list = document.getElementById('room-cards-list');
-                if (projectRooms.length === 0) { empty.style.display = 'flex'; results.style.display = 'none'; }
-                else {
-                    empty.style.display = 'none'; results.style.display = 'block';
-                    list.innerHTML = projectRooms.map(room => `
+                if (projectRooms.length === 0) {
+                    ui.emptyState.style.display = 'flex'; ui.resultsView.style.display = 'none';
+                } else {
+                    ui.emptyState.style.display = 'none'; ui.resultsView.style.display = 'block';
+                    ui.cardsList.innerHTML = projectRooms.map(room => `
                         <div class="room-result-card">
                             <i class="fa-solid fa-times remove-btn" onclick="removeRoom(${room.id})"></i>
                             <h4>${room.type}</h4>
@@ -305,9 +326,12 @@
                 }
             };
             
-            modelSelect.addEventListener('change', updateHeights);
-            document.getElementById('add-room-btn').addEventListener('click', addRoom);
-            updateHeights(); renderResults();
+            ui.tesiModel.addEventListener('change', updateHeights);
+            ui.addBtn.addEventListener('click', addRoom);
+            
+            // Setup iniziale
+            updateHeights();
+            renderResults();
         }
     </script>
 </body>
