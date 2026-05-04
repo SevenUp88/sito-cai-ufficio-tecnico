@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAI - Configuratore Radiatori</title>
-    <!-- Font e Icone -->
+    <title>CAI - Configuratore Avanzato Radiatori</title>
+    
+    <!-- Font & Icone -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <style>
-        /* --- VARIABILI GLOBALI E RESET --- */
+        /* --- VARIABILI GLOBALI (Stesso stile del sito) --- */
         :root {
             --primary-color: #005A9C;
             --primary-light: #E6F0F8;
@@ -22,10 +23,12 @@
             --text-secondary: #64748b;
             --border-color: #e2e8f0;
             --danger-color: #ef4444;
+            --success-color: #10b981;
             --font-family: 'Inter', sans-serif;
             --radius: 8px;
             --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.07);
         }
+
         * { box-sizing: border-box; }
         body {
             font-family: var(--font-family);
@@ -49,23 +52,23 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- PAGINA DI LOGIN --- */
+        /* --- LOGIN --- */
         .login-centered { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
         .login-card {
             background: var(--card-background); padding: 2.5rem; border-radius: var(--radius);
             box-shadow: var(--shadow-md); text-align: center; width: 100%; max-width: 400px;
         }
         .login-logo { max-width: 150px; margin-bottom: 1.5rem; }
-        .login-card h2 { margin-top: 0; color: var(--primary-dark); }
+        .login-card h2 { margin-top: 0; color: var(--primary-dark); font-size: 1.5rem; }
         .login-card .form-group { text-align: left; margin-bottom: 1rem; }
-        .login-card label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .login-card label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
         .login-card input {
             width: 100%; padding: 12px; border: 1px solid var(--border-color);
             border-radius: 6px; font-size: 1rem;
         }
         .btn-login {
             width: 100%; padding: 12px; background-color: var(--primary-color); color: white;
-            border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 500; cursor: pointer;
+            border: none; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;
             transition: background-color 0.2s;
         }
         .btn-login:hover { background-color: var(--primary-dark); }
@@ -81,7 +84,7 @@
         }
         .sidebar-brand { padding: 1.5rem; text-align: center; border-bottom: 1px solid var(--sidebar-link-hover); }
         .sidebar-brand img { max-width: 120px; }
-        .sidebar-menu { list-style: none; margin: 0; padding: 1rem 0; }
+        .sidebar-menu { list-style: none; margin: 0; padding: 1rem 0; flex-grow: 1; }
         .sidebar-menu li a {
             display: flex; align-items: center; gap: 12px; padding: 1rem 1.5rem;
             color: #d1d5db; text-decoration: none; transition: background-color 0.2s, color 0.2s;
@@ -89,125 +92,152 @@
         }
         .sidebar-menu li a:hover { background-color: var(--sidebar-link-hover); color: #fff; }
         .sidebar-menu li.active a { background-color: var(--primary-color); color: #fff; font-weight: 600; border-left-color: #60a5fa; }
-        .sidebar-footer { margin-top: auto; padding: 1.5rem; font-size: 0.8rem; text-align: center; color: #6b7280; }
+        .sidebar-footer { padding: 1.5rem; font-size: 0.8rem; text-align: center; color: #6b7280; }
         
         /* Main Content & Header */
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; }
+        .main-content { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .app-header {
             background-color: var(--card-background); padding: 1rem 1.5rem;
             display: flex; justify-content: flex-end; align-items: center;
             box-shadow: var(--shadow-md); flex-shrink: 0;
         }
-        .header-user-info { display: flex; align-items: center; gap: 1rem; }
+        .header-user-info { display: flex; align-items: center; gap: 1.5rem; font-size: 0.95rem; }
         .btn-logout {
             background-color: #f8f9fa; color: var(--text-secondary); border: 1px solid var(--border-color);
-            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500;
+            padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-logout:hover { background-color: #e2e8f0; }
 
-        .content-container { padding: 1.5rem; }
+        .content-container { padding: 2rem; }
         .page-header { margin-bottom: 1.5rem; }
-        .page-title { font-size: 2rem; font-weight: 700; color: var(--primary-dark); margin: 0; }
+        .page-title { font-size: 1.8rem; font-weight: 700; color: #001f3f; margin: 0; }
 
-        /* --- STILI SPECIFICI CONFIGURATORE --- */
+        /* --- LAYOUT CONFIGURATORE --- */
         .configurator-container {
             display: grid;
-            grid-template-columns: 420px 1fr;
+            grid-template-columns: 460px 1fr;
             gap: 1.5rem;
-            max-width: 1400px;
+            max-width: 1440px;
             margin: 0 auto;
         }
         .configurator-col {
             background-color: var(--card-background);
-            padding: 1.5rem;
+            padding: 2rem;
             border-radius: var(--radius);
             box-shadow: var(--shadow-md);
             border: 1px solid var(--border-color);
         }
-        .left-col { display: flex; flex-direction: column; max-height: calc(100vh - 200px); }
+        .left-col { display: flex; flex-direction: column; height: fit-content; }
+        
         .section-title {
-            font-size: 1.25rem; font-weight: 600; color: var(--primary-color);
+            font-size: 1.2rem; font-weight: 600; color: #001f3f;
             margin: 0 0 1.5rem 0; padding-bottom: 0.75rem;
             border-bottom: 2px solid var(--primary-color);
+            display: flex; align-items: center; gap: 8px;
         }
 
         /* Form */
-        .form-group { margin-bottom: 1rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9em; color: var(--text-primary); }
         .form-group input, .form-group select {
             width: 100%; padding: 10px 12px; border: 1px solid #ccc;
             border-radius: 6px; font-size: 1em; font-family: var(--font-family);
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s; background: white;
         }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px var(--primary-light); }
-        .form-group select[disabled] { background-color: #f1f1f1; cursor: not-allowed; }
+        .form-group select[disabled] { background-color: #f1f5f9; cursor: not-allowed; }
         .form-row { display: flex; gap: 1rem; }
         .form-row .form-group { flex: 1; }
-        .form-subtitle { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-dark); }
+        .form-subtitle { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: var(--primary-dark); font-size: 1rem; display: flex; align-items: center; gap: 6px; }
 
         /* Bottoni */
         .btn {
             width: 100%; color: white; padding: 12px 15px; border: none;
-            border-radius: 6px; cursor: pointer; font-size: 1em; font-weight: 500;
+            border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 500;
             display: inline-flex; align-items: center; justify-content: center;
-            gap: 8px; transition: background-color 0.2s;
+            gap: 8px; transition: background-color 0.2s, transform 0.1s;
         }
+        .btn:active { transform: scale(0.98); }
         .btn-add { background-color: #2563eb; }
         .btn-add:hover { background-color: #1d4ed8; }
         .btn-primary { background-color: var(--primary-color); font-size: 1.1em; padding: 14px; }
         .btn-primary:hover { background-color: var(--primary-dark); }
-        .configurator-action { margin-top: 2rem; }
+        .btn-secondary { background-color: white; border: 1px solid #cbd5e1; color: var(--text-secondary); }
+        .btn-secondary:hover { background-color: #f8f9fa; color: var(--text-primary); }
 
-        /* Lista Stanze */
-        #add-local-form { flex-shrink: 0; }
-        #added-locals-container { margin-top: 2rem; flex-grow: 1; min-height: 0; display: flex; flex-direction: column; }
-        #added-locals-list { overflow-y: auto; padding-right: 10px; }
-        .empty-list-msg { text-align: center; color: var(--text-secondary); font-style: italic; padding: 2rem 0; }
+        /* Lista Stanze e Anteprima */
+        #added-locals-container { margin-top: 2rem; }
+        #added-locals-list { max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .empty-list-msg { text-align: center; color: var(--text-secondary); font-style: italic; padding: 1.5rem 0; font-size: 0.9rem; }
+        
+        /* Box Stanza */
         .local-item {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            padding: 12px; border-radius: 6px; margin-bottom: 10px;
-            background-color: var(--primary-light); border: 1px solid #bde0fe;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px; border-radius: 8px; margin-bottom: 12px;
+            background-color: #fafbfc; border: 1px solid var(--border-color);
+            transition: all 0.2s;
         }
-        .local-item-info strong { display: block; font-size: 1.1em; color: var(--primary-dark); }
-        .local-item-info .radiator-details { font-size: 0.9em; color: var(--text-secondary); }
+        .local-item:hover { border-color: #bde0fe; background-color: var(--primary-light); }
+        .local-item-info { display: flex; align-items: center; gap: 12px; }
+        .local-icon { font-size: 1.4rem; color: var(--primary-color); width: 32px; text-align: center; }
+        .local-meta { display: flex; flex-direction: column; }
+        .local-meta strong { font-size: 1rem; color: #001f3f; }
+        .local-meta span { font-size: 0.85rem; color: var(--text-secondary); }
+        
         .remove-local-btn {
-            background: none; border: none; color: var(--danger-color); font-size: 1.2rem;
-            cursor: pointer; line-height: 1; padding: 2px 5px; flex-shrink: 0; margin-left: 10px;
+            background: none; border: none; color: #cbd5e1; font-size: 1.2rem;
+            cursor: pointer; padding: 5px; border-radius: 4px; transition: all 0.2s;
         }
-        .remove-local-btn:hover { color: #b91c1c; }
+        .remove-local-btn:hover { color: var(--danger-color); background-color: #fee2e2; }
 
-        /* Risultati */
-        #results-container { margin-top: 2rem; }
-        .results-main-title { text-align: center; color: var(--primary-dark); font-size: 1.8rem; }
-        .error-box { background-color: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; padding: 1rem; border-radius: 6px; margin: 1.5rem 0; }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #f1f5f9; font-weight: 600; font-size: 0.9em; }
-        .totals-summary { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border-color); text-align: right; }
-        .totals-summary h3 { margin: 0 0 1rem 0; }
-        .total-line { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 1.1rem; }
-        .total-line.price { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); }
-        .totals-summary small { color: var(--text-secondary); display: block; margin-top: 1rem; }
+        /* Risultati e Dettaglio */
+        #results-container { margin-top: 1.5rem; }
+        .results-main-title { font-size: 1.5rem; color: var(--primary-dark); text-align: center; margin-bottom: 1rem; }
+        .error-box { background-color: #fff1f2; color: #b91c1c; border: 1px solid #fecdd3; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+        
+        .table-responsive { overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; background-color: white; }
+        .custom-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .custom-table th { background-color: #f8fafc; color: #334155; font-weight: 600; padding: 14px 16px; border-bottom: 2px solid var(--border-color); font-size: 0.9em; }
+        .custom-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; color: #475569; font-size: 0.95rem; }
+        .custom-table tr:last-child td { border-bottom: none; }
+        .custom-table tr:hover { background-color: #f8fafc; }
+
+        /* Badge Valori */
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+        .badge-watt { background-color: #fef3c7; color: #b45309; }
+        .badge-elements { background-color: #dcfce7; color: #15803d; }
+
+        /* Pannello Totali */
+        .totals-summary {
+            background-color: #f8fafc; border: 1px solid var(--border-color); padding: 1.5rem;
+            border-radius: 8px; margin-top: 1.5rem; display: flex; justify-content: flex-end;
+        }
+        .totals-inner { width: 100%; max-width: 400px; }
+        .total-line { display: flex; justify-content: space-between; margin-bottom: 0.75rem; font-size: 1.05rem; }
+        .total-line.price { font-size: 1.6rem; font-weight: 700; color: var(--primary-color); border-top: 1px solid #cbd5e1; padding-top: 0.75rem; margin-top: 0.5rem; }
+        .totals-summary small { color: var(--text-secondary); display: block; margin-top: 1rem; text-align: right; }
+
+        /* Controlli Finali */
+        .results-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 1rem; }
+        .btn-print { width: auto; background-color: #0f172a; padding: 10px 20px; }
+        .btn-print:hover { background-color: #1e293b; }
 
         /* Responsive */
         @media (max-width: 1200px) {
             .configurator-container { grid-template-columns: 1fr; }
-            .left-col { max-height: none; }
-        }
-        @media (max-width: 768px) {
-            .sidebar { display: none; /* Nasconde la sidebar su schermi piccoli */ }
-            .app-header { justify-content: space-between; } /* Aggiungere un menu hamburger qui in futuro */
+            .left-col { height: auto; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Loader Iniziale -->
     <div id="initial-loader" class="loader-container">
         <div class="loader-spinner"></div>
-        <p style="margin-top:10px;">Caricamento...</p>
+        <p style="margin-top:10px; font-weight:500;">Caricamento configuratore...</p>
     </div>
 
+    <!-- Schermata LOGIN -->
     <section id="login-section" class="hidden login-centered">
         <div class="login-card">
             <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI" class="login-logo">
@@ -215,11 +245,11 @@
             <form id="login-form">
                 <div class="form-group">
                     <label for="email">Email:</label>
-                    <input type="email" id="email" required placeholder="La tua email">
+                    <input type="email" id="email" required placeholder="Inserisci la tua email">
                 </div>
                 <div class="form-group">
                     <label for="password">Password:</label>
-                    <input type="password" id="password" required placeholder="La tua password">
+                    <input type="password" id="password" required placeholder="Inserisci la tua password">
                 </div>
                 <button type="submit" class="btn-login">Accedi</button>
                 <p id="login-error" class="error-message hidden"></p>
@@ -227,16 +257,23 @@
         </div>
     </section>
 
+    <!-- Schermata Principale (Configuratore) -->
     <div id="app-content" class="dashboard-wrapper hidden">
         
+        <!-- SIDEBAR -->
         <nav class="sidebar">
             <div class="sidebar-brand">
                 <a href="#"><img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI"></a>
             </div>
-            <ul class="sidebar-menu" id="sidebar-menu"></ul> 
-            <div class="sidebar-footer">&copy; 2024 CAI Solutions</div>
+            <ul class="sidebar-menu" id="sidebar-menu">
+                <li class="active"><a href="#"><i class="fas fa-calculator"></i> Configuratore</a></li>
+                <li><a href="#"><i class="fas fa-file-invoice"></i> Preventivi</a></li>
+                <li><a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a></li>
+            </ul> 
+            <div class="sidebar-footer">&copy; 2026 CAI Solutions</div>
         </nav>
 
+        <!-- MAIN CONTENT -->
         <main class="main-content">
             <header class="app-header" id="app-header"></header>
 
@@ -246,57 +283,135 @@
                 </div>
 
                 <div class="configurator-container">
-                    <!-- Colonna Sinistra -->
+                    
+                    <!-- Colonna di Sinistra: Inserimento Stanze -->
                     <div class="configurator-col left-col">
                         <div class="form-section">
-                            <h3 class="section-title">1. Aggiungi e Configura Stanze</h3>
+                            <h3 class="section-title"><i class="fas fa-plus-circle"></i> 1. Aggiungi e Configura Stanza</h3>
+                            
                             <div id="add-local-form">
-                                <div class="form-group"><label for="local-type-select">Tipo di Stanza</label><select id="local-type-select"><option value="" disabled selected>Seleziona un tipo...</option><option value="Soggiorno">Soggiorno</option><option value="Cucina">Cucina</option><option value="Camera Matrimoniale">Camera Matrimoniale</option><option value="Camera Singola">Camera Singola</option><option value="Bagno">Bagno</option><option value="Studio">Studio</option><option value="Corridoio">Corridoio</option><option value="Ripostiglio">Ripostiglio</option><option value="ALTRO">Altro (Specifica nome)</option></select></div>
-                                <div class="form-group hidden" id="custom-local-name-container"><label for="custom-local-name-input">Nome Personalizzato</label><input type="text" id="custom-local-name-input" placeholder="Es. Taverna"></div>
-                                <div class="form-row">
-                                    <div class="form-group"><label for="local-sqm-input">Metri Quadri (mq)</label><input type="number" id="local-sqm-input" placeholder="25" min="1"></div>
-                                    <div class="form-group"><label for="local-height-input">Altezza (m)</label><input type="number" id="local-height-input" value="2.70" step="0.1" min="1.5"></div>
+                                <div class="form-group">
+                                    <label for="local-type-select">Destinazione Stanza</label>
+                                    <select id="local-type-select">
+                                        <option value="" disabled selected>Seleziona una stanza...</option>
+                                        <option value="Soggiorno" data-icon="fas fa-couch">Soggiorno</option>
+                                        <option value="Cucina" data-icon="fas fa-utensils">Cucina</option>
+                                        <option value="Camera Matrimoniale" data-icon="fas fa-bed">Camera Matrimoniale</option>
+                                        <option value="Camera Singola" data-icon="fas fa-bed">Camera Singola</option>
+                                        <option value="Bagno" data-icon="fas fa-bath">Bagno</option>
+                                        <option value="Studio" data-icon="fas fa-laptop-house">Studio</option>
+                                        <option value="Corridoio" data-icon="fas fa-door-open">Corridoio</option>
+                                        <option value="Ripostiglio" data-icon="fas fa-box">Ripostiglio</option>
+                                        <option value="ALTRO" data-icon="fas fa-home">Altro...</option>
+                                    </select>
                                 </div>
-                                <h4 class="form-subtitle">Radiatore per questa stanza</h4>
-                                <div class="form-row">
-                                    <div class="form-group"><label for="radiator-brand">Marca</label><select id="radiator-brand"><option value="IRSAP">IRSAP</option></select></div>
-                                    <div class="form-group"><label for="radiator-model">Modello</label><select id="radiator-model" disabled><option>...</option></select></div>
+                                
+                                <div class="form-group hidden" id="custom-local-name-container">
+                                     <label for="custom-local-name-input">Nome Personalizzato</label>
+                                     <input type="text" id="custom-local-name-input" placeholder="Es. Taverna o Mansarda">
                                 </div>
-                                <div class="form-group"><label for="radiator-height">Altezza Radiatore</label><select id="radiator-height" disabled><option>Seleziona modello...</option></select></div>
-                                <button id="add-local-btn" class="btn btn-add"><i class="fas fa-plus"></i> Aggiungi Stanza alla Lista</button>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="local-sqm-input">Superficie (mq)</label>
+                                        <input type="number" id="local-sqm-input" placeholder="Es. 20" min="1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="local-height-input">Altezza (m)</label>
+                                        <input type="number" id="local-height-input" value="2.70" step="0.05" min="1.5">
+                                    </div>
+                                </div>
+
+                                <h4 class="form-subtitle"><i class="fas fa-fire"></i> Modello Radiatore</h4>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="radiator-brand">Marca</label>
+                                        <select id="radiator-brand"><option value="IRSAP">IRSAP</option></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="radiator-model">Modello</label>
+                                        <select id="radiator-model" disabled><option>...</option></select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="radiator-height">Altezza Radiatore</label>
+                                    <select id="radiator-height" disabled><option>Seleziona modello...</option></select>
+                                </div>
+
+                                <button id="add-local-btn" class="btn btn-add"><i class="fas fa-plus"></i> Aggiungi alla Lista</button>
                             </div>
                         </div>
+
+                        <!-- Lista Stanze -->
                         <div id="added-locals-container">
-                            <h3 class="section-title">Elenco Stanze Progetto</h3>
-                            <div id="added-locals-list"><p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p></div>
+                            <h3 class="section-title"><i class="fas fa-list-ul"></i> Elenco Stanze Progetto</h3>
+                            <div id="added-locals-list">
+                                <p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Colonna Destra -->
+                    <!-- Colonna Destra: Parametri Globali e Tabella Risultati -->
                     <div class="configurator-col right-col">
                         <div class="form-section">
-                            <h3 class="section-title">2. Info Abitazione</h3>
-                            <div class="form-group"><label for="habitation-type">Tipologia Edificio</label><select id="habitation-type"><option value="RESIDENZIALE_MODERNO">Residenziale Moderno (Buon Isolamento)</option><option value="RESIDENZIALE_TRADIZIONALE" selected>Residenziale Tradizionale (Isolamento Medio)</option><option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento Scarso)</option><option value="ALTA_EFFICIENZA">Alta Efficienza Energetica</option></select></div>
+                            <h3 class="section-title"><i class="fas fa-building"></i> 2. Info Abitazione</h3>
+                            <div class="form-group">
+                                <label for="habitation-type">Tipologia Edificio / Isolamento</label>
+                                <select id="habitation-type">
+                                    <option value="RESIDENZIALE_MODERNO">Residenziale Moderno (Buon Isolamento)</option>
+                                    <option value="RESIDENZIALE_TRADIZIONALE" selected>Residenziale Tradizionale (Isolamento Medio)</option>
+                                    <option value="VECCHIO_EDIFICIO">Vecchia Costruzione (Isolamento Scarso)</option>
+                                    <option value="ALTA_EFFICIENZA">Alta Efficienza Energetica (Classe A)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="configurator-action"><button id="calculate-btn" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcola Preventivo Finale</button></div>
+
+                        <div class="configurator-action">
+                            <button id="calculate-btn" class="btn btn-primary"><i class="fas fa-calculator"></i> Calcola Preventivo Finale</button>
+                        </div>
+
+                        <!-- Box dei Risultati -->
                         <div id="results-container" class="hidden">
-                            <h2 class="results-main-title">Risultato Configurazione</h2>
-                            <div id="error-message" class="error-box hidden"></div>
-                            <h4>Dettaglio Radiatori per Stanza</h4>
-                            <div class="table-container">
-                                <table>
-                                    <thead><tr><th>Stanza</th><th>Radiatore Scelto</th><th>Fabbisogno (W)</th><th>N. Elementi</th><th>Prezzo Stanza</th></tr></thead>
+                            <h2 class="results-main-title">Dettaglio Fabbisogno e Preventivo</h2>
+                            <div id="error-message" class="error-box hidden"><i class="fas fa-exclamation-triangle"></i><span></span></div>
+
+                            <div class="table-responsive">
+                                <table class="custom-table" id="summary-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Stanza</th>
+                                            <th>Radiatore</th>
+                                            <th>Fabbisogno (W)</th>
+                                            <th>N. Elementi</th>
+                                            <th>Prezzo Scontato</th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="results-tbody"></tbody>
                                 </table>
                             </div>
+
                             <div class="totals-summary">
-                                <h3>Preventivo Totale Impianto</h3>
-                                <div class="total-line"><span>Fabbisogno Termico Complessivo:</span><strong id="total-demand">0 W</strong></div>
-                                <div class="total-line price"><span>Prezzo Totale Stimato:</span><strong id="total-price">€ 0,00</strong></div>
-                                <small>I prezzi sono calcolati applicando uno sconto del 40% sul listino.</small>
+                                <div class="totals-inner">
+                                    <div class="total-line">
+                                        <span>Fabbisogno Totale Impianto:</span>
+                                        <strong id="total-demand">0 W</strong>
+                                    </div>
+                                    <div class="total-line price">
+                                        <span>Prezzo Totale Stimato:</span>
+                                        <strong id="total-price">€ 0,00</strong>
+                                    </div>
+                                    <small>I prezzi sono comprensivi di IVA e calcolati applicando uno sconto del 40% sul listino ufficiale.</small>
+                                </div>
+                            </div>
+
+                            <div class="results-actions">
+                                <button id="print-btn" class="btn btn-logout btn-print"><i class="fas fa-print"></i> Stampa Progetto</button>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </main>
@@ -311,17 +426,18 @@
             
             // --- CONFIGURAZIONE FIREBASE ---
             const firebaseConfig = {
-                apiKey: "AIzaSyC_gm-MK5dk2jc_MmmwO7TWBm7oW_D5t1Y",
+                apiKey: "AIzaSyC6tvhoIlvIyh8L_jwSVWs_TkXNLKrt540",
                 authDomain: "consorzio-artigiani-idraulici.firebaseapp.com",
                 projectId: "consorzio-artigiani-idraulici",
                 storageBucket: "consorzio-artigiani-idraulici.appspot.com",
                 messagingSenderId: "136848104008",
-                appId: "1:136848104008:web:71e2195f1712a832e01b3a"
+                appId: "1:136848104008:web:2724f60607dbe91d09d67d"
             };
 
             if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
             const auth = firebase.auth();
 
+            // Elementi UI Globale
             const ui = {
                 loader: document.getElementById('initial-loader'),
                 loginSection: document.getElementById('login-section'),
@@ -330,29 +446,19 @@
                 loginError: document.getElementById('login-error')
             };
 
-            // --- LAYOUT E AUTENTICAZIONE ---
-
+            // --- FUNZIONALITÀ AUTENTICAZIONE E LAYOUT ---
             function initLayout(user) {
-                // Header
                 const appHeader = document.getElementById('app-header');
                 appHeader.innerHTML = `
                     <div class="header-user-info">
-                        <span>Benvenuto, <strong>${user.email}</strong></span>
+                        <span>Operatore: <strong>${user.email}</strong></span>
                         <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
                     </div>
                 `;
-                
-                // Sidebar
-                const sidebarMenu = document.getElementById('sidebar-menu');
-                sidebarMenu.innerHTML = `
-                    <li class="active"><a href="#"><i class="fas fa-calculator"></i> Configuratore</a></li>
-                    <li><a href="#"><i class="fas fa-file-invoice"></i> Preventivi</a></li>
-                `;
-
                 document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
             }
 
-            function handleAuthStateChange(user) {
+            auth.onAuthStateChanged(user => {
                 ui.loader.classList.add('hidden');
                 if (user) {
                     ui.loginSection.classList.add('hidden');
@@ -363,33 +469,60 @@
                     ui.loginSection.classList.remove('hidden');
                     ui.appContent.classList.add('hidden');
                 }
-            }
+            });
 
-            function handleLogin(e) {
+            ui.loginForm.addEventListener('submit', e => {
                 e.preventDefault();
                 const email = document.getElementById('email').value;
                 const pass = document.getElementById('password').value;
                 ui.loginError.classList.add('hidden');
+
                 auth.signInWithEmailAndPassword(email, pass).catch(err => {
-                    ui.loginError.textContent = "Errore: Credenziali non valide.";
+                    ui.loginError.textContent = "Accesso non consentito: Credenziali non valide.";
                     ui.loginError.classList.remove('hidden');
                 });
-            }
-            
-            // --- LOGICA DEL CONFIGURATORE ---
+            });
+
+            // --- LOGICA DEL CONFIGURATORE (Modello IRSAP TESI) ---
             function initConfigurator() {
                 const radiatorCatalog = {
                     "IRSAP": {
-                        "TESI 2": [{ id: 5, altezza: 565, watt: 40.9, prezzo: 15.9 }, { id: 18, altezza: 1000, watt: 69.2, prezzo: 22.1 },{ id: 19, altezza: 1200, watt: 82.5, prezzo: 26.1 }, { id: 20, altezza: 1500, watt: 103.0, prezzo: 34.8 },{ id: 22, altezza: 1800, watt: 124.3, prezzo: 40.4 }, { id: 24, altezza: 2000, watt: 139.0, prezzo: 43.2 },{ id: 26, altezza: 2200, watt: 154.2, prezzo: 52.6 }, { id: 27, altezza: 2500, watt: 177.8, prezzo: 58.6 }],
-                        "TESI 3": [{ id: 32, altezza: 565, watt: 57.4, prezzo: 17.0 }, { id: 45, altezza: 1000, watt: 96.8, prezzo: 26.7 },{ id: 46, altezza: 1200, watt: 114.8, prezzo: 32.9 }, { id: 47, altezza: 1500, watt: 141.7, prezzo: 44.2 },{ id: 49, altezza: 1800, watt: 168.9, prezzo: 52.6 }, { id: 51, altezza: 2000, watt: 187.2, prezzo: 58.5 },{ id: 53, altezza: 2200, watt: 205.7, prezzo: 68.7 }, { id: 54, altezza: 2500, watt: 233.7, prezzo: 74.9 }],
-                        "TESI 4": [{ id: 59, altezza: 565, watt: 74.8, prezzo: 19.6 }, { id: 72, altezza: 1000, watt: 125.9, prezzo: 31.9 },{ id: 73, altezza: 1200, watt: 148.8, prezzo: 40.3 }, { id: 74, altezza: 1500, watt: 182.6, prezzo: 54.4 },{ id: 76, altezza: 1800, watt: 216.0, prezzo: 65.3 }, { id: 78, altezza: 2000, watt: 238.1, prezzo: 71.6 },{ id: 80, altezza: 2200, watt: 260.0, prezzo: 83.7 }, { id: 81, altezza: 2500, watt: 292.8, prezzo: 91.0 }],
-                        "TESI 5": [{ id: 86, altezza: 565, watt: 90.8, prezzo: 31.0 }, { id: 95, altezza: 1000, watt: 152.4, prezzo: 42.9 },{ id: 96, altezza: 1200, watt: 180.0, prezzo: 51.5 }, { id: 97, altezza: 1500, watt: 220.9, prezzo: 69.2 },{ id: 98, altezza: 1800, watt: 261.3, prezzo: 83.4 }, { id: 99, altezza: 2000, watt: 288.0, prezzo: 92.4 },{ id: 100, altezza: 2200, watt: 317.7, prezzo: 102.8 }, { id: 101, altezza: 2500, watt: 354.5, prezzo: 112.5 }],
-                        "TESI 6": [{ id: 106, altezza: 565, watt: 106.9, prezzo: 36.3 }, { id: 115, altezza: 1000, watt: 178.9, prezzo: 53.2 },{ id: 116, altezza: 1200, watt: 211.2, prezzo: 64.9 }, { id: 117, altezza: 1500, watt: 259.1, prezzo: 84.9 },{ id: 118, altezza: 1800, watt: 306.5, prezzo: 101.9 }, { id: 119, altezza: 2000, watt: 337.9, prezzo: 113.0 },{ id: 120, altezza: 2200, watt: 369.3, prezzo: 122.9 }, { id: 121, altezza: 2500, watt: 416.2, prezzo: 137.0 }]
+                        "TESI 2": [
+                            { id: 5, altezza: 565, watt: 40.9, prezzo: 15.9 }, { id: 18, altezza: 1000, watt: 69.2, prezzo: 22.1 },
+                            { id: 19, altezza: 1200, watt: 82.5, prezzo: 26.1 }, { id: 20, altezza: 1500, watt: 103.0, prezzo: 34.8 },
+                            { id: 22, altezza: 1800, watt: 124.3, prezzo: 40.4 }, { id: 24, altezza: 2000, watt: 139.0, prezzo: 43.2 },
+                            { id: 26, altezza: 2200, watt: 154.2, prezzo: 52.6 }, { id: 27, altezza: 2500, watt: 177.8, prezzo: 58.6 }
+                        ],
+                        "TESI 3": [
+                            { id: 32, altezza: 565, watt: 57.4, prezzo: 17.0 }, { id: 45, altezza: 1000, watt: 96.8, prezzo: 26.7 },
+                            { id: 46, altezza: 1200, watt: 114.8, prezzo: 32.9 }, { id: 47, altezza: 1500, watt: 141.7, prezzo: 44.2 },
+                            { id: 49, altezza: 1800, watt: 168.9, prezzo: 52.6 }, { id: 51, altezza: 2000, watt: 187.2, prezzo: 58.5 },
+                            { id: 53, altezza: 2200, watt: 205.7, prezzo: 68.7 }, { id: 54, altezza: 2500, watt: 233.7, prezzo: 74.9 }
+                        ],
+                        "TESI 4": [
+                            { id: 59, altezza: 565, watt: 74.8, prezzo: 19.6 }, { id: 72, altezza: 1000, watt: 125.9, prezzo: 31.9 },
+                            { id: 73, altezza: 1200, watt: 148.8, prezzo: 40.3 }, { id: 74, altezza: 1500, watt: 182.6, prezzo: 54.4 },
+                            { id: 76, altezza: 1800, watt: 216.0, prezzo: 65.3 }, { id: 78, altezza: 2000, watt: 238.1, prezzo: 71.6 },
+                            { id: 80, altezza: 2200, watt: 260.0, prezzo: 83.7 }, { id: 81, altezza: 2500, watt: 292.8, prezzo: 91.0 }
+                        ],
+                        "TESI 5": [
+                            { id: 86, altezza: 565, watt: 90.8, prezzo: 31.0 }, { id: 95, altezza: 1000, watt: 152.4, prezzo: 42.9 },
+                            { id: 96, altezza: 1200, watt: 180.0, prezzo: 51.5 }, { id: 97, altezza: 1500, watt: 220.9, prezzo: 69.2 },
+                            { id: 98, altezza: 1800, watt: 261.3, prezzo: 83.4 }, { id: 99, altezza: 2000, watt: 288.0, prezzo: 92.4 },
+                            { id: 100, altezza: 2200, watt: 317.7, prezzo: 102.8 }, { id: 101, altezza: 2500, watt: 354.5, prezzo: 112.5 }
+                        ],
+                        "TESI 6": [
+                            { id: 106, altezza: 565, watt: 106.9, prezzo: 36.3 }, { id: 115, altezza: 1000, watt: 178.9, prezzo: 53.2 },
+                            { id: 116, altezza: 1200, watt: 211.2, prezzo: 64.9 }, { id: 117, altezza: 1500, watt: 259.1, prezzo: 84.9 },
+                            { id: 118, altezza: 1800, watt: 306.5, prezzo: 101.9 }, { id: 119, altezza: 2000, watt: 337.9, prezzo: 113.0 },
+                            { id: 120, altezza: 2200, watt: 369.3, prezzo: 122.9 }, { id: 121, altezza: 2500, watt: 416.2, prezzo: 137.0 }
+                        ]
                     }
                 };
+
                 let addedLocals = [];
-                const heatLossCoefficients = { RESIDENZIALE_MODERNO: 30, RESIDENZIALE_TRADIZIONALE: 40, VECCHIO_EDIFICIO: 55, ALTA_EFFICIENZA: 25, };
-                const SCONTO_VENDITA = -0.40;
+                const heatLossCoefficients = { RESIDENZIALE_MODERNO: 30, RESIDENZIALE_TRADIZIONALE: 40, VECCHIO_EDIFICIO: 55, ALTA_EFFICIENZA: 25 };
+                const SCONTO_VENDITA = -0.40; // Sconto del 40%
 
                 const localTypeSelect = document.getElementById('local-type-select');
                 const customNameContainer = document.getElementById('custom-local-name-container');
@@ -420,80 +553,193 @@
                     if (model && heights.length > 0) {
                         heights.forEach(v => heightSelect.innerHTML += `<option value="${v.id}">${v.altezza} mm</option>`);
                         heightSelect.disabled = false;
-                    } else { heightSelect.disabled = true; }
+                    } else {
+                        heightSelect.disabled = true;
+                    }
                 }
 
                 function renderAddedLocals() {
-                    addedLocalsList.innerHTML = addedLocals.length === 0 ? '<p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>' : '';
+                    if (addedLocals.length === 0) {
+                        addedLocalsList.innerHTML = '<p class="empty-list-msg">Nessuna stanza ancora aggiunta.</p>';
+                        return;
+                    }
+                    addedLocalsList.innerHTML = '';
                     addedLocals.forEach(local => {
                         const div = document.createElement('div');
                         div.className = 'local-item';
-                        div.innerHTML = `<div class="local-item-info"><strong>${local.name} (${local.sqm} mq)</strong><span class="radiator-details">${local.radiatorInfo}</span></div><button class="remove-local-btn" data-id="${local.id}" title="Rimuovi">&times;</button>`;
+                        div.innerHTML = `
+                            <div class="local-item-info">
+                                <span class="local-icon"><i class="${local.icon}"></i></span>
+                                <div class="local-meta">
+                                    <strong>${local.name}</strong>
+                                    <span>${local.sqm} mq × ${local.roomHeight}m</span>
+                                    <span>${local.model} - H: ${local.altezza} mm</span>
+                                </div>
+                            </div>
+                            <button class="remove-local-btn" data-id="${local.id}" title="Rimuovi stanza"><i class="fas fa-trash"></i></button>
+                        `;
                         addedLocalsList.appendChild(div);
                     });
                 }
 
                 function handleAddLocal() {
+                    const selectedOpt = localTypeSelect.options[localTypeSelect.selectedIndex];
                     let name = localTypeSelect.value;
-                    if (name === 'ALTRO') { name = customNameInput.value.trim(); }
+                    const icon = selectedOpt.getAttribute('data-icon') || 'fas fa-home';
+
+                    if (name === 'ALTRO') {
+                        name = customNameInput.value.trim();
+                    }
+
                     const sqm = parseFloat(localSqmInput.value);
                     const roomHeight = parseFloat(localHeightInput.value);
                     const radiatorId = parseInt(heightSelect.value, 10);
                     const model = modelSelect.value;
 
-                    if (!name || !sqm || !roomHeight) { return alert('Compila tutti i dati della stanza.'); }
-                    if (!model || !radiatorId) { return alert('Seleziona un modello e un\'altezza per il radiatore.'); }
+                    if (!name || isNaN(sqm) || isNaN(roomHeight)) { 
+                        return alert('Compila tutti i dati relativi alle dimensioni della stanza.'); 
+                    }
+                    if (!model || !radiatorId) { 
+                        return alert('Seleziona il modello del radiatore.'); 
+                    }
 
                     const radiator = radiatorCatalog.IRSAP[model].find(r => r.id === radiatorId);
-                    addedLocals.push({ id: Date.now(), name, sqm, roomHeight, radiatorId, model, radiatorInfo: `Radiatore: IRSAP ${model} (H: ${radiator.altezza}mm)` });
+                    
+                    addedLocals.push({
+                        id: Date.now(), name, sqm, roomHeight, radiatorId, model, icon, altezza: radiator.altezza,
+                        radiatorInfo: `IRSAP ${model} (H: ${radiator.altezza}mm)`
+                    });
+                    
                     renderAddedLocals();
-                    localTypeSelect.value = ''; customNameInput.value = ''; customNameContainer.classList.add('hidden'); localSqmInput.value = ''; modelSelect.value = ''; heightSelect.innerHTML = '<option value="">...</option>'; heightSelect.disabled = true;
+                    
+                    // Reset
+                    localTypeSelect.value = '';
+                    customNameInput.value = '';
+                    customNameContainer.classList.add('hidden');
+                    localSqmInput.value = '';
+                    modelSelect.value = '';
+                    heightSelect.innerHTML = '<option value="">...</option>';
+                    heightSelect.disabled = true;
                 }
 
                 function handleCalculate() {
                     errorDiv.classList.add('hidden');
+                    resultsContainer.classList.add('hidden');
+
                     if (addedLocals.length === 0) {
-                        errorDiv.textContent = "Aggiungi almeno una stanza prima di calcolare il preventivo.";
+                        errorDiv.querySelector('span').textContent = "Aggiungi almeno una stanza prima di calcolare il preventivo.";
                         errorDiv.classList.remove('hidden');
-                        resultsContainer.classList.add('hidden');
+                        resultsContainer.classList.remove('hidden');
                         return;
                     }
-                    const coefficient = heatLossCoefficients[document.getElementById('habitation-type').value];
-                    let totalDemand = 0, totalPrice = 0;
+
+                    const habitationType = document.getElementById('habitation-type').value;
+                    const coefficient = heatLossCoefficients[habitationType];
+                    
+                    let totalDemand = 0;
+                    let totalPrice = 0;
                     const resultsTbody = document.getElementById('results-tbody');
                     resultsTbody.innerHTML = '';
+
                     addedLocals.forEach(local => {
                         const radiator = radiatorCatalog.IRSAP[local.model].find(r => r.id === local.radiatorId);
-                        const demand = local.sqm * local.roomHeight * coefficient;
+                        const volume = local.sqm * local.roomHeight;
+                        const demand = volume * coefficient;
                         const neededElements = Math.ceil(demand / radiator.watt);
                         const roomPrice = neededElements * radiator.prezzo * (1 + SCONTO_VENDITA);
-                        totalDemand += demand; totalPrice += roomPrice;
-                        resultsTbody.innerHTML += `<tr><td>${local.name}</td><td>${local.radiatorInfo.replace('Radiatore: ', '')}</td><td>${demand.toFixed(0)} W</td><td>${neededElements}</td><td>€ ${roomPrice.toFixed(2)}</td></tr>`;
+
+                        totalDemand += demand;
+                        totalPrice += roomPrice;
+
+                        resultsTbody.innerHTML += `
+                            <tr>
+                                <td><strong><i class="${local.icon}"></i> ${local.name}</strong></td>
+                                <td>${local.radiatorInfo}</td>
+                                <td><span class="badge badge-watt">${demand.toFixed(0)} W</span></td>
+                                <td><span class="badge badge-elements">${neededElements}</span></td>
+                                <td><strong>€ ${roomPrice.toFixed(2)}</strong></td>
+                            </tr>
+                        `;
                     });
+
                     document.getElementById('total-demand').textContent = `${totalDemand.toFixed(0)} W`;
                     document.getElementById('total-price').textContent = `€ ${totalPrice.toFixed(2)}`;
                     resultsContainer.classList.remove('hidden');
+                    
+                    // Smooth scroll ai risultati
+                    resultsContainer.scrollIntoView({ behavior: 'smooth' });
                 }
 
-                localTypeSelect.addEventListener('change', () => { customNameContainer.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO'); if (localTypeSelect.value === 'ALTRO') customNameInput.focus(); });
+                localTypeSelect.addEventListener('change', () => {
+                    customNameContainer.classList.toggle('hidden', localTypeSelect.value !== 'ALTRO');
+                    if (localTypeSelect.value === 'ALTRO') customNameInput.focus();
+                });
+
                 modelSelect.addEventListener('change', populateHeights);
                 addLocalBtn.addEventListener('click', handleAddLocal);
                 calculateBtn.addEventListener('click', handleCalculate);
+                
                 addedLocalsList.addEventListener('click', (e) => {
-                    if (e.target.closest('.remove-local-btn')) {
-                        const idToRemove = parseInt(e.target.closest('.remove-local-btn').dataset.id, 10);
+                    const btn = e.target.closest('.remove-local-btn');
+                    if (btn) {
+                        const idToRemove = parseInt(btn.dataset.id, 10);
                         addedLocals = addedLocals.filter(local => local.id !== idToRemove);
                         renderAddedLocals();
                     }
                 });
 
+                // Funzione Stampa
+                document.getElementById('print-btn').addEventListener('click', () => {
+                    const printWindow = window.open('', '', 'height=700,width=900');
+                    const resultsHtml = document.getElementById('summary-table').outerHTML;
+                    const totalW = document.getElementById('total-demand').textContent;
+                    const totalP = document.getElementById('total-price').textContent;
+
+                    printWindow.document.write(`
+                        <html>
+                        <head>
+                            <title>CAI Solutions - Progetto Radiatori</title>
+                            <style>
+                                body { font-family: sans-serif; padding: 30px; line-height: 1.5; color: #333; }
+                                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #005A9C; padding-bottom: 15px; margin-bottom: 25px; }
+                                .header img { height: 50px; }
+                                h1 { color: #001f3f; margin: 0; font-size: 1.6rem; }
+                                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                                th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+                                th { background-color: #f1f5f9; color: #001f3f; }
+                                .totals { margin-top: 30px; text-align: right; font-size: 1.2rem; }
+                                .totals strong { color: #005A9C; font-size: 1.6rem; }
+                                .badge { border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-weight: bold; }
+                                @media print { .no-print { display: none; } }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="header">
+                                <div>
+                                    <h1>Progetto Configurazione Radiatori</h1>
+                                    <small>Consorzio Artigiani Idraulici</small>
+                                </div>
+                                <img src="https://raw.githubusercontent.com/SevenUp88/sito-cai-ufficio-tecnico/main/LOGO%20CAI_.png" alt="Logo CAI">
+                            </div>
+                            ${resultsHtml}
+                            <div class="totals">
+                                <div>Fabbisogno Totale: <strong>${totalW}</strong></div>
+                                <div>Prezzo Totale Scontato: <strong>${totalP}</strong></div>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                    setTimeout(() => {
+                        printWindow.focus();
+                        printWindow.print();
+                        printWindow.close();
+                    }, 300);
+                });
+
                 populateModels();
                 renderAddedLocals();
             }
-
-            // --- AVVIO APPLICAZIONE ---
-            ui.loginForm.addEventListener('submit', handleLogin);
-            auth.onAuthStateChanged(handleAuthStateChange);
         });
     </script>
 </body>
